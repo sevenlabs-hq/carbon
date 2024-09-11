@@ -1,0 +1,14 @@
+[package]
+name = "carbon-core"
+version = "0.1.0"
+edition = "2018"
+
+[features]
+derive = ["carbon-macros"]
+
+[dependencies.carbon-macros]
+optional = true
+path = "../macros"
+
+[lib]
+crate-type = ["rlib"]

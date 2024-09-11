@@ -1,0 +1,6 @@
+[workspace]
+members = ["crates/*", "datasources/*", "decoders/*", "examples/*"]
+resolver = "2"
+
+[workspace.dependencies]
+carbon-core = { path = "crates/core", features = ["derive"] }
