@@ -3,5 +3,10 @@ name = "carbon-macros"
 version = "0.1.0"
 edition = "2018"
 
+[dependencies]
+carbon-core = { path = "../core" }
+paste = "1.0.15"
+solana-sdk = "2.0.9"
+
 [lib]
 crate-type = ["rlib"]

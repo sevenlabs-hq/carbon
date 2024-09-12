@@ -3,12 +3,14 @@ name = "carbon-core"
 version = "0.1.0"
 edition = "2018"
 
-[features]
-derive = ["carbon-macros"]
-
-[dependencies.carbon-macros]
-optional = true
-path = "../macros"
+[dependencies]
+async-trait = "0.1.82"
+futures = "0.3.30"
+log = "0.4.22"
+solana-sdk = "2.0.9"
+solana-transaction-status = "2.0.9"
+thiserror = "1.0.63"
+tokio = "1.40.0"
 
 [lib]
 crate-type = ["rlib"]
