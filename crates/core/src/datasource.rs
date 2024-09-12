@@ -17,12 +17,16 @@ pub trait Datasource {
 pub enum Update {
     Account(AccountUpdate),
     Transaction(TransactionUpdate),
+    Block(BlockUpdate),
+    Slot(SlotUpdate),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum UpdateType {
     AccountUpdate,
     Transaction,
+    Block,
+    Slot,
 }
 
 #[derive(Debug, Clone)]
@@ -39,4 +43,20 @@ pub struct TransactionUpdate {
     pub meta: solana_transaction_status::TransactionStatusMeta,
     pub is_vote: bool,
     pub slot: u64,
+}
+
+#[derive(Debug, Clone)]
+pub struct SlotUpdate {
+    pub slot: u64,
+    pub parent: Option<u64>,
+    pub status: solana_sdk::commitment_config::CommitmentLevel,
+}
+
+#[derive(Debug, Clone)]
+pub struct BlockUpdate {
+    pub slot: u64,
+    pub block_hash: String,
+    pub block_timestamp: i64,
+    pub previous_block_hash: String,
+    pub transaction_count: u64,
 }

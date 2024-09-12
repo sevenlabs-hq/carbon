@@ -1,11 +1,5 @@
-use carbon_core::account::{AccountDecoder, AccountMetadata, DecodedAccount};
-use paste::paste;
-use solana_sdk::account::ReadableAccount;
-use solana_sdk::program_pack::Pack;
-use spl_token::instruction::TokenInstruction;
-use std::time::Duration;
-
 use async_trait::async_trait;
+use carbon_core::account::{AccountDecoder, AccountMetadata, DecodedAccount};
 use carbon_core::instruction::InstructionMetadata;
 use carbon_core::processor::Processor;
 use carbon_core::transaction::ParsedTransaction;
@@ -20,6 +14,14 @@ use carbon_macros::collection::*;
 use carbon_macros::define_schema;
 use carbon_macros::instruction_decoder_collection;
 use carbon_macros::transaction_schema;
+use mpl_token_metadata::ID;
+use paste::paste;
+use solana_sdk::account::ReadableAccount;
+use solana_sdk::program_pack::Pack;
+use solana_sdk::system_instruction::SystemInstruction;
+use spl_token::instruction::TokenInstruction;
+use std::sync::Arc;
+use std::time::Duration;
 
 pub struct MockDatasource;
 
@@ -142,17 +144,26 @@ impl Processor for TokenProgramAccountProcessor {
     }
 }
 
+// TEMP UNEFFICIENT SOLUTION
 pub struct TokenProgramInstructionDecoder;
-impl InstructionDecoder for TokenProgramInstructionDecoder {
-    type InstructionType = TokenInstruction;
+impl InstructionDecoder<'_> for TokenProgramInstructionDecoder {
+    type InstructionType = TokenInstruction<'static>;
 
     fn decode(
         &self,
         instruction: solana_sdk::instruction::Instruction,
     ) -> Option<DecodedInstruction<Self::InstructionType>> {
+        let data = instruction.data.clone();
+
+        // using Box::leak to make the data live for 'static
+        // CHECK: I'm afraid this will cause crashes and increase memory usage with time since "leaked"
+        // memory remains allocated indefinitely, so gotta find a better solution later
+        let boxed_data = Box::leak(Box::new(data));
+
+        let unpacked_instruction = TokenInstruction::unpack(boxed_data).ok()?;
         Some(DecodedInstruction {
             program_id: instruction.program_id,
-            data: TokenInstruction::unpack(&instruction.data).ok()?,
+            data: unpacked_instruction,
         })
     }
 }
@@ -160,7 +171,10 @@ impl InstructionDecoder for TokenProgramInstructionDecoder {
 pub struct TokenProgramInstructionProcessor;
 #[async_trait]
 impl Processor for TokenProgramInstructionProcessor {
-    type InputType = (InstructionMetadata, DecodedInstruction<TokenInstruction>);
+    type InputType = (
+        InstructionMetadata,
+        DecodedInstruction<TokenInstruction<'static>>,
+    );
 
     async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
         log::info!("Instruction: {:?}", data.1.data);
@@ -172,7 +186,7 @@ impl Processor for TokenProgramInstructionProcessor {
 
 instruction_decoder_collection!(
     AllInstructions, AllInstructionTypes,
-    Token => TokenProgramInstructionDecoder => TokenInstruction,
+    Token => TokenProgramInstructionDecoder => TokenInstruction<'static>
 );
 
 pub struct TokenProgramTransactionProcessor;

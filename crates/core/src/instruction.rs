@@ -15,7 +15,7 @@ pub struct DecodedInstruction<T> {
     pub data: T,
 }
 
-pub trait InstructionDecoder {
+pub trait InstructionDecoder<'a> {
     type InstructionType;
 
     fn decode(
@@ -25,13 +25,18 @@ pub trait InstructionDecoder {
 }
 
 pub struct InstructionPipe<T: Send> {
-    pub decoder: Box<dyn InstructionDecoder<InstructionType = T> + Send + Sync>,
-    pub processor:
-        Box<dyn Processor<InputType = (InstructionMetadata, DecodedInstruction<T>)> + Send + Sync>,
+    pub decoder:
+        Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
+    pub processor: Box<
+        dyn Processor<InputType = (InstructionMetadata, DecodedInstruction<T>)>
+            + Send
+            + Sync
+            + 'static,
+    >,
 }
 
 #[async_trait]
-pub trait InstructionPipes {
+pub trait InstructionPipes<'a>: Send + Sync {
     async fn run(
         &self,
         instruction_with_metadata: (InstructionMetadata, solana_sdk::instruction::Instruction),
@@ -39,7 +44,7 @@ pub trait InstructionPipes {
 }
 
 #[async_trait]
-impl<T: Send> InstructionPipes for InstructionPipe<T> {
+impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
     async fn run(
         &self,
         instruction_with_metadata: (InstructionMetadata, solana_sdk::instruction::Instruction),

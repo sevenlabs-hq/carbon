@@ -18,7 +18,7 @@ macro_rules! instruction_decoder_collection {
         impl InstructionDecoderCollection for $name {
             type InstructionType = $name_type;
 
-            fn parse_instruction(instruction: solana_sdk::instruction::Instruction) -> Option<DecodedInstruction<Self>> {
+            fn parse_instruction<'a>(instruction: &'a solana_sdk::instruction::Instruction) -> Option<DecodedInstruction<Self>> {
                 $(
                     if let Some(decoded_instruction) = $parser.decode(instruction.clone()) {
                         return Some(DecodedInstruction {

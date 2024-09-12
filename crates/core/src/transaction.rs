@@ -20,6 +20,7 @@ pub struct TransactionPipe<T: InstructionDecoderCollection> {
     processor: Box<dyn Processor<InputType = ParsedTransaction<T>> + Send + Sync>,
 }
 
+#[derive(Debug)]
 pub struct ParsedTransaction<I: InstructionDecoderCollection> {
     pub metadata: TransactionMetadata,
     pub instructions: Vec<ParsedInstruction<I>>,
@@ -39,7 +40,7 @@ impl<T: InstructionDecoderCollection> TransactionPipe<T> {
         instructions
             .iter()
             .filter_map(|nested_instr| {
-                T::parse_instruction(nested_instr.instruction.clone()).map(|decoded_instruction| {
+                T::parse_instruction(&nested_instr.instruction).map(|decoded_instruction| {
                     ParsedInstruction {
                         program_id: nested_instr.instruction.program_id,
                         instruction: decoded_instruction,

@@ -16,7 +16,7 @@ use crate::{
 pub struct Pipeline {
     pub datasource: Box<dyn Datasource>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
-    pub instruction_pipes: Vec<Box<dyn InstructionPipes>>,
+    pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn TransactionPipes>>,
 }
 
@@ -113,6 +113,12 @@ impl Pipeline {
                         .await?;
                 }
             }
+            Update::Block(block_update) => {
+                // TODO
+            }
+            Update::Slot(slot_update) => {
+                // TODO
+            }
         };
         Ok(())
     }
@@ -121,7 +127,7 @@ impl Pipeline {
 pub struct PipelineBuilder {
     pub datasource: Option<Box<dyn Datasource>>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
-    pub instruction_pipes: Vec<Box<dyn InstructionPipes>>,
+    pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn TransactionPipes>>,
 }
 
@@ -157,7 +163,7 @@ impl PipelineBuilder {
 
     pub fn instruction<T: Send + Sync + 'static>(
         mut self,
-        decoder: impl InstructionDecoder<InstructionType = T> + Send + Sync + 'static,
+        decoder: impl for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
         processor: impl Processor<InputType = (InstructionMetadata, DecodedInstruction<T>)>
             + Send
             + Sync
