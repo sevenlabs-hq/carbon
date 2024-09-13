@@ -1,7 +1,6 @@
+use crate::error::CarbonResult;
 use async_trait::async_trait;
 use solana_sdk::{pubkey::Pubkey, signature::Signature};
-
-use crate::error::CarbonResult;
 
 #[async_trait]
 pub trait Datasource {
@@ -54,9 +53,12 @@ pub struct SlotUpdate {
 
 #[derive(Debug, Clone)]
 pub struct BlockUpdate {
-    pub slot: u64,
-    pub block_hash: String,
-    pub block_timestamp: i64,
-    pub previous_block_hash: String,
-    pub transaction_count: u64,
+    pub previous_blockhash: String,
+    pub blockhash: String,
+    pub parent_slot: solana_sdk::clock::Slot,
+    pub transactions: Vec<solana_transaction_status::TransactionWithStatusMeta>,
+    pub rewards: solana_transaction_status::Rewards,
+    pub num_partitions: Option<u64>,
+    pub block_time: Option<solana_sdk::clock::UnixTimestamp>,
+    pub block_height: Option<u64>,
 }

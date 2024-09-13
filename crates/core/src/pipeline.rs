@@ -1,7 +1,8 @@
 use crate::{
     account::{AccountDecoder, AccountMetadata, AccountPipe, AccountPipes, DecodedAccount},
+    block::{BlockDecoder, BlockPipe, BlockPipes, DecodedBlock},
     collection::InstructionDecoderCollection,
-    datasource::{Datasource, Update, UpdateType},
+    datasource::{BlockUpdate, Datasource, SlotUpdate, Update, UpdateType},
     error::{CarbonResult, Error},
     instruction::{
         DecodedInstruction, InstructionDecoder, InstructionMetadata, InstructionPipe,
@@ -9,6 +10,7 @@ use crate::{
     },
     processor::Processor,
     schema::TransactionSchema,
+    slot::{SlotPipe, SlotPipes},
     transaction::{ParsedTransaction, TransactionPipe, TransactionPipes},
     transformers,
 };
@@ -16,8 +18,10 @@ use crate::{
 pub struct Pipeline {
     pub datasource: Box<dyn Datasource>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
-    pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
+    pub instruction_pipes: Vec<Box<dyn InstructionPipes>>,
     pub transaction_pipes: Vec<Box<dyn TransactionPipes>>,
+    pub block_pipes: Vec<Box<dyn BlockPipes>>,
+    pub slot_pipes: Vec<Box<dyn SlotPipes>>,
 }
 
 impl Pipeline {
@@ -27,6 +31,8 @@ impl Pipeline {
             account_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
+            block_pipes: Vec::new(),
+            slot_pipes: Vec::new(),
         }
     }
 
@@ -114,10 +120,14 @@ impl Pipeline {
                 }
             }
             Update::Block(block_update) => {
-                // TODO
+                for pipe in self.block_pipes.iter() {
+                    pipe.run(block_update.clone()).await?;
+                }
             }
             Update::Slot(slot_update) => {
-                // TODO
+                for pipe in self.slot_pipes.iter() {
+                    pipe.run(slot_update.clone()).await?;
+                }
             }
         };
         Ok(())
@@ -127,8 +137,10 @@ impl Pipeline {
 pub struct PipelineBuilder {
     pub datasource: Option<Box<dyn Datasource>>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
-    pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
+    pub instruction_pipes: Vec<Box<dyn InstructionPipes>>,
     pub transaction_pipes: Vec<Box<dyn TransactionPipes>>,
+    pub block_pipes: Vec<Box<dyn BlockPipes>>,
+    pub slot_pipes: Vec<Box<dyn SlotPipes>>,
 }
 
 impl PipelineBuilder {
@@ -138,6 +150,8 @@ impl PipelineBuilder {
             account_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
+            block_pipes: Vec::new(),
+            slot_pipes: Vec::new(),
         }
     }
 
@@ -163,7 +177,7 @@ impl PipelineBuilder {
 
     pub fn instruction<T: Send + Sync + 'static>(
         mut self,
-        decoder: impl for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
+        decoder: impl InstructionDecoder<InstructionType = T> + Send + Sync + 'static,
         processor: impl Processor<InputType = (InstructionMetadata, DecodedInstruction<T>)>
             + Send
             + Sync
@@ -189,12 +203,36 @@ impl PipelineBuilder {
         self
     }
 
+    pub fn block<T: Send + Sync + 'static>(
+        mut self,
+        decoder: impl BlockDecoder<BlockType = T> + Send + Sync + 'static,
+        processor: impl Processor<InputType = DecodedBlock> + Send + Sync + 'static,
+    ) -> Self {
+        self.block_pipes.push(Box::new(BlockPipe {
+            decoder: Box::new(decoder),
+            processor: Box::new(processor),
+        }));
+        self
+    }
+
+    pub fn slot(
+        mut self,
+        processor: impl Processor<InputType = SlotUpdate> + Send + Sync + 'static,
+    ) -> Self {
+        self.slot_pipes.push(Box::new(SlotPipe {
+            processor: Box::new(processor),
+        }));
+        self
+    }
+
     pub fn build(self) -> CarbonResult<Pipeline> {
         Ok(Pipeline {
             datasource: self.datasource.ok_or(Error::MissingDatasource)?,
             account_pipes: self.account_pipes,
             instruction_pipes: self.instruction_pipes,
             transaction_pipes: self.transaction_pipes,
+            block_pipes: self.block_pipes,
+            slot_pipes: self.slot_pipes,
         })
     }
 }

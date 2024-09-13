@@ -15,18 +15,17 @@ pub struct DecodedInstruction<T> {
     pub data: T,
 }
 
-pub trait InstructionDecoder<'a> {
+pub trait InstructionDecoder {
     type InstructionType;
 
     fn decode(
         &self,
-        instruction: solana_sdk::instruction::Instruction,
+        instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<DecodedInstruction<Self::InstructionType>>;
 }
 
 pub struct InstructionPipe<T: Send> {
-    pub decoder:
-        Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
+    pub decoder: Box<dyn InstructionDecoder<InstructionType = T> + Send + Sync + 'static>,
     pub processor: Box<
         dyn Processor<InputType = (InstructionMetadata, DecodedInstruction<T>)>
             + Send
@@ -36,7 +35,7 @@ pub struct InstructionPipe<T: Send> {
 }
 
 #[async_trait]
-pub trait InstructionPipes<'a>: Send + Sync {
+pub trait InstructionPipes: Send + Sync {
     async fn run(
         &self,
         instruction_with_metadata: (InstructionMetadata, solana_sdk::instruction::Instruction),
@@ -44,12 +43,12 @@ pub trait InstructionPipes<'a>: Send + Sync {
 }
 
 #[async_trait]
-impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
+impl<T: Send + 'static> InstructionPipes for InstructionPipe<T> {
     async fn run(
         &self,
         instruction_with_metadata: (InstructionMetadata, solana_sdk::instruction::Instruction),
     ) -> CarbonResult<()> {
-        if let Some(decoded_instruction) = self.decoder.decode(instruction_with_metadata.1) {
+        if let Some(decoded_instruction) = self.decoder.decode(&instruction_with_metadata.1) {
             self.processor
                 .process((instruction_with_metadata.0, decoded_instruction))
                 .await?;
