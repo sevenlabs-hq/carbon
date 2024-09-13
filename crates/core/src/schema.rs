@@ -3,16 +3,10 @@ use crate::instruction::DecodedInstruction;
 use solana_sdk::pubkey::Pubkey;
 
 #[derive(Debug, Clone)]
-pub enum SchemaNode<T: InstructionDecoderCollection> {
-    Instruction(T::InstructionType),
-    Any,
-    AnyUnparsed,
-    Sequence(Vec<SchemaNode<T>>),
-    OneOf(Vec<SchemaNode<T>>),
-    ZeroOrMore(Box<SchemaNode<T>>),
-    OneOrMore(Box<SchemaNode<T>>),
-    Optional(Box<SchemaNode<T>>),
-    Nested(Box<SchemaNode<T>>),
+pub struct SchemaNode<T: InstructionDecoderCollection> {
+    pub ix_type: T::InstructionType,
+    pub name: String,
+    pub inner_instructions: Vec<SchemaNode<T>>,
 }
 
 #[derive(Debug)]
@@ -24,75 +18,94 @@ pub struct ParsedInstruction<T: InstructionDecoderCollection> {
 
 impl<T: InstructionDecoderCollection> SchemaNode<T> {
     pub fn matches(&self, instruction: &ParsedInstruction<T>) -> bool {
-        match self {
-            SchemaNode::Instruction(expected_type) => {
-                instruction.instruction.data.get_type() == *expected_type
-            }
-            SchemaNode::Any => true,
-            SchemaNode::AnyUnparsed => false,
-            SchemaNode::Sequence(nodes) => nodes.len() == 1 && nodes[0].matches(instruction),
-            SchemaNode::OneOf(nodes) => nodes.iter().any(|node| node.matches(instruction)),
-            SchemaNode::ZeroOrMore(_) => true,
-            SchemaNode::OneOrMore(node) => node.matches(instruction),
-            SchemaNode::Optional(_) => true,
-            SchemaNode::Nested(node) => instruction
-                .inner_instructions
-                .iter()
-                .any(|inner| node.matches(inner)),
+        if self.ix_type != instruction.instruction.data.get_type() {
+            return false;
         }
+
+        for (schema_inner, parsed_inner) in self
+            .inner_instructions
+            .iter()
+            .zip(&instruction.inner_instructions)
+        {
+            if !schema_inner.matches(parsed_inner) {
+                return false;
+            }
+        }
+
+        true
     }
 }
 
 #[derive(Debug)]
 pub struct TransactionSchema<T: InstructionDecoderCollection> {
-    pub root: SchemaNode<T>,
+    pub root: Vec<SchemaNode<T>>,
 }
 
 impl<T: InstructionDecoderCollection> TransactionSchema<T> {
     pub fn matches(&self, instructions: &[ParsedInstruction<T>]) -> bool {
-        self.match_instructions(&self.root, instructions)
+        self.match_instructions(&self.root, instructions).is_some()
     }
 
     fn match_instructions(
         &self,
+        nodes: &[SchemaNode<T>],
+        instructions: &[ParsedInstruction<T>],
+    ) -> Option<usize> {
+        let mut total_matched = 0;
+
+        for node in nodes {
+            if let Some(matched_count) =
+                self.match_single_node(node, &instructions[total_matched..])
+            {
+                total_matched += matched_count;
+            } else {
+                return None;
+            }
+        }
+
+        if total_matched == instructions.len() {
+            Some(total_matched)
+        } else {
+            None
+        }
+    }
+
+    fn match_single_node(
+        &self,
         node: &SchemaNode<T>,
         instructions: &[ParsedInstruction<T>],
-    ) -> bool {
-        match node {
-            SchemaNode::Instruction(_) | SchemaNode::Any | SchemaNode::AnyUnparsed => {
-                instructions.len() == 1 && node.matches(&instructions[0])
-            }
-            SchemaNode::Sequence(nodes) => {
-                if nodes.len() != instructions.len() {
-                    return false;
-                }
-                nodes
-                    .iter()
-                    .zip(instructions)
-                    .all(|(node, instr)| self.match_instructions(node, std::slice::from_ref(instr)))
-            }
-            SchemaNode::OneOf(nodes) => nodes
-                .iter()
-                .any(|node| self.match_instructions(node, instructions)),
-            SchemaNode::ZeroOrMore(inner_node) => {
-                instructions.is_empty()
-                    || instructions.iter().all(|instr| {
-                        self.match_instructions(inner_node, std::slice::from_ref(instr))
-                    })
-            }
-            SchemaNode::OneOrMore(inner_node) => {
-                !instructions.is_empty()
-                    && instructions.iter().all(|instr| {
-                        self.match_instructions(inner_node, std::slice::from_ref(instr))
-                    })
-            }
-            SchemaNode::Optional(inner_node) => {
-                instructions.is_empty() || self.match_instructions(inner_node, instructions)
-            }
-            SchemaNode::Nested(inner_node) => instructions.iter().all(|instr| {
-                instr.inner_instructions.is_empty()
-                    || self.match_instructions(inner_node, &instr.inner_instructions)
-            }),
+    ) -> Option<usize> {
+        if instructions.is_empty() {
+            return None;
         }
+
+        if !self.instruction_matches_node(&instructions[0], node) {
+            return None;
+        }
+
+        let mut matched_count = 1;
+
+        if !node.inner_instructions.is_empty() {
+            if let Some(inner_matched) = self.match_instructions(
+                &node.inner_instructions,
+                &instructions[0].inner_instructions,
+            ) {
+                if inner_matched != instructions[0].inner_instructions.len() {
+                    return None;
+                }
+            } else {
+                return None;
+            }
+        }
+
+        Some(matched_count)
+    }
+
+    fn instruction_matches_node(
+        &self,
+        instruction: &ParsedInstruction<T>,
+        node: &SchemaNode<T>,
+    ) -> bool {
+        instruction.instruction.data.get_type() == node.ix_type
     }
 }

@@ -187,6 +187,18 @@ impl Processor for TokenProgramTransactionProcessor {
     }
 }
 
+pub struct MeteoraSwapTransactionProcessor;
+#[async_trait]
+impl Processor for MeteoraSwapTransactionProcessor {
+    type InputType = ParsedTransaction<AllInstructions>;
+
+    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
+        log::info!("Transaction: {:?}", data);
+
+        Ok(())
+    }
+}
+
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
     env_logger::init();
