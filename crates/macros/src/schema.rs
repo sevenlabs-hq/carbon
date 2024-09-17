@@ -1,47 +1,38 @@
 #[macro_export]
-macro_rules! define_schema {
-    (instr $instruction_type:expr) => {
-        SchemaNode::Instruction($instruction_type)
+macro_rules! ix {
+    (
+        name = $name:expr,
+        type = $type:expr,
+        iixs = [ $( ix!( $( $iixs:tt )* ) ),* ]
+    ) => {
+        SchemaNode {
+            name: String::from($name),
+            ix_type: $type,
+            inner_instructions: vec![
+                $( ix!( $( $iixs )* ) ),*
+            ]
+        }
     };
 
-    (any) => {
-        SchemaNode::Any
-    };
-
-    (any_unparsed) => {
-        SchemaNode::AnyUnparsed
-    };
-
-    (seq [ $($inner:tt)* ]) => {
-        SchemaNode::Sequence(vec![ $(define_schema!($inner)),* ])
-    };
-
-    (one_of [ $($inner:tt)* ]) => {
-        SchemaNode::OneOf(vec![ $(define_schema!($inner)),* ])
-    };
-
-    (zero_or_more ($($inner:tt)*)) => {
-        SchemaNode::ZeroOrMore(Box::new(define_schema!($($inner)*)))
-    };
-
-    (one_or_more ($($inner:tt)*)) => {
-        SchemaNode::OneOrMore(Box::new(define_schema!($($inner)*)))
-    };
-
-    (optional ($($inner:tt)*)) => {
-        SchemaNode::Optional(Box::new(define_schema!($($inner)*)))
-    };
-
-    (nested ($($inner:tt)*)) => {
-        SchemaNode::Nested(Box::new(define_schema!($($inner)*)))
+    (
+        name = $name:expr,
+        type = $type:expr
+    ) => {
+        SchemaNode {
+            name: String::from($name),
+            ix_type: $type,
+            inner_instructions: vec![]
+        }
     };
 }
 
 #[macro_export]
-macro_rules! transaction_schema {
-    ($($schema:tt)+) => {
+macro_rules! schema {
+    ( $( $ix:expr ),* ) => {
         TransactionSchema {
-            root: define_schema!($($schema)+)
+            root: vec![
+                $( $ix ),*
+            ]
         }
     };
 }

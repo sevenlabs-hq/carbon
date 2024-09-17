@@ -83,8 +83,6 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
             return None;
         }
 
-        let mut matched_count = 1;
-
         if !node.inner_instructions.is_empty() {
             if let Some(inner_matched) = self.match_instructions(
                 &node.inner_instructions,
@@ -98,7 +96,7 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
             }
         }
 
-        Some(matched_count)
+        Some(1)
     }
 
     fn instruction_matches_node(
