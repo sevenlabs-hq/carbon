@@ -1,8 +1,8 @@
 use carbon_core::account::{AccountDecoder, AccountMetadata, DecodedAccount};
-use paste::paste;
+use carbon_core::schema::{InstructionSchemaNode, SchemaNode, TransactionSchema};
+use serde::Deserialize;
 use solana_sdk::account::ReadableAccount;
 use solana_sdk::program_pack::Pack;
-use spl_token::instruction::TokenInstruction;
 use std::time::Duration;
 
 use async_trait::async_trait;
@@ -14,9 +14,8 @@ use carbon_core::{
     datasource::{Datasource, Update, UpdateType},
     error::CarbonResult,
     instruction::{DecodedInstruction, InstructionDecoder},
-    schema::{SchemaNode, TransactionSchema},
 };
-use carbon_macros::{instruction_decoder_collection, ix, schema};
+pub use carbon_macros::*;
 
 pub struct MockDatasource;
 
@@ -139,33 +138,33 @@ impl Processor for TokenProgramAccountProcessor {
     }
 }
 
-pub struct TokenProgramInstructionDecoder;
-impl InstructionDecoder for TokenProgramInstructionDecoder {
-    type InstructionType = TokenInstruction;
+// pub struct TokenProgramInstructionDecoder;
+// impl InstructionDecoder for TokenProgramInstructionDecoder {
+//     type InstructionType = TokenInstruction;
 
-    fn decode(
-        &self,
-        instruction: solana_sdk::instruction::Instruction,
-    ) -> Option<DecodedInstruction<Self::InstructionType>> {
-        Some(DecodedInstruction {
-            program_id: instruction.program_id,
-            data: TokenInstruction::unpack(&instruction.data).ok()?,
-        })
-    }
-}
+//     fn decode(
+//         &self,
+//         instruction: solana_sdk::instruction::Instruction,
+//     ) -> Option<DecodedInstruction<Self::InstructionType>> {
+//         Some(DecodedInstruction {
+//             program_id: instruction.program_id,
+//             data: TokenInstruction::unpack(&instruction.data).ok()?,
+//         })
+//     }
+// }
 
-pub struct TokenProgramInstructionProcessor;
-#[async_trait]
-impl Processor for TokenProgramInstructionProcessor {
-    type InputType = (InstructionMetadata, DecodedInstruction<TokenInstruction>);
+// pub struct TokenProgramInstructionProcessor;
+// #[async_trait]
+// impl Processor for TokenProgramInstructionProcessor {
+//     type InputType = (InstructionMetadata, DecodedInstruction<TokenInstruction>);
 
-    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
-        log::info!("Instruction: {:?}", data.1.data);
-        log::info!("Instruction metadata: {:?}", data.0);
+//     async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
+//         log::info!("Instruction: {:?}", data.1.data);
+//         log::info!("Instruction metadata: {:?}", data.0);
 
-        Ok(())
-    }
-}
+//         Ok(())
+//     }
+// }
 
 pub struct TokenProgramTransactionProcessor;
 #[async_trait]
@@ -179,9 +178,16 @@ impl Processor for TokenProgramTransactionProcessor {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, Hash, PartialEq)]
 pub enum MeteoraInstruction {
     Swap,
+}
+
+impl MeteoraInstruction {
+    // Filler whatever
+    pub fn unpack(input: &[u8]) -> CarbonResult<Self> {
+        Ok(Self::Swap)
+    }
 }
 
 pub struct MeteoraInstructionDecoder;
@@ -212,13 +218,16 @@ impl Processor for MeteoraInstructionProcessor {
     }
 }
 
+#[derive(Clone, Debug, Deserialize)]
+pub struct MeteoraOutput {}
+
 pub struct MeteoraTransactionProcessor;
 #[async_trait]
 impl Processor for MeteoraTransactionProcessor {
-    type InputType = ParsedTransaction<AllInstructions>;
+    type InputType = MeteoraOutput;
 
     async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
-        // log::info!("Transaction: {:?}", data);
+        log::info!("Output: {:?}", data);
 
         Ok(())
     }
@@ -226,37 +235,35 @@ impl Processor for MeteoraTransactionProcessor {
 
 instruction_decoder_collection!(
     AllInstructions, AllInstructionTypes,
-    TokenTransfer => TokenProgramInstructionDecoder => TokenInstruction,
+    // TokenTransfer => TokenProgramInstructionDecoder => TokenInstruction,
     MeteoraSwap => MeteoraInstructionDecoder => MeteoraInstruction,
+    MeteoraTransfer => MeteoraInstructionDecoder => MeteoraInstruction,
 );
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
     env_logger::init();
 
-    let meteora_schema = schema![
-        ix!(
-            name = "meteora_swap_ix_1",
-            type = AllInstructionTypes::MeteoraSwap,
-            iixs = [
-                ix!(name = "meteora_transfer_1", type = AllInstructionTypes::TokenTransfer),
-                ix!(name = "meteora_transfer_2", type = AllInstructionTypes::TokenTransfer)
-            ]
-        ),
-        ix!(
-            name = "meteora_swap_ix_2",
-            type = AllInstructionTypes::MeteoraSwap,
-            iixs = [
-                ix!(name = "meteora_transfer_1", type = AllInstructionTypes::TokenTransfer),
-                ix!(name = "meteora_transfer_2", type = AllInstructionTypes::TokenTransfer)
-            ]
-        )
+    let schema = schema![
+        any
+        [
+            AllInstructionTypes::MeteoraSwap,
+            "token_transfer_ix_1",
+            []
+        ]
+        any
+        [
+            AllInstructionTypes::MeteoraSwap,
+            "token_transfer_ix_2",
+            []
+        ]
+        any
     ];
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(MockDatasource)
         .account(TokenProgramAccountDecoder, TokenProgramAccountProcessor)
-        .transaction::<AllInstructions>(meteora_schema, MeteoraTransactionProcessor)
+        .transaction(schema, MeteoraTransactionProcessor)
         .build()?
         .run()
         .await?;

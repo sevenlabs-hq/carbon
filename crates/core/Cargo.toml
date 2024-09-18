@@ -11,6 +11,8 @@ solana-sdk = "2.0.9"
 solana-transaction-status = "2.0.9"
 thiserror = "1.0.63"
 tokio = "1.40.0"
+serde = "1.0.144"
+serde_json = "1.0.85"
 
 [lib]
 crate-type = ["rlib"]

@@ -1,2 +1,2 @@
 pub mod collection;
-pub mod schema;
+pub mod schemas;

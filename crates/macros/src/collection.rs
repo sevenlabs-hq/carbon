@@ -1,7 +1,7 @@
 #[macro_export]
 macro_rules! instruction_decoder_collection {
     ($name:ident, $name_type:ident, $($variant:ident => $parser:expr => $origin:ty),+ $(,)?) => {
-        #[derive(Debug, Clone)]
+        #[derive(Debug, Clone, std::hash::Hash)]
         pub enum $name {
             $($variant($origin)),+
         }
