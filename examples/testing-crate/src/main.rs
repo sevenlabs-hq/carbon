@@ -3,6 +3,7 @@ use carbon_core::schema::{InstructionSchemaNode, SchemaNode, TransactionSchema};
 use serde::Deserialize;
 use solana_sdk::account::ReadableAccount;
 use solana_sdk::program_pack::Pack;
+
 use std::time::Duration;
 
 use async_trait::async_trait;
@@ -178,15 +179,104 @@ impl Processor for TokenProgramTransactionProcessor {
     }
 }
 
-#[derive(Debug, Clone, Eq, Hash, PartialEq)]
+#[allow(dead_code)]
+#[derive(Clone, Debug, PartialEq)]
+pub enum Discriminator {
+    OneByte(u8),
+    TwoBytes([u8; 2]),
+    FourBytes([u8; 4]),
+    EightBytes([u8; 8]),
+    SixteenBytes([u8; 16]),
+}
+
+#[allow(dead_code)]
+impl Discriminator {
+    pub fn to_bytes(&self) -> Vec<u8> {
+        match self.clone() {
+            Discriminator::OneByte(d) => std::slice::from_ref(&d).to_vec(),
+            Discriminator::TwoBytes(d) => d.to_vec(),
+            Discriminator::FourBytes(d) => d.to_vec(),
+            Discriminator::EightBytes(d) => d.to_vec(),
+            Discriminator::SixteenBytes(d) => d.to_vec(),
+        }
+    }
+
+    pub fn one_byte_from_slice(data: &[u8]) -> CarbonResult<Self> {
+        if data.len() < 1 {
+            return Err(carbon_core::error::Error::MissingInstructionData);
+        }
+        Ok(Discriminator::OneByte(data[0]))
+    }
+
+    pub fn two_bytes_from_slice(data: &[u8]) -> CarbonResult<Self> {
+        if data.len() < 2 {
+            return Err(carbon_core::error::Error::MissingInstructionData);
+        }
+        let mut buf = [0u8; 2];
+        buf.copy_from_slice(&data[..2]);
+        Ok(Discriminator::TwoBytes(buf))
+    }
+
+    pub fn four_bytes_from_slice(data: &[u8]) -> CarbonResult<Self> {
+        if data.len() < 4 {
+            return Err(carbon_core::error::Error::MissingInstructionData);
+        }
+        let mut buf = [0u8; 4];
+        buf.copy_from_slice(&data[..4]);
+        Ok(Discriminator::FourBytes(buf))
+    }
+
+    pub fn eight_bytes_from_slice(data: &[u8]) -> CarbonResult<Self> {
+        if data.len() < 8 {
+            return Err(carbon_core::error::Error::MissingInstructionData);
+        }
+        let mut buf = [0u8; 8];
+        buf.copy_from_slice(&data[..8]);
+        Ok(Discriminator::EightBytes(buf))
+    }
+
+    pub fn sixteen_bytes_from_slice(data: &[u8]) -> CarbonResult<Self> {
+        if data.len() < 16 {
+            return Err(carbon_core::error::Error::MissingInstructionData);
+        }
+        let mut buf = [0u8; 16];
+        buf.copy_from_slice(&data[..16]);
+        Ok(Discriminator::SixteenBytes(buf))
+    }
+}
+
+#[derive(Debug, Clone, Eq, Hash, PartialEq, serde::Serialize)]
 pub enum MeteoraInstruction {
     Swap,
 }
 
 impl MeteoraInstruction {
     // Filler whatever
-    pub fn unpack(input: &[u8]) -> CarbonResult<Self> {
-        Ok(Self::Swap)
+    // pub fn unpack(input: &[u8]) -> CarbonResult<Self> {
+    //     Ok(Self::Swap)
+    // }
+
+    pub fn unpack(input: &[u8]) -> CarbonResult<MeteoraInstruction> {
+        // let discriminator = match input.len() {
+        //     _ => Discriminator::eight_bytes_from_slice(input)?,
+        // };
+        // let ix = match discriminator {
+        //     discriminator if discriminator == MeteoraSwapInstructionData::discriminator() => {
+        //         MeteoraInstruction::Swap {
+        //             data: InstructionData::unpack(input).map_err(Error::msg)?,
+        //             accounts: MeteoraSwapInstructionAccounts::unpack(input).map_err(Error::msg)?,
+        //         }
+        //     }
+        //     discriminator if discriminator == MeteoraSwapEventInstructionData::discriminator() => {
+        //         MeteoraInstruction::SwapEvent {
+        //             data: InstructionData::unpack(input).map_err(Error::msg)?,
+        //             accounts: MeteoraSwapEventInstructionAccounts::unpack(input)
+        //                 .map_err(Error::msg)?,
+        //         }
+        //     }
+        //     _discriminator => bail!("Invalid meteora instruction discriminator".to_owned()),
+        // };
+        Ok(MeteoraInstruction::Swap)
     }
 }
 
@@ -244,17 +334,11 @@ instruction_decoder_collection!(
 pub async fn main() -> CarbonResult<()> {
     env_logger::init();
 
-    let schema = schema![
+    let schema: TransactionSchema<AllInstructions> = schema![
         any
         [
             AllInstructionTypes::MeteoraSwap,
-            "token_transfer_ix_1",
-            []
-        ]
-        any
-        [
-            AllInstructionTypes::MeteoraSwap,
-            "token_transfer_ix_2",
+            "meteora_swap_ix_1",
             []
         ]
         any
@@ -262,7 +346,7 @@ pub async fn main() -> CarbonResult<()> {
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(MockDatasource)
-        .account(TokenProgramAccountDecoder, TokenProgramAccountProcessor)
+        // .account(TokenProgramAccountDecoder, TokenProgramAccountProcessor)
         .transaction(schema, MeteoraTransactionProcessor)
         .build()?
         .run()

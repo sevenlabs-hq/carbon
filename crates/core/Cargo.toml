@@ -13,6 +13,8 @@ thiserror = "1.0.63"
 tokio = "1.40.0"
 serde = "1.0.144"
 serde_json = "1.0.85"
+solana-client = "*"
+bs58 = "*"
 
 [lib]
 crate-type = ["rlib"]
