@@ -101,33 +101,14 @@ impl Pipeline {
                     &transaction_update,
                 )?;
 
-                for ix in instructions_with_metadata.clone() {
-                    println!(
-                        "\n\n\n instruction: \n{:?} \n{:?} \n",
-                        ix.1, ix.0.stack_height
-                    );
-                }
-
                 for instruction in instructions_with_metadata.iter().cloned() {
-                    println!(
-                        "\n\nInstruction stack height {:?}\n",
-                        instruction.0.stack_height
-                    );
                     for pipe in self.instruction_pipes.iter() {
                         pipe.run(instruction.clone()).await?;
                     }
                 }
 
-                // ive changed this also to work but no idea whats going on as of right now and if its good
                 let nested_instructions =
                     transformers::nest_instructions(instructions_with_metadata);
-
-                for nest in nested_instructions.clone() {
-                    println!(
-                        "\n\n\n nest: \n{:?} \n{:?} \n{:?}",
-                        nest.instruction, nest.metadata.stack_height, nest.inner_instructions,
-                    );
-                }
 
                 for pipe in self.transaction_pipes.iter() {
                     pipe.run(nested_instructions.clone()).await?;

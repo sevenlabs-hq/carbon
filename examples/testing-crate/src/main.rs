@@ -40,11 +40,8 @@ impl Datasource for TestDatasource {
     ) -> CarbonResult<tokio::task::AbortHandle> {
         let sender = sender.clone();
 
-        let rpc_client = RpcClient::new_with_commitment(
-            "https://mainnet.helius-rpc.com/?api-key=41f59b41-0c32-4545-b3df-ad47231ae0c4"
-                .to_string(),
-            CommitmentConfig::confirmed(),
-        );
+        let rpc_client =
+            RpcClient::new_with_commitment("TODO".to_string(), CommitmentConfig::confirmed());
 
         let tx = rpc_client.get_transaction(&Signature::from_str("Xw9nEnKJMna6S7dfq2cnaZtUypW7MSYVWarUSEfjoRWaWP7K7ytDLkH4QD1w4jWzUbNL6FuT8DuvkKnUAcuFw6x").unwrap(),solana_transaction_status::UiTransactionEncoding::Base58).ok().unwrap();
 
@@ -220,6 +217,74 @@ impl Datasource for MockDatasource {
     }
 }
 
+#[allow(dead_code)]
+#[derive(Clone, Debug, PartialEq)]
+pub enum Discriminator {
+    OneByte(u8),
+    TwoBytes([u8; 2]),
+    FourBytes([u8; 4]),
+    EightBytes([u8; 8]),
+    SixteenBytes([u8; 16]),
+}
+
+#[allow(dead_code)]
+impl Discriminator {
+    pub fn to_bytes(&self) -> Vec<u8> {
+        match self.clone() {
+            Discriminator::OneByte(d) => std::slice::from_ref(&d).to_vec(),
+            Discriminator::TwoBytes(d) => d.to_vec(),
+            Discriminator::FourBytes(d) => d.to_vec(),
+            Discriminator::EightBytes(d) => d.to_vec(),
+            Discriminator::SixteenBytes(d) => d.to_vec(),
+        }
+    }
+
+    pub fn one_byte_from_slice(data: &[u8]) -> CarbonResult<Self> {
+        if data.len() < 1 {
+            return Err(carbon_core::error::Error::MissingInstructionData);
+        }
+        Ok(Discriminator::OneByte(data[0]))
+    }
+
+    pub fn two_bytes_from_slice(data: &[u8]) -> CarbonResult<Self> {
+        if data.len() < 2 {
+            return Err(carbon_core::error::Error::MissingInstructionData);
+        }
+        let mut buf = [0u8; 2];
+        buf.copy_from_slice(&data[..2]);
+        Ok(Discriminator::TwoBytes(buf))
+    }
+
+    pub fn four_bytes_from_slice(data: &[u8]) -> CarbonResult<Self> {
+        if data.len() < 4 {
+            return Err(carbon_core::error::Error::MissingInstructionData);
+        }
+        let mut buf = [0u8; 4];
+        buf.copy_from_slice(&data[..4]);
+        Ok(Discriminator::FourBytes(buf))
+    }
+
+    pub fn eight_bytes_from_slice(data: &[u8]) -> CarbonResult<Self> {
+        if data.len() < 8 {
+            return Err(carbon_core::error::Error::MissingInstructionData);
+        }
+        let mut buf = [0u8; 8];
+        buf.copy_from_slice(&data[..8]);
+        Ok(Discriminator::EightBytes(buf))
+    }
+
+    pub fn sixteen_bytes_from_slice(data: &[u8]) -> CarbonResult<Self> {
+        if data.len() < 16 {
+            return Err(carbon_core::error::Error::MissingInstructionData);
+        }
+        let mut buf = [0u8; 16];
+        buf.copy_from_slice(&data[..16]);
+        Ok(Discriminator::SixteenBytes(buf))
+    }
+}
+
+// Token Test Start
+
 pub struct TokenProgramAccountDecoder;
 pub enum TokenProgramAccount {
     Account(spl_token::state::Account),
@@ -333,71 +398,9 @@ impl Processor for TokenProgramTransactionProcessor {
     }
 }
 
-#[allow(dead_code)]
-#[derive(Clone, Debug, PartialEq)]
-pub enum Discriminator {
-    OneByte(u8),
-    TwoBytes([u8; 2]),
-    FourBytes([u8; 4]),
-    EightBytes([u8; 8]),
-    SixteenBytes([u8; 16]),
-}
+// Token Test End
 
-#[allow(dead_code)]
-impl Discriminator {
-    pub fn to_bytes(&self) -> Vec<u8> {
-        match self.clone() {
-            Discriminator::OneByte(d) => std::slice::from_ref(&d).to_vec(),
-            Discriminator::TwoBytes(d) => d.to_vec(),
-            Discriminator::FourBytes(d) => d.to_vec(),
-            Discriminator::EightBytes(d) => d.to_vec(),
-            Discriminator::SixteenBytes(d) => d.to_vec(),
-        }
-    }
-
-    pub fn one_byte_from_slice(data: &[u8]) -> CarbonResult<Self> {
-        if data.len() < 1 {
-            return Err(carbon_core::error::Error::MissingInstructionData);
-        }
-        Ok(Discriminator::OneByte(data[0]))
-    }
-
-    pub fn two_bytes_from_slice(data: &[u8]) -> CarbonResult<Self> {
-        if data.len() < 2 {
-            return Err(carbon_core::error::Error::MissingInstructionData);
-        }
-        let mut buf = [0u8; 2];
-        buf.copy_from_slice(&data[..2]);
-        Ok(Discriminator::TwoBytes(buf))
-    }
-
-    pub fn four_bytes_from_slice(data: &[u8]) -> CarbonResult<Self> {
-        if data.len() < 4 {
-            return Err(carbon_core::error::Error::MissingInstructionData);
-        }
-        let mut buf = [0u8; 4];
-        buf.copy_from_slice(&data[..4]);
-        Ok(Discriminator::FourBytes(buf))
-    }
-
-    pub fn eight_bytes_from_slice(data: &[u8]) -> CarbonResult<Self> {
-        if data.len() < 8 {
-            return Err(carbon_core::error::Error::MissingInstructionData);
-        }
-        let mut buf = [0u8; 8];
-        buf.copy_from_slice(&data[..8]);
-        Ok(Discriminator::EightBytes(buf))
-    }
-
-    pub fn sixteen_bytes_from_slice(data: &[u8]) -> CarbonResult<Self> {
-        if data.len() < 16 {
-            return Err(carbon_core::error::Error::MissingInstructionData);
-        }
-        let mut buf = [0u8; 16];
-        buf.copy_from_slice(&data[..16]);
-        Ok(Discriminator::SixteenBytes(buf))
-    }
-}
+// Meteora Test Start
 
 #[derive(Debug, Clone, Eq, Hash, PartialEq, serde::Serialize)]
 pub enum MeteoraInstruction {
@@ -442,10 +445,16 @@ impl InstructionDecoder for MeteoraInstructionDecoder {
         &self,
         instruction: solana_sdk::instruction::Instruction,
     ) -> Option<DecodedInstruction<Self::InstructionType>> {
-        Some(DecodedInstruction {
-            program_id: instruction.program_id,
-            data: MeteoraInstruction::unpack(&instruction.data).ok()?,
-        })
+        if instruction.program_id
+            == Pubkey::from_str("mFivYY5xPoh3rDCxbdwzkgN1Rv2kC9s9kEpHHsnUWtf").unwrap()
+        {
+            Some(DecodedInstruction {
+                program_id: instruction.program_id,
+                data: MeteoraInstruction::unpack(&instruction.data).ok()?,
+            })
+        } else {
+            None
+        }
     }
 }
 
@@ -473,14 +482,69 @@ impl Processor for MeteoraTransactionProcessor {
     async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
         log::info!("Output: {:?}", data);
 
+        println!("Matched meteora");
+
         Ok(())
     }
 }
+
+// Meteora Test End
+
+// Orca Test Start
+
+#[derive(Debug, Clone, Eq, Hash, PartialEq, serde::Serialize)]
+pub enum OrcaInstruction {
+    Swap,
+}
+
+impl OrcaInstruction {
+    pub fn unpack(_input: &[u8]) -> CarbonResult<OrcaInstruction> {
+        Ok(OrcaInstruction::Swap)
+    }
+}
+
+pub struct OrcaInstructionDecoder;
+impl InstructionDecoder for OrcaInstructionDecoder {
+    type InstructionType = OrcaInstruction;
+
+    fn decode(
+        &self,
+        instruction: solana_sdk::instruction::Instruction,
+    ) -> Option<DecodedInstruction<Self::InstructionType>> {
+        if instruction.program_id == Pubkey::default() {
+            Some(DecodedInstruction {
+                program_id: instruction.program_id,
+                data: OrcaInstruction::unpack(&instruction.data).ok()?,
+            })
+        } else {
+            None
+        }
+    }
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct OrcaOutput {}
+
+pub struct OrcaTransactionProcessor;
+#[async_trait]
+impl Processor for OrcaTransactionProcessor {
+    type InputType = OrcaOutput;
+
+    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
+        log::info!("Output: {:?}", data);
+
+        println!("Matched orca");
+        Ok(())
+    }
+}
+
+// Orca Test End
 
 instruction_decoder_collection!(
     AllInstructions, AllInstructionTypes,
     // TokenTransfer => TokenProgramInstructionDecoder => TokenInstruction,
     MeteoraSwap => MeteoraInstructionDecoder => MeteoraInstruction,
+    OrcaSwap => OrcaInstructionDecoder => OrcaInstruction,
     MeteoraTransfer => MeteoraInstructionDecoder => MeteoraInstruction,
 );
 
@@ -488,11 +552,27 @@ instruction_decoder_collection!(
 pub async fn main() -> CarbonResult<()> {
     env_logger::init();
 
-    let schema: TransactionSchema<AllInstructions> = schema![
+    let meteora_schema: TransactionSchema<AllInstructions> = schema![
         any
         [
             AllInstructionTypes::MeteoraSwap,
             "meteora_swap_ix_1",
+            []
+        ]
+        any
+        [
+            AllInstructionTypes::OrcaSwap,
+            "orca_swap_ix_2",
+            []
+        ]
+        any
+    ];
+
+    let orca_schema: TransactionSchema<AllInstructions> = schema![
+        any
+        [
+            AllInstructionTypes::OrcaSwap,
+            "orca_swap_ix_2",
             []
         ]
         any
@@ -501,7 +581,8 @@ pub async fn main() -> CarbonResult<()> {
     carbon_core::pipeline::Pipeline::builder()
         .datasource(TestDatasource)
         // .account(TokenProgramAccountDecoder, TokenProgramAccountProcessor)
-        .transaction(schema, MeteoraTransactionProcessor)
+        .transaction(meteora_schema, MeteoraTransactionProcessor)
+        .transaction(orca_schema, OrcaTransactionProcessor)
         .build()?
         .run()
         .await?;
