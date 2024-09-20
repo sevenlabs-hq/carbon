@@ -1,6 +1,4 @@
-use std::{cell::RefCell, collections::HashSet, rc::Rc};
-
-use solana_transaction_status::InnerInstructions;
+use std::collections::HashSet;
 
 use crate::{
     datasource::TransactionUpdate,
@@ -48,9 +46,8 @@ pub fn extract_instructions_with_metadata(
             },
         ));
 
-        // I think this is better? Had problems with previous a lot
-        if let Some(tx_inner_instructions) = &meta.inner_instructions {
-            for inner_instructions_per_tx in tx_inner_instructions {
+        if let Some(inner_instructions) = &meta.inner_instructions {
+            for inner_instructions_per_tx in inner_instructions {
                 if inner_instructions_per_tx.index == i as u8 {
                     for inner_instruction in inner_instructions_per_tx.instructions.iter() {
                         let program_id = *inner_instruction

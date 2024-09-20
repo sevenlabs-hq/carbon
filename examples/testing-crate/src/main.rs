@@ -1,9 +1,21 @@
 use carbon_core::account::{AccountDecoder, AccountMetadata, DecodedAccount};
+use carbon_core::datasource::TransactionUpdate;
 use carbon_core::schema::{InstructionSchemaNode, SchemaNode, TransactionSchema};
 use serde::Deserialize;
+use solana_client::rpc_client::RpcClient;
 use solana_sdk::account::ReadableAccount;
+use solana_sdk::commitment_config::CommitmentConfig;
+use solana_sdk::instruction::CompiledInstruction;
+use solana_sdk::message::v0::LoadedAddresses;
 use solana_sdk::program_pack::Pack;
+use solana_sdk::pubkey::Pubkey;
+use solana_sdk::signature::Signature;
+use solana_transaction_status::{
+    InnerInstruction, InnerInstructions, Reward, TransactionStatusMeta, TransactionTokenBalance,
+    UiInstruction,
+};
 
+use std::str::FromStr;
 use std::time::Duration;
 
 use async_trait::async_trait;
@@ -17,6 +29,148 @@ use carbon_core::{
     instruction::{DecodedInstruction, InstructionDecoder},
 };
 pub use carbon_macros::*;
+
+pub struct TestDatasource;
+
+#[async_trait]
+impl Datasource for TestDatasource {
+    async fn consume(
+        &self,
+        sender: &tokio::sync::mpsc::UnboundedSender<Update>,
+    ) -> CarbonResult<tokio::task::AbortHandle> {
+        let sender = sender.clone();
+
+        let rpc_client = RpcClient::new_with_commitment(
+            "https://mainnet.helius-rpc.com/?api-key=41f59b41-0c32-4545-b3df-ad47231ae0c4"
+                .to_string(),
+            CommitmentConfig::confirmed(),
+        );
+
+        let tx = rpc_client.get_transaction(&Signature::from_str("Xw9nEnKJMna6S7dfq2cnaZtUypW7MSYVWarUSEfjoRWaWP7K7ytDLkH4QD1w4jWzUbNL6FuT8DuvkKnUAcuFw6x").unwrap(),solana_transaction_status::UiTransactionEncoding::Base58).ok().unwrap();
+
+        let meta_original = tx.transaction.meta.unwrap();
+
+        let meta_needed = TransactionStatusMeta {
+            status: meta_original.status,
+            fee: meta_original.fee,
+            pre_balances: meta_original.pre_balances,
+            post_balances: meta_original.post_balances,
+            log_messages: Some(meta_original.log_messages.unwrap()),
+            pre_token_balances: Some(
+                meta_original
+                    .pre_token_balances
+                    .unwrap()
+                    .iter()
+                    .map(|tok| TransactionTokenBalance {
+                        account_index: tok.account_index,
+                        mint: tok.mint.clone(),
+                        ui_token_amount: tok.ui_token_amount.clone(),
+                        owner: tok.owner.clone().unwrap(),
+                        program_id: tok.program_id.clone().unwrap(),
+                    })
+                    .collect::<Vec<TransactionTokenBalance>>(),
+            ),
+            inner_instructions: Some(
+                meta_original
+                    .inner_instructions
+                    .unwrap()
+                    .iter()
+                    .map(|iixs| InnerInstructions {
+                        index: iixs.index,
+                        instructions: iixs
+                            .instructions
+                            .iter()
+                            .map(|iix| match iix {
+                                UiInstruction::Compiled(ui_compiled_instruction) => {
+                                    InnerInstruction {
+                                        instruction: CompiledInstruction {
+                                            program_id_index: ui_compiled_instruction
+                                                .program_id_index,
+                                            accounts: ui_compiled_instruction.accounts.clone(),
+                                            data: bs58::decode(
+                                                ui_compiled_instruction.data.clone(),
+                                            )
+                                            .into_vec()
+                                            .unwrap(),
+                                        },
+                                        stack_height: ui_compiled_instruction.stack_height,
+                                    }
+                                }
+                                _ => {
+                                    panic!("unimplemented instruction type");
+                                }
+                            })
+                            .collect::<Vec<InnerInstruction>>(),
+                    })
+                    .collect::<Vec<InnerInstructions>>(),
+            ),
+            post_token_balances: Some(
+                meta_original
+                    .post_token_balances
+                    .unwrap()
+                    .iter()
+                    .map(|ptb| TransactionTokenBalance {
+                        account_index: ptb.account_index,
+                        mint: ptb.mint.clone(),
+                        ui_token_amount: ptb.ui_token_amount.clone(),
+                        owner: ptb.owner.clone().unwrap(),
+                        program_id: ptb.program_id.clone().unwrap(),
+                    })
+                    .collect::<Vec<TransactionTokenBalance>>(),
+            ),
+            rewards: Some(
+                meta_original
+                    .rewards
+                    .unwrap()
+                    .iter()
+                    .map(|rewards| Reward {
+                        pubkey: rewards.pubkey.clone(),
+                        lamports: rewards.lamports,
+                        post_balance: rewards.post_balance,
+                        reward_type: rewards.reward_type,
+                        commission: rewards.commission,
+                    })
+                    .collect::<Vec<Reward>>(),
+            ),
+            loaded_addresses: {
+                let loaded = meta_original.loaded_addresses.unwrap();
+                LoadedAddresses {
+                    writable: loaded
+                        .writable
+                        .iter()
+                        .map(|w| Pubkey::from_str(&w).unwrap())
+                        .collect::<Vec<Pubkey>>(),
+                    readonly: loaded
+                        .readonly
+                        .iter()
+                        .map(|r| Pubkey::from_str(&r).unwrap())
+                        .collect::<Vec<Pubkey>>(),
+                }
+            },
+            return_data: None,
+            compute_units_consumed: Some(meta_original.compute_units_consumed.unwrap()),
+        };
+
+        let update = Update::Transaction(TransactionUpdate {
+            signature: Signature::from_str("Xw9nEnKJMna6S7dfq2cnaZtUypW7MSYVWarUSEfjoRWaWP7K7ytDLkH4QD1w4jWzUbNL6FuT8DuvkKnUAcuFw6x").unwrap(),
+            transaction: tx.transaction.transaction.decode().unwrap(),
+            meta: meta_needed,
+            is_vote: false,
+            slot: tx.slot,
+        });
+
+        let abort_handle = tokio::spawn(async move {
+            sender.send(update).unwrap();
+        })
+        .abort_handle();
+
+        Ok(abort_handle)
+    }
+
+    fn update_types(&self) -> Vec<UpdateType> {
+        vec![UpdateType::Transaction]
+    }
+}
 
 pub struct MockDatasource;
 
@@ -345,7 +499,7 @@ pub async fn main() -> CarbonResult<()> {
     ];
 
     carbon_core::pipeline::Pipeline::builder()
-        .datasource(MockDatasource)
+        .datasource(TestDatasource)
         // .account(TokenProgramAccountDecoder, TokenProgramAccountProcessor)
         .transaction(schema, MeteoraTransactionProcessor)
         .build()?
