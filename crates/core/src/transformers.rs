@@ -53,7 +53,8 @@ pub fn extract_instructions_with_metadata(
                         let program_id = *inner_instruction
                             .instruction
                             .program_id(&message.static_account_keys());
-                        let accounts = extract_account_metas(&compiled_instruction, &message)?;
+                        let accounts =
+                            extract_account_metas(&inner_instruction.instruction, &message)?;
 
                         instructions_with_metadata.push((
                             InstructionMetadata {
