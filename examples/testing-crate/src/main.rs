@@ -1,6 +1,9 @@
 use carbon_core::account::{AccountDecoder, AccountMetadata, DecodedAccount};
 use carbon_core::datasource::TransactionUpdate;
 use carbon_core::schema::{InstructionSchemaNode, SchemaNode, TransactionSchema};
+use carbon_meteora_dlmm_decoder::{
+    MeteoraInstruction, MeteoraInstructionDecoder, MeteoraTransactionProcessor,
+};
 use serde::Deserialize;
 use solana_client::rpc_client::RpcClient;
 use solana_sdk::account::ReadableAccount;
@@ -19,7 +22,6 @@ use std::str::FromStr;
 use std::time::Duration;
 
 use async_trait::async_trait;
-use carbon_core::instruction::InstructionMetadata;
 use carbon_core::processor::Processor;
 use carbon_core::transaction::ParsedTransaction;
 use carbon_core::{
@@ -399,96 +401,6 @@ impl Processor for TokenProgramTransactionProcessor {
 }
 
 // Token Test End
-
-// Meteora Test Start
-
-#[derive(Debug, Clone, Eq, Hash, PartialEq, serde::Serialize)]
-pub enum MeteoraInstruction {
-    Swap,
-}
-
-impl MeteoraInstruction {
-    // Filler whatever
-    // pub fn unpack(input: &[u8]) -> CarbonResult<Self> {
-    //     Ok(Self::Swap)
-    // }
-
-    pub fn unpack(input: &[u8]) -> CarbonResult<MeteoraInstruction> {
-        // let discriminator = match input.len() {
-        //     _ => Discriminator::eight_bytes_from_slice(input)?,
-        // };
-        // let ix = match discriminator {
-        //     discriminator if discriminator == MeteoraSwapInstructionData::discriminator() => {
-        //         MeteoraInstruction::Swap {
-        //             data: InstructionData::unpack(input).map_err(Error::msg)?,
-        //             accounts: MeteoraSwapInstructionAccounts::unpack(input).map_err(Error::msg)?,
-        //         }
-        //     }
-        //     discriminator if discriminator == MeteoraSwapEventInstructionData::discriminator() => {
-        //         MeteoraInstruction::SwapEvent {
-        //             data: InstructionData::unpack(input).map_err(Error::msg)?,
-        //             accounts: MeteoraSwapEventInstructionAccounts::unpack(input)
-        //                 .map_err(Error::msg)?,
-        //         }
-        //     }
-        //     _discriminator => bail!("Invalid meteora instruction discriminator".to_owned()),
-        // };
-        Ok(MeteoraInstruction::Swap)
-    }
-}
-
-pub struct MeteoraInstructionDecoder;
-impl InstructionDecoder for MeteoraInstructionDecoder {
-    type InstructionType = MeteoraInstruction;
-
-    fn decode(
-        &self,
-        instruction: solana_sdk::instruction::Instruction,
-    ) -> Option<DecodedInstruction<Self::InstructionType>> {
-        if instruction.program_id
-            == Pubkey::from_str("mFivYY5xPoh3rDCxbdwzkgN1Rv2kC9s9kEpHHsnUWtf").unwrap()
-        {
-            Some(DecodedInstruction {
-                program_id: instruction.program_id,
-                data: MeteoraInstruction::unpack(&instruction.data).ok()?,
-            })
-        } else {
-            None
-        }
-    }
-}
-
-pub struct MeteoraInstructionProcessor;
-#[async_trait]
-impl Processor for MeteoraInstructionProcessor {
-    type InputType = (InstructionMetadata, DecodedInstruction<MeteoraInstruction>);
-
-    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
-        log::info!("Instruction: {:?}", data.1.data);
-        log::info!("Instruction metadata: {:?}", data.0);
-
-        Ok(())
-    }
-}
-
-#[derive(Clone, Debug, Deserialize)]
-pub struct MeteoraOutput {}
-
-pub struct MeteoraTransactionProcessor;
-#[async_trait]
-impl Processor for MeteoraTransactionProcessor {
-    type InputType = MeteoraOutput;
-
-    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
-        log::info!("Output: {:?}", data);
-
-        println!("Matched meteora");
-
-        Ok(())
-    }
-}
-
-// Meteora Test End
 
 // Orca Test Start
 

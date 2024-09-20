@@ -760,6 +760,7 @@ name = "carbon-core"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "borsh 1.5.1",
  "bs58 0.5.1",
  "futures",
  "log",
@@ -786,6 +787,17 @@ version = "0.1.0"
 dependencies = [
  "carbon-core",
  "paste",
+ "solana-sdk",
+]
+
+[[package]]
+name = "carbon-meteora-dlmm-decoder"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "borsh 1.5.1",
+ "carbon-core",
+ "serde",
  "solana-sdk",
 ]
 
@@ -4431,6 +4443,7 @@ dependencies = [
  "bs58 0.5.1",
  "carbon-core",
  "carbon-macros",
+ "carbon-meteora-dlmm-decoder",
  "env_logger 0.11.5",
  "futures",
  "log",

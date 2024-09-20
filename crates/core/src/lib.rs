@@ -1,6 +1,7 @@
 pub mod account;
 pub mod collection;
 pub mod datasource;
+pub mod deserialization;
 pub mod error;
 pub mod instruction;
 pub mod pipeline;
