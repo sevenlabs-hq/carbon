@@ -25,7 +25,7 @@ pub fn extract_instructions_with_metadata(
     transaction_update: &TransactionUpdate,
 ) -> CarbonResult<Vec<(InstructionMetadata, solana_sdk::instruction::Instruction)>> {
     let message = transaction_update.transaction.message.clone();
-    let mut meta = transaction_update.meta.clone();
+    let meta = transaction_update.meta.clone();
 
     let mut instructions_with_metadata =
         Vec::<(InstructionMetadata, solana_sdk::instruction::Instruction)>::new();
@@ -37,7 +37,7 @@ pub fn extract_instructions_with_metadata(
         instructions_with_metadata.push((
             InstructionMetadata {
                 transaction_metadata: transaction_metadata.clone(),
-                stack_height: 0,
+                stack_height: 1,
             },
             solana_sdk::instruction::Instruction {
                 program_id,
@@ -46,26 +46,29 @@ pub fn extract_instructions_with_metadata(
             },
         ));
 
-        if let Some(inner_instructions) = &mut meta.inner_instructions {
-            let inner_instructions = inner_instructions
-                .get(i)
-                .ok_or(Error::MissingInnerInstructions)?;
+        if let Some(inner_instructions) = &meta.inner_instructions {
+            for inner_instructions_per_tx in inner_instructions {
+                if inner_instructions_per_tx.index == i as u8 {
+                    for inner_instruction in inner_instructions_per_tx.instructions.iter() {
+                        let program_id = *inner_instruction
+                            .instruction
+                            .program_id(&message.static_account_keys());
+                        let accounts =
+                            extract_account_metas(&inner_instruction.instruction, &message)?;
 
-            for inner_instruction in inner_instructions.instructions.iter() {
-                let program_id = *compiled_instruction.program_id(&message.static_account_keys());
-                let accounts = extract_account_metas(&compiled_instruction, &message)?;
-
-                instructions_with_metadata.push((
-                    InstructionMetadata {
-                        transaction_metadata: transaction_metadata.clone(),
-                        stack_height: inner_instruction.stack_height.unwrap_or(0),
-                    },
-                    solana_sdk::instruction::Instruction {
-                        program_id,
-                        accounts,
-                        data: compiled_instruction.data.clone(),
-                    },
-                ));
+                        instructions_with_metadata.push((
+                            InstructionMetadata {
+                                transaction_metadata: transaction_metadata.clone(),
+                                stack_height: inner_instruction.stack_height.unwrap_or(1),
+                            },
+                            solana_sdk::instruction::Instruction {
+                                program_id,
+                                accounts,
+                                data: compiled_instruction.data.clone(),
+                            },
+                        ));
+                    }
+                }
             }
         }
     }
@@ -104,7 +107,7 @@ pub fn nest_instructions(
     instructions: Vec<(InstructionMetadata, solana_sdk::instruction::Instruction)>,
 ) -> Vec<NestedInstruction> {
     let mut result = Vec::<NestedInstruction>::new();
-    let mut stack = Vec::<usize>::new();
+    let mut stack = Vec::<(Vec<usize>, usize)>::new();
 
     for (metadata, instruction) in instructions {
         let nested_instruction = NestedInstruction {
@@ -113,21 +116,26 @@ pub fn nest_instructions(
             inner_instructions: Vec::new(),
         };
 
-        while let Some(&last_index) = stack.last() {
-            if metadata.stack_height > result[last_index].metadata.stack_height {
+        while let Some((_, parent_stack_height)) = stack.last() {
+            if metadata.stack_height as usize > *parent_stack_height {
                 break;
             }
             stack.pop();
         }
 
-        if let Some(&parent_index) = stack.last() {
-            result[parent_index]
-                .inner_instructions
-                .push(nested_instruction);
-            stack.push(result[parent_index].inner_instructions.len() - 1);
+        if let Some((path_to_parent, _)) = stack.last() {
+            let mut current_instructions = &mut result;
+            for &index in path_to_parent {
+                current_instructions = &mut current_instructions[index].inner_instructions;
+            }
+            current_instructions.push(nested_instruction);
+            let mut new_path = path_to_parent.clone();
+            new_path.push(current_instructions.len() - 1);
+            stack.push((new_path, metadata.stack_height as usize));
         } else {
             result.push(nested_instruction);
-            stack.push(result.len() - 1);
+            let new_path = vec![result.len() - 1];
+            stack.push((new_path, metadata.stack_height as usize));
         }
     }
 

@@ -1,12 +1,12 @@
 #[macro_export]
 macro_rules! instruction_decoder_collection {
     ($name:ident, $name_type:ident, $($variant:ident => $parser:expr => $origin:ty),+ $(,)?) => {
-        #[derive(Debug, Clone, std::hash::Hash)]
+        #[derive(Debug, Clone, std::hash::Hash, serde::Serialize, PartialEq, Eq)]
         pub enum $name {
             $($variant($origin)),+
         }
 
-        #[derive(Debug, Clone, PartialEq, Eq)]
+        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
         pub enum $name_type {
             $($variant),+
         }
