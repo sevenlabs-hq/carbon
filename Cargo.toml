@@ -1,4 +1,5 @@
 [workspace]
+# TODO: Add examples back
 members = ["crates/*", "datasources/*", "decoders/*", "examples/*"]
 resolver = "2"
 

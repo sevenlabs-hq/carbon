@@ -1,6 +1,5 @@
-use async_trait::async_trait;
-
 use crate::error::CarbonResult;
+use async_trait::async_trait;
 
 #[async_trait]
 pub trait Processor {

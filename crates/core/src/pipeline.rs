@@ -1,3 +1,5 @@
+use serde::de::DeserializeOwned;
+
 use crate::{
     account::{AccountDecoder, AccountMetadata, AccountPipe, AccountPipes, DecodedAccount},
     collection::InstructionDecoderCollection,
@@ -9,7 +11,7 @@ use crate::{
     },
     processor::Processor,
     schema::TransactionSchema,
-    transaction::{ParsedTransaction, TransactionPipe, TransactionPipes},
+    transaction::{TransactionPipe, TransactionPipes},
     transformers,
 };
 
@@ -109,8 +111,7 @@ impl Pipeline {
                     transformers::nest_instructions(instructions_with_metadata);
 
                 for pipe in self.transaction_pipes.iter() {
-                    pipe.run(transaction_metadata.clone(), nested_instructions.clone())
-                        .await?;
+                    pipe.run(nested_instructions.clone()).await?;
                 }
             }
         };
@@ -170,16 +171,17 @@ impl PipelineBuilder {
         self
     }
 
-    pub fn transaction<T: InstructionDecoderCollection>(
+    pub fn transaction<T, U>(
         mut self,
         schema: TransactionSchema<T>,
-        processor: impl Processor<InputType = ParsedTransaction<T>> + Send + Sync + 'static,
-    ) -> Self {
+        processor: impl Processor<InputType = U> + Send + Sync + 'static,
+    ) -> Self
+    where
+        T: InstructionDecoderCollection + 'static,
+        U: DeserializeOwned + Send + Sync + 'static,
+    {
         self.transaction_pipes
-            .push(Box::new(TransactionPipe::<T>::new(
-                schema,
-                Box::new(processor),
-            )));
+            .push(Box::new(TransactionPipe::<T, U>::new(schema, processor)));
         self
     }
 

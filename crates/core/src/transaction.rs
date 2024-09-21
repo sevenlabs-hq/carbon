@@ -6,6 +6,7 @@ use crate::{
     schema::{ParsedInstruction, TransactionSchema},
 };
 use async_trait::async_trait;
+use serde::de::DeserializeOwned;
 use solana_sdk::{pubkey::Pubkey, signature::Signature};
 
 #[derive(Debug, Clone)]
@@ -15,9 +16,9 @@ pub struct TransactionMetadata {
     pub fee_payer: Pubkey,
 }
 
-pub struct TransactionPipe<T: InstructionDecoderCollection> {
+pub struct TransactionPipe<T: InstructionDecoderCollection, U> {
     schema: TransactionSchema<T>,
-    processor: Box<dyn Processor<InputType = ParsedTransaction<T>> + Send + Sync>,
+    processor: Box<dyn Processor<InputType = U> + Send + Sync>,
 }
 
 pub struct ParsedTransaction<I: InstructionDecoderCollection> {
@@ -25,14 +26,15 @@ pub struct ParsedTransaction<I: InstructionDecoderCollection> {
     pub instructions: Vec<ParsedInstruction<I>>,
 }
 
-impl<T: InstructionDecoderCollection> TransactionPipe<T> {
+impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
     pub fn new(
         schema: TransactionSchema<T>,
-        processor: Box<dyn Processor<InputType = ParsedTransaction<T>> + Send + Sync>,
+        processor: impl Processor<InputType = U> + Send + Sync + 'static,
     ) -> Self {
-        let new = Self { schema, processor };
-        println!("schema: {:?}", new.schema);
-        new
+        Self {
+            schema,
+            processor: Box::new(processor),
+        }
     }
 
     fn parse_instructions(&self, instructions: &[NestedInstruction]) -> Vec<ParsedInstruction<T>> {
@@ -51,34 +53,30 @@ impl<T: InstructionDecoderCollection> TransactionPipe<T> {
             .collect()
     }
 
-    fn matches_schema(&self, transaction: &ParsedTransaction<T>) -> bool {
-        self.schema.matches(&transaction.instructions)
+    fn matches_schema(&self, instructions: &[ParsedInstruction<T>]) -> Option<U>
+    where
+        U: DeserializeOwned,
+    {
+        self.schema.match_schema(instructions)
     }
 }
 
 #[async_trait]
 pub trait TransactionPipes {
-    async fn run(
-        &self,
-        transaction_metadata: TransactionMetadata,
-        instructions: Vec<NestedInstruction>,
-    ) -> CarbonResult<()>;
+    async fn run(&self, instructions: Vec<NestedInstruction>) -> CarbonResult<()>;
 }
 
 #[async_trait]
-impl<T: InstructionDecoderCollection + Sync> TransactionPipes for TransactionPipe<T> {
-    async fn run(
-        &self,
-        transaction_metadata: TransactionMetadata,
-        instructions: Vec<NestedInstruction>,
-    ) -> CarbonResult<()> {
-        let parsed_transaction = ParsedTransaction {
-            metadata: transaction_metadata,
-            instructions: self.parse_instructions(&instructions),
-        };
+impl<T, U> TransactionPipes for TransactionPipe<T, U>
+where
+    T: InstructionDecoderCollection + Sync + 'static,
+    U: DeserializeOwned + Send + Sync + 'static,
+{
+    async fn run(&self, instructions: Vec<NestedInstruction>) -> CarbonResult<()> {
+        let parsed_instructions = self.parse_instructions(&instructions);
 
-        if self.matches_schema(&parsed_transaction) {
-            self.processor.process(parsed_transaction).await?;
+        if let Some(matched_data) = self.matches_schema(&parsed_instructions) {
+            self.processor.process(matched_data).await?;
         }
 
         Ok(())
