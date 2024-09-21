@@ -1,18 +1,20 @@
 use crate::collection::InstructionDecoderCollection;
 use crate::instruction::DecodedInstruction;
+use serde::de::DeserializeOwned;
 use solana_sdk::pubkey::Pubkey;
+use std::collections::HashMap;
 
 #[derive(Debug, Clone)]
 pub enum SchemaNode<T: InstructionDecoderCollection> {
-    Instruction(T::InstructionType),
+    Instruction(InstructionSchemaNode<T>),
     Any,
-    AnyUnparsed,
-    Sequence(Vec<SchemaNode<T>>),
-    OneOf(Vec<SchemaNode<T>>),
-    ZeroOrMore(Box<SchemaNode<T>>),
-    OneOrMore(Box<SchemaNode<T>>),
-    Optional(Box<SchemaNode<T>>),
-    Nested(Box<SchemaNode<T>>),
+}
+
+#[derive(Debug, Clone)]
+pub struct InstructionSchemaNode<T: InstructionDecoderCollection> {
+    pub ix_type: T::InstructionType,
+    pub name: String,
+    pub inner_instructions: Vec<SchemaNode<T>>,
 }
 
 #[derive(Debug)]
@@ -22,77 +24,78 @@ pub struct ParsedInstruction<T: InstructionDecoderCollection> {
     pub inner_instructions: Vec<ParsedInstruction<T>>,
 }
 
-impl<T: InstructionDecoderCollection> SchemaNode<T> {
-    pub fn matches(&self, instruction: &ParsedInstruction<T>) -> bool {
-        match self {
-            SchemaNode::Instruction(expected_type) => {
-                instruction.instruction.data.get_type() == *expected_type
-            }
-            SchemaNode::Any => true,
-            SchemaNode::AnyUnparsed => false,
-            SchemaNode::Sequence(nodes) => nodes.len() == 1 && nodes[0].matches(instruction),
-            SchemaNode::OneOf(nodes) => nodes.iter().any(|node| node.matches(instruction)),
-            SchemaNode::ZeroOrMore(_) => true,
-            SchemaNode::OneOrMore(node) => node.matches(instruction),
-            SchemaNode::Optional(_) => true,
-            SchemaNode::Nested(node) => instruction
-                .inner_instructions
-                .iter()
-                .any(|inner| node.matches(inner)),
-        }
-    }
-}
-
 #[derive(Debug)]
 pub struct TransactionSchema<T: InstructionDecoderCollection> {
-    pub root: SchemaNode<T>,
+    pub root: Vec<SchemaNode<T>>,
 }
 
 impl<T: InstructionDecoderCollection> TransactionSchema<T> {
-    pub fn matches(&self, instructions: &[ParsedInstruction<T>]) -> bool {
-        self.match_instructions(&self.root, instructions)
+    pub fn match_schema<U>(&self, instructions: &[ParsedInstruction<T>]) -> Option<U>
+    where
+        U: DeserializeOwned,
+    {
+        serde_json::from_value::<U>(serde_json::to_value(self.match_nodes(instructions)).ok()?).ok()
     }
 
-    fn match_instructions(
-        &self,
-        node: &SchemaNode<T>,
-        instructions: &[ParsedInstruction<T>],
-    ) -> bool {
-        match node {
-            SchemaNode::Instruction(_) | SchemaNode::Any | SchemaNode::AnyUnparsed => {
-                instructions.len() == 1 && node.matches(&instructions[0])
-            }
-            SchemaNode::Sequence(nodes) => {
-                if nodes.len() != instructions.len() {
-                    return false;
+    pub fn match_nodes(&self, instructions: &[ParsedInstruction<T>]) -> Option<HashMap<String, T>> {
+        let mut output = HashMap::<String, T>::new();
+
+        let current_index = 0;
+        let current_instruction = instructions.get(current_index)?;
+
+        let mut any = false;
+
+        for node in self.root.iter() {
+            match node {
+                SchemaNode::Any => {
+                    any = true;
                 }
-                nodes
-                    .iter()
-                    .zip(instructions)
-                    .all(|(node, instr)| self.match_instructions(node, std::slice::from_ref(instr)))
+                SchemaNode::Instruction(ix) => {
+                    if ix.ix_type != current_instruction.instruction.data.get_type() {
+                        if !any {
+                            return None;
+                        } else {
+                            continue;
+                        }
+                    } else {
+                        output.insert(
+                            ix.name.clone(),
+                            current_instruction.instruction.data.clone(),
+                        );
+                    }
+
+                    if !ix.inner_instructions.is_empty() {
+                        match self.match_nodes(&current_instruction.inner_instructions) {
+                            Some(inner_output) => {
+                                output = merge_hashmaps(output, inner_output);
+                            }
+                            None => {
+                                if !any {
+                                    return None;
+                                } else {
+                                    continue;
+                                }
+                            }
+                        }
+                    }
+
+                    any = false;
+                }
             }
-            SchemaNode::OneOf(nodes) => nodes
-                .iter()
-                .any(|node| self.match_instructions(node, instructions)),
-            SchemaNode::ZeroOrMore(inner_node) => {
-                instructions.is_empty()
-                    || instructions.iter().all(|instr| {
-                        self.match_instructions(inner_node, std::slice::from_ref(instr))
-                    })
-            }
-            SchemaNode::OneOrMore(inner_node) => {
-                !instructions.is_empty()
-                    && instructions.iter().all(|instr| {
-                        self.match_instructions(inner_node, std::slice::from_ref(instr))
-                    })
-            }
-            SchemaNode::Optional(inner_node) => {
-                instructions.is_empty() || self.match_instructions(inner_node, instructions)
-            }
-            SchemaNode::Nested(inner_node) => instructions.iter().all(|instr| {
-                instr.inner_instructions.is_empty()
-                    || self.match_instructions(inner_node, &instr.inner_instructions)
-            }),
         }
+
+        Some(output)
     }
+}
+
+pub fn merge_hashmaps<K, V>(a: HashMap<K, V>, b: HashMap<K, V>) -> HashMap<K, V>
+where
+    K: std::cmp::Eq + std::hash::Hash,
+    V: std::cmp::Eq + std::hash::Hash,
+{
+    let mut output = a;
+    for (key, value) in b {
+        output.insert(key, value);
+    }
+    output
 }
