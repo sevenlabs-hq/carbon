@@ -16,6 +16,8 @@ pub enum Error {
     MissingInnerInstructions,
     #[error("Missing account in transaction")]
     MissingAccountInTransaction,
+    #[error("Missing instruction data")]
+    MissingInstructionData,
 }
 
 pub type CarbonResult<T> = Result<T, Error>;
