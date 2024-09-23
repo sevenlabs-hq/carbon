@@ -1,5 +1,5 @@
 [package]
-name = "carbon-macros"
+name = "carbon-proc-macros"
 version = "0.1.0"
 edition = "2018"
 
@@ -7,7 +7,9 @@ edition = "2018"
 carbon-core = { path = "../core" }
 hex = "0.4.3"
 paste = "1.0.15"
+quote = "1.0"
+syn = { version = "1.0", features = ["full"] }
 solana-sdk = "2.0.9"
 
 [lib]
-crate-type = ["rlib"]
+crate-type = ["proc-macro"]
