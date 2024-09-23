@@ -5,3 +5,5 @@ resolver = "2"
 
 [workspace.dependencies]
 carbon-core = { path = "crates/core" }
+carbon-macros = { path = "crates/macros" }
+carbon-proc-macros = { path = "crates/proc-macros" }

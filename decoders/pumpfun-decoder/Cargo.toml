@@ -5,3 +5,8 @@ edition = "2018"
 
 [lib]
 crate-type = ["rlib"]
+
+[dependencies]
+carbon-core.workspace = true
+carbon-proc-macros.workspace = true
+solana-sdk = "2.0.10"
