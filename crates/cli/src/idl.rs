@@ -2,6 +2,7 @@ use serde::Deserialize;
 use serde::Serialize;
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Idl {
     pub version: String,
     pub name: String,
@@ -20,6 +21,7 @@ pub struct Idl {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdlConst {
     pub name: String,
     #[serde(rename = "type")]
@@ -28,6 +30,7 @@ pub struct IdlConst {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdlInstruction {
     pub name: String,
     #[serde(default)]
@@ -39,20 +42,24 @@ pub struct IdlInstruction {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdlInstructionAccount {
     pub name: String,
-    #[serde(rename = "isMut")]
+    // #[serde(rename = "isMut")]
+    #[serde(default)]
     pub is_mut: bool,
-    #[serde(rename = "isSigner")]
+    // #[serde(rename = "isSigner")]
+    #[serde(default)]
     pub is_signer: bool,
     #[serde(default)]
-    #[serde(rename = "isOptional")]
+    // #[serde(rename = "isOptional")]
     pub is_optional: Option<bool>,
     #[serde(default)]
     pub docs: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdlInstructionArgField {
     pub name: String,
     #[serde(rename = "type")]
@@ -72,6 +79,7 @@ pub enum IdlType {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdlAccountItem {
     pub name: String,
     #[serde(rename = "type")]
@@ -81,6 +89,7 @@ pub struct IdlAccountItem {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdlAccountType {
     pub kind: String,
     #[serde(default)]
@@ -90,6 +99,7 @@ pub struct IdlAccountType {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdlTypeDefinition {
     pub name: String,
     #[serde(rename = "type")]
@@ -99,6 +109,7 @@ pub struct IdlTypeDefinition {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdlTypeDefinitionTy {
     pub kind: String,
     #[serde(default)]
@@ -108,6 +119,7 @@ pub struct IdlTypeDefinitionTy {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdlTypeDefinitionField {
     pub name: String,
     #[serde(rename = "type")]
@@ -117,6 +129,7 @@ pub struct IdlTypeDefinitionField {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdlEnumVariant {
     pub name: String,
     #[serde(default)]
@@ -131,12 +144,14 @@ pub enum IdlEnumFields {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdlEvent {
     pub name: String,
     pub fields: Vec<IdlEventField>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdlEventField {
     pub name: String,
     #[serde(rename = "type")]
@@ -145,6 +160,7 @@ pub struct IdlEventField {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct IdlError {
     pub code: f64,
     pub name: String,

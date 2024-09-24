@@ -22,8 +22,4 @@ pub struct ParseOptions {
     #[arg(short, long)]
     #[arg(help = "Path to the IDL json file.")]
     pub idl: Option<String>,
-
-    #[arg(short, long)]
-    #[arg(help = "Path for the generated code output.")]
-    pub out: Option<String>,
 }
