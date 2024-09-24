@@ -1,32 +1,45 @@
-use sha2::{Digest, Sha256};
-
 use crate::{idl::Idl, util::idl_type_to_rust_type};
-
-// I plan to use these for templates
+use askama::Template;
+use heck::ToSnekCase;
+use heck::ToUpperCamelCase;
+use sha2::{Digest, Sha256};
 
 #[allow(dead_code)]
 #[derive(Debug)]
 pub struct AccountData {
-    struct_name: String,
-    discriminator: String,
-    fields: Vec<FieldData>,
+    pub struct_name: String,
+    pub module_name: String,
+    pub discriminator: String,
+    pub fields: Vec<FieldData>,
 }
 
 #[allow(dead_code)]
 #[derive(Debug)]
 pub struct FieldData {
-    name: String,
-    rust_type: String,
+    pub name: String,
+    pub rust_type: String,
 }
 
-// To get these above, I need to transform the idl accounts part, get the discrim
+#[derive(Template)]
+#[template(path = "accounts_struct.askama", escape = "none", ext = ".askama")]
+pub struct AccountsStructTemplate<'a> {
+    pub account: &'a AccountData,
+}
+
+#[derive(Template)]
+#[template(path = "accounts_mod.askama", escape = "none", ext = ".askama")]
+pub struct AccountsModTemplate<'a> {
+    pub accounts: &'a Vec<AccountData>,
+    pub decoder_name: String,
+    pub program_struct_name: String,
+}
 
 pub fn process_accounts(idl: &Idl) -> Vec<AccountData> {
     let mut accounts_data = Vec::new();
 
     for account in &idl.accounts {
-        // TODO: Change these to snake case
-        let struct_name = account.name.clone();
+        let module_name = account.name.to_snek_case();
+        let struct_name = account.name.to_upper_camel_case();
         let discriminator = compute_account_discriminator(&account.name);
 
         let mut fields = Vec::new();
@@ -35,7 +48,7 @@ pub fn process_accounts(idl: &Idl) -> Vec<AccountData> {
             for field in fields_vec {
                 let rust_type = idl_type_to_rust_type(&field.type_);
                 fields.push(FieldData {
-                    name: field.name.clone(),
+                    name: field.name.to_snek_case(),
                     rust_type,
                 });
             }
@@ -43,6 +56,7 @@ pub fn process_accounts(idl: &Idl) -> Vec<AccountData> {
 
         accounts_data.push(AccountData {
             struct_name,
+            module_name,
             discriminator,
             fields,
         });
