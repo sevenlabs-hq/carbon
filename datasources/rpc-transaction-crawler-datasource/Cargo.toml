@@ -1,0 +1,15 @@
+[package]
+name = "carbon-rpc-transaction-crawler-datasource"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+tokio = { version = "1.40.0", features = ["full"] }
+async-trait = "0.1.83"
+carbon-core = { path = "../../crates/core" }
+solana-client = "2.0.10"
+solana-sdk = "2.0.10"
+solana-transaction-status = "2.0.9"
