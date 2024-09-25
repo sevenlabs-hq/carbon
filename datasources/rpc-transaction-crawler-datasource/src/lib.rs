@@ -11,80 +11,137 @@ use solana_sdk::{
 };
 use solana_transaction_status::{
     InnerInstruction, InnerInstructions, Reward, TransactionStatusMeta, TransactionTokenBalance,
-    UiInstruction,
+    UiInstruction, UiLoadedAddresses,
 };
-use std::str::FromStr;
+use std::{str::FromStr, time::Duration};
 use tokio::sync::mpsc::UnboundedSender;
 
 #[derive(Debug, Clone)]
-pub struct Filter {
+pub struct Filters {
     pub accounts: Option<Vec<Pubkey>>,
-    pub before_signature: Option<Signature>,   
-    pub last_signature: Option<Signature>
-} // can add transaction_types / token_mints etc
+    pub before_signature: Option<Signature>,
+    pub until_signature: Option<Signature>,
+}
+
+impl Filters {
+    pub fn new(
+        accounts: Option<Vec<Pubkey>>,
+        before_signature: Option<Signature>,
+        until_signature: Option<Signature>,
+    ) -> Self {
+        Filters {
+            accounts,
+            before_signature,
+            until_signature,
+        }
+    }
+}
 
 pub struct RpcTransactionCrawler {
     pub rpc_url: String,
-    pub program_id: String,
+    pub account: Pubkey,
     pub batch_limit: usize,
-    pub polling_interval: u64,
-    pub filters: Option<Filter>,
+    pub polling_interval: Duration,
+    pub filters: Filters,
 }
+
+impl RpcTransactionCrawler {
+    pub fn new(
+        rpc_url: String,
+        account: Pubkey,
+        batch_limit: usize,
+        polling_interval: Duration,
+        filters: Filters,
+    ) -> Self {
+        RpcTransactionCrawler {
+            rpc_url,
+            account,
+            batch_limit,
+            polling_interval,
+            filters,
+        }
+    }
+}
+
 #[async_trait]
 impl Datasource for RpcTransactionCrawler {
     async fn consume(
         &self,
         sender: &UnboundedSender<Update>,
     ) -> CarbonResult<tokio::task::AbortHandle> {
-        let rpc_url = self.rpc_url.clone();
-        let program_id = self.program_id.clone();
+        let rpc_client = RpcClient::new(&self.rpc_url);
+        let account = self.account.clone();
         let batch_limit = self.batch_limit;
         let polling_interval = self.polling_interval;
         let filters = self.filters.clone();
         let sender = sender.clone();
 
         let abort_handle = tokio::spawn(async move {
-            let rpc_client = RpcClient::new(&rpc_url);
-            let program_pubkey = Pubkey::from_str(&program_id).unwrap();
-
             loop {
                 let config = GetConfirmedSignaturesForAddress2Config {
                     limit: Some(batch_limit),
-                    before: filters.as_ref().and_then(|f| f.before_signature.clone()),    
-                    until: filters.as_ref().and_then(|f| f.last_signature.clone()),
+                    before: filters.before_signature.clone(),
+                    until: filters.until_signature.clone(),
                     commitment: Some(CommitmentConfig::confirmed()),
                 };
 
-                let signatures = rpc_client
-                    .get_signatures_for_address_with_config(&program_pubkey, config)
-                    .unwrap();
+                let signatures =
+                    match rpc_client.get_signatures_for_address_with_config(&account, config) {
+                        Ok(sigs) => sigs,
+                        Err(e) => {
+                            log::error!("Failed to get signatures: {:?}", e);
+                            continue;
+                        }
+                    };
 
                 for signature in signatures {
-                    let transaction = rpc_client
-                        .get_transaction(
-                            &Signature::from_str(&signature.signature).unwrap(),
-                            solana_transaction_status::UiTransactionEncoding::JsonParsed,
-                        )
-                        .unwrap();
+                    let Ok(signature) = Signature::from_str(&signature.signature) else {
+                        log::error!("Failed to parse signature: {:?}", signature.signature);
+                        continue;
+                    };
 
-                    let decoded_transaction = transaction.transaction.transaction.decode().unwrap();
+                    let fetched_transaction = match rpc_client.get_transaction(
+                        &signature,
+                        solana_transaction_status::UiTransactionEncoding::JsonParsed,
+                    ) {
+                        Ok(tx) => tx,
+                        Err(e) => {
+                            log::error!("Failed to get transaction: {:?}", e);
+                            continue;
+                        }
+                    };
 
-                    let legacy_transaction = decoded_transaction.into_legacy_transaction().unwrap();
+                    let transaction = fetched_transaction.transaction;
 
-                    if let Some(ref filter) = filters {
-                        if let Some(accounts) = &filter.accounts {
-                            let transaction_accounts: Vec<Pubkey> =
-                                legacy_transaction.message.account_keys.clone();
-                            if !transaction_accounts
-                                .iter()
-                                .any(|account| accounts.contains(account))
-                            {
-                                continue;
-                            }
+                    let Some(decoded_transaction) = transaction.transaction.decode() else {
+                        log::error!("Failed to decode transaction: {:?}", transaction);
+                        continue;
+                    };
+
+                    let Some(legacy_transaction) =
+                        decoded_transaction.clone().into_legacy_transaction()
+                    else {
+                        log::error!("Failed to convert to legacy transaction: {:?}", transaction);
+                        continue;
+                    }; // Still need to test this part to make sure this still keeps all necessary address lookup tables (test with jupiter swaps to know if all accounts are kept)
+
+                    if let Some(accounts) = &filters.accounts {
+                        let transaction_accounts: Vec<Pubkey> =
+                            legacy_transaction.message.account_keys.clone();
+                        if !transaction_accounts
+                            .iter()
+                            .any(|account| accounts.contains(account))
+                        {
+                            continue;
                         }
                     }
 
-                    let meta_original = transaction.transaction.meta.unwrap();
+                    let meta_original = if let Some(meta) = transaction.meta {
+                        meta
+                    } else {
+                        log::warn!("Meta is malformed for transaction: {:?}", signature);
+                        continue;
+                    };
 
                     let meta_needed = TransactionStatusMeta {
                         status: meta_original.status,
@@ -94,7 +151,7 @@ impl Datasource for RpcTransactionCrawler {
                         inner_instructions: Some(
                             meta_original
                                 .inner_instructions
-                                .unwrap()
+                                .unwrap_or_else(|| vec![])
                                 .iter()
                                 .map(|iixs| InnerInstructions {
                                     index: iixs.index,
@@ -114,7 +171,7 @@ impl Datasource for RpcTransactionCrawler {
                                                             ui_compiled_instruction.data.clone(),
                                                         )
                                                         .into_vec()
-                                                        .unwrap(),
+                                                        .unwrap_or_else(|_| vec![]),
                                                     },
                                                     stack_height: ui_compiled_instruction
                                                         .stack_height,
@@ -128,18 +185,18 @@ impl Datasource for RpcTransactionCrawler {
                                 })
                                 .collect::<Vec<InnerInstructions>>(),
                         ),
-                        log_messages: Some(meta_original.log_messages.unwrap()),
+                        log_messages: Some(meta_original.log_messages.unwrap_or_else(|| vec![])),
                         pre_token_balances: Some(
                             meta_original
                                 .pre_token_balances
-                                .unwrap()
+                                .unwrap_or_else(|| vec![])
                                 .iter()
                                 .map(|tok| TransactionTokenBalance {
                                     account_index: tok.account_index,
                                     mint: tok.mint.clone(),
                                     ui_token_amount: tok.ui_token_amount.clone(),
                                     owner: tok.owner.clone().unwrap(),
-                                    program_id: tok.program_id.clone().unwrap(),
+                                    program_id: tok.program_id.clone().unwrap(), // I'm not sure how to handle those similar parts, as there's no option to use unwrap_or_default(). We can not set fallback default values for those right ?
                                 })
                                 .collect::<Vec<TransactionTokenBalance>>(),
                         ),
@@ -160,7 +217,7 @@ impl Datasource for RpcTransactionCrawler {
                         rewards: Some(
                             meta_original
                                 .rewards
-                                .unwrap()
+                                .unwrap_or_else(|| vec![])
                                 .iter()
                                 .map(|rewards| Reward {
                                     pubkey: rewards.pubkey.clone(),
@@ -172,7 +229,12 @@ impl Datasource for RpcTransactionCrawler {
                                 .collect::<Vec<Reward>>(),
                         ),
                         loaded_addresses: {
-                            let loaded = meta_original.loaded_addresses.unwrap();
+                            let loaded = meta_original.loaded_addresses.unwrap_or_else(|| {
+                                UiLoadedAddresses {
+                                    writable: vec![],
+                                    readonly: vec![],
+                                }
+                            });
                             LoadedAddresses {
                                 writable: loaded
                                     .writable
@@ -192,21 +254,24 @@ impl Datasource for RpcTransactionCrawler {
                                 data: ui_data.data.0.as_bytes().to_vec(),
                             }
                         }),
-                        compute_units_consumed: Some(meta_original.compute_units_consumed.unwrap()),
+                        compute_units_consumed: meta_original
+                            .compute_units_consumed
+                            .map(|cu| cu)
+                            .or(None),
                     };
 
                     let update = Update::Transaction(TransactionUpdate {
-                        signature: Signature::from_str(&signature.signature).unwrap(),
-                        transaction: transaction.transaction.transaction.decode().unwrap(),
+                        signature: signature.clone(),
+                        transaction: decoded_transaction,
                         meta: meta_needed,
                         is_vote: false,
-                        slot: transaction.slot,
+                        slot: fetched_transaction.slot,
                     });
 
                     sender.send(update).unwrap();
                 }
 
-                tokio::time::sleep(tokio::time::Duration::from_secs(polling_interval)).await;
+                tokio::time::sleep(polling_interval).await;
             }
         })
         .abort_handle();
