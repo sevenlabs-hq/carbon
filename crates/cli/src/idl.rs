@@ -45,14 +45,11 @@ pub struct IdlInstruction {
 #[serde(rename_all = "camelCase")]
 pub struct IdlInstructionAccount {
     pub name: String,
-    // #[serde(rename = "isMut")]
     #[serde(default)]
     pub is_mut: bool,
-    // #[serde(rename = "isSigner")]
     #[serde(default)]
     pub is_signer: bool,
     #[serde(default)]
-    // #[serde(rename = "isOptional")]
     pub is_optional: Option<bool>,
     #[serde(default)]
     pub docs: Option<Vec<String>>,
