@@ -21,7 +21,7 @@ pub struct Filter {
     pub accounts: Option<Vec<Pubkey>>,
     pub before_signature: Option<Signature>,   
     pub last_signature: Option<Signature>
-} // can be add transaction_types / token_mints etc
+} // can add transaction_types / token_mints etc
 
 pub struct RpcTransactionCrawler {
     pub rpc_url: String,
