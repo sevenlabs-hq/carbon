@@ -109,15 +109,10 @@ pub fn process_types(idl: &Idl) -> Vec<TypeData> {
                 }
                 kind = TypeKind::Enum(variants);
             }
-            // TODO: Check?
             _ => {}
         }
 
-        types_data.push(TypeData {
-            name,
-            fields,
-            kind: kind,
-        });
+        types_data.push(TypeData { name, fields, kind });
     }
 
     types_data

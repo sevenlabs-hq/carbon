@@ -2094,15 +2094,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "jupiter-decoder"
-version = "0.1.0"
-dependencies = [
- "carbon-core",
- "carbon-proc-macros",
- "solana-sdk",
-]
-
-[[package]]
 name = "keccak"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
