@@ -18,7 +18,7 @@ pub enum {{ program_struct_name }} {
 
 impl AccountDecoder for {{ decoder_name }} { 
     type AccountType = {{ program_struct_name }};
-     fn decode( &self, account: solana_sdk::account::Account, ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> { 
+     fn decode_accounts( &self, account: solana_sdk::account::Account, ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> { 
         {% for account in accounts %} 
             if let Some(decoded_account) = {{ account.module_name }}::{{
 	    account.struct_name }}::deserialize(account.data.as_slice()) { 

@@ -867,6 +867,7 @@ dependencies = [
  "hex",
  "paste",
  "quote",
+ "serde",
  "solana-sdk",
  "syn 1.0.109",
 ]
@@ -877,6 +878,7 @@ version = "0.1.0"
 dependencies = [
  "carbon-core",
  "carbon-proc-macros",
+ "serde",
  "solana-sdk",
 ]
 
@@ -2091,6 +2093,16 @@ dependencies = [
  "serde",
  "serde_derive",
  "serde_json",
+]
+
+[[package]]
+name = "jupiter-decoder"
+version = "0.1.0"
+dependencies = [
+ "carbon-core",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
 ]
 
 [[package]]
@@ -4598,8 +4610,10 @@ dependencies = [
  "bs58 0.5.1",
  "carbon-core",
  "carbon-macros",
+ "carbon-proc-macros",
  "env_logger 0.11.5",
  "futures",
+ "jupiter-decoder",
  "log",
  "mpl-token-metadata",
  "paste",
