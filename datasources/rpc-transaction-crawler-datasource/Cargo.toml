@@ -13,3 +13,5 @@ carbon-core = { path = "../../crates/core" }
 solana-client = "2.0.10"
 solana-sdk = "2.0.10"
 solana-transaction-status = "2.0.9"
+log = "0.4.22"
+env_logger = "0.11.5"
