@@ -21,7 +21,7 @@ pub struct DecodedAccount<T> {
 pub trait AccountDecoder {
     type AccountType;
 
-    fn decode(
+    fn decode_accounts(
         &self,
         account: solana_sdk::account::Account,
     ) -> Option<DecodedAccount<Self::AccountType>>;
@@ -47,7 +47,7 @@ impl<T: Send> AccountPipes for AccountPipe<T> {
         &self,
         account_with_metadata: (AccountMetadata, solana_sdk::account::Account),
     ) -> CarbonResult<()> {
-        if let Some(decoded_account) = self.decoder.decode(account_with_metadata.1) {
+        if let Some(decoded_account) = self.decoder.decode_accounts(account_with_metadata.1) {
             self.processor
                 .process((account_with_metadata.0, decoded_account))
                 .await?;

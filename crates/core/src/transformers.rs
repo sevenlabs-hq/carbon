@@ -1,5 +1,13 @@
 use std::collections::HashSet;
 
+use solana_client::rpc_client::RpcClient;
+use solana_sdk::{
+    address_lookup_table::{state::AddressLookupTable, AddressLookupTableAccount},
+    commitment_config::CommitmentConfig,
+    pubkey::Pubkey,
+    signer::Signer,
+};
+
 use crate::{
     datasource::TransactionUpdate,
     error::{CarbonResult, Error},
@@ -81,7 +89,9 @@ pub fn extract_account_metas(
     message: &solana_sdk::message::VersionedMessage,
 ) -> CarbonResult<Vec<solana_sdk::instruction::AccountMeta>> {
     let mut accounts = Vec::<solana_sdk::instruction::AccountMeta>::new();
+
     for account_index in compiled_instruction.accounts.iter() {
+        println!("account index: {}", account_index);
         accounts.push(solana_sdk::instruction::AccountMeta {
             pubkey: *message
                 .static_account_keys()
@@ -100,6 +110,26 @@ pub fn extract_account_metas(
             ),
         });
     }
+
+    // TODO: Ofc move this when finished with logic
+    let rpc_client = RpcClient::new_with_commitment(
+        "https://mainnet.helius-rpc.com/?api-key=f194fa31-7113-491e-94b6-77760a72309f".to_string(),
+        CommitmentConfig::confirmed(),
+    );
+
+    for address_lookup_tables in message.address_table_lookups().iter() {
+        for address_lookup_table in address_lookup_tables.iter() {
+            let account_info = rpc_client
+                .get_account(&address_lookup_table.account_key)
+                .map_err(|_| Error::MissingAccountInTransaction)?;
+
+            let decoded_lut = AddressLookupTable::deserialize(&account_info.data)
+                .map_err(|_| Error::MissingAccountInTransaction)?;
+
+            // TODO: Continue with logic...
+        }
+    }
+
     Ok(accounts)
 }
 

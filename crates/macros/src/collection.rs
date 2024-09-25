@@ -1,36 +1,64 @@
-#[macro_export]
-macro_rules! instruction_decoder_collection {
-    ($name:ident, $name_type:ident, $($variant:ident => $parser:expr => $origin:ty),+ $(,)?) => {
-        #[derive(Debug, Clone, std::hash::Hash, serde::Serialize, PartialEq, Eq)]
-        pub enum $name {
-            $($variant($origin)),+
-        }
+// #[macro_export]
+// macro_rules! instruction_decoder_collection {
+//     (
+//         $instructions:ident, $instruction_types:ident, $programs:ident,
+//         $(
+//             $program:ident => $decoder:expr => $instruction:ty => $instruction_type:ty
+//         ),+ $(,)?
+//     ) => {
+//         #[derive(Debug, Clone, std::hash::Hash, serde::Serialize, PartialEq, Eq)]
+//         pub enum $instructions {
+//             $(
+//                 $program($instruction),
+//             )+
+//         }
 
-        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
-        pub enum $name_type {
-            $($variant),+
-        }
+//         #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+//         pub enum $instruction_types {
+//             $(
+//                 $program($instruction_type),
+//             )+
+//         }
 
-        impl InstructionDecoderCollection for $name {
-            type InstructionType = $name_type;
+//         #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+//         pub enum $programs {
+//             $(
+//                 $program,
+//             )+
+//         }
 
-            fn parse_instruction(instruction: solana_sdk::instruction::Instruction) -> Option<DecodedInstruction<Self>> {
-                $(
-                    if let Some(decoded_instruction) = $parser.decode(instruction.clone()) {
-                        return Some(DecodedInstruction {
-                            program_id: instruction.program_id,
-                            data: $name::$variant(decoded_instruction.data),
-                        });
-                    }
-                )+
-                None
-            }
+//         impl InstructionDecoderCollection for $instructions {
+//             type InstructionType = $instruction_types;
 
-            fn get_type(&self) -> Self::InstructionType {
-                match self {
-                    $(Self::$variant(_) => $name_type::$variant),+
-                }
-            }
-        }
-    };
-}
+//             fn parse_instruction(
+//                 instruction: solana_sdk::instruction::Instruction
+//             ) -> Option<DecodedInstruction<Self>> {
+//                 $(
+//                     if let Some(decoded_instruction) = $decoder.decode(instruction.clone()) {
+//                         return Some(DecodedInstruction {
+//                             program_id: instruction.program_id,
+//                             data: $instructions::$program(decoded_instruction.data),
+//                         });
+//                     }
+//                 )+
+//                 None
+//             }
+
+//             fn get_type(&self) -> Self::InstructionType {
+//                 self.get_instruction_type()
+//             }
+//         }
+
+//         impl $instructions {
+//             pub fn get_instruction_type(&self) -> $instruction_types {
+//                 match self {
+//                     $(
+//                         Self::$program(instruction) => {
+//                             $instruction_types::$program(instruction.get_instruction_type())
+//                         }
+//                     ),+
+//                 }
+//             }
+//         }
+//     };
+// }

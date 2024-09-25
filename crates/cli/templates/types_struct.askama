@@ -6,7 +6,7 @@ use super::*;
 
 {%- when TypeKind::Struct %}
 
-#[derive(Debug)]
+#[derive(Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
 pub struct {{ type_data.name }} {
     {%- for field in type_data.fields %}
     pub {{ field.name }}: {{ field.rust_type }},
@@ -15,7 +15,7 @@ pub struct {{ type_data.name }} {
 
 {%- when TypeKind::Enum with (variants) %}
 
-#[derive(Debug)]
+#[derive(Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
 pub enum {{ type_data.name }} {
     {%- for variant in variants %}
     {{ variant.name -}}

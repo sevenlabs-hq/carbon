@@ -4,7 +4,7 @@ use carbon_proc_macros::CarbonDeserialize;
 use crate::types::*;
 {% endraw %}
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
 #[carbon(discriminator = "{{ instruction.discriminator }}")]
 pub struct {{ instruction.struct_name }}{
     {%- for arg in instruction.args %}

@@ -16,7 +16,7 @@ pub enum PumpFunAccount {
 impl AccountDecoder for PumpfunDecoder {
     type AccountType = PumpFunAccount;
 
-    fn decode(
+    fn decode_accounts(
         &self,
         account: solana_sdk::account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
