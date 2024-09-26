@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xb4476e37d9cc1af6")]
+#[carbon(discriminator = "0xe6798f50779f6aaa")]
 pub struct SharedAccountsRouteWithTokenLedger{
     pub id: u8,
     pub route_plan: Vec<RoutePlanStep>,

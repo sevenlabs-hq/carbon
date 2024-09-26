@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0x70ebaa69db0c8c53")]
+#[carbon(discriminator = "0xb1ad2af0b8047c51")]
 pub struct RaydiumSwap{
 }
 

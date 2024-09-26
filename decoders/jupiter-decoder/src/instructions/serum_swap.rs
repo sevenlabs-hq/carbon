@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xd69c0c8af57d6905")]
+#[carbon(discriminator = "0x58b746f9d67652d2")]
 pub struct SerumSwap{
 }
 

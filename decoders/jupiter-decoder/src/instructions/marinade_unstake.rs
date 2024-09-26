@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0x0ba36145c2902d94")]
+#[carbon(discriminator = "0x29780f0071db2a01")]
 pub struct MarinadeUnstake{
 }
 

@@ -40,6 +40,7 @@ pub fn process_accounts(idl: &Idl) -> Vec<AccountData> {
     for account in &idl.accounts {
         let module_name = account.name.to_snek_case();
         let struct_name = account.name.to_upper_camel_case();
+        // TODO: Check if it should be lower or upper camel case here, for instructions it's snake case
         let discriminator = compute_account_discriminator(&account.name);
 
         let mut fields = Vec::new();

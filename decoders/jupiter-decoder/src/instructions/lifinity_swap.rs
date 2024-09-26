@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xb7a64c4f58c83316")]
+#[carbon(discriminator = "0x1760a5215ad66099")]
 pub struct LifinitySwap{
 }
 

@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xe9be574d5ba08bc5")]
+#[carbon(discriminator = "0xde882e7bbd7d7c7a")]
 pub struct GoosefxSwap{
 }
 

@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xb374d11142487c1a")]
+#[carbon(discriminator = "0xe8f2c5fdf08f8134")]
 pub struct CreateTokenLedger{
 }
 

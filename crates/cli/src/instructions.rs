@@ -1,6 +1,6 @@
 use crate::{events::EventData, idl::Idl, util::idl_type_to_rust_type};
 use askama::Template;
-use heck::{ToSnekCase, ToUpperCamelCase};
+use heck::{ToLowerCamelCase, ToSnekCase, ToUpperCamelCase};
 use sha2::{Digest, Sha256};
 
 #[allow(dead_code)]
@@ -50,7 +50,7 @@ pub fn process_instructions(idl: &Idl) -> Vec<InstructionData> {
     for instruction in &idl.instructions {
         let module_name = instruction.name.to_snek_case();
         let struct_name = instruction.name.to_upper_camel_case();
-        let discriminator = compute_instruction_discriminator(&instruction.name);
+        let discriminator = compute_instruction_discriminator(&instruction.name.to_snek_case());
 
         let mut args = Vec::new();
         for arg in &instruction.args {

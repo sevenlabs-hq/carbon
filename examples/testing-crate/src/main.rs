@@ -1,10 +1,11 @@
+use amm_v3_decoder::instructions::*;
+use amm_v3_decoder::AmmV3Decoder;
 use carbon_core::account::{AccountDecoder, AccountMetadata, DecodedAccount};
 use carbon_core::datasource::TransactionUpdate;
 use carbon_core::schema::{InstructionSchemaNode, SchemaNode, TransactionSchema};
 use carbon_proc_macros::{instruction_decoder_collection, InstructionType};
 use jupiter_decoder::instructions::{JupiterInstruction, JupiterInstructionType};
 use jupiter_decoder::JupiterDecoder;
-
 use serde::Deserialize;
 use solana_client::rpc_client::RpcClient;
 use solana_client::rpc_config::RpcTransactionConfig;
@@ -306,7 +307,7 @@ pub enum TokenProgramAccount {
 impl AccountDecoder for TokenProgramAccountDecoder {
     type AccountType = TokenProgramAccount;
 
-    fn decode_accounts(
+    fn decode_account(
         &self,
         account: solana_sdk::account::Account,
     ) -> Option<DecodedAccount<Self::AccountType>> {
@@ -452,7 +453,7 @@ pub struct MeteoraInstructionDecoder;
 impl InstructionDecoder for MeteoraInstructionDecoder {
     type InstructionType = MeteoraInstruction;
 
-    fn decode_instructions(
+    fn decode_instruction(
         &self,
         instruction: solana_sdk::instruction::Instruction,
     ) -> Option<DecodedInstruction<Self::InstructionType>> {
@@ -518,7 +519,7 @@ pub struct OrcaInstructionDecoder;
 impl InstructionDecoder for OrcaInstructionDecoder {
     type InstructionType = OrcaInstruction;
 
-    fn decode_instructions(
+    fn decode_instruction(
         &self,
         instruction: solana_sdk::instruction::Instruction,
     ) -> Option<DecodedInstruction<Self::InstructionType>> {
@@ -553,9 +554,10 @@ impl Processor for OrcaTransactionProcessor {
 
 instruction_decoder_collection!(
     AllInstructions, AllInstructionTypes, AllPrograms,
-    MeteoraSwap => MeteoraInstructionDecoder => MeteoraInstruction,
-    OrcaSwap => OrcaInstructionDecoder => OrcaInstruction,
-    JupSwap => JupiterDecoder => JupiterInstruction
+    // MeteoraSwap => MeteoraInstructionDecoder => MeteoraInstruction,
+    // OrcaSwap => OrcaInstructionDecoder => OrcaInstruction,
+    JupSwap => JupiterDecoder => JupiterInstruction,
+    RaydiumClmm => AmmV3Decoder => AmmV3Instruction,
 );
 
 #[tokio::main]
@@ -586,6 +588,16 @@ pub async fn main() -> CarbonResult<()> {
         ]
         any
     ];
+
+    // let ray_schema: TransactionSchema<AllInstructions> = schema![
+    //     any
+    //     [
+    //         AllInstructionTypes::RaydiumClmm(AmmV3InstructionType::SwapEvent),
+    //         "ray_swap_event_ix_1",
+    //         []
+    //     ]
+    //     any
+    // ];
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(TestDatasource)

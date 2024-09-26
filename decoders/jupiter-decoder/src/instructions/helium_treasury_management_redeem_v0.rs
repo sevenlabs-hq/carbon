@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0x9f76e859d1ceea7f")]
+#[carbon(discriminator = "0xa39fa319f3a16c4a")]
 pub struct HeliumTreasuryManagementRedeemV0{
 }
 

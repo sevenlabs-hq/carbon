@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xb3d9690b6f69af13")]
+#[carbon(discriminator = "0x3eecf81cdee8b649")]
 pub struct MarinadeDeposit{
 }
 

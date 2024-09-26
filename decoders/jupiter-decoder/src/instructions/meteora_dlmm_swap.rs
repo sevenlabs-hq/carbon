@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xe6b4cdd9f554ab26")]
+#[carbon(discriminator = "0x7f40258aadf3cf54")]
 pub struct MeteoraDlmmSwap{
 }
 

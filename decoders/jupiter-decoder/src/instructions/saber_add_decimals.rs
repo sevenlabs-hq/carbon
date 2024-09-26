@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xf30081f15e0f13b7")]
+#[carbon(discriminator = "0x2435e7b807b505ee")]
 pub struct SaberAddDecimals{
 }
 

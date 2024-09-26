@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0x42168f575834b493")]
+#[carbon(discriminator = "0x1172edea9a0cb974")]
 pub struct SymmetrySwap{
 }
 

@@ -13,7 +13,7 @@ pub enum JupiterAccount {
 
 impl AccountDecoder for JupiterDecoder { 
     type AccountType = JupiterAccount;
-     fn decode_accounts( &self, account: solana_sdk::account::Account, ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> { 
+     fn decode_account( &self, account: solana_sdk::account::Account, ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> { 
          
             if let Some(decoded_account) = token_ledger::TokenLedger::deserialize(account.data.as_slice()) { 
             return Some(carbon_core::account::DecodedAccount { 

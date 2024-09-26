@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0x87e9d68296066dbd")]
+#[carbon(discriminator = "0x19320715cff8e6c2")]
 pub struct SenchaSwap{
 }
 

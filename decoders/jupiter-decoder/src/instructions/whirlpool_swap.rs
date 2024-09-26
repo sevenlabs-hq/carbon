@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0x4de5c7bb5c910786")]
+#[carbon(discriminator = "0x7be5b83f0c005c91")]
 pub struct WhirlpoolSwap{
 }
 

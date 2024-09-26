@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0x928d61d2db839ce5")]
+#[carbon(discriminator = "0x26f1156b783bb8f9")]
 pub struct CykuraSwap{
 }
 

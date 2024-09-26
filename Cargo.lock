@@ -112,6 +112,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "amm-v3-decoder"
+version = "0.1.0"
+dependencies = [
+ "carbon-core",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "android-tzdata"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4606,6 +4616,7 @@ dependencies = [
 name = "testing-crate"
 version = "0.1.0"
 dependencies = [
+ "amm-v3-decoder",
  "async-trait",
  "bs58 0.5.1",
  "carbon-core",

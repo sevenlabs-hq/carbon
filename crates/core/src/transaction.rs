@@ -37,20 +37,29 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
         }
     }
 
-    fn parse_instructions(&self, instructions: &[NestedInstruction]) -> Vec<ParsedInstruction<T>> {
+    fn parse_instructions(
+        &self,
+        instructions: &[NestedInstruction],
+    ) -> Box<Vec<ParsedInstruction<T>>> {
+        let mut parsed_instructions: Box<Vec<ParsedInstruction<T>>> = Box::new(vec![]);
+
         instructions
             .iter()
-            .filter_map(|nested_instr| {
-                T::parse_instruction(nested_instr.instruction.clone()).map(|decoded_instruction| {
-                    ParsedInstruction {
+            .enumerate()
+            .for_each(|(i, nested_instr)| {
+                println!("Nested instruction: {}", i);
+                if let Some(parsed) = T::parse_instruction(nested_instr.instruction.clone()) {
+                    println!("parsed instruction: {:#?}", parsed);
+                    parsed_instructions.push(ParsedInstruction {
                         program_id: nested_instr.instruction.program_id,
-                        instruction: decoded_instruction,
+                        instruction: parsed,
                         inner_instructions: self
                             .parse_instructions(&nested_instr.inner_instructions),
-                    }
-                })
-            })
-            .collect()
+                    });
+                }
+            });
+
+        parsed_instructions
     }
 
     fn matches_schema(&self, instructions: &[ParsedInstruction<T>]) -> Option<U>
@@ -73,7 +82,13 @@ where
     U: DeserializeOwned + Send + Sync + 'static,
 {
     async fn run(&self, instructions: Vec<NestedInstruction>) -> CarbonResult<()> {
+        // println!("Nested instructions: {:#?}", instructions);
+
         let parsed_instructions = self.parse_instructions(&instructions);
+
+        // println!("Parsed instructions: {:#?}", parsed_instructions);
+
+        println!("OUT");
 
         if let Some(matched_data) = self.matches_schema(&parsed_instructions) {
             self.processor.process(matched_data).await?;
