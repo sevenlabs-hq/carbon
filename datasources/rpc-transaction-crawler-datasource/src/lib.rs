@@ -25,7 +25,6 @@ pub struct Filters {
     pub accounts: Option<Vec<Pubkey>>,
     pub before_signature: Option<Signature>,
     pub until_signature: Option<Signature>,
-    pub commitment: Option<CommitmentConfig>,
 }
 
 impl Filters {
@@ -33,13 +32,11 @@ impl Filters {
         accounts: Option<Vec<Pubkey>>,
         before_signature: Option<Signature>,
         until_signature: Option<Signature>,
-        commitment: Option<CommitmentConfig>,
     ) -> Self {
         Filters {
             accounts,
             before_signature,
             until_signature,
-            commitment,
         }
     }
 }
@@ -50,6 +47,7 @@ pub struct RpcTransactionCrawler {
     pub batch_limit: usize,
     pub polling_interval: Duration,
     pub filters: Filters,
+    pub commitment: Option<CommitmentConfig>,
 }
 
 impl RpcTransactionCrawler {
@@ -59,6 +57,7 @@ impl RpcTransactionCrawler {
         batch_limit: usize,
         polling_interval: Duration,
         filters: Filters,
+        commitment: Option<CommitmentConfig>,
     ) -> Self {
         RpcTransactionCrawler {
             rpc_url,
@@ -66,6 +65,7 @@ impl RpcTransactionCrawler {
             batch_limit,
             polling_interval,
             filters,
+            commitment,
         }
     }
 }
@@ -82,6 +82,7 @@ impl Datasource for RpcTransactionCrawler {
         let polling_interval = self.polling_interval;
         let filters = self.filters.clone();
         let sender = sender.clone();
+        let commitment = self.commitment;
 
         let abort_handle = tokio::spawn(async move {
             loop {
@@ -91,9 +92,7 @@ impl Datasource for RpcTransactionCrawler {
                         limit: Some(batch_limit),
                         before: filters.before_signature,
                         until: filters.until_signature,
-                        commitment: Some(
-                            filters.commitment.unwrap_or(CommitmentConfig::confirmed()),
-                        ),
+                        commitment: Some(commitment.unwrap_or(CommitmentConfig::confirmed())),
                     },
                 ) {
                     Ok(sigs) => sigs,
@@ -161,32 +160,44 @@ impl Datasource for RpcTransactionCrawler {
                                 .inner_instructions
                                 .unwrap_or_else(|| vec![])
                                 .iter()
-                                .map(|iixs| InnerInstructions {
-                                    index: iixs.index,
-                                    instructions: iixs
+                                .map(|inner_instruction_group| InnerInstructions {
+                                    index: inner_instruction_group.index,
+                                    instructions: inner_instruction_group
                                         .instructions
                                         .iter()
-                                        .map(|iix| match iix {
-                                            UiInstruction::Compiled(ui_compiled_instruction) => {
+                                        .map(|ui_instruction| match ui_instruction {
+                                            UiInstruction::Compiled(compiled_ui_instruction) => {
+                                                let decoded_data = bs58::decode(
+                                                    compiled_ui_instruction.data.clone(),
+                                                )
+                                                .into_vec()
+                                                .unwrap_or_else(|_| vec![]); 
+
                                                 InnerInstruction {
                                                     instruction: CompiledInstruction {
-                                                        program_id_index: ui_compiled_instruction
+                                                        program_id_index: compiled_ui_instruction
                                                             .program_id_index,
-                                                        accounts: ui_compiled_instruction
+                                                        accounts: compiled_ui_instruction
                                                             .accounts
                                                             .clone(),
-                                                        data: bs58::decode(
-                                                            ui_compiled_instruction.data.clone(),
-                                                        )
-                                                        .into_vec()
-                                                        .unwrap_or_else(|_| vec![]),
+                                                        data: decoded_data,
                                                     },
-                                                    stack_height: ui_compiled_instruction
+                                                    stack_height: compiled_ui_instruction
                                                         .stack_height,
                                                 }
                                             }
                                             _ => {
-                                                panic!("unimplemented instruction type");
+                                                log::error!(
+                                                    "Unsupported instruction type encountered"
+                                                );
+                                                InnerInstruction {
+                                                    instruction: CompiledInstruction {
+                                                        program_id_index: 0,
+                                                        accounts: vec![],
+                                                        data: vec![],
+                                                    },
+                                                    stack_height: None,
+                                                }
                                             }
                                         })
                                         .collect::<Vec<InnerInstruction>>(),
@@ -199,16 +210,20 @@ impl Datasource for RpcTransactionCrawler {
                                 .pre_token_balances
                                 .unwrap_or_else(|| vec![])
                                 .iter()
-                                .filter_map(|tok| {
+                                .filter_map(|transaction_token_balance| {
                                     if let (
                                         OptionSerializer::Some(owner),
                                         OptionSerializer::Some(program_id),
-                                    ) = (tok.owner.as_ref(), tok.program_id.as_ref())
-                                    {
+                                    ) = (
+                                        transaction_token_balance.owner.as_ref(),
+                                        transaction_token_balance.program_id.as_ref(),
+                                    ) {
                                         Some(TransactionTokenBalance {
-                                            account_index: tok.account_index,
-                                            mint: tok.mint.clone(),
-                                            ui_token_amount: tok.ui_token_amount.clone(),
+                                            account_index: transaction_token_balance.account_index,
+                                            mint: transaction_token_balance.mint.clone(),
+                                            ui_token_amount: transaction_token_balance
+                                                .ui_token_amount
+                                                .clone(),
                                             owner: owner.to_string(),
                                             program_id: program_id.to_string(),
                                         })
@@ -223,16 +238,20 @@ impl Datasource for RpcTransactionCrawler {
                                 .post_token_balances
                                 .unwrap_or_else(|| vec![])
                                 .iter()
-                                .filter_map(|ptb| {
+                                .filter_map(|transaction_token_balance| {
                                     if let (
                                         OptionSerializer::Some(owner),
                                         OptionSerializer::Some(program_id),
-                                    ) = (ptb.owner.as_ref(), ptb.program_id.as_ref())
-                                    {
+                                    ) = (
+                                        transaction_token_balance.owner.as_ref(),
+                                        transaction_token_balance.program_id.as_ref(),
+                                    ) {
                                         Some(TransactionTokenBalance {
-                                            account_index: ptb.account_index,
-                                            mint: ptb.mint.clone(),
-                                            ui_token_amount: ptb.ui_token_amount.clone(),
+                                            account_index: transaction_token_balance.account_index,
+                                            mint: transaction_token_balance.mint.clone(),
+                                            ui_token_amount: transaction_token_balance
+                                                .ui_token_amount
+                                                .clone(),
                                             owner: owner.to_string(),
                                             program_id: program_id.to_string(),
                                         })
@@ -276,15 +295,15 @@ impl Datasource for RpcTransactionCrawler {
                                     .collect::<Vec<Pubkey>>(),
                             }
                         },
-                        return_data: meta_original.return_data.map(|ui_data| {
+                        return_data: meta_original.return_data.map(|return_data| {
                             TransactionReturnData {
-                                program_id: ui_data.program_id.parse().unwrap_or_default(),
-                                data: ui_data.data.0.as_bytes().to_vec(),
+                                program_id: return_data.program_id.parse().unwrap_or_default(),
+                                data: return_data.data.0.as_bytes().to_vec(),
                             }
                         }),
                         compute_units_consumed: meta_original
                             .compute_units_consumed
-                            .map(|cu| cu)
+                            .map(|compute_unit_consumed| compute_unit_consumed)
                             .or(None),
                     };
 
