@@ -125,30 +125,55 @@ impl Datasource for RpcTransactionCrawler {
 
                     let transaction = fetched_transaction.transaction;
 
+                    let meta_original = if let Some(meta) = transaction.clone().meta {
+                        meta
+                    } else {
+                        log::warn!("Meta is malformed for transaction: {:?}", signature);
+                        continue;
+                    };
+
                     let Some(decoded_transaction) = transaction.transaction.decode() else {
                         log::error!("Failed to decode transaction: {:?}", transaction);
                         continue;
                     };
 
                     if let Some(accounts) = &filters.accounts {
-                        let static_accounts = decoded_transaction.message.static_account_keys();
-
                         let account_set: HashSet<Pubkey> = accounts.iter().cloned().collect();
 
-                        if !static_accounts
+                        let static_accounts = decoded_transaction.message.static_account_keys();
+
+                        let loaded_addresses = meta_original
+                            .loaded_addresses
+                            .clone()
+                            .unwrap_or_else(|| UiLoadedAddresses {
+                                writable: vec![],
+                                readonly: vec![],
+                            });
+
+                        let all_accounts: HashSet<Pubkey> = static_accounts
+                            .iter()
+                            .cloned()
+                            .chain(
+                                loaded_addresses
+                                    .writable
+                                    .iter()
+                                    .filter_map(|s| Pubkey::from_str(s).ok()),
+                            )
+                            .chain(
+                                loaded_addresses
+                                    .readonly
+                                    .iter()
+                                    .filter_map(|s| Pubkey::from_str(s).ok()),
+                            )
+                            .collect();
+
+                        if !all_accounts
                             .iter()
                             .any(|account| account_set.contains(account))
                         {
                             continue;
                         }
                     }
-
-                    let meta_original = if let Some(meta) = transaction.meta {
-                        meta
-                    } else {
-                        log::warn!("Meta is malformed for transaction: {:?}", signature);
-                        continue;
-                    };
 
                     let meta_needed = TransactionStatusMeta {
                         status: meta_original.status,
@@ -172,7 +197,6 @@ impl Datasource for RpcTransactionCrawler {
                                                 )
                                                 .into_vec()
                                                 .unwrap_or_else(|_| vec![]); 
-
                                                 InnerInstruction {
                                                     instruction: CompiledInstruction {
                                                         program_id_index: compiled_ui_instruction
