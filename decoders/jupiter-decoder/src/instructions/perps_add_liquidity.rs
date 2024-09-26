@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xfc459598d18e434b")]
+#[carbon(discriminator = "0xaaeeded6f5ca6c9b")]
 pub struct PerpsAddLiquidity{
 }
 

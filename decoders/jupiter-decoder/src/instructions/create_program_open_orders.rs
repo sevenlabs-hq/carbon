@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0x3ac9a770941a9179")]
+#[carbon(discriminator = "0x1ce22094bc8871ab")]
 pub struct CreateProgramOpenOrders{
     pub id: u8,
 }

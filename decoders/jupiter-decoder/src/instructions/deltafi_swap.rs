@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xcc825879adad5a26")]
+#[carbon(discriminator = "0x84e66678cd09edbe")]
 pub struct DeltafiSwap{
 }
 

@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0x8f954de833546741")]
+#[carbon(discriminator = "0x896dfdfd466d0b64")]
 pub struct BalansolSwap{
 }
 

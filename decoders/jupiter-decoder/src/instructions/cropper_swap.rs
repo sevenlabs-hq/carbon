@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0x53fd3698116213f0")]
+#[carbon(discriminator = "0xe6d82fb6a575d267")]
 pub struct CropperSwap{
 }
 

@@ -18,7 +18,7 @@ pub struct DecodedInstruction<T> {
 pub trait InstructionDecoder {
     type InstructionType;
 
-    fn decode_instructions(
+    fn decode_instruction(
         &self,
         instruction: solana_sdk::instruction::Instruction,
     ) -> Option<DecodedInstruction<Self::InstructionType>>;
@@ -44,9 +44,8 @@ impl<T: Send> InstructionPipes for InstructionPipe<T> {
         &self,
         instruction_with_metadata: (InstructionMetadata, solana_sdk::instruction::Instruction),
     ) -> CarbonResult<()> {
-        if let Some(decoded_instruction) = self
-            .decoder
-            .decode_instructions(instruction_with_metadata.1)
+        if let Some(decoded_instruction) =
+            self.decoder.decode_instruction(instruction_with_metadata.1)
         {
             self.processor
                 .process((instruction_with_metadata.0, decoded_instruction))

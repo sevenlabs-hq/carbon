@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xdc45026867832d3e")]
+#[carbon(discriminator = "0xbbc076d43e6d1cd5")]
 pub struct TokenSwap{
 }
 

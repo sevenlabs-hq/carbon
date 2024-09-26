@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0x99ea2c73fef772d0")]
+#[carbon(discriminator = "0x9b38d0c61b3d95e9")]
 pub struct StepSwap{
 }
 

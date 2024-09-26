@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0x8ad1b5d5b7dfcabb")]
+#[carbon(discriminator = "0x2292a02633553a97")]
 pub struct DradexSwap{
 }
 

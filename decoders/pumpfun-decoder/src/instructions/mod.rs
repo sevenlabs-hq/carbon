@@ -31,7 +31,7 @@ pub enum PumpFunInstruction {
 impl InstructionDecoder for PumpfunDecoder {
     type InstructionType = PumpFunInstruction;
 
-    fn decode_instructions(
+    fn decode_instruction(
         &self,
         instruction: solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {

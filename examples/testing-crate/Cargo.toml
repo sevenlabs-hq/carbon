@@ -9,6 +9,7 @@ carbon-core = { path = "../../crates/core" }
 carbon-macros = { path = "../../crates/macros" }
 carbon-proc-macros = { path = "../../crates/proc-macros" }
 jupiter-decoder = {path = "../../decoders/jupiter-decoder"}
+amm-v3-decoder = { path = "../../decoders/amm-v3-decoder"}
 futures = "0.3.30"
 async-trait = "0.1.82"
 solana-sdk = "2.0.9"

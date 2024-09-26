@@ -16,6 +16,7 @@ pub fn carbon_deserialize_derive(input: TokenStream) -> TokenStream {
         #[automatically_derived]
         impl carbon_core::borsh::BorshDeserialize for #name {
             fn deserialize_reader<R: std::io::Read>(reader: &mut R) -> ::core::result::Result<Self, carbon_core::borsh::io::Error> {
+                println!("deserializing reader...");
                 carbon_core::borsh::BorshDeserialize::deserialize_reader(reader)
             }
         }
@@ -33,6 +34,8 @@ pub fn carbon_deserialize_derive(input: TokenStream) -> TokenStream {
                     return None;
                 }
 
+                println!("is this the last thing?");
+                // I think this is where it is being stack overflow
                 carbon_core::borsh::BorshDeserialize::try_from_slice(rest).ok()
             }
         }
@@ -155,7 +158,8 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
         });
 
         parse_instruction_arms.push(quote! {
-            if let Some(decoded_instruction) = #decoder_expr.decode_instructions(instruction.clone()) {
+            println!("instruction: {:#?}", instruction);
+            if let Some(decoded_instruction) = #decoder_expr.decode_instruction(instruction.clone()) {
                 return Some(DecodedInstruction {
                     program_id: instruction.program_id,
                     data: #instructions_enum_name::#program_variant(decoded_instruction.data),
@@ -192,6 +196,7 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
             fn parse_instruction(
                 instruction: solana_sdk::instruction::Instruction
             ) -> Option<DecodedInstruction<Self>> {
+                // println!("{:#?}\n", instruction);
                 #(#parse_instruction_arms)*
                 None
             }

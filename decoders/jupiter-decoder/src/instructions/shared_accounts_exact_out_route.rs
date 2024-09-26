@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0x41d8fa8dac726b69")]
+#[carbon(discriminator = "0xb0d169a89a7d453e")]
 pub struct SharedAccountsExactOutRoute{
     pub id: u8,
     pub route_plan: Vec<RoutePlanStep>,

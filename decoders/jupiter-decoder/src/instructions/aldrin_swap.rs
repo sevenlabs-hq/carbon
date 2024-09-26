@@ -5,7 +5,7 @@ use crate::types::*;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0x2fdaaf81ed066e9f")]
+#[carbon(discriminator = "0xfbe877a6e1b9a9a1")]
 pub struct AldrinSwap{
 }
 
