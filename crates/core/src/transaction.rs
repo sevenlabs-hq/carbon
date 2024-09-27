@@ -47,9 +47,7 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
             .iter()
             .enumerate()
             .for_each(|(i, nested_instr)| {
-                println!("Nested instruction: {}", i);
                 if let Some(parsed) = T::parse_instruction(nested_instr.instruction.clone()) {
-                    println!("parsed instruction: {:#?}", parsed);
                     parsed_instructions.push(ParsedInstruction {
                         program_id: nested_instr.instruction.program_id,
                         instruction: parsed,
@@ -82,13 +80,9 @@ where
     U: DeserializeOwned + Send + Sync + 'static,
 {
     async fn run(&self, instructions: Vec<NestedInstruction>) -> CarbonResult<()> {
-        // println!("Nested instructions: {:#?}", instructions);
-
         let parsed_instructions = self.parse_instructions(&instructions);
 
-        // println!("Parsed instructions: {:#?}", parsed_instructions);
-
-        println!("OUT");
+        println!("Parsed instructions: {:#?}", parsed_instructions);
 
         if let Some(matched_data) = self.matches_schema(&parsed_instructions) {
             self.processor.process(matched_data).await?;

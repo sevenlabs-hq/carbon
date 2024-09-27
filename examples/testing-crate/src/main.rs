@@ -1,5 +1,3 @@
-use amm_v3_decoder::instructions::*;
-use amm_v3_decoder::AmmV3Decoder;
 use carbon_core::account::{AccountDecoder, AccountMetadata, DecodedAccount};
 use carbon_core::datasource::TransactionUpdate;
 use carbon_core::schema::{InstructionSchemaNode, SchemaNode, TransactionSchema};
@@ -34,6 +32,7 @@ use carbon_core::{
     instruction::{DecodedInstruction, InstructionDecoder},
 };
 pub use carbon_macros::*;
+use once_cell::sync::Lazy;
 
 pub struct TestDatasource;
 
@@ -557,29 +556,11 @@ instruction_decoder_collection!(
     // MeteoraSwap => MeteoraInstructionDecoder => MeteoraInstruction,
     // OrcaSwap => OrcaInstructionDecoder => OrcaInstruction,
     JupSwap => JupiterDecoder => JupiterInstruction,
-    RaydiumClmm => AmmV3Decoder => AmmV3Instruction,
+    // RaydiumClmm => AmmV3Decoder => AmmV3Instruction,
 );
 
-#[tokio::main]
-pub async fn main() -> CarbonResult<()> {
-    env_logger::init();
-
-    // let jup_schema: TransactionSchema<AllInstructions> = schema![
-    //     any
-    //     [
-    //         AllInstructionTypes::JupSwap(JupiterInstructionType::CropperSwap),
-    //         "jup_cropper_swap_ix_1",
-    //         []
-    //     ]
-    //     any
-    //     [
-    //         AllInstructionTypes::JupSwap(JupiterInstructionType::MeteoraSwap),
-    //         "jup_meteora_swap_ix_2",
-    //         []
-    //     ]
-    // ];
-
-    let jup_schema: TransactionSchema<AllInstructions> = schema![
+static JUPITER_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
+    schema![
         any
         [
             AllInstructionTypes::JupSwap(JupiterInstructionType::SwapEvent),
@@ -587,22 +568,19 @@ pub async fn main() -> CarbonResult<()> {
             []
         ]
         any
-    ];
+    ]
+});
 
-    // let ray_schema: TransactionSchema<AllInstructions> = schema![
-    //     any
-    //     [
-    //         AllInstructionTypes::RaydiumClmm(AmmV3InstructionType::SwapEvent),
-    //         "ray_swap_event_ix_1",
-    //         []
-    //     ]
-    //     any
-    // ];
+// define_schema_output_accounts!(OrcaOutput, JUPITER_SCHEMA);
+
+#[tokio::main]
+pub async fn main() -> CarbonResult<()> {
+    env_logger::init();
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(TestDatasource)
         // .account(TokenProgramAccountDecoder, TokenProgramAccountProcessor)
-        .transaction(jup_schema, OrcaTransactionProcessor)
+        .transaction(JUPITER_SCHEMA.clone(), OrcaTransactionProcessor)
         .build()?
         .run()
         .await?;
