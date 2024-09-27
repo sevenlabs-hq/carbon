@@ -112,16 +112,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "amm-v3-decoder"
-version = "0.1.0"
-dependencies = [
- "carbon-core",
- "carbon-proc-macros",
- "serde",
- "solana-sdk",
-]
-
-[[package]]
 name = "android-tzdata"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -838,7 +828,7 @@ name = "carbon-core"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "borsh 1.5.1",
+ "borsh 0.10.3",
  "bs58 0.5.1",
  "futures",
  "log",
@@ -873,13 +863,16 @@ dependencies = [
 name = "carbon-proc-macros"
 version = "0.1.0"
 dependencies = [
+ "borsh-derive-internal 0.10.3",
  "carbon-core",
  "hex",
  "paste",
+ "proc-macro2",
  "quote",
  "serde",
  "solana-sdk",
  "syn 1.0.109",
+ "unicode-xid",
 ]
 
 [[package]]
@@ -4616,7 +4609,6 @@ dependencies = [
 name = "testing-crate"
 version = "0.1.0"
 dependencies = [
- "amm-v3-decoder",
  "async-trait",
  "bs58 0.5.1",
  "carbon-core",
@@ -4627,6 +4619,7 @@ dependencies = [
  "jupiter-decoder",
  "log",
  "mpl-token-metadata",
+ "once_cell",
  "paste",
  "serde",
  "solana-client",

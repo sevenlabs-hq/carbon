@@ -1,17 +1,13 @@
-use std::{collections::HashSet, iter::FromIterator};
+use std::collections::HashSet;
 
-use solana_client::rpc_client::RpcClient;
 use solana_sdk::{
-    address_lookup_table::{state::AddressLookupTable, AddressLookupTableAccount},
-    commitment_config::CommitmentConfig,
     instruction::AccountMeta,
     message::{
-        self,
         v0::{LoadedAddresses, LoadedMessage},
         VersionedMessage,
     },
     pubkey::Pubkey,
-    signer::Signer,
+    reserved_account_keys::ReservedAccountKeys,
 };
 
 use crate::{
@@ -47,11 +43,10 @@ pub fn extract_instructions_with_metadata(
     match message {
         VersionedMessage::Legacy(legacy) => {
             for (i, compiled_instruction) in legacy.instructions.iter().enumerate() {
-                // TODO: Check unwrap
                 let program_id = *legacy
                     .account_keys
                     .get(compiled_instruction.program_id_index as usize)
-                    .unwrap();
+                    .unwrap_or(&Pubkey::default());
 
                 let accounts: Vec<_> = compiled_instruction
                     .accounts
@@ -60,7 +55,7 @@ pub fn extract_instructions_with_metadata(
                         let account_pubkey = legacy.account_keys.get(*account_index as usize)?;
                         Some(AccountMeta {
                             pubkey: *account_pubkey,
-                            is_writable: legacy.is_writable(*account_index as usize),
+                            is_writable: legacy.is_maybe_writable(*account_index as usize, None),
                             is_signer: legacy.is_signer(*account_index as usize),
                         })
                     })
@@ -82,11 +77,10 @@ pub fn extract_instructions_with_metadata(
                     for inner_instructions_per_tx in inner_instructions {
                         if inner_instructions_per_tx.index == i as u8 {
                             for inner_instruction in inner_instructions_per_tx.instructions.iter() {
-                                // TODO: Check unwraps
                                 let program_id = *legacy
                                     .account_keys
                                     .get(inner_instruction.instruction.program_id_index as usize)
-                                    .unwrap();
+                                    .unwrap_or(&Pubkey::default());
 
                                 let accounts: Vec<_> = inner_instruction
                                     .instruction
@@ -97,7 +91,6 @@ pub fn extract_instructions_with_metadata(
                                             legacy.account_keys.get(*account_index as usize)?;
                                         return Some(AccountMeta {
                                             pubkey: *account_pubkey,
-                                            // TODO: Check if better to use deprecated and if not None here
                                             is_writable: legacy
                                                 .is_maybe_writable(*account_index as usize, None),
                                             is_signer: legacy.is_signer(*account_index as usize),
@@ -141,28 +134,24 @@ pub fn extract_instructions_with_metadata(
             let loaded_message = LoadedMessage::new(
                 v0.clone(),
                 loaded_addresses,
-                // TODO: I have no idea if this is right though, doesn't crash for me yet
-                &HashSet::from_iter(v0.account_keys.iter().cloned()),
+                &ReservedAccountKeys::empty_key_set(),
             );
 
             for (i, compiled_instruction) in v0.instructions.iter().enumerate() {
-                // TODO: Check unwrap
                 let program_id = *loaded_message
                     .account_keys()
                     .get(compiled_instruction.program_id_index as usize)
-                    .unwrap();
+                    .unwrap_or(&Pubkey::default());
 
                 let accounts: Vec<AccountMeta> = compiled_instruction
                     .accounts
                     .iter()
                     .filter_map(|account_index| {
-                        // TODO: Check unwrap
-                        let account_pubkey = loaded_message
-                            .account_keys()
-                            .get(*account_index as usize)
-                            .unwrap();
+                        let account_pubkey =
+                            loaded_message.account_keys().get(*account_index as usize);
+
                         return Some(AccountMeta {
-                            pubkey: account_pubkey.clone(),
+                            pubkey: account_pubkey.map(|acc| acc.clone()).unwrap_or_default(),
                             is_writable: loaded_message.is_writable(*account_index as usize),
                             is_signer: loaded_message.is_signer(*account_index as usize),
                         });
@@ -185,11 +174,10 @@ pub fn extract_instructions_with_metadata(
                     for inner_instructions_per_tx in inner_instructions {
                         if inner_instructions_per_tx.index == i as u8 {
                             for inner_instruction in inner_instructions_per_tx.instructions.iter() {
-                                // TODO: Check unwraps
                                 let program_id = *loaded_message
                                     .account_keys()
                                     .get(inner_instruction.instruction.program_id_index as usize)
-                                    .unwrap();
+                                    .unwrap_or(&Pubkey::default());
 
                                 let accounts: Vec<AccountMeta> = inner_instruction
                                     .instruction
@@ -238,14 +226,7 @@ pub fn extract_account_metas(
 ) -> CarbonResult<Vec<solana_sdk::instruction::AccountMeta>> {
     let mut accounts = Vec::<solana_sdk::instruction::AccountMeta>::new();
 
-    println!(
-        "Address table lookups: {:?}",
-        message.address_table_lookups()
-    );
-
     for account_index in compiled_instruction.accounts.iter() {
-        println!("compiled accounts: {:?}", compiled_instruction.accounts);
-        println!("account index: {}", account_index);
         accounts.push(solana_sdk::instruction::AccountMeta {
             pubkey: *message
                 .static_account_keys()

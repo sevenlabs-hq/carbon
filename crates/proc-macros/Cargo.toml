@@ -11,6 +11,9 @@ quote = "1.0"
 syn = { version = "1.0", features = ["full"] }
 solana-sdk = "2.0.9"
 serde = "1.0.136"
+borsh-derive-internal = "0.10.3"
+proc-macro2 = "1"
+unicode-xid = "0.2"
 
 
 [lib]

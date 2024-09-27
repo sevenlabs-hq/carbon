@@ -24,7 +24,7 @@ pub struct ParsedInstruction<T: InstructionDecoderCollection> {
     pub inner_instructions: Box<Vec<ParsedInstruction<T>>>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TransactionSchema<T: InstructionDecoderCollection> {
     pub root: Vec<SchemaNode<T>>,
 }
@@ -52,7 +52,6 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
                 }
                 SchemaNode::Instruction(ix) => {
                     if ix.ix_type != current_instruction.instruction.data.get_type() {
-                        println!("type: {:?}", ix.ix_type);
                         if !any {
                             return None;
                         } else {

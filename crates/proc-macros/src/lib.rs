@@ -1,25 +1,25 @@
+use borsh_derive_internal::*;
 use proc_macro::TokenStream;
+use proc_macro2::{Delimiter, Span, TokenStream as TokenStream2, TokenTree};
 use quote::{format_ident, quote};
-use syn::parse::{Parse, ParseStream};
-use syn::{parse_macro_input, DeriveInput, Lit, Meta, NestedMeta};
+use syn::parse::{Parse, ParseStream, Result};
+use syn::token::Comma;
+use syn::{parse_macro_input, DeriveInput, Item, Lit, Meta, NestedMeta};
 use syn::{Ident, ItemEnum, Token, TypePath};
+use unicode_xid::UnicodeXID;
 
 #[proc_macro_derive(CarbonDeserialize, attributes(carbon))]
-pub fn carbon_deserialize_derive(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
+pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream {
+    let derive_input = input_token_stream.clone();
+    let input = parse_macro_input!(derive_input as DeriveInput);
     let name = &input.ident;
 
-    let discriminator =
-        get_discriminator(&input.attrs).expect("Missing #[carbon(discriminator = \"...\")]");
+    let discriminator = get_discriminator(&input.attrs).unwrap_or(quote! { &[] });
+
+    let deser = gen_borsh_deserialize(input_token_stream);
 
     let expanded = quote! {
-        #[automatically_derived]
-        impl carbon_core::borsh::BorshDeserialize for #name {
-            fn deserialize_reader<R: std::io::Read>(reader: &mut R) -> ::core::result::Result<Self, carbon_core::borsh::io::Error> {
-                println!("deserializing reader...");
-                carbon_core::borsh::BorshDeserialize::deserialize_reader(reader)
-            }
-        }
+        #deser
 
         #[automatically_derived]
         impl CarbonDeserialize for #name {
@@ -34,14 +34,30 @@ pub fn carbon_deserialize_derive(input: TokenStream) -> TokenStream {
                     return None;
                 }
 
-                println!("is this the last thing?");
-                // I think this is where it is being stack overflow
                 carbon_core::borsh::BorshDeserialize::try_from_slice(rest).ok()
             }
         }
     };
 
     TokenStream::from(expanded)
+}
+
+fn gen_borsh_deserialize(input: TokenStream) -> TokenStream2 {
+    let cratename = Ident::new("borsh", Span::call_site());
+
+    let item: Item = syn::parse(input).unwrap();
+    let res = match item {
+        Item::Struct(item) => struct_de(&item, cratename),
+        Item::Enum(item) => enum_de(&item, cratename),
+        Item::Union(item) => union_de(&item, cratename),
+        // Derive macros can only be defined on structs, enums, and unions.
+        _ => unreachable!(),
+    };
+
+    match res {
+        Ok(res) => res,
+        Err(err) => err.to_compile_error(),
+    }
 }
 
 fn get_discriminator(attrs: &[syn::Attribute]) -> Option<quote::__private::TokenStream> {
@@ -158,7 +174,6 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
         });
 
         parse_instruction_arms.push(quote! {
-            println!("instruction: {:#?}", instruction);
             if let Some(decoded_instruction) = #decoder_expr.decode_instruction(instruction.clone()) {
                 return Some(DecodedInstruction {
                     program_id: instruction.program_id,
@@ -196,7 +211,6 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
             fn parse_instruction(
                 instruction: solana_sdk::instruction::Instruction
             ) -> Option<DecodedInstruction<Self>> {
-                // println!("{:#?}\n", instruction);
                 #(#parse_instruction_arms)*
                 None
             }
