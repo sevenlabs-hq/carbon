@@ -7,3 +7,7 @@ resolver = "2"
 carbon-core = { path = "crates/core" }
 carbon-macros = { path = "crates/macros" }
 carbon-proc-macros = { path = "crates/proc-macros" }
+
+[patch.crates-io.curve25519-dalek]
+git = "https://github.com/anza-xyz/curve25519-dalek.git"
+rev = "b500cdc2a920cd5bff9e2dd974d7b97349d61464"

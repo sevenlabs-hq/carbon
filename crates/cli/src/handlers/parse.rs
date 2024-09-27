@@ -146,7 +146,7 @@ crate-type = ["rlib"]
 [dependencies]
 carbon-core = {{ workspace = true }}
 carbon-proc-macros = {{ workspace = true }}
-solana-sdk = "2.0.10"
+solana-sdk = "=2.0.10"
 "#,
         decoder_name_kebab = decoder_name_kebab
     );

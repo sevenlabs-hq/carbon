@@ -9,7 +9,7 @@ carbon-core = { path = "../../crates/core" }
 carbon-macros = { path = "../../crates/macros" }
 futures = "0.3.30"
 async-trait = "0.1.82"
-solana-sdk = "2.0.9"
+solana-sdk = "=2.0.10"
 solana-transaction-status = "2.0.9"
 env_logger = "0.11.5"
 paste = "1.0.15"
