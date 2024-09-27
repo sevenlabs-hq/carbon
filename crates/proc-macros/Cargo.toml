@@ -9,7 +9,7 @@ hex = "0.4.3"
 paste = "1.0.15"
 quote = "1.0"
 syn = { version = "1.0", features = ["full"] }
-solana-sdk = "2.0.9"
+solana-sdk = "=2.0.10"
 
 [lib]
 crate-type = ["proc-macro"]

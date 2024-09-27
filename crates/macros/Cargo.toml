@@ -7,7 +7,7 @@ edition = "2018"
 carbon-core = { path = "../core" }
 hex = "0.4.3"
 paste = "1.0.15"
-solana-sdk = "2.0.9"
+solana-sdk = "=2.0.10"
 
 [lib]
 crate-type = ["rlib"]
