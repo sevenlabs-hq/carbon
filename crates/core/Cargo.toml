@@ -4,16 +4,17 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
+solana-sdk = { workspace = true }
+solana-transaction-status = { workspace = true }
+solana-client = { workspace = true }
+
 async-trait = "0.1.82"
 futures = "0.3.30"
 log = "0.4.22"
-solana-sdk = "=2.0.10"
-solana-transaction-status = "2.0.9"
 thiserror = "1.0.63"
 tokio = "1.40.0"
 serde = "1.0.144"
 serde_json = "1.0.85"
-solana-client = "2.0.9"
 bs58 = "0.5.1"
 borsh = { version = "1.5.1", features = ["derive"] }
 
