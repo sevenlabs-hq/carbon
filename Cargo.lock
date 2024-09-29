@@ -905,6 +905,9 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2 0.10.8",
+ "solana-client",
+ "solana-sdk",
+ "solana-transaction-status",
 ]
 
 [[package]]
@@ -940,7 +943,9 @@ dependencies = [
  "carbon-core",
  "hex",
  "paste",
+ "solana-client",
  "solana-sdk",
+ "solana-transaction-status",
 ]
 
 [[package]]
@@ -951,7 +956,9 @@ dependencies = [
  "hex",
  "paste",
  "quote",
+ "solana-client",
  "solana-sdk",
+ "solana-transaction-status",
  "syn 1.0.109",
 ]
 
@@ -2954,7 +2961,7 @@ checksum = "0c1318b19085f08681016926435853bbf7858f9c082d0999b80550ff5d9abe15"
 dependencies = [
  "bytes",
  "heck",
- "itertools 0.10.5",
+ "itertools 0.12.1",
  "log",
  "multimap",
  "once_cell",
@@ -2974,7 +2981,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e9552f850d5f0964a4e4d0bf306459ac29323ddfbae05e35a7c0d35cb0803cc5"
 dependencies = [
  "anyhow",
- "itertools 0.10.5",
+ "itertools 0.12.1",
  "proc-macro2",
  "quote",
  "syn 2.0.77",
