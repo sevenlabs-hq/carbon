@@ -17,18 +17,26 @@ pub trait Datasource {
 pub enum Update {
     Account(AccountUpdate),
     Transaction(TransactionUpdate),
+    AccountDeletion(AccountDeletion),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum UpdateType {
     AccountUpdate,
     Transaction,
+    AccountDeletion,
 }
 
 #[derive(Debug, Clone)]
 pub struct AccountUpdate {
     pub pubkey: Pubkey,
     pub account: solana_sdk::account::Account,
+    pub slot: u64,
+}
+
+#[derive(Debug, Clone)]
+pub struct AccountDeletion {
+    pub pubkey: Pubkey,
     pub slot: u64,
 }
 

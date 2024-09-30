@@ -114,6 +114,10 @@ impl Pipeline {
                     pipe.run(nested_instructions.clone()).await?;
                 }
             }
+
+            Update::AccountDeletion(account_deletion) => {
+
+            }
         };
         Ok(())
     }
