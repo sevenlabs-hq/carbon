@@ -1,19 +1,20 @@
 [package]
 name = "carbon-yellowstone-grpc-datasource"
 version = "0.1.0"
-edition = "2018"
+edition = "2021"
 
 [lib]
 crate-type = ["rlib"]
 
 [dependencies]
+yellowstone-grpc-proto = { version = "=1.15.0+solana.2.0.10", default-features = false, git = "https://github.com/rpcpool/yellowstone-grpc.git" }
+yellowstone-grpc-client = { version = "=1.16.2+solana.2.0.10", git = "https://github.com/rpcpool/yellowstone-grpc.git" }
+
 carbon-core = { workspace = true }
+
 solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
-
-yellowstone-grpc-proto = { version = "=1.15.0+solana.2.0.10", default-features = false, git = "https://github.com/rpcpool/yellowstone-grpc.git" }
-
 
 tokio = { version = "1.40.0", features = ["full"] }
 async-trait = "0.1.83"

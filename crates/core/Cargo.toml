@@ -4,9 +4,9 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
+solana-sdk = { workspace = true }
 
 async-trait = "0.1.82"
 futures = "0.3.30"
