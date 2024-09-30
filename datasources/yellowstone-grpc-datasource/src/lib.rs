@@ -64,34 +64,17 @@ impl Datasource for YellowstoneGrpcGeyserClient {
         let account_filters = self.account_filters.clone();
         let transaction_filters = self.transaction_filters.clone();
 
+        let mut geyser_client = GeyserGrpcClient::build_from_shared(endpoint)
+        .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?
+        .x_token(x_token)
+        .unwrap()
+        .connect_timeout(Duration::from_secs(10))
+        .timeout(Duration::from_secs(10))
+        .connect()
+        .await
+        .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?;
+
         let abort_handle = tokio::spawn(async move {
-            let geyser_client_build_result = GeyserGrpcClient::build_from_shared(endpoint);
-
-            if let Err(err) = geyser_client_build_result {
-                log::error!("Error building Geyser client: {}", err);
-                return;
-            }
-
-            let geyser_client_connection_result = geyser_client_build_result
-                .unwrap() // safe to unwrap
-                .x_token(x_token)
-                .unwrap()
-                .connect_timeout(Duration::from_secs(10))
-                .timeout(Duration::from_secs(10))
-                .connect()
-                .await
-                .map_err(|err| {
-                    log::error!("Error connecting to Geyser server: {}", err);
-                    err
-                });
-
-            if let Err(err) = geyser_client_connection_result {
-                log::error!("Failed to connect to Geyser server: {}", err);
-                return;
-            }
-
-            let mut geyser_client = geyser_client_connection_result.unwrap(); // safe to unwrap
-
             let subscribe_request = SubscribeRequest {
                 slots: HashMap::new(),
                 accounts: account_filters,
@@ -114,81 +97,115 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                         while let Some(message) = stream.next().await {
                             match message {
                                 Ok(msg) => match msg.update_oneof {
-                                    Some(UpdateOneof::Account(account)) => {
-                                        let account_slot = account.slot;
+                                    Some(UpdateOneof::Account(account_update)) => {
+                                       
 
-                                        if let Some(account_info) = account.account {
+                                        if let Some(account_info) = account_update.account {
 
-                                            let account_pubkey = Pubkey::try_from(account_info.pubkey.clone()).unwrap_or_default();
-
-                                            let account_owner_pubkey = Pubkey::try_from(account_info.owner.clone()).unwrap_or_default();
+                                            let Ok(account_pubkey) = Pubkey::try_from(account_info.pubkey.clone()) else {
+                                                log::error!("Failed to parse account_pubkey: {:?}", account_info.pubkey);
+                                                continue;
+                                            };
+                                            
+                                            let Ok(account_owner_pubkey) = Pubkey::try_from(account_info.owner.clone()) else {
+                                                log::error!("Failed to parse account_owner_pubkey: {:?}", account_info.owner);
+                                                continue;
+                                            };
 
                                             let account = Account {
                                                 lamports: account_info.lamports,
-                                                data:account_info.data,
-                                                owner:account_owner_pubkey,
-                                                executable:account_info.executable,
+                                                data: account_info.data,
+                                                owner: account_owner_pubkey,
+                                                executable: account_info.executable,
                                                 rent_epoch: account_info.rent_epoch
                                             };
 
                                             let update = Update::Account(AccountUpdate{
-                                                pubkey:account_pubkey,
-                                                account:account,
-                                                slot:account_slot,
+                                                pubkey: account_pubkey,
+                                                account: account,
+                                                slot: account_update.slot,
                                             });
 
                                             if let Err(e) = sender.send(update) {
-                                                log::error!("Failed to send account update for pubkey {:?} at slot {}: {:?}", account_pubkey, account_slot, e);
+                                                log::error!("Failed to send account update for pubkey {:?} at slot {}: {:?}", account_pubkey, account_update.slot, e);
                                                 continue;
                                             }
                                             
                                         } else {
-                                            log::error!("No account info in `UpdateOneof::Account` at slot {}", account_slot);
+                                            log::error!("No account info in `UpdateOneof::Account` at slot {}", account_update.slot);
                                         }
                                     }
 
-                                    Some(UpdateOneof::Transaction(transaction)) => {
-                                        
-                                        let transaction_slot = transaction.slot;
+                                    Some(UpdateOneof::Transaction(transaction_update)) => {
 
-                                        if let Some(transaction_info) = transaction.transaction {
+                                        if let Some(transaction_info) = transaction_update.transaction {
 
-                                            let signature = Signature::try_from(transaction_info.signature.clone())
-                                            .unwrap_or_default();
-                                        
-                                            let yellowstone_transaction = transaction_info.transaction.unwrap_or_default();
-
-                                            let yellowstone_tx_meta = transaction_info.meta.unwrap_or_default();
-
-                                            let versioned_transaction = create_tx_versioned(yellowstone_transaction).unwrap_or_default();
-
-                                            let meta_original = create_tx_meta(yellowstone_tx_meta).unwrap_or_default();
+                                            let signature = match Signature::try_from(transaction_info.signature.clone()) {
+                                                Ok(sig) => sig,
+                                                Err(err) => {
+                                                    log::error!("Failed to parse signature: {:?}, error: {:?}", transaction_info.signature, err);
+                                                    continue;
+                                                }
+                                            };
+                                            
+                                            let yellowstone_transaction = match transaction_info.transaction.clone() {
+                                                Some(tx) => tx,
+                                                None => {
+                                                    log::error!("Failed to retrieve yellowstone_transaction");
+                                                    continue;
+                                                }
+                                            };
+                                            
+                                            let yellowstone_tx_meta = match transaction_info.meta.clone() {
+                                                Some(meta) => meta,
+                                                None => {
+                                                    log::error!("Failed to retrieve yellowstone_tx_meta");
+                                                    continue;
+                                                }
+                                            };
+                                            
+                                            let versioned_transaction = match create_tx_versioned(yellowstone_transaction) {
+                                                Ok(tx) => tx,
+                                                Err(err) => {
+                                                    log::error!("Failed to create versioned transaction: {:?}", err);
+                                                    continue;
+                                                }
+                                            };
+                                            
+                                            let meta_original = match create_tx_meta(yellowstone_tx_meta) {
+                                                Ok(meta) => meta,
+                                                Err(err) => {
+                                                    log::error!("Failed to create transaction meta: {:?}", err);
+                                                    continue;
+                                                }
+                                            };
+                                            
 
                                             let update = Update::Transaction(TransactionUpdate {
                                                 signature: signature,
                                                 transaction: versioned_transaction ,
                                                 meta: meta_original,
                                                 is_vote: transaction_info.is_vote,
-                                                slot: transaction_slot,
+                                                slot: transaction_update.slot,
                                             });
                         
                                             if let Err(e) = sender.send(update) {
-                                                log::error!("Failed to send transaction update with signature {:?} at slot {}: {:?}", signature, transaction_slot, e);
+                                                log::error!("Failed to send transaction update with signature {:?} at slot {}: {:?}", signature, transaction_update.slot, e);
                                                 continue;
                                             }
                                             
                                         } else {
-                                            log::error!("No transaction info in `UpdateOneof::Transaction` at slot {}", transaction_slot);
+                                            log::error!("No transaction info in `UpdateOneof::Transaction` at slot {}", transaction_update.slot);
                                         }
                                     }
 
                                     Some(UpdateOneof::Ping(_)) => {
-                                        subscribe_tx
+                                      _  =  subscribe_tx
                                             .send(SubscribeRequest {
                                                 ping: Some(SubscribeRequestPing { id: 1 }),
                                                 ..Default::default()
                                             })
-                                            .await.unwrap_or_default();
+                                            .await
                                     }
 
                                     _ => {}
