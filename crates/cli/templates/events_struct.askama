@@ -1,10 +1,11 @@
 {% raw %}
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_proc_macros::CarbonDeserialize;
+use carbon_core::borsh;
 use crate::types::*;
 {% endraw %}
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
 #[carbon(discriminator = "{{ event.discriminator }}")]
 pub struct {{ event.struct_name }}{
     {%- for arg in event.args %}

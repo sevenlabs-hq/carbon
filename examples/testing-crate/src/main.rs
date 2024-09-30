@@ -1,8 +1,12 @@
 use carbon_core::account::{AccountDecoder, AccountMetadata, DecodedAccount};
 use carbon_core::datasource::TransactionUpdate;
 use carbon_core::schema::{InstructionSchemaNode, SchemaNode, TransactionSchema};
+use carbon_proc_macros::{instruction_decoder_collection, InstructionType};
+use jupiter_decoder::instructions::{JupiterInstruction, JupiterInstructionType};
+use jupiter_decoder::JupiterDecoder;
 use serde::Deserialize;
 use solana_client::rpc_client::RpcClient;
+use solana_client::rpc_config::RpcTransactionConfig;
 use solana_sdk::account::ReadableAccount;
 use solana_sdk::commitment_config::CommitmentConfig;
 use solana_sdk::instruction::CompiledInstruction;
@@ -14,7 +18,6 @@ use solana_transaction_status::{
     InnerInstruction, InnerInstructions, Reward, TransactionStatusMeta, TransactionTokenBalance,
     UiInstruction,
 };
-
 use std::str::FromStr;
 use std::time::Duration;
 
@@ -29,6 +32,7 @@ use carbon_core::{
     instruction::{DecodedInstruction, InstructionDecoder},
 };
 pub use carbon_macros::*;
+use once_cell::sync::Lazy;
 
 pub struct TestDatasource;
 
@@ -40,10 +44,17 @@ impl Datasource for TestDatasource {
     ) -> CarbonResult<tokio::task::AbortHandle> {
         let sender = sender.clone();
 
-        let rpc_client =
-            RpcClient::new_with_commitment("TODO".to_string(), CommitmentConfig::confirmed());
+        let rpc_client = RpcClient::new_with_commitment(
+            "https://mainnet.helius-rpc.com/?api-key=f194fa31-7113-491e-94b6-77760a72309f"
+                .to_string(),
+            CommitmentConfig::confirmed(),
+        );
 
-        let tx = rpc_client.get_transaction(&Signature::from_str("Xw9nEnKJMna6S7dfq2cnaZtUypW7MSYVWarUSEfjoRWaWP7K7ytDLkH4QD1w4jWzUbNL6FuT8DuvkKnUAcuFw6x").unwrap(),solana_transaction_status::UiTransactionEncoding::Base58).ok().unwrap();
+        let tx = rpc_client.get_transaction_with_config(&Signature::from_str("3fKfV8CUSGr9exbWzFo7EwkTAWbK6Ymg5w5g2grtcru9DaeH8717jWpaUKPckBwKczghgTXYPSZfCfxBLYgHHx1p").unwrap(), RpcTransactionConfig {
+            max_supported_transaction_version: Some(2),
+            encoding: Some(solana_transaction_status::UiTransactionEncoding::Base58),
+            commitment: Some(CommitmentConfig::confirmed())
+        }).ok().unwrap();
 
         let meta_original = tx.transaction.meta.unwrap();
 
@@ -149,7 +160,7 @@ impl Datasource for TestDatasource {
         };
 
         let update = Update::Transaction(TransactionUpdate {
-            signature: Signature::from_str("Xw9nEnKJMna6S7dfq2cnaZtUypW7MSYVWarUSEfjoRWaWP7K7ytDLkH4QD1w4jWzUbNL6FuT8DuvkKnUAcuFw6x").unwrap(),
+            signature: Signature::from_str("3fKfV8CUSGr9exbWzFo7EwkTAWbK6Ymg5w5g2grtcru9DaeH8717jWpaUKPckBwKczghgTXYPSZfCfxBLYgHHx1p").unwrap(),
             transaction: tx.transaction.transaction.decode().unwrap(),
             meta: meta_needed,
             is_vote: false,
@@ -295,7 +306,7 @@ pub enum TokenProgramAccount {
 impl AccountDecoder for TokenProgramAccountDecoder {
     type AccountType = TokenProgramAccount;
 
-    fn decode(
+    fn decode_account(
         &self,
         account: solana_sdk::account::Account,
     ) -> Option<DecodedAccount<Self::AccountType>> {
@@ -402,7 +413,7 @@ impl Processor for TokenProgramTransactionProcessor {
 
 // Meteora Test Start
 
-#[derive(Debug, Clone, Eq, Hash, PartialEq, serde::Serialize)]
+#[derive(Debug, Clone, Eq, Hash, PartialEq, serde::Serialize, InstructionType)]
 pub enum MeteoraInstruction {
     Swap,
 }
@@ -441,7 +452,7 @@ pub struct MeteoraInstructionDecoder;
 impl InstructionDecoder for MeteoraInstructionDecoder {
     type InstructionType = MeteoraInstruction;
 
-    fn decode(
+    fn decode_instruction(
         &self,
         instruction: solana_sdk::instruction::Instruction,
     ) -> Option<DecodedInstruction<Self::InstructionType>> {
@@ -492,7 +503,7 @@ impl Processor for MeteoraTransactionProcessor {
 
 // Orca Test Start
 
-#[derive(Debug, Clone, Eq, Hash, PartialEq, serde::Serialize)]
+#[derive(Debug, Clone, Eq, Hash, PartialEq, serde::Serialize, InstructionType)]
 pub enum OrcaInstruction {
     Swap,
 }
@@ -507,7 +518,7 @@ pub struct OrcaInstructionDecoder;
 impl InstructionDecoder for OrcaInstructionDecoder {
     type InstructionType = OrcaInstruction;
 
-    fn decode(
+    fn decode_instruction(
         &self,
         instruction: solana_sdk::instruction::Instruction,
     ) -> Option<DecodedInstruction<Self::InstructionType>> {
@@ -541,48 +552,35 @@ impl Processor for OrcaTransactionProcessor {
 // Orca Test End
 
 instruction_decoder_collection!(
-    AllInstructions, AllInstructionTypes,
-    // TokenTransfer => TokenProgramInstructionDecoder => TokenInstruction,
-    MeteoraSwap => MeteoraInstructionDecoder => MeteoraInstruction,
-    OrcaSwap => OrcaInstructionDecoder => OrcaInstruction,
-    MeteoraTransfer => MeteoraInstructionDecoder => MeteoraInstruction,
+    AllInstructions, AllInstructionTypes, AllPrograms,
+    // MeteoraSwap => MeteoraInstructionDecoder => MeteoraInstruction,
+    // OrcaSwap => OrcaInstructionDecoder => OrcaInstruction,
+    JupSwap => JupiterDecoder => JupiterInstruction,
+    // RaydiumClmm => AmmV3Decoder => AmmV3Instruction,
 );
+
+static JUPITER_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
+    schema![
+        any
+        [
+            AllInstructionTypes::JupSwap(JupiterInstructionType::SwapEvent),
+            "jup_swap_event_ix_1",
+            []
+        ]
+        any
+    ]
+});
+
+// define_schema_output_accounts!(OrcaOutput, JUPITER_SCHEMA);
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
     env_logger::init();
 
-    let meteora_schema: TransactionSchema<AllInstructions> = schema![
-        any
-        [
-            AllInstructionTypes::MeteoraSwap,
-            "meteora_swap_ix_1",
-            []
-        ]
-        any
-        [
-            AllInstructionTypes::OrcaSwap,
-            "orca_swap_ix_2",
-            []
-        ]
-        any
-    ];
-
-    let orca_schema: TransactionSchema<AllInstructions> = schema![
-        any
-        [
-            AllInstructionTypes::OrcaSwap,
-            "orca_swap_ix_2",
-            []
-        ]
-        any
-    ];
-
     carbon_core::pipeline::Pipeline::builder()
         .datasource(TestDatasource)
         // .account(TokenProgramAccountDecoder, TokenProgramAccountProcessor)
-        .transaction(meteora_schema, MeteoraTransactionProcessor)
-        .transaction(orca_schema, OrcaTransactionProcessor)
+        .transaction(JUPITER_SCHEMA.clone(), OrcaTransactionProcessor)
         .build()?
         .run()
         .await?;

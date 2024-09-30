@@ -14,6 +14,7 @@ pub mod set_params_event;
 pub mod trade_event;
 pub mod withdraw;
 
+#[derive(Debug, carbon_proc_macros::InstructionType)]
 pub enum PumpFunInstruction {
     Initialize(initialize::Initialize),
     SetParams(set_params::SetParams),
@@ -30,7 +31,7 @@ pub enum PumpFunInstruction {
 impl InstructionDecoder for PumpfunDecoder {
     type InstructionType = PumpFunInstruction;
 
-    fn decode(
+    fn decode_instruction(
         &self,
         instruction: solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {

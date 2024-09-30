@@ -12,6 +12,7 @@ pub mod {{ instruction.module_name }};
 pub mod {{ event.module_name }};
 {%- endfor %}
 
+#[derive(carbon_proc_macros::InstructionType, serde::Serialize, PartialEq, Eq, Debug, Clone, Hash)]
 pub enum {{ program_instruction_enum }} {
     {%- for instruction in instructions %}
     {{ instruction.struct_name }}({{ instruction.module_name }}::{{ instruction.struct_name }}),
@@ -24,7 +25,7 @@ pub enum {{ program_instruction_enum }} {
 impl InstructionDecoder for {{ decoder_name }} {
     type InstructionType = {{ program_instruction_enum }};
 
-    fn decode(
+    fn decode_instruction(
         &self,
         instruction: solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {

@@ -21,10 +21,10 @@ pub struct InstructionSchemaNode<T: InstructionDecoderCollection> {
 pub struct ParsedInstruction<T: InstructionDecoderCollection> {
     pub program_id: Pubkey,
     pub instruction: DecodedInstruction<T>,
-    pub inner_instructions: Vec<ParsedInstruction<T>>,
+    pub inner_instructions: Box<Vec<ParsedInstruction<T>>>,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct TransactionSchema<T: InstructionDecoderCollection> {
     pub root: Vec<SchemaNode<T>>,
 }
