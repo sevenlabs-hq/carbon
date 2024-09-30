@@ -1,0 +1,45 @@
+{% raw %}
+use super::*;
+use carbon_core::deserialize::CarbonDeserialize;
+use carbon_proc_macros::CarbonDeserialize;
+use carbon_core::borsh;
+{% endraw %}
+
+{%- match type_data.kind %}
+
+{%- when TypeKind::Struct %}
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
+pub struct {{ type_data.name }} {
+    {%- for field in type_data.fields %}
+    pub {{ field.name }}: {{ field.rust_type }},
+    {%- endfor %}
+}
+
+{%- when TypeKind::Enum with (variants) %}
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
+pub enum {{ type_data.name }} {
+    {%- for variant in variants %}
+    {{ variant.name -}}
+    {%- if let Some(fields) = variant.fields %}
+        {%- match fields %}
+            {%- when EnumVariantFields::Named with (field_datas) %}
+                {
+                    {%- for field in field_datas %}
+                    {{ field.name }}: {{ field.rust_type }},
+                    {%- endfor %}
+                }
+            {%- when EnumVariantFields::Unnamed with (unnameds) %}
+                (
+                    {%- for rust_type in unnameds %}
+                    {{ rust_type -}},
+                    {%- endfor %}
+                )
+        {%- endmatch %}
+    {% endif %},
+    {%- endfor %}
+}
+
+{% endmatch %}
+
