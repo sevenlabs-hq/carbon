@@ -6,9 +6,9 @@ edition = "2018"
 [dependencies]
 carbon-core = { workspace = true }
 carbon-macros = { workspace = true }
-solana-sdk = { workspace = true }
-solana-transaction-status = { workspace = true }
-solana-client = { workspace = true }
+solana-transaction-status = "=2.0.10"
+solana-client = "=2.0.10"
+solana-sdk = "=2.0.10"
 
 tokio = { version = "1.40.0", features = ["full"] }
 futures = "0.3.30"
