@@ -187,7 +187,8 @@ pub fn extract_instructions_with_metadata(
                                         let account_pubkey = loaded_message
                                             .account_keys()
                                             .get(*account_index as usize)
-                                            .unwrap_or(&Pubkey::default());
+                                            .map(|pubkey| pubkey.clone())
+                                            .unwrap_or_default();
                                         return Some(AccountMeta {
                                             pubkey: account_pubkey.clone(),
                                             is_writable: loaded_message
