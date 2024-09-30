@@ -890,6 +890,8 @@ dependencies = [
  "async-trait",
  "carbon-core",
  "env_logger 0.11.5",
+ "futures",
+ "futures-util",
  "log",
  "solana-client",
  "solana-sdk",
@@ -5583,6 +5585,9 @@ dependencies = [
  "bincode",
  "prost",
  "protobuf-src",
+ "solana-account-decoder",
+ "solana-sdk",
+ "solana-transaction-status",
  "tonic",
  "tonic-build",
 ]
