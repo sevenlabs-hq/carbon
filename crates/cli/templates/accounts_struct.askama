@@ -1,0 +1,15 @@
+{% raw %} 
+use carbon_core::deserialize::CarbonDeserialize; 
+use carbon_proc_macros::CarbonDeserialize; 
+use carbon_core::borsh;
+use crate::types::*;
+
+#[derive(CarbonDeserialize, Debug)] 
+{% endraw %} 
+
+#[carbon(discriminator = "{{account.discriminator }}")] 
+pub struct {{ account.struct_name }} { 
+    {%- for field in account.fields %} 
+        pub {{ field.name }}: {{ field.rust_type }}, 
+    {%- endfor %} 
+}

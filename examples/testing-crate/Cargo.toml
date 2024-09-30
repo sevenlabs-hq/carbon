@@ -7,6 +7,9 @@ edition = "2018"
 tokio = { version = "1.40.0", features = ["full"] }
 carbon-core = { path = "../../crates/core" }
 carbon-macros = { path = "../../crates/macros" }
+carbon-proc-macros = { path = "../../crates/proc-macros" }
+jupiter-decoder = {path = "../../decoders/jupiter-decoder"}
+# amm-v3-decoder = { path = "../../decoders/amm-v3-decoder"}
 futures = "0.3.30"
 async-trait = "0.1.82"
 solana-sdk = "2.0.9"
@@ -19,3 +22,4 @@ log = "0.4.22"
 serde = "1.0.136"
 solana-client = "2.0.9"
 bs58 = "0.5.1"
+once_cell = "1.17.1"
