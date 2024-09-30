@@ -82,8 +82,6 @@ where
     async fn run(&self, instructions: Vec<NestedInstruction>) -> CarbonResult<()> {
         let parsed_instructions = self.parse_instructions(&instructions);
 
-        println!("Parsed instructions: {:#?}", parsed_instructions);
-
         if let Some(matched_data) = self.matches_schema(&parsed_instructions) {
             self.processor.process(matched_data).await?;
         }
