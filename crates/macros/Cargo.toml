@@ -8,6 +8,9 @@ carbon-core = { path = "../core" }
 hex = "0.4.3"
 paste = "1.0.15"
 solana-sdk = "2.0.9"
+serde = "1.0.144"
+carbon-proc-macros = { path = "../../crates/proc-macros" }
+
 
 [lib]
 crate-type = ["rlib"]

@@ -18,3 +18,4 @@ unicode-xid = "0.2"
 
 [lib]
 crate-type = ["proc-macro"]
+proc-macro = true

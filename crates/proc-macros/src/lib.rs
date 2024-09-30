@@ -1,12 +1,15 @@
+use std::collections::HashSet;
+
 use borsh_derive_internal::*;
 use proc_macro::TokenStream;
-use proc_macro2::{Delimiter, Span, TokenStream as TokenStream2, TokenTree};
+use proc_macro2::{Span, TokenStream as TokenStream2};
 use quote::{format_ident, quote};
-use syn::parse::{Parse, ParseStream, Result};
-use syn::token::Comma;
-use syn::{parse_macro_input, DeriveInput, Item, Lit, Meta, NestedMeta};
+use syn::parse::{Parse, ParseStream};
+use syn::spanned::Spanned;
+use syn::{
+    bracketed, parse_macro_input, DeriveInput, Expr, ExprLit, Item, Lit, Meta, NestedMeta, Result,
+};
 use syn::{Ident, ItemEnum, Token, TypePath};
-use unicode_xid::UnicodeXID;
 
 #[proc_macro_derive(CarbonDeserialize, attributes(carbon))]
 pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream {
@@ -283,4 +286,224 @@ pub fn instruction_type_derive(input: TokenStream) -> TokenStream {
     };
 
     TokenStream::from(expanded)
+}
+
+// #[proc_macro]
+// pub fn generate_output_struct(input: TokenStream) -> TokenStream {
+//     let input = parse_macro_input!(input as GenerateOutputStructInput);
+
+//     let struct_name = &input.struct_name;
+//     let mut identifiers = Vec::new();
+//     input.collect_identifiers(&mut identifiers);
+
+//     identifiers = {
+//         let mut seen = std::collections::HashSet::new();
+//         identifiers
+//             .into_iter()
+//             .filter(|ident| seen.insert(ident.to_string()))
+//             .collect()
+//     };
+
+//     let fields = identifiers.iter().map(|ident| {
+//         quote! {
+//             pub #ident: (AllInstructionTypes, DecodedInstruction),
+//         }
+//     });
+
+//     // Generate the final struct code
+//     let expanded = quote! {
+//         #[derive(Debug, Clone, serde::Deserialize)]
+//         pub struct #struct_name {
+//             #(#fields)*
+//         }
+//     };
+
+//     // Return the generated code as a TokenStream
+//     TokenStream::from(expanded)
+// }
+
+// // Define the structures for parsing the macro input
+// struct GenerateOutputStructInput {
+//     struct_name: Ident,
+//     instructions: Vec<Instruction>,
+// }
+
+// enum Instruction {
+//     Any,
+//     InstructionNode {
+//         instruction_type: Expr,
+//         name: Ident,
+//         inner_instructions: Vec<Instruction>,
+//     },
+// }
+
+// impl Parse for GenerateOutputStructInput {
+//     fn parse(input: ParseStream) -> Result<Self> {
+//         // Parse the struct name
+//         let struct_name: Ident = input.parse()?;
+
+//         // Parse the instructions
+//         let instructions = parse_instructions(input)?;
+
+//         Ok(GenerateOutputStructInput {
+//             struct_name,
+//             instructions,
+//         })
+//     }
+// }
+
+// // Recursive function to parse instructions
+// fn parse_instructions(input: ParseStream) -> Result<Vec<Instruction>> {
+//     let mut instructions = Vec::new();
+
+//     while !input.is_empty() {
+//         // Skip optional commas
+//         while input.peek(Token![,]) {
+//             input.parse::<Token![,]>()?;
+//         }
+
+//         if input.peek(Ident) {
+//             let ident: Ident = input.parse()?;
+//             if ident == "any" {
+//                 instructions.push(Instruction::Any);
+//             } else {
+//                 return Err(syn::Error::new(ident.span(), "Unexpected identifier"));
+//             }
+//         } else if input.peek(syn::token::Bracket) {
+//             let instruction = parse_instruction(input)?;
+//             instructions.push(instruction);
+//         } else {
+//             // Consume unexpected tokens to prevent infinite loops
+//             input.parse::<proc_macro2::TokenTree>()?;
+//         }
+//     }
+
+//     Ok(instructions)
+// }
+
+// // Function to parse individual instruction
+// fn parse_instruction(input: ParseStream) -> Result<Instruction> {
+//     let content;
+//     syn::bracketed!(content in input);
+
+//     // Parse the instruction type
+//     let instruction_type: Expr = content.parse()?;
+
+//     // Skip optional commas
+//     while content.peek(Token![,]) {
+//         content.parse::<Token![,]>()?;
+//     }
+
+//     // Parse the instruction name (identifier or string literal)
+//     let name_expr: Expr = content.parse()?;
+//     let name = match name_expr {
+//         Expr::Path(expr_path) => {
+//             // It's an identifier
+//             if expr_path.path.segments.len() == 1 {
+//                 expr_path.path.segments[0].ident.clone()
+//             } else {
+//                 return Err(syn::Error::new(
+//                     expr_path.span(),
+//                     "Invalid identifier for instruction name",
+//                 ));
+//             }
+//         }
+//         Expr::Lit(ExprLit {
+//             lit: Lit::Str(lit_str),
+//             ..
+//         }) => {
+//             // It's a string literal, convert to identifier
+//             let name_str = lit_str.value();
+//             // Ensure the string is a valid Rust identifier
+//             format_ident!("{}", name_str)
+//         }
+//         _ => {
+//             return Err(syn::Error::new(
+//                 name_expr.span(),
+//                 "Instruction name must be an identifier or string literal",
+//             ));
+//         }
+//     };
+
+//     let mut inner_instructions = Vec::new();
+
+//     // Skip optional commas
+//     while content.peek(Token![,]) {
+//         content.parse::<Token![,]>()?;
+//     }
+
+//     // Check for inner instructions
+//     if !content.is_empty() {
+//         if content.peek(syn::token::Bracket) || content.peek(Ident) {
+//             // Parse inner instructions
+//             inner_instructions = parse_instructions(&content)?;
+//         } else {
+//             return Err(syn::Error::new(
+//                 content.span(),
+//                 "Expected inner instructions or 'any'",
+//             ));
+//         }
+//     }
+
+//     Ok(Instruction::InstructionNode {
+//         instruction_type,
+//         name,
+//         inner_instructions,
+//     })
+// }
+
+// impl GenerateOutputStructInput {
+//     fn collect_identifiers(&self, identifiers: &mut Vec<Ident>) {
+//         for instruction in &self.instructions {
+//             instruction.collect_identifiers(identifiers);
+//         }
+//     }
+// }
+
+// impl Instruction {
+//     fn collect_identifiers(&self, identifiers: &mut Vec<Ident>) {
+//         match self {
+//             Instruction::Any => {}
+//             Instruction::InstructionNode {
+//                 name,
+//                 inner_instructions,
+//                 ..
+//             } => {
+//                 identifiers.push(name.clone());
+//                 for instr in inner_instructions {
+//                     instr.collect_identifiers(identifiers);
+//                 }
+//             }
+//         }
+//     }
+// }
+
+use syn::ExprArray;
+
+#[proc_macro]
+pub fn generate_struct(input: TokenStream) -> TokenStream {
+    let input_expr = parse_macro_input!(input as ExprArray);
+
+    let mut fields = Vec::new();
+    // Iterate through each element in the array
+    for name in input_expr.elems {
+        if let Expr::Lit(expr_lit) = name {
+            if let syn::Lit::Str(lit_str) = expr_lit.lit {
+                // Convert the string literal into an identifier for the struct field
+                let field_name = syn::Ident::new(&lit_str.value(), lit_str.span());
+                fields.push(quote! {
+                    pub #field_name: AllInstructions
+                });
+            }
+        }
+    }
+
+    // Generate the struct with the collected fields
+    let output = quote! {
+        pub struct CarbonOutput {
+            #(#fields,)*
+        }
+    };
+
+    output.into()
 }

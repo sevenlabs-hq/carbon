@@ -854,8 +854,10 @@ name = "carbon-macros"
 version = "0.1.0"
 dependencies = [
  "carbon-core",
+ "carbon-proc-macros",
  "hex",
  "paste",
+ "serde",
  "solana-sdk",
 ]
 

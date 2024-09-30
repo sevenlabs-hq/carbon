@@ -533,22 +533,6 @@ impl InstructionDecoder for OrcaInstructionDecoder {
     }
 }
 
-#[derive(Clone, Debug, Deserialize)]
-pub struct OrcaOutput {}
-
-pub struct OrcaTransactionProcessor;
-#[async_trait]
-impl Processor for OrcaTransactionProcessor {
-    type InputType = OrcaOutput;
-
-    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
-        log::info!("Output: {:?}", data);
-
-        println!("Matched orca");
-        Ok(())
-    }
-}
-
 // Orca Test End
 
 instruction_decoder_collection!(
@@ -556,8 +540,28 @@ instruction_decoder_collection!(
     // MeteoraSwap => MeteoraInstructionDecoder => MeteoraInstruction,
     // OrcaSwap => OrcaInstructionDecoder => OrcaInstruction,
     JupSwap => JupiterDecoder => JupiterInstruction,
-    // RaydiumClmm => AmmV3Decoder => AmmV3Instruction,
+    RaydiumClmm => AmmV3Decoder => AmmV3Instruction,
 );
+
+// static JUPITER_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
+//     schema!(
+//         any
+//         [
+//             AllInstructionTypes::JupSwap(JupiterInstructionType::SwapEvent),
+//             "jup_swap_event_ix_1",
+//             [
+//                 any
+//                 [
+//                     AllInstructionTypes::JupSwap(JupiterInstructionType::SwapEvent),
+//                     "jup_swap_event_ix_inner_1",
+//                     []
+//                 ]
+//                 any
+//             ]
+//         ]
+//         any
+//     )
+// });
 
 static JUPITER_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
     schema![
@@ -565,13 +569,66 @@ static JUPITER_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
         [
             AllInstructionTypes::JupSwap(JupiterInstructionType::SwapEvent),
             "jup_swap_event_ix_1",
-            []
+            [
+                any
+                [
+                    AllInstructionTypes::JupSwap(JupiterInstructionType::SwapEvent),
+                    "jup_swap_event_ix_inner_1",
+                    []
+                ]
+                any
+            ]
         ]
         any
     ]
 });
 
-// define_schema_output_accounts!(OrcaOutput, JUPITER_SCHEMA);
+pub struct OrcaTransactionProcessor;
+#[async_trait]
+impl Processor for OrcaTransactionProcessor {
+    type InputType = MeteoraOutput;
+
+    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
+        log::info!("Output: {:?}", data);
+
+        println!("Data: {:?}", data);
+
+        println!("Matched orca");
+        Ok(())
+    }
+}
+
+// generate_output_struct!(
+//     JupiterOutput,
+//     any
+//     [
+//         AllInstructionTypes::JupSwap(JupiterInstructionType::SwapEvent),
+//         jup_swap_event_ix_1,
+//         [
+//             any
+//             [
+//                 AllInstructionTypes::JupSwap(JupiterInstructionType::SwapEvent),
+//                 jup_swap_event_ix_inner_1,
+//                 []
+//             ]
+//         ]
+//     ]
+//     any
+//     [
+//         AllInstructionTypes::JupSwap(JupiterInstructionType::ClaimToken),
+//         jup_token_ix_1,
+//         [
+//             any
+//             [
+//                 AllInstructionTypes::JupSwap(JupiterInstructionType::Claim),
+//                 jup_claim_ix_inner_1,
+//                 []
+//             ]
+//             any
+//         ]
+//     ]
+//     any
+// );
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
