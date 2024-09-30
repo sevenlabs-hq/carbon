@@ -187,14 +187,15 @@ pub fn extract_instructions_with_metadata(
                                         let account_pubkey = loaded_message
                                             .account_keys()
                                             .get(*account_index as usize)
-                                            .unwrap_or(&Pubkey::default());
-                                        return Some(AccountMeta {
-                                            pubkey: account_pubkey.clone(),
+                                            .cloned()
+                                            .unwrap_or_default();
+                                        Some(AccountMeta {
+                                            pubkey: account_pubkey, 
                                             is_writable: loaded_message
                                                 .is_writable(*account_index as usize),
                                             is_signer: loaded_message
                                                 .is_signer(*account_index as usize),
-                                        });
+                                        })
                                     })
                                     .collect();
 
