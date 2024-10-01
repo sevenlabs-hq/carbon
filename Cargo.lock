@@ -878,7 +878,9 @@ dependencies = [
  "async-trait",
  "carbon-core",
  "env_logger 0.11.5",
+ "futures",
  "log",
+ "retry",
  "solana-client",
  "solana-sdk",
  "solana-transaction-status",
@@ -2095,6 +2097,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "jupiter-decoder"
+version = "0.1.0"
+dependencies = [
+ "carbon-core",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "keccak"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2953,6 +2965,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "retry"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9166d72162de3575f950507683fac47e30f6f2c3836b71b7fbc61aa517c9c5f4"
+dependencies = [
+ "rand 0.8.5",
+]
+
+[[package]]
 name = "ring"
 version = "0.16.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2991,6 +3012,29 @@ dependencies = [
  "libc",
  "rtoolbox",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "rpc-transaction-crawler-test"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "carbon-rpc-transaction-crawler-datasource",
+ "env_logger 0.11.5",
+ "futures",
+ "jupiter-decoder",
+ "log",
+ "once_cell",
+ "paste",
+ "serde",
+ "serde_json",
+ "solana-client",
+ "solana-sdk",
+ "solana-transaction-status",
+ "tokio",
 ]
 
 [[package]]
