@@ -32,23 +32,18 @@ pub struct InstructionPipe<T: Send> {
 
 #[async_trait]
 pub trait InstructionPipes {
-    async fn run(
-        &self,
-        instruction_with_metadata: (InstructionMetadata, solana_sdk::instruction::Instruction),
-    ) -> CarbonResult<()>;
+    async fn run(&self, nested_instruction: &NestedInstruction) -> CarbonResult<()>;
 }
 
 #[async_trait]
 impl<T: Send> InstructionPipes for InstructionPipe<T> {
-    async fn run(
-        &self,
-        instruction_with_metadata: (InstructionMetadata, solana_sdk::instruction::Instruction),
-    ) -> CarbonResult<()> {
-        if let Some(decoded_instruction) =
-            self.decoder.decode_instruction(instruction_with_metadata.1)
+    async fn run(&self, nested_instruction: &NestedInstruction) -> CarbonResult<()> {
+        if let Some(decoded_instruction) = self
+            .decoder
+            .decode_instruction(nested_instruction.instruction.clone())
         {
             self.processor
-                .process((instruction_with_metadata.0, decoded_instruction))
+                .process((nested_instruction.metadata.clone(), decoded_instruction))
                 .await?;
         }
         Ok(())

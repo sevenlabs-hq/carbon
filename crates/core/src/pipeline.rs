@@ -101,14 +101,14 @@ impl Pipeline {
                     &transaction_update,
                 )?;
 
-                for instruction in instructions_with_metadata.iter().cloned() {
-                    for pipe in self.instruction_pipes.iter() {
-                        pipe.run(instruction.clone()).await?;
-                    }
-                }
-
                 let nested_instructions =
                     transformers::nest_instructions(instructions_with_metadata);
+
+                for nested_instruction in nested_instructions.iter().cloned() {
+                    for pipe in self.instruction_pipes.iter() {
+                        pipe.run(&nested_instruction).await?;
+                    }
+                }
 
                 for pipe in self.transaction_pipes.iter() {
                     pipe.run(nested_instructions.clone()).await?;
