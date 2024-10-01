@@ -8,6 +8,7 @@ tokio = { version = "1.40.0", features = ["full"] }
 carbon-core = { path = "../../crates/core" }
 carbon-macros = { path = "../../crates/macros" }
 carbon-proc-macros = { path = "../../crates/proc-macros" }
+investment-watches-program-decoder = { path = "../../decoders/investment-watches-program-decoder" }
 futures = "0.3.30"
 async-trait = "0.1.82"
 solana-sdk = "2.0.9"

@@ -12,7 +12,7 @@ pub mod {{ instruction.module_name }};
 pub mod {{ event.module_name }};
 {%- endfor %}
 
-#[derive(carbon_proc_macros::InstructionType, serde::Serialize, PartialEq, Eq, Debug, Clone, Hash)]
+#[derive(carbon_proc_macros::InstructionType, serde::Serialize, serde::Deserialize, PartialEq, Eq, Debug, Clone, Hash)]
 pub enum {{ program_instruction_enum }} {
     {%- for instruction in instructions %}
     {{ instruction.struct_name }}({{ instruction.module_name }}::{{ instruction.struct_name }}),

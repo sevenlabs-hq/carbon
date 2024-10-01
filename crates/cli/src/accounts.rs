@@ -1,4 +1,7 @@
-use crate::{idl::Idl, util::idl_type_to_rust_type};
+use std::io::Read;
+
+use crate::idl::Idl;
+use crate::{legacy_idl::LegacyIdl, util::idl_type_to_rust_type};
 use askama::Template;
 use heck::ToSnekCase;
 use heck::ToUpperCamelCase;
@@ -34,14 +37,15 @@ pub struct AccountsModTemplate<'a> {
     pub program_struct_name: String,
 }
 
-pub fn process_accounts(idl: &Idl) -> Vec<AccountData> {
+pub fn legacy_process_accounts(idl: &LegacyIdl) -> Vec<AccountData> {
     let mut accounts_data = Vec::new();
 
     for account in &idl.accounts {
         let module_name = account.name.to_snek_case();
         let struct_name = account.name.to_upper_camel_case();
         // TODO: Might be a problem
-        let discriminator = compute_account_discriminator(&account.name.to_upper_camel_case());
+        let discriminator =
+            legacy_compute_account_discriminator(&account.name.to_upper_camel_case());
 
         let mut fields = Vec::new();
 
@@ -66,11 +70,36 @@ pub fn process_accounts(idl: &Idl) -> Vec<AccountData> {
     accounts_data
 }
 
-fn compute_account_discriminator(account_name: &str) -> String {
+pub fn process_accounts(idl: &Idl) -> Vec<AccountData> {
+    let mut accounts_data = Vec::new();
+
+    for account in &idl.accounts {
+        let module_name = account.name.to_snek_case();
+        let struct_name = account.name.to_upper_camel_case();
+        let discriminator = compute_account_discriminator(&account.discriminator);
+
+        let fields = Vec::new();
+
+        accounts_data.push(AccountData {
+            struct_name,
+            module_name,
+            discriminator,
+            fields,
+        });
+    }
+
+    accounts_data
+}
+
+fn legacy_compute_account_discriminator(account_name: &str) -> String {
     let mut hasher = Sha256::new();
     let discriminator_input = format!("account:{}", account_name);
     hasher.update(discriminator_input.as_bytes());
     let hash = hasher.finalize();
     let discriminator_bytes = &hash[..8];
     format!("0x{}", hex::encode(discriminator_bytes))
+}
+
+fn compute_account_discriminator(bytes: &[u8]) -> String {
+    format!("0x{}", hex::encode(bytes))
 }
