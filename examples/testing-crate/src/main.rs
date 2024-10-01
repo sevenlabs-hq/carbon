@@ -43,8 +43,7 @@ impl Datasource for TestDatasource {
         let sender = sender.clone();
 
         let rpc_client = RpcClient::new_with_commitment(
-            "https://mainnet.helius-rpc.com/?api-key=f194fa31-7113-491e-94b6-77760a72309f"
-                .to_string(),
+            "https://api.mainnet-beta.solana.com".to_string(),
             CommitmentConfig::confirmed(),
         );
 
@@ -395,7 +394,7 @@ impl Processor for TokenProgramAccountProcessor {
 //     }
 // }
 
-/* 
+/*
 pub struct TokenProgramTransactionProcessor;
 #[async_trait]
 impl Processor for TokenProgramTransactionProcessor {

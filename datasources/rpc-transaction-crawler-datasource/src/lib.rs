@@ -3,6 +3,7 @@ use carbon_core::{
     datasource::{Datasource, TransactionUpdate, Update, UpdateType},
     error::CarbonResult,
 };
+use retry::{delay::Fixed, retry, OperationResult};
 use solana_client::{
     rpc_client::{GetConfirmedSignaturesForAddress2Config, RpcClient},
     rpc_config::RpcTransactionConfig,
@@ -19,6 +20,7 @@ use solana_transaction_status::{
 };
 use std::{collections::HashSet, str::FromStr, time::Duration};
 use tokio::sync::mpsc::UnboundedSender;
+use tokio::sync::{Semaphore, SemaphorePermit};
 
 #[derive(Debug, Clone)]
 pub struct Filters {
@@ -83,6 +85,7 @@ impl Datasource for RpcTransactionCrawler {
         let filters = self.filters.clone();
         let sender = sender.clone();
         let commitment = self.commitment;
+        let semaphore = Semaphore::new(20);
 
         let abort_handle = tokio::spawn(async move {
             loop {
@@ -108,19 +111,29 @@ impl Datasource for RpcTransactionCrawler {
                         continue;
                     };
 
-                    let fetched_transaction = match rpc_client.get_transaction_with_config(
-                        &signature,
-                        RpcTransactionConfig {
-                            encoding: Some(UiTransactionEncoding::Base64),
-                            commitment: None,
-                            max_supported_transaction_version: Some(0),
-                        },
-                    ) {
-                        Ok(tx) => tx,
-                        Err(e) => {
-                            log::error!("Failed to get transaction: {:?}", e);
-                            continue;
+                    let Ok(fetched_transaction) = retry(Fixed::from_millis(500).take(10), || {
+                        match rpc_client.get_transaction_with_config(
+                            &signature,
+                            RpcTransactionConfig {
+                                encoding: Some(UiTransactionEncoding::Base64),
+                                commitment: Some(
+                                    commitment.unwrap_or(CommitmentConfig::confirmed()),
+                                ),
+                                max_supported_transaction_version: Some(0),
+                            },
+                        ) {
+                            Ok(tx) => OperationResult::Ok(tx),
+                            Err(e) => {
+                                log::error!(
+                                    "Failed to get transaction: {:?}, signature: {:?}",
+                                    e,
+                                    signature
+                                );
+                                OperationResult::Retry(e)
+                            }
                         }
+                    }) else {
+                        continue;
                     };
 
                     let transaction = fetched_transaction.transaction;
@@ -196,7 +209,7 @@ impl Datasource for RpcTransactionCrawler {
                                                     compiled_ui_instruction.data.clone(),
                                                 )
                                                 .into_vec()
-                                                .unwrap_or_else(|_| vec![]); 
+                                                .unwrap_or_else(|_| vec![]);
                                                 InnerInstruction {
                                                     instruction: CompiledInstruction {
                                                         program_id_index: compiled_ui_instruction
@@ -333,7 +346,7 @@ impl Datasource for RpcTransactionCrawler {
 
                     let update = Update::Transaction(TransactionUpdate {
                         signature: signature,
-                        transaction: decoded_transaction,
+                        transaction: decoded_transaction.clone(),
                         meta: meta_needed,
                         is_vote: false,
                         slot: fetched_transaction.slot,
