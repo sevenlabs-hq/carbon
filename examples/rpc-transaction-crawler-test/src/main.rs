@@ -1,6 +1,5 @@
 use async_trait::async_trait;
-use carbon_core::datasource::Datasource;
-use carbon_core::datasource::Update;
+use carbon_core::instruction::InstructionMetadata;
 use carbon_core::processor::Processor;
 use carbon_core::schema::{InstructionSchemaNode, SchemaNode, TransactionSchema};
 use carbon_core::{
@@ -36,12 +35,13 @@ pub async fn main() -> CarbonResult<()> {
         1,                                                 // Batch limit
         Duration::from_secs(5),                            // Polling interval
         filters,                                           // Filters
-        Some(CommitmentConfig::confirmed()),               // Commitment config
+        Some(CommitmentConfig::finalized()),               // Commitment config
     );
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(transaction_crawler)
-        .transaction(AM1_SCHEMA.clone(), JupTransactionProcessor)
+        .transaction(JUPITER_SCHEMA.clone(), JupTransactionProcessor)
+        .instruction(JupiterDecoder, JupInstructionProcessor)
         .build()?
         .run()
         .await?;
@@ -65,12 +65,25 @@ impl Processor for JupTransactionProcessor {
     }
 }
 
+pub struct JupInstructionProcessor;
+
+#[async_trait]
+impl Processor for JupInstructionProcessor {
+    type InputType = (InstructionMetadata, DecodedInstruction<JupiterInstruction>);
+
+    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
+        println!("Matched Jupiter instruction: {:#?}", data);
+
+        Ok(())
+    }
+}
+
 instruction_decoder_collection!(
     AllInstructions, AllInstructionTypes, AllPrograms,
     JupSwap => JupiterDecoder => JupiterInstruction
 );
 
-static AM1_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
+static JUPITER_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
     schema![
         any
         [
