@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use serde::de::DeserializeOwned;
 
 use crate::{
@@ -16,7 +18,7 @@ use crate::{
 };
 
 pub struct Pipeline {
-    pub datasource: Box<dyn Datasource>,
+    pub datasources: Vec<Arc<dyn Datasource + Send + Sync>>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub instruction_pipes: Vec<Box<dyn InstructionPipes>>,
     pub transaction_pipes: Vec<Box<dyn TransactionPipes>>,
@@ -25,7 +27,7 @@ pub struct Pipeline {
 impl Pipeline {
     pub fn builder() -> PipelineBuilder {
         PipelineBuilder {
-            datasource: None,
+            datasources: Vec::new(),
             account_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
@@ -34,13 +36,26 @@ impl Pipeline {
 
     pub async fn run(&self) -> CarbonResult<()> {
         let (update_sender, mut update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
-        let _abort_handle = self.datasource.consume(&update_sender).await?;
+
+        for datasource in &self.datasources {
+            let sender_clone = update_sender.clone();
+            let datasource_clone = Arc::clone(datasource);
+            tokio::spawn(async move {
+                if let Err(e) = datasource_clone.consume(&sender_clone).await {
+                    log::error!("Datasource consume error: {:?}", e);
+                }
+            });
+        }
+
+        let mut provided_update_types = vec![];
+        for datasource in &self.datasources {
+            provided_update_types.extend(datasource.update_types());
+        }
+
+        // let _abort_handle = self.datasource.consume(&update_sender).await?;
 
         if !self.account_pipes.is_empty()
-            && !self
-                .datasource
-                .update_types()
-                .contains(&UpdateType::AccountUpdate)
+            && !provided_update_types.contains(&UpdateType::AccountUpdate)
         {
             return Err(Error::MissingUpdateTypeInDatasource(
                 UpdateType::AccountUpdate,
@@ -49,10 +64,7 @@ impl Pipeline {
 
         if !self.instruction_pipes.is_empty()
             || !self.transaction_pipes.is_empty()
-                && !self
-                    .datasource
-                    .update_types()
-                    .contains(&UpdateType::Transaction)
+                && !provided_update_types.contains(&UpdateType::Transaction)
         {
             return Err(Error::MissingUpdateTypeInDatasource(
                 UpdateType::Transaction,
@@ -120,7 +132,7 @@ impl Pipeline {
 }
 
 pub struct PipelineBuilder {
-    pub datasource: Option<Box<dyn Datasource>>,
+    pub datasources: Vec<Arc<dyn Datasource + Send + Sync>>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub instruction_pipes: Vec<Box<dyn InstructionPipes>>,
     pub transaction_pipes: Vec<Box<dyn TransactionPipes>>,
@@ -129,15 +141,20 @@ pub struct PipelineBuilder {
 impl PipelineBuilder {
     pub fn new() -> Self {
         Self {
-            datasource: None,
+            datasources: Vec::new(),
             account_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
         }
     }
 
-    pub fn datasource(mut self, datasource: impl Datasource + 'static) -> Self {
-        self.datasource = Some(Box::new(datasource));
+    pub fn datasource(mut self, datasource: impl Datasource + Send + Sync + 'static) -> Self {
+        self.datasources.push(Arc::new(datasource));
+        self
+    }
+
+    pub fn datasources(mut self, datasources: Vec<Arc<dyn Datasource + Send + Sync>>) -> Self {
+        self.datasources.extend(datasources);
         self
     }
 
@@ -187,7 +204,7 @@ impl PipelineBuilder {
 
     pub fn build(self) -> CarbonResult<Pipeline> {
         Ok(Pipeline {
-            datasource: self.datasource.ok_or(Error::MissingDatasource)?,
+            datasources: self.datasources,
             account_pipes: self.account_pipes,
             instruction_pipes: self.instruction_pipes,
             transaction_pipes: self.transaction_pipes,

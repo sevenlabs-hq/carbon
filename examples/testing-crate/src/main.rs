@@ -2,8 +2,8 @@ use carbon_core::account::{AccountDecoder, AccountMetadata, DecodedAccount};
 use carbon_core::datasource::TransactionUpdate;
 use carbon_core::schema::{InstructionSchemaNode, SchemaNode, TransactionSchema};
 use carbon_proc_macros::{instruction_decoder_collection, InstructionType};
-use jupiter_decoder::instructions::{JupiterInstruction, JupiterInstructionType};
-use jupiter_decoder::JupiterDecoder;
+// use jupiter_decoder::instructions::{JupiterInstruction, JupiterInstructionType};
+// use jupiter_decoder::JupiterDecoder;
 use serde::Deserialize;
 use solana_client::rpc_client::RpcClient;
 use solana_client::rpc_config::RpcTransactionConfig;
@@ -553,18 +553,18 @@ impl Processor for OrcaTransactionProcessor {
 
 instruction_decoder_collection!(
     AllInstructions, AllInstructionTypes, AllPrograms,
-    // MeteoraSwap => MeteoraInstructionDecoder => MeteoraInstruction,
+    MeteoraSwap => MeteoraInstructionDecoder => MeteoraInstruction,
     // OrcaSwap => OrcaInstructionDecoder => OrcaInstruction,
-    JupSwap => JupiterDecoder => JupiterInstruction,
+    // JupSwap => JupiterDecoder => JupiterInstruction,
     // RaydiumClmm => AmmV3Decoder => AmmV3Instruction,
 );
 
-static JUPITER_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
+static METEORA_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
     schema![
         any
         [
-            AllInstructionTypes::JupSwap(JupiterInstructionType::SwapEvent),
-            "jup_swap_event_ix_1",
+            AllInstructionTypes::MeteoraSwap(MeteoraInstructionType::Swap),
+            "meteora_swap_ix_1",
             []
         ]
         any
@@ -579,8 +579,9 @@ pub async fn main() -> CarbonResult<()> {
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(TestDatasource)
+        // .datasources(vec![TestDatasource])
         // .account(TokenProgramAccountDecoder, TokenProgramAccountProcessor)
-        .transaction(JUPITER_SCHEMA.clone(), OrcaTransactionProcessor)
+        .transaction(METEORA_SCHEMA.clone(), OrcaTransactionProcessor)
         .build()?
         .run()
         .await?;
