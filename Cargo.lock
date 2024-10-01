@@ -2016,16 +2016,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "investment-watches-program-decoder"
-version = "0.1.0"
-dependencies = [
- "carbon-core",
- "carbon-proc-macros",
- "serde",
- "solana-sdk",
-]
-
-[[package]]
 name = "ipnet"
 version = "2.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4602,7 +4592,6 @@ dependencies = [
  "carbon-proc-macros",
  "env_logger 0.11.5",
  "futures",
- "investment-watches-program-decoder",
  "log",
  "mpl-token-metadata",
  "once_cell",
