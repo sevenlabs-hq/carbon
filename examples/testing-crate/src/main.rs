@@ -2,6 +2,9 @@ use carbon_core::account::{AccountDecoder, AccountMetadata, DecodedAccount};
 use carbon_core::datasource::TransactionUpdate;
 use carbon_core::schema::{InstructionSchemaNode, SchemaNode, TransactionSchema};
 use carbon_proc_macros::{instruction_decoder_collection, InstructionType};
+// use investment_watches_program_decoder::instructions::InvestmentWatchesProgramInstruction;
+// use jupiter_decoder::instructions::{JupiterInstruction, JupiterInstructionType};
+// use jupiter_decoder::JupiterDecoder;
 use serde::Deserialize;
 use solana_client::rpc_client::RpcClient;
 use solana_client::rpc_config::RpcTransactionConfig;
@@ -534,7 +537,9 @@ impl InstructionDecoder for OrcaInstructionDecoder {
 }
 
 #[derive(Clone, Debug, Deserialize)]
-pub struct OrcaOutput {}
+pub struct OrcaOutput {
+    pub ix: InvestmentWatchesProgramInstruction,
+}
 
 pub struct OrcaTransactionProcessor;
 #[async_trait]

@@ -5,7 +5,7 @@ use carbon_core::borsh;
 use crate::types::*;
 {% endraw %}
 
-#[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 #[carbon(discriminator = "{{ event.discriminator }}")]
 pub struct {{ event.struct_name }}{
     {%- for arg in event.args %}
