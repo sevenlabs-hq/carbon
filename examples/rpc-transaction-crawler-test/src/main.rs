@@ -1,3 +1,4 @@
+mod jupiter;
 use async_trait::async_trait;
 use carbon_core::instruction::{InstructionMetadata, NestedInstruction};
 use carbon_core::processor::Processor;
@@ -10,13 +11,12 @@ use carbon_core::{
 use carbon_macros::*;
 use carbon_proc_macros::instruction_decoder_collection;
 use carbon_rpc_transaction_crawler_datasource::{Filters, RpcTransactionCrawler};
-use jupiter_decoder::instructions::{JupiterInstruction, JupiterInstructionType};
-use jupiter_decoder::JupiterDecoder;
+use jupiter::instructions::{JupiterInstruction, JupiterInstructionType};
+use jupiter::JupiterDecoder;
 use once_cell::sync::Lazy;
 use serde::Deserialize;
 use solana_sdk::{commitment_config::CommitmentConfig, pubkey::Pubkey};
 use std::{str::FromStr, time::Duration};
-
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
