@@ -17,7 +17,6 @@ log = "0.4.22"
 env_logger = "0.11.5"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1"
-jupiter-decoder = {path = "../../decoders/jupiter-decoder"}
 once_cell = "1.17.1"
 futures = "0.3.30"
 paste = "1.0.15"
