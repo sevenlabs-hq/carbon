@@ -2097,16 +2097,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "jupiter-decoder"
-version = "0.1.0"
-dependencies = [
- "carbon-core",
- "carbon-proc-macros",
- "serde",
- "solana-sdk",
-]
-
-[[package]]
 name = "keccak"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3025,7 +3015,6 @@ dependencies = [
  "carbon-rpc-transaction-crawler-datasource",
  "env_logger 0.11.5",
  "futures",
- "jupiter-decoder",
  "log",
  "once_cell",
  "paste",
