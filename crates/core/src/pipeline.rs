@@ -47,7 +47,6 @@ impl Pipeline {
             ));
         }
 
-        // TODO: Test this out later I don't get it and behaves weirdly
         if !self.instruction_pipes.is_empty()
             || !self.transaction_pipes.is_empty()
                 && !self
