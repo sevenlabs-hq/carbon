@@ -5,7 +5,7 @@ use carbon_core::borsh;
 use crate::types::*;
 
 
-#[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 #[carbon(discriminator = "0xe445a52e51cb9a1d494f4e7fb8d50ddc")]
 pub struct FeeEvent{
     pub account: solana_sdk::pubkey::Pubkey,
