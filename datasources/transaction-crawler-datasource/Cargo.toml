@@ -1,7 +1,0 @@
-[package]
-name = "carbon-transaction-crawler-datasource"
-version = "0.1.0"
-edition = "2018"
-
-[lib]
-crate-type = ["rlib"]

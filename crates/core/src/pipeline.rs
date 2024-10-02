@@ -47,12 +47,11 @@ impl Pipeline {
             ));
         }
 
-        if !self.instruction_pipes.is_empty()
-            || !self.transaction_pipes.is_empty()
-                && !self
-                    .datasource
-                    .update_types()
-                    .contains(&UpdateType::Transaction)
+        if (!self.instruction_pipes.is_empty() || !self.transaction_pipes.is_empty())
+            && !self
+                .datasource
+                .update_types()
+                .contains(&UpdateType::Transaction)
         {
             return Err(Error::MissingUpdateTypeInDatasource(
                 UpdateType::Transaction,
