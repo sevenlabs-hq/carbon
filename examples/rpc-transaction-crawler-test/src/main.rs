@@ -1,5 +1,5 @@
 use async_trait::async_trait;
-use carbon_core::instruction::InstructionMetadata;
+use carbon_core::instruction::{InstructionMetadata, NestedInstruction};
 use carbon_core::processor::Processor;
 use carbon_core::schema::{InstructionSchemaNode, SchemaNode, TransactionSchema};
 use carbon_core::{
@@ -7,7 +7,7 @@ use carbon_core::{
     error::CarbonResult,
     instruction::{DecodedInstruction, InstructionDecoder},
 };
-pub use carbon_macros::*;
+use carbon_macros::*;
 use carbon_proc_macros::instruction_decoder_collection;
 use carbon_rpc_transaction_crawler_datasource::{Filters, RpcTransactionCrawler};
 use jupiter_decoder::instructions::{JupiterInstruction, JupiterInstructionType};
@@ -16,6 +16,7 @@ use once_cell::sync::Lazy;
 use serde::Deserialize;
 use solana_sdk::{commitment_config::CommitmentConfig, pubkey::Pubkey};
 use std::{str::FromStr, time::Duration};
+
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
@@ -70,7 +71,11 @@ pub struct JupInstructionProcessor;
 
 #[async_trait]
 impl Processor for JupInstructionProcessor {
-    type InputType = (InstructionMetadata, DecodedInstruction<JupiterInstruction>);
+    type InputType = (
+        InstructionMetadata,
+        DecodedInstruction<JupiterInstruction>,
+        Vec<NestedInstruction>,
+    );
 
     async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
         println!("Matched Jupiter instruction: {:#?}", data);

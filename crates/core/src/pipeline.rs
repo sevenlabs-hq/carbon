@@ -7,7 +7,7 @@ use crate::{
     error::{CarbonResult, Error},
     instruction::{
         DecodedInstruction, InstructionDecoder, InstructionMetadata, InstructionPipe,
-        InstructionPipes,
+        InstructionPipes, NestedInstruction,
     },
     processor::Processor,
     schema::TransactionSchema,
@@ -100,14 +100,14 @@ impl Pipeline {
                     &transaction_update,
                 )?;
 
-                for instruction in instructions_with_metadata.iter().cloned() {
-                    for pipe in self.instruction_pipes.iter() {
-                        pipe.run(instruction.clone()).await?;
-                    }
-                }
-
                 let nested_instructions =
                     transformers::nest_instructions(instructions_with_metadata);
+
+                for nested_instruction in nested_instructions.iter().cloned() {
+                    for pipe in self.instruction_pipes.iter() {
+                        pipe.run(&nested_instruction).await?;
+                    }
+                }
 
                 for pipe in self.transaction_pipes.iter() {
                     pipe.run(nested_instructions.clone()).await?;
@@ -158,8 +158,13 @@ impl PipelineBuilder {
     pub fn instruction<T: Send + Sync + 'static>(
         mut self,
         decoder: impl InstructionDecoder<InstructionType = T> + Send + Sync + 'static,
-        processor: impl Processor<InputType = (InstructionMetadata, DecodedInstruction<T>)>
-            + Send
+        processor: impl Processor<
+                InputType = (
+                    InstructionMetadata,
+                    DecodedInstruction<T>,
+                    Vec<NestedInstruction>,
+                ),
+            > + Send
             + Sync
             + 'static,
     ) -> Self {
@@ -169,7 +174,6 @@ impl PipelineBuilder {
         }));
         self
     }
-
     pub fn transaction<T, U>(
         mut self,
         schema: TransactionSchema<T>,

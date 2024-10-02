@@ -5,7 +5,7 @@ use crate::types::*;
 use carbon_core::borsh;
 
 
-#[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 #[carbon(discriminator = "0x5ed6e86f8e3d7b1d")]
 pub struct StabbleWeightedSwap{
 }

@@ -5,7 +5,7 @@ use crate::types::*;
 use carbon_core::borsh;
 
 
-#[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 #[carbon(discriminator = "0x896dfdfd466d0b64")]
 pub struct BalansolSwap{
 }

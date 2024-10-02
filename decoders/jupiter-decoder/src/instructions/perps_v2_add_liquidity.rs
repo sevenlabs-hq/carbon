@@ -5,7 +5,7 @@ use crate::types::*;
 use carbon_core::borsh;
 
 
-#[derive(CarbonDeserialize, Debug, serde::Serialize, PartialEq, Eq, Clone, Hash)]
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 #[carbon(discriminator = "0x124258c2c53474d4")]
 pub struct PerpsV2AddLiquidity{
 }

@@ -71,7 +71,7 @@ pub mod obric_swap;
 pub mod swap_event;
 pub mod fee_event;
 
-#[derive(carbon_proc_macros::InstructionType, serde::Serialize, PartialEq, Eq, Debug, Clone, Hash)]
+#[derive(carbon_proc_macros::InstructionType, serde::Serialize, serde::Deserialize, PartialEq, Eq, Debug, Clone, Hash)]
 pub enum JupiterInstruction {
     Route(route::Route),
     RouteWithTokenLedger(route_with_token_ledger::RouteWithTokenLedger),

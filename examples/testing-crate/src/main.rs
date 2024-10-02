@@ -21,9 +21,11 @@ use solana_transaction_status::{
 };
 use std::str::FromStr;
 use std::time::Duration;
+//use whirlpool_decoder::instructions::WhirlpoolInstruction;
+//use whirlpool_decoder::WhirlpoolDecoder;
 
 use async_trait::async_trait;
-use carbon_core::instruction::InstructionMetadata;
+use carbon_core::instruction::{InstructionMetadata, NestedInstruction};
 use carbon_core::processor::Processor;
 use carbon_core::transaction::ParsedTransaction;
 use carbon_core::{
@@ -537,9 +539,7 @@ impl InstructionDecoder for OrcaInstructionDecoder {
 }
 
 #[derive(Clone, Debug, Deserialize)]
-pub struct OrcaOutput {
-    pub ix: InvestmentWatchesProgramInstruction,
-}
+pub struct OrcaOutput {}
 
 pub struct OrcaTransactionProcessor;
 #[async_trait]
@@ -550,6 +550,22 @@ impl Processor for OrcaTransactionProcessor {
         log::info!("Output: {:?}", data);
 
         println!("Matched orca");
+        Ok(())
+    }
+}
+
+#[derive(Clone, Debug, Deserialize)]
+pub struct JupiterOutput {
+    pub shared_accounts_route_ix_1: DecodedInstruction<JupiterInstruction>,
+    pub swap_event_ix_1: DecodedInstruction<JupiterInstruction>,
+}
+
+pub struct JupiterTransactionProcessor;
+#[async_trait]
+impl Processor for JupiterTransactionProcessor {
+    type InputType = JupiterOutput;
+
+    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
         Ok(())
     }
 }
@@ -569,7 +585,7 @@ static JUPITER_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
     schema![
         any
         [
-            AllInstructionTypes::JupSwap(JupiterInstructionType::SwapEvent),
+            AllInstructionTypes::JupSwap(JupiterInstructionType::SharedAccountsRoute),
             "jup_swap_event_ix_1",
             []
         ]
@@ -577,7 +593,49 @@ static JUPITER_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
     ]
 });
 
-// define_schema_output_accounts!(OrcaOutput, JUPITER_SCHEMA);
+pub struct JupiterInstructionProcessor;
+#[async_trait]
+impl Processor for JupiterInstructionProcessor {
+    type InputType = (
+        InstructionMetadata,
+        DecodedInstruction<JupiterInstruction>,
+        Vec<NestedInstruction>,
+    );
+
+    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
+        println!("data 2: {:?}", data.2);
+
+        Ok(())
+    }
+}
+
+pub struct JupiterAccountProcessor;
+#[async_trait]
+impl Processor for JupiterAccountProcessor {
+    type InputType = (AccountMetadata, DecodedAccount<JupiterAccount>);
+
+    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
+        Ok(())
+    }
+}
+
+pub struct WhirlpoolInstructionProcessor;
+#[async_trait]
+impl Processor for WhirlpoolInstructionProcessor {
+    type InputType = (
+        InstructionMetadata,
+        DecodedInstruction<WhirlpoolInstruction>,
+    );
+
+    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
+        println!("Found Whirlpool instruction");
+        println!("Data: {:?}", data.1.data);
+        log::info!("Instruction: {:?}", data.1.data);
+        log::info!("Instruction metadata: {:?}", data.0);
+
+        Ok(())
+    }
+}
 
  */
 
@@ -587,7 +645,8 @@ pub async fn main() -> CarbonResult<()> {
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(TestDatasource)
-        // .account(TokenProgramAccountDecoder, TokenProgramAccountProcessor)
+        //.account(JupiterDecoder, JupiterAccountProcessor)
+        //.instruction(JupiterDecoder, JupiterInstructionProcessor)
         // .transaction(JUPITER_SCHEMA.clone(), OrcaTransactionProcessor)
         .build()?
         .run()
