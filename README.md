@@ -76,7 +76,7 @@ The pipeline consists of four key parts, which we will break down below.
 
 ---
 
-## 1. Datasource
+### 1. Datasource
 
 The `Datasource` is any struct that implements our `Datasource` trait. This trait requires two functions to be implemented:
 
@@ -89,7 +89,7 @@ TODO: Write more
 
 ---
 
-## 2. Account Pipe
+### 2. Account Pipe
 
 The `Account` pipe takes two parameters: `ProgramDecoder` and `AccountProcessor`.
 
@@ -100,7 +100,7 @@ The `ProgramDecoder` implements the `AccountDecoder` trait, allowing it to decod
 
 ---
 
-## 3. Instruction Pipe
+### 3. Instruction Pipe
 
 The `Instruction` pipe also takes two parameters: `ProgramDecoder` and `InstructionProcessor`.
 
@@ -111,11 +111,11 @@ The `ProgramDecoder` implements the `InstructionDecoder` trait, which enables it
 
 ---
 
-## 4. Transaction Pipe
+### 4. Transaction Pipe
 
 The `Transaction` pipe has two parameters: the `TRANSACTION_SCHEMA` and the `TransactionProcessor`.
 
-### Transaction Schema
+#### Transaction Schema
 
 The `TRANSACTION_SCHEMA` defines the structure of the transactions that the pipeline should look for. It acts as a pattern for recognizing transactions of interest, and it consists of ordered instructions that you expect the transaction to include.
 
@@ -194,3 +194,71 @@ impl Processor for JupiterTransactionProcessor {
 ```
 
 In this example, the `JupiterOutput` struct matches the names defined in the schema, allowing the data to be automatically parsed and passed to the business logic for processing.
+
+## Decoder Collection
+
+In the previous examples, we've used types that are essential for ensuring the smooth operation of the Carbon framework. The `instruction_decoder_collection!` macro simplifies the process of setting up everything needed to work with transaction schemas and pipelines.
+
+By utilizing these types within your schemas and pipelines, you can create a seamless development experience with Carbon. This design ensures that your indexing process remains efficient and organized, allowing you to focus on implementing business logic rather than worrying about the structure of instructions and programs.
+
+### Example Usage
+
+Here’s an example of how this macro is used:
+
+```rust
+instruction_decoder_collection!(
+    AllInstructions, AllInstructionTypes, AllPrograms,
+    MeteoraSwap => MeteoraInstructionDecoder => MeteoraInstruction,
+    OrcaSwap => OrcaInstructionDecoder => OrcaInstruction,
+    JupSwap => JupiterDecoder => JupiterInstruction,
+    RaydiumClmm => AmmV3Decoder => AmmV3Instruction,
+);
+```
+
+### Breakdown
+
+Each row after the first represents a program you’re interested in indexing. Let’s break down the columns:
+
+- **First Column**: Represents the name of the program you are indexing (you can name it however you like).
+- **Second Column**: Contains the Decoder struct for the program, which should be generated or manually created.
+- **Third Column**: Contains the enum of all instructions for the program, representing each instruction with its associated data, which will also be generated or manually created.
+
+#### First Row Definition
+
+The first row defines three enum types, and while you can name them as you wish, we recommend the following for clarity:
+
+- `AllInstructions`
+- `AllInstructionTypes`
+- `AllPrograms`
+
+These enums will serve different purposes in indexing and decoding.
+
+### Enum Definitions
+
+#### AllInstructions
+
+`AllInstructions` is an enum that aggregates all the programs you want to index, with each enum variant corresponding to a program's instruction enum. For example:
+
+```rust
+pub enum AllInstructions {
+    JupSwap(JupiterInstruction::SwapEvent(/* data, accounts ... */)),
+}
+```
+
+This enum contains the program-specific instruction enums with their associated data and accounts.
+
+#### AllInstructionTypes
+
+`AllInstructionTypes` is structured similarly to `AllInstructions`, but it excludes instruction data and accounts from the enum variants. This is useful for schema matching:
+
+```rust
+pub enum AllInstructionTypes {
+    JupSwap(JupiterInstructionType::SwapEvent),
+}
+```
+
+This is the enum you'll use when defining transaction schemas.
+
+#### AllPrograms
+
+The third enum simply enumerates the different programs you want to index, allowing you to manage them collectively.
