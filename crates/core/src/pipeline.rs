@@ -7,7 +7,7 @@ use crate::{
     error::{CarbonResult, Error},
     instruction::{
         DecodedInstruction, InstructionDecoder, InstructionMetadata, InstructionPipe,
-        InstructionPipes,
+        InstructionPipes, NestedInstruction,
     },
     processor::Processor,
     schema::TransactionSchema,
@@ -47,6 +47,7 @@ impl Pipeline {
             ));
         }
 
+        // TODO: Test this out later I don't get it and behaves weirdly
         if !self.instruction_pipes.is_empty()
             || !self.transaction_pipes.is_empty()
                 && !self
@@ -159,8 +160,13 @@ impl PipelineBuilder {
     pub fn instruction<T: Send + Sync + 'static>(
         mut self,
         decoder: impl InstructionDecoder<InstructionType = T> + Send + Sync + 'static,
-        processor: impl Processor<InputType = (InstructionMetadata, DecodedInstruction<T>)>
-            + Send
+        processor: impl Processor<
+                InputType = (
+                    InstructionMetadata,
+                    DecodedInstruction<T>,
+                    Vec<NestedInstruction>,
+                ),
+            > + Send
             + Sync
             + 'static,
     ) -> Self {
@@ -170,7 +176,6 @@ impl PipelineBuilder {
         }));
         self
     }
-
     pub fn transaction<T, U>(
         mut self,
         schema: TransactionSchema<T>,
