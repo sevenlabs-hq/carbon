@@ -7,6 +7,7 @@ pub mod events;
 pub mod handlers;
 pub mod idl;
 pub mod instructions;
+pub mod legacy_idl;
 pub mod types;
 pub mod util;
 

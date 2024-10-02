@@ -6,10 +6,10 @@ edition = "2018"
 [dependencies]
 carbon-core = { workspace = true }
 carbon-macros = { workspace = true }
+carbon-proc-macros = { workspace = true }
 solana-transaction-status = "=2.0.10"
 solana-client = "=2.0.10"
 solana-sdk = "=2.0.10"
-
 tokio = { version = "1.40.0", features = ["full"] }
 futures = "0.3.30"
 async-trait = "0.1.82"
@@ -20,3 +20,4 @@ mpl-token-metadata = "4.1.2"
 log = "0.4.22"
 serde = "1.0.136"
 bs58 = "0.5.1"
+once_cell = "1.17.1"

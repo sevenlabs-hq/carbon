@@ -1,4 +1,4 @@
-use crate::{events::EventData, idl::Idl, util::idl_type_to_rust_type};
+use crate::{events::EventData, idl::Idl, legacy_idl::LegacyIdl, util::idl_type_to_rust_type};
 use askama::Template;
 use heck::{ToSnekCase, ToUpperCamelCase};
 use sha2::{Digest, Sha256};
@@ -44,13 +44,14 @@ pub struct InstructionsModTemplate<'a> {
     pub events: &'a Vec<EventData>,
 }
 
-pub fn process_instructions(idl: &Idl) -> Vec<InstructionData> {
+pub fn legacy_process_instructions(idl: &LegacyIdl) -> Vec<InstructionData> {
     let mut instructions_data = Vec::new();
 
     for instruction in &idl.instructions {
         let module_name = instruction.name.to_snek_case();
         let struct_name = instruction.name.to_upper_camel_case();
-        let discriminator = compute_instruction_discriminator(&instruction.name);
+        let discriminator =
+            legacy_compute_instruction_discriminator(&instruction.name.to_snek_case());
 
         let mut args = Vec::new();
         for arg in &instruction.args {
@@ -83,11 +84,55 @@ pub fn process_instructions(idl: &Idl) -> Vec<InstructionData> {
     instructions_data
 }
 
-fn compute_instruction_discriminator(instruction_name: &str) -> String {
+pub fn process_instructions(idl: &Idl) -> Vec<InstructionData> {
+    let mut instructions_data = Vec::new();
+
+    for instruction in &idl.instructions {
+        let module_name = instruction.name.to_snek_case();
+        let struct_name = instruction.name.to_upper_camel_case();
+        let discriminator = compute_instruction_discriminator(&instruction.discriminator);
+
+        let mut args = Vec::new();
+        for arg in &instruction.args {
+            let rust_type = idl_type_to_rust_type(&arg.type_);
+            args.push(ArgumentData {
+                name: arg.name.to_snek_case(),
+                rust_type,
+            });
+        }
+
+        let mut accounts = Vec::new();
+        for account in &instruction.accounts {
+            accounts.push(AccountMetaData {
+                name: account.name.to_snek_case(),
+                is_mut: account.writable.unwrap_or(false),
+                is_signer: account.signer.unwrap_or(false),
+                // TODO: Check
+                is_optional: false,
+            });
+        }
+
+        instructions_data.push(InstructionData {
+            struct_name,
+            module_name,
+            discriminator,
+            args,
+            accounts,
+        });
+    }
+
+    instructions_data
+}
+
+fn legacy_compute_instruction_discriminator(instruction_name: &str) -> String {
     let mut hasher = Sha256::new();
     let discriminator_input = format!("global:{}", instruction_name);
     hasher.update(discriminator_input.as_bytes());
     let hash = hasher.finalize();
     let discriminator_bytes = &hash[..8];
     format!("0x{}", hex::encode(discriminator_bytes))
+}
+
+fn compute_instruction_discriminator(bytes: &[u8]) -> String {
+    format!("0x{}", hex::encode(bytes))
 }

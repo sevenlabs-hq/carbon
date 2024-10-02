@@ -13,6 +13,11 @@ syn = { version = "1.0", features = ["full"] }
 paste = "1.0.15"
 quote = "1.0"
 hex = "0.4.3"
+serde = "1.0.136"
+borsh-derive-internal = "0.10.3"
+proc-macro2 = "1"
+unicode-xid = "0.2"
+
 
 [lib]
 crate-type = ["proc-macro"]
