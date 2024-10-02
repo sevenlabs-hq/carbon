@@ -14,13 +14,13 @@ use solana_sdk::{
     transaction_context::TransactionReturnData,
 };
 use solana_transaction_status::{
-    option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
-    TransactionStatusMeta, TransactionTokenBalance, UiInstruction, UiLoadedAddresses,
-    UiTransactionEncoding,
+    option_serializer::OptionSerializer, EncodedConfirmedTransactionWithStatusMeta,
+    InnerInstruction, InnerInstructions, Reward, TransactionStatusMeta, TransactionTokenBalance,
+    UiInstruction, UiLoadedAddresses, UiTransactionEncoding,
 };
-use std::{collections::HashSet, str::FromStr, time::Duration};
+use std::{collections::HashSet, str::FromStr, sync::Arc, time::Duration};
 use tokio::sync::mpsc::UnboundedSender;
-use tokio::sync::{Semaphore, SemaphorePermit};
+use tokio::sync::Semaphore;
 
 #[derive(Debug, Clone)]
 pub struct Filters {
@@ -78,17 +78,19 @@ impl Datasource for RpcTransactionCrawler {
         &self,
         sender: &UnboundedSender<Update>,
     ) -> CarbonResult<tokio::task::AbortHandle> {
-        let rpc_client = RpcClient::new(&self.rpc_url);
+        let rpc_client = Arc::new(RpcClient::new(&self.rpc_url));
         let account = self.account;
         let batch_limit = self.batch_limit;
         let polling_interval = self.polling_interval;
         let filters = self.filters.clone();
         let sender = sender.clone();
         let commitment = self.commitment;
-        let semaphore = Semaphore::new(20);
+        let semaphore = Arc::new(Semaphore::new(20));
 
         let abort_handle = tokio::spawn(async move {
             loop {
+                let rpc_client = Arc::clone(&rpc_client);
+
                 let signatures = match rpc_client.get_signatures_for_address_with_config(
                     &account,
                     GetConfirmedSignaturesForAddress2Config {
@@ -105,37 +107,59 @@ impl Datasource for RpcTransactionCrawler {
                     }
                 };
 
+                let mut fetch_tasks = Vec::new();
+
                 for signature in signatures {
+                    let Ok(permit) = semaphore.clone().acquire_owned().await else {
+                        continue;
+                    };
+
                     let Ok(signature) = Signature::from_str(&signature.signature) else {
                         log::error!("Failed to parse signature: {:?}", signature.signature);
                         continue;
                     };
 
-                    let Ok(fetched_transaction) = retry(Fixed::from_millis(500).take(10), || {
-                        match rpc_client.get_transaction_with_config(
-                            &signature,
-                            RpcTransactionConfig {
-                                encoding: Some(UiTransactionEncoding::Base64),
-                                commitment: Some(
-                                    commitment.unwrap_or(CommitmentConfig::confirmed()),
-                                ),
-                                max_supported_transaction_version: Some(0),
-                            },
-                        ) {
-                            Ok(tx) => OperationResult::Ok(tx),
-                            Err(e) => {
-                                log::error!(
-                                    "Failed to get transaction: {:?}, signature: {:?}",
-                                    e,
-                                    signature
-                                );
-                                OperationResult::Retry(e)
-                            }
-                        }
-                    }) else {
-                        continue;
-                    };
+                    let rpc_client = Arc::clone(&rpc_client);
 
+                    fetch_tasks.push(tokio::spawn(async move {
+                        let fetched_transaction = retry(Fixed::from_millis(500).take(10), || {
+                            match rpc_client.get_transaction_with_config(
+                                &signature,
+                                RpcTransactionConfig {
+                                    encoding: Some(UiTransactionEncoding::Base64),
+                                    commitment: Some(
+                                        commitment.unwrap_or(CommitmentConfig::confirmed()),
+                                    ),
+                                    max_supported_transaction_version: Some(0),
+                                },
+                            ) {
+                                Ok(tx) => OperationResult::Ok(tx),
+                                Err(e) => {
+                                    log::error!(
+                                        "Failed to get transaction: {:?}, signature: {:?}",
+                                        e,
+                                        signature
+                                    );
+                                    OperationResult::Retry(e)
+                                }
+                            }
+                        });
+
+                        drop(permit);
+
+                        fetched_transaction.ok().map(|tx| (signature, tx))
+                    }));
+                }
+
+                let results: Vec<(Signature, EncodedConfirmedTransactionWithStatusMeta)> =
+                    futures::future::join_all(fetch_tasks)
+                        .await
+                        .into_iter()
+                        .filter_map(Result::ok)
+                        .filter_map(|value| value)
+                        .collect();
+
+                for (signature, fetched_transaction) in results {
                     let transaction = fetched_transaction.transaction;
 
                     let meta_original = if let Some(meta) = transaction.clone().meta {
