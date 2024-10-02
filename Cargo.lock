@@ -450,9 +450,9 @@ dependencies = [
 
 [[package]]
 name = "async-trait"
-version = "0.1.82"
+version = "0.1.83"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a27b8a3a6e1a44fa4c8baf1f653e4172e81486d4941f2237e20dc2d0cf4ddff1"
+checksum = "721cae7de5c34fbb2acd27e21e6d2cf7b886dce0c27388d46c4e6c47ea4318dd"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -872,8 +872,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "carbon-transaction-crawler-datasource"
+name = "carbon-rpc-transaction-crawler-datasource"
 version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "env_logger 0.11.5",
+ "futures",
+ "log",
+ "retry",
+ "solana-client",
+ "solana-sdk",
+ "solana-transaction-status",
+ "tokio",
+]
 
 [[package]]
 name = "carbon-yellowstone-grpc-datasource"
@@ -2943,6 +2955,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "retry"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9166d72162de3575f950507683fac47e30f6f2c3836b71b7fbc61aa517c9c5f4"
+dependencies = [
+ "rand 0.8.5",
+]
+
+[[package]]
 name = "ring"
 version = "0.16.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2981,6 +3002,28 @@ dependencies = [
  "libc",
  "rtoolbox",
  "windows-sys 0.48.0",
+]
+
+[[package]]
+name = "rpc-transaction-crawler-test"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "carbon-rpc-transaction-crawler-datasource",
+ "env_logger 0.11.5",
+ "futures",
+ "log",
+ "once_cell",
+ "paste",
+ "serde",
+ "serde_json",
+ "solana-client",
+ "solana-sdk",
+ "solana-transaction-status",
+ "tokio",
 ]
 
 [[package]]
