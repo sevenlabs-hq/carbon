@@ -1,12 +1,7 @@
 [workspace]
 # TODO: Add examples back
-members = [
-    "crates/core",
-    "crates/macros",
-    "crates/proc-macros",
-    "crates/cli",
-    "datasources/yellowstone-grpc-datasource",
-]
+members = ["crates/*", "datasources/*", "examples/*"]
+resolver = "2"
 
 [workspace.dependencies]
 carbon-core = { path = "crates/core" }
@@ -16,6 +11,7 @@ carbon-cli = { path = "crates/cli" }
 solana-sdk = "=2.0.10"
 solana-transaction-status = "=2.0.10"
 solana-client = "=2.0.10"
+protobuf-src = "1.2"
 
 [patch.crates-io.curve25519-dalek]
 git = "https://github.com/anza-xyz/curve25519-dalek.git"

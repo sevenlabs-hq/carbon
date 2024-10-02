@@ -1,112 +1,112 @@
-use serde::Deserialize;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
+
+use crate::legacy_idl::{LegacyIdlEnumFields, LegacyIdlType};
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct Idl {
-    pub version: String,
-    pub name: String,
-    #[serde(default)]
-    pub constants: Vec<IdlConst>,
+    pub address: String,
+    pub metadata: IdlMetadata,
     #[serde(default)]
     pub instructions: Vec<IdlInstruction>,
     #[serde(default)]
-    pub accounts: Vec<IdlAccountItem>,
+    pub accounts: Vec<IdlAccount>,
+    #[serde(default)]
+    pub errors: Vec<IdlError>,
     #[serde(default)]
     pub types: Vec<IdlTypeDefinition>,
     #[serde(default)]
     pub events: Vec<IdlEvent>,
-    #[serde(default)]
-    pub errors: Vec<IdlError>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct IdlConst {
+pub struct IdlMetadata {
     pub name: String,
-    #[serde(rename = "type")]
-    pub type_: IdlType,
-    pub value: String,
+    pub version: String,
+    pub spec: String,
+    pub description: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct IdlInstruction {
     pub name: String,
+    pub discriminator: Vec<u8>,
     #[serde(default)]
     pub docs: Option<Vec<String>>,
     #[serde(default)]
     pub accounts: Vec<IdlInstructionAccount>,
     #[serde(default)]
-    pub args: Vec<IdlInstructionArgField>,
+    pub args: Vec<IdlInstructionArg>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct IdlInstructionAccount {
     pub name: String,
     #[serde(default)]
-    pub is_mut: bool,
+    pub writable: Option<bool>,
     #[serde(default)]
-    pub is_signer: bool,
+    pub signer: Option<bool>,
     #[serde(default)]
-    pub is_optional: Option<bool>,
+    pub pda: Option<IdlPda>,
+    #[serde(default)]
+    pub address: Option<String>,
     #[serde(default)]
     pub docs: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct IdlInstructionArgField {
+pub struct IdlPda {
+    pub seeds: Vec<IdlPdaSeed>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct IdlPdaSeed {
+    pub kind: String,
+    #[serde(default)]
+    pub value: Option<Vec<u8>>,
+    #[serde(default)]
+    pub path: Option<String>,
+    #[serde(default)]
+    pub account: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct IdlInstructionArg {
     pub name: String,
     #[serde(rename = "type")]
-    pub type_: IdlType,
-    #[serde(default)]
-    pub docs: Option<Vec<String>>,
+    pub type_: LegacyIdlType,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IdlType {
     Primitive(String),
-    Array { array: (Box<IdlType>, usize) },
-    Vec { vec: Box<IdlType> },
     Option { option: Box<IdlType> },
+    Vec { vec: Box<IdlType> },
+    Array { array: (Box<IdlType>, usize) },
     Defined { defined: String },
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct IdlAccountItem {
+pub struct IdlAccount {
     pub name: String,
-    #[serde(rename = "type")]
-    pub type_: IdlAccountType,
-    #[serde(default)]
-    pub docs: Option<Vec<String>>,
+    pub discriminator: Vec<u8>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct IdlAccountType {
-    pub kind: String,
-    #[serde(default)]
-    pub fields: Option<Vec<IdlTypeDefinitionField>>,
-    #[serde(default)]
-    pub variants: Option<Vec<IdlEnumVariant>>,
+pub struct IdlError {
+    pub code: u32,
+    pub name: String,
+    pub msg: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct IdlTypeDefinition {
     pub name: String,
     #[serde(rename = "type")]
     pub type_: IdlTypeDefinitionTy,
-    #[serde(default)]
-    pub docs: Option<Vec<String>>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct IdlTypeDefinitionTy {
     pub kind: String,
     #[serde(default)]
@@ -116,50 +116,36 @@ pub struct IdlTypeDefinitionTy {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct IdlTypeDefinitionField {
     pub name: String,
     #[serde(rename = "type")]
-    pub type_: IdlType,
-    #[serde(default)]
-    pub docs: Option<Vec<String>>,
+    pub type_: LegacyIdlType,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct IdlEnumVariant {
     pub name: String,
     #[serde(default)]
-    pub fields: Option<IdlEnumFields>,
+    pub fields: Option<LegacyIdlEnumFields>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum IdlEnumFields {
     Named(Vec<IdlTypeDefinitionField>),
-    Tuple(Vec<IdlType>),
+    Tuple(Vec<LegacyIdlType>),
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct IdlEvent {
     pub name: String,
-    pub fields: Vec<IdlEventField>,
+    pub discriminator: Vec<u8>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct IdlEventField {
     pub name: String,
     #[serde(rename = "type")]
-    pub type_: IdlType,
+    pub type_: LegacyIdlType,
     pub index: bool,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct IdlError {
-    pub code: f64,
-    pub name: String,
-    pub msg: String,
 }

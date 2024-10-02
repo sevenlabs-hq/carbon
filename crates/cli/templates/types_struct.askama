@@ -1,12 +1,15 @@
 {% raw %}
 use super::*;
+use carbon_core::deserialize::CarbonDeserialize;
+use carbon_proc_macros::CarbonDeserialize;
+use carbon_core::borsh;
 {% endraw %}
 
 {%- match type_data.kind %}
 
 {%- when TypeKind::Struct %}
 
-#[derive(Debug)]
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 pub struct {{ type_data.name }} {
     {%- for field in type_data.fields %}
     pub {{ field.name }}: {{ field.rust_type }},
@@ -15,7 +18,7 @@ pub struct {{ type_data.name }} {
 
 {%- when TypeKind::Enum with (variants) %}
 
-#[derive(Debug)]
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 pub enum {{ type_data.name }} {
     {%- for variant in variants %}
     {{ variant.name -}}
