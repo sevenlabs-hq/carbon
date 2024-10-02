@@ -1,7 +1,12 @@
 use async_trait::async_trait;
+use serde::Deserialize;
 use solana_sdk::pubkey::Pubkey;
 
-use crate::{error::CarbonResult, processor::Processor, transaction::TransactionMetadata};
+use crate::{
+    error::CarbonResult,
+    processor::{self, Processor},
+    transaction::TransactionMetadata,
+};
 
 #[derive(Debug, Clone)]
 pub struct InstructionMetadata {
@@ -9,7 +14,7 @@ pub struct InstructionMetadata {
     pub stack_height: u32,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Deserialize)]
 pub struct DecodedInstruction<T> {
     pub program_id: Pubkey,
     pub data: T,
@@ -26,8 +31,16 @@ pub trait InstructionDecoder {
 
 pub struct InstructionPipe<T: Send> {
     pub decoder: Box<dyn InstructionDecoder<InstructionType = T> + Send + Sync>,
-    pub processor:
-        Box<dyn Processor<InputType = (InstructionMetadata, DecodedInstruction<T>)> + Send + Sync>,
+    pub processor: Box<
+        dyn Processor<
+                InputType = (
+                    InstructionMetadata,
+                    DecodedInstruction<T>,
+                    Vec<NestedInstruction>,
+                ),
+            > + Send
+            + Sync,
+    >,
 }
 
 #[async_trait]
@@ -43,7 +56,11 @@ impl<T: Send> InstructionPipes for InstructionPipe<T> {
             .decode_instruction(nested_instruction.instruction.clone())
         {
             self.processor
-                .process((nested_instruction.metadata.clone(), decoded_instruction))
+                .process((
+                    nested_instruction.metadata.clone(),
+                    decoded_instruction,
+                    nested_instruction.inner_instructions.clone(),
+                ))
                 .await?;
         }
         Ok(())
