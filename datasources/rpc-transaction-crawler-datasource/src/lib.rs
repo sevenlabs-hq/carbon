@@ -50,6 +50,7 @@ pub struct RpcTransactionCrawler {
     pub polling_interval: Duration,
     pub filters: Filters,
     pub commitment: Option<CommitmentConfig>,
+    pub max_concurrent_requests: usize
 }
 
 impl RpcTransactionCrawler {
@@ -60,6 +61,7 @@ impl RpcTransactionCrawler {
         polling_interval: Duration,
         filters: Filters,
         commitment: Option<CommitmentConfig>,
+        max_concurrent_requests: usize
     ) -> Self {
         RpcTransactionCrawler {
             rpc_url,
@@ -68,6 +70,7 @@ impl RpcTransactionCrawler {
             polling_interval,
             filters,
             commitment,
+            max_concurrent_requests
         }
     }
 }
@@ -85,7 +88,7 @@ impl Datasource for RpcTransactionCrawler {
         let filters = self.filters.clone();
         let sender = sender.clone();
         let commitment = self.commitment;
-        let semaphore = Arc::new(Semaphore::new(20));
+        let semaphore = Arc::new(Semaphore::new(self.max_concurrent_requests));
 
         let abort_handle = tokio::spawn(async move {
             loop {
