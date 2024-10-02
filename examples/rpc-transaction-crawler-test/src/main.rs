@@ -36,6 +36,7 @@ pub async fn main() -> CarbonResult<()> {
         Duration::from_secs(5),                            // Polling interval
         filters,                                           // Filters
         Some(CommitmentConfig::finalized()),               // Commitment config
+        20,                                                // Max Concurrent Requests
     );
 
     carbon_core::pipeline::Pipeline::builder()
