@@ -1,31 +1,23 @@
 use async_trait::async_trait;
 use carbon_core::datasource::AccountDeletion;
-use std::collections::HashSet;
-use std::{collections::HashMap, sync::Arc};
-use std::time::Duration;
-use std::convert::TryFrom;
-use futures::{sink::SinkExt, StreamExt};
-use tokio::sync::{RwLock, mpsc::UnboundedSender};
 use carbon_core::{
     datasource::{AccountUpdate, Datasource, TransactionUpdate, Update, UpdateType},
     error::CarbonResult,
 };
-use solana_sdk::{
-    account::Account,
-    pubkey::Pubkey,
-    signature::Signature,
-};
+use futures::{sink::SinkExt, StreamExt};
+use solana_sdk::{account::Account, pubkey::Pubkey, signature::Signature};
+use std::collections::HashSet;
+use std::convert::TryFrom;
+use std::time::Duration;
+use std::{collections::HashMap, sync::Arc};
+use tokio::sync::{mpsc::UnboundedSender, RwLock};
 use yellowstone_grpc_client::GeyserGrpcClient;
 use yellowstone_grpc_proto::{
-    geyser::{
-        subscribe_update::UpdateOneof,
-        CommitmentLevel,
-        SubscribeRequest,
-        SubscribeRequestFilterAccounts,
-        SubscribeRequestFilterTransactions,
-        SubscribeRequestPing,
-    },
     convert_from::{create_tx_meta, create_tx_versioned},
+    geyser::{
+        subscribe_update::UpdateOneof, CommitmentLevel, SubscribeRequest,
+        SubscribeRequestFilterAccounts, SubscribeRequestFilterTransactions, SubscribeRequestPing,
+    },
 };
 
 pub struct YellowstoneGrpcGeyserClient {
@@ -34,7 +26,7 @@ pub struct YellowstoneGrpcGeyserClient {
     pub commitment: Option<CommitmentLevel>,
     pub account_filters: HashMap<String, SubscribeRequestFilterAccounts>,
     pub transaction_filters: HashMap<String, SubscribeRequestFilterTransactions>,
-    pub account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>, 
+    pub account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
 }
 
 impl YellowstoneGrpcGeyserClient {
@@ -44,7 +36,7 @@ impl YellowstoneGrpcGeyserClient {
         commitment: Option<CommitmentLevel>,
         account_filters: HashMap<String, SubscribeRequestFilterAccounts>,
         transaction_filters: HashMap<String, SubscribeRequestFilterTransactions>,
-        account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>
+        account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
     ) -> Self {
         YellowstoneGrpcGeyserClient {
             endpoint,
@@ -52,7 +44,7 @@ impl YellowstoneGrpcGeyserClient {
             commitment,
             account_filters,
             transaction_filters,
-            account_deletions_tracked
+            account_deletions_tracked,
         }
     }
 }
@@ -72,14 +64,14 @@ impl Datasource for YellowstoneGrpcGeyserClient {
         let account_deletions_tracked = self.account_deletions_tracked.clone();
 
         let mut geyser_client = GeyserGrpcClient::build_from_shared(endpoint)
-        .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?
-        .x_token(x_token)
-        .unwrap()
-        .connect_timeout(Duration::from_secs(10))
-        .timeout(Duration::from_secs(10))
-        .connect()
-        .await
-        .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?;
+            .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?
+            .x_token(x_token)
+            .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?
+            .connect_timeout(Duration::from_secs(15))
+            .timeout(Duration::from_secs(15))
+            .connect()
+            .await
+            .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?;
 
         let abort_handle = tokio::spawn(async move {
             let subscribe_request = SubscribeRequest {
@@ -156,19 +148,15 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                             let Ok(signature) =  Signature::try_from(transaction_info.signature) else {
                                                 continue;
                                             };
-                                            
                                             let Some(yellowstone_transaction) = transaction_info.transaction else {
                                                continue;
                                             };
-                                            
                                             let Some(yellowstone_tx_meta) = transaction_info.meta else {
                                                 continue;
                                             };
-                                            
                                             let Ok(versioned_transaction) =  create_tx_versioned(yellowstone_transaction) else {
                                               continue;
                                             };
-                                            
                                             let meta_original = match create_tx_meta(yellowstone_tx_meta) {
                                                 Ok(meta) => meta,
                                                 Err(err) => {
@@ -176,7 +164,6 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                     continue;
                                                 }
                                             };
-                                            
                                             let update = Update::Transaction(TransactionUpdate {
                                                 signature: signature,
                                                 transaction: versioned_transaction ,
@@ -184,12 +171,10 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                 is_vote: transaction_info.is_vote,
                                                 slot: transaction_update.slot,
                                             });
-                        
                                             if let Err(e) = sender.send(update) {
                                                 log::error!("Failed to send transaction update with signature {:?} at slot {}: {:?}", signature, transaction_update.slot, e);
                                                 continue;
                                             }
-                                            
                                         } else {
                                             log::error!("No transaction info in `UpdateOneof::Transaction` at slot {}", transaction_update.slot);
                                         }
@@ -225,6 +210,10 @@ impl Datasource for YellowstoneGrpcGeyserClient {
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
-        vec![UpdateType::AccountUpdate, UpdateType::Transaction, UpdateType::AccountDeletion]
+        vec![
+            UpdateType::AccountUpdate,
+            UpdateType::Transaction,
+            UpdateType::AccountDeletion,
+        ]
     }
 }

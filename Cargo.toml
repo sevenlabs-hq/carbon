@@ -11,7 +11,6 @@ carbon-cli = { path = "crates/cli" }
 solana-sdk = "=2.0.10"
 solana-transaction-status = "=2.0.10"
 solana-client = "=2.0.10"
-protobuf-src = "1.2"
 
 [patch.crates-io.curve25519-dalek]
 git = "https://github.com/anza-xyz/curve25519-dalek.git"
