@@ -4675,6 +4675,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "bs58 0.5.1",
+ "carbon-bigquery-datasource",
  "carbon-core",
  "carbon-macros",
  "carbon-proc-macros",

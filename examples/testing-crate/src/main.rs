@@ -1,3 +1,4 @@
+use carbon_bigquery_datasource::BigQueryDatasource;
 use carbon_core::account::{AccountDecoder, AccountMetadata, DecodedAccount};
 use carbon_core::datasource::TransactionUpdate;
 use carbon_core::schema::{InstructionSchemaNode, SchemaNode, TransactionSchema};
@@ -14,6 +15,7 @@ use solana_sdk::program_pack::Pack;
 use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signature::Signature;
 use std::str::FromStr;
+use std::sync::Arc;
 use std::time::Duration;
 
 use async_trait::async_trait;
@@ -36,7 +38,7 @@ impl Datasource for TestDatasource {
     async fn consume(
         &self,
         sender: &tokio::sync::mpsc::UnboundedSender<Update>,
-    ) -> CarbonResult<tokio::task::AbortHandle> {
+    ) -> CarbonResult<Vec<tokio::task::AbortHandle>> {
         let sender = sender.clone();
 
         let rpc_client = RpcClient::new_with_commitment(
@@ -68,7 +70,7 @@ impl Datasource for TestDatasource {
         })
         .abort_handle();
 
-        Ok(abort_handle)
+        Ok(vec![abort_handle])
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
@@ -83,7 +85,7 @@ impl Datasource for MockDatasource {
     async fn consume(
         &self,
         sender: &tokio::sync::mpsc::UnboundedSender<Update>,
-    ) -> CarbonResult<tokio::task::AbortHandle> {
+    ) -> CarbonResult<Vec<tokio::task::AbortHandle>> {
         let sender = sender.clone();
         let abort_handle = tokio::spawn(async move {
             loop {
@@ -116,7 +118,7 @@ impl Datasource for MockDatasource {
         })
         .abort_handle();
 
-        Ok(abort_handle)
+        Ok(vec![abort_handle])
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
@@ -449,18 +451,18 @@ impl Processor for OrcaTransactionProcessor {
 
 instruction_decoder_collection!(
     AllInstructions, AllInstructionTypes, AllPrograms,
-    MeteoraSwap => MeteoraInstructionDecoder => MeteoraInstruction,
-    // OrcaSwap => OrcaInstructionDecoder => OrcaInstruction,
+    // MeteoraSwap => MeteoraInstructionDecoder => MeteoraInstruction,
+    OrcaSwap => OrcaInstructionDecoder => OrcaInstruction,
     // JupSwap => JupiterDecoder => JupiterInstruction,
     // RaydiumClmm => AmmV3Decoder => AmmV3Instruction,
 );
 
-static METEORA_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
+static ORCA_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
     schema![
         any
         [
-            AllInstructionTypes::MeteoraSwap(MeteoraInstructionType::Swap),
-            "meteora_swap_ix_1",
+            AllInstructionTypes::OrcaSwap(OrcaInstructionType::Swap),
+            "orca_swap_ix",
             []
         ]
         any
@@ -473,11 +475,34 @@ static METEORA_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
 pub async fn main() -> CarbonResult<()> {
     env_logger::init();
 
+    // TODO: find better way to authorize
+    let current_dir = std::env::current_dir().unwrap();
+    let relative_creds_path = "";
+    let creds_path = current_dir
+        .join(relative_creds_path)
+        .to_str()
+        .unwrap()
+        .to_owned();
+
+    let big_query_datasource = BigQueryDatasource::new(
+        creds_path,
+        "BIGQUERY PROJECT ID".to_string(),
+        "RPC_URL".to_string(),
+        vec![
+            "mFivYY5xPoh3rDCxbdwzkgN1Rv2kC9s9kEpHHsnUWtf".to_string(),
+            "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_string(),
+        ],
+        293435850,
+        293436999,
+    );
+
+    let big_query_arc = Arc::new(big_query_datasource);
+
     carbon_core::pipeline::Pipeline::builder()
-        .datasource(TestDatasource)
-        // .datasources(vec![TestDatasource])
-        // .account(TokenProgramAccountDecoder, TokenProgramAccountProcessor)
-        .transaction(METEORA_SCHEMA.clone(), OrcaTransactionProcessor)
+        // .datasource(big_query_datasource)
+        .datasources(vec![big_query_arc])
+        .account(TokenProgramAccountDecoder, TokenProgramAccountProcessor)
+        .transaction(ORCA_SCHEMA.clone(), OrcaTransactionProcessor)
         .build()?
         .run()
         .await?;

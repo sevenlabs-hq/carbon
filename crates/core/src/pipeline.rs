@@ -37,17 +37,12 @@ impl Pipeline {
     pub async fn run(&self) -> CarbonResult<()> {
         let (update_sender, mut update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
 
-        let mut update_types = vec![];
-        for datasource in &self.datasources {
-            update_types.extend(datasource.update_types());
-            let sender_clone = update_sender.clone();
-            let datasource_clone = Arc::clone(datasource);
-            tokio::spawn(async move {
-                if let Err(e) = datasource_clone.consume(&sender_clone).await {
-                    log::error!("Datasource consume error: {:?}", e);
-                }
-            });
-        }
+        let update_types: Vec<UpdateType> = self
+            .datasources
+            .iter()
+            .map(|datasource| datasource.update_types())
+            .flatten()
+            .collect();
 
         if !self.account_pipes.is_empty() && !update_types.contains(&UpdateType::AccountUpdate) {
             return Err(Error::MissingUpdateTypeInDatasource(
@@ -62,6 +57,17 @@ impl Pipeline {
             return Err(Error::MissingUpdateTypeInDatasource(
                 UpdateType::Transaction,
             ));
+        }
+
+        for datasource in &self.datasources {
+            let sender_clone = update_sender.clone();
+            let datasource_clone = Arc::clone(datasource);
+
+            tokio::spawn(async move {
+                if let Err(e) = datasource_clone.consume(&sender_clone).await {
+                    log::error!("Datasource consume error: {:?}", e);
+                }
+            });
         }
 
         loop {

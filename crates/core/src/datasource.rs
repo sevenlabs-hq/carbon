@@ -8,7 +8,7 @@ pub trait Datasource {
     async fn consume(
         &self,
         sender: &tokio::sync::mpsc::UnboundedSender<Update>,
-    ) -> CarbonResult<tokio::task::AbortHandle>;
+    ) -> CarbonResult<Vec<tokio::task::AbortHandle>>;
 
     fn update_types(&self) -> Vec<UpdateType>;
 }

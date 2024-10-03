@@ -13,41 +13,34 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use solana_client::{nonblocking::rpc_client::RpcClient, rpc_config::RpcTransactionConfig};
 use solana_sdk::{account::Account, pubkey::Pubkey, signature::Signature};
-use std::str::FromStr;
+use std::{str::FromStr, sync::Arc};
 use tokio::sync::mpsc::UnboundedSender;
 
+const REQUEST_TIMEOUT_MS: i32 = 10 * 60 * 1000; // 10 mins
+
 pub struct BigQueryDatasource {
-    pub project_id: String,
-    pub dataset: String,
-    pub credentials_path: String,
-    pub account_table: String,
-    pub transaction_table: String,
-    pub rpc_url: String,
-    pub program_id: String,
+    pub credentials_path: Arc<String>,
+    pub project_id: Arc<String>,
+    pub rpc_client: Arc<RpcClient>,
+    pub program_ids: Arc<Vec<String>>,
     pub start_slot: u64,
     pub end_slot: u64,
 }
 
 impl BigQueryDatasource {
     pub fn new(
-        project_id: String,
-        dataset: String,
         credentials_path: String,
-        account_table: String,
-        transaction_table: String,
+        project_id: String,
         rpc_url: String,
-        program_id: String,
+        program_ids: Vec<String>,
         start_slot: u64,
         end_slot: u64,
     ) -> Self {
         Self {
-            project_id,
-            dataset,
-            credentials_path,
-            account_table,
-            transaction_table,
-            rpc_url,
-            program_id,
+            credentials_path: Arc::new(credentials_path),
+            project_id: Arc::new(project_id),
+            rpc_client: Arc::new(RpcClient::new(rpc_url)),
+            program_ids: Arc::new(program_ids),
             start_slot,
             end_slot,
         }
@@ -59,56 +52,69 @@ impl Datasource for BigQueryDatasource {
     async fn consume(
         &self,
         sender: &UnboundedSender<Update>,
-    ) -> CarbonResult<tokio::task::AbortHandle> {
-        let sender = sender.clone();
-        let credentials_path = self.credentials_path.clone();
-        let project_id = self.project_id.clone();
-        let dataset = self.dataset.clone();
-        let account_table = self.account_table.clone();
-        let transaction_table = self.transaction_table.clone();
+    ) -> CarbonResult<Vec<tokio::task::AbortHandle>> {
+        log::info!("Consuming BigQuery Datasource...");
+        let client = Arc::new(
+            Client::from_service_account_key_file(&self.credentials_path)
+                .await
+                .map_err(|err| {
+                    carbon_core::error::Error::Custom(format!(
+                        "Failed to create BigQuery client: {}",
+                        err.to_string()
+                    ))
+                })?,
+        );
+
+        let sender = Arc::new(sender.clone());
+        let project_id = Arc::clone(&self.project_id);
+        let program_ids = Arc::clone(&self.program_ids);
+        let rpc_client = Arc::clone(&self.rpc_client);
         let start_slot = self.start_slot;
         let end_slot = self.end_slot;
-        let rpc_client = RpcClient::new(self.rpc_url.clone());
-        let program_id = self.program_id.clone();
 
-        let client = Client::from_service_account_key_file(&credentials_path)
-            .await
-            .map_err(|err| {
-                carbon_core::error::Error::Custom(format!(
-                    "Failed to create BigQuery client: {}",
-                    err.to_string()
-                ))
-            })?;
+        let accounts_abort_handle = tokio::spawn({
+            let client = Arc::clone(&client);
+            let sender = Arc::clone(&sender);
+            let project_id = Arc::clone(&project_id);
+            let program_ids = Arc::clone(&program_ids);
 
-        let abort_handle = tokio::spawn(async move {
-            fetch_and_process_accounts(
-                &client,
-                &dataset,
-                &project_id,
-                &account_table,
-                &program_id,
-                start_slot,
-                end_slot,
-                &sender,
-            )
-            .await;
-
-            fetch_and_process_transactions(
-                &client,
-                &rpc_client,
-                &dataset,
-                &project_id,
-                &transaction_table,
-                &program_id,
-                start_slot,
-                end_slot,
-                &sender,
-            )
-            .await;
+            async move {
+                fetch_and_process_accounts(
+                    &client,
+                    &project_id,
+                    program_ids.as_slice(),
+                    start_slot,
+                    end_slot,
+                    &sender,
+                )
+                .await;
+            }
         })
         .abort_handle();
 
-        Ok(abort_handle)
+        let transactions_abort_handle = tokio::spawn({
+            let client = Arc::clone(&client);
+            let sender = Arc::clone(&sender);
+            let project_id = Arc::clone(&project_id);
+            let program_ids = Arc::clone(&program_ids);
+            let rpc_client = Arc::clone(&rpc_client);
+
+            async move {
+                fetch_and_process_transactions(
+                    &client,
+                    &project_id,
+                    &rpc_client,
+                    program_ids.as_slice(),
+                    start_slot,
+                    end_slot,
+                    &sender,
+                )
+                .await;
+            }
+        })
+        .abort_handle();
+
+        Ok(vec![accounts_abort_handle, transactions_abort_handle])
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
@@ -118,58 +124,104 @@ impl Datasource for BigQueryDatasource {
 
 async fn fetch_and_process_accounts(
     client: &Client,
-    dataset: &str,
     project_id: &str,
-    account_table: &str,
-    program_id: &str,
+    program_ids: &[String],
     start_slot: u64,
     end_slot: u64,
     sender: &UnboundedSender<Update>,
 ) {
-    let account_query = QueryRequest::new(format!(
+    log::info!("Fetching accounts...");
+    println!("Fetching accounts...");
+    let program_ids_list = program_ids
+        .iter()
+        .map(|id| format!("'{}'", id))
+        .collect::<Vec<String>>()
+        .join(", ");
+
+    let base_account_query = QueryRequest::new(format!(
         "SELECT pubkey, block_slot, owner, lamports, data, executable, rent_epoch
-         FROM `{project_id}.{dataset}.{account_table}`
-         WHERE slot BETWEEN {start_slot} AND {end_slot}
-         AND owner = '{program_id}'",
+         FROM `bigquery-public-data.crypto_solana_mainnet_us.Accounts`
+         WHERE block_slot BETWEEN {start_slot} AND {end_slot}
+         AND owner IN ({program_ids_list})"
     ));
 
-    if let Ok(mut account_rows) = client.job().query(project_id, account_query).await {
-        while account_rows.next_row() {
-            if let Ok(account_update) = parse_account_row(&account_rows) {
-                _ = sender.send(Update::Account(account_update));
+    let account_query = QueryRequest {
+        timeout_ms: Some(REQUEST_TIMEOUT_MS),
+        ..base_account_query
+    };
+
+    println!("Running query..");
+    match client.job().query(project_id, account_query).await {
+        Ok(mut account_rows) => {
+            println!("Total rows: {}", account_rows.row_count());
+            while account_rows.next_row() {
+                match parse_account_row(&account_rows) {
+                    Ok(account_update) => {
+                        println!("Got account update: {:?}", account_update);
+                        _ = sender.send(Update::Account(account_update));
+                    }
+                    Err(err) => {
+                        log::error!("Error parsing account row: {}", err);
+                        println!("Error parsing account row: {}", err);
+                    }
+                }
             }
+        }
+        Err(err) => {
+            log::error!("Error fetching accounts: {}", err.to_string());
+            return;
         }
     }
 }
 
 async fn fetch_and_process_transactions(
     client: &Client,
-    rpc_client: &RpcClient,
-    dataset: &str,
     project_id: &str,
-    transaction_table: &str,
-    program_id: &str,
+    rpc_client: &RpcClient,
+    program_ids: &[String],
     start_slot: u64,
     end_slot: u64,
     sender: &UnboundedSender<Update>,
 ) {
-    let transaction_query = QueryRequest::new(format!(
+    log::info!("Fetching transactions...");
+    println!("Fetching transactions...");
+
+    let program_ids_list = program_ids
+        .iter()
+        .map(|id| format!("'{}'", id))
+        .collect::<Vec<String>>()
+        .join(", ");
+    let base_transaction_query = QueryRequest::new(format!(
         "SELECT signature
-         FROM `{project_id}.{dataset}.{transaction_table}`
-         WHERE slot BETWEEN {start_slot} AND {end_slot}
+         FROM `bigquery-public-data.crypto_solana_mainnet_us.Transactions`
+         WHERE block_slot BETWEEN {start_slot} AND {end_slot}
          AND EXISTS (
              SELECT 1 FROM UNNEST(accounts) AS account
-             WHERE account.pubkey = '{program_id}'
+             WHERE account.pubkey IN ({program_ids_list})
          )",
     ));
 
-    if let Ok(mut transaction_rows) = client.job().query(project_id, transaction_query).await {
-        while transaction_rows.next_row() {
-            if let Ok(transaction_update) =
-                parse_transaction_row(&transaction_rows, rpc_client).await
-            {
-                _ = sender.send(Update::Transaction(transaction_update));
+    let transaction_query = QueryRequest {
+        timeout_ms: Some(REQUEST_TIMEOUT_MS),
+        ..base_transaction_query
+    };
+
+    match client.job().query(project_id, transaction_query).await {
+        Ok(mut transaction_rows) => {
+            while transaction_rows.next_row() {
+                match parse_transaction_row(&transaction_rows, rpc_client).await {
+                    Ok(transaction_update) => {
+                        _ = sender.send(Update::Transaction(transaction_update));
+                    }
+                    Err(err) => {
+                        log::error!("Error parsing transaction row: {}", err);
+                    }
+                }
             }
+        }
+        Err(err) => {
+            log::error!("Error fetching transactions: {}", err.to_string());
+            return;
         }
     }
 }
@@ -224,92 +276,75 @@ fn parse_account_row(result_set: &ResultSet) -> CarbonResult<AccountUpdate> {
         carbon_core::error::Error::Custom(format!("Error parsing account's owner pubkey: {err}"))
     })?;
 
-    let Some(lamports) = result_set.get_i64_by_name("lamports").map_err(|err| {
-        carbon_core::error::Error::Custom(format!(
-            "Failed to get BigQuery ResultSet field: {}",
-            err.to_string()
-        ))
-    })?
-    else {
-        return CarbonResult::Err(carbon_core::error::Error::Custom(format!(
-            "Failed to get BigQuery ResultSet field: account lamports is null"
-        )));
+    let lamports = match result_set.get_i64_by_name("lamports") {
+        Ok(Some(lamports)) => lamports,
+        _ => 0,
     };
 
-    let Some(data_value) = result_set.get_json_value_by_name("data").map_err(|err| {
-        carbon_core::error::Error::Custom(format!(
-            "Failed to get BigQuery ResultSet field: {}",
-            err.to_string()
-        ))
-    })?
-    else {
-        return CarbonResult::Err(carbon_core::error::Error::Custom(format!(
-            "Failed to get BigQuery ResultSet field: account data is null"
-        )));
-    };
+    let account_data = match result_set.get_json_value_by_name("data") {
+        Ok(Some(value)) => {
+            let data_array: Vec<AccountDataJson> = match serde_json::from_value(value) {
+                Ok(array) => array,
+                Err(err) => {
+                    log::error!("Couldn't deserialize account data array: {}", err);
+                    vec![]
+                }
+            };
 
-    let data_array: Vec<AccountDataJson> = serde_json::from_value(data_value).map_err(|_| {
-        carbon_core::error::Error::Custom(
-            "Couldn't deserialize Account Data's into AccountDataJson struct".to_string(),
-        )
-    })?;
-
-    let Some(data_object) = data_array.get(0) else {
-        return CarbonResult::Err(carbon_core::error::Error::Custom(format!(
-            "Failed to get BigQuery ResultSet field: account data is empty"
-        )));
-    };
-
-    let Some(raw_str) = data_object.raw.clone() else {
-        return CarbonResult::Err(carbon_core::error::Error::Custom(
-            "Couldn't get Account Data's Raw field".to_string(),
-        ));
-    };
-    let Some(encoding_str) = data_object.encoding.clone() else {
-        return CarbonResult::Err(carbon_core::error::Error::Custom(
-            "Couldn't get Account Data's Encoding field".to_string(),
-        ));
-    };
-
-    let account_data = match encoding_str.as_str() {
-        "base64" => base64::engine::general_purpose::STANDARD
-            .decode(raw_str)
-            .map_err(|err| {
-                carbon_core::error::Error::Custom(format!(
-                    "Couldn't decode raw account data: {err}"
-                ))
-            })?,
-        "json" => {
-            let json_data: Value = serde_json::from_str(&raw_str).map_err(|err| {
-                carbon_core::error::Error::Custom(format!(
-                    "Couldn't decode raw account data from JSON: {err}"
-                ))
-            })?;
-
-            serde_json::to_vec(&json_data).map_err(|err| {
-                carbon_core::error::Error::Custom(format!(
-                    "Couldn't serialize account data from JSON: {err}"
-                ))
-            })?
+            if let Some(data_object) = data_array.get(0) {
+                if let (Some(raw_str), Some(encoding_str)) =
+                    (&data_object.raw, &data_object.encoding)
+                {
+                    match encoding_str.as_str() {
+                        "base64" => {
+                            match base64::engine::general_purpose::STANDARD.decode(&raw_str) {
+                                Ok(data_vec) => data_vec,
+                                Err(err) => {
+                                    log::error!("Couldn't decode base64 account data: {}", err);
+                                    vec![]
+                                }
+                            }
+                        }
+                        "json" => {
+                            if let Ok(json_data) = serde_json::from_str::<Value>(&raw_str) {
+                                match serde_json::to_vec(&json_data) {
+                                    Ok(data_vec) => data_vec,
+                                    Err(err) => {
+                                        log::error!(
+                                            "Couldn't serialize JSON account data: {}",
+                                            err
+                                        );
+                                        vec![]
+                                    }
+                                }
+                            } else {
+                                log::error!("Couldn't parse JSON account data");
+                                vec![]
+                            }
+                        }
+                        _ => {
+                            log::error!("Unknown account data encoding: {}", encoding_str);
+                            vec![]
+                        }
+                    }
+                } else {
+                    vec![]
+                }
+            } else {
+                vec![]
+            }
         }
         _ => {
-            return CarbonResult::Err(carbon_core::error::Error::Custom(format!(
-                "Couldn't process Account data encoding: {encoding_str}"
-            )));
+            log::error!("Failed to get 'data' from ResultSet");
+            vec![]
         }
     };
 
-    let Some(executable) = result_set.get_bool_by_name("executable").map_err(|err| {
-        carbon_core::error::Error::Custom(format!(
-            "Failed to get BigQuery ResultSet field: {}",
-            err.to_string()
-        ))
-    })?
-    else {
-        return CarbonResult::Err(carbon_core::error::Error::Custom(format!(
-            "Failed to get BigQuery ResultSet field: account executable is null"
-        )));
+    let executable = match result_set.get_bool_by_name("executable") {
+        Ok(Some(value)) => value,
+        _ => false,
     };
+
     let Some(rent_epoch) = result_set.get_i64_by_name("rent_epoch").map_err(|err| {
         carbon_core::error::Error::Custom(format!(
             "Failed to get BigQuery ResultSet field: {}",
