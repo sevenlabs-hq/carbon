@@ -11,6 +11,7 @@ use carbon_core::{
 use carbon_macros::*;
 use carbon_proc_macros::instruction_decoder_collection;
 use carbon_rpc_transaction_crawler_datasource::{Filters, RpcTransactionCrawler};
+use jupiter::instructions::swap_event::SwapEvent;
 use jupiter::instructions::{JupiterInstruction, JupiterInstructionType};
 use jupiter::JupiterDecoder;
 use once_cell::sync::Lazy;
@@ -52,7 +53,9 @@ pub async fn main() -> CarbonResult<()> {
 }
 
 #[derive(Clone, Debug, Deserialize)]
-pub struct JupOutput {}
+pub struct JupOutput {
+    jup_swap_event: DecodedInstruction<JupiterInstruction>,
+}
 
 pub struct JupTransactionProcessor;
 
@@ -61,8 +64,23 @@ impl Processor for JupTransactionProcessor {
     type InputType = JupOutput;
 
     async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
-        log::info!("Output: {:?}", data);
-        println!("Matched Jupiter transaction");
+        println!("Matched Jupiter Swap Event transaction");
+
+        if let JupiterInstruction::SwapEvent(SwapEvent {
+            amm,
+            input_mint,
+            input_amount,
+            output_mint,
+            output_amount,
+        }) = data.jup_swap_event.data
+        {
+            println!("AMM: {}", amm);
+            println!("Input Mint: {}", input_mint);
+            println!("Input Amount: {}", input_amount);
+            println!("Output Mint: {}", output_mint);
+            println!("Output Amount: {}", output_amount);
+        }
+
         Ok(())
     }
 }
@@ -79,6 +97,24 @@ impl Processor for JupInstructionProcessor {
 
     async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
         println!("Matched Jupiter instruction: {:#?}", data);
+
+        match data.1.data {
+            JupiterInstruction::SwapEvent(SwapEvent {
+                amm,
+                input_mint,
+                input_amount,
+                output_mint,
+                output_amount,
+            }) => {
+                println!("AMM: {}", amm);
+                println!("Input Mint: {}", input_mint);
+                println!("Input Amount: {}", input_amount);
+                println!("Output Mint: {}", output_mint);
+                println!("Output Amount: {}", output_amount);
+            }
+            JupiterInstruction::FeeEvent(_) => {}
+            _ => {}
+        };
 
         Ok(())
     }
@@ -97,6 +133,5 @@ static JUPITER_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
            "jup_swap_event",
             []
         ]
-        any
     ]
 });
