@@ -1,61 +1,28 @@
-# Carbon Framework - CLI
+# Carbon
 
-Carbon CLI is a command-line tool designed to streamline development within the Carbon framework. It simplifies code generation, making it easier for developers to work with Anchor IDLs and generate the necessary Rust code for their programs. By integrating seamlessly with the Carbon framework, the CLI helps maintain a productive development workflow.
+Carbon is an advanced indexing framework designed for developers building on Solana. It streamlines the process of working with indexers, offering a smooth experience while maintaining the flexibility and complexity required for advanced use cases.
 
-## Commands
+With Carbon, you can track multiple data sources, allowing you to choose how to handle incoming data. Some of the supported data sources include:
 
-### `parse`
+- Yellowstone gRPC
+- Transaction Crawler
+- Google BigTable
+- Helius Atlas WS
 
-#### Overview
+Once you've selected a data source, Carbon allows you to:
 
-The `parse` command automates the generation of a Rust crate based on a provided Anchor IDL. The resulting crate includes many of the necessary types and structures to be used within the Carbon framework. While the new IDL format (v30.1+) is supported, we recommend using the legacy format (before v30.1) for maximum compatibility, especially when working with accounts.
+- Execute custom business logic when specific accounts or instructions are included in a transaction.
+- Define transaction schemas — combinations of instructions that help you recognize and interpret transactions that meet particular criteria, with which you are able to execute custom business logic.
 
-#### Usage
+Carbon is packed with tools that make working with Solana indexers both powerful and easy to use. Whether you're working with accounts, instructions, or entire transaction flows, Carbon provides the flexibility to design your logic while handling the complexity behind the scenes.
 
-The `parse` command accepts two parameters, with one being mandatory:
+Let’s start by lookig at an example of Carbon usage.
 
-- `--idl`: Specifies the path to the IDL file (required).
-- `--output`: Specifies the path where the generated Rust crate will be placed (optional).
-
-If the `--output` parameter is omitted, you should be located in `crates/cli` when running the CLI, then the decoder will be generated in the default directory. After the crate is generated, you can inspect its contents and import it into your program as needed.
-
-**Example:**
-
-```bash
-cargo run parse --idl path/to/idl.json --output path/to/output/crate
-```
-
-For more details on the generated output, see the [Decoders](#decoders) section.
-
-## Decoders
-
-The `Decoders` directory contains pre-built decoder examples that can be used within the Carbon framework. These decoders are implemented as individual crates, each structured with three key directories: `instructions`, `accounts`, and `types`. These directories contain the logic needed to decode instructions, accounts, and types in real-time as they are processed.
-
-Each decoder crate should implement two essential traits:
-
-- `InstructionDecoder`
-- `AccountDecoder`
-
-These traits allow the decoder to translate incoming instructions into meaningful data, making them useful in the program’s logic.
-
-### Enums and Instruction Decoding
-
-The decoder crate also includes enums representing all instruction variants from the program, including events. These enums are highly useful for pattern matching and data extraction during instruction processing.
-
-### Pre-built Decoders
-
-We provide several pre-built decoders for widely used Solana programs, including:
-
-- **System Program**
-- **Token Program**
-
-These examples can serve as a reference for developing custom decoders for non-Anchor programs. Refer to the examples when building your own custom decoders for other Solana programs.
-
-## The Carbon Pipeline
+# The Carbon Pipeline
 
 The Carbon framework is designed to be easy to use. To facilitate this, we’ve created a pipeline system where you can chain components together to suit your specific use case. By defining expectations for our indexer, you can easily set up the necessary components to fulfill your application's needs.
 
-### Example Pipeline
+## Example Pipeline
 
 Here’s an example of what a typical pipeline looks like:
 
@@ -76,7 +43,7 @@ The pipeline consists of four key parts, which we will break down below.
 
 ---
 
-### 1. Datasource
+## 1. Datasource
 
 The `Datasource` is any struct that implements our `Datasource` trait. This trait requires two functions to be implemented:
 
@@ -85,11 +52,18 @@ The `Datasource` is any struct that implements our `Datasource` trait. This trai
 
 These functions define how data is processed and updated in the pipeline.
 
-TODO: Write more
+As mentioned above, Carbon has several premade decoders:
+
+- Yellowstone gRPC
+- Transaction Crawler
+- Google BigTable
+- Helius Atlas WS
+
+Feel free to inspect and tweak each of these for clarity and usage.
 
 ---
 
-### 2. Account Pipe
+## 2. Account Pipe
 
 The `Account` pipe takes two parameters: `ProgramDecoder` and `AccountProcessor`.
 
@@ -98,30 +72,34 @@ The `Account` pipe takes two parameters: `ProgramDecoder` and `AccountProcessor`
 
 The `ProgramDecoder` implements the `AccountDecoder` trait, allowing it to decode accounts as they are processed in the pipeline. For reference, you can consult our pre-built decoders to understand how this works in practice.
 
+TODO: Example of AccountProcessor?
+
 ---
 
-### 3. Instruction Pipe
+## 3. Instruction Pipe
 
 The `Instruction` pipe also takes two parameters: `ProgramDecoder` and `InstructionProcessor`.
 
-- The `ProgramDecoder`, as with the `Account` pipe, can be generated using the Carbon CLI for programs with an Anchor IDL.
+- The `ProgramDecoder`, as with the `Account` pipe, can be generated using the Carbon CLI for programs with an Anchor IDL, or it can be created manually.
 - The `InstructionProcessor` should be custom-made, as it contains the business logic for processing instructions.
 
 The `ProgramDecoder` implements the `InstructionDecoder` trait, which enables it to decode instructions. Again, you can refer to our pre-built decoders for guidance on how to implement this in your project.
 
+TODO: Example of InstructionProcessor?
+
 ---
 
-### 4. Transaction Pipe
+## 4. Transaction Pipe
 
 The `Transaction` pipe has two parameters: the `TRANSACTION_SCHEMA` and the `TransactionProcessor`.
 
-#### Transaction Schema
+### Transaction Schema
 
 The `TRANSACTION_SCHEMA` defines the structure of the transactions that the pipeline should look for. It acts as a pattern for recognizing transactions of interest, and it consists of ordered instructions that you expect the transaction to include.
 
 Here are a few examples of transaction schemas:
 
-#### Basic Example
+### Basic Example
 
 ```rust
 static JUPITER_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
@@ -139,7 +117,7 @@ static JUPITER_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
 
 In this example, the indexer is instructed to look for any transaction containing a `SharedAccountsRoute` instruction from the Jupiter program. The placement of `any` before and after the instruction signifies that this instruction can occur at any position within the transaction.
 
-#### Complex Example
+### Complex Example
 
 ```rust
 static MORE_COMPLEX_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
@@ -161,7 +139,7 @@ static MORE_COMPLEX_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new
 });
 ```
 
-In this more complex example, we’re specifying that the transaction must contain a `shared_accounts_route` instruction , but, by omitting `any` from the beginning, we show that we want it as the first instruction within the transaction. Additionally, one of the inner instructions of it must be a `swap_event` instruction, and it must be the last inner instruction within `shared_accounts_route`.
+In this more complex example, we’re specifying that the transaction must contain a `shared_accounts_route` instruction, but, by omitting `any` from the beginning, we show that we want it as the first instruction within the transaction. Additionally, one of the inner instructions of it must be a `swap_event` instruction, and it must be the last inner instruction within `shared_accounts_route`. When making a schema, you should list all the instructions that you are interested in, as well as those that help you identify the transaction as useful.
 
 This schema showcases the recursive complexity and flexibility of Carbon’s transaction schemas.
 
@@ -193,7 +171,7 @@ impl Processor for JupiterTransactionProcessor {
 }
 ```
 
-In this example, the `JupiterOutput` struct matches the names defined in the schema, allowing the data to be automatically parsed and passed to the business logic for processing.
+In this example, the `JupiterOutput` struct matches the names of instructions defined in the schema, allowing the data to be automatically parsed and passed to the business logic for processing.
 
 ## Decoder Collection
 
@@ -262,3 +240,57 @@ This is the enum you'll use when defining transaction schemas.
 #### AllPrograms
 
 The third enum simply enumerates the different programs you want to index, allowing you to manage them collectively.
+
+# Carbon CLI
+
+Carbon CLI is a command-line tool designed to streamline development within the Carbon framework. It simplifies code generation, making it easier for developers to work with Anchor IDLs and generate the necessary Rust code for their programs. By integrating seamlessly with the Carbon framework, the CLI helps maintain a productive development workflow.
+
+## Commands
+
+### `parse`
+
+#### Overview
+
+The `parse` command automates the generation of a Rust crate based on a provided Anchor IDL. The resulting crate includes many of the necessary types and structures to be used within the Carbon framework. While the new IDL format (v30.1+) is supported, we recommend using the legacy format (before v30.1) for maximum compatibility, especially when working with accounts.
+
+#### Usage
+
+The `parse` command accepts two parameters, with one being mandatory:
+
+- `--idl`: Specifies the path to the IDL file (required).
+- `--output`: Specifies the path where the generated Rust crate will be placed (optional).
+
+If the `--output` parameter is omitted, you should be located in `crates/cli` when running the CLI, then the decoder will be generated in the default directory. After the crate is generated, you can inspect its contents and import it into your program as needed.
+
+**Example:**
+
+```bash
+cargo run parse --idl path/to/idl.json --output path/to/output/crate
+```
+
+For more details on the generated output, see the [Decoders](#decoders) section.
+
+## Decoders
+
+The `Decoders` directory contains pre-built decoder examples that can be used within the Carbon framework. These decoders are implemented as individual crates, each structured with three key directories: `instructions`, `accounts`, and `types`. These directories contain the logic needed to decode instructions, accounts, and types in real-time as they are processed.
+
+Each decoder crate should implement two essential traits:
+
+- `InstructionDecoder`
+- `AccountDecoder`
+
+These traits allow the decoder to translate incoming instructions into meaningful data, making them useful in the program’s logic.
+
+### Enums and Instruction Decoding
+
+The decoder crate also includes enums representing all instruction variants from the program, including events. These enums are highly useful for pattern matching and data extraction during instruction processing.
+
+### Pre-built Decoders
+
+We provide several pre-built decoders for widely used Solana programs, including:
+
+- **System Program**
+- **Token Program**
+  TODO: Write all published on cargo
+
+These examples can serve as a reference for developing custom decoders for non-Anchor programs. Refer to the examples when building your own custom decoders for other Solana programs.
