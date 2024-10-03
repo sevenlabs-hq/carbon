@@ -37,7 +37,9 @@ impl Pipeline {
     pub async fn run(&self) -> CarbonResult<()> {
         let (update_sender, mut update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
 
+        let mut update_types = vec![];
         for datasource in &self.datasources {
+            update_types.extend(datasource.update_types());
             let sender_clone = update_sender.clone();
             let datasource_clone = Arc::clone(datasource);
             tokio::spawn(async move {
@@ -47,16 +49,7 @@ impl Pipeline {
             });
         }
 
-        let mut provided_update_types = vec![];
-        for datasource in &self.datasources {
-            provided_update_types.extend(datasource.update_types());
-        }
-
-        // let _abort_handle = self.datasource.consume(&update_sender).await?;
-
-        if !self.account_pipes.is_empty()
-            && !provided_update_types.contains(&UpdateType::AccountUpdate)
-        {
+        if !self.account_pipes.is_empty() && !update_types.contains(&UpdateType::AccountUpdate) {
             return Err(Error::MissingUpdateTypeInDatasource(
                 UpdateType::AccountUpdate,
             ));
@@ -64,7 +57,7 @@ impl Pipeline {
 
         if !self.instruction_pipes.is_empty()
             || !self.transaction_pipes.is_empty()
-                && !provided_update_types.contains(&UpdateType::Transaction)
+                && !update_types.contains(&UpdateType::Transaction)
         {
             return Err(Error::MissingUpdateTypeInDatasource(
                 UpdateType::Transaction,

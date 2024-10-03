@@ -1,5 +1,5 @@
 [package]
-name = "carbon-bigquery-solana-datasource"
+name = "carbon-bigquery-datasource"
 version = "0.1.0"
 edition = "2021"
 

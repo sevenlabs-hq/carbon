@@ -20,10 +20,6 @@ pub enum Error {
     MissingInstructionData,
     #[error("Failed to consume datasource: {0}")]
     FailedToConsumeDatasource(String),
-    #[error("Failed to create BigQuery client: {0}")]
-    FailedToCreateBigQueryClient(String),
-    #[error("Failed to get BigQuery ResultSet field: {0}")]
-    FailedToGetBigQueryResultSetField(String),
     #[error("{0}")]
     Custom(String),
 }

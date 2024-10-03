@@ -3,7 +3,7 @@ use base64::Engine;
 use carbon_core::{
     datasource::{AccountUpdate, Datasource, TransactionUpdate, Update, UpdateType},
     error::CarbonResult,
-    utils::build_tx_status_meta,
+    transformers::build_tx_status_meta,
 };
 use gcp_bigquery_client::{
     model::{query_request::QueryRequest, query_response::ResultSet},
@@ -74,7 +74,10 @@ impl Datasource for BigQueryDatasource {
         let client = Client::from_service_account_key_file(&credentials_path)
             .await
             .map_err(|err| {
-                carbon_core::error::Error::FailedToCreateBigQueryClient(err.to_string())
+                carbon_core::error::Error::Custom(format!(
+                    "Failed to create BigQuery client: {}",
+                    err.to_string()
+                ))
             })?;
 
         let abort_handle = tokio::spawn(async move {
@@ -133,7 +136,7 @@ async fn fetch_and_process_accounts(
     if let Ok(mut account_rows) = client.job().query(project_id, account_query).await {
         while account_rows.next_row() {
             if let Ok(account_update) = parse_account_row(&account_rows) {
-                let _ = sender.send(Update::Account(account_update));
+                _ = sender.send(Update::Account(account_update));
             }
         }
     }
@@ -165,7 +168,7 @@ async fn fetch_and_process_transactions(
             if let Ok(transaction_update) =
                 parse_transaction_row(&transaction_rows, rpc_client).await
             {
-                let _ = sender.send(Update::Transaction(transaction_update));
+                _ = sender.send(Update::Transaction(transaction_update));
             }
         }
     }
@@ -179,14 +182,15 @@ fn parse_account_row(result_set: &ResultSet) -> CarbonResult<AccountUpdate> {
     }
 
     let Some(pubkey_str) = result_set.get_string_by_name("pubkey").map_err(|err| {
-        carbon_core::error::Error::FailedToGetBigQueryResultSetField(err.to_string())
+        carbon_core::error::Error::Custom(format!(
+            "Failed to get BigQuery ResultSet field: {}",
+            err.to_string()
+        ))
     })?
     else {
-        return CarbonResult::Err(
-            carbon_core::error::Error::FailedToGetBigQueryResultSetField(
-                "Account Pubkey is None".to_string(),
-            ),
-        );
+        return CarbonResult::Err(carbon_core::error::Error::Custom(format!(
+            "Failed to get BigQuery ResultSet field: account pubkey is null"
+        )));
     };
 
     let pubkey = Pubkey::from_str(&pubkey_str).map_err(|err| {
@@ -194,50 +198,54 @@ fn parse_account_row(result_set: &ResultSet) -> CarbonResult<AccountUpdate> {
     })?;
 
     let Some(slot) = result_set.get_i64_by_name("block_slot").map_err(|err| {
-        carbon_core::error::Error::FailedToGetBigQueryResultSetField(err.to_string())
+        carbon_core::error::Error::Custom(format!(
+            "Failed to get BigQuery ResultSet field: {}",
+            err.to_string()
+        ))
     })?
     else {
-        return CarbonResult::Err(
-            carbon_core::error::Error::FailedToGetBigQueryResultSetField(
-                "Account Block Slot is None".to_string(),
-            ),
-        );
+        return CarbonResult::Err(carbon_core::error::Error::Custom(format!(
+            "Failed to get BigQuery ResultSet field: account pubkey is null"
+        )));
     };
 
     let Some(owner_str) = result_set.get_string_by_name("owner").map_err(|err| {
-        carbon_core::error::Error::FailedToGetBigQueryResultSetField(err.to_string())
+        carbon_core::error::Error::Custom(format!(
+            "Failed to get BigQuery ResultSet field: {}",
+            err.to_string()
+        ))
     })?
     else {
-        return CarbonResult::Err(
-            carbon_core::error::Error::FailedToGetBigQueryResultSetField(
-                "Account Owner is None".to_string(),
-            ),
-        );
+        return CarbonResult::Err(carbon_core::error::Error::Custom(format!(
+            "Failed to get BigQuery ResultSet field: account owner is null"
+        )));
     };
     let owner = Pubkey::from_str(&owner_str).map_err(|err| {
         carbon_core::error::Error::Custom(format!("Error parsing account's owner pubkey: {err}"))
     })?;
 
     let Some(lamports) = result_set.get_i64_by_name("lamports").map_err(|err| {
-        carbon_core::error::Error::FailedToGetBigQueryResultSetField(err.to_string())
+        carbon_core::error::Error::Custom(format!(
+            "Failed to get BigQuery ResultSet field: {}",
+            err.to_string()
+        ))
     })?
     else {
-        return CarbonResult::Err(
-            carbon_core::error::Error::FailedToGetBigQueryResultSetField(
-                "Account Lamports is None".to_string(),
-            ),
-        );
+        return CarbonResult::Err(carbon_core::error::Error::Custom(format!(
+            "Failed to get BigQuery ResultSet field: account lamports is null"
+        )));
     };
 
     let Some(data_value) = result_set.get_json_value_by_name("data").map_err(|err| {
-        carbon_core::error::Error::FailedToGetBigQueryResultSetField(err.to_string())
+        carbon_core::error::Error::Custom(format!(
+            "Failed to get BigQuery ResultSet field: {}",
+            err.to_string()
+        ))
     })?
     else {
-        return CarbonResult::Err(
-            carbon_core::error::Error::FailedToGetBigQueryResultSetField(
-                "Account Data is None".to_string(),
-            ),
-        );
+        return CarbonResult::Err(carbon_core::error::Error::Custom(format!(
+            "Failed to get BigQuery ResultSet field: account data is null"
+        )));
     };
 
     let data_array: Vec<AccountDataJson> = serde_json::from_value(data_value).map_err(|_| {
@@ -247,11 +255,9 @@ fn parse_account_row(result_set: &ResultSet) -> CarbonResult<AccountUpdate> {
     })?;
 
     let Some(data_object) = data_array.get(0) else {
-        return CarbonResult::Err(
-            carbon_core::error::Error::FailedToGetBigQueryResultSetField(
-                "Account Data is empty".to_string(),
-            ),
-        );
+        return CarbonResult::Err(carbon_core::error::Error::Custom(format!(
+            "Failed to get BigQuery ResultSet field: account data is empty"
+        )));
     };
 
     let Some(raw_str) = data_object.raw.clone() else {
@@ -287,33 +293,33 @@ fn parse_account_row(result_set: &ResultSet) -> CarbonResult<AccountUpdate> {
             })?
         }
         _ => {
-            return CarbonResult::Err(
-                carbon_core::error::Error::FailedToGetBigQueryResultSetField(format!(
-                    "Couldn't process Account data encoding: {encoding_str}"
-                )),
-            );
+            return CarbonResult::Err(carbon_core::error::Error::Custom(format!(
+                "Couldn't process Account data encoding: {encoding_str}"
+            )));
         }
     };
 
     let Some(executable) = result_set.get_bool_by_name("executable").map_err(|err| {
-        carbon_core::error::Error::FailedToGetBigQueryResultSetField(err.to_string())
+        carbon_core::error::Error::Custom(format!(
+            "Failed to get BigQuery ResultSet field: {}",
+            err.to_string()
+        ))
     })?
     else {
-        return CarbonResult::Err(
-            carbon_core::error::Error::FailedToGetBigQueryResultSetField(
-                "Account Executable is None".to_string(),
-            ),
-        );
+        return CarbonResult::Err(carbon_core::error::Error::Custom(format!(
+            "Failed to get BigQuery ResultSet field: account executable is null"
+        )));
     };
     let Some(rent_epoch) = result_set.get_i64_by_name("rent_epoch").map_err(|err| {
-        carbon_core::error::Error::FailedToGetBigQueryResultSetField(err.to_string())
+        carbon_core::error::Error::Custom(format!(
+            "Failed to get BigQuery ResultSet field: {}",
+            err.to_string()
+        ))
     })?
     else {
-        return CarbonResult::Err(
-            carbon_core::error::Error::FailedToGetBigQueryResultSetField(
-                "Account Rent Epoch is None".to_string(),
-            ),
-        );
+        return CarbonResult::Err(carbon_core::error::Error::Custom(format!(
+            "Failed to get BigQuery ResultSet field: account epoch is null"
+        )));
     };
 
     let account = Account {
@@ -336,14 +342,15 @@ async fn parse_transaction_row(
     rpc_client: &RpcClient,
 ) -> CarbonResult<TransactionUpdate> {
     let Some(signature_str) = result_set.get_string_by_name("signature").map_err(|err| {
-        carbon_core::error::Error::FailedToGetBigQueryResultSetField(err.to_string())
+        carbon_core::error::Error::Custom(format!(
+            "Failed to get BigQuery ResultSet field: {}",
+            err.to_string()
+        ))
     })?
     else {
-        return CarbonResult::Err(
-            carbon_core::error::Error::FailedToGetBigQueryResultSetField(
-                "Transaction Signature is None".to_string(),
-            ),
-        );
+        return CarbonResult::Err(carbon_core::error::Error::Custom(format!(
+            "Failed to get BigQuery ResultSet field: transaction signature is null"
+        )));
     };
 
     let signature = Signature::from_str(&signature_str).map_err(|err| {

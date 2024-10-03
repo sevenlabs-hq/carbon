@@ -10,4 +10,3 @@ pub mod schema;
 pub mod transaction;
 pub mod transformers;
 pub use borsh;
-pub mod utils;

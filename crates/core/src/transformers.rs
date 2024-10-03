@@ -1,13 +1,17 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, str::FromStr};
 
 use solana_sdk::{
-    instruction::AccountMeta,
+    instruction::{AccountMeta, CompiledInstruction},
     message::{
         v0::{LoadedAddresses, LoadedMessage},
         VersionedMessage,
     },
     pubkey::Pubkey,
     reserved_account_keys::ReservedAccountKeys,
+};
+use solana_transaction_status::{
+    option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
+    TransactionStatusMeta, TransactionTokenBalance, UiInstruction, UiTransactionStatusMeta,
 };
 
 use crate::{
@@ -287,4 +291,212 @@ pub fn nest_instructions(
     }
 
     result
+}
+
+pub fn build_tx_status_meta(
+    tx_meta: UiTransactionStatusMeta,
+) -> CarbonResult<TransactionStatusMeta> {
+    let OptionSerializer::Some(meta_log_messages) = tx_meta.log_messages else {
+        return CarbonResult::Err(crate::error::Error::Custom(
+            "Couldn't get transaction log messages".to_string(),
+        ));
+    };
+
+    let pre_token_balances = match tx_meta.pre_token_balances {
+        OptionSerializer::Some(balances) => {
+            let balances_result = balances
+                .iter()
+                .map(|pre_token_balance| {
+                    let pre_token_balance_cloned = pre_token_balance.clone();
+                    let owner = pre_token_balance_cloned.owner.ok_or_else(|| {
+                        format!(
+                            "Couldn't find the owner for account index {}",
+                            pre_token_balance.account_index
+                        )
+                    })?;
+
+                    let program_id = pre_token_balance_cloned.program_id.ok_or_else(|| {
+                        format!(
+                            "Couldn't find a program id for account index {}",
+                            pre_token_balance.account_index
+                        )
+                    })?;
+
+                    Ok(TransactionTokenBalance {
+                        account_index: pre_token_balance_cloned.account_index,
+                        mint: pre_token_balance_cloned.mint,
+                        ui_token_amount: pre_token_balance_cloned.ui_token_amount,
+                        owner,
+                        program_id,
+                    })
+                })
+                .collect::<Result<Vec<TransactionTokenBalance>, String>>();
+
+            match balances_result {
+                Ok(token_balances) => Some(token_balances),
+                Err(_err) => None,
+            }
+        }
+        _ => None,
+    };
+
+    let inner_instructions = match tx_meta.inner_instructions {
+        OptionSerializer::Some(inner_ixs) => {
+            let result: Result<Vec<InnerInstructions>, String> = inner_ixs
+                .iter()
+                .map(|iixs| {
+                    let instructions = iixs
+                        .instructions
+                        .iter()
+                        .map(|iix| match iix {
+                            UiInstruction::Compiled(ui_compiled_instruction) => {
+                                let ui_compiled_instruction_cloned =
+                                    ui_compiled_instruction.clone();
+                                Ok(InnerInstruction {
+                                    instruction: CompiledInstruction {
+                                        program_id_index: ui_compiled_instruction.program_id_index,
+                                        accounts: ui_compiled_instruction_cloned.accounts,
+                                        data: bs58::decode(ui_compiled_instruction_cloned.data)
+                                            .into_vec()
+                                            .map_err(|_| {
+                                                format!(
+                                                    "Failed to decode data for account index {}",
+                                                    ui_compiled_instruction.program_id_index
+                                                )
+                                            })?,
+                                    },
+                                    stack_height: ui_compiled_instruction.stack_height,
+                                })
+                            }
+                            _ => Err("Unimplemented instruction type".to_string()),
+                        })
+                        .collect::<Result<Vec<InnerInstruction>, String>>()?;
+
+                    Ok(InnerInstructions {
+                        index: iixs.index,
+                        instructions,
+                    })
+                })
+                .collect();
+
+            match result {
+                Ok(iixs) => Some(iixs),
+                Err(_err) => None,
+            }
+        }
+        _ => None,
+    };
+
+    let post_token_balances = match tx_meta.post_token_balances {
+        OptionSerializer::Some(balances) => {
+            let balances_result = balances
+                .iter()
+                .map(|post_token_balance| {
+                    let post_token_balance_cloned = post_token_balance.clone();
+                    let owner = post_token_balance_cloned.owner.ok_or_else(|| {
+                        format!(
+                            "Couldn't find the owner for account index {}",
+                            post_token_balance.account_index
+                        )
+                    })?;
+
+                    let program_id = post_token_balance_cloned.program_id.ok_or_else(|| {
+                        format!(
+                            "Couldn't find a program id for account index {}",
+                            post_token_balance.account_index
+                        )
+                    })?;
+
+                    Ok(TransactionTokenBalance {
+                        account_index: post_token_balance.account_index,
+                        mint: post_token_balance_cloned.mint,
+                        ui_token_amount: post_token_balance_cloned.ui_token_amount,
+                        owner,
+                        program_id,
+                    })
+                })
+                .collect::<Result<Vec<TransactionTokenBalance>, String>>();
+
+            match balances_result {
+                Ok(token_balances) => Some(token_balances),
+                Err(_err) => None,
+            }
+        }
+        _ => None,
+    };
+
+    let rewards = match tx_meta.rewards {
+        OptionSerializer::Some(rewards_list) => {
+            let rewards_result = rewards_list
+                .iter()
+                .map(|rewards| {
+                    Ok(Reward {
+                        pubkey: rewards.pubkey.clone(),
+                        lamports: rewards.lamports,
+                        post_balance: rewards.post_balance,
+                        reward_type: rewards.reward_type,
+                        commission: rewards.commission,
+                    })
+                })
+                .collect::<Result<Vec<Reward>, String>>();
+
+            match rewards_result {
+                Ok(rewards) => Some(rewards),
+                Err(_err) => None,
+            }
+        }
+        _ => None,
+    };
+
+    let loaded_addresses = match tx_meta.loaded_addresses {
+        OptionSerializer::Some(loaded) => {
+            let writable_result = loaded
+                .writable
+                .iter()
+                .map(|w| {
+                    Pubkey::from_str(&w).map_err(|_| format!("Invalid writable pubkey: {}", w))
+                })
+                .collect::<Result<Vec<Pubkey>, String>>();
+
+            let readonly_result = loaded
+                .readonly
+                .iter()
+                .map(|r| {
+                    Pubkey::from_str(&r).map_err(|_| format!("Invalid readonly pubkey: {}", r))
+                })
+                .collect::<Result<Vec<Pubkey>, String>>();
+
+            match (writable_result, readonly_result) {
+                (Ok(writable), Ok(readonly)) => LoadedAddresses { writable, readonly },
+                (Err(_), _) | (_, Err(_)) => LoadedAddresses {
+                    writable: vec![],
+                    readonly: vec![],
+                },
+            }
+        }
+        _ => LoadedAddresses {
+            writable: vec![],
+            readonly: vec![],
+        },
+    };
+
+    let compute_units_consumed = match tx_meta.compute_units_consumed {
+        OptionSerializer::Some(cus) => Some(cus),
+        _ => None,
+    };
+
+    CarbonResult::Ok(TransactionStatusMeta {
+        status: tx_meta.status,
+        fee: tx_meta.fee,
+        pre_balances: tx_meta.pre_balances,
+        post_balances: tx_meta.post_balances,
+        log_messages: Some(meta_log_messages),
+        pre_token_balances,
+        inner_instructions,
+        post_token_balances,
+        rewards,
+        loaded_addresses,
+        return_data: None,
+        compute_units_consumed,
+    })
 }
