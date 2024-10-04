@@ -76,7 +76,6 @@ impl InstructionDecoder for TokenProgramDecoder {
         &self,
         instruction: solana_sdk::instruction::Instruction,
     ) -> Option<DecodedInstruction<Self::InstructionType>> {
-        println!("Instruction: {:?}", instruction);
         if let Some(decoded_instruction) =
             amount_to_ui_amount::AmountToUiAmount::deserialize(instruction.data.as_slice())
         {
