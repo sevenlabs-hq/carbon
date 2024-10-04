@@ -15,7 +15,7 @@ pub struct BurnCheckedAccounts {
     pub account: solana_sdk::pubkey::Pubkey,
     pub mint: solana_sdk::pubkey::Pubkey,
     pub owner: solana_sdk::pubkey::Pubkey,
-    pub _remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 
 impl ArrangeAccounts for BurnChecked {
@@ -33,7 +33,7 @@ impl ArrangeAccounts for BurnChecked {
             account: *account,
             mint: *mint,
             owner: *owner,
-            _remaining_accounts: accounts
+            remaining_accounts: accounts
                 .get(3..)
                 .unwrap_or_default()
                 .to_vec()

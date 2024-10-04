@@ -11,7 +11,7 @@ pub struct Revoke {}
 pub struct RevokeAccounts {
     pub source: solana_sdk::pubkey::Pubkey,
     pub owner: solana_sdk::pubkey::Pubkey,
-    pub _remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 
 impl ArrangeAccounts for Revoke {
@@ -27,7 +27,7 @@ impl ArrangeAccounts for Revoke {
         Some(RevokeAccounts {
             source: *source,
             owner: *owner,
-            _remaining_accounts: accounts
+            remaining_accounts: accounts
                 .get(2..)
                 .unwrap_or_default()
                 .to_vec()

@@ -16,7 +16,7 @@ pub struct ApproveCheckedAccounts {
     pub mint: solana_sdk::pubkey::Pubkey,
     pub delegate: solana_sdk::pubkey::Pubkey,
     pub owner: solana_sdk::pubkey::Pubkey,
-    pub _remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 
 impl ArrangeAccounts for ApproveChecked {
@@ -36,7 +36,7 @@ impl ArrangeAccounts for ApproveChecked {
             mint: *mint,
             delegate: *delegate,
             owner: *owner,
-            _remaining_accounts: accounts
+            remaining_accounts: accounts
                 .get(4..)
                 .unwrap_or_default()
                 .to_vec()

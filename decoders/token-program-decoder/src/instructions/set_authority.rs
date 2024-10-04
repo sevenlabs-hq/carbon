@@ -15,7 +15,7 @@ pub struct SetAuthority {
 pub struct SetAuthorityAccounts {
     pub account: solana_sdk::pubkey::Pubkey,
     pub authority: solana_sdk::pubkey::Pubkey,
-    pub _remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 
 impl ArrangeAccounts for SetAuthority {
@@ -31,7 +31,7 @@ impl ArrangeAccounts for SetAuthority {
         Some(SetAuthorityAccounts {
             account: *account,
             authority: *authority,
-            _remaining_accounts: accounts
+            remaining_accounts: accounts
                 .get(2..)
                 .unwrap_or_default()
                 .to_vec()
