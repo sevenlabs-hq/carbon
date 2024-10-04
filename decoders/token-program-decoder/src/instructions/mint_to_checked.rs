@@ -15,7 +15,7 @@ pub struct MintToCheckedAccounts {
     pub mint: solana_sdk::pubkey::Pubkey,
     pub account: solana_sdk::pubkey::Pubkey,
     pub authority: solana_sdk::pubkey::Pubkey,
-    pub _remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 
 impl ArrangeAccounts for MintToChecked {
@@ -33,7 +33,7 @@ impl ArrangeAccounts for MintToChecked {
             mint: *mint,
             account: *account,
             authority: *authority,
-            _remaining_accounts: accounts
+            remaining_accounts: accounts
                 .get(3..)
                 .unwrap_or_default()
                 .to_vec()

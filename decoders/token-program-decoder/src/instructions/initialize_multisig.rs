@@ -13,7 +13,7 @@ pub struct InitializeMultisig {
 pub struct InitializeMultisigAccounts {
     pub account: solana_sdk::pubkey::Pubkey,
     pub rent: solana_sdk::pubkey::Pubkey,
-    pub _remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 
 impl ArrangeAccounts for InitializeMultisig {
@@ -29,7 +29,7 @@ impl ArrangeAccounts for InitializeMultisig {
         Some(InitializeMultisigAccounts {
             account: *account,
             rent: *rent,
-            _remaining_accounts: accounts
+            remaining_accounts: accounts
                 .get(2..)
                 .unwrap_or_default()
                 .to_vec()
