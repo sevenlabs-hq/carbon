@@ -896,6 +896,7 @@ name = "carbon-system-program-decoder"
 version = "0.1.0"
 dependencies = [
  "carbon-core",
+ "carbon-macros",
  "carbon-proc-macros",
  "serde",
  "solana-sdk",
@@ -907,6 +908,7 @@ name = "carbon-token-program-decoder"
 version = "0.1.0"
 dependencies = [
  "carbon-core",
+ "carbon-macros",
  "carbon-proc-macros",
  "serde",
  "solana-sdk",
