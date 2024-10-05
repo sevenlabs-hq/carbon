@@ -9,7 +9,7 @@ crate-type = ["rlib"]
 [dependencies]
 carbon-core = { workspace = true }
 carbon-proc-macros = { workspace = true }
+carbon-macros = { workspace = true }
 solana-sdk = "2.0.10"
 serde = "1.0.136"
 spl-token = "6.0.0"
-
