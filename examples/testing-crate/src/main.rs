@@ -475,9 +475,8 @@ static ORCA_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
 pub async fn main() -> CarbonResult<()> {
     env_logger::init();
 
-    // TODO: find better way to authorize
     let current_dir = std::env::current_dir().unwrap();
-    let relative_creds_path = "";
+    let relative_creds_path = ""; //
     let creds_path = current_dir
         .join(relative_creds_path)
         .to_str()
@@ -485,7 +484,7 @@ pub async fn main() -> CarbonResult<()> {
         .to_owned();
 
     let big_query_datasource = BigQueryDatasource::new(
-        creds_path,
+        Some(creds_path), // can be None to use local authentication credentials.
         "BIGQUERY PROJECT ID".to_string(),
         "RPC_URL".to_string(),
         vec![
@@ -499,7 +498,6 @@ pub async fn main() -> CarbonResult<()> {
     let big_query_arc = Arc::new(big_query_datasource);
 
     carbon_core::pipeline::Pipeline::builder()
-        // .datasource(big_query_datasource)
         .datasources(vec![big_query_arc])
         .account(TokenProgramAccountDecoder, TokenProgramAccountProcessor)
         .transaction(ORCA_SCHEMA.clone(), OrcaTransactionProcessor)

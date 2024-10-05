@@ -19,7 +19,7 @@ use tokio::sync::mpsc::UnboundedSender;
 const REQUEST_TIMEOUT_MS: i32 = 10 * 60 * 1000; // 10 mins
 
 pub struct BigQueryDatasource {
-    pub credentials_path: Arc<String>,
+    pub credentials_path: Option<Arc<String>>,
     pub project_id: Arc<String>,
     pub rpc_client: Arc<RpcClient>,
     pub program_ids: Arc<Vec<String>>,
@@ -28,8 +28,12 @@ pub struct BigQueryDatasource {
 }
 
 impl BigQueryDatasource {
+    /// #### Create a new BigQuery datasource intstance.
+    /// **Note**: the framework simplifies authentication with Google Cloud BigQuery by using Application Default Credentials (ADC).
+    /// If you do not provide a path to a service account key file, the framework will attempt to use ADC.
+    ///
     pub fn new(
-        credentials_path: String,
+        credentials_path: Option<String>,
         project_id: String,
         rpc_url: String,
         program_ids: Vec<String>,
@@ -37,7 +41,11 @@ impl BigQueryDatasource {
         end_slot: u64,
     ) -> Self {
         Self {
-            credentials_path: Arc::new(credentials_path),
+            credentials_path: if let Some(credentials_path) = credentials_path {
+                Some(Arc::new(credentials_path))
+            } else {
+                None
+            },
             project_id: Arc::new(project_id),
             rpc_client: Arc::new(RpcClient::new(rpc_url)),
             program_ids: Arc::new(program_ids),
@@ -54,16 +62,29 @@ impl Datasource for BigQueryDatasource {
         sender: &UnboundedSender<Update>,
     ) -> CarbonResult<Vec<tokio::task::AbortHandle>> {
         log::info!("Consuming BigQuery Datasource...");
-        let client = Arc::new(
-            Client::from_service_account_key_file(&self.credentials_path)
-                .await
-                .map_err(|err| {
-                    carbon_core::error::Error::Custom(format!(
-                        "Failed to create BigQuery client: {}",
-                        err.to_string()
-                    ))
-                })?,
-        );
+        let client = if let Some(credentials_path) = self.credentials_path.clone() {
+            Arc::new(
+                Client::from_service_account_key_file(&credentials_path)
+                    .await
+                    .map_err(|err| {
+                        carbon_core::error::Error::Custom(format!(
+                            "Failed to create BigQuery client from the credentials path: {}",
+                            err.to_string()
+                        ))
+                    })?,
+            )
+        } else {
+            Arc::new(
+                Client::from_application_default_credentials()
+                    .await
+                    .map_err(|err| {
+                        carbon_core::error::Error::Custom(format!(
+                            "Failed to create BigQuery client from application default credentials, user needs to authenticate with Google Cloud: {}",
+                            err.to_string()
+                        ))
+                    })?,
+            )
+        };
 
         let sender = Arc::new(sender.clone());
         let project_id = Arc::clone(&self.project_id);
