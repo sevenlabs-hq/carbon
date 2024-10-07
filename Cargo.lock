@@ -816,6 +816,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-bigquery-datasource"
+version = "0.1.0"
+
+[[package]]
 name = "carbon-cli"
 version = "0.1.0"
 dependencies = [
@@ -896,6 +900,30 @@ dependencies = [
  "solana-sdk",
  "solana-transaction-status",
  "tokio",
+]
+
+[[package]]
+name = "carbon-system-program-decoder"
+version = "0.1.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+ "spl-token",
+]
+
+[[package]]
+name = "carbon-token-program-decoder"
+version = "0.1.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+ "spl-token",
 ]
 
 [[package]]
