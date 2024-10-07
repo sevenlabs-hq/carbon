@@ -1,3 +1,4 @@
+mod whirlpool_decoder;
 use carbon_core::account::{AccountDecoder, AccountMetadata, DecodedAccount};
 use carbon_core::datasource::TransactionUpdate;
 use carbon_core::schema::{InstructionSchemaNode, SchemaNode, TransactionSchema};

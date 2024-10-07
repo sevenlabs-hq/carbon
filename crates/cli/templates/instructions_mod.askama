@@ -3,7 +3,7 @@ use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::instruction::InstructionDecoder;
 {% endraw %}
 
-use crate::{{ decoder_name }};
+use super::{{ decoder_name }};
 
 {%- for instruction in instructions %}
 pub mod {{ instruction.module_name }};
