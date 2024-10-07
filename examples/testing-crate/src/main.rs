@@ -39,6 +39,7 @@ use once_cell::sync::Lazy;
 
 pub struct TestDatasource;
 
+
 #[async_trait]
 impl Datasource for TestDatasource {
     async fn consume(
@@ -538,6 +539,7 @@ impl InstructionDecoder for OrcaInstructionDecoder {
     }
 }
 
+/*
 #[derive(Clone, Debug, Deserialize)]
 pub struct OrcaOutput {}
 
@@ -554,21 +556,6 @@ impl Processor for OrcaTransactionProcessor {
     }
 }
 
-#[derive(Clone, Debug, Deserialize)]
-pub struct JupiterOutput {
-    pub shared_accounts_route_ix_1: DecodedInstruction<JupiterInstruction>,
-    pub swap_event_ix_1: DecodedInstruction<JupiterInstruction>,
-}
-
-pub struct JupiterTransactionProcessor;
-#[async_trait]
-impl Processor for JupiterTransactionProcessor {
-    type InputType = JupiterOutput;
-
-    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
-        Ok(())
-    }
-}
 
 // Orca Test End
 
@@ -592,50 +579,8 @@ static JUPITER_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
         any
     ]
 });
-
-pub struct JupiterInstructionProcessor;
-#[async_trait]
-impl Processor for JupiterInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<JupiterInstruction>,
-        Vec<NestedInstruction>,
-    );
-
-    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
-        println!("data 2: {:?}", data.2);
-
-        Ok(())
-    }
-}
-
-pub struct JupiterAccountProcessor;
-#[async_trait]
-impl Processor for JupiterAccountProcessor {
-    type InputType = (AccountMetadata, DecodedAccount<JupiterAccount>);
-
-    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
-        Ok(())
-    }
-}
-
-pub struct WhirlpoolInstructionProcessor;
-#[async_trait]
-impl Processor for WhirlpoolInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<WhirlpoolInstruction>,
-    );
-
-    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
-        println!("Found Whirlpool instruction");
-        println!("Data: {:?}", data.1.data);
-        log::info!("Instruction: {:?}", data.1.data);
-        log::info!("Instruction metadata: {:?}", data.0);
-
-        Ok(())
-    }
-}
+*/
+// define_schema_output_accounts!(OrcaOutput, JUPITER_SCHEMA);
 
  */
 
