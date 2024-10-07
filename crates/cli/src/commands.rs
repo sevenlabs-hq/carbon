@@ -19,7 +19,13 @@ pub enum Commands {
 
 #[derive(Parser)]
 pub struct ParseOptions {
-    #[arg(short, long)]
+    #[arg(short, long, required = true)]
     #[arg(help = "Path to the IDL json file.")]
-    pub idl: Option<String>,
+    pub idl: String,
+    #[arg(short, long, required = true)]
+    #[arg(help = "Path to the desired output directory.")]
+    pub output: String,
+    #[arg(short = 'C', long = "as-crate", default_value_t = false)]
+    #[arg(help = "Generate a directory or a crate.")]
+    pub as_crate: bool,
 }
