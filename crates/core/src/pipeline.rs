@@ -114,9 +114,7 @@ impl Pipeline {
                 }
             }
 
-            Update::AccountDeletion(account_deletion) => {
-
-            }
+            Update::AccountDeletion(account_deletion) => {}
         };
         Ok(())
     }
