@@ -114,7 +114,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                 rent_epoch: account_info.rent_epoch,
                                             };
 
-                                            if account.lamports == 0 && account.data.is_empty() && account_owner_pubkey == solana_sdk::pubkey::Pubkey::default() {
+                                            if account.lamports == 0 && account.data.is_empty() && account_owner_pubkey == solana_sdk::system_program::ID {
                                                 let accounts = account_deletions_tracked.read().await;
                                                 if accounts.contains(&account_pubkey) {
                                                     let account_deletion = AccountDeletion {
