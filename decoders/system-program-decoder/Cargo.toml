@@ -1,5 +1,5 @@
 [package]
-name = "carbon-token-program-decoder"
+name = "carbon-system-program-decoder"
 version = "0.1.0"
 edition = "2018"
 

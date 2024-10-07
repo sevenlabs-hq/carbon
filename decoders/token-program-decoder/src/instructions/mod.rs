@@ -1,9 +1,9 @@
+use crate::TokenProgramDecoder;
 use carbon_core::{
     deserialize::CarbonDeserialize,
     instruction::{DecodedInstruction, InstructionDecoder},
 };
-
-use crate::TokenProgramDecoder;
+use carbon_macros::try_decode_instructions;
 
 pub mod amount_to_ui_amount;
 pub mod approve;
@@ -76,197 +76,32 @@ impl InstructionDecoder for TokenProgramDecoder {
         &self,
         instruction: solana_sdk::instruction::Instruction,
     ) -> Option<DecodedInstruction<Self::InstructionType>> {
-        if let Some(decoded_instruction) =
-            amount_to_ui_amount::AmountToUiAmount::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::AmountToUiAmount(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            approve_checked::ApproveChecked::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::ApproveChecked(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            approve::Approve::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::Approve(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            burn_checked::BurnChecked::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::BurnChecked(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) = burn::Burn::deserialize(instruction.data.as_slice()) {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::Burn(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            close_account::CloseAccount::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::CloseAccount(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            freeze_account::FreezeAccount::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::FreezeAccount(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            get_account_data_size::GetAccountDataSize::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::GetAccountDataSize(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            initialize_account::InitializeAccount::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::InitializeAccount(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            initialize_account2::InitializeAccount2::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::InitializeAccount2(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            initialize_account3::InitializeAccount3::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::InitializeAccount3(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            initialize_immutable_owner::InitializeImmutableOwner::deserialize(
-                instruction.data.as_slice(),
-            )
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::InitializeImmutableOwner(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            initialize_mint::InitializeMint::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::InitializeMint(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            initialize_mint2::InitializeMint2::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::InitializeMint2(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            initialize_multisig::InitializeMultisig::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::InitializeMultisig(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            initialize_multisig2::InitializeMultisig2::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::InitializeMultisig2(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            mint_to_checked::MintToChecked::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::MintToChecked(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) = mint_to::MintTo::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::MintTo(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) = revoke::Revoke::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::Revoke(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            set_authority::SetAuthority::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::SetAuthority(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            sync_native::SyncNative::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::SyncNative(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            thaw_account::ThawAccount::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::ThawAccount(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            transfer_checked::TransferChecked::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::TransferChecked(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            transfer::Transfer::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                data: TokenProgramInstruction::Transfer(decoded_instruction),
-            });
-        }
-
-        None
+        try_decode_instructions!(instruction,
+            TokenProgramInstruction::AmountToUiAmount => amount_to_ui_amount::AmountToUiAmount,
+            TokenProgramInstruction::ApproveChecked => approve_checked::ApproveChecked,
+            TokenProgramInstruction::Approve => approve::Approve,
+            TokenProgramInstruction::BurnChecked => burn_checked::BurnChecked,
+            TokenProgramInstruction::Burn => burn::Burn,
+            TokenProgramInstruction::CloseAccount => close_account::CloseAccount,
+            TokenProgramInstruction::FreezeAccount => freeze_account::FreezeAccount,
+            TokenProgramInstruction::GetAccountDataSize => get_account_data_size::GetAccountDataSize,
+            TokenProgramInstruction::InitializeAccount => initialize_account::InitializeAccount,
+            TokenProgramInstruction::InitializeAccount2 => initialize_account2::InitializeAccount2,
+            TokenProgramInstruction::InitializeAccount3 => initialize_account3::InitializeAccount3,
+            TokenProgramInstruction::InitializeImmutableOwner => initialize_immutable_owner::InitializeImmutableOwner,
+            TokenProgramInstruction::InitializeMint => initialize_mint::InitializeMint,
+            TokenProgramInstruction::InitializeMint2 => initialize_mint2::InitializeMint2,
+            TokenProgramInstruction::InitializeMultisig => initialize_multisig::InitializeMultisig,
+            TokenProgramInstruction::InitializeMultisig2 => initialize_multisig2::InitializeMultisig2,
+            TokenProgramInstruction::MintToChecked => mint_to_checked::MintToChecked,
+            TokenProgramInstruction::MintTo => mint_to::MintTo,
+            TokenProgramInstruction::Revoke => revoke::Revoke,
+            TokenProgramInstruction::SetAuthority => set_authority::SetAuthority,
+            TokenProgramInstruction::SyncNative => sync_native::SyncNative,
+            TokenProgramInstruction::ThawAccount => thaw_account::ThawAccount,
+            TokenProgramInstruction::TransferChecked => transfer_checked::TransferChecked,
+            TokenProgramInstruction::Transfer => transfer::Transfer,
+            TokenProgramInstruction::UiAmountToAmount => ui_amount_to_amount::UiAmountToAmount,
+        )
     }
 }
