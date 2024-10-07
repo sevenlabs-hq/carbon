@@ -9,7 +9,7 @@ use crate::{
         InstructionsStructTemplate,
     },
     types::{legacy_process_types, process_types, TypeStructTemplate},
-    util::{legacy_read_idl, read_idl},
+    util::{is_big_array, legacy_read_idl, read_idl},
 };
 use anyhow::{bail, Result};
 use askama::Template;
@@ -18,36 +18,42 @@ use std::fs::{self};
 
 pub fn parse(options: ParseOptions) -> Result<()> {
     let (accounts_data, instructions_data, types_data, events_data, program_name) =
-        if let Ok(idl) = legacy_read_idl(&options.idl) {
-            let accounts_data = legacy_process_accounts(&idl);
-            let instructions_data = legacy_process_instructions(&idl);
-            let types_data = legacy_process_types(&idl);
-            let events_data = legacy_process_events(&idl);
-            let program_name = idl.name;
+        match legacy_read_idl(&options.idl) {
+            Ok(idl) => {
+                let accounts_data = legacy_process_accounts(&idl);
+                let instructions_data = legacy_process_instructions(&idl);
+                let types_data = legacy_process_types(&idl);
+                let events_data = legacy_process_events(&idl);
+                let program_name = idl.name;
 
-            (
-                accounts_data,
-                instructions_data,
-                types_data,
-                events_data,
-                program_name,
-            )
-        } else if let Ok(idl) = read_idl(&options.idl) {
-            let accounts_data = process_accounts(&idl);
-            let instructions_data = process_instructions(&idl);
-            let types_data = process_types(&idl);
-            let events_data = process_events(&idl);
-            let program_name = idl.metadata.name;
+                (
+                    accounts_data,
+                    instructions_data,
+                    types_data,
+                    events_data,
+                    program_name,
+                )
+            }
+            Err(_legacy_idl_err) => match read_idl(&options.idl) {
+                Ok(idl) => {
+                    let accounts_data = process_accounts(&idl);
+                    let instructions_data = process_instructions(&idl);
+                    let types_data = process_types(&idl);
+                    let events_data = process_events(&idl);
+                    let program_name = idl.metadata.name;
 
-            (
-                accounts_data,
-                instructions_data,
-                types_data,
-                events_data,
-                program_name,
-            )
-        } else {
-            bail!("Can't parse IDL file");
+                    (
+                        accounts_data,
+                        instructions_data,
+                        types_data,
+                        events_data,
+                        program_name,
+                    )
+                }
+                Err(idl_err) => {
+                    bail!("{idl_err}");
+                }
+            },
         };
 
     let decoder_name = format!("{}Decoder", program_name.to_upper_camel_case());
@@ -79,6 +85,14 @@ pub fn parse(options: ParseOptions) -> Result<()> {
 
     fs::create_dir_all(&src_dir).expect("Failed to create src directory");
 
+    let needs_big_array = types_data.iter().any(|type_data| {
+        type_data.fields.iter().any(|field| {
+            field.rust_type.starts_with("[")
+                && field.rust_type.ends_with("]")
+                && is_big_array(&field.rust_type)
+        })
+    });
+
     // Generate types
     let types_dir = format!("{}/types", src_dir);
     fs::create_dir_all(&types_dir).expect("Failed to create types directory");
@@ -92,7 +106,7 @@ pub fn parse(options: ParseOptions) -> Result<()> {
         println!("Generated {}", filename);
     }
 
-    let types_mod_content = types_data
+    let mut types_mod_content = types_data
         .iter()
         .map(|type_data| {
             format!(
@@ -103,6 +117,11 @@ pub fn parse(options: ParseOptions) -> Result<()> {
         })
         .collect::<Vec<_>>()
         .join("\n");
+
+    if needs_big_array {
+        types_mod_content.push_str("\nuse serde_big_array::BigArray;\n");
+    }
+
     let types_mod_filename = format!("{}/mod.rs", types_dir);
     fs::write(&types_mod_filename, types_mod_content).expect("Failed to write types mod file");
     println!("Generated {}", types_mod_filename);
@@ -190,8 +209,14 @@ carbon-core = {{ workspace = true }}
 carbon-proc-macros = {{ workspace = true }}
 solana-sdk = "2.0.10"
 serde = "1.0.136"
+{big_array}
 "#,
-            decoder_name_kebab = decoder_name_kebab
+            decoder_name_kebab = decoder_name_kebab,
+            big_array = if needs_big_array {
+                "serde-big-array = \"0.5.1\""
+            } else {
+                ""
+            }
         );
         let cargo_toml_filename = format!("{}/Cargo.toml", crate_dir);
         fs::write(&cargo_toml_filename, cargo_toml_content)

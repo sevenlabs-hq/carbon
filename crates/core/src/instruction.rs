@@ -2,11 +2,7 @@ use async_trait::async_trait;
 use serde::Deserialize;
 use solana_sdk::pubkey::Pubkey;
 
-use crate::{
-    error::CarbonResult,
-    processor::{self, Processor},
-    transaction::TransactionMetadata,
-};
+use crate::{error::CarbonResult, processor::Processor, transaction::TransactionMetadata};
 
 #[derive(Debug, Clone)]
 pub struct InstructionMetadata {
