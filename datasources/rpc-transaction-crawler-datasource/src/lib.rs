@@ -50,7 +50,7 @@ pub struct RpcTransactionCrawler {
     pub polling_interval: Duration,
     pub filters: Filters,
     pub commitment: Option<CommitmentConfig>,
-    pub max_concurrent_requests: usize
+    pub max_concurrent_requests: usize,
 }
 
 impl RpcTransactionCrawler {
@@ -61,7 +61,7 @@ impl RpcTransactionCrawler {
         polling_interval: Duration,
         filters: Filters,
         commitment: Option<CommitmentConfig>,
-        max_concurrent_requests: usize
+        max_concurrent_requests: usize,
     ) -> Self {
         RpcTransactionCrawler {
             rpc_url,
@@ -70,7 +70,7 @@ impl RpcTransactionCrawler {
             polling_interval,
             filters,
             commitment,
-            max_concurrent_requests
+            max_concurrent_requests,
         }
     }
 }
@@ -154,13 +154,15 @@ impl Datasource for RpcTransactionCrawler {
                     }));
                 }
 
-                let results: Vec<(Signature, EncodedConfirmedTransactionWithStatusMeta)> =
+                let mut results: Vec<(Signature, EncodedConfirmedTransactionWithStatusMeta)> =
                     futures::future::join_all(fetch_tasks)
                         .await
                         .into_iter()
                         .filter_map(Result::ok)
                         .filter_map(|value| value)
                         .collect();
+
+                results.sort_by(|a, b| a.1.slot.cmp(&b.1.slot));
 
                 for (signature, fetched_transaction) in results {
                     let transaction = fetched_transaction.transaction;
