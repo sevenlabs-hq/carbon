@@ -160,3 +160,4 @@ static CREATE_VOTE_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(
 
     ]
 });
+
