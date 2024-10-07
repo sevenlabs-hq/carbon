@@ -1,0 +1,11 @@
+[package]
+name = "accounts-test"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+carbon-core = { path = "../../crates/core" }
+carbon-macros = { path = "../../crates/macros" }
+carbon-proc-macros = { path = "../../crates/proc-macros" }
+serde = { version = "1.0", features = ["derive"] }
+solana-sdk = "2.0.10"
