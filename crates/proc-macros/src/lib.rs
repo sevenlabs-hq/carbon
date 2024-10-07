@@ -190,7 +190,7 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
     }
 
     let expanded = quote! {
-        #[derive(Debug, Clone, std::hash::Hash, serde::Serialize, PartialEq, Eq)]
+        #[derive(Debug, Clone, std::hash::Hash, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
         pub enum #instructions_enum_name {
             #(#instruction_variants),*
         }
