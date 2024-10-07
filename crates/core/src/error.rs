@@ -18,6 +18,8 @@ pub enum Error {
     MissingAccountInTransaction,
     #[error("Missing instruction data")]
     MissingInstructionData,
+    #[error("Failed to consume datasource ({0})")]
+    FailedToConsumeDatasource(String),
 }
 
 pub type CarbonResult<T> = Result<T, Error>;
