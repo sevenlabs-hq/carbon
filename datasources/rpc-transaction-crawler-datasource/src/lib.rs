@@ -50,7 +50,7 @@ pub struct RpcTransactionCrawler {
     pub polling_interval: Duration,
     pub filters: Filters,
     pub commitment: Option<CommitmentConfig>,
-    pub max_concurrent_requests: usize
+    pub max_concurrent_requests: usize,
 }
 
 impl RpcTransactionCrawler {
@@ -61,7 +61,7 @@ impl RpcTransactionCrawler {
         polling_interval: Duration,
         filters: Filters,
         commitment: Option<CommitmentConfig>,
-        max_concurrent_requests: usize
+        max_concurrent_requests: usize,
     ) -> Self {
         RpcTransactionCrawler {
             rpc_url,
@@ -70,7 +70,7 @@ impl RpcTransactionCrawler {
             polling_interval,
             filters,
             commitment,
-            max_concurrent_requests
+            max_concurrent_requests,
         }
     }
 }
