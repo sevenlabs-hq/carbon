@@ -1,7 +1,7 @@
 {% raw %}
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use crate::types::*;
+use super::super::types::*;
 use carbon_core::borsh;
 {% endraw %}
 

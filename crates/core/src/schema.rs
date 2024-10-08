@@ -1,6 +1,7 @@
 use crate::collection::InstructionDecoderCollection;
 use crate::instruction::DecodedInstruction;
 use serde::de::DeserializeOwned;
+use solana_sdk::instruction::AccountMeta;
 use solana_sdk::pubkey::Pubkey;
 use std::collections::HashMap;
 
