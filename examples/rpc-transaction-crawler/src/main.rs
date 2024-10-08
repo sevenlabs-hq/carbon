@@ -37,7 +37,7 @@ pub async fn main() -> CarbonResult<()> {
     let transaction_crawler = RpcTransactionCrawler::new(
         env.rpc_url,                         // RPC URL
         test_account,                        // The test account
-        1,                                   // Batch limit
+        100,                                 // Batch limit
         Duration::from_secs(5),              // Polling interval
         filters,                             // Filters
         Some(CommitmentConfig::finalized()), // Commitment config
@@ -119,6 +119,8 @@ impl Processor for VotingInstructionProcessor {
                         Error::Custom(format!("Failed to insert vote entry: {}", err))
                     })?;
 
+                println!("Successfully insert vote entry.");
+
                 let vote_entries = vote_entries::table
                     .filter(vote_entries::vote_id.eq(arranged_accounts.vote.to_string()))
                     .load::<(String, String, bool)>(&mut conn)
@@ -137,10 +139,14 @@ impl Processor for VotingInstructionProcessor {
                 .execute(&mut conn)
                 .map_err(|err| Error::Custom(format!("Failed to update vote counts: {}", err)))?;
 
+                println!("Successfully updated the votes.");
+
                 diesel::insert_into(activities::table)
                     .values(activities::signature.eq(&signature))
                     .execute(&mut conn)
                     .map_err(|err| Error::Custom(format!("Failed to insert signature: {}", err)))?;
+
+                println!("Successfully inserted the signature.");
             }
 
             VotingProgramInstruction::CreateVote(create_vote) => {
@@ -162,10 +168,14 @@ impl Processor for VotingInstructionProcessor {
                     .execute(&mut conn)
                     .map_err(|err| Error::Custom(format!("Failed to create new vote: {}", err)))?;
 
+                println!("Successfully created vote");
+
                 diesel::insert_into(activities::table)
                     .values(activities::signature.eq(&signature))
                     .execute(&mut conn)
                     .map_err(|err| Error::Custom(format!("Failed to insert signature: {}", err)))?;
+
+                println!("Successfully inserted the signature.");
             }
 
             _ => {
