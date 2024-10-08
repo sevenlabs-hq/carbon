@@ -19,7 +19,7 @@ use tokio::sync::RwLock;
 use yellowstone_grpc_proto::geyser::{CommitmentLevel, SubscribeRequestFilterTransactions};
 
 pub struct PumpfunAccountProcessor {
-    pub accounts_tracked: HashSet<Pubkey>,
+    pub accounts_tracked: Arc<RwLock<HashSet<Pubkey>>>,
 }
 
 #[async_trait]
@@ -52,8 +52,8 @@ impl Processor for PumpfunAccountProcessor {
             }
         }
 
-        if !self.accounts_tracked.contains(&data.0.pubkey) {
-            self.accounts_tracked.insert(data.0.pubkey);
+        if !self.accounts_tracked.read().await.contains(&data.0.pubkey) {
+            self.accounts_tracked.write().await.insert(data.0.pubkey);
         }
 
         Ok(())
@@ -61,7 +61,7 @@ impl Processor for PumpfunAccountProcessor {
 }
 
 pub struct PumpfunAccountDeletionProcessor {
-    pub accounts_tracked: HashSet<Pubkey>,
+    pub accounts_tracked: Arc<RwLock<HashSet<Pubkey>>>,
 }
 
 #[async_trait]
@@ -69,7 +69,7 @@ impl Processor for PumpfunAccountDeletionProcessor {
     type InputType = AccountDeletion;
 
     async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
-        if self.accounts_tracked.contains(&data.pubkey) {
+        if self.accounts_tracked.read().await.contains(&data.pubkey) {
             if diesel::select(diesel::dsl::exists(
                 bonding_curve::table.filter(bonding_curve::pubkey.eq(data.pubkey.to_string())),
             ))
@@ -92,7 +92,7 @@ impl Processor for PumpfunAccountDeletionProcessor {
                     .unwrap();
             }
 
-            self.accounts_tracked.remove(&data.pubkey);
+            self.accounts_tracked.write().await.remove(&data.pubkey);
         }
 
         Ok(())
@@ -163,11 +163,11 @@ pub async fn main() -> CarbonResult<()> {
         .account(
             PumpDecoder,
             PumpfunAccountProcessor {
-                accounts_tracked: tracked_accounts.read().await.clone(),
+                accounts_tracked: tracked_accounts.clone(),
             },
         )
         .account_deletions(PumpfunAccountDeletionProcessor {
-            accounts_tracked: tracked_accounts.read().await.clone(),
+            accounts_tracked: tracked_accounts.clone(),
         })
         .build()?
         .run()
