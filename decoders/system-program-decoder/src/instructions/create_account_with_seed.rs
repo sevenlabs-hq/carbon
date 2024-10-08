@@ -25,20 +25,19 @@ impl ArrangeAccounts for CreateAccountWithSeed {
 
     fn arrange_accounts(
         &self,
-        accounts: Vec<solana_sdk::pubkey::Pubkey>,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let funding_account = accounts.get(0)?;
         let created_account = accounts.get(1)?;
-        let base_account = if let Some(acc) = accounts.get(2).cloned() {
-            Some(acc)
-        } else {
-            None
-        };
 
         Some(CreateAccountWithSeedAccounts {
-            funding_account: *funding_account,
-            created_account: *created_account,
-            base_account,
+            funding_account: funding_account.pubkey,
+            created_account: created_account.pubkey,
+            base_account: if let Some(acc) = accounts.get(2).cloned() {
+                Some(acc.pubkey)
+            } else {
+                None
+            },
         })
     }
 }

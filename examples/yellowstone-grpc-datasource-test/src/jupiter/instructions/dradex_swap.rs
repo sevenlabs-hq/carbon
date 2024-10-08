@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -33,7 +33,7 @@ pub struct DradexSwapInstructionAccounts {
 impl ArrangeAccounts for DradexSwap {
     type ArrangedAccounts = DradexSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let pair = accounts.get(1)?;
         let market = accounts.get(2)?;
@@ -53,23 +53,23 @@ impl ArrangeAccounts for DradexSwap {
         let logger = accounts.get(16)?;
 
         Some(DradexSwapInstructionAccounts {
-            swap_program: *swap_program,
-            pair: *pair,
-            market: *market,
-            event_queue: *event_queue,
-            dex_user: *dex_user,
-            market_user: *market_user,
-            bids: *bids,
-            asks: *asks,
-            t0_vault: *t0_vault,
-            t1_vault: *t1_vault,
-            t0_user: *t0_user,
-            t1_user: *t1_user,
-            master: *master,
-            signer: *signer,
-            system_program: *system_program,
-            token_program: *token_program,
-            logger: *logger,
+            swap_program: swap_program.pubkey,
+            pair: pair.pubkey,
+            market: market.pubkey,
+            event_queue: event_queue.pubkey,
+            dex_user: dex_user.pubkey,
+            market_user: market_user.pubkey,
+            bids: bids.pubkey,
+            asks: asks.pubkey,
+            t0_vault: t0_vault.pubkey,
+            t1_vault: t1_vault.pubkey,
+            t0_user: t0_user.pubkey,
+            t1_user: t1_user.pubkey,
+            master: master.pubkey,
+            signer: signer.pubkey,
+            system_program: system_program.pubkey,
+            token_program: token_program.pubkey,
+            logger: logger.pubkey,
         })
     }
 }

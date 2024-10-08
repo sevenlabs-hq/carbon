@@ -19,12 +19,12 @@ impl ArrangeAccounts for Assign {
 
     fn arrange_accounts(
         &self,
-        accounts: Vec<solana_sdk::pubkey::Pubkey>,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let assigned_account = accounts.get(0)?;
 
         Some(AssignAccounts {
-            assigned_account: *assigned_account,
+            assigned_account: assigned_account.pubkey,
         })
     }
 }

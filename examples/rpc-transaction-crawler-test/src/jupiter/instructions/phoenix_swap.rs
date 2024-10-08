@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -25,7 +25,7 @@ pub struct PhoenixSwapInstructionAccounts {
 impl ArrangeAccounts for PhoenixSwap {
     type ArrangedAccounts = PhoenixSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let log_authority = accounts.get(1)?;
         let market = accounts.get(2)?;
@@ -37,15 +37,15 @@ impl ArrangeAccounts for PhoenixSwap {
         let token_program = accounts.get(8)?;
 
         Some(PhoenixSwapInstructionAccounts {
-            swap_program: *swap_program,
-            log_authority: *log_authority,
-            market: *market,
-            trader: *trader,
-            base_account: *base_account,
-            quote_account: *quote_account,
-            base_vault: *base_vault,
-            quote_vault: *quote_vault,
-            token_program: *token_program,
+            swap_program: swap_program.pubkey,
+            log_authority: log_authority.pubkey,
+            market: market.pubkey,
+            trader: trader.pubkey,
+            base_account: base_account.pubkey,
+            quote_account: quote_account.pubkey,
+            base_vault: base_vault.pubkey,
+            quote_vault: quote_vault.pubkey,
+            token_program: token_program.pubkey,
         })
     }
 }

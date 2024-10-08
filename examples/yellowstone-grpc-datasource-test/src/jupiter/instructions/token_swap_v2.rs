@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -31,7 +31,7 @@ pub struct TokenSwapV2InstructionAccounts {
 impl ArrangeAccounts for TokenSwapV2 {
     type ArrangedAccounts = TokenSwapV2InstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let swap = accounts.get(1)?;
         let authority = accounts.get(2)?;
@@ -49,21 +49,21 @@ impl ArrangeAccounts for TokenSwapV2 {
         let pool_token_program = accounts.get(14)?;
 
         Some(TokenSwapV2InstructionAccounts {
-            swap_program: *swap_program,
-            swap: *swap,
-            authority: *authority,
-            user_transfer_authority: *user_transfer_authority,
-            source: *source,
-            swap_source: *swap_source,
-            swap_destination: *swap_destination,
-            destination: *destination,
-            pool_mint: *pool_mint,
-            pool_fee: *pool_fee,
-            source_mint: *source_mint,
-            destination_mint: *destination_mint,
-            source_token_program: *source_token_program,
-            destination_token_program: *destination_token_program,
-            pool_token_program: *pool_token_program,
+            swap_program: swap_program.pubkey,
+            swap: swap.pubkey,
+            authority: authority.pubkey,
+            user_transfer_authority: user_transfer_authority.pubkey,
+            source: source.pubkey,
+            swap_source: swap_source.pubkey,
+            swap_destination: swap_destination.pubkey,
+            destination: destination.pubkey,
+            pool_mint: pool_mint.pubkey,
+            pool_fee: pool_fee.pubkey,
+            source_mint: source_mint.pubkey,
+            destination_mint: destination_mint.pubkey,
+            source_token_program: source_token_program.pubkey,
+            destination_token_program: destination_token_program.pubkey,
+            pool_token_program: pool_token_program.pubkey,
         })
     }
 }

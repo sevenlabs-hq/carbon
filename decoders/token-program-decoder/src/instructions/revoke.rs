@@ -19,25 +19,15 @@ impl ArrangeAccounts for Revoke {
 
     fn arrange_accounts(
         &self,
-        accounts: Vec<solana_sdk::pubkey::Pubkey>,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let source = accounts.get(0)?;
         let owner = accounts.get(1)?;
 
         Some(RevokeAccounts {
-            source: *source,
-            owner: *owner,
-            remaining_accounts: accounts
-                .get(2..)
-                .unwrap_or_default()
-                .to_vec()
-                .into_iter()
-                .map(|pubkey| solana_sdk::instruction::AccountMeta {
-                    pubkey,
-                    is_signer: true,
-                    is_writable: false,
-                })
-                .collect::<Vec<solana_sdk::instruction::AccountMeta>>(),
+            source: source.pubkey,
+            owner: owner.pubkey,
+            remaining_accounts: accounts.get(2..).unwrap_or_default().to_vec(),
         })
     }
 }

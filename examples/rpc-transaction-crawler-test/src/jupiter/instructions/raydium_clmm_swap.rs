@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -27,7 +27,7 @@ pub struct RaydiumClmmSwapInstructionAccounts {
 impl ArrangeAccounts for RaydiumClmmSwap {
     type ArrangedAccounts = RaydiumClmmSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let payer = accounts.get(1)?;
         let amm_config = accounts.get(2)?;
@@ -41,17 +41,17 @@ impl ArrangeAccounts for RaydiumClmmSwap {
         let tick_array = accounts.get(10)?;
 
         Some(RaydiumClmmSwapInstructionAccounts {
-            swap_program: *swap_program,
-            payer: *payer,
-            amm_config: *amm_config,
-            pool_state: *pool_state,
-            input_token_account: *input_token_account,
-            output_token_account: *output_token_account,
-            input_vault: *input_vault,
-            output_vault: *output_vault,
-            observation_state: *observation_state,
-            token_program: *token_program,
-            tick_array: *tick_array,
+            swap_program: swap_program.pubkey,
+            payer: payer.pubkey,
+            amm_config: amm_config.pubkey,
+            pool_state: pool_state.pubkey,
+            input_token_account: input_token_account.pubkey,
+            output_token_account: output_token_account.pubkey,
+            input_vault: input_vault.pubkey,
+            output_vault: output_vault.pubkey,
+            observation_state: observation_state.pubkey,
+            token_program: token_program.pubkey,
+            tick_array: tick_array.pubkey,
         })
     }
 }

@@ -20,27 +20,17 @@ impl ArrangeAccounts for CloseAccount {
 
     fn arrange_accounts(
         &self,
-        accounts: Vec<solana_sdk::pubkey::Pubkey>,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let account = accounts.get(0)?;
         let destination = accounts.get(1)?;
         let owner = accounts.get(2)?;
 
         Some(CloseAccountAccounts {
-            account: *account,
-            destination: *destination,
-            owner: *owner,
-            remaining_accounts: accounts
-                .get(3..)
-                .unwrap_or_default()
-                .to_vec()
-                .into_iter()
-                .map(|pubkey| solana_sdk::instruction::AccountMeta {
-                    pubkey,
-                    is_signer: true,
-                    is_writable: false,
-                })
-                .collect::<Vec<solana_sdk::instruction::AccountMeta>>(),
+            account: account.pubkey,
+            destination: destination.pubkey,
+            owner: owner.pubkey,
+            remaining_accounts: accounts.get(3..).unwrap_or_default().to_vec(),
         })
     }
 }

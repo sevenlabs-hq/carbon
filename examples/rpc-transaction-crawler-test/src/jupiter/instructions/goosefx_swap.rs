@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -31,7 +31,7 @@ pub struct GoosefxSwapInstructionAccounts {
 impl ArrangeAccounts for GoosefxSwap {
     type ArrangedAccounts = GoosefxSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let controller = accounts.get(1)?;
         let pair = accounts.get(2)?;
@@ -49,21 +49,21 @@ impl ArrangeAccounts for GoosefxSwap {
         let token_program = accounts.get(14)?;
 
         Some(GoosefxSwapInstructionAccounts {
-            swap_program: *swap_program,
-            controller: *controller,
-            pair: *pair,
-            ssl_in: *ssl_in,
-            ssl_out: *ssl_out,
-            liability_vault_in: *liability_vault_in,
-            swapped_liability_vault_in: *swapped_liability_vault_in,
-            liability_vault_out: *liability_vault_out,
-            swapped_liability_vault_out: *swapped_liability_vault_out,
-            user_in_ata: *user_in_ata,
-            user_out_ata: *user_out_ata,
-            fee_collector_ata: *fee_collector_ata,
-            user_wallet: *user_wallet,
-            fee_collector: *fee_collector,
-            token_program: *token_program,
+            swap_program: swap_program.pubkey,
+            controller: controller.pubkey,
+            pair: pair.pubkey,
+            ssl_in: ssl_in.pubkey,
+            ssl_out: ssl_out.pubkey,
+            liability_vault_in: liability_vault_in.pubkey,
+            swapped_liability_vault_in: swapped_liability_vault_in.pubkey,
+            liability_vault_out: liability_vault_out.pubkey,
+            swapped_liability_vault_out: swapped_liability_vault_out.pubkey,
+            user_in_ata: user_in_ata.pubkey,
+            user_out_ata: user_out_ata.pubkey,
+            fee_collector_ata: fee_collector_ata.pubkey,
+            user_wallet: user_wallet.pubkey,
+            fee_collector: fee_collector.pubkey,
+            token_program: token_program.pubkey,
         })
     }
 }

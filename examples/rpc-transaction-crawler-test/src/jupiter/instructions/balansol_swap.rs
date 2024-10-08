@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -32,7 +32,7 @@ pub struct BalansolSwapInstructionAccounts {
 impl ArrangeAccounts for BalansolSwap {
     type ArrangedAccounts = BalansolSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let authority = accounts.get(1)?;
         let pool = accounts.get(2)?;
@@ -51,22 +51,22 @@ impl ArrangeAccounts for BalansolSwap {
         let rent = accounts.get(15)?;
 
         Some(BalansolSwapInstructionAccounts {
-            swap_program: *swap_program,
-            authority: *authority,
-            pool: *pool,
-            tax_man: *tax_man,
-            bid_mint: *bid_mint,
-            treasurer: *treasurer,
-            src_treasury: *src_treasury,
-            src_associated_token_account: *src_associated_token_account,
-            ask_mint: *ask_mint,
-            dst_treasury: *dst_treasury,
-            dst_associated_token_account: *dst_associated_token_account,
-            dst_token_account_taxman: *dst_token_account_taxman,
-            system_program: *system_program,
-            token_program: *token_program,
-            associated_token_program: *associated_token_program,
-            rent: *rent,
+            swap_program: swap_program.pubkey,
+            authority: authority.pubkey,
+            pool: pool.pubkey,
+            tax_man: tax_man.pubkey,
+            bid_mint: bid_mint.pubkey,
+            treasurer: treasurer.pubkey,
+            src_treasury: src_treasury.pubkey,
+            src_associated_token_account: src_associated_token_account.pubkey,
+            ask_mint: ask_mint.pubkey,
+            dst_treasury: dst_treasury.pubkey,
+            dst_associated_token_account: dst_associated_token_account.pubkey,
+            dst_token_account_taxman: dst_token_account_taxman.pubkey,
+            system_program: system_program.pubkey,
+            token_program: token_program.pubkey,
+            associated_token_program: associated_token_program.pubkey,
+            rent: rent.pubkey,
         })
     }
 }

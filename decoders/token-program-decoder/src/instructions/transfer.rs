@@ -22,28 +22,18 @@ impl ArrangeAccounts for Transfer {
 
     fn arrange_accounts(
         &self,
-        accounts: Vec<solana_sdk::pubkey::Pubkey>,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let source = accounts.get(0)?;
         let destination = accounts.get(1)?;
         let authority = accounts.get(2)?;
 
         Some(TransferAccounts {
-            source: *source,
-            destination: *destination,
-            authority: *authority,
+            source: source.pubkey,
+            destination: destination.pubkey,
+            authority: authority.pubkey,
             // TODO: Check
-            remaining_accounts: accounts
-                .get(3..)
-                .unwrap_or_default()
-                .to_vec()
-                .into_iter()
-                .map(|pubkey| solana_sdk::instruction::AccountMeta {
-                    pubkey,
-                    is_signer: false,
-                    is_writable: false,
-                })
-                .collect::<Vec<solana_sdk::instruction::AccountMeta>>(),
+            remaining_accounts: accounts.get(3..).unwrap_or_default().to_vec(),
         })
     }
 }
