@@ -135,3 +135,132 @@ To continue setting up the pipeline, we need a Decoder for our program. Since it
 ```bash
 cargo run parse --idl pf_idl.json --output ../../examples/accounts-test/src/
 ```
+
+## Account Processor
+
+The `AccountProcessor` will store account updates in our database. Here’s how you could implement it:
+
+```rust
+pub struct PumpfunAccountProcessor {
+    pub accounts_tracked: HashSet<Pubkey>,
+}
+
+#[async_trait]
+impl Processor for PumpfunAccountProcessor {
+    type InputType = (AccountMetadata, DecodedAccount<PumpAccount>);
+
+    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
+        match data.1.data {
+            PumpAccount::Global(account) => {
+                let global_account = GlobalAccount::from_account(account, data.0.pubkey);
+                diesel::insert_into(global_account::table)
+                    .values(&global_account)
+                    .on_conflict(global_account::id)
+                    .do_update()
+                    .set(&global_account)
+                    .execute(&mut db::get_conn())
+                    .unwrap();
+            }
+            PumpAccount::BondingCurve(account) => {
+                let bonding_curve = BondingCurve::from_account(account, data.0.pubkey);
+                diesel::insert_into(bonding_curve::table)
+                    .values(&bonding_curve)
+                    .on_conflict(bonding_curve::id)
+                    .do_update()
+                    .set(&bonding_curve)
+                    .execute(&mut db::get_conn())
+                    .unwrap();
+            }
+        }
+
+        if !self.accounts_tracked.contains(&data.0.pubkey) {
+            self.accounts_tracked.insert(data.0.pubkey);
+        }
+
+        Ok(())
+    }
+}
+```
+
+Now, add the account processor to the pipeline:
+
+```rust
+carbon_core::pipeline::Pipeline::builder()
+    .datasource(grpc)
+    .account(
+        PumpDecoder,
+        PumpfunAccountProcessor {
+            accounts_tracked: tracked_accounts.read().await.clone(),
+        },
+    )
+```
+
+Now, all the accounts will be upserted into our database, and their public keys will be stored in our hashset in memory.
+
+## Account Deletions Processor
+
+To handle account deletions, implement the `AccountDeletionProcessor`:
+
+```rust
+pub struct PumpfunAccountDeletionProcessor {
+    pub accounts_tracked: HashSet<Pubkey>,
+}
+
+#[async_trait]
+impl Processor for PumpfunAccountDeletionProcessor {
+    type InputType = AccountDeletion;
+
+    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
+        if self.accounts_tracked.contains(&data.pubkey) {
+            if diesel::select(diesel::dsl::exists(
+                bonding_curve::table.filter(bonding_curve::pubkey.eq(data.pubkey.to_string())),
+            ))
+            .get_result(&mut db::get_conn())
+            .unwrap_or(false)
+            {
+                diesel::delete(bonding_curve::table)
+                    .filter(bonding_curve::pubkey.eq(data.pubkey.to_string()))
+                    .execute(&mut db::get_conn())
+                    .unwrap();
+            } else if diesel::select(diesel::dsl::exists(
+                global_account::table.filter(global_account::pubkey.eq(data.pubkey.to_string())),
+            ))
+            .get_result(&mut db::get_conn())
+            .unwrap_or(false)
+            {
+                diesel::delete(global_account::table)
+                    .filter(global_account::pubkey.eq(data.pubkey.to_string()))
+                    .execute(&mut db::get_conn())
+                    .unwrap();
+            }
+
+            self.accounts_tracked.remove(&data.pubkey);
+        }
+
+        Ok(())
+    }
+}
+```
+
+Here we utilize the public key hashset, to avoid unnecessary database queries for accounts we don't track.
+
+Add the deletion processor to the pipeline to complete the setup:
+
+```rust
+carbon_core::pipeline::Pipeline::builder()
+    .datasource(grpc)
+    .account(
+        PumpDecoder,
+        PumpfunAccountProcessor {
+            accounts_tracked: tracked_accounts.read().await.clone(),
+        },
+    )
+    .account_deletions(PumpfunAccountDeletionProcessor {
+        accounts_tracked: tracked_accounts.read().await.clone(),
+    })
+    .build()?
+    .run()
+    .await?;
+```
+
+With this, the account indexing process is fully configured. Whenever an account is deleted, it will be removed from our database and memory.
