@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -30,7 +30,7 @@ pub struct LifinityV2SwapInstructionAccounts {
 impl ArrangeAccounts for LifinityV2Swap {
     type ArrangedAccounts = LifinityV2SwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let authority = accounts.get(1)?;
         let amm = accounts.get(2)?;
@@ -47,20 +47,20 @@ impl ArrangeAccounts for LifinityV2Swap {
         let oracle_pc_account = accounts.get(13)?;
 
         Some(LifinityV2SwapInstructionAccounts {
-            swap_program: *swap_program,
-            authority: *authority,
-            amm: *amm,
-            user_transfer_authority: *user_transfer_authority,
-            source_info: *source_info,
-            destination_info: *destination_info,
-            swap_source: *swap_source,
-            swap_destination: *swap_destination,
-            pool_mint: *pool_mint,
-            fee_account: *fee_account,
-            token_program: *token_program,
-            oracle_main_account: *oracle_main_account,
-            oracle_sub_account: *oracle_sub_account,
-            oracle_pc_account: *oracle_pc_account,
+            swap_program: swap_program.pubkey,
+            authority: authority.pubkey,
+            amm: amm.pubkey,
+            user_transfer_authority: user_transfer_authority.pubkey,
+            source_info: source_info.pubkey,
+            destination_info: destination_info.pubkey,
+            swap_source: swap_source.pubkey,
+            swap_destination: swap_destination.pubkey,
+            pool_mint: pool_mint.pubkey,
+            fee_account: fee_account.pubkey,
+            token_program: token_program.pubkey,
+            oracle_main_account: oracle_main_account.pubkey,
+            oracle_sub_account: oracle_sub_account.pubkey,
+            oracle_pc_account: oracle_pc_account.pubkey,
         })
     }
 }

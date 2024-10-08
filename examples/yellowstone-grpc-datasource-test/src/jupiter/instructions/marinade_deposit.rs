@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -34,7 +34,7 @@ pub struct MarinadeDepositInstructionAccounts {
 impl ArrangeAccounts for MarinadeDeposit {
     type ArrangedAccounts = MarinadeDepositInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let marinade_finance_program = accounts.get(0)?;
         let state = accounts.get(1)?;
         let msol_mint = accounts.get(2)?;
@@ -55,24 +55,24 @@ impl ArrangeAccounts for MarinadeDeposit {
         let rent = accounts.get(17)?;
 
         Some(MarinadeDepositInstructionAccounts {
-            marinade_finance_program: *marinade_finance_program,
-            state: *state,
-            msol_mint: *msol_mint,
-            liq_pool_sol_leg_pda: *liq_pool_sol_leg_pda,
-            liq_pool_msol_leg: *liq_pool_msol_leg,
-            liq_pool_msol_leg_authority: *liq_pool_msol_leg_authority,
-            reserve_pda: *reserve_pda,
-            transfer_from: *transfer_from,
-            mint_to: *mint_to,
-            msol_mint_authority: *msol_mint_authority,
-            system_program: *system_program,
-            token_program: *token_program,
-            user_wsol_token_account: *user_wsol_token_account,
-            temp_wsol_token_account: *temp_wsol_token_account,
-            user_transfer_authority: *user_transfer_authority,
-            payer: *payer,
-            wsol_mint: *wsol_mint,
-            rent: *rent,
+            marinade_finance_program: marinade_finance_program.pubkey,
+            state: state.pubkey,
+            msol_mint: msol_mint.pubkey,
+            liq_pool_sol_leg_pda: liq_pool_sol_leg_pda.pubkey,
+            liq_pool_msol_leg: liq_pool_msol_leg.pubkey,
+            liq_pool_msol_leg_authority: liq_pool_msol_leg_authority.pubkey,
+            reserve_pda: reserve_pda.pubkey,
+            transfer_from: transfer_from.pubkey,
+            mint_to: mint_to.pubkey,
+            msol_mint_authority: msol_mint_authority.pubkey,
+            system_program: system_program.pubkey,
+            token_program: token_program.pubkey,
+            user_wsol_token_account: user_wsol_token_account.pubkey,
+            temp_wsol_token_account: temp_wsol_token_account.pubkey,
+            user_transfer_authority: user_transfer_authority.pubkey,
+            payer: payer.pubkey,
+            wsol_mint: wsol_mint.pubkey,
+            rent: rent.pubkey,
         })
     }
 }

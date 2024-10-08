@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -28,7 +28,7 @@ pub struct AldrinV2SwapInstructionAccounts {
 impl ArrangeAccounts for AldrinV2Swap {
     type ArrangedAccounts = AldrinV2SwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let pool = accounts.get(1)?;
         let pool_signer = accounts.get(2)?;
@@ -43,18 +43,18 @@ impl ArrangeAccounts for AldrinV2Swap {
         let token_program = accounts.get(11)?;
 
         Some(AldrinV2SwapInstructionAccounts {
-            swap_program: *swap_program,
-            pool: *pool,
-            pool_signer: *pool_signer,
-            pool_mint: *pool_mint,
-            base_token_vault: *base_token_vault,
-            quote_token_vault: *quote_token_vault,
-            fee_pool_token_account: *fee_pool_token_account,
-            wallet_authority: *wallet_authority,
-            user_base_token_account: *user_base_token_account,
-            user_quote_token_account: *user_quote_token_account,
-            curve: *curve,
-            token_program: *token_program,
+            swap_program: swap_program.pubkey,
+            pool: pool.pubkey,
+            pool_signer: pool_signer.pubkey,
+            pool_mint: pool_mint.pubkey,
+            base_token_vault: base_token_vault.pubkey,
+            quote_token_vault: quote_token_vault.pubkey,
+            fee_pool_token_account: fee_pool_token_account.pubkey,
+            wallet_authority: wallet_authority.pubkey,
+            user_base_token_account: user_base_token_account.pubkey,
+            user_quote_token_account: user_quote_token_account.pubkey,
+            curve: curve.pubkey,
+            token_program: token_program.pubkey,
         })
     }
 }

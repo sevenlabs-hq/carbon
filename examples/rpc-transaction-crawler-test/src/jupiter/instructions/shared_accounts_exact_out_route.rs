@@ -1,9 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use crate::jupiter::types::RoutePlanStep;
-
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -37,7 +35,7 @@ pub struct SharedAccountsExactOutRouteInstructionAccounts {
 impl ArrangeAccounts for SharedAccountsExactOutRoute {
     type ArrangedAccounts = SharedAccountsExactOutRouteInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let token_program = accounts.get(0)?;
         let program_authority = accounts.get(1)?;
         let user_transfer_authority = accounts.get(2)?;
@@ -53,19 +51,19 @@ impl ArrangeAccounts for SharedAccountsExactOutRoute {
         let program = accounts.get(12)?;
 
         Some(SharedAccountsExactOutRouteInstructionAccounts {
-            token_program: *token_program,
-            program_authority: *program_authority,
-            user_transfer_authority: *user_transfer_authority,
-            source_token_account: *source_token_account,
-            program_source_token_account: *program_source_token_account,
-            program_destination_token_account: *program_destination_token_account,
-            destination_token_account: *destination_token_account,
-            source_mint: *source_mint,
-            destination_mint: *destination_mint,
-            platform_fee_account: *platform_fee_account,
-            token2022_program: *token2022_program,
-            event_authority: *event_authority,
-            program: *program,
+            token_program: token_program.pubkey,
+            program_authority: program_authority.pubkey,
+            user_transfer_authority: user_transfer_authority.pubkey,
+            source_token_account: source_token_account.pubkey,
+            program_source_token_account: program_source_token_account.pubkey,
+            program_destination_token_account: program_destination_token_account.pubkey,
+            destination_token_account: destination_token_account.pubkey,
+            source_mint: source_mint.pubkey,
+            destination_mint: destination_mint.pubkey,
+            platform_fee_account: platform_fee_account.pubkey,
+            token2022_program: token2022_program.pubkey,
+            event_authority: event_authority.pubkey,
+            program: program.pubkey,
         })
     }
 }

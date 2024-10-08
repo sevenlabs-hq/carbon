@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -27,7 +27,7 @@ pub struct HeliumTreasuryManagementRedeemV0InstructionAccounts {
 impl ArrangeAccounts for HeliumTreasuryManagementRedeemV0 {
     type ArrangedAccounts = HeliumTreasuryManagementRedeemV0InstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let treasury_management = accounts.get(1)?;
         let treasury_mint = accounts.get(2)?;
@@ -41,17 +41,17 @@ impl ArrangeAccounts for HeliumTreasuryManagementRedeemV0 {
         let token_program = accounts.get(10)?;
 
         Some(HeliumTreasuryManagementRedeemV0InstructionAccounts {
-            swap_program: *swap_program,
-            treasury_management: *treasury_management,
-            treasury_mint: *treasury_mint,
-            supply_mint: *supply_mint,
-            treasury: *treasury,
-            circuit_breaker: *circuit_breaker,
-            from: *from,
-            to: *to,
-            owner: *owner,
-            circuit_breaker_program: *circuit_breaker_program,
-            token_program: *token_program,
+            swap_program: swap_program.pubkey,
+            treasury_management: treasury_management.pubkey,
+            treasury_mint: treasury_mint.pubkey,
+            supply_mint: supply_mint.pubkey,
+            treasury: treasury.pubkey,
+            circuit_breaker: circuit_breaker.pubkey,
+            from: from.pubkey,
+            to: to.pubkey,
+            owner: owner.pubkey,
+            circuit_breaker_program: circuit_breaker_program.pubkey,
+            token_program: token_program.pubkey,
         })
     }
 }

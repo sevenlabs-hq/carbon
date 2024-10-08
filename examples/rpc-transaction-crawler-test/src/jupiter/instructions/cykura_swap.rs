@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -27,7 +27,7 @@ pub struct CykuraSwapInstructionAccounts {
 impl ArrangeAccounts for CykuraSwap {
     type ArrangedAccounts = CykuraSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let signer = accounts.get(1)?;
         let factory_state = accounts.get(2)?;
@@ -41,17 +41,17 @@ impl ArrangeAccounts for CykuraSwap {
         let token_program = accounts.get(10)?;
 
         Some(CykuraSwapInstructionAccounts {
-            swap_program: *swap_program,
-            signer: *signer,
-            factory_state: *factory_state,
-            pool_state: *pool_state,
-            input_token_account: *input_token_account,
-            output_token_account: *output_token_account,
-            input_vault: *input_vault,
-            output_vault: *output_vault,
-            last_observation_state: *last_observation_state,
-            core_program: *core_program,
-            token_program: *token_program,
+            swap_program: swap_program.pubkey,
+            signer: signer.pubkey,
+            factory_state: factory_state.pubkey,
+            pool_state: pool_state.pubkey,
+            input_token_account: input_token_account.pubkey,
+            output_token_account: output_token_account.pubkey,
+            input_vault: input_vault.pubkey,
+            output_vault: output_vault.pubkey,
+            last_observation_state: last_observation_state.pubkey,
+            core_program: core_program.pubkey,
+            token_program: token_program.pubkey,
         })
     }
 }

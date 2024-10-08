@@ -21,7 +21,7 @@ impl ArrangeAccounts for WithdrawNonceAccount {
 
     fn arrange_accounts(
         &self,
-        accounts: Vec<solana_sdk::pubkey::Pubkey>,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let nonce_account = accounts.get(0)?;
         let recipient_account = accounts.get(1)?;
@@ -30,11 +30,11 @@ impl ArrangeAccounts for WithdrawNonceAccount {
         let nonce_authority = accounts.get(4)?;
 
         Some(WithdrawNonceAccountAccounts {
-            nonce_account: *nonce_account,
-            recipient_account: *recipient_account,
-            recent_blockhashes_sysvar: *recent_blockhashes_sysvar,
-            rent_sysvar: *rent_sysvar,
-            nonce_authority: *nonce_authority,
+            nonce_account: nonce_account.pubkey,
+            recipient_account: recipient_account.pubkey,
+            recent_blockhashes_sysvar: recent_blockhashes_sysvar.pubkey,
+            rent_sysvar: rent_sysvar.pubkey,
+            nonce_authority: nonce_authority.pubkey,
         })
     }
 }

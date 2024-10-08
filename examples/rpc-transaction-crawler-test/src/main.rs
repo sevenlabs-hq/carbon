@@ -63,6 +63,7 @@ impl Processor for JupTransactionProcessor {
     async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
         log::info!("Output: {:?}", data);
         println!("Matched Jupiter transaction");
+
         Ok(())
     }
 }

@@ -6,6 +6,8 @@ use carbon_core::borsh;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
-pub struct RemainingAccountsInfo {
-    pub slices: Vec<RemainingAccountsSlice>,
+pub struct AddLiquidity {
+    pub token_amount_in: u64,
+    pub min_lp_amount_out: u64,
+    pub token_amount_pre_swap: Option<u64>,
 }

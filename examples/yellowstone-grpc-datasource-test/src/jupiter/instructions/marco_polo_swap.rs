@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -34,7 +34,7 @@ pub struct MarcoPoloSwapInstructionAccounts {
 impl ArrangeAccounts for MarcoPoloSwap {
     type ArrangedAccounts = MarcoPoloSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let state = accounts.get(1)?;
         let pool = accounts.get(2)?;
@@ -55,24 +55,24 @@ impl ArrangeAccounts for MarcoPoloSwap {
         let rent = accounts.get(17)?;
 
         Some(MarcoPoloSwapInstructionAccounts {
-            swap_program: *swap_program,
-            state: *state,
-            pool: *pool,
-            token_x: *token_x,
-            token_y: *token_y,
-            pool_x_account: *pool_x_account,
-            pool_y_account: *pool_y_account,
-            swapper_x_account: *swapper_x_account,
-            swapper_y_account: *swapper_y_account,
-            swapper: *swapper,
-            referrer_x_account: *referrer_x_account,
-            referrer_y_account: *referrer_y_account,
-            referrer: *referrer,
-            program_authority: *program_authority,
-            system_program: *system_program,
-            token_program: *token_program,
-            associated_token_program: *associated_token_program,
-            rent: *rent,
+            swap_program: swap_program.pubkey,
+            state: state.pubkey,
+            pool: pool.pubkey,
+            token_x: token_x.pubkey,
+            token_y: token_y.pubkey,
+            pool_x_account: pool_x_account.pubkey,
+            pool_y_account: pool_y_account.pubkey,
+            swapper_x_account: swapper_x_account.pubkey,
+            swapper_y_account: swapper_y_account.pubkey,
+            swapper: swapper.pubkey,
+            referrer_x_account: referrer_x_account.pubkey,
+            referrer_y_account: referrer_y_account.pubkey,
+            referrer: referrer.pubkey,
+            program_authority: program_authority.pubkey,
+            system_program: system_program.pubkey,
+            token_program: token_program.pubkey,
+            associated_token_program: associated_token_program.pubkey,
+            rent: rent.pubkey,
         })
     }
 }

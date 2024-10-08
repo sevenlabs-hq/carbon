@@ -17,10 +17,10 @@ impl ArrangeAccounts for GetAccountDataSize {
 
     fn arrange_accounts(
         &self,
-        accounts: Vec<solana_sdk::pubkey::Pubkey>,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let mint = accounts.get(0)?;
 
-        Some(GetAccountDataSizeAccounts { mint: *mint })
+        Some(GetAccountDataSizeAccounts { mint: mint.pubkey })
     }
 }

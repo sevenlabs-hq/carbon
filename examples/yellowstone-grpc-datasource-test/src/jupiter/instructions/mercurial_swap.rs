@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -23,7 +23,7 @@ pub struct MercurialSwapInstructionAccounts {
 impl ArrangeAccounts for MercurialSwap {
     type ArrangedAccounts = MercurialSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let swap_state = accounts.get(1)?;
         let token_program = accounts.get(2)?;
@@ -33,13 +33,13 @@ impl ArrangeAccounts for MercurialSwap {
         let destination_token_account = accounts.get(6)?;
 
         Some(MercurialSwapInstructionAccounts {
-            swap_program: *swap_program,
-            swap_state: *swap_state,
-            token_program: *token_program,
-            pool_authority: *pool_authority,
-            user_transfer_authority: *user_transfer_authority,
-            source_token_account: *source_token_account,
-            destination_token_account: *destination_token_account,
+            swap_program: swap_program.pubkey,
+            swap_state: swap_state.pubkey,
+            token_program: token_program.pubkey,
+            pool_authority: pool_authority.pubkey,
+            user_transfer_authority: user_transfer_authority.pubkey,
+            source_token_account: source_token_account.pubkey,
+            destination_token_account: destination_token_account.pubkey,
         })
     }
 }

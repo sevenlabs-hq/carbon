@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -24,7 +24,7 @@ pub struct SaberAddDecimalsInstructionAccounts {
 impl ArrangeAccounts for SaberAddDecimals {
     type ArrangedAccounts = SaberAddDecimalsInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let add_decimals_program = accounts.get(0)?;
         let wrapper = accounts.get(1)?;
         let wrapper_mint = accounts.get(2)?;
@@ -35,14 +35,14 @@ impl ArrangeAccounts for SaberAddDecimals {
         let token_program = accounts.get(7)?;
 
         Some(SaberAddDecimalsInstructionAccounts {
-            add_decimals_program: *add_decimals_program,
-            wrapper: *wrapper,
-            wrapper_mint: *wrapper_mint,
-            wrapper_underlying_tokens: *wrapper_underlying_tokens,
-            owner: *owner,
-            user_underlying_tokens: *user_underlying_tokens,
-            user_wrapped_tokens: *user_wrapped_tokens,
-            token_program: *token_program,
+            add_decimals_program: add_decimals_program.pubkey,
+            wrapper: wrapper.pubkey,
+            wrapper_mint: wrapper_mint.pubkey,
+            wrapper_underlying_tokens: wrapper_underlying_tokens.pubkey,
+            owner: owner.pubkey,
+            user_underlying_tokens: user_underlying_tokens.pubkey,
+            user_wrapped_tokens: user_wrapped_tokens.pubkey,
+            token_program: token_program.pubkey,
         })
     }
 }

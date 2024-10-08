@@ -24,7 +24,7 @@ impl ArrangeAccounts for ApproveChecked {
 
     fn arrange_accounts(
         &self,
-        accounts: Vec<solana_sdk::pubkey::Pubkey>,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let source = accounts.get(0)?;
         let mint = accounts.get(1)?;
@@ -32,21 +32,11 @@ impl ArrangeAccounts for ApproveChecked {
         let owner = accounts.get(3)?;
 
         Some(ApproveCheckedAccounts {
-            source: *source,
-            mint: *mint,
-            delegate: *delegate,
-            owner: *owner,
-            remaining_accounts: accounts
-                .get(4..)
-                .unwrap_or_default()
-                .to_vec()
-                .into_iter()
-                .map(|pubkey| solana_sdk::instruction::AccountMeta {
-                    pubkey,
-                    is_signer: true,
-                    is_writable: false,
-                })
-                .collect::<Vec<solana_sdk::instruction::AccountMeta>>(),
+            source: source.pubkey,
+            mint: mint.pubkey,
+            delegate: delegate.pubkey,
+            owner: owner.pubkey,
+            remaining_accounts: accounts.get(4..).unwrap_or_default().to_vec(),
         })
     }
 }
