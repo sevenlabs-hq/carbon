@@ -1,6 +1,5 @@
 mod jupiter;
 use async_trait::async_trait;
-use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::instruction::{InstructionMetadata, NestedInstruction};
 use carbon_core::processor::Processor;
 use carbon_core::schema::{InstructionSchemaNode, SchemaNode, TransactionSchema};
