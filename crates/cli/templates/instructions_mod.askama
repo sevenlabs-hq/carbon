@@ -1,6 +1,7 @@
 {% raw %}
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::instruction::InstructionDecoder;
+use carbon_macros::try_decode_instructions;
 {% endraw %}
 
 use super::{{ decoder_name }};
@@ -29,25 +30,13 @@ impl InstructionDecoder for {{ decoder_name }} {
         &self,
         instruction: solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
-        {%- for instruction in instructions %}
-        if let Some(decoded_instruction) = {{ instruction.module_name }}::{{ instruction.struct_name }}::deserialize(instruction.data.as_slice()) {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                accounts: instruction.accounts,
-                data: {{ program_instruction_enum }}::{{ instruction.struct_name }}(decoded_instruction),
-            });
-        }
-        {%- endfor %}
-        {%- for event in events %}
-        if let Some(decoded_instruction) = {{ event.module_name }}::{{ event.struct_name }}::deserialize(instruction.data.as_slice()) {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                accounts: instruction.accounts,
-                data: {{ program_instruction_enum }}::{{ event.struct_name }}(decoded_instruction),
-            });
-        }
-        {%- endfor %}
-
-        None
+        try_decode_instructions!(instruction,
+            {%- for instruction in instructions %}
+            {{ program_instruction_enum }}::{{ instruction.struct_name }} => {{ instruction.module_name }}::{{ instruction.struct_name }},
+            {%- endfor %}
+            {%- for event in events %}
+            {{ program_instruction_enum }}::{{ event.struct_name }} => {{ event.module_name }}::{{ event.struct_name }},
+            {%- endfor %}
+        )
     }
 }
