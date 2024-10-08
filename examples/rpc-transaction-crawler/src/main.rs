@@ -6,28 +6,16 @@ use async_trait::async_trait;
 use carbon_core::deserialize::*;
 use carbon_core::instruction::{InstructionMetadata, NestedInstruction};
 use carbon_core::processor::Processor;
-use carbon_core::schema::{InstructionSchemaNode, SchemaNode, TransactionSchema};
-use carbon_core::{
-    collection::InstructionDecoderCollection,
-    error::CarbonResult,
-    instruction::{DecodedInstruction, InstructionDecoder},
-};
-use carbon_macros::*;
-use carbon_proc_macros::instruction_decoder_collection;
+use carbon_core::{error::CarbonResult, instruction::DecodedInstruction};
 use carbon_rpc_transaction_crawler_datasource::{Filters, RpcTransactionCrawler};
 use db::{init_pool, DbPool};
 use diesel::prelude::*;
 use dotenv::dotenv;
 use env::Env;
-use once_cell::sync::Lazy;
 use schema::*;
-use serde::Deserialize;
-use solana_sdk::instruction::AccountMeta;
 use solana_sdk::{commitment_config::CommitmentConfig, pubkey::Pubkey};
 use std::{str::FromStr, time::Duration};
-use voting_program_decoder::instructions::{
-    VotingProgramInstruction, VotingProgramInstructionType,
-};
+use voting_program_decoder::instructions::VotingProgramInstruction;
 use voting_program_decoder::VotingProgramDecoder;
 
 #[tokio::main]
@@ -59,8 +47,6 @@ pub async fn main() -> CarbonResult<()> {
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(transaction_crawler)
-        .transaction(CAST_VOTE_SCHEMA.clone(), CastVoteTransactionProcessor)
-        .transaction(CREATE_VOTE_SCHEMA.clone(), CreateVoteTransactionProcessor)
         .instruction(
             VotingProgramDecoder,
             VotingInstructionProcessor {
@@ -72,40 +58,6 @@ pub async fn main() -> CarbonResult<()> {
         .await?;
 
     Ok(())
-}
-
-#[derive(Clone, Debug, Deserialize)]
-pub struct CastVoteOutput {
-    pub cast_vote: (AllInstructions, Vec<AccountMeta>),
-}
-
-pub struct CastVoteTransactionProcessor;
-
-#[async_trait]
-impl Processor for CastVoteTransactionProcessor {
-    type InputType = CastVoteOutput;
-
-    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
-        println!("Matched transaction {:?}", data);
-        Ok(())
-    }
-}
-
-#[derive(Clone, Debug, Deserialize)]
-pub struct CreateVoteOutput {
-    pub create_vote: (AllInstructions, Vec<AccountMeta>),
-}
-
-pub struct CreateVoteTransactionProcessor;
-
-#[async_trait]
-impl Processor for CreateVoteTransactionProcessor {
-    type InputType = CreateVoteOutput;
-
-    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
-        println!("Matched transaction {:?}", data);
-        Ok(())
-    }
 }
 
 pub struct VotingInstructionProcessor {
@@ -121,7 +73,7 @@ impl Processor for VotingInstructionProcessor {
     );
 
     async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
-        let (instruction_metadata, decoded_instruction, nested_instructions) = data;
+        let (instruction_metadata, decoded_instruction, _nested_instructions) = data;
 
         let mut conn = match self.db_pool.get() {
             Ok(conn) => conn,
@@ -274,34 +226,3 @@ impl Processor for VotingInstructionProcessor {
         Ok(())
     }
 }
-
-instruction_decoder_collection!(
-    AllInstructions, AllInstructionTypes, AllPrograms,
-    Voting => VotingProgramDecoder => VotingProgramInstruction
-);
-
-static CAST_VOTE_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
-    schema![
-        any
-        [
-            AllInstructionTypes::Voting(VotingProgramInstructionType::CastVote),
-            "cast_vote",
-            []
-        ]
-        any
-
-    ]
-});
-
-static CREATE_VOTE_SCHEMA: Lazy<TransactionSchema<AllInstructions>> = Lazy::new(|| {
-    schema![
-        any
-        [
-            AllInstructionTypes::Voting(VotingProgramInstructionType::CreateVote),
-            "create_vote",
-            []
-        ]
-        any
-
-    ]
-});
