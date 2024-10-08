@@ -29,27 +29,27 @@ impl Processor for PumpfunAccountProcessor {
     async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
         match data.1.data {
             PumpAccount::Global(account) => {
-                let global_account = GlobalAccount {
-                    id: 0,
-                    pubkey: data.0.pubkey.to_string(),
-                    initialized: account.initialized,
-                    authority: account.authority.to_string(),
-                    fee_recipient: account.fee_recipient.to_string(),
-                    initial_virtual_token_reserves: account
+                let global_account = GlobalAccount::new(
+                    0,
+                    data.0.pubkey.to_string(),
+                    account.initialized,
+                    account.authority.to_string(),
+                    account.fee_recipient.to_string(),
+                    account
                         .initial_virtual_token_reserves
                         .to_i64()
                         .unwrap_or_default(),
-                    initial_virtual_sol_reserves: account
+                    account
                         .initial_virtual_sol_reserves
                         .to_i64()
                         .unwrap_or_default(),
-                    initial_real_token_reserves: account
+                    account
                         .initial_real_token_reserves
                         .to_i64()
                         .unwrap_or_default(),
-                    token_total_supply: account.token_total_supply.to_i64().unwrap_or_default(),
-                    fee_basis_points: account.fee_basis_points.to_i64().unwrap_or_default(),
-                };
+                    account.token_total_supply.to_i64().unwrap_or_default(),
+                    account.fee_basis_points.to_i64().unwrap_or_default(),
+                );
 
                 diesel::insert_into(global_account::table)
                     .values(&global_account)
