@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -22,7 +22,7 @@ pub struct CreateOpenOrdersInstructionAccounts {
 impl ArrangeAccounts for CreateOpenOrders {
     type ArrangedAccounts = CreateOpenOrdersInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let open_orders = accounts.get(0)?;
         let payer = accounts.get(1)?;
         let dex_program = accounts.get(2)?;
@@ -31,12 +31,12 @@ impl ArrangeAccounts for CreateOpenOrders {
         let market = accounts.get(5)?;
 
         Some(CreateOpenOrdersInstructionAccounts {
-            open_orders: *open_orders,
-            payer: *payer,
-            dex_program: *dex_program,
-            system_program: *system_program,
-            rent: *rent,
-            market: *market,
+            open_orders: open_orders.pubkey,
+            payer: payer.pubkey,
+            dex_program: dex_program.pubkey,
+            system_program: system_program.pubkey,
+            rent: rent.pubkey,
+            market: market.pubkey,
         })
     }
 }

@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -27,7 +27,7 @@ pub struct InvariantSwapInstructionAccounts {
 impl ArrangeAccounts for InvariantSwap {
     type ArrangedAccounts = InvariantSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let state = accounts.get(1)?;
         let pool = accounts.get(2)?;
@@ -41,17 +41,17 @@ impl ArrangeAccounts for InvariantSwap {
         let token_program = accounts.get(10)?;
 
         Some(InvariantSwapInstructionAccounts {
-            swap_program: *swap_program,
-            state: *state,
-            pool: *pool,
-            tickmap: *tickmap,
-            account_x: *account_x,
-            account_y: *account_y,
-            reserve_x: *reserve_x,
-            reserve_y: *reserve_y,
-            owner: *owner,
-            program_authority: *program_authority,
-            token_program: *token_program,
+            swap_program: swap_program.pubkey,
+            state: state.pubkey,
+            pool: pool.pubkey,
+            tickmap: tickmap.pubkey,
+            account_x: account_x.pubkey,
+            account_y: account_y.pubkey,
+            reserve_x: reserve_x.pubkey,
+            reserve_y: reserve_y.pubkey,
+            owner: owner.pubkey,
+            program_authority: program_authority.pubkey,
+            token_program: token_program.pubkey,
         })
     }
 }

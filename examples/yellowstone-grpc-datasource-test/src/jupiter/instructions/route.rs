@@ -1,9 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use crate::jupiter::types::RoutePlanStep;
-
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -32,7 +30,7 @@ pub struct RouteInstructionAccounts {
 impl ArrangeAccounts for Route {
     type ArrangedAccounts = RouteInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let token_program = accounts.get(0)?;
         let user_transfer_authority = accounts.get(1)?;
         let user_source_token_account = accounts.get(2)?;
@@ -44,15 +42,15 @@ impl ArrangeAccounts for Route {
         let program = accounts.get(8)?;
 
         Some(RouteInstructionAccounts {
-            token_program: *token_program,
-            user_transfer_authority: *user_transfer_authority,
-            user_source_token_account: *user_source_token_account,
-            user_destination_token_account: *user_destination_token_account,
-            destination_token_account: *destination_token_account,
-            destination_mint: *destination_mint,
-            platform_fee_account: *platform_fee_account,
-            event_authority: *event_authority,
-            program: *program,
+            token_program: token_program.pubkey,
+            user_transfer_authority: user_transfer_authority.pubkey,
+            user_source_token_account: user_source_token_account.pubkey,
+            user_destination_token_account: user_destination_token_account.pubkey,
+            destination_token_account: destination_token_account.pubkey,
+            destination_mint: destination_mint.pubkey,
+            platform_fee_account: platform_fee_account.pubkey,
+            event_authority: event_authority.pubkey,
+            program: program.pubkey,
         })
     }
 }

@@ -21,25 +21,15 @@ impl ArrangeAccounts for InitializeMultisig {
 
     fn arrange_accounts(
         &self,
-        accounts: Vec<solana_sdk::pubkey::Pubkey>,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let account = accounts.get(0)?;
         let rent = accounts.get(1)?;
 
         Some(InitializeMultisigAccounts {
-            account: *account,
-            rent: *rent,
-            remaining_accounts: accounts
-                .get(2..)
-                .unwrap_or_default()
-                .to_vec()
-                .into_iter()
-                .map(|pubkey| solana_sdk::instruction::AccountMeta {
-                    pubkey,
-                    is_signer: true,
-                    is_writable: false,
-                })
-                .collect::<Vec<solana_sdk::instruction::AccountMeta>>(),
+            account: account.pubkey,
+            rent: rent.pubkey,
+            remaining_accounts: accounts.get(2..).unwrap_or_default().to_vec(),
         })
     }
 }

@@ -99,66 +99,6 @@ pub enum Swap {
     PerpsAddLiquidity,
     PerpsRemoveLiquidity,
     MeteoraDlmm,
-    OpenBookV2
-                {
-                    side: Side,
-                }
-    ,
-    RaydiumClmmV2,
-    StakeDexPrefundWithdrawStakeAndDepositStake
-                {
-                    bridge_stake_seed: u32,
-                }
-    ,
-    Clone
-                {
-                    pool_index: u8,
-                    quantity_is_input: bool,
-                    quantity_is_collateral: bool,
-                }
-    ,
-    SanctumS
-                {
-                    src_lst_value_calc_accs: u8,
-                    dst_lst_value_calc_accs: u8,
-                    src_lst_index: u32,
-                    dst_lst_index: u32,
-                }
-    ,
-    SanctumSAddLiquidity
-                {
-                    lst_value_calc_accs: u8,
-                    lst_index: u32,
-                }
-    ,
-    SanctumSRemoveLiquidity
-                {
-                    lst_value_calc_accs: u8,
-                    lst_index: u32,
-                }
-    ,
-    RaydiumCP,
-    WhirlpoolSwapV2
-                {
-                    a_to_b: bool,
-                    remaining_accounts_info: Option<RemainingAccountsInfo>,
-                }
-    ,
-    OneIntro,
-    PumpdotfunWrappedBuy,
-    PumpdotfunWrappedSell,
-    PerpsV2,
-    PerpsV2AddLiquidity,
-    PerpsV2RemoveLiquidity,
-    MoonshotWrappedBuy,
-    MoonshotWrappedSell,
-    StabbleStableSwap,
-    StabbleWeightedSwap,
-    Obric
-                {
-                    x_to_y: bool,
-                }
-    ,
 }
 
 

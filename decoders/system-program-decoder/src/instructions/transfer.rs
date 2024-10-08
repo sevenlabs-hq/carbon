@@ -20,14 +20,14 @@ impl ArrangeAccounts for Transfer {
 
     fn arrange_accounts(
         &self,
-        accounts: Vec<solana_sdk::pubkey::Pubkey>,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let funding_account = accounts.get(0)?;
         let recipient_account = accounts.get(1)?;
 
         Some(TransferAccounts {
-            funding_account: *funding_account,
-            recipient_account: *recipient_account,
+            funding_account: funding_account.pubkey,
+            recipient_account: recipient_account.pubkey,
         })
     }
 }

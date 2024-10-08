@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -30,7 +30,7 @@ pub struct PerpsRemoveLiquidityInstructionAccounts {
 impl ArrangeAccounts for PerpsRemoveLiquidity {
     type ArrangedAccounts = PerpsRemoveLiquidityInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let owner = accounts.get(1)?;
         let funding_or_receiving_account = accounts.get(2)?;
@@ -47,20 +47,20 @@ impl ArrangeAccounts for PerpsRemoveLiquidity {
         let program = accounts.get(13)?;
 
         Some(PerpsRemoveLiquidityInstructionAccounts {
-            swap_program: *swap_program,
-            owner: *owner,
-            funding_or_receiving_account: *funding_or_receiving_account,
-            lp_token_account: *lp_token_account,
-            transfer_authority: *transfer_authority,
-            perpetuals: *perpetuals,
-            pool: *pool,
-            custody: *custody,
-            custody_oracle_account: *custody_oracle_account,
-            custody_token_account: *custody_token_account,
-            lp_token_mint: *lp_token_mint,
-            token_program: *token_program,
-            event_authority: *event_authority,
-            program: *program,
+            swap_program: swap_program.pubkey,
+            owner: owner.pubkey,
+            funding_or_receiving_account: funding_or_receiving_account.pubkey,
+            lp_token_account: lp_token_account.pubkey,
+            transfer_authority: transfer_authority.pubkey,
+            perpetuals: perpetuals.pubkey,
+            pool: pool.pubkey,
+            custody: custody.pubkey,
+            custody_oracle_account: custody_oracle_account.pubkey,
+            custody_token_account: custody_token_account.pubkey,
+            lp_token_mint: lp_token_mint.pubkey,
+            token_program: token_program.pubkey,
+            event_authority: event_authority.pubkey,
+            program: program.pubkey,
         })
     }
 }

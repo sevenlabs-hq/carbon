@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -34,7 +34,7 @@ pub struct RaydiumSwapInstructionAccounts {
 impl ArrangeAccounts for RaydiumSwap {
     type ArrangedAccounts = RaydiumSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let token_program = accounts.get(1)?;
         let amm_id = accounts.get(2)?;
@@ -55,24 +55,24 @@ impl ArrangeAccounts for RaydiumSwap {
         let user_source_owner = accounts.get(17)?;
 
         Some(RaydiumSwapInstructionAccounts {
-            swap_program: *swap_program,
-            token_program: *token_program,
-            amm_id: *amm_id,
-            amm_authority: *amm_authority,
-            amm_open_orders: *amm_open_orders,
-            pool_coin_token_account: *pool_coin_token_account,
-            pool_pc_token_account: *pool_pc_token_account,
-            serum_program_id: *serum_program_id,
-            serum_market: *serum_market,
-            serum_bids: *serum_bids,
-            serum_asks: *serum_asks,
-            serum_event_queue: *serum_event_queue,
-            serum_coin_vault_account: *serum_coin_vault_account,
-            serum_pc_vault_account: *serum_pc_vault_account,
-            serum_vault_signer: *serum_vault_signer,
-            user_source_token_account: *user_source_token_account,
-            user_destination_token_account: *user_destination_token_account,
-            user_source_owner: *user_source_owner,
+            swap_program: swap_program.pubkey,
+            token_program: token_program.pubkey,
+            amm_id: amm_id.pubkey,
+            amm_authority: amm_authority.pubkey,
+            amm_open_orders: amm_open_orders.pubkey,
+            pool_coin_token_account: pool_coin_token_account.pubkey,
+            pool_pc_token_account: pool_pc_token_account.pubkey,
+            serum_program_id: serum_program_id.pubkey,
+            serum_market: serum_market.pubkey,
+            serum_bids: serum_bids.pubkey,
+            serum_asks: serum_asks.pubkey,
+            serum_event_queue: serum_event_queue.pubkey,
+            serum_coin_vault_account: serum_coin_vault_account.pubkey,
+            serum_pc_vault_account: serum_pc_vault_account.pubkey,
+            serum_vault_signer: serum_vault_signer.pubkey,
+            user_source_token_account: user_source_token_account.pubkey,
+            user_destination_token_account: user_destination_token_account.pubkey,
+            user_source_owner: user_source_owner.pubkey,
         })
     }
 }

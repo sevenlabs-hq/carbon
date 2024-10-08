@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -32,7 +32,7 @@ pub struct MeteoraDlmmSwapInstructionAccounts {
 impl ArrangeAccounts for MeteoraDlmmSwap {
     type ArrangedAccounts = MeteoraDlmmSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let lb_pair = accounts.get(1)?;
         let bin_array_bitmap_extension = accounts.get(2)?;
@@ -51,22 +51,22 @@ impl ArrangeAccounts for MeteoraDlmmSwap {
         let program = accounts.get(15)?;
 
         Some(MeteoraDlmmSwapInstructionAccounts {
-            swap_program: *swap_program,
-            lb_pair: *lb_pair,
-            bin_array_bitmap_extension: *bin_array_bitmap_extension,
-            reserve_x: *reserve_x,
-            reserve_y: *reserve_y,
-            user_token_in: *user_token_in,
-            user_token_out: *user_token_out,
-            token_x_mint: *token_x_mint,
-            token_y_mint: *token_y_mint,
-            oracle: *oracle,
-            host_fee_in: *host_fee_in,
-            user: *user,
-            token_x_program: *token_x_program,
-            token_y_program: *token_y_program,
-            event_authority: *event_authority,
-            program: *program,
+            swap_program: swap_program.pubkey,
+            lb_pair: lb_pair.pubkey,
+            bin_array_bitmap_extension: bin_array_bitmap_extension.pubkey,
+            reserve_x: reserve_x.pubkey,
+            reserve_y: reserve_y.pubkey,
+            user_token_in: user_token_in.pubkey,
+            user_token_out: user_token_out.pubkey,
+            token_x_mint: token_x_mint.pubkey,
+            token_y_mint: token_y_mint.pubkey,
+            oracle: oracle.pubkey,
+            host_fee_in: host_fee_in.pubkey,
+            user: user.pubkey,
+            token_x_program: token_x_program.pubkey,
+            token_y_program: token_y_program.pubkey,
+            event_authority: event_authority.pubkey,
+            program: program.pubkey,
         })
     }
 }

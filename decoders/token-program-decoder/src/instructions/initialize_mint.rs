@@ -23,14 +23,14 @@ impl ArrangeAccounts for InitializeMint {
 
     fn arrange_accounts(
         &self,
-        accounts: Vec<solana_sdk::pubkey::Pubkey>,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let mint = accounts.get(0)?;
         let rent = accounts.get(1)?;
 
         Some(InitializeMintAccounts {
-            mint: *mint,
-            rent: *rent,
+            mint: mint.pubkey,
+            rent: rent.pubkey,
         })
     }
 }

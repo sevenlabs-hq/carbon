@@ -22,14 +22,14 @@ impl ArrangeAccounts for CreateAccount {
 
     fn arrange_accounts(
         &self,
-        accounts: Vec<solana_sdk::pubkey::Pubkey>,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let funding_account = accounts.get(0)?;
         let new_account = accounts.get(1)?;
 
         Some(CreateAccountAccounts {
-            funding_account: *funding_account,
-            new_account: *new_account,
+            funding_account: funding_account.pubkey,
+            new_account: new_account.pubkey,
         })
     }
 }
