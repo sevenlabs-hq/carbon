@@ -1,5 +1,7 @@
 use crate::db::schema::bonding_curve;
 use crate::db::schema::global_account;
+use crate::pump_decoder::accounts::bonding_curve::BondingCurve as BondingCurveAccount;
+use crate::pump_decoder::accounts::global::Global;
 use diesel::prelude::*;
 
 #[derive(Debug, Queryable, Insertable, AsChangeset)]
@@ -18,29 +20,18 @@ pub struct GlobalAccount {
 }
 
 impl GlobalAccount {
-    pub fn new(
-        id: i32,
-        pubkey: String,
-        initialized: bool,
-        authority: String,
-        fee_recipient: String,
-        initial_virtual_token_reserves: i64,
-        initial_virtual_sol_reserves: i64,
-        initial_real_token_reserves: i64,
-        token_total_supply: i64,
-        fee_basis_points: i64,
-    ) -> Self {
+    pub fn from_account(account: Global, pubkey: solana_sdk::pubkey::Pubkey) -> Self {
         Self {
-            id,
-            pubkey,
-            initialized,
-            authority,
-            fee_recipient,
-            initial_virtual_token_reserves,
-            initial_virtual_sol_reserves,
-            initial_real_token_reserves,
-            token_total_supply,
-            fee_basis_points,
+            id: 0,
+            pubkey: pubkey.to_string(),
+            initialized: account.initialized,
+            authority: account.authority.to_string(),
+            fee_recipient: account.fee_recipient.to_string(),
+            initial_virtual_token_reserves: account.initial_virtual_token_reserves as i64,
+            initial_virtual_sol_reserves: account.initial_virtual_sol_reserves as i64,
+            initial_real_token_reserves: account.initial_real_token_reserves as i64,
+            token_total_supply: account.token_total_supply as i64,
+            fee_basis_points: account.fee_basis_points as i64,
         }
     }
 }
@@ -59,25 +50,16 @@ pub struct BondingCurve {
 }
 
 impl BondingCurve {
-    pub fn new(
-        id: i32,
-        pubkey: String,
-        virtual_token_reserves: i64,
-        virtual_sol_reserves: i64,
-        real_token_reserves: i64,
-        real_sol_reserves: i64,
-        token_total_supply: i64,
-        complete: bool,
-    ) -> Self {
+    pub fn from_account(account: BondingCurveAccount, pubkey: solana_sdk::pubkey::Pubkey) -> Self {
         Self {
-            id,
-            pubkey,
-            virtual_token_reserves,
-            virtual_sol_reserves,
-            real_token_reserves,
-            real_sol_reserves,
-            token_total_supply,
-            complete,
+            id: 0,
+            pubkey: pubkey.to_string(),
+            virtual_token_reserves: account.virtual_token_reserves as i64,
+            virtual_sol_reserves: account.virtual_sol_reserves as i64,
+            real_token_reserves: account.real_token_reserves as i64,
+            real_sol_reserves: account.real_sol_reserves as i64,
+            token_total_supply: account.token_total_supply as i64,
+            complete: account.complete,
         }
     }
 }
