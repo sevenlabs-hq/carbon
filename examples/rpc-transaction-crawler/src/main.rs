@@ -4,6 +4,7 @@ mod schema;
 mod voting_program_decoder;
 use async_trait::async_trait;
 use carbon_core::deserialize::*;
+use carbon_core::error::Error;
 use carbon_core::instruction::{InstructionMetadata, NestedInstruction};
 use carbon_core::processor::Processor;
 use carbon_core::{error::CarbonResult, instruction::DecodedInstruction};
@@ -75,33 +76,22 @@ impl Processor for VotingInstructionProcessor {
     async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
         let (instruction_metadata, decoded_instruction, _nested_instructions) = data;
 
-        let mut conn = match self.db_pool.get() {
-            Ok(conn) => conn,
-            Err(err) => {
-                log::error!("Failed to consume datasource: {}", err);
-                return Ok(());
-            }
-        };
+        let mut conn = self
+            .db_pool
+            .get()
+            .map_err(|err| Error::Custom(format!("Failed to connect db pool: {}", err)))?;
 
         let signature = instruction_metadata
             .transaction_metadata
             .signature
             .to_string();
 
-        // We are essentially skipping inner instructions,
-        // as well as any instructions that have already been indexed in our database.
-        let signature_exists: Option<String> = match activities::table
+        let signature_exists: Option<String> = activities::table
             .select(activities::signature)
             .filter(activities::signature.eq(&signature))
             .first(&mut conn)
             .optional()
-        {
-            Ok(result) => result,
-            Err(e) => {
-                log::error!("Error querying activities: {:?}", e);
-                return Ok(());
-            }
-        };
+            .map_err(|err| Error::Custom(format!("Failed to querying activities: {}", err)))?;
 
         if signature_exists.is_some() {
             println!("Signature {} already processed, skipping.", signature);
@@ -118,62 +108,39 @@ impl Processor for VotingInstructionProcessor {
                         }
                     };
 
-                let insert_vote_result = diesel::insert_into(vote_entries::table)
+                diesel::insert_into(vote_entries::table)
                     .values((
                         vote_entries::voter_id.eq(arranged_accounts.voter.to_string()),
                         vote_entries::vote_id.eq(arranged_accounts.vote.to_string()),
                         vote_entries::choice.eq(cast_vote.choice),
                     ))
-                    .execute(&mut conn);
-
-                match insert_vote_result {
-                    Ok(_) => println!("Successfully inserted vote."),
-                    Err(e) => {
-                        log::error!("Error inserting vote: {:?}", e);
-                        return Ok(());
-                    }
-                }
+                    .execute(&mut conn)
+                    .map_err(|err| {
+                        Error::Custom(format!("Failed to insert vote entry: {}", err))
+                    })?;
 
                 let vote_entries = vote_entries::table
                     .filter(vote_entries::vote_id.eq(arranged_accounts.vote.to_string()))
                     .load::<(String, String, bool)>(&mut conn)
-                    .unwrap_or_default();
+                    .map_err(|err| Error::Custom(format!("Failed to get vote entries: {}", err)))?;
 
                 let yes_count = vote_entries.iter().filter(|entry| entry.2).count();
                 let no_count = vote_entries.iter().filter(|entry| !entry.2).count();
 
-                let update_vote_result = diesel::update(
+                diesel::update(
                     votes::table.filter(votes::vote_id.eq(arranged_accounts.vote.to_string())),
                 )
                 .set((
                     votes::yes.eq(yes_count as i32),
                     votes::no.eq(no_count as i32),
                 ))
-                .execute(&mut conn);
+                .execute(&mut conn)
+                .map_err(|err| Error::Custom(format!("Failed to update vote counts: {}", err)))?;
 
-                match update_vote_result {
-                    Ok(_) => println!("Successfully updated the votes."),
-                    Err(e) => {
-                        log::error!("Error to update votes: {:?}", e);
-                        return Ok(());
-                    }
-                }
-
-                // In our case, since we do not require any inner instructions,
-                // we will create a record after processing the first instruction and skip any subsequent inner instructions.
-                let insert_signature_result = diesel::insert_into(activities::table)
+                diesel::insert_into(activities::table)
                     .values(activities::signature.eq(&signature))
-                    .execute(&mut conn);
-
-                match insert_signature_result {
-                    Ok(_) => println!("Successfully inserted the signature."),
-                    Err(e) => {
-                        log::error!("Error inserting signature: {:?}", e);
-                        return Ok(());
-                    }
-                }
-
-                println!("Vote counts updated: yes: {}, no: {}", yes_count, no_count);
+                    .execute(&mut conn)
+                    .map_err(|err| Error::Custom(format!("Failed to insert signature: {}", err)))?;
             }
 
             VotingProgramInstruction::CreateVote(create_vote) => {
@@ -185,38 +152,20 @@ impl Processor for VotingInstructionProcessor {
                         }
                     };
 
-                println!("arranged accounts {:#?}", arranged_accounts.vote);
-
-                let insert_create_vote_result = diesel::insert_into(votes::table)
+                diesel::insert_into(votes::table)
                     .values((
                         votes::vote_id.eq(arranged_accounts.vote.to_string()),
                         votes::authority.eq(arranged_accounts.authority.to_string()),
                         votes::yes.eq(0),
                         votes::no.eq(0),
                     ))
-                    .execute(&mut conn);
+                    .execute(&mut conn)
+                    .map_err(|err| Error::Custom(format!("Failed to create new vote: {}", err)))?;
 
-                match insert_create_vote_result {
-                    Ok(_) => println!("Successfully created vote."),
-                    Err(e) => {
-                        log::error!("Error inserting vote: {:?}", e);
-                        return Ok(());
-                    }
-                }
-
-                // In our case, since we do not require any inner instructions,
-                // we will create a record after processing the first instruction and skip any subsequent inner instructions.
-                let insert_signature_result = diesel::insert_into(activities::table)
+                diesel::insert_into(activities::table)
                     .values(activities::signature.eq(&signature))
-                    .execute(&mut conn);
-
-                match insert_signature_result {
-                    Ok(_) => println!("Successfully inserted the signature."),
-                    Err(e) => {
-                        log::error!("Error inserting signature: {:?}", e);
-                        return Ok(());
-                    }
-                }
+                    .execute(&mut conn)
+                    .map_err(|err| Error::Custom(format!("Failed to insert signature: {}", err)))?;
             }
 
             _ => {
