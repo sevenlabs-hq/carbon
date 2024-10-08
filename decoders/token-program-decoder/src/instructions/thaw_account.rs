@@ -20,27 +20,17 @@ impl ArrangeAccounts for ThawAccount {
 
     fn arrange_accounts(
         &self,
-        accounts: Vec<solana_sdk::pubkey::Pubkey>,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let account = accounts.get(0)?;
         let mint = accounts.get(1)?;
         let authority = accounts.get(2)?;
 
         Some(ThawAccountAccounts {
-            account: *account,
-            mint: *mint,
-            authority: *authority,
-            remaining_accounts: accounts
-                .get(3..)
-                .unwrap_or_default()
-                .to_vec()
-                .into_iter()
-                .map(|pubkey| solana_sdk::instruction::AccountMeta {
-                    pubkey,
-                    is_signer: true,
-                    is_writable: false,
-                })
-                .collect::<Vec<solana_sdk::instruction::AccountMeta>>(),
+            account: account.pubkey,
+            mint: mint.pubkey,
+            authority: authority.pubkey,
+            remaining_accounts: accounts.get(3..).unwrap_or_default().to_vec(),
         })
     }
 }

@@ -38,8 +38,11 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
         serde_json::from_value::<U>(serde_json::to_value(self.match_nodes(instructions)).ok()?).ok()
     }
 
-    pub fn match_nodes(&self, instructions: &[ParsedInstruction<T>]) -> Option<HashMap<String, T>> {
-        let mut output = HashMap::<String, T>::new();
+    pub fn match_nodes(
+        &self,
+        instructions: &[ParsedInstruction<T>],
+    ) -> Option<HashMap<String, (T, Vec<AccountMeta>)>> {
+        let mut output = HashMap::<String, (T, Vec<AccountMeta>)>::new();
 
         let current_index = 0;
         let current_instruction = instructions.get(current_index)?;
@@ -61,7 +64,10 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
                     } else {
                         output.insert(
                             ix.name.clone(),
-                            current_instruction.instruction.data.clone(),
+                            (
+                                current_instruction.instruction.data.clone(),
+                                current_instruction.instruction.accounts.clone(),
+                            ),
                         );
                     }
 
@@ -89,10 +95,12 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
     }
 }
 
-pub fn merge_hashmaps<K, V>(a: HashMap<K, V>, b: HashMap<K, V>) -> HashMap<K, V>
+pub fn merge_hashmaps<K, V>(
+    a: HashMap<K, (V, Vec<AccountMeta>)>,
+    b: HashMap<K, (V, Vec<AccountMeta>)>,
+) -> HashMap<K, (V, Vec<AccountMeta>)>
 where
     K: std::cmp::Eq + std::hash::Hash,
-    V: std::cmp::Eq + std::hash::Hash,
 {
     let mut output = a;
     for (key, value) in b {

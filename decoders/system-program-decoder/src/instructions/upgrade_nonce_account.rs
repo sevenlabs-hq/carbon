@@ -17,12 +17,12 @@ impl ArrangeAccounts for UpgradeNonceAccount {
 
     fn arrange_accounts(
         &self,
-        accounts: Vec<solana_sdk::pubkey::Pubkey>,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let nonce_account = accounts.get(0)?;
 
         Some(UpgradeNonceAccountAccounts {
-            nonce_account: *nonce_account,
+            nonce_account: nonce_account.pubkey,
         })
     }
 }

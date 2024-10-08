@@ -22,14 +22,14 @@ impl ArrangeAccounts for AssignWithSeed {
 
     fn arrange_accounts(
         &self,
-        accounts: Vec<solana_sdk::pubkey::Pubkey>,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let assigned_account = accounts.get(0)?;
         let base_account = accounts.get(1)?;
 
         Some(AssignWithSeedAccounts {
-            assigned_account: *assigned_account,
-            base_account: *base_account,
+            assigned_account: assigned_account.pubkey,
+            base_account: base_account.pubkey,
         })
     }
 }
