@@ -1,7 +1,6 @@
 -- Your SQL goes here
-DROP TABLE IF EXISTS kv;
-
 CREATE TABLE activities (
-    activity_id SERIAL PRIMARY KEY,       
+    id SERIAL PRIMARY KEY,     
+    activity_type VARCHAR(255) NOT NULL,
     signature VARCHAR(255) NOT NULL      
 );
