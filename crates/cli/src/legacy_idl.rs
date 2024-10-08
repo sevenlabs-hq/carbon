@@ -53,6 +53,8 @@ pub struct LegacyIdlInstructionAccount {
     pub is_optional: Option<bool>,
     #[serde(default)]
     pub docs: Option<Vec<String>>,
+    #[serde(default)]
+    pub desc: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -69,10 +71,25 @@ pub struct LegacyIdlInstructionArgField {
 #[serde(untagged)]
 pub enum LegacyIdlType {
     Primitive(String),
-    Array { array: (Box<LegacyIdlType>, usize) },
-    Vec { vec: Box<LegacyIdlType> },
-    Option { option: Box<LegacyIdlType> },
-    Defined { defined: String },
+    Array {
+        array: (Box<LegacyIdlType>, usize),
+    },
+    Vec {
+        vec: Box<LegacyIdlType>,
+    },
+    Option {
+        option: Box<LegacyIdlType>,
+    },
+    OptionPrimitive {
+        option: String,
+    },
+    Defined {
+        defined: String,
+    },
+    HashMap {
+        #[serde(rename = "hashMap")]
+        hash_map: (Box<LegacyIdlType>, Box<LegacyIdlType>),
+    },
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -161,5 +178,5 @@ pub struct LegacyIdlEventField {
 pub struct LegacyIdlError {
     pub code: f64,
     pub name: String,
-    pub msg: String,
+    pub msg: Option<String>,
 }

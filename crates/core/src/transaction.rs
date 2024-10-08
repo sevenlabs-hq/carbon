@@ -46,7 +46,7 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
         instructions
             .iter()
             .enumerate()
-            .for_each(|(i, nested_instr)| {
+            .for_each(|(_i, nested_instr)| {
                 if let Some(parsed) = T::parse_instruction(nested_instr.instruction.clone()) {
                     parsed_instructions.push(ParsedInstruction {
                         program_id: nested_instr.instruction.program_id,
