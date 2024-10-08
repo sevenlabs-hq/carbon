@@ -20,10 +20,10 @@ impl ArrangeAccounts for UiAmountToAmount {
 
     fn arrange_accounts(
         &self,
-        accounts: Vec<solana_sdk::pubkey::Pubkey>,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let mint = accounts.get(0)?;
 
-        Some(UiAmountToAmountAccounts { mint: *mint })
+        Some(UiAmountToAmountAccounts { mint: mint.pubkey })
     }
 }

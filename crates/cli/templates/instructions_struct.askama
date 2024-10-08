@@ -22,14 +22,14 @@ pub struct {{ instruction.struct_name }}InstructionAccounts {
 impl ArrangeAccounts for {{ instruction.struct_name }} {
     type ArrangedAccounts = {{ instruction.struct_name }}InstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         {%- for i in (0..instruction.accounts.len()) %}
         let {{ instruction.accounts[i].name }} = accounts.get({{ i }})?;
         {%- endfor %}
 
         Some({{ instruction.struct_name }}InstructionAccounts {
             {%- for account in instruction.accounts %}
-            {{ account.name }}: *{{ account.name }},
+            {{ account.name }}: {{ account.name }}.pubkey,
             {%- endfor %}
         })
     }

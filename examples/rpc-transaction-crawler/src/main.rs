@@ -1,7 +1,7 @@
 mod db;
 mod env;
 mod schema;
-mod voting_program;
+mod voting_program_decoder;
 use async_trait::async_trait;
 use carbon_core::deserialize::*;
 use carbon_core::instruction::{InstructionMetadata, NestedInstruction};
@@ -22,11 +22,13 @@ use env::Env;
 use once_cell::sync::Lazy;
 use schema::*;
 use serde::Deserialize;
+use solana_sdk::instruction::AccountMeta;
 use solana_sdk::{commitment_config::CommitmentConfig, pubkey::Pubkey};
-use std::collections::HashSet;
 use std::{str::FromStr, time::Duration};
-use voting_program::instructions::{VotingProgramInstruction, VotingProgramInstructionType};
-use voting_program::VotingProgramDecoder;
+use voting_program_decoder::instructions::{
+    VotingProgramInstruction, VotingProgramInstructionType,
+};
+use voting_program_decoder::VotingProgramDecoder;
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
@@ -35,7 +37,7 @@ pub async fn main() -> CarbonResult<()> {
 
     let env = Env::new().expect("Failed to load environment settings");
 
-    let test_account = Pubkey::from_str("ABVTNRYks9i8LkKQ439XRaRMbEjoFvWdmMzNLixj7BJm").unwrap();
+    let test_account = Pubkey::from_str("ABVTNRYks9i8LkKQ439XRaRMbEjoFvWdmMzNLixj7BJm").unwrap(); // Voting Program Address
 
     let filters = Filters::new(
         None, // No specific account filtering
@@ -46,7 +48,7 @@ pub async fn main() -> CarbonResult<()> {
     let transaction_crawler = RpcTransactionCrawler::new(
         env.rpc_url,                         // RPC URL
         test_account,                        // The test account
-        10,                                  // Batch limit
+        1,                                   // Batch limit
         Duration::from_secs(5),              // Polling interval
         filters,                             // Filters
         Some(CommitmentConfig::finalized()), // Commitment config
@@ -57,8 +59,8 @@ pub async fn main() -> CarbonResult<()> {
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(transaction_crawler)
-        //.transaction(CAST_VOTE_SCHEMA.clone(), CastVoteTransactionProcessor)
-        //.transaction(CREATE_VOTE_SCHEMA.clone(), CreateVoteTransactionProcessor)
+        .transaction(CAST_VOTE_SCHEMA.clone(), CastVoteTransactionProcessor)
+        .transaction(CREATE_VOTE_SCHEMA.clone(), CreateVoteTransactionProcessor)
         .instruction(
             VotingProgramDecoder,
             VotingInstructionProcessor {
@@ -74,7 +76,7 @@ pub async fn main() -> CarbonResult<()> {
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct CastVoteOutput {
-    pub cast_vote: AllInstructions,
+    pub cast_vote: (AllInstructions, Vec<AccountMeta>),
 }
 
 pub struct CastVoteTransactionProcessor;
@@ -91,7 +93,7 @@ impl Processor for CastVoteTransactionProcessor {
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct CreateVoteOutput {
-    pub create_vote: AllInstructions,
+    pub create_vote: (AllInstructions, Vec<AccountMeta>),
 }
 
 pub struct CreateVoteTransactionProcessor;
@@ -134,6 +136,8 @@ impl Processor for VotingInstructionProcessor {
             .signature
             .to_string();
 
+        // We are essentially skipping inner instructions,
+        // as well as any instructions that have already been indexed in our database.
         let signature_exists: Option<String> = match activities::table
             .select(activities::signature)
             .filter(activities::signature.eq(&signature))
@@ -154,37 +158,13 @@ impl Processor for VotingInstructionProcessor {
 
         match decoded_instruction.data {
             VotingProgramInstruction::CastVote(cast_vote) => {
-                println!(
-                    "Matched CreateVote instruction with data: {:?}, instruction_metadata: {:#?}, nested_instructions: {:#?}",
-                    cast_vote,
-                    instruction_metadata,
-                    nested_instructions
-                );
-
-                let mut accounts_set: HashSet<Pubkey> = HashSet::new();
-
-                for nested in nested_instructions.iter().rev() {
-                    for account in &nested.instruction.accounts {
-                        accounts_set.insert(account.pubkey);
-                    }
-                }
-
-                let mut accounts: Vec<Pubkey> = accounts_set.into_iter().collect();
-
-                if let Some(first_nested) = nested_instructions.first() {
-                    accounts.push(first_nested.instruction.program_id);
-                }
-
-                if accounts.is_empty() {
-                    log::warn!("No accounts found in nested instructions.");
-                    return Ok(());
-                }
-
-                println!("{:#?}", accounts);
-
-                let arranged_accounts = cast_vote
-                    .arrange_accounts(accounts)
-                    .expect("Failed to arrange accounts; no accounts were provided.");
+                let arranged_accounts =
+                    match cast_vote.arrange_accounts(decoded_instruction.accounts) {
+                        Some(accounts) => accounts,
+                        None => {
+                            return Ok(());
+                        }
+                    };
 
                 let insert_vote_result = diesel::insert_into(vote_entries::table)
                     .values((
@@ -227,6 +207,8 @@ impl Processor for VotingInstructionProcessor {
                     }
                 }
 
+                // In our case, since we do not require any inner instructions,
+                // we will create a record after processing the first instruction and skip any subsequent inner instructions.
                 let insert_signature_result = diesel::insert_into(activities::table)
                     .values(activities::signature.eq(&signature))
                     .execute(&mut conn);
@@ -243,35 +225,13 @@ impl Processor for VotingInstructionProcessor {
             }
 
             VotingProgramInstruction::CreateVote(create_vote) => {
-                println!(
-                    "Matched CreateVote instruction with data: {:?}, instruction_metadata: {:#?}, nested_instructions: {:#?}",
-                    create_vote,
-                    instruction_metadata,
-                    nested_instructions
-                );
-
-                let mut accounts_set: HashSet<Pubkey> = HashSet::new();
-
-                for nested in nested_instructions.iter().rev() {
-                    for account in &nested.instruction.accounts {
-                        accounts_set.insert(account.pubkey);
-                    }
-                }
-
-                let mut accounts: Vec<Pubkey> = accounts_set.into_iter().collect();
-
-                if let Some(first_nested) = nested_instructions.first() {
-                    accounts.push(first_nested.instruction.program_id);
-                }
-
-                if accounts.is_empty() {
-                    log::warn!("No accounts found in nested instructions.");
-                    return Ok(());
-                }
-
-                let arranged_accounts = create_vote
-                    .arrange_accounts(accounts)
-                    .expect("Failed to arrange accounts; no accounts were provided.");
+                let arranged_accounts =
+                    match create_vote.arrange_accounts(decoded_instruction.accounts) {
+                        Some(accounts) => accounts,
+                        None => {
+                            return Ok(());
+                        }
+                    };
 
                 println!("arranged accounts {:#?}", arranged_accounts.vote);
 
@@ -292,6 +252,8 @@ impl Processor for VotingInstructionProcessor {
                     }
                 }
 
+                // In our case, since we do not require any inner instructions,
+                // we will create a record after processing the first instruction and skip any subsequent inner instructions.
                 let insert_signature_result = diesel::insert_into(activities::table)
                     .values(activities::signature.eq(&signature))
                     .execute(&mut conn);
