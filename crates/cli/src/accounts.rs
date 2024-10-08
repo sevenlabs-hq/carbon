@@ -1,5 +1,3 @@
-use std::io::Read;
-
 use crate::idl::Idl;
 use crate::{legacy_idl::LegacyIdl, util::idl_type_to_rust_type};
 use askama::Template;

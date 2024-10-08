@@ -1,7 +1,7 @@
 use crate::{
     idl::Idl,
     legacy_idl::{LegacyIdl, LegacyIdlEnumFields},
-    util::idl_type_to_rust_type,
+    util::{idl_type_to_rust_type, is_big_array},
 };
 use askama::Template;
 use heck::ToSnakeCase;
@@ -27,6 +27,7 @@ pub struct FieldData {
     pub name: String,
     pub rust_type: String,
     pub is_pubkey: bool,
+    pub attributes: Option<String>,
 }
 
 #[allow(dead_code)]
@@ -63,10 +64,16 @@ pub fn legacy_process_types(idl: &LegacyIdl) -> Vec<TypeData> {
                     for field in fields_vec {
                         let rust_type = idl_type_to_rust_type(&field.type_);
                         let is_pubkey = rust_type.contains("Pubkey");
+                        let attributes = if is_big_array(&rust_type) {
+                            Some("#[serde(with = \"BigArray\")]".to_string())
+                        } else {
+                            None
+                        };
                         fields.push(FieldData {
                             name: field.name.to_snake_case(),
                             rust_type,
                             is_pubkey,
+                            attributes,
                         });
                     }
                 }
@@ -87,6 +94,7 @@ pub fn legacy_process_types(idl: &LegacyIdl) -> Vec<TypeData> {
                                             name: field.name.to_snake_case(),
                                             rust_type,
                                             is_pubkey,
+                                            attributes: None,
                                         });
                                     }
                                     Some(EnumVariantFields::Named(variant_field_data))
@@ -133,10 +141,16 @@ pub fn process_types(idl: &Idl) -> Vec<TypeData> {
                     for field in fields_vec {
                         let rust_type = idl_type_to_rust_type(&field.type_);
                         let is_pubkey = rust_type.contains("Pubkey");
+                        let attributes = if is_big_array(&rust_type) {
+                            Some("#[serde(with = \"BigArray\")]".to_string())
+                        } else {
+                            None
+                        };
                         fields.push(FieldData {
                             name: field.name.to_snake_case(),
                             rust_type,
                             is_pubkey,
+                            attributes,
                         });
                     }
                 }
@@ -157,6 +171,7 @@ pub fn process_types(idl: &Idl) -> Vec<TypeData> {
                                             name: field.name.to_snake_case(),
                                             rust_type,
                                             is_pubkey,
+                                            attributes: None,
                                         });
                                     }
                                     Some(EnumVariantFields::Named(variant_field_data))
