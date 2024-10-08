@@ -199,6 +199,15 @@ impl Datasource for RpcTransactionCrawler {
                         continue;
                     };
 
+                    if meta_original.status.is_err() {
+                        log::warn!(
+                            "Transaction failed or encountered an error: {:?} (signature: {:?})",
+                            meta_original.status,
+                            signature
+                        );
+                        continue;
+                    }
+
                     let Some(decoded_transaction) = transaction.transaction.decode() else {
                         log::error!("Failed to decode transaction: {:?}", transaction);
                         continue;
