@@ -115,6 +115,7 @@ impl Datasource for RpcTransactionCrawler {
                 if let (Some(newest_sig), Some(last_sig)) = (newest_signature, last_signature) {
                     if newest_sig == last_sig {
                         println!("No new signatures found. Sleeping for interval...");
+                        tokio::time::sleep(polling_interval).await;
                         continue;
                     }
                 }
@@ -128,6 +129,7 @@ impl Datasource for RpcTransactionCrawler {
                 if signatures.is_empty() {
                     last_signature = newest_signature;
                     println!("No new signatures found. Sleeping for interval...");
+                    tokio::time::sleep(polling_interval).await;
                     continue;
                 }
 
