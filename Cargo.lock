@@ -937,6 +937,50 @@ name = "carbon-helius-atlas-ws-datasource"
 version = "0.1.0"
 
 [[package]]
+name = "carbon-jupiter-dca-decoder"
+version = "0.1.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
+name = "carbon-jupiter-limit-order-2-decoder"
+version = "0.1.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
+name = "carbon-jupiter-limit-order-decoder"
+version = "0.1.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
+name = "carbon-jupiter-swap-decoder"
+version = "0.1.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-macros"
 version = "0.1.0"
 dependencies = [
@@ -946,6 +990,51 @@ dependencies = [
  "solana-client",
  "solana-sdk",
  "solana-transaction-status",
+]
+
+[[package]]
+name = "carbon-meteora-dlmm-decoder"
+version = "0.1.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "serde-big-array",
+ "solana-sdk",
+]
+
+[[package]]
+name = "carbon-mpl-core-decoder"
+version = "0.1.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
+name = "carbon-mpl-token-metadata-decoder"
+version = "0.1.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
+name = "carbon-orca-whirlpool-decoder"
+version = "0.1.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
 ]
 
 [[package]]
@@ -964,6 +1053,29 @@ dependencies = [
  "solana-transaction-status",
  "syn 1.0.109",
  "unicode-xid",
+]
+
+[[package]]
+name = "carbon-pumpfun-decoder"
+version = "0.1.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
+name = "carbon-raydium-amm-v4-decoder"
+version = "0.1.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "serde-big-array",
+ "solana-sdk",
 ]
 
 [[package]]
@@ -3644,6 +3756,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c8e3592472072e6e22e0a54d5904d9febf8508f65fb8552499a1abc7d1078c3a"
 dependencies = [
  "serde_derive",
+]
+
+[[package]]
+name = "serde-big-array"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "11fc7cc2c76d73e0f27ee52abbd64eec84d46f370c88371120433196934e4b7f"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
