@@ -36,7 +36,7 @@ pub struct AccountPipe<T: Send> {
 #[async_trait]
 pub trait AccountPipes {
     async fn run(
-        &self,
+        &mut self,
         account_with_metadata: (AccountMetadata, solana_sdk::account::Account),
     ) -> CarbonResult<()>;
 }
@@ -44,7 +44,7 @@ pub trait AccountPipes {
 #[async_trait]
 impl<T: Send> AccountPipes for AccountPipe<T> {
     async fn run(
-        &self,
+        &mut self,
         account_with_metadata: (AccountMetadata, solana_sdk::account::Account),
     ) -> CarbonResult<()> {
         if let Some(decoded_account) = self.decoder.decode_account(account_with_metadata.1) {

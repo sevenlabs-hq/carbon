@@ -2,8 +2,9 @@ use serde::de::DeserializeOwned;
 
 use crate::{
     account::{AccountDecoder, AccountMetadata, AccountPipe, AccountPipes, DecodedAccount},
+    account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
     collection::InstructionDecoderCollection,
-    datasource::{Datasource, Update, UpdateType},
+    datasource::{AccountDeletion, Datasource, Update, UpdateType},
     error::{CarbonResult, Error},
     instruction::{
         DecodedInstruction, InstructionDecoder, InstructionMetadata, InstructionPipe,
@@ -18,6 +19,7 @@ use crate::{
 pub struct Pipeline {
     pub datasource: Box<dyn Datasource>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
+    pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub instruction_pipes: Vec<Box<dyn InstructionPipes>>,
     pub transaction_pipes: Vec<Box<dyn TransactionPipes>>,
 }
@@ -27,12 +29,13 @@ impl Pipeline {
         PipelineBuilder {
             datasource: None,
             account_pipes: Vec::new(),
+            account_deletion_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
         }
     }
 
-    pub async fn run(&self) -> CarbonResult<()> {
+    pub async fn run(&mut self) -> CarbonResult<()> {
         let (update_sender, mut update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
         let _abort_handle = self.datasource.consume(&update_sender).await?;
 
@@ -79,14 +82,14 @@ impl Pipeline {
         Ok(())
     }
 
-    pub async fn process(&self, update: Update) -> CarbonResult<()> {
+    pub async fn process(&mut self, update: Update) -> CarbonResult<()> {
         match update {
             Update::Account(account_update) => {
                 let account_metadata = AccountMetadata {
                     slot: account_update.slot,
                     pubkey: account_update.pubkey,
                 };
-                for pipe in self.account_pipes.iter() {
+                for pipe in self.account_pipes.iter_mut() {
                     pipe.run((account_metadata.clone(), account_update.account.clone()))
                         .await?;
                 }
@@ -104,17 +107,21 @@ impl Pipeline {
                     transformers::nest_instructions(instructions_with_metadata);
 
                 for nested_instruction in nested_instructions.iter().cloned() {
-                    for pipe in self.instruction_pipes.iter() {
+                    for pipe in self.instruction_pipes.iter_mut() {
                         pipe.run(&nested_instruction).await?;
                     }
                 }
 
-                for pipe in self.transaction_pipes.iter() {
+                for pipe in self.transaction_pipes.iter_mut() {
                     pipe.run(nested_instructions.clone()).await?;
                 }
             }
 
-            Update::AccountDeletion(account_deletion) => {}
+            Update::AccountDeletion(account_deletion) => {
+                for pipe in self.account_deletion_pipes.iter_mut() {
+                    pipe.run(account_deletion.clone()).await?;
+                }
+            }
         };
         Ok(())
     }
@@ -123,6 +130,7 @@ impl Pipeline {
 pub struct PipelineBuilder {
     pub datasource: Option<Box<dyn Datasource>>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
+    pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub instruction_pipes: Vec<Box<dyn InstructionPipes>>,
     pub transaction_pipes: Vec<Box<dyn TransactionPipes>>,
 }
@@ -132,6 +140,7 @@ impl PipelineBuilder {
         Self {
             datasource: None,
             account_pipes: Vec::new(),
+            account_deletion_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
         }
@@ -154,6 +163,17 @@ impl PipelineBuilder {
             decoder: Box::new(decoder),
             processor: Box::new(processor),
         }));
+        self
+    }
+
+    pub fn account_deletions(
+        mut self,
+        processor: impl Processor<InputType = AccountDeletion> + Send + Sync + 'static,
+    ) -> Self {
+        self.account_deletion_pipes
+            .push(Box::new(AccountDeletionPipe {
+                processor: Box::new(processor),
+            }));
         self
     }
 
@@ -194,6 +214,7 @@ impl PipelineBuilder {
         Ok(Pipeline {
             datasource: self.datasource.ok_or(Error::MissingDatasource)?,
             account_pipes: self.account_pipes,
+            account_deletion_pipes: self.account_deletion_pipes,
             instruction_pipes: self.instruction_pipes,
             transaction_pipes: self.transaction_pipes,
         })

@@ -70,7 +70,7 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
 
 #[async_trait]
 pub trait TransactionPipes {
-    async fn run(&self, instructions: Vec<NestedInstruction>) -> CarbonResult<()>;
+    async fn run(&mut self, instructions: Vec<NestedInstruction>) -> CarbonResult<()>;
 }
 
 #[async_trait]
@@ -79,7 +79,7 @@ where
     T: InstructionDecoderCollection + Sync + 'static,
     U: DeserializeOwned + Send + Sync + 'static,
 {
-    async fn run(&self, instructions: Vec<NestedInstruction>) -> CarbonResult<()> {
+    async fn run(&mut self, instructions: Vec<NestedInstruction>) -> CarbonResult<()> {
         let parsed_instructions = self.parse_instructions(&instructions);
 
         if let Some(matched_data) = self.matches_schema(&parsed_instructions) {

@@ -2,13 +2,13 @@ mod db;
 mod pump_decoder;
 use async_trait::async_trait;
 use carbon_core::account::{AccountMetadata, DecodedAccount};
+use carbon_core::datasource::AccountDeletion;
 use carbon_core::error::CarbonResult;
 use carbon_core::processor::Processor;
 use carbon_yellowstone_grpc_datasource::YellowstoneGrpcGeyserClient;
 use db::models::{BondingCurve, GlobalAccount};
 use db::schema::{bonding_curve, global_account};
 use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
-use num_traits::ToPrimitive;
 use pump_decoder::accounts::PumpAccount;
 use pump_decoder::PumpDecoder;
 use solana_sdk::pubkey::Pubkey;
@@ -26,7 +26,7 @@ pub struct PumpfunAccountProcessor {
 impl Processor for PumpfunAccountProcessor {
     type InputType = (AccountMetadata, DecodedAccount<PumpAccount>);
 
-    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
+    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
         match data.1.data {
             PumpAccount::Global(account) => {
                 let global_account = GlobalAccount::from_account(account, data.0.pubkey);
@@ -53,8 +53,7 @@ impl Processor for PumpfunAccountProcessor {
         }
 
         if !self.accounts_tracked.contains(&data.0.pubkey) {
-            // TODO: Fix
-            // self.accounts_tracked.insert(data.0.pubkey);
+            self.accounts_tracked.insert(data.0.pubkey);
         }
 
         Ok(())
@@ -67,9 +66,9 @@ pub struct PumpfunAccountDeletionProcessor {
 
 #[async_trait]
 impl Processor for PumpfunAccountDeletionProcessor {
-    type InputType = AccountMetadata;
+    type InputType = AccountDeletion;
 
-    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
+    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
         if self.accounts_tracked.contains(&data.pubkey) {
             if diesel::select(diesel::dsl::exists(
                 bonding_curve::table.filter(bonding_curve::pubkey.eq(data.pubkey.to_string())),
@@ -93,8 +92,7 @@ impl Processor for PumpfunAccountDeletionProcessor {
                     .unwrap();
             }
 
-            // TODO: Remove from tracked accounts, getting issues with mut
-            // self.accounts_tracked.remove(&data.pubkey);
+            self.accounts_tracked.remove(&data.pubkey);
         }
 
         Ok(())
@@ -168,6 +166,9 @@ pub async fn main() -> CarbonResult<()> {
                 accounts_tracked: tracked_accounts.read().await.clone(),
             },
         )
+        .account_deletions(PumpfunAccountDeletionProcessor {
+            accounts_tracked: tracked_accounts.read().await.clone(),
+        })
         .build()?
         .run()
         .await?;

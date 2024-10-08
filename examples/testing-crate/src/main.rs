@@ -39,7 +39,6 @@ use once_cell::sync::Lazy;
 
 pub struct TestDatasource;
 
-
 #[async_trait]
 impl Datasource for TestDatasource {
     async fn consume(
@@ -354,7 +353,7 @@ pub struct TokenProgramAccountProcessor;
 impl Processor for TokenProgramAccountProcessor {
     type InputType = (AccountMetadata, DecodedAccount<TokenProgramAccount>);
 
-    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
+    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
         match data.1.data {
             TokenProgramAccount::Account(account) => {
                 log::info!("Account: {:?}", account);
