@@ -175,7 +175,7 @@ impl Datasource for RpcTransactionCrawler {
                     }));
                 }
 
-                let results: Vec<(Signature, EncodedConfirmedTransactionWithStatusMeta)> =
+                let mut results: Vec<(Signature, EncodedConfirmedTransactionWithStatusMeta)> =
                     futures::future::join_all(fetch_tasks)
                         .await
                         .into_iter()
@@ -184,6 +184,8 @@ impl Datasource for RpcTransactionCrawler {
                         .collect();
 
                 last_signature = results.last().map(|(signature, _)| signature.clone());
+
+                results.sort_by(|a, b| a.1.slot.cmp(&b.1.slot));
 
                 for (signature, fetched_transaction) in results {
                     let transaction = fetched_transaction.transaction;
