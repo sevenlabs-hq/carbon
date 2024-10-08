@@ -1,12 +1,8 @@
 use async_trait::async_trait;
 use serde::Deserialize;
-use solana_sdk::pubkey::Pubkey;
+use solana_sdk::{instruction::AccountMeta, pubkey::Pubkey};
 
-use crate::{
-    error::CarbonResult,
-    processor::{self, Processor},
-    transaction::TransactionMetadata,
-};
+use crate::{error::CarbonResult, processor::Processor, transaction::TransactionMetadata};
 
 #[derive(Debug, Clone)]
 pub struct InstructionMetadata {
@@ -18,6 +14,7 @@ pub struct InstructionMetadata {
 pub struct DecodedInstruction<T> {
     pub program_id: Pubkey,
     pub data: T,
+    pub accounts: Vec<AccountMeta>,
 }
 
 pub trait InstructionDecoder {

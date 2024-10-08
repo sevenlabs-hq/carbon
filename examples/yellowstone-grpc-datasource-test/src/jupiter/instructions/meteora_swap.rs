@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -32,7 +32,7 @@ pub struct MeteoraSwapInstructionAccounts {
 impl ArrangeAccounts for MeteoraSwap {
     type ArrangedAccounts = MeteoraSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let pool = accounts.get(1)?;
         let user_source_token = accounts.get(2)?;
@@ -51,22 +51,22 @@ impl ArrangeAccounts for MeteoraSwap {
         let token_program = accounts.get(15)?;
 
         Some(MeteoraSwapInstructionAccounts {
-            swap_program: *swap_program,
-            pool: *pool,
-            user_source_token: *user_source_token,
-            user_destination_token: *user_destination_token,
-            a_vault: *a_vault,
-            b_vault: *b_vault,
-            a_token_vault: *a_token_vault,
-            b_token_vault: *b_token_vault,
-            a_vault_lp_mint: *a_vault_lp_mint,
-            b_vault_lp_mint: *b_vault_lp_mint,
-            a_vault_lp: *a_vault_lp,
-            b_vault_lp: *b_vault_lp,
-            admin_token_fee: *admin_token_fee,
-            user: *user,
-            vault_program: *vault_program,
-            token_program: *token_program,
+            swap_program: swap_program.pubkey,
+            pool: pool.pubkey,
+            user_source_token: user_source_token.pubkey,
+            user_destination_token: user_destination_token.pubkey,
+            a_vault: a_vault.pubkey,
+            b_vault: b_vault.pubkey,
+            a_token_vault: a_token_vault.pubkey,
+            b_token_vault: b_token_vault.pubkey,
+            a_vault_lp_mint: a_vault_lp_mint.pubkey,
+            b_vault_lp_mint: b_vault_lp_mint.pubkey,
+            a_vault_lp: a_vault_lp.pubkey,
+            b_vault_lp: b_vault_lp.pubkey,
+            admin_token_fee: admin_token_fee.pubkey,
+            user: user.pubkey,
+            vault_program: vault_program.pubkey,
+            token_program: token_program.pubkey,
         })
     }
 }

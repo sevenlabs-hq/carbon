@@ -33,6 +33,7 @@ impl InstructionDecoder for {{ decoder_name }} {
         if let Some(decoded_instruction) = {{ instruction.module_name }}::{{ instruction.struct_name }}::deserialize(instruction.data.as_slice()) {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
+                accounts: instruction.accounts,
                 data: {{ program_instruction_enum }}::{{ instruction.struct_name }}(decoded_instruction),
             });
         }
@@ -41,6 +42,7 @@ impl InstructionDecoder for {{ decoder_name }} {
         if let Some(decoded_instruction) = {{ event.module_name }}::{{ event.struct_name }}::deserialize(instruction.data.as_slice()) {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
+                accounts: instruction.accounts,
                 data: {{ program_instruction_enum }}::{{ event.struct_name }}(decoded_instruction),
             });
         }

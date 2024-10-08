@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -24,7 +24,7 @@ pub struct SerumSwapInstructionAccounts {
 impl ArrangeAccounts for SerumSwap {
     type ArrangedAccounts = SerumSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let market = accounts.get(0)?;
         let authority = accounts.get(1)?;
         let order_payer_token_account = accounts.get(2)?;
@@ -35,14 +35,14 @@ impl ArrangeAccounts for SerumSwap {
         let rent = accounts.get(7)?;
 
         Some(SerumSwapInstructionAccounts {
-            market: *market,
-            authority: *authority,
-            order_payer_token_account: *order_payer_token_account,
-            coin_wallet: *coin_wallet,
-            pc_wallet: *pc_wallet,
-            dex_program: *dex_program,
-            token_program: *token_program,
-            rent: *rent,
+            market: market.pubkey,
+            authority: authority.pubkey,
+            order_payer_token_account: order_payer_token_account.pubkey,
+            coin_wallet: coin_wallet.pubkey,
+            pc_wallet: pc_wallet.pubkey,
+            dex_program: dex_program.pubkey,
+            token_program: token_program.pubkey,
+            rent: rent.pubkey,
         })
     }
 }

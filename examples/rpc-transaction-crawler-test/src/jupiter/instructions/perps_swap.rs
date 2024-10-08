@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -32,7 +32,7 @@ pub struct PerpsSwapInstructionAccounts {
 impl ArrangeAccounts for PerpsSwap {
     type ArrangedAccounts = PerpsSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let owner = accounts.get(1)?;
         let funding_account = accounts.get(2)?;
@@ -51,22 +51,22 @@ impl ArrangeAccounts for PerpsSwap {
         let program = accounts.get(15)?;
 
         Some(PerpsSwapInstructionAccounts {
-            swap_program: *swap_program,
-            owner: *owner,
-            funding_account: *funding_account,
-            receiving_account: *receiving_account,
-            transfer_authority: *transfer_authority,
-            perpetuals: *perpetuals,
-            pool: *pool,
-            receiving_custody: *receiving_custody,
-            receiving_custody_oracle_account: *receiving_custody_oracle_account,
-            receiving_custody_token_account: *receiving_custody_token_account,
-            dispensing_custody: *dispensing_custody,
-            dispensing_custody_oracle_account: *dispensing_custody_oracle_account,
-            dispensing_custody_token_account: *dispensing_custody_token_account,
-            token_program: *token_program,
-            event_authority: *event_authority,
-            program: *program,
+            swap_program: swap_program.pubkey,
+            owner: owner.pubkey,
+            funding_account: funding_account.pubkey,
+            receiving_account: receiving_account.pubkey,
+            transfer_authority: transfer_authority.pubkey,
+            perpetuals: perpetuals.pubkey,
+            pool: pool.pubkey,
+            receiving_custody: receiving_custody.pubkey,
+            receiving_custody_oracle_account: receiving_custody_oracle_account.pubkey,
+            receiving_custody_token_account: receiving_custody_token_account.pubkey,
+            dispensing_custody: dispensing_custody.pubkey,
+            dispensing_custody_oracle_account: dispensing_custody_oracle_account.pubkey,
+            dispensing_custody_token_account: dispensing_custody_token_account.pubkey,
+            token_program: token_program.pubkey,
+            event_authority: event_authority.pubkey,
+            program: program.pubkey,
         })
     }
 }

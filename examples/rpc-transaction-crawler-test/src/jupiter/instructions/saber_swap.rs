@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -26,7 +26,7 @@ pub struct SaberSwapInstructionAccounts {
 impl ArrangeAccounts for SaberSwap {
     type ArrangedAccounts = SaberSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let token_program = accounts.get(1)?;
         let swap = accounts.get(2)?;
@@ -39,16 +39,16 @@ impl ArrangeAccounts for SaberSwap {
         let fees_token_account = accounts.get(9)?;
 
         Some(SaberSwapInstructionAccounts {
-            swap_program: *swap_program,
-            token_program: *token_program,
-            swap: *swap,
-            swap_authority: *swap_authority,
-            user_authority: *user_authority,
-            input_user_account: *input_user_account,
-            input_token_account: *input_token_account,
-            output_user_account: *output_user_account,
-            output_token_account: *output_token_account,
-            fees_token_account: *fees_token_account,
+            swap_program: swap_program.pubkey,
+            token_program: token_program.pubkey,
+            swap: swap.pubkey,
+            swap_authority: swap_authority.pubkey,
+            user_authority: user_authority.pubkey,
+            input_user_account: input_user_account.pubkey,
+            input_token_account: input_token_account.pubkey,
+            output_user_account: output_user_account.pubkey,
+            output_token_account: output_token_account.pubkey,
+            fees_token_account: fees_token_account.pubkey,
         })
     }
 }

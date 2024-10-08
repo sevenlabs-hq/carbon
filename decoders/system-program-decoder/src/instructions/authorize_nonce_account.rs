@@ -18,14 +18,14 @@ impl ArrangeAccounts for AuthorizeNonceAccount {
 
     fn arrange_accounts(
         &self,
-        accounts: Vec<solana_sdk::pubkey::Pubkey>,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let nonce_account = accounts.get(0)?;
         let nonce_authority = accounts.get(1)?;
 
         Some(AuthorizeNonceAccountAccounts {
-            nonce_account: *nonce_account,
-            nonce_authority: *nonce_authority,
+            nonce_account: nonce_account.pubkey,
+            nonce_authority: nonce_authority.pubkey,
         })
     }
 }

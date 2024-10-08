@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -31,7 +31,7 @@ pub struct CremaSwapInstructionAccounts {
 impl ArrangeAccounts for CremaSwap {
     type ArrangedAccounts = CremaSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let clmm_config = accounts.get(1)?;
         let clmmpool = accounts.get(2)?;
@@ -49,21 +49,21 @@ impl ArrangeAccounts for CremaSwap {
         let token_program = accounts.get(14)?;
 
         Some(CremaSwapInstructionAccounts {
-            swap_program: *swap_program,
-            clmm_config: *clmm_config,
-            clmmpool: *clmmpool,
-            token_a: *token_a,
-            token_b: *token_b,
-            account_a: *account_a,
-            account_b: *account_b,
-            token_a_vault: *token_a_vault,
-            token_b_vault: *token_b_vault,
-            tick_array_map: *tick_array_map,
-            owner: *owner,
-            partner: *partner,
-            partner_ata_a: *partner_ata_a,
-            partner_ata_b: *partner_ata_b,
-            token_program: *token_program,
+            swap_program: swap_program.pubkey,
+            clmm_config: clmm_config.pubkey,
+            clmmpool: clmmpool.pubkey,
+            token_a: token_a.pubkey,
+            token_b: token_b.pubkey,
+            account_a: account_a.pubkey,
+            account_b: account_b.pubkey,
+            token_a_vault: token_a_vault.pubkey,
+            token_b_vault: token_b_vault.pubkey,
+            tick_array_map: tick_array_map.pubkey,
+            owner: owner.pubkey,
+            partner: partner.pubkey,
+            partner_ata_a: partner_ata_a.pubkey,
+            partner_ata_b: partner_ata_b.pubkey,
+            token_program: token_program.pubkey,
         })
     }
 }

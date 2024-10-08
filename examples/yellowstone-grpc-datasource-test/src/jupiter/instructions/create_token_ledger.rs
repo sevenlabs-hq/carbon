@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -19,15 +19,15 @@ pub struct CreateTokenLedgerInstructionAccounts {
 impl ArrangeAccounts for CreateTokenLedger {
     type ArrangedAccounts = CreateTokenLedgerInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let token_ledger = accounts.get(0)?;
         let payer = accounts.get(1)?;
         let system_program = accounts.get(2)?;
 
         Some(CreateTokenLedgerInstructionAccounts {
-            token_ledger: *token_ledger,
-            payer: *payer,
-            system_program: *system_program,
+            token_ledger: token_ledger.pubkey,
+            payer: payer.pubkey,
+            system_program: system_program.pubkey,
         })
     }
 }

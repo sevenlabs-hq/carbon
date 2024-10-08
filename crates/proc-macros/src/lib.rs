@@ -1,12 +1,10 @@
 use borsh_derive_internal::*;
 use proc_macro::TokenStream;
-use proc_macro2::{Delimiter, Span, TokenStream as TokenStream2, TokenTree};
+use proc_macro2::{Span, TokenStream as TokenStream2};
 use quote::{format_ident, quote};
-use syn::parse::{Parse, ParseStream, Result};
-use syn::token::Comma;
+use syn::parse::{Parse, ParseStream};
 use syn::{parse_macro_input, DeriveInput, Item, Lit, Meta, NestedMeta};
 use syn::{Ident, ItemEnum, Token, TypePath};
-use unicode_xid::UnicodeXID;
 
 #[proc_macro_derive(CarbonDeserialize, attributes(carbon))]
 pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream {
@@ -177,6 +175,7 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
             if let Some(decoded_instruction) = #decoder_expr.decode_instruction(instruction.clone()) {
                 return Some(DecodedInstruction {
                     program_id: instruction.program_id,
+                    accounts: instruction.accounts,
                     data: #instructions_enum_name::#program_variant(decoded_instruction.data),
                 });
             }

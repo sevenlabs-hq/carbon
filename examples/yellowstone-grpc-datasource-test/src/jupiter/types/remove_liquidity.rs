@@ -6,7 +6,7 @@ use carbon_core::borsh;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
-pub struct RemainingAccountsSlice {
-    pub accounts_type: AccountsType,
-    pub length: u8,
+pub struct RemoveLiquidity {
+    pub lp_amount_in: u64,
+    pub min_amount_out: u64,
 }

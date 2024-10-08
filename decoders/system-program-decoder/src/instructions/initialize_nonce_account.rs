@@ -19,16 +19,16 @@ impl ArrangeAccounts for InitializeNonceAccount {
 
     fn arrange_accounts(
         &self,
-        accounts: Vec<solana_sdk::pubkey::Pubkey>,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let nonce_account = accounts.get(0)?;
         let recent_blockhashes_sysvar = accounts.get(1)?;
         let rent_sysvar = accounts.get(2)?;
 
         Some(InitializeNonceAccountAccounts {
-            nonce_account: *nonce_account,
-            recent_blockhashes_sysvar: *recent_blockhashes_sysvar,
-            rent_sysvar: *rent_sysvar,
+            nonce_account: nonce_account.pubkey,
+            recent_blockhashes_sysvar: recent_blockhashes_sysvar.pubkey,
+            rent_sysvar: rent_sysvar.pubkey,
         })
     }
 }

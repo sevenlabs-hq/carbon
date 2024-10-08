@@ -1,7 +1,7 @@
 
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types;
+use super::super::types::*;
 use carbon_core::borsh;
 
 
@@ -28,7 +28,7 @@ pub struct WhirlpoolSwapInstructionAccounts {
 impl ArrangeAccounts for WhirlpoolSwap {
     type ArrangedAccounts = WhirlpoolSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let token_program = accounts.get(1)?;
         let token_authority = accounts.get(2)?;
@@ -43,18 +43,18 @@ impl ArrangeAccounts for WhirlpoolSwap {
         let oracle = accounts.get(11)?;
 
         Some(WhirlpoolSwapInstructionAccounts {
-            swap_program: *swap_program,
-            token_program: *token_program,
-            token_authority: *token_authority,
-            whirlpool: *whirlpool,
-            token_owner_account_a: *token_owner_account_a,
-            token_vault_a: *token_vault_a,
-            token_owner_account_b: *token_owner_account_b,
-            token_vault_b: *token_vault_b,
-            tick_array0: *tick_array0,
-            tick_array1: *tick_array1,
-            tick_array2: *tick_array2,
-            oracle: *oracle,
+            swap_program: swap_program.pubkey,
+            token_program: token_program.pubkey,
+            token_authority: token_authority.pubkey,
+            whirlpool: whirlpool.pubkey,
+            token_owner_account_a: token_owner_account_a.pubkey,
+            token_vault_a: token_vault_a.pubkey,
+            token_owner_account_b: token_owner_account_b.pubkey,
+            token_vault_b: token_vault_b.pubkey,
+            tick_array0: tick_array0.pubkey,
+            tick_array1: tick_array1.pubkey,
+            tick_array2: tick_array2.pubkey,
+            oracle: oracle.pubkey,
         })
     }
 }
