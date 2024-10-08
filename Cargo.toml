@@ -7,3 +7,11 @@ resolver = "2"
 carbon-core = { path = "crates/core" }
 carbon-macros = { path = "crates/macros" }
 carbon-proc-macros = { path = "crates/proc-macros" }
+carbon-cli = { path = "crates/cli" }
+solana-sdk = "=2.0.10"
+solana-transaction-status = "=2.0.10"
+solana-client = "=2.0.10"
+
+[patch.crates-io.curve25519-dalek]
+git = "https://github.com/anza-xyz/curve25519-dalek.git"
+rev = "b500cdc2a920cd5bff9e2dd974d7b97349d61464"

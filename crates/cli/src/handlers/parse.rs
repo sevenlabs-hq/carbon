@@ -199,7 +199,7 @@ pub fn parse(options: ParseOptions) -> Result<()> {
             r#"[package]
 name = "{decoder_name_kebab}-decoder"
 version = "0.1.0"
-edition = "2018"
+edition = "2021"
 
 [lib]
 crate-type = ["rlib"]
@@ -207,9 +207,16 @@ crate-type = ["rlib"]
 [dependencies]
 carbon-core = {{ workspace = true }}
 carbon-proc-macros = {{ workspace = true }}
+<<<<<<< HEAD
+solana-sdk = {{ workspace = true }}
+=======
 solana-sdk = "2.0.10"
 serde = "1.0.136"
+<<<<<<< HEAD
 {big_array}
+=======
+>>>>>>> main
+>>>>>>> efe8a740482afb56ab133b71f2227748fde8c9c7
 "#,
             decoder_name_kebab = decoder_name_kebab,
             big_array = if needs_big_array {
