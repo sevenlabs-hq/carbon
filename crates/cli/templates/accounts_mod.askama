@@ -3,7 +3,7 @@ use carbon_core::account::AccountDecoder;
 use carbon_core::deserialize::CarbonDeserialize;
 {% endraw %} 
 
-use crate::{{ decoder_name }}; 
+use super::{{ decoder_name }}; 
 
 {%- for account in accounts %} 
 pub mod {{ account.module_name -}};
