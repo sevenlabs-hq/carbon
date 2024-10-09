@@ -23,9 +23,9 @@ pub enum MeteoraDlmmAccount {
 }
 
 
-impl AccountDecoder for MeteoraDlmmDecoder { 
+impl<'a> AccountDecoder<'a> for MeteoraDlmmDecoder { 
     type AccountType = MeteoraDlmmAccount;
-     fn decode_account( &self, account: solana_sdk::account::Account, ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> { 
+     fn decode_account( &self, account: &solana_sdk::account::Account, ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> { 
          
             if let Some(decoded_account) = bin_array_bitmap_extension::BinArrayBitmapExtension::deserialize(account.data.as_slice()) { 
             return Some(carbon_core::account::DecodedAccount { 
@@ -99,4 +99,4 @@ impl AccountDecoder for MeteoraDlmmDecoder {
          
     None 
     } 
-}
+}

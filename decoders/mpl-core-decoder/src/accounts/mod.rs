@@ -21,9 +21,9 @@ pub enum MplCoreAccount {
 }
 
 
-impl AccountDecoder for MplCoreDecoder { 
+impl<'a> AccountDecoder<'a> for MplCoreDecoder { 
     type AccountType = MplCoreAccount;
-     fn decode_account( &self, account: solana_sdk::account::Account, ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> { 
+     fn decode_account( &self, account: &solana_sdk::account::Account, ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> { 
          
             if let Some(decoded_account) = uninitialized::Uninitialized::deserialize(account.data.as_slice()) { 
             return Some(carbon_core::account::DecodedAccount { 
@@ -87,4 +87,4 @@ impl AccountDecoder for MplCoreDecoder {
          
     None 
     } 
-}
+}

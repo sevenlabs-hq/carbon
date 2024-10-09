@@ -153,12 +153,12 @@ pub enum JupiterSwapInstruction {
     FeeEvent(fee_event::FeeEvent),
 }
 
-impl InstructionDecoder for JupiterSwapDecoder {
+impl<'a> InstructionDecoder<'a> for JupiterSwapDecoder {
     type InstructionType = JupiterSwapInstruction;
 
     fn decode_instruction(
         &self,
-        instruction: solana_sdk::instruction::Instruction,
+        instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         try_decode_instructions!(instruction,
             JupiterSwapInstruction::Route => route::Route,

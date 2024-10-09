@@ -17,17 +17,18 @@ pub struct DecodedInstruction<T> {
     pub accounts: Vec<AccountMeta>,
 }
 
-pub trait InstructionDecoder {
+pub trait InstructionDecoder<'a> {
     type InstructionType;
 
     fn decode_instruction(
         &self,
-        instruction: solana_sdk::instruction::Instruction,
+        instruction: &'a solana_sdk::instruction::Instruction,
     ) -> Option<DecodedInstruction<Self::InstructionType>>;
 }
 
 pub struct InstructionPipe<T: Send> {
-    pub decoder: Box<dyn InstructionDecoder<InstructionType = T> + Send + Sync>,
+    pub decoder:
+        Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
     pub processor: Box<
         dyn Processor<
                 InputType = (
@@ -36,21 +37,22 @@ pub struct InstructionPipe<T: Send> {
                     Vec<NestedInstruction>,
                 ),
             > + Send
-            + Sync,
+            + Sync
+            + 'static,
     >,
 }
 
 #[async_trait]
-pub trait InstructionPipes {
+pub trait InstructionPipes<'a>: Send + Sync {
     async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()>;
 }
 
 #[async_trait]
-impl<T: Send> InstructionPipes for InstructionPipe<T> {
+impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
     async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()> {
         if let Some(decoded_instruction) = self
             .decoder
-            .decode_instruction(nested_instruction.instruction.clone())
+            .decode_instruction(&nested_instruction.instruction)
         {
             self.processor
                 .process((

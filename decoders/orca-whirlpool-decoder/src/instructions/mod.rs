@@ -117,12 +117,12 @@ pub enum OrcaWhirlpoolInstruction {
     DeleteTokenBadge(delete_token_badge::DeleteTokenBadge),
 }
 
-impl InstructionDecoder for OrcaWhirlpoolDecoder {
+impl<'a> InstructionDecoder<'a> for OrcaWhirlpoolDecoder {
     type InstructionType = OrcaWhirlpoolInstruction;
 
     fn decode_instruction(
         &self,
-        instruction: solana_sdk::instruction::Instruction,
+        instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         try_decode_instructions!(instruction,
             OrcaWhirlpoolInstruction::InitializeConfig => initialize_config::InitializeConfig,

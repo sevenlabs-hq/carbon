@@ -45,12 +45,12 @@ pub enum SystemProgramInstruction {
     UpgradeNonceAccount(upgrade_nonce_account::UpgradeNonceAccount),
 }
 
-impl InstructionDecoder for SystemProgramDecoder {
+impl<'a> InstructionDecoder<'a> for SystemProgramDecoder {
     type InstructionType = SystemProgramInstruction;
 
     fn decode_instruction(
         &self,
-        instruction: solana_sdk::instruction::Instruction,
+        instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<DecodedInstruction<Self::InstructionType>> {
         try_decode_instructions!(instruction,
             SystemProgramInstruction::CreateAccount => create_account::CreateAccount,

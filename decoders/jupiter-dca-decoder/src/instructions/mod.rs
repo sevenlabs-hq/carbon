@@ -49,12 +49,12 @@ pub enum JupiterDcaInstruction {
     Closed(closed::Closed),
 }
 
-impl InstructionDecoder for JupiterDcaDecoder {
+impl<'a> InstructionDecoder<'a> for JupiterDcaDecoder {
     type InstructionType = JupiterDcaInstruction;
 
     fn decode_instruction(
         &self,
-        instruction: solana_sdk::instruction::Instruction,
+        instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         try_decode_instructions!(instruction,
             JupiterDcaInstruction::OpenDca => open_dca::OpenDca,

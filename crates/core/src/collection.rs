@@ -8,7 +8,7 @@ pub trait InstructionDecoderCollection:
     type InstructionType: Clone + std::fmt::Debug + PartialEq + Eq + Send + Sync + 'static;
 
     fn parse_instruction(
-        instruction: solana_sdk::instruction::Instruction,
+        instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<DecodedInstruction<Self>>;
     fn get_type(&self) -> Self::InstructionType;
 }

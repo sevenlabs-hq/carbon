@@ -112,17 +112,17 @@ pub enum JupiterInstruction {
     FeeEvent(fee_event::FeeEvent),
 }
 
-impl InstructionDecoder for JupiterDecoder {
+impl<'a> InstructionDecoder<'a> for JupiterDecoder {
     type InstructionType = JupiterInstruction;
 
     fn decode_instruction(
         &self,
-        instruction: solana_sdk::instruction::Instruction,
+        instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         if let Some(decoded_instruction) = route::Route::deserialize(instruction.data.as_slice()) {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::Route(decoded_instruction),
             });
         }
@@ -131,7 +131,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::RouteWithTokenLedger(decoded_instruction),
             });
         }
@@ -140,7 +140,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::SharedAccountsRoute(decoded_instruction),
             });
         }
@@ -151,7 +151,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::SharedAccountsRouteWithTokenLedger(decoded_instruction),
             });
         }
@@ -162,7 +162,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::SharedAccountsExactOutRoute(decoded_instruction),
             });
         }
@@ -171,7 +171,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::SetTokenLedger(decoded_instruction),
             });
         }
@@ -180,7 +180,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::CreateOpenOrders(decoded_instruction),
             });
         }
@@ -191,7 +191,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::CreateProgramOpenOrders(decoded_instruction),
             });
         }
@@ -200,7 +200,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::CreateTokenLedger(decoded_instruction),
             });
         }
@@ -209,7 +209,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::MercurialSwap(decoded_instruction),
             });
         }
@@ -218,7 +218,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::CykuraSwap(decoded_instruction),
             });
         }
@@ -227,7 +227,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::SerumSwap(decoded_instruction),
             });
         }
@@ -236,7 +236,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::SaberSwap(decoded_instruction),
             });
         }
@@ -245,7 +245,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::SaberAddDecimals(decoded_instruction),
             });
         }
@@ -254,7 +254,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::TokenSwap(decoded_instruction),
             });
         }
@@ -263,7 +263,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::TokenSwapV2(decoded_instruction),
             });
         }
@@ -272,7 +272,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::SenchaSwap(decoded_instruction),
             });
         }
@@ -281,7 +281,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::StepSwap(decoded_instruction),
             });
         }
@@ -290,7 +290,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::CropperSwap(decoded_instruction),
             });
         }
@@ -299,7 +299,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::RaydiumSwap(decoded_instruction),
             });
         }
@@ -308,7 +308,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::CremaSwap(decoded_instruction),
             });
         }
@@ -317,7 +317,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::LifinitySwap(decoded_instruction),
             });
         }
@@ -326,7 +326,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::MarinadeDeposit(decoded_instruction),
             });
         }
@@ -335,7 +335,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::MarinadeUnstake(decoded_instruction),
             });
         }
@@ -344,7 +344,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::AldrinSwap(decoded_instruction),
             });
         }
@@ -353,7 +353,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::AldrinV2Swap(decoded_instruction),
             });
         }
@@ -362,7 +362,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::WhirlpoolSwap(decoded_instruction),
             });
         }
@@ -371,7 +371,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::InvariantSwap(decoded_instruction),
             });
         }
@@ -380,7 +380,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::MeteoraSwap(decoded_instruction),
             });
         }
@@ -389,7 +389,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::GoosefxSwap(decoded_instruction),
             });
         }
@@ -398,7 +398,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::DeltafiSwap(decoded_instruction),
             });
         }
@@ -407,7 +407,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::BalansolSwap(decoded_instruction),
             });
         }
@@ -416,7 +416,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::MarcoPoloSwap(decoded_instruction),
             });
         }
@@ -425,7 +425,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::DradexSwap(decoded_instruction),
             });
         }
@@ -434,7 +434,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::LifinityV2Swap(decoded_instruction),
             });
         }
@@ -443,7 +443,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::RaydiumClmmSwap(decoded_instruction),
             });
         }
@@ -452,7 +452,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::PhoenixSwap(decoded_instruction),
             });
         }
@@ -461,7 +461,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::SymmetrySwap(decoded_instruction),
             });
         }
@@ -472,7 +472,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::HeliumTreasuryManagementRedeemV0(decoded_instruction),
             });
         }
@@ -481,7 +481,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::GoosefxV2Swap(decoded_instruction),
             });
         }
@@ -490,7 +490,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::PerpsSwap(decoded_instruction),
             });
         }
@@ -499,7 +499,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::PerpsAddLiquidity(decoded_instruction),
             });
         }
@@ -508,7 +508,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::PerpsRemoveLiquidity(decoded_instruction),
             });
         }
@@ -517,7 +517,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::MeteoraDlmmSwap(decoded_instruction),
             });
         }
@@ -526,7 +526,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::SwapEvent(decoded_instruction),
             });
         }
@@ -535,7 +535,7 @@ impl InstructionDecoder for JupiterDecoder {
         {
             return Some(carbon_core::instruction::DecodedInstruction {
                 program_id: instruction.program_id,
-                accounts: instruction.accounts,
+                accounts: instruction.accounts.clone(),
                 data: JupiterInstruction::FeeEvent(decoded_instruction),
             });
         }
