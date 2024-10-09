@@ -72,7 +72,7 @@ impl Processor for VotingInstructionProcessor {
         Vec<NestedInstruction>,
     );
 
-    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
+    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
         let (instruction_metadata, decoded_instruction, _nested_instructions) = data;
 
         let mut conn = self

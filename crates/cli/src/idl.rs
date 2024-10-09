@@ -50,6 +50,8 @@ pub struct IdlInstructionAccount {
     #[serde(default)]
     pub address: Option<String>,
     #[serde(default)]
+    pub desc: Option<String>,
+    #[serde(default)]
     pub docs: Option<Vec<String>>,
 }
 
@@ -80,10 +82,25 @@ pub struct IdlInstructionArg {
 #[serde(untagged)]
 pub enum IdlType {
     Primitive(String),
-    Option { option: Box<IdlType> },
-    Vec { vec: Box<IdlType> },
-    Array { array: (Box<IdlType>, usize) },
-    Defined { defined: String },
+    Option {
+        option: Box<IdlType>,
+    },
+    OptionPrimitive {
+        option: String,
+    },
+    Vec {
+        vec: Box<IdlType>,
+    },
+    Array {
+        array: (Box<IdlType>, usize),
+    },
+    Defined {
+        defined: String,
+    },
+    HashMap {
+        #[serde(rename = "hashMap")]
+        hash_map: (Box<LegacyIdlType>, Box<LegacyIdlType>),
+    },
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -96,7 +113,7 @@ pub struct IdlAccount {
 pub struct IdlError {
     pub code: u32,
     pub name: String,
-    pub msg: String,
+    pub msg: Option<String>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
