@@ -1,4 +1,5 @@
 pub mod account;
+pub mod account_deletion;
 pub mod collection;
 pub mod datasource;
 pub mod deserialize;

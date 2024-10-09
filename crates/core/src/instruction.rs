@@ -42,12 +42,12 @@ pub struct InstructionPipe<T: Send> {
 
 #[async_trait]
 pub trait InstructionPipes {
-    async fn run(&self, nested_instruction: &NestedInstruction) -> CarbonResult<()>;
+    async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()>;
 }
 
 #[async_trait]
 impl<T: Send> InstructionPipes for InstructionPipe<T> {
-    async fn run(&self, nested_instruction: &NestedInstruction) -> CarbonResult<()> {
+    async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()> {
         if let Some(decoded_instruction) = self
             .decoder
             .decode_instruction(nested_instruction.instruction.clone())
