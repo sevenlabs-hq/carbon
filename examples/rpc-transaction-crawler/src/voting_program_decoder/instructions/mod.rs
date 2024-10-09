@@ -1,5 +1,6 @@
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::instruction::InstructionDecoder;
+use carbon_macros::try_decode_instructions;
 
 use super::VotingProgramDecoder;
 pub mod cast_vote;
@@ -24,50 +25,18 @@ pub enum VotingProgramInstruction {
     CreateVoteEvent(create_vote_event::CreateVoteEvent),
 }
 
-impl InstructionDecoder for VotingProgramDecoder {
+impl<'a> InstructionDecoder<'a> for VotingProgramDecoder {
     type InstructionType = VotingProgramInstruction;
 
     fn decode_instruction(
         &self,
-        instruction: solana_sdk::instruction::Instruction,
+        instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
-        if let Some(decoded_instruction) =
-            cast_vote::CastVote::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                accounts: instruction.accounts,
-                data: VotingProgramInstruction::CastVote(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            create_vote::CreateVote::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                accounts: instruction.accounts,
-                data: VotingProgramInstruction::CreateVote(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            cast_vote_event::CastVoteEvent::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                accounts: instruction.accounts,
-                data: VotingProgramInstruction::CastVoteEvent(decoded_instruction),
-            });
-        }
-        if let Some(decoded_instruction) =
-            create_vote_event::CreateVoteEvent::deserialize(instruction.data.as_slice())
-        {
-            return Some(carbon_core::instruction::DecodedInstruction {
-                program_id: instruction.program_id,
-                accounts: instruction.accounts,
-                data: VotingProgramInstruction::CreateVoteEvent(decoded_instruction),
-            });
-        }
-
-        None
+        try_decode_instructions!(instruction,
+            VotingProgramInstruction::CastVote => cast_vote::CastVote,
+            VotingProgramInstruction::CreateVote => create_vote::CreateVote,
+            VotingProgramInstruction::CastVoteEvent => cast_vote_event::CastVoteEvent,
+            VotingProgramInstruction::CreateVoteEvent => create_vote_event::CreateVoteEvent,
+        )
     }
 }

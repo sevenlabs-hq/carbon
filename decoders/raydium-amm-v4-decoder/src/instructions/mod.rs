@@ -51,12 +51,12 @@ pub enum RaydiumAmmV4Instruction {
     Init(init::Init),
 }
 
-impl InstructionDecoder for RaydiumAmmV4Decoder {
+impl<'a> InstructionDecoder<'a> for RaydiumAmmV4Decoder {
     type InstructionType = RaydiumAmmV4Instruction;
 
     fn decode_instruction(
         &self,
-        instruction: solana_sdk::instruction::Instruction,
+        instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         try_decode_instructions!(instruction,
             RaydiumAmmV4Instruction::Initialize => initialize::Initialize,

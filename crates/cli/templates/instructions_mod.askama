@@ -23,12 +23,12 @@ pub enum {{ program_instruction_enum }} {
     {%- endfor %}
 }
 
-impl InstructionDecoder for {{ decoder_name }} {
+impl<'a> InstructionDecoder<'a> for {{ decoder_name }} {
     type InstructionType = {{ program_instruction_enum }};
 
     fn decode_instruction(
         &self,
-        instruction: solana_sdk::instruction::Instruction,
+        instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         try_decode_instructions!(instruction,
             {%- for instruction in instructions %}

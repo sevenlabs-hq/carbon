@@ -69,12 +69,12 @@ pub enum TokenProgramInstruction {
     UiAmountToAmount(ui_amount_to_amount::UiAmountToAmount),
 }
 
-impl InstructionDecoder for TokenProgramDecoder {
+impl<'a> InstructionDecoder<'a> for TokenProgramDecoder {
     type InstructionType = TokenProgramInstruction;
 
     fn decode_instruction(
         &self,
-        instruction: solana_sdk::instruction::Instruction,
+        instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<DecodedInstruction<Self::InstructionType>> {
         try_decode_instructions!(instruction,
             TokenProgramInstruction::AmountToUiAmount => amount_to_ui_amount::AmountToUiAmount,

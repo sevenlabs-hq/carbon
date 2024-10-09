@@ -5,7 +5,7 @@ macro_rules! try_decode_instructions {
             if let Some(decoded_instruction) = <$ty>::deserialize($instruction.data.as_slice()) {
                 Some(carbon_core::instruction::DecodedInstruction {
                     program_id: $instruction.program_id,
-                    accounts: $instruction.accounts,
+                    accounts: $instruction.accounts.clone(),
                     data: $variant(decoded_instruction),
                 })
             } else
