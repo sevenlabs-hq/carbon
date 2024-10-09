@@ -30,7 +30,7 @@ pub struct BuyInstructionAccounts {
 impl ArrangeAccounts for Buy {
     type ArrangedAccounts = BuyInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let global = accounts.get(0)?;
         let fee_recipient = accounts.get(1)?;
         let mint = accounts.get(2)?;
@@ -45,18 +45,18 @@ impl ArrangeAccounts for Buy {
         let program = accounts.get(11)?;
 
         Some(BuyInstructionAccounts {
-            global: *global,
-            fee_recipient: *fee_recipient,
-            mint: *mint,
-            bonding_curve: *bonding_curve,
-            associated_bonding_curve: *associated_bonding_curve,
-            associated_user: *associated_user,
-            user: *user,
-            system_program: *system_program,
-            token_program: *token_program,
-            rent: *rent,
-            event_authority: *event_authority,
-            program: *program,
+            global: global.pubkey,
+            fee_recipient: fee_recipient.pubkey,
+            mint: mint.pubkey,
+            bonding_curve: bonding_curve.pubkey,
+            associated_bonding_curve: associated_bonding_curve.pubkey,
+            associated_user: associated_user.pubkey,
+            user: user.pubkey,
+            system_program: system_program.pubkey,
+            token_program: token_program.pubkey,
+            rent: rent.pubkey,
+            event_authority: event_authority.pubkey,
+            program: program.pubkey,
         })
     }
 }

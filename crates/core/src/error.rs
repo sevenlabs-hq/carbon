@@ -20,6 +20,8 @@ pub enum Error {
     MissingInstructionData,
     #[error("Failed to consume datasource ({0})")]
     FailedToConsumeDatasource(String),
+    #[error("Custom error: {0}")]
+    Custom(String),
 }
 
 pub type CarbonResult<T> = Result<T, Error>;

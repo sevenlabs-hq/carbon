@@ -6,27 +6,27 @@ use carbon_core::borsh;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xafaf6d1f0d989bed")]
-pub struct Initialize{
+#[carbon(discriminator = "0xad73a54ee284cdfe")]
+pub struct CreateVote{
 }
 
-pub struct InitializeInstructionAccounts {
-    pub global: solana_sdk::pubkey::Pubkey,
-    pub user: solana_sdk::pubkey::Pubkey,
+pub struct CreateVoteInstructionAccounts {
+    pub vote: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_sdk::pubkey::Pubkey,
     pub system_program: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for Initialize {
-    type ArrangedAccounts = InitializeInstructionAccounts;
+impl ArrangeAccounts for CreateVote {
+    type ArrangedAccounts = CreateVoteInstructionAccounts;
 
     fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
-        let global = accounts.get(0)?;
-        let user = accounts.get(1)?;
+        let vote = accounts.get(0)?;
+        let authority = accounts.get(1)?;
         let system_program = accounts.get(2)?;
 
-        Some(InitializeInstructionAccounts {
-            global: global.pubkey,
-            user: user.pubkey,
+        Some(CreateVoteInstructionAccounts {
+            vote: vote.pubkey,
+            authority: authority.pubkey,
             system_program: system_program.pubkey,
         })
     }

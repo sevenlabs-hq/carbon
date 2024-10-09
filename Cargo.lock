@@ -1628,6 +1628,7 @@ dependencies = [
  "num-integer",
  "num-traits",
  "pq-sys",
+ "r2d2",
  "serde_json",
 ]
 
@@ -1706,6 +1707,12 @@ dependencies = [
  "quote",
  "syn 2.0.79",
 ]
+
+[[package]]
+name = "dotenv"
+version = "0.15.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "77c90badedccf4105eca100756a0b1289e191f6fcbdadd3cee1d2f614f97da8f"
 
 [[package]]
 name = "dsl_auto_type"
@@ -3610,11 +3617,14 @@ dependencies = [
 name = "rpc-transaction-crawler-test"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "async-trait",
  "carbon-core",
  "carbon-macros",
  "carbon-proc-macros",
  "carbon-rpc-transaction-crawler-datasource",
+ "diesel",
+ "dotenv",
  "env_logger 0.11.5",
  "futures",
  "log",
