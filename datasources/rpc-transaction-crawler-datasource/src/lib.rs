@@ -89,6 +89,8 @@ impl Datasource for RpcTransactionCrawler {
         let sender = sender.clone();
         let commitment = self.commitment;
         let semaphore = Arc::new(Semaphore::new(self.max_concurrent_requests));
+        let mut last_signature: Option<Signature> = self.filters.before_signature;
+        let mut newest_signature: Option<Signature> = None;
 
         let abort_handle = tokio::spawn(async move {
             loop {
@@ -98,7 +100,7 @@ impl Datasource for RpcTransactionCrawler {
                     &account,
                     GetConfirmedSignaturesForAddress2Config {
                         limit: Some(batch_limit),
-                        before: filters.before_signature,
+                        before: last_signature,
                         until: filters.until_signature,
                         commitment: Some(commitment.unwrap_or(CommitmentConfig::confirmed())),
                     },
@@ -109,6 +111,27 @@ impl Datasource for RpcTransactionCrawler {
                         continue;
                     }
                 };
+
+                if let (Some(newest_sig), Some(last_sig)) = (newest_signature, last_signature) {
+                    if newest_sig == last_sig {
+                        println!("No new signatures found. Sleeping for interval...");
+                        tokio::time::sleep(polling_interval).await;
+                        continue;
+                    }
+                }
+
+                if !signatures.is_empty() && last_signature == filters.before_signature
+                    || !signatures.is_empty() && last_signature == newest_signature
+                {
+                    newest_signature = Some(Signature::from_str(&signatures[0].signature).unwrap());
+                }
+
+                if signatures.is_empty() {
+                    last_signature = newest_signature;
+                    println!("No new signatures found. Sleeping for interval...");
+                    tokio::time::sleep(polling_interval).await;
+                    continue;
+                }
 
                 let mut fetch_tasks = Vec::new();
 
@@ -154,13 +177,17 @@ impl Datasource for RpcTransactionCrawler {
                     }));
                 }
 
-                let results: Vec<(Signature, EncodedConfirmedTransactionWithStatusMeta)> =
+                let mut results: Vec<(Signature, EncodedConfirmedTransactionWithStatusMeta)> =
                     futures::future::join_all(fetch_tasks)
                         .await
                         .into_iter()
                         .filter_map(Result::ok)
                         .filter_map(|value| value)
                         .collect();
+
+                last_signature = results.last().map(|(signature, _)| signature.clone());
+
+                results.sort_by(|a, b| a.1.slot.cmp(&b.1.slot));
 
                 for (signature, fetched_transaction) in results {
                     let transaction = fetched_transaction.transaction;
@@ -171,6 +198,15 @@ impl Datasource for RpcTransactionCrawler {
                         log::warn!("Meta is malformed for transaction: {:?}", signature);
                         continue;
                     };
+
+                    if meta_original.status.is_err() {
+                        log::warn!(
+                            "Transaction failed or encountered an error: {:?} (signature: {:?})",
+                            meta_original.status,
+                            signature
+                        );
+                        continue;
+                    }
 
                     let Some(decoded_transaction) = transaction.transaction.decode() else {
                         log::error!("Failed to decode transaction: {:?}", transaction);

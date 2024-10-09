@@ -33,7 +33,7 @@ pub struct CreateInstructionAccounts {
 impl ArrangeAccounts for Create {
     type ArrangedAccounts = CreateInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::pubkey::Pubkey>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let mint = accounts.get(0)?;
         let mint_authority = accounts.get(1)?;
         let bonding_curve = accounts.get(2)?;
@@ -50,20 +50,20 @@ impl ArrangeAccounts for Create {
         let program = accounts.get(13)?;
 
         Some(CreateInstructionAccounts {
-            mint: *mint,
-            mint_authority: *mint_authority,
-            bonding_curve: *bonding_curve,
-            associated_bonding_curve: *associated_bonding_curve,
-            global: *global,
-            mpl_token_metadata: *mpl_token_metadata,
-            metadata: *metadata,
-            user: *user,
-            system_program: *system_program,
-            token_program: *token_program,
-            associated_token_program: *associated_token_program,
-            rent: *rent,
-            event_authority: *event_authority,
-            program: *program,
+            mint: mint.pubkey,
+            mint_authority: mint_authority.pubkey,
+            bonding_curve: bonding_curve.pubkey,
+            associated_bonding_curve: associated_bonding_curve.pubkey,
+            global: global.pubkey,
+            mpl_token_metadata: mpl_token_metadata.pubkey,
+            metadata: metadata.pubkey,
+            user: user.pubkey,
+            system_program: system_program.pubkey,
+            token_program: token_program.pubkey,
+            associated_token_program: associated_token_program.pubkey,
+            rent: rent.pubkey,
+            event_authority: event_authority.pubkey,
+            program: program.pubkey,
         })
     }
 }
