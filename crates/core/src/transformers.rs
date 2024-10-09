@@ -106,7 +106,7 @@ pub fn extract_instructions_with_metadata(
                                     solana_sdk::instruction::Instruction {
                                         program_id,
                                         accounts,
-                                        data: compiled_instruction.data.clone(),
+                                        data: inner_instruction.instruction.data.clone(),
                                     },
                                 ));
                             }
@@ -195,7 +195,7 @@ pub fn extract_instructions_with_metadata(
                                                 .is_writable(*account_index as usize),
                                             is_signer: loaded_message
                                                 .is_signer(*account_index as usize),
-                                        })
+                                        });
                                     })
                                     .collect();
 

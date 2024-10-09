@@ -106,8 +106,9 @@ impl Pipeline {
                 let nested_instructions =
                     transformers::nest_instructions(instructions_with_metadata);
 
-                for nested_instruction in nested_instructions.iter().cloned() {
-                    for pipe in self.instruction_pipes.iter_mut() {
+                // TODO: Check if this or other way around
+                for pipe in self.instruction_pipes.iter_mut() {
+                    for nested_instruction in nested_instructions.iter().cloned() {
                         pipe.run(&nested_instruction).await?;
                     }
                 }
