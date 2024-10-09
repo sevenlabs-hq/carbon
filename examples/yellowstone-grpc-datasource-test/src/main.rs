@@ -78,7 +78,7 @@ pub struct JupTransactionProcessor;
 impl Processor for JupTransactionProcessor {
     type InputType = JupOutput;
 
-    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
+    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
         log::info!("Output: {:?}", data);
         println!("Matched Jupiter transaction: {:#?}", data);
         Ok(())
@@ -95,7 +95,7 @@ impl Processor for JupInstructionProcessor {
         Vec<NestedInstruction>,
     );
 
-    async fn process(&self, data: Self::InputType) -> CarbonResult<()> {
+    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
         println!("Matched Jupiter instruction: {:#?}", data);
 
         Ok(())
