@@ -5,5 +5,5 @@ use async_trait::async_trait;
 pub trait Processor {
     type InputType;
 
-    async fn process(&self, data: Self::InputType) -> CarbonResult<()>;
+    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()>;
 }
