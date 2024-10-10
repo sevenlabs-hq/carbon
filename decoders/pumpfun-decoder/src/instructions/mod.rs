@@ -37,12 +37,12 @@ pub enum PumpfunInstruction {
     SetParamsEvent(set_params_event::SetParamsEvent),
 }
 
-impl InstructionDecoder for PumpfunDecoder {
+impl<'a> InstructionDecoder<'a> for PumpfunDecoder {
     type InstructionType = PumpfunInstruction;
 
     fn decode_instruction(
         &self,
-        instruction: solana_sdk::instruction::Instruction,
+        instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         try_decode_instructions!(instruction,
             PumpfunInstruction::Initialize => initialize::Initialize,

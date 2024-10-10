@@ -9,12 +9,12 @@ pub enum TokenProgramAccount {
     Multisig(spl_token::state::Multisig),
 }
 
-impl AccountDecoder for TokenProgramDecoder {
+impl<'a> AccountDecoder<'a> for TokenProgramDecoder {
     type AccountType = TokenProgramAccount;
 
     fn decode_account(
         &self,
-        account: solana_sdk::account::Account,
+        account: &solana_sdk::account::Account,
     ) -> Option<DecodedAccount<Self::AccountType>> {
         if account.owner() != &spl_token::id() {
             return None;

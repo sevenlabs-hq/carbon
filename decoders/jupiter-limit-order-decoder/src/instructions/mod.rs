@@ -41,12 +41,12 @@ pub enum JupiterLimitOrderInstruction {
     CreateOrderEvent(create_order_event::CreateOrderEvent),
 }
 
-impl InstructionDecoder for JupiterLimitOrderDecoder {
+impl<'a> InstructionDecoder<'a> for JupiterLimitOrderDecoder {
     type InstructionType = JupiterLimitOrderInstruction;
 
     fn decode_instruction(
         &self,
-        instruction: solana_sdk::instruction::Instruction,
+        instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         try_decode_instructions!(instruction,
             JupiterLimitOrderInstruction::InitializeOrder => initialize_order::InitializeOrder,

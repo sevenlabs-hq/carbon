@@ -13,9 +13,9 @@ pub enum JupiterLimitOrder2Account {
 }
 
 
-impl AccountDecoder for JupiterLimitOrder2Decoder { 
+impl<'a> AccountDecoder<'a> for JupiterLimitOrder2Decoder { 
     type AccountType = JupiterLimitOrder2Account;
-     fn decode_account( &self, account: solana_sdk::account::Account, ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> { 
+     fn decode_account( &self, account: &solana_sdk::account::Account, ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> { 
          
             if let Some(decoded_account) = order::Order::deserialize(account.data.as_slice()) { 
             return Some(carbon_core::account::DecodedAccount { 
@@ -39,4 +39,4 @@ impl AccountDecoder for JupiterLimitOrder2Decoder {
          
     None 
     } 
-}
+}
