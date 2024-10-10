@@ -3,9 +3,9 @@ use carbon_core::{
     datasource::{Datasource, TransactionUpdate, Update, UpdateType},
     error::CarbonResult,
 };
-use retry::{delay::Fixed, retry, OperationResult};
+use futures::StreamExt;
 use solana_client::{
-    rpc_client::{GetConfirmedSignaturesForAddress2Config, RpcClient},
+    nonblocking::rpc_client::RpcClient, rpc_client::GetConfirmedSignaturesForAddress2Config,
     rpc_config::RpcTransactionConfig,
 };
 use solana_sdk::{
@@ -14,13 +14,12 @@ use solana_sdk::{
     transaction_context::TransactionReturnData,
 };
 use solana_transaction_status::{
-    option_serializer::OptionSerializer, EncodedConfirmedTransactionWithStatusMeta,
-    InnerInstruction, InnerInstructions, Reward, TransactionStatusMeta, TransactionTokenBalance,
-    UiInstruction, UiLoadedAddresses, UiTransactionEncoding,
+    option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
+    TransactionStatusMeta, TransactionTokenBalance, UiInstruction, UiLoadedAddresses,
+    UiTransactionEncoding,
 };
 use std::{collections::HashSet, str::FromStr, sync::Arc, time::Duration};
-use tokio::sync::mpsc::UnboundedSender;
-use tokio::sync::Semaphore;
+use tokio::sync::mpsc;
 
 #[derive(Debug, Clone)]
 pub struct Filters {
@@ -79,117 +78,145 @@ impl RpcTransactionCrawler {
 impl Datasource for RpcTransactionCrawler {
     async fn consume(
         &self,
-        sender: &UnboundedSender<Update>,
+        sender: &mpsc::UnboundedSender<Update>,
     ) -> CarbonResult<tokio::task::AbortHandle> {
-        let rpc_client = Arc::new(RpcClient::new(&self.rpc_url));
+        let rpc_client = Arc::new(RpcClient::new_with_commitment(
+            self.rpc_url.clone(),
+            self.commitment.unwrap_or(CommitmentConfig::confirmed()),
+        ));
         let account = self.account;
         let batch_limit = self.batch_limit;
         let polling_interval = self.polling_interval;
         let filters = self.filters.clone();
         let sender = sender.clone();
         let commitment = self.commitment;
-        let semaphore = Arc::new(Semaphore::new(self.max_concurrent_requests));
-        let mut last_signature: Option<Signature> = self.filters.before_signature;
-        let mut newest_signature: Option<Signature> = None;
+        let max_concurrent_requests = self.max_concurrent_requests;
 
-        let abort_handle = tokio::spawn(async move {
-            loop {
-                let rpc_client = Arc::clone(&rpc_client);
+        let (signature_sender, signature_receiver) = mpsc::channel(1000);
+        let (transaction_sender, transaction_receiver) = mpsc::channel(1000);
 
-                let signatures = match rpc_client.get_signatures_for_address_with_config(
-                    &account,
-                    GetConfirmedSignaturesForAddress2Config {
-                        limit: Some(batch_limit),
-                        before: last_signature,
-                        until: filters.until_signature,
-                        commitment: Some(commitment.unwrap_or(CommitmentConfig::confirmed())),
-                    },
-                ) {
-                    Ok(sigs) => sigs,
-                    Err(e) => {
-                        log::error!("Failed to get signatures: {:?}", e);
-                        continue;
+        let signature_fetcher = {
+            let rpc_client = Arc::clone(&rpc_client);
+            let account = account;
+            let batch_limit = batch_limit;
+            let filters = filters.clone();
+            let signature_sender = signature_sender.clone();
+            let polling_interval = polling_interval;
+            tokio::spawn(async move {
+                let mut last_fetched_signature = filters.before_signature;
+
+                loop {
+                    match rpc_client
+                        .get_signatures_for_address_with_config(
+                            &account,
+                            GetConfirmedSignaturesForAddress2Config {
+                                before: last_fetched_signature,
+                                until: filters.until_signature,
+                                limit: Some(batch_limit),
+                                commitment: Some(
+                                    commitment.unwrap_or(CommitmentConfig::confirmed()),
+                                ),
+                                ..Default::default()
+                            },
+                        )
+                        .await
+                    {
+                        Ok(signatures) => {
+                            if signatures.is_empty() {
+                                tokio::time::sleep(polling_interval).await;
+                                continue;
+                            }
+
+                            for sig_info in signatures.iter() {
+                                let signature = match Signature::from_str(&sig_info.signature) {
+                                    Ok(sig) => sig,
+                                    Err(e) => {
+                                        log::error!("Invalid signature: {:?}", e);
+                                        continue;
+                                    }
+                                };
+
+                                if let Err(e) = signature_sender.send(signature).await {
+                                    log::error!("Failed to send signature: {:?}", e);
+                                    break;
+                                }
+                            }
+
+                            last_fetched_signature = signatures
+                                .last()
+                                .and_then(|s| Signature::from_str(&s.signature).ok());
+                        }
+                        Err(e) => {
+                            log::error!("Error fetching signatures: {:?}", e);
+                            tokio::time::sleep(Duration::from_secs(1)).await;
+                        }
+                    }
+                }
+            })
+        };
+
+        let transaction_fetcher = {
+            let rpc_client = Arc::clone(&rpc_client);
+            let transaction_sender = transaction_sender.clone();
+            let mut signature_receiver = signature_receiver;
+            tokio::spawn(async move {
+                let fetch_stream = async_stream::stream! {
+                    while let Some(signature) = signature_receiver.recv().await {
+                        yield signature;
                     }
                 };
 
-                if let (Some(newest_sig), Some(last_sig)) = (newest_signature, last_signature) {
-                    if newest_sig == last_sig {
-                        println!("No new signatures found. Sleeping for interval...");
-                        tokio::time::sleep(polling_interval).await;
-                        continue;
-                    }
-                }
-
-                if !signatures.is_empty() && last_signature == filters.before_signature
-                    || !signatures.is_empty() && last_signature == newest_signature
-                {
-                    newest_signature = Some(Signature::from_str(&signatures[0].signature).unwrap());
-                }
-
-                if signatures.is_empty() {
-                    last_signature = newest_signature;
-                    println!("No new signatures found. Sleeping for interval...");
-                    tokio::time::sleep(polling_interval).await;
-                    continue;
-                }
-
-                let mut fetch_tasks = Vec::new();
-
-                for signature in signatures {
-                    let Ok(permit) = semaphore.clone().acquire_owned().await else {
-                        continue;
-                    };
-
-                    let Ok(signature) = Signature::from_str(&signature.signature) else {
-                        log::error!("Failed to parse signature: {:?}", signature.signature);
-                        continue;
-                    };
-
-                    let rpc_client = Arc::clone(&rpc_client);
-
-                    fetch_tasks.push(tokio::spawn(async move {
-                        let fetched_transaction = retry(Fixed::from_millis(500).take(10), || {
-                            match rpc_client.get_transaction_with_config(
-                                &signature,
-                                RpcTransactionConfig {
-                                    encoding: Some(UiTransactionEncoding::Base64),
-                                    commitment: Some(
-                                        commitment.unwrap_or(CommitmentConfig::confirmed()),
-                                    ),
-                                    max_supported_transaction_version: Some(0),
-                                },
-                            ) {
-                                Ok(tx) => OperationResult::Ok(tx),
+                fetch_stream
+                    .map(|signature| {
+                        let rpc_client = Arc::clone(&rpc_client);
+                        async move {
+                            match rpc_client
+                                .get_transaction_with_config(
+                                    &signature,
+                                    RpcTransactionConfig {
+                                        encoding: Some(UiTransactionEncoding::Base64),
+                                        commitment: Some(
+                                            commitment.unwrap_or(CommitmentConfig::confirmed()),
+                                        ),
+                                        max_supported_transaction_version: Some(0),
+                                        ..Default::default()
+                                    },
+                                )
+                                .await
+                            {
+                                Ok(tx) => Some((signature, tx)),
                                 Err(e) => {
                                     log::error!(
-                                        "Failed to get transaction: {:?}, signature: {:?}",
-                                        e,
-                                        signature
+                                        "Error fetching transaction {}: {:?}",
+                                        signature,
+                                        e
                                     );
-                                    OperationResult::Retry(e)
+                                    None
                                 }
                             }
-                        });
+                        }
+                    })
+                    .buffer_unordered(max_concurrent_requests)
+                    .for_each(|result| async {
+                        if let Some((signature, fetched_transaction)) = result {
+                            if let Err(e) = transaction_sender
+                                .send((signature, fetched_transaction))
+                                .await
+                            {
+                                log::error!("Failed to send transaction: {:?}", e);
+                            }
+                        }
+                    })
+                    .await;
+            })
+        };
 
-                        drop(permit);
-
-                        fetched_transaction.ok().map(|tx| (signature, tx))
-                    }));
-                }
-
-                let mut results: Vec<(Signature, EncodedConfirmedTransactionWithStatusMeta)> =
-                    futures::future::join_all(fetch_tasks)
-                        .await
-                        .into_iter()
-                        .filter_map(Result::ok)
-                        .filter_map(|value| value)
-                        .collect();
-
-                last_signature = results.last().map(|(signature, _)| signature.clone());
-
-                results.sort_by(|a, b| a.1.slot.cmp(&b.1.slot));
-
-                for (signature, fetched_transaction) in results {
+        let processing_task = {
+            let mut transaction_receiver = transaction_receiver;
+            let sender = sender.clone();
+            tokio::spawn(async move {
+                while let Some((signature, fetched_transaction)) = transaction_receiver.recv().await
+                {
                     let transaction = fetched_transaction.transaction;
 
                     let meta_original = if let Some(meta) = transaction.clone().meta {
@@ -408,7 +435,7 @@ impl Datasource for RpcTransactionCrawler {
                     };
 
                     let update = Update::Transaction(TransactionUpdate {
-                        signature: signature,
+                        signature,
                         transaction: decoded_transaction.clone(),
                         meta: meta_needed,
                         is_vote: false,
@@ -420,13 +447,18 @@ impl Datasource for RpcTransactionCrawler {
                         continue;
                     }
                 }
+            })
+        };
 
-                tokio::time::sleep(polling_interval).await;
+        let main_task = tokio::spawn(async move {
+            tokio::select! {
+                _ = signature_fetcher => {},
+                _ = transaction_fetcher => {},
+                _ = processing_task => {},
             }
-        })
-        .abort_handle();
+        });
 
-        Ok(abort_handle)
+        Ok(main_task.abort_handle())
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
