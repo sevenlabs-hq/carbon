@@ -20,8 +20,8 @@ pub struct Pipeline {
     pub datasource: Box<dyn Datasource>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
-    pub instruction_pipes: Vec<Box<dyn InstructionPipes>>,
-    pub transaction_pipes: Vec<Box<dyn TransactionPipes>>,
+    pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
+    pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
 }
 
 impl Pipeline {
@@ -114,7 +114,7 @@ impl Pipeline {
                 }
 
                 for pipe in self.transaction_pipes.iter_mut() {
-                    pipe.run(nested_instructions.clone()).await?;
+                    pipe.run(&nested_instructions).await?;
                 }
             }
 
@@ -132,8 +132,8 @@ pub struct PipelineBuilder {
     pub datasource: Option<Box<dyn Datasource>>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
-    pub instruction_pipes: Vec<Box<dyn InstructionPipes>>,
-    pub transaction_pipes: Vec<Box<dyn TransactionPipes>>,
+    pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
+    pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
 }
 
 impl PipelineBuilder {
@@ -154,7 +154,7 @@ impl PipelineBuilder {
 
     pub fn account<T: Send + Sync + 'static>(
         mut self,
-        decoder: impl AccountDecoder<AccountType = T> + Send + Sync + 'static,
+        decoder: impl for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
         processor: impl Processor<InputType = (AccountMetadata, DecodedAccount<T>)>
             + Send
             + Sync
@@ -180,7 +180,7 @@ impl PipelineBuilder {
 
     pub fn instruction<T: Send + Sync + 'static>(
         mut self,
-        decoder: impl InstructionDecoder<InstructionType = T> + Send + Sync + 'static,
+        decoder: impl for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
         processor: impl Processor<
                 InputType = (
                     InstructionMetadata,

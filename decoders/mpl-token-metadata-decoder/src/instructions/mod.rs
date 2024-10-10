@@ -129,12 +129,12 @@ pub enum MplTokenMetadataInstruction {
     Print(print::Print),
 }
 
-impl InstructionDecoder for MplTokenMetadataDecoder {
+impl<'a> InstructionDecoder<'a> for MplTokenMetadataDecoder {
     type InstructionType = MplTokenMetadataInstruction;
 
     fn decode_instruction(
         &self,
-        instruction: solana_sdk::instruction::Instruction,
+        instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         try_decode_instructions!(instruction,
             MplTokenMetadataInstruction::CreateMetadataAccount => create_metadata_account::CreateMetadataAccount,

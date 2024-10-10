@@ -305,12 +305,12 @@ pub enum TokenProgramAccount {
     Multisig(spl_token::state::Multisig),
 }
 
-impl AccountDecoder for TokenProgramAccountDecoder {
+impl<'a> AccountDecoder<'a> for TokenProgramAccountDecoder {
     type AccountType = TokenProgramAccount;
 
     fn decode_account(
         &self,
-        account: solana_sdk::account::Account,
+        account: &solana_sdk::account::Account,
     ) -> Option<DecodedAccount<Self::AccountType>> {
         if account.owner() != &spl_token::id() {
             return None;
@@ -372,7 +372,7 @@ impl Processor for TokenProgramAccountProcessor {
 }
 
 // pub struct TokenProgramInstructionDecoder;
-// impl InstructionDecoder for TokenProgramInstructionDecoder {
+// impl<'a> InstructionDecoder<'a> for TokenProgramInstructionDecoder {
 //     type InstructionType = TokenInstruction;
 
 //     fn decode(
@@ -453,7 +453,7 @@ impl MeteoraInstruction {
 }
 
 pub struct MeteoraInstructionDecoder;
-impl InstructionDecoder for MeteoraInstructionDecoder {
+impl<'a> InstructionDecoder<'a> for MeteoraInstructionDecoder {
     type InstructionType = MeteoraInstruction;
 
     fn decode_instruction(
@@ -520,7 +520,7 @@ impl OrcaInstruction {
 }
 
 pub struct OrcaInstructionDecoder;
-impl InstructionDecoder for OrcaInstructionDecoder {
+impl<'a> InstructionDecoder<'a> for OrcaInstructionDecoder {
     type InstructionType = OrcaInstruction;
 
     fn decode_instruction(

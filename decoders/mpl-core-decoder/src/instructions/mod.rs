@@ -61,12 +61,12 @@ pub enum MplCoreInstruction {
     Collect(collect::Collect),
 }
 
-impl InstructionDecoder for MplCoreDecoder {
+impl<'a> InstructionDecoder<'a> for MplCoreDecoder {
     type InstructionType = MplCoreInstruction;
 
     fn decode_instruction(
         &self,
-        instruction: solana_sdk::instruction::Instruction,
+        instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         try_decode_instructions!(instruction,
             MplCoreInstruction::CreateV1 => create_v1::CreateV1,

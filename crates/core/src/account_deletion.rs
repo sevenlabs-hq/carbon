@@ -1,9 +1,6 @@
 use async_trait::async_trait;
 
-use crate::{
-    account::AccountMetadata, datasource::AccountDeletion, error::CarbonResult,
-    processor::Processor,
-};
+use crate::{datasource::AccountDeletion, error::CarbonResult, processor::Processor};
 
 pub struct AccountDeletionPipe {
     pub processor: Box<dyn Processor<InputType = AccountDeletion> + Send + Sync>,

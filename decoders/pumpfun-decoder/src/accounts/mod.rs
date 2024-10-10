@@ -15,9 +15,9 @@ pub enum PumpfunAccount {
 }
 
 
-impl AccountDecoder for PumpfunDecoder { 
+impl<'a> AccountDecoder<'a> for PumpfunDecoder { 
     type AccountType = PumpfunAccount;
-     fn decode_account( &self, account: solana_sdk::account::Account, ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> { 
+     fn decode_account( &self, account: &solana_sdk::account::Account, ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> { 
          
             if let Some(decoded_account) = global::Global::deserialize(account.data.as_slice()) { 
             return Some(carbon_core::account::DecodedAccount { 
@@ -51,4 +51,4 @@ impl AccountDecoder for PumpfunDecoder {
          
     None 
     } 
-}
+}

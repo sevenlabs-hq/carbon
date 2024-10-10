@@ -11,11 +11,11 @@ pub enum PumpAccount {
     BondingCurve(bonding_curve::BondingCurve),
 }
 
-impl AccountDecoder for PumpDecoder {
+impl<'a> AccountDecoder<'a> for PumpDecoder {
     type AccountType = PumpAccount;
     fn decode_account(
         &self,
-        account: solana_sdk::account::Account,
+        account: &solana_sdk::account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if let Some(decoded_account) = global::Global::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {

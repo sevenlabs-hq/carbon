@@ -172,10 +172,10 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
         });
 
         parse_instruction_arms.push(quote! {
-            if let Some(decoded_instruction) = #decoder_expr.decode_instruction(instruction.clone()) {
+            if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
                 return Some(DecodedInstruction {
                     program_id: instruction.program_id,
-                    accounts: instruction.accounts,
+                    accounts: instruction.accounts.clone(),
                     data: #instructions_enum_name::#program_variant(decoded_instruction.data),
                 });
             }
@@ -208,7 +208,7 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
             type InstructionType = #instruction_types_enum_name;
 
             fn parse_instruction(
-                instruction: solana_sdk::instruction::Instruction
+                instruction: &solana_sdk::instruction::Instruction
             ) -> Option<DecodedInstruction<Self>> {
                 #(#parse_instruction_arms)*
                 None
