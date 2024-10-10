@@ -975,6 +975,18 @@ dependencies = [
 [[package]]
 name = "carbon-helius-atlas-ws-datasource"
 version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "env_logger 0.11.5",
+ "futures",
+ "log",
+ "retry",
+ "solana-client",
+ "solana-sdk",
+ "solana-transaction-status",
+ "tokio",
+]
 
 [[package]]
 name = "carbon-jupiter-dca-decoder"

@@ -5,3 +5,16 @@ edition = "2018"
 
 [lib]
 crate-type = ["rlib"]
+
+[dependencies]
+tokio = { version = "1.37.0", features = ["full"] }
+async-trait = "0.1.83"
+carbon-core = { path = "../../crates/core" }
+log = "0.4.22"
+env_logger = "0.11.5"
+futures = "0.3.30"
+solana-transaction-status = "1.18.15"
+solana-account-decoder = "1.18.15"
+solana-client = "1.18.15"
+solana-sdk = "1.18.15"
+helius = "0.2.1"
