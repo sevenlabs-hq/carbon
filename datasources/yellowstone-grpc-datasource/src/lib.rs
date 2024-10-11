@@ -11,6 +11,7 @@ use std::convert::TryFrom;
 use std::time::Duration;
 use std::{collections::HashMap, sync::Arc};
 use tokio::sync::{mpsc::UnboundedSender, RwLock};
+use tokio_util::sync::CancellationToken;
 use yellowstone_grpc_client::GeyserGrpcClient;
 use yellowstone_grpc_proto::{
     convert_from::{create_tx_meta, create_tx_versioned},
@@ -54,7 +55,8 @@ impl Datasource for YellowstoneGrpcGeyserClient {
     async fn consume(
         &self,
         sender: &UnboundedSender<Update>,
-    ) -> CarbonResult<tokio::task::AbortHandle> {
+        cancellation_token: CancellationToken,
+    ) -> CarbonResult<()> {
         let sender = sender.clone();
         let endpoint = self.endpoint.clone();
         let x_token = self.x_token.clone();
@@ -73,7 +75,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
             .await
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?;
 
-        let abort_handle = tokio::spawn(async move {
+        tokio::spawn(async move {
             let subscribe_request = SubscribeRequest {
                 slots: HashMap::new(),
                 accounts: account_filters,
@@ -94,15 +96,23 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                 {
                     Ok((mut subscribe_tx, mut stream)) => {
                         while let Some(message) = stream.next().await {
+                            if cancellation_token.is_cancelled() {
+                                log::info!("Stopping Yellowstone gRPC datasource...");
+                                break;
+                            }
                             match message {
                                 Ok(msg) => match msg.update_oneof {
                                     Some(UpdateOneof::Account(account_update)) => {
                                         if let Some(account_info) = account_update.account {
-                                            let Ok(account_pubkey) = Pubkey::try_from(account_info.pubkey) else {
+                                            let Ok(account_pubkey) =
+                                                Pubkey::try_from(account_info.pubkey)
+                                            else {
                                                 continue;
                                             };
 
-                                            let Ok(account_owner_pubkey) = Pubkey::try_from(account_info.owner) else {
+                                            let Ok(account_owner_pubkey) =
+                                                Pubkey::try_from(account_info.owner)
+                                            else {
                                                 continue;
                                             };
 
@@ -114,14 +124,21 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                 rent_epoch: account_info.rent_epoch,
                                             };
 
-                                            if account.lamports == 0 && account.data.is_empty() && account_owner_pubkey == solana_sdk::system_program::ID {
-                                                let accounts = account_deletions_tracked.read().await;
+                                            if account.lamports == 0
+                                                && account.data.is_empty()
+                                                && account_owner_pubkey
+                                                    == solana_sdk::system_program::ID
+                                            {
+                                                let accounts =
+                                                    account_deletions_tracked.read().await;
                                                 if accounts.contains(&account_pubkey) {
                                                     let account_deletion = AccountDeletion {
                                                         pubkey: account_pubkey.clone(),
                                                         slot: account_update.slot,
                                                     };
-                                                    if let Err(e) = sender.send(Update::AccountDeletion(account_deletion)) {
+                                                    if let Err(e) = sender.send(
+                                                        Update::AccountDeletion(account_deletion),
+                                                    ) {
                                                         log::error!("Failed to send account deletion update for pubkey {:?} at slot {}: {:?}", account_pubkey, account_update.slot, e);
                                                     }
                                                 }
@@ -142,31 +159,42 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                     }
 
                                     Some(UpdateOneof::Transaction(transaction_update)) => {
-
-                                        if let Some(transaction_info) = transaction_update.transaction {
-
-                                            let Ok(signature) =  Signature::try_from(transaction_info.signature) else {
+                                        if let Some(transaction_info) =
+                                            transaction_update.transaction
+                                        {
+                                            let Ok(signature) =
+                                                Signature::try_from(transaction_info.signature)
+                                            else {
                                                 continue;
                                             };
-                                            let Some(yellowstone_transaction) = transaction_info.transaction else {
-                                               continue;
-                                            };
-                                            let Some(yellowstone_tx_meta) = transaction_info.meta else {
+                                            let Some(yellowstone_transaction) =
+                                                transaction_info.transaction
+                                            else {
                                                 continue;
                                             };
-                                            let Ok(versioned_transaction) =  create_tx_versioned(yellowstone_transaction) else {
-                                              continue;
+                                            let Some(yellowstone_tx_meta) = transaction_info.meta
+                                            else {
+                                                continue;
                                             };
-                                            let meta_original = match create_tx_meta(yellowstone_tx_meta) {
-                                                Ok(meta) => meta,
-                                                Err(err) => {
-                                                    log::error!("Failed to create transaction meta: {:?}", err);
-                                                    continue;
-                                                }
+                                            let Ok(versioned_transaction) =
+                                                create_tx_versioned(yellowstone_transaction)
+                                            else {
+                                                continue;
                                             };
+                                            let meta_original =
+                                                match create_tx_meta(yellowstone_tx_meta) {
+                                                    Ok(meta) => meta,
+                                                    Err(err) => {
+                                                        log::error!(
+                                                        "Failed to create transaction meta: {:?}",
+                                                        err
+                                                    );
+                                                        continue;
+                                                    }
+                                                };
                                             let update = Update::Transaction(TransactionUpdate {
                                                 signature: signature,
-                                                transaction: versioned_transaction ,
+                                                transaction: versioned_transaction,
                                                 meta: meta_original,
                                                 is_vote: transaction_info.is_vote,
                                                 slot: transaction_update.slot,
@@ -181,7 +209,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                     }
 
                                     Some(UpdateOneof::Ping(_)) => {
-                                      _  =  subscribe_tx
+                                        _ = subscribe_tx
                                             .send(SubscribeRequest {
                                                 ping: Some(SubscribeRequestPing { id: 1 }),
                                                 ..Default::default()
@@ -203,10 +231,9 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                     }
                 }
             }
-        })
-        .abort_handle();
+        });
 
-        Ok(abort_handle)
+        Ok(())
     }
 
     fn update_types(&self) -> Vec<UpdateType> {

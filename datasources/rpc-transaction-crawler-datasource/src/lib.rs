@@ -21,6 +21,7 @@ use solana_transaction_status::{
 use std::{collections::HashSet, str::FromStr, sync::Arc, time::Duration};
 use tokio::sync::mpsc::UnboundedSender;
 use tokio::sync::Semaphore;
+use tokio_util::sync::CancellationToken;
 
 #[derive(Debug, Clone)]
 pub struct Filters {
@@ -80,7 +81,8 @@ impl Datasource for RpcTransactionCrawler {
     async fn consume(
         &self,
         sender: &UnboundedSender<Update>,
-    ) -> CarbonResult<tokio::task::AbortHandle> {
+        cancellation_token: CancellationToken,
+    ) -> CarbonResult<()> {
         let rpc_client = Arc::new(RpcClient::new(&self.rpc_url));
         let account = self.account;
         let batch_limit = self.batch_limit;
@@ -92,7 +94,7 @@ impl Datasource for RpcTransactionCrawler {
         let mut last_signature: Option<Signature> = self.filters.before_signature;
         let mut newest_signature: Option<Signature> = None;
 
-        let abort_handle = tokio::spawn(async move {
+        tokio::spawn(async move {
             loop {
                 let rpc_client = Arc::clone(&rpc_client);
 
@@ -423,10 +425,9 @@ impl Datasource for RpcTransactionCrawler {
 
                 tokio::time::sleep(polling_interval).await;
             }
-        })
-        .abort_handle();
+        });
 
-        Ok(abort_handle)
+        Ok(())
     }
 
     fn update_types(&self) -> Vec<UpdateType> {

@@ -1,17 +1,13 @@
+use async_trait::async_trait;
 use carbon_core::{
-    datasource::{Datasource, TransactionUpdate, Update, UpdateType},
+    datasource::{AccountUpdate, Datasource, TransactionUpdate, Update, UpdateType},
     error::CarbonResult,
 };
-use futures::{
-    future::{AbortHandle, Abortable},
-    StreamExt,
-};
-use helius::error::Result;
+use futures::StreamExt;
 use helius::types::{
     Cluster, RpcTransactionsConfig, TransactionSubscribeFilter, TransactionSubscribeOptions,
 };
 use helius::Helius;
-use retry::{delay::Fixed, retry, OperationResult};
 use solana_client::{
     rpc_client::{GetConfirmedSignaturesForAddress2Config, RpcClient},
     rpc_config::RpcTransactionConfig,
@@ -28,6 +24,7 @@ use solana_transaction_status::{
 };
 use std::{collections::HashSet, str::FromStr, sync::Arc, time::Duration};
 use tokio::sync::mpsc::UnboundedSender;
+use tokio_util::sync::CancellationToken;
 
 #[derive(Debug, Clone)]
 pub struct Filters {
@@ -44,21 +41,21 @@ impl Filters {
             return CarbonResult::Err(carbon_core::error::Error::Custom(format!("Error creating Filters for the Helius WebSocket: accounts and transactions can't be both empty")));
         };
 
-        Filters {
+        Ok(Filters {
             accounts,
             transactions,
-        }
+        })
     }
 }
 
 pub struct HeliusWebsocket {
-    pub apy_key: String,
+    pub api_key: String,
     pub filters: Filters,
 }
 
 impl HeliusWebsocket {
     pub fn new(api_key: String, filters: Filters) -> Self {
-        RpcTransactionCrawler { api_key, filters }
+        Self { api_key, filters }
     }
 }
 
@@ -67,79 +64,146 @@ impl Datasource for HeliusWebsocket {
     async fn consume(
         &self,
         sender: &UnboundedSender<Update>,
-    ) -> CarbonResult<tokio::task::AbortHandle> {
+        cancellation_token: CancellationToken,
+    ) -> CarbonResult<()> {
+        if self.filters.accounts.is_empty() && self.filters.transactions.is_none() {
+            return Err(carbon_core::error::Error::FailedToConsumeDatasource(
+                "Filters can't be empty.".to_string(),
+            ));
+        }
+
         let helius = Helius::new_with_ws(&self.api_key, Cluster::MainnetBeta)
             .await
             .map_err(|err| {
-                carbon_core::error::Error::Custom(format!(
-                    "Error creating Helius client: {}",
-                    err.to_string()
-                ))
+                carbon_core::error::Error::Custom(format!("Error creating Helius client: {}", err))
             })?;
 
         let filters = self.filters.clone();
         let sender = sender.clone();
+        let cancellation_token = cancellation_token.clone();
+        let helius = Arc::new(helius);
 
-        let ws = helius.ws().ok_or_else(|| {
-            carbon_core::error::Error::Custom("Websocket not available".to_string())
-        })?;
+        tokio::spawn(async move {
+            let mut handles = vec![];
 
-        let (abort_handle, abort_registration) = AbortHandle::new_pair();
+            // Accounts subscriptions
+            if !filters.accounts.is_empty() {
+                for account in filters.accounts {
+                    let cancellation_token = cancellation_token.clone();
+                    let sender_clone = sender.clone();
+                    let helius_clone = Arc::clone(&helius);
 
-        let abortable_task = Abortable::new(
-            async move {
-                let mut handles = vec![];
+                    let handle = tokio::spawn(async move {
+                        let ws = match helius_clone.ws() {
+                            Some(ws) => ws,
+                            None => {
+                                log::error!("Helius Websocket not available");
+                                return;
+                            }
+                        };
 
-                // Accounts subscriptions
-                if !filters.accounts.is_empty() {
-                    for account in filters.accounts {
-                        let (mut stream, _unsub) =
-                            ws.account_subscribe(&account, None).await.unwrap();
-                        let sender_clone = sender.clone();
-                        let handle = tokio::spawn(async move {
-                            while let Some(event) = stream.next().await {
-                                let update = Update::Account {
-                                    // TODO
-                                };
-                                if sender_clone.send(update).is_err() {
+                        let (mut stream, _unsub) = match ws.account_subscribe(&account, None).await
+                        {
+                            Ok(subscription) => subscription,
+                            Err(err) => {
+                                log::error!(
+                                    "Failed to subscribe to account {}: {:?}",
+                                    account,
+                                    err
+                                );
+                                return;
+                            }
+                        };
+
+                        loop {
+                            tokio::select! {
+                                _ = cancellation_token.cancelled() => {
+                                    log::info!("Cancelling Helius WS accounts subscription...");
                                     break;
                                 }
-                            }
-                        });
-                        handles.push(handle);
-                    }
-                }
-
-                // Txs subscription
-                if let Some(config) = filters.transactions {
-                    let (mut stream, _unsub) = ws.transaction_subscribe(config).await.unwrap();
-                    let sender_clone = sender.clone();
-                    let handle = tokio::spawn(async move {
-                        while let Some(event) = stream.next().await {
-                            let update = Update::Transaction(TransactionUpdate {
-                                // TODO
-                            });
-                            if sender_clone.send(update).is_err() {
-                                break;
+                                event = stream.next() => {
+                                    if let Some(event) = event {
+                                        let update = Update::Account(AccountUpdate {
+                                            // TODO
+                                        });
+                                        if let Err(err) = sender_clone.send(update) {
+                                            log::error!("Error sending account update: {:?}", err);
+                                            break;
+                                        }
+                                    } else {
+                                        log::info!("Helius WS Accounts stream has been closed".);
+                                        break;
+                                    }
+                                }
                             }
                         }
                     });
+
                     handles.push(handle);
                 }
+            }
 
-                for handle in handles {
-                    let _ = handle.await;
+            // Transactions subscription
+            if let Some(config) = filters.transactions {
+                let cancellation_token = cancellation_token.clone();
+                let sender_clone = sender.clone();
+                let helius_clone = Arc::clone(&helius);
+
+                let handle = tokio::spawn(async move {
+                    let ws = match helius_clone.ws() {
+                        Some(ws) => ws,
+                        None => {
+                            log::error!("Helius Websocket not available");
+                            return;
+                        }
+                    };
+
+                    let (mut stream, _unsub) = match ws.transaction_subscribe(config).await {
+                        Ok(subscription) => subscription,
+                        Err(err) => {
+                            log::error!("Failed to subscribe to transactions: {:?}", err);
+                            return;
+                        }
+                    };
+
+                    loop {
+                        tokio::select! {
+                            _ = cancellation_token.cancelled() => {
+                                log::info!("Cancelling Helius WS transaction subscription...");
+                                break;
+                            }
+                            event = stream.next() => {
+                                if let Some(event) = event {
+                                    let update = Update::Transaction(TransactionUpdate {
+                                        //TODO
+                                    });
+                                    if let Err(err) = sender_clone.send(update) {
+                                        log::error!("Error sending transaction update: {:?}", err);
+                                        break;
+                                    }
+                                } else {
+                                    log::info!("Helius WS Transactions stream has been closed.");
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                });
+
+                handles.push(handle);
+            }
+
+            for handle in handles {
+                if let Err(e) = handle.await {
+                    log::error!("Helius WS Task failed: {:?}", e);
                 }
-            },
-            abort_registration,
-        );
+            }
+        });
 
-        tokio::spawn(abortable_task);
-
-        Ok(abort_handle)
+        Ok(())
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
-        vec![UpdateType::Transaction, UpdateType::Account]
+        vec![UpdateType::Transaction, UpdateType::AccountUpdate]
     }
 }
