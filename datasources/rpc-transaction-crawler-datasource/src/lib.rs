@@ -116,13 +116,13 @@ impl Datasource for RpcTransactionCrawler {
             max_concurrent_requests,
         );
 
-        let processing_task = processing_task(transaction_receiver, sender, filters);
+        let task_processor = task_processor(transaction_receiver, sender, filters);
 
         let main_task = tokio::spawn(async move {
             tokio::select! {
                 _ = signature_fetcher => {},
                 _ = transaction_fetcher => {},
-                _ = processing_task => {},
+                _ = task_processor => {},
             }
         });
 
@@ -258,7 +258,7 @@ fn transaction_fetcher(
     })
 }
 
-fn processing_task(
+fn task_processor(
     transaction_receiver: Receiver<(Signature, EncodedConfirmedTransactionWithStatusMeta)>,
     sender: mpsc::UnboundedSender<Update>,
     filters: Filters,
