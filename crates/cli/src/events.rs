@@ -29,8 +29,18 @@ pub fn legacy_process_events(idl: &LegacyIdl) -> Vec<EventData> {
     let mut events_data = Vec::new();
 
     for event in &idl.events {
-        let module_name = event.name.to_snek_case();
-        let struct_name = event.name.to_upper_camel_case();
+        let ends_with_event = event.name.ends_with("Event");
+
+        let module_name = if ends_with_event {
+            event.name.to_snek_case()
+        } else {
+            event.name.to_snek_case() + "_event"
+        };
+        let struct_name = if ends_with_event {
+            event.name.to_upper_camel_case()
+        } else {
+            event.name.to_upper_camel_case() + "Event"
+        };
         let discriminator = legacy_compute_event_discriminator(&event.name);
 
         let mut args = Vec::new();
@@ -57,8 +67,18 @@ pub fn process_events(idl: &Idl) -> Vec<EventData> {
     let mut events_data = Vec::new();
 
     for event in &idl.events {
-        let module_name = event.name.to_snek_case();
-        let struct_name = event.name.to_upper_camel_case();
+        let ends_with_event = event.name.ends_with("Event");
+
+        let module_name = if ends_with_event {
+            event.name.to_snek_case()
+        } else {
+            event.name.to_snek_case() + "_event"
+        };
+        let struct_name = if ends_with_event {
+            event.name.to_upper_camel_case()
+        } else {
+            event.name.to_upper_camel_case() + "Event"
+        };
         let discriminator = legacy_compute_event_discriminator(&event.name);
 
         let args = Vec::new();
