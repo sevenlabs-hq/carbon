@@ -93,7 +93,7 @@ impl Processor for VotingInstructionProcessor {
             .map_err(|err| Error::Custom(format!("Failed to querying activities: {}", err)))?;
 
         if signature_exists.is_some() {
-            println!("Signature {} already processed, skipping.", signature);
+            // println!("Signature {} already processed, skipping.", signature);
             return Ok(());
         }
 

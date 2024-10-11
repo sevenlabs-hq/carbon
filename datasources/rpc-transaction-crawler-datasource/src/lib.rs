@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use carbon_core::{
     datasource::{Datasource, TransactionUpdate, Update, UpdateType},
     error::CarbonResult,
+    metrics::{setup_progress_bars, update_progress_bar_timer, MetricsConfig},
 };
 use futures::StreamExt;
 use solana_client::{
@@ -98,6 +99,10 @@ impl Datasource for RpcTransactionCrawler {
         let (signature_sender, signature_receiver) = mpsc::channel(1000);
         let (transaction_sender, transaction_receiver) = mpsc::channel(1000);
 
+        let metrics_config = Arc::new(setup_progress_bars());
+
+        let timer_handle = tokio::spawn(update_progress_bar_timer(metrics_config.clone()));
+
         let signature_fetcher = signature_fetcher(
             rpc_client.clone(),
             account,
@@ -106,6 +111,7 @@ impl Datasource for RpcTransactionCrawler {
             signature_sender,
             filters.clone(),
             commitment,
+            metrics_config.clone(),
         );
 
         let transaction_fetcher = transaction_fetcher(
@@ -114,15 +120,22 @@ impl Datasource for RpcTransactionCrawler {
             transaction_sender,
             commitment,
             max_concurrent_requests,
+            metrics_config.clone(),
         );
 
-        let task_processor = task_processor(transaction_receiver, sender, filters);
+        let task_processor = task_processor(
+            transaction_receiver,
+            sender,
+            filters,
+            metrics_config.clone(),
+        );
 
         let main_task = tokio::spawn(async move {
             tokio::select! {
                 _ = signature_fetcher => {},
                 _ = transaction_fetcher => {},
                 _ = task_processor => {},
+                _ = timer_handle => {},
             }
         });
 
@@ -142,6 +155,7 @@ fn signature_fetcher(
     signature_sender: Sender<Signature>,
     filters: Filters,
     commitment: Option<CommitmentConfig>,
+    metrics_config: Arc<MetricsConfig>,
 ) -> JoinHandle<()> {
     let rpc_client = Arc::clone(&rpc_client);
     let account = account;
@@ -181,8 +195,11 @@ fn signature_fetcher(
                             }
                         };
 
+                        *metrics_config.pending_txs.lock().await += 1;
+
                         if let Err(e) = signature_sender.send(signature).await {
                             log::error!("Failed to send signature: {:?}", e);
+                            *metrics_config.failed_txs.lock().await += 1;
                             break;
                         }
                     }
@@ -206,10 +223,12 @@ fn transaction_fetcher(
     transaction_sender: Sender<(Signature, EncodedConfirmedTransactionWithStatusMeta)>,
     commitment: Option<CommitmentConfig>,
     max_concurrent_requests: usize,
+    metrics_config: Arc<MetricsConfig>,
 ) -> JoinHandle<()> {
     let rpc_client = Arc::clone(&rpc_client);
     let transaction_sender = transaction_sender.clone();
     let mut signature_receiver = signature_receiver;
+
     tokio::spawn(async move {
         let fetch_stream = async_stream::stream! {
             while let Some(signature) = signature_receiver.recv().await {
@@ -220,6 +239,10 @@ fn transaction_fetcher(
         fetch_stream
             .map(|signature| {
                 let rpc_client = Arc::clone(&rpc_client);
+
+                let failed_txs = metrics_config.failed_txs.clone();
+                let pending_txs = metrics_config.pending_txs.clone();
+
                 async move {
                     match rpc_client
                         .get_transaction_with_config(
@@ -238,6 +261,8 @@ fn transaction_fetcher(
                         Ok(tx) => Some((signature, tx)),
                         Err(e) => {
                             log::error!("Error fetching transaction {}: {:?}", signature, e);
+                            *failed_txs.lock().await += 1;
+                            *pending_txs.lock().await -= 1;
                             None
                         }
                     }
@@ -262,17 +287,24 @@ fn task_processor(
     transaction_receiver: Receiver<(Signature, EncodedConfirmedTransactionWithStatusMeta)>,
     sender: mpsc::UnboundedSender<Update>,
     filters: Filters,
+    metrics_config: Arc<MetricsConfig>,
 ) -> JoinHandle<()> {
     let mut transaction_receiver = transaction_receiver;
     let sender = sender.clone();
+
     tokio::spawn(async move {
         while let Some((signature, fetched_transaction)) = transaction_receiver.recv().await {
+            let start_time = std::time::Instant::now();
+            metrics_config.pb.inc(1);
+
             let transaction = fetched_transaction.transaction;
 
             let meta_original = if let Some(meta) = transaction.clone().meta {
                 meta
             } else {
                 log::warn!("Meta is malformed for transaction: {:?}", signature);
+                *metrics_config.failed_txs.lock().await += 1;
+                *metrics_config.pending_txs.lock().await -= 1;
                 continue;
             };
 
@@ -282,6 +314,8 @@ fn task_processor(
                     meta_original.status,
                     signature
                 );
+                *metrics_config.failed_txs.lock().await += 1;
+                *metrics_config.pending_txs.lock().await -= 1;
                 continue;
             }
 
@@ -492,6 +526,21 @@ fn task_processor(
                 log::error!("Failed to send update: {:?}", e);
                 continue;
             }
+
+            *metrics_config.successful_txs.lock().await += 1;
+            *metrics_config.pending_txs.lock().await -= 1;
+
+            let success_count = *metrics_config.successful_txs.lock().await;
+            let fail_count = *metrics_config.failed_txs.lock().await;
+            let pending_count = *metrics_config.pending_txs.lock().await;
+            metrics_config.pb.set_message(format!(
+                "Success: {}, Failed: {}, Pending: {} Duration: {:.2?}",
+                success_count,
+                fail_count,
+                pending_count,
+                start_time.elapsed().as_secs_f64()
+            ));
         }
+        metrics_config.pb.finish_with_message("Processing complete");
     })
 }
