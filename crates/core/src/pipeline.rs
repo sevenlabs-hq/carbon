@@ -1,3 +1,5 @@
+use std::{collections::HashMap, sync::Arc};
+
 use serde::de::DeserializeOwned;
 
 use crate::{
@@ -10,6 +12,7 @@ use crate::{
         DecodedInstruction, InstructionDecoder, InstructionMetadata, InstructionPipe,
         InstructionPipes, NestedInstruction,
     },
+    metrics::{Metrics, MetricsConfiguration},
     processor::Processor,
     schema::TransactionSchema,
     transaction::{TransactionPipe, TransactionPipes},
@@ -22,6 +25,8 @@ pub struct Pipeline {
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
+    pub metrics: Arc<Metrics>,
+    pub metrics_configuration: Option<MetricsConfiguration>,
 }
 
 impl Pipeline {
@@ -32,11 +37,18 @@ impl Pipeline {
             account_deletion_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
+            metrics: Metrics::default(),
+            metrics_configuration: None,
         }
     }
 
     pub async fn run(&mut self) -> CarbonResult<()> {
         let (update_sender, mut update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
+
+        if let Some(config) = &self.metrics_configuration {
+            self.start_metrics_reporting(config.interval);
+        }
+
         let _abort_handle = self.datasource.consume(&update_sender).await?;
 
         if !self.account_pipes.is_empty()
@@ -126,6 +138,28 @@ impl Pipeline {
         };
         Ok(())
     }
+
+    pub fn start_metrics_reporting(&self, interval: tokio::time::Duration) {
+        // TODO: Stuck here at last
+        tokio::spawn(async move {
+            let mut ticker = tokio::time::interval(interval);
+            loop {
+                ticker.tick().await;
+                {
+                    let mut metrics = self
+                        .metrics
+                        .datasource_metrics
+                        .entry(self.datasource.name())
+                        .or_default()
+                        .lock()
+                        .await;
+                    *metrics = self.datasource.get_metrics();
+                }
+
+                // Show logs here?
+            }
+        });
+    }
 }
 
 pub struct PipelineBuilder {
@@ -134,6 +168,8 @@ pub struct PipelineBuilder {
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
+    pub metrics: Metrics,
+    pub metrics_configuration: Option<MetricsConfiguration>,
 }
 
 impl PipelineBuilder {
@@ -144,6 +180,11 @@ impl PipelineBuilder {
             account_deletion_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
+            metrics: Metrics {
+                datasource_metrics: HashMap::new(),
+                pipe_metrics: HashMap::new(),
+            },
+            metrics_configuration: None,
         }
     }
 
@@ -218,6 +259,8 @@ impl PipelineBuilder {
             account_deletion_pipes: self.account_deletion_pipes,
             instruction_pipes: self.instruction_pipes,
             transaction_pipes: self.transaction_pipes,
+            metrics: Arc::new(self.metrics),
+            metrics_configuration: self.metrics_configuration,
         })
     }
 }

@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use carbon_core::{
     datasource::{Datasource, TransactionUpdate, Update, UpdateType},
     error::CarbonResult,
-    metrics::{setup_progress_bars, update_progress_bar_timer, MetricsConfig},
+    metrics::{setup_progress_bars, update_progress_bar_timer, Metrics, MetricsData},
 };
 use futures::StreamExt;
 use solana_client::{
@@ -54,6 +54,8 @@ pub struct RpcTransactionCrawler {
     pub filters: Filters,
     pub commitment: Option<CommitmentConfig>,
     pub max_concurrent_requests: usize,
+    pub name: String,
+    pub metrics: Metrics,
 }
 
 impl RpcTransactionCrawler {
@@ -65,6 +67,8 @@ impl RpcTransactionCrawler {
         filters: Filters,
         commitment: Option<CommitmentConfig>,
         max_concurrent_requests: usize,
+        name: String,
+        metrics: Metrics,
     ) -> Self {
         RpcTransactionCrawler {
             rpc_url,
@@ -74,6 +78,8 @@ impl RpcTransactionCrawler {
             filters,
             commitment,
             max_concurrent_requests,
+            name,
+            metrics,
         }
     }
 }
@@ -155,7 +161,7 @@ fn signature_fetcher(
     signature_sender: Sender<Signature>,
     filters: Filters,
     commitment: Option<CommitmentConfig>,
-    metrics_config: Arc<MetricsConfig>,
+    metrics_config: Arc<MetricsData>,
 ) -> JoinHandle<()> {
     let rpc_client = Arc::clone(&rpc_client);
     let account = account;
@@ -223,7 +229,7 @@ fn transaction_fetcher(
     transaction_sender: Sender<(Signature, EncodedConfirmedTransactionWithStatusMeta)>,
     commitment: Option<CommitmentConfig>,
     max_concurrent_requests: usize,
-    metrics_config: Arc<MetricsConfig>,
+    metrics_config: Arc<MetricsData>,
 ) -> JoinHandle<()> {
     let rpc_client = Arc::clone(&rpc_client);
     let transaction_sender = transaction_sender.clone();
@@ -287,7 +293,7 @@ fn task_processor(
     transaction_receiver: Receiver<(Signature, EncodedConfirmedTransactionWithStatusMeta)>,
     sender: mpsc::UnboundedSender<Update>,
     filters: Filters,
-    metrics_config: Arc<MetricsConfig>,
+    metrics_config: Arc<MetricsData>,
 ) -> JoinHandle<()> {
     let mut transaction_receiver = transaction_receiver;
     let sender = sender.clone();

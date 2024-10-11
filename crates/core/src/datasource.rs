@@ -1,7 +1,9 @@
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use solana_sdk::{pubkey::Pubkey, signature::Signature};
 
-use crate::error::CarbonResult;
+use crate::{error::CarbonResult, metrics::DatasourceMetrics};
 
 #[async_trait]
 pub trait Datasource {
@@ -11,6 +13,8 @@ pub trait Datasource {
     ) -> CarbonResult<tokio::task::AbortHandle>;
 
     fn update_types(&self) -> Vec<UpdateType>;
+    fn name(&self) -> String;
+    fn get_metrics(&self) -> DatasourceMetrics;
 }
 
 #[derive(Debug, Clone)]
