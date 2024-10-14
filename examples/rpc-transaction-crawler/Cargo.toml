@@ -11,6 +11,7 @@ carbon-core = { path = "../../crates/core" }
 carbon-macros = { path = "../../crates/macros" }
 carbon-proc-macros = { path = "../../crates/proc-macros" }
 log-metrics = { path = "../../metrics/log-metrics" }
+prometheus-metrics = { path = "../../metrics/prometheus-metrics" }
 solana-client = "2.0.10"
 solana-sdk = "2.0.10"
 solana-transaction-status = "2.0.9"

@@ -1,0 +1,15 @@
+[package]
+name = "prometheus-metrics"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.17.0", features = ["full"] }
+carbon-core = { workspace = true }
+async-trait = "0.1.82"
+log = "0.4.22"
+metrics = "0.17.0"
+metrics-exporter-prometheus = "0.14.0"
+
+[lib]
+crate-type = ["rlib"]

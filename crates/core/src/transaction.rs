@@ -76,7 +76,7 @@ pub trait TransactionPipes<'a>: Send + Sync {
     async fn run(
         &mut self,
         instructions: &[NestedInstruction],
-        metrics: Arc<dyn Metrics>,
+        metrics: Vec<Arc<dyn Metrics>>,
     ) -> CarbonResult<()>;
 }
 
@@ -89,7 +89,7 @@ where
     async fn run(
         &mut self,
         instructions: &[NestedInstruction],
-        metrics: Arc<dyn Metrics>,
+        metrics: Vec<Arc<dyn Metrics>>,
     ) -> CarbonResult<()> {
         let parsed_instructions = self.parse_instructions(&instructions);
 

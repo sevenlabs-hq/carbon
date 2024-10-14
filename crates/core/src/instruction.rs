@@ -51,7 +51,7 @@ pub trait InstructionPipes<'a>: Send + Sync {
     async fn run(
         &mut self,
         nested_instruction: &NestedInstruction,
-        metrics: Arc<dyn Metrics>,
+        metrics: Vec<Arc<dyn Metrics>>,
     ) -> CarbonResult<()>;
 }
 
@@ -60,7 +60,7 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
     async fn run(
         &mut self,
         nested_instruction: &NestedInstruction,
-        metrics: Arc<dyn Metrics>,
+        metrics: Vec<Arc<dyn Metrics>>,
     ) -> CarbonResult<()> {
         if let Some(decoded_instruction) = self
             .decoder

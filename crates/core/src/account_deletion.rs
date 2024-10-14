@@ -15,7 +15,7 @@ pub trait AccountDeletionPipes {
     async fn run(
         &mut self,
         account_deletion: AccountDeletion,
-        metrics: Arc<dyn Metrics>,
+        metrics: Vec<Arc<dyn Metrics>>,
     ) -> CarbonResult<()>;
 }
 
@@ -24,7 +24,7 @@ impl AccountDeletionPipes for AccountDeletionPipe {
     async fn run(
         &mut self,
         account_deletion: AccountDeletion,
-        metrics: Arc<dyn Metrics>,
+        metrics: Vec<Arc<dyn Metrics>>,
     ) -> CarbonResult<()> {
         self.processor.process(account_deletion, metrics).await?;
 
