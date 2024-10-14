@@ -21,7 +21,6 @@ use solana_transaction_status::{
 };
 use std::str::FromStr;
 use std::time::Duration;
-use tokio_util::sync::CancellationToken;
 //use whirlpool_decoder::instructions::WhirlpoolInstruction;
 //use whirlpool_decoder::WhirlpoolDecoder;
 
@@ -45,8 +44,7 @@ impl Datasource for TestDatasource {
     async fn consume(
         &self,
         sender: &tokio::sync::mpsc::UnboundedSender<Update>,
-        _cancellation_token: CancellationToken,
-    ) -> CarbonResult<()> {
+    ) -> CarbonResult<tokio::task::AbortHandle> {
         let sender = sender.clone();
 
         let rpc_client = RpcClient::new_with_commitment(
@@ -171,11 +169,12 @@ impl Datasource for TestDatasource {
             slot: tx.slot,
         });
 
-        tokio::spawn(async move {
+        let abort_handle = tokio::spawn(async move {
             sender.send(update).unwrap();
-        });
+        })
+        .abort_handle();
 
-        Ok(())
+        Ok(abort_handle)
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
@@ -190,15 +189,10 @@ impl Datasource for MockDatasource {
     async fn consume(
         &self,
         sender: &tokio::sync::mpsc::UnboundedSender<Update>,
-        cancellation_token: CancellationToken,
-    ) -> CarbonResult<()> {
+    ) -> CarbonResult<tokio::task::AbortHandle> {
         let sender = sender.clone();
-        tokio::spawn(async move {
+        let abort_handle = tokio::spawn(async move {
             loop {
-                if cancellation_token.is_cancelled() {
-                    log::info!("Cancelling Mock Datasource execution...");
-                    break;
-                }
                 tokio::time::sleep(Duration::from_secs(1)).await;
                 sender
                     .send(Update::Account(carbon_core::datasource::AccountUpdate {
@@ -225,9 +219,10 @@ impl Datasource for MockDatasource {
                     ))
                     .unwrap();
             }
-        });
+        })
+        .abort_handle();
 
-        Ok(())
+        Ok(abort_handle)
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
