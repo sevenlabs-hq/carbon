@@ -14,6 +14,7 @@ use diesel::prelude::*;
 use dotenv::dotenv;
 use env::Env;
 use log_metrics::LogMetrics;
+use prometheus_metrics::PrometheusMetrics;
 use schema::*;
 use solana_sdk::{commitment_config::CommitmentConfig, pubkey::Pubkey};
 use std::collections::HashMap;
@@ -67,7 +68,8 @@ pub async fn main() -> CarbonResult<()> {
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(transaction_crawler)
-        .metrics(metrics)
+        .metrics(metrics.clone())
+        .metrics(Arc::new(PrometheusMetrics::new()))
         .instruction(
             VotingProgramDecoder,
             VotingInstructionProcessor {
@@ -96,7 +98,7 @@ impl Processor for VotingInstructionProcessor {
     async fn process(
         &mut self,
         data: Self::InputType,
-        _metrics: Arc<dyn Metrics>,
+        _metrics: Vec<Arc<dyn Metrics>>,
     ) -> CarbonResult<()> {
         let (instruction_metadata, decoded_instruction, _nested_instructions) = data;
 

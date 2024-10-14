@@ -85,9 +85,9 @@ impl Metrics for LogMetrics {
 
     async fn increment_counter(&self, name: &str, value: u64) -> CarbonResult<()> {
         match name {
-            "updates_queued" => {
-                let mut updates_queued = self.updates_queued.write().await;
-                *updates_queued += value;
+            "updates_received" => {
+                let mut updates_received = self.updates_received.write().await;
+                *updates_received += value;
             }
             "updates_processed" => {
                 let mut updates_processed = self.updates_processed.write().await;

@@ -10,6 +10,6 @@ pub trait Processor {
     async fn process(
         &mut self,
         data: Self::InputType,
-        metrics: Arc<dyn Metrics>,
+        metrics: Vec<Arc<dyn Metrics>>,
     ) -> CarbonResult<()>;
 }
