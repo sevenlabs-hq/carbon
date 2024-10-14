@@ -96,4 +96,5 @@ pub struct RpcTransactionsConfig {
 pub struct TransactionNotification {
     pub transaction: EncodedTransactionWithStatusMeta,
     pub signature: String,
+    pub slot: u64,
 }
