@@ -14,7 +14,6 @@ use crate::{
     transformers,
 };
 use serde::de::DeserializeOwned;
-use tokio_util::sync::CancellationToken;
 
 pub struct Pipeline {
     pub datasource: Box<dyn Datasource + Send + Sync>,
@@ -37,11 +36,7 @@ impl Pipeline {
 
     pub async fn run(&mut self) -> CarbonResult<()> {
         let (update_sender, mut update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
-        let cancellation_token = CancellationToken::new();
-
-        self.datasource
-            .consume(&update_sender, cancellation_token.clone())
-            .await?;
+        let _abort_handle = self.datasource.consume(&update_sender).await?;
 
         if !self.account_pipes.is_empty()
             && !self
@@ -66,24 +61,20 @@ impl Pipeline {
         }
 
         loop {
-            tokio::select! {
-                _ = tokio::signal::ctrl_c() => {
-                    log::trace!("Shutdown signal received, sending cancellation requests and dropping the update sender...");
-                    cancellation_token.cancel();
-                    drop(update_sender);
-                    break;
-                }
-                recv_result = update_receiver.recv() => {
-                    match recv_result {
-                        Some(update) => {
-                            self.process(update).await?;
-                        }
-                        None => {
-                            log::trace!("Pipeline update sender has been closed.");
-                            break;
-                        }
+            match update_receiver.try_recv() {
+                Ok(update) => match self.process(update.clone()).await {
+                    Ok(_) => log::trace!("processed update"),
+                    Err(error) => log::error!("error processing update: {:?}", error),
+                },
+                Err(error) => match error {
+                    tokio::sync::mpsc::error::TryRecvError::Disconnected => {
+                        break;
                     }
-                }
+                    tokio::sync::mpsc::error::TryRecvError::Empty => {
+                        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
+                        continue;
+                    }
+                },
             }
         }
 
