@@ -3615,6 +3615,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "rpc-block-subscribe-datasource"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "env_logger 0.11.5",
+ "futures",
+ "log",
+ "solana-client",
+ "solana-sdk",
+ "tokio",
+ "tokio-util",
+]
+
+[[package]]
 name = "rpc-transaction-crawler-test"
 version = "0.1.0"
 dependencies = [
