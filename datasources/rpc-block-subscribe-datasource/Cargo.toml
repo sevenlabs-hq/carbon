@@ -1,0 +1,15 @@
+[package]
+name = "rpc-block-subscribe-datasource"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tokio = { version = "1.37.0", features = ["full"] }
+tokio-util = "0.7.12"
+async-trait = "0.1.83"
+carbon-core = { path = "../../crates/core" }
+log = "0.4.22"
+env_logger = "0.11.5"
+futures = "0.3.30"
+solana-client = { workspace = true }
+solana-sdk = { workspace = true }
