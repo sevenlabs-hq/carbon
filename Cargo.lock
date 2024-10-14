@@ -2679,6 +2679,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a7a70ba024b9dc04c27ea2f0c0548feb474ec5c54bba33a7f72f873a39d07b24"
 
 [[package]]
+name = "log-metrics"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "log",
+ "tokio",
+]
+
+[[package]]
 name = "matchit"
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3629,6 +3639,7 @@ dependencies = [
  "env_logger 0.11.5",
  "futures",
  "log",
+ "log-metrics",
  "once_cell",
  "paste",
  "serde",

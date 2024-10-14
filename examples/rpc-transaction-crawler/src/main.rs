@@ -5,6 +5,7 @@ mod voting_program_decoder;
 use async_trait::async_trait;
 use carbon_core::error::Error;
 use carbon_core::instruction::{InstructionMetadata, NestedInstruction};
+use carbon_core::metrics::Metrics;
 use carbon_core::processor::Processor;
 use carbon_core::{error::CarbonResult, instruction::DecodedInstruction};
 use carbon_rpc_transaction_crawler_datasource::{Filters, RpcTransactionCrawler};
@@ -12,9 +13,14 @@ use db::{init_pool, DbPool};
 use diesel::prelude::*;
 use dotenv::dotenv;
 use env::Env;
+use log_metrics::LogMetrics;
 use schema::*;
 use solana_sdk::{commitment_config::CommitmentConfig, pubkey::Pubkey};
+use std::collections::HashMap;
+use std::sync::Arc;
+use std::time::Instant;
 use std::{str::FromStr, time::Duration};
+use tokio::sync::RwLock;
 use voting_program_decoder::instructions::VotingProgramInstruction;
 use voting_program_decoder::VotingProgramDecoder;
 
@@ -45,8 +51,23 @@ pub async fn main() -> CarbonResult<()> {
 
     let db_pool = init_pool(&env.database_url);
 
+    let metrics = Arc::new(LogMetrics {
+        updates_received: RwLock::new(0),
+        updates_processed: RwLock::new(0),
+        updates_successful: RwLock::new(0),
+        updates_failed: RwLock::new(0),
+        updates_queued: RwLock::new(0),
+        updates_processing_times: RwLock::new(Vec::new()),
+        counters: RwLock::new(HashMap::new()),
+        gauges: RwLock::new(HashMap::new()),
+        histograms: RwLock::new(HashMap::new()),
+        start: RwLock::new(Instant::now()),
+        last_flush: RwLock::new(Instant::now()),
+    });
+
     carbon_core::pipeline::Pipeline::builder()
         .datasource(transaction_crawler)
+        .metrics(metrics)
         .instruction(
             VotingProgramDecoder,
             VotingInstructionProcessor {
@@ -72,7 +93,11 @@ impl Processor for VotingInstructionProcessor {
         Vec<NestedInstruction>,
     );
 
-    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
+    async fn process(
+        &mut self,
+        data: Self::InputType,
+        _metrics: Arc<dyn Metrics>,
+    ) -> CarbonResult<()> {
         let (instruction_metadata, decoded_instruction, _nested_instructions) = data;
 
         let mut conn = self

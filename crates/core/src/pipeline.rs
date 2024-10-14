@@ -1,3 +1,6 @@
+use core::time;
+use std::{sync::Arc, time::Instant};
+
 use serde::de::DeserializeOwned;
 
 use crate::{
@@ -10,6 +13,7 @@ use crate::{
         DecodedInstruction, InstructionDecoder, InstructionMetadata, InstructionPipe,
         InstructionPipes, NestedInstruction,
     },
+    metrics::Metrics,
     processor::Processor,
     schema::TransactionSchema,
     transaction::{TransactionPipe, TransactionPipes},
@@ -22,6 +26,7 @@ pub struct Pipeline {
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
+    pub metrics: Arc<dyn Metrics>,
 }
 
 impl Pipeline {
@@ -32,11 +37,15 @@ impl Pipeline {
             account_deletion_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
+            metrics: None,
         }
     }
 
     pub async fn run(&mut self) -> CarbonResult<()> {
+        self.metrics.initialize().await?;
+
         let (update_sender, mut update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
+
         let _abort_handle = self.datasource.consume(&update_sender).await?;
 
         if !self.account_pipes.is_empty()
@@ -61,21 +70,58 @@ impl Pipeline {
             ));
         }
 
+        let mut interval = tokio::time::interval(time::Duration::from_secs(10));
+
         loop {
-            match update_receiver.try_recv() {
-                Ok(update) => match self.process(update.clone()).await {
-                    Ok(_) => log::trace!("processed update"),
-                    Err(error) => log::error!("error processing update: {:?}", error),
-                },
-                Err(error) => match error {
-                    tokio::sync::mpsc::error::TryRecvError::Disconnected => {
-                        break;
+            tokio::select! {
+                _ = interval.tick() => {
+                    self.metrics.flush().await?;
+                }
+                update = update_receiver.recv() => {
+                    match update {
+                        Some(update) => {
+                            self.metrics
+                                .increment_counter("updates_received", 1)
+                                .await?;
+
+                            let start = Instant::now();
+                            let process_result = self.process(update.clone()).await;
+                            let time_taken = start.elapsed().as_millis();
+
+                            println!("Time taken: {}ms", time_taken);
+
+                            self.metrics
+                                .record_histogram("updates_processing_times", time_taken as f64)
+                                .await?;
+
+                            match process_result {
+                                Ok(_) => {
+                                    self.metrics
+                                        .increment_counter("updates_successful", 1)
+                                        .await?;
+
+                                    log::trace!("processed update")
+                                }
+                                Err(error) => {
+                                    self.metrics.increment_counter("updates_failed", 1).await?;
+
+                                    log::error!("error processing update: {:?}", error)
+                                }
+                            };
+
+                            self.metrics
+                                .increment_counter("updates_processed", 1)
+                                .await?;
+
+                            self.metrics
+                                .update_gauge("updates_queued", update_receiver.len() as f64)
+                                .await?;
+                        }
+
+                        None => break
                     }
-                    tokio::sync::mpsc::error::TryRecvError::Empty => {
-                        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-                        continue;
-                    }
-                },
+
+                }
             }
         }
 
@@ -89,9 +135,13 @@ impl Pipeline {
                     slot: account_update.slot,
                     pubkey: account_update.pubkey,
                 };
+
                 for pipe in self.account_pipes.iter_mut() {
-                    pipe.run((account_metadata.clone(), account_update.account.clone()))
-                        .await?;
+                    pipe.run(
+                        (account_metadata.clone(), account_update.account.clone()),
+                        self.metrics.clone(),
+                    )
+                    .await?;
                 }
             }
             Update::Transaction(transaction_update) => {
@@ -109,21 +159,23 @@ impl Pipeline {
                 // TODO: Check if this or other way around
                 for pipe in self.instruction_pipes.iter_mut() {
                     for nested_instruction in nested_instructions.iter().cloned() {
-                        pipe.run(&nested_instruction).await?;
+                        pipe.run(&nested_instruction, self.metrics.clone()).await?;
                     }
                 }
 
                 for pipe in self.transaction_pipes.iter_mut() {
-                    pipe.run(&nested_instructions).await?;
+                    pipe.run(&nested_instructions, self.metrics.clone()).await?;
                 }
             }
 
             Update::AccountDeletion(account_deletion) => {
                 for pipe in self.account_deletion_pipes.iter_mut() {
-                    pipe.run(account_deletion.clone()).await?;
+                    pipe.run(account_deletion.clone(), self.metrics.clone())
+                        .await?;
                 }
             }
         };
+
         Ok(())
     }
 }
@@ -134,6 +186,7 @@ pub struct PipelineBuilder {
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
+    pub metrics: Option<Arc<dyn Metrics>>,
 }
 
 impl PipelineBuilder {
@@ -144,6 +197,7 @@ impl PipelineBuilder {
             account_deletion_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
+            metrics: None,
         }
     }
 
@@ -197,6 +251,7 @@ impl PipelineBuilder {
         }));
         self
     }
+
     pub fn transaction<T, U>(
         mut self,
         schema: TransactionSchema<T>,
@@ -211,6 +266,11 @@ impl PipelineBuilder {
         self
     }
 
+    pub fn metrics(mut self, metrics: Arc<dyn Metrics>) -> Self {
+        self.metrics = Some(metrics);
+        self
+    }
+
     pub fn build(self) -> CarbonResult<Pipeline> {
         Ok(Pipeline {
             datasource: self.datasource.ok_or(Error::MissingDatasource)?,
@@ -218,6 +278,7 @@ impl PipelineBuilder {
             account_deletion_pipes: self.account_deletion_pipes,
             instruction_pipes: self.instruction_pipes,
             transaction_pipes: self.transaction_pipes,
+            metrics: self.metrics.unwrap(),
         })
     }
 }
