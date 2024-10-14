@@ -1,7 +1,13 @@
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use solana_sdk::pubkey::Pubkey;
 
-use crate::{error::CarbonResult, processor::Processor};
+use crate::{
+    error::CarbonResult,
+    metrics::{self, Metrics},
+    processor::Processor,
+};
 
 #[derive(Debug, Clone)]
 pub struct AccountMetadata {
@@ -38,6 +44,7 @@ pub trait AccountPipes {
     async fn run(
         &mut self,
         account_with_metadata: (AccountMetadata, solana_sdk::account::Account),
+        metrics: Arc<dyn Metrics>,
     ) -> CarbonResult<()>;
 }
 
@@ -46,10 +53,11 @@ impl<T: Send> AccountPipes for AccountPipe<T> {
     async fn run(
         &mut self,
         account_with_metadata: (AccountMetadata, solana_sdk::account::Account),
+        metrics: Arc<dyn Metrics>,
     ) -> CarbonResult<()> {
         if let Some(decoded_account) = self.decoder.decode_account(&account_with_metadata.1) {
             self.processor
-                .process((account_with_metadata.0, decoded_account))
+                .process((account_with_metadata.0, decoded_account), metrics.clone())
                 .await?;
         }
         Ok(())
