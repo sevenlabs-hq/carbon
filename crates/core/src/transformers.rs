@@ -1,13 +1,19 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, str::FromStr};
 
 use solana_sdk::{
-    instruction::AccountMeta,
+    instruction::{AccountMeta, CompiledInstruction},
     message::{
         v0::{LoadedAddresses, LoadedMessage},
         VersionedMessage,
     },
     pubkey::Pubkey,
     reserved_account_keys::ReservedAccountKeys,
+    transaction_context::TransactionReturnData,
+};
+use solana_transaction_status::{
+    option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
+    TransactionStatusMeta, TransactionTokenBalance, UiInstruction, UiLoadedAddresses,
+    UiTransactionStatusMeta,
 };
 
 use crate::{
@@ -287,4 +293,147 @@ pub fn nest_instructions(
     }
 
     result
+}
+
+pub fn transaction_metadata_from_original_meta(
+    meta_original: UiTransactionStatusMeta,
+) -> CarbonResult<TransactionStatusMeta> {
+    Ok(TransactionStatusMeta {
+        status: meta_original.status,
+        fee: meta_original.fee,
+        pre_balances: meta_original.pre_balances,
+        post_balances: meta_original.post_balances,
+        inner_instructions: Some(
+            meta_original
+                .inner_instructions
+                .unwrap_or_else(|| vec![])
+                .iter()
+                .map(|inner_instruction_group| InnerInstructions {
+                    index: inner_instruction_group.index,
+                    instructions: inner_instruction_group
+                        .instructions
+                        .iter()
+                        .map(|ui_instruction| match ui_instruction {
+                            UiInstruction::Compiled(compiled_ui_instruction) => {
+                                let decoded_data =
+                                    bs58::decode(compiled_ui_instruction.data.clone())
+                                        .into_vec()
+                                        .unwrap_or_else(|_| vec![]);
+                                InnerInstruction {
+                                    instruction: CompiledInstruction {
+                                        program_id_index: compiled_ui_instruction.program_id_index,
+                                        accounts: compiled_ui_instruction.accounts.clone(),
+                                        data: decoded_data,
+                                    },
+                                    stack_height: compiled_ui_instruction.stack_height,
+                                }
+                            }
+                            _ => {
+                                log::error!("Unsupported instruction type encountered");
+                                InnerInstruction {
+                                    instruction: CompiledInstruction {
+                                        program_id_index: 0,
+                                        accounts: vec![],
+                                        data: vec![],
+                                    },
+                                    stack_height: None,
+                                }
+                            }
+                        })
+                        .collect::<Vec<InnerInstruction>>(),
+                })
+                .collect::<Vec<InnerInstructions>>(),
+        ),
+        log_messages: Some(meta_original.log_messages.unwrap_or_else(|| vec![])),
+        pre_token_balances: Some(
+            meta_original
+                .pre_token_balances
+                .unwrap_or_else(|| vec![])
+                .iter()
+                .filter_map(|transaction_token_balance| {
+                    if let (OptionSerializer::Some(owner), OptionSerializer::Some(program_id)) = (
+                        transaction_token_balance.owner.as_ref(),
+                        transaction_token_balance.program_id.as_ref(),
+                    ) {
+                        Some(TransactionTokenBalance {
+                            account_index: transaction_token_balance.account_index,
+                            mint: transaction_token_balance.mint.clone(),
+                            ui_token_amount: transaction_token_balance.ui_token_amount.clone(),
+                            owner: owner.to_string(),
+                            program_id: program_id.to_string(),
+                        })
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<TransactionTokenBalance>>(),
+        ),
+        post_token_balances: Some(
+            meta_original
+                .post_token_balances
+                .unwrap_or_else(|| vec![])
+                .iter()
+                .filter_map(|transaction_token_balance| {
+                    if let (OptionSerializer::Some(owner), OptionSerializer::Some(program_id)) = (
+                        transaction_token_balance.owner.as_ref(),
+                        transaction_token_balance.program_id.as_ref(),
+                    ) {
+                        Some(TransactionTokenBalance {
+                            account_index: transaction_token_balance.account_index,
+                            mint: transaction_token_balance.mint.clone(),
+                            ui_token_amount: transaction_token_balance.ui_token_amount.clone(),
+                            owner: owner.to_string(),
+                            program_id: program_id.to_string(),
+                        })
+                    } else {
+                        None
+                    }
+                })
+                .collect::<Vec<TransactionTokenBalance>>(),
+        ),
+        rewards: Some(
+            meta_original
+                .rewards
+                .unwrap_or_else(|| vec![])
+                .iter()
+                .map(|rewards| Reward {
+                    pubkey: rewards.pubkey.clone(),
+                    lamports: rewards.lamports,
+                    post_balance: rewards.post_balance,
+                    reward_type: rewards.reward_type,
+                    commission: rewards.commission,
+                })
+                .collect::<Vec<Reward>>(),
+        ),
+        loaded_addresses: {
+            let loaded = meta_original
+                .loaded_addresses
+                .unwrap_or_else(|| UiLoadedAddresses {
+                    writable: vec![],
+                    readonly: vec![],
+                });
+            LoadedAddresses {
+                writable: loaded
+                    .writable
+                    .iter()
+                    .map(|w| Pubkey::from_str(&w).unwrap_or_default())
+                    .collect::<Vec<Pubkey>>(),
+                readonly: loaded
+                    .readonly
+                    .iter()
+                    .map(|r| Pubkey::from_str(&r).unwrap_or_default())
+                    .collect::<Vec<Pubkey>>(),
+            }
+        },
+        return_data: meta_original
+            .return_data
+            .map(|return_data| TransactionReturnData {
+                program_id: return_data.program_id.parse().unwrap_or_default(),
+                data: return_data.data.0.as_bytes().to_vec(),
+            }),
+        compute_units_consumed: meta_original
+            .compute_units_consumed
+            .map(|compute_unit_consumed| compute_unit_consumed)
+            .or(None),
+    })
 }
