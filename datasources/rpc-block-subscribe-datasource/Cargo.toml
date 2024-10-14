@@ -1,5 +1,5 @@
 [package]
-name = "rpc-block-subscribe-datasource"
+name = "carbon-rpc-block-subscribe-datasource"
 version = "0.1.0"
 edition = "2021"
 

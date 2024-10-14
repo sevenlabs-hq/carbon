@@ -74,7 +74,7 @@ impl Datasource for RpcBlockSubscribe {
                 tokio::select! {
                     // TODO:
                     // _ = cancellation_token.cancelled() => {
-                    //     log::info!("Cancelling Helius WS transaction subscription...");
+                    //     log::info!("Cancelling RPC blocks subscription...");
                     //     break;
                     // }
                     event_result = stream.next() => {
