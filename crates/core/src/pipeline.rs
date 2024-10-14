@@ -1,5 +1,3 @@
-use serde::de::DeserializeOwned;
-
 use crate::{
     account::{AccountDecoder, AccountMetadata, AccountPipe, AccountPipes, DecodedAccount},
     account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
@@ -15,9 +13,10 @@ use crate::{
     transaction::{TransactionPipe, TransactionPipes},
     transformers,
 };
+use serde::de::DeserializeOwned;
 
 pub struct Pipeline {
-    pub datasource: Box<dyn Datasource>,
+    pub datasource: Box<dyn Datasource + Send + Sync>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
@@ -82,7 +81,7 @@ impl Pipeline {
         Ok(())
     }
 
-    pub async fn process(&mut self, update: Update) -> CarbonResult<()> {
+    async fn process(&mut self, update: Update) -> CarbonResult<()> {
         match update {
             Update::Account(account_update) => {
                 let account_metadata = AccountMetadata {
