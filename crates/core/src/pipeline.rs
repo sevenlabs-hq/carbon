@@ -21,7 +21,7 @@ use crate::{
 };
 
 pub struct Pipeline {
-    pub datasource: Box<dyn Datasource>,
+    pub datasources: Vec<Arc<dyn Datasource + Send + Sync>>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
@@ -33,7 +33,7 @@ pub struct Pipeline {
 impl Pipeline {
     pub fn builder() -> PipelineBuilder {
         PipelineBuilder {
-            datasource: None,
+            datasources: Vec::new(),
             account_pipes: Vec::new(),
             account_deletion_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
@@ -48,28 +48,44 @@ impl Pipeline {
 
         let (update_sender, mut update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
 
-        let _abort_handle = self.datasource.consume(&update_sender).await?;
+        let update_types: Vec<UpdateType> = self
+            .datasources
+            .iter()
+            .map(|datasource| datasource.update_types())
+            .flatten()
+            .collect();
 
-        if !self.account_pipes.is_empty()
-            && !self
-                .datasource
-                .update_types()
-                .contains(&UpdateType::AccountUpdate)
-        {
+        if !self.account_pipes.is_empty() && !update_types.contains(&UpdateType::AccountUpdate) {
             return Err(Error::MissingUpdateTypeInDatasource(
                 UpdateType::AccountUpdate,
             ));
         }
 
+        if !self.account_deletion_pipes.is_empty()
+            && !update_types.contains(&UpdateType::AccountDeletion)
+        {
+            return Err(Error::MissingUpdateTypeInDatasource(
+                UpdateType::AccountDeletion,
+            ));
+        }
+
         if (!self.instruction_pipes.is_empty() || !self.transaction_pipes.is_empty())
-            && !self
-                .datasource
-                .update_types()
-                .contains(&UpdateType::Transaction)
+            && !update_types.contains(&UpdateType::Transaction)
         {
             return Err(Error::MissingUpdateTypeInDatasource(
                 UpdateType::Transaction,
             ));
+        }
+
+        for datasource in &self.datasources {
+            let sender_clone = update_sender.clone();
+            let datasource_clone = Arc::clone(datasource);
+
+            tokio::spawn(async move {
+                if let Err(e) = datasource_clone.consume(&sender_clone).await {
+                    log::error!("Datasource consume error: {:?}", e);
+                }
+            });
         }
 
         let mut interval = tokio::time::interval(time::Duration::from_secs(
@@ -136,7 +152,7 @@ impl Pipeline {
         Ok(())
     }
 
-    pub async fn process(&mut self, update: Update) -> CarbonResult<()> {
+    async fn process(&mut self, update: Update) -> CarbonResult<()> {
         match update {
             Update::Account(account_update) => {
                 let account_metadata = AccountMetadata {
@@ -234,7 +250,7 @@ impl Pipeline {
 }
 
 pub struct PipelineBuilder {
-    pub datasource: Option<Box<dyn Datasource>>,
+    pub datasources: Vec<Arc<dyn Datasource + Send + Sync>>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
@@ -246,7 +262,7 @@ pub struct PipelineBuilder {
 impl PipelineBuilder {
     pub fn new() -> Self {
         Self {
-            datasource: None,
+            datasources: Vec::new(),
             account_pipes: Vec::new(),
             account_deletion_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
@@ -256,8 +272,8 @@ impl PipelineBuilder {
         }
     }
 
-    pub fn datasource(mut self, datasource: impl Datasource + 'static) -> Self {
-        self.datasource = Some(Box::new(datasource));
+    pub fn datasource(mut self, datasource: impl Datasource + Send + Sync + 'static) -> Self {
+        self.datasources.push(Arc::new(datasource));
         self
     }
 
@@ -333,7 +349,7 @@ impl PipelineBuilder {
 
     pub fn build(self) -> CarbonResult<Pipeline> {
         Ok(Pipeline {
-            datasource: self.datasource.ok_or(Error::MissingDatasource)?,
+            datasources: self.datasources,
             account_pipes: self.account_pipes,
             account_deletion_pipes: self.account_deletion_pipes,
             instruction_pipes: self.instruction_pipes,

@@ -24,3 +24,4 @@ target/
 *idl.json
 **/creds/*.json
 prometheus.yml
+**/.DS_Store
