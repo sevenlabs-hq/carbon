@@ -3,14 +3,24 @@ use carbon_core::error::{CarbonResult, Error};
 use carbon_core::metrics::Metrics;
 use metrics::{counter, gauge, histogram};
 use metrics_exporter_prometheus::PrometheusBuilder;
+use std::collections::HashMap;
 use std::net::SocketAddrV4;
 use std::sync::Once;
+use tokio::sync::RwLock;
 
-pub struct PrometheusMetrics;
+pub struct PrometheusMetrics {
+    pub counters: RwLock<HashMap<String, metrics::Counter>>,
+    pub gauges: RwLock<HashMap<String, metrics::Gauge>>,
+    pub histograms: RwLock<HashMap<String, metrics::Histogram>>,
+}
 
 impl PrometheusMetrics {
     pub fn new() -> Self {
-        Self
+        Self {
+            counters: RwLock::new(HashMap::new()),
+            gauges: RwLock::new(HashMap::new()),
+            histograms: RwLock::new(HashMap::new()),
+        }
     }
 }
 
@@ -48,17 +58,44 @@ impl Metrics for PrometheusMetrics {
     }
 
     async fn update_gauge(&self, name: &str, value: f64) -> CarbonResult<()> {
-        gauge!(name.to_string(), value);
+        let mut gauge = self.gauges.write().await;
+
+        if let Some(gauge) = gauge.get(name) {
+            gauge.set(value);
+        } else {
+            let new_gauge = gauge!(name.to_string());
+            new_gauge.set(value);
+            gauge.insert(name.to_string(), new_gauge);
+        }
+
         Ok(())
     }
 
     async fn increment_counter(&self, name: &str, value: u64) -> CarbonResult<()> {
-        counter!(name.to_string(), value);
+        let mut counter = self.counters.write().await;
+
+        if let Some(counter) = counter.get(name) {
+            counter.increment(value);
+        } else {
+            let new_counter = counter!(name.to_string());
+            new_counter.increment(value);
+            counter.insert(name.to_string(), new_counter);
+        }
+
         Ok(())
     }
 
     async fn record_histogram(&self, name: &str, value: f64) -> CarbonResult<()> {
-        histogram!(name.to_string(), value);
+        let mut histogram = self.histograms.write().await;
+
+        if let Some(histogram) = histogram.get(name) {
+            histogram.record(value);
+        } else {
+            let new_histogram = histogram!(name.to_string());
+            new_histogram.record(value);
+            histogram.insert(name.to_string(), new_histogram);
+        }
+
         Ok(())
     }
 }
