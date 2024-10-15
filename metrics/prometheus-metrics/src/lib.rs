@@ -26,7 +26,7 @@ impl PrometheusMetrics {
 
 #[async_trait]
 impl Metrics for PrometheusMetrics {
-    async fn initialize_metrics(&self) -> CarbonResult<()> {
+    async fn initialize(&self) -> CarbonResult<()> {
         static INIT: Once = Once::new();
 
         let mut result = Ok(());
@@ -49,11 +49,11 @@ impl Metrics for PrometheusMetrics {
         result
     }
 
-    async fn flush_metrics(&self) -> CarbonResult<()> {
+    async fn flush(&self) -> CarbonResult<()> {
         Ok(())
     }
 
-    async fn shutdown_metrics(&self) -> CarbonResult<()> {
+    async fn shutdown(&self) -> CarbonResult<()> {
         Ok(())
     }
 
