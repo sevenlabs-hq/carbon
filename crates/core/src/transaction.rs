@@ -1,7 +1,10 @@
+use std::sync::Arc;
+
 use crate::{
     collection::InstructionDecoderCollection,
     error::CarbonResult,
     instruction::NestedInstruction,
+    metrics::Metrics,
     processor::Processor,
     schema::{ParsedInstruction, TransactionSchema},
 };
@@ -70,7 +73,11 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
 
 #[async_trait]
 pub trait TransactionPipes<'a>: Send + Sync {
-    async fn run(&mut self, instructions: &[NestedInstruction]) -> CarbonResult<()>;
+    async fn run(
+        &mut self,
+        instructions: &[NestedInstruction],
+        metrics: Vec<Arc<dyn Metrics>>,
+    ) -> CarbonResult<()>;
 }
 
 #[async_trait]
@@ -79,11 +86,15 @@ where
     T: InstructionDecoderCollection + Sync + 'static,
     U: DeserializeOwned + Send + Sync + 'static,
 {
-    async fn run(&mut self, instructions: &[NestedInstruction]) -> CarbonResult<()> {
+    async fn run(
+        &mut self,
+        instructions: &[NestedInstruction],
+        metrics: Vec<Arc<dyn Metrics>>,
+    ) -> CarbonResult<()> {
         let parsed_instructions = self.parse_instructions(&instructions);
 
         if let Some(matched_data) = self.matches_schema(&parsed_instructions) {
-            self.processor.process(matched_data).await?;
+            self.processor.process(matched_data, metrics).await?;
         }
 
         Ok(())

@@ -1,6 +1,6 @@
 [workspace]
 # TODO: Add examples back
-members = ["crates/*", "datasources/*", "examples/*", "decoders/*", "libs/*"]
+members = ["crates/*", "datasources/*", "examples/*", "decoders/*", "metrics/*", "libs/*"]
 resolver = "2"
 
 [workspace.dependencies]

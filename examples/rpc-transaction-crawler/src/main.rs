@@ -5,6 +5,7 @@ mod voting_program_decoder;
 use async_trait::async_trait;
 use carbon_core::error::Error;
 use carbon_core::instruction::{InstructionMetadata, NestedInstruction};
+use carbon_core::metrics::Metrics;
 use carbon_core::processor::Processor;
 use carbon_core::{error::CarbonResult, instruction::DecodedInstruction};
 use carbon_rpc_transaction_crawler_datasource::{Filters, RpcTransactionCrawler};
@@ -12,9 +13,15 @@ use db::{init_pool, DbPool};
 use diesel::prelude::*;
 use dotenv::dotenv;
 use env::Env;
+use log_metrics::LogMetrics;
+use prometheus_metrics::PrometheusMetrics;
 use schema::*;
 use solana_sdk::{commitment_config::CommitmentConfig, pubkey::Pubkey};
+use std::collections::HashMap;
+use std::sync::Arc;
+use std::time::Instant;
 use std::{str::FromStr, time::Duration};
+use tokio::sync::RwLock;
 use voting_program_decoder::instructions::VotingProgramInstruction;
 use voting_program_decoder::VotingProgramDecoder;
 
@@ -47,6 +54,8 @@ pub async fn main() -> CarbonResult<()> {
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(transaction_crawler)
+        .metrics(Arc::new(LogMetrics::new()))
+        .metrics(Arc::new(PrometheusMetrics::new()))
         .instruction(
             VotingProgramDecoder,
             VotingInstructionProcessor {
@@ -72,7 +81,11 @@ impl Processor for VotingInstructionProcessor {
         Vec<NestedInstruction>,
     );
 
-    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
+    async fn process(
+        &mut self,
+        data: Self::InputType,
+        _metrics: Vec<Arc<dyn Metrics>>,
+    ) -> CarbonResult<()> {
         let (instruction_metadata, decoded_instruction, _nested_instructions) = data;
 
         let mut conn = self

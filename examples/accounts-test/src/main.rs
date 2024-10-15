@@ -4,6 +4,7 @@ use async_trait::async_trait;
 use carbon_core::account::{AccountMetadata, DecodedAccount};
 use carbon_core::datasource::AccountDeletion;
 use carbon_core::error::CarbonResult;
+use carbon_core::metrics::Metrics;
 use carbon_core::processor::Processor;
 use carbon_yellowstone_grpc_datasource::YellowstoneGrpcGeyserClient;
 use db::models::{BondingCurve, GlobalAccount};
@@ -26,7 +27,11 @@ pub struct PumpfunAccountProcessor {
 impl Processor for PumpfunAccountProcessor {
     type InputType = (AccountMetadata, DecodedAccount<PumpAccount>);
 
-    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
+    async fn process(
+        &mut self,
+        data: Self::InputType,
+        _metrics: Vec<Arc<dyn Metrics>>,
+    ) -> CarbonResult<()> {
         match data.1.data {
             PumpAccount::Global(account) => {
                 let global_account = GlobalAccount::from_account(account, data.0.pubkey);
@@ -68,7 +73,11 @@ pub struct PumpfunAccountDeletionProcessor {
 impl Processor for PumpfunAccountDeletionProcessor {
     type InputType = AccountDeletion;
 
-    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
+    async fn process(
+        &mut self,
+        data: Self::InputType,
+        _metrics: Vec<Arc<dyn Metrics>>,
+    ) -> CarbonResult<()> {
         if self.accounts_tracked.read().await.contains(&data.pubkey) {
             if diesel::select(diesel::dsl::exists(
                 bonding_curve::table.filter(bonding_curve::pubkey.eq(data.pubkey.to_string())),
