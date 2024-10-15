@@ -12,6 +12,7 @@ use solana_client::{
 use solana_sdk::signature::Signature;
 use std::str::FromStr;
 use tokio::sync::mpsc::UnboundedSender;
+use tokio_util::sync::CancellationToken;
 
 #[derive(Debug, Clone)]
 pub struct Filters {
@@ -47,7 +48,8 @@ impl Datasource for RpcBlockSubscribe {
     async fn consume(
         &self,
         sender: &UnboundedSender<Update>,
-    ) -> CarbonResult<tokio::task::AbortHandle> {
+        cancellation_token: CancellationToken,
+    ) -> CarbonResult<()> {
         let client = PubsubClient::new(&self.rpc_url).await.map_err(|err| {
             carbon_core::error::Error::Custom(format!(
                 "Failed to create an RPC subscribe client: {err}"
@@ -57,7 +59,7 @@ impl Datasource for RpcBlockSubscribe {
         let filters = self.filters.clone();
         let sender = sender.clone();
 
-        let abort_handle = tokio::spawn(async move {
+        tokio::spawn(async move {
             let sender_clone = sender.clone();
             let (mut stream, _unsub) = match client
                 .block_subscribe(filters.block_filter, filters.block_subscribe_config)
@@ -72,11 +74,10 @@ impl Datasource for RpcBlockSubscribe {
 
             loop {
                 tokio::select! {
-                    // TODO:
-                    // _ = cancellation_token.cancelled() => {
-                    //     log::info!("Cancelling RPC blocks subscription...");
-                    //     break;
-                    // }
+                    _ = cancellation_token.cancelled() => {
+                        log::info!("Cancelling RPC blocks subscription...");
+                        break;
+                    }
                     event_result = stream.next() => {
                         match event_result {
                             Some(tx_event) => {
@@ -140,10 +141,9 @@ impl Datasource for RpcBlockSubscribe {
                     }
                 }
             }
-        })
-        .abort_handle();
+        });
 
-        Ok(abort_handle)
+        Ok(())
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
