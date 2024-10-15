@@ -44,7 +44,7 @@ impl Pipeline {
     }
 
     pub async fn run(&mut self) -> CarbonResult<()> {
-        self.initialize().await?;
+        self.initialize_metrics().await?;
 
         let (update_sender, mut update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
 
@@ -79,7 +79,7 @@ impl Pipeline {
         loop {
             tokio::select! {
                 _ = interval.tick() => {
-                    self.flush().await?;
+                    self.flush_metrics().await?;
                 }
                 update = update_receiver.recv() => {
                     match update {
@@ -167,7 +167,6 @@ impl Pipeline {
                 let nested_instructions =
                     transformers::nest_instructions(instructions_with_metadata);
 
-                // TODO: Check if this or other way around
                 for pipe in self.instruction_pipes.iter_mut() {
                     for nested_instruction in nested_instructions.iter().cloned() {
                         pipe.run(&nested_instruction, self.metrics.clone()).await?;
@@ -195,21 +194,21 @@ impl Pipeline {
         Ok(())
     }
 
-    pub async fn initialize(&self) -> CarbonResult<()> {
+    pub async fn initialize_metrics(&self) -> CarbonResult<()> {
         for metrics in self.metrics.iter() {
-            metrics.initialize_metrics().await?;
+            metrics.initialize().await?;
         }
         Ok(())
     }
-    pub async fn flush(&self) -> CarbonResult<()> {
+    pub async fn flush_metrics(&self) -> CarbonResult<()> {
         for metrics in self.metrics.iter() {
-            metrics.flush_metrics().await?;
+            metrics.flush().await?;
         }
         Ok(())
     }
-    pub async fn shutdown(&self) -> CarbonResult<()> {
+    pub async fn shutdown_metrics(&self) -> CarbonResult<()> {
         for metrics in self.metrics.iter() {
-            metrics.shutdown_metrics().await?;
+            metrics.shutdown().await?;
         }
         Ok(())
     }

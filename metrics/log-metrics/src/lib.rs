@@ -47,7 +47,7 @@ impl LogMetrics {
 
 #[async_trait]
 impl Metrics for LogMetrics {
-    async fn initialize_metrics(&self) -> CarbonResult<()> {
+    async fn initialize(&self) -> CarbonResult<()> {
         let mut start = self.start.write().await;
         *start = Instant::now();
 
@@ -57,7 +57,7 @@ impl Metrics for LogMetrics {
         Ok(())
     }
 
-    async fn flush_metrics(&self) -> CarbonResult<()> {
+    async fn flush(&self) -> CarbonResult<()> {
         let mut updates_processing_times = self.updates_processing_times.write().await;
 
         let updates_processing_times_avg = if !updates_processing_times.is_empty() {
@@ -142,7 +142,7 @@ impl Metrics for LogMetrics {
         Ok(())
     }
 
-    async fn shutdown_metrics(&self) -> CarbonResult<()> {
+    async fn shutdown(&self) -> CarbonResult<()> {
         Ok(())
     }
 
