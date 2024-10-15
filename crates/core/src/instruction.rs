@@ -1,8 +1,12 @@
+use std::sync::Arc;
+
 use async_trait::async_trait;
 use serde::Deserialize;
 use solana_sdk::{instruction::AccountMeta, pubkey::Pubkey};
 
-use crate::{error::CarbonResult, processor::Processor, transaction::TransactionMetadata};
+use crate::{
+    error::CarbonResult, metrics::Metrics, processor::Processor, transaction::TransactionMetadata,
+};
 
 #[derive(Debug, Clone)]
 pub struct InstructionMetadata {
@@ -44,27 +48,38 @@ pub struct InstructionPipe<T: Send> {
 
 #[async_trait]
 pub trait InstructionPipes<'a>: Send + Sync {
-    async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()>;
+    async fn run(
+        &mut self,
+        nested_instruction: &NestedInstruction,
+        metrics: Vec<Arc<dyn Metrics>>,
+    ) -> CarbonResult<()>;
 }
 
 #[async_trait]
 impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
-    async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()> {
+    async fn run(
+        &mut self,
+        nested_instruction: &NestedInstruction,
+        metrics: Vec<Arc<dyn Metrics>>,
+    ) -> CarbonResult<()> {
         if let Some(decoded_instruction) = self
             .decoder
             .decode_instruction(&nested_instruction.instruction)
         {
             self.processor
-                .process((
-                    nested_instruction.metadata.clone(),
-                    decoded_instruction,
-                    nested_instruction.inner_instructions.clone(),
-                ))
+                .process(
+                    (
+                        nested_instruction.metadata.clone(),
+                        decoded_instruction,
+                        nested_instruction.inner_instructions.clone(),
+                    ),
+                    metrics.clone(),
+                )
                 .await?;
         }
 
         for nested_inner_instruction in nested_instruction.inner_instructions.iter() {
-            self.run(nested_inner_instruction).await?;
+            self.run(nested_inner_instruction, metrics.clone()).await?;
         }
 
         Ok(())
