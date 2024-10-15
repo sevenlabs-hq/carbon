@@ -54,8 +54,6 @@ impl Pipeline {
     }
 
     pub async fn run(&mut self) -> CarbonResult<()> {
-        self.initialize_metrics().await?;
-
         let update_types: Vec<UpdateType> = self
             .datasources
             .iter()
@@ -85,10 +83,10 @@ impl Pipeline {
             ));
         }
 
+        self.initialize_metrics().await?;
         let (update_sender, mut update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
 
         let datasource_cancellation_token = CancellationToken::new();
-        let processing_cancellation_token = CancellationToken::new();
 
         for datasource in &self.datasources {
             let datasource_cancellation_token_clone = datasource_cancellation_token.clone();
@@ -112,13 +110,16 @@ impl Pipeline {
         loop {
             tokio::select! {
                 _ = tokio::signal::ctrl_c() => {
-                    log::trace!("Shutdown signal received, sending cancellation requests and dropping the update sender...");
+                    log::trace!("Shutdown signal received, sending cancellation requests...");
                     datasource_cancellation_token.cancel();
-                    if self.shutdown_strategy != ShutdownStrategy::ProcessPending {
-                        processing_cancellation_token.cancel();
+
+                    if self.shutdown_strategy == ShutdownStrategy::Immediate {
+                        log::trace!("Shutting down updates stream and processing.");
+                        self.flush_metrics().await?;
+                        break;
+                    } else {
+                        log::trace!("Shutting down updates stream, continuing to process remaining updates.");
                     }
-                    drop(update_sender);
-                    break;
                 }
                 _ = interval.tick() => {
                     self.flush_metrics().await?;
@@ -133,7 +134,6 @@ impl Pipeline {
                             let start = Instant::now();
                             let process_result = self.process(update.clone()).await;
                             let time_taken = start.elapsed().as_millis();
-
 
                             self
                                 .record_histogram("updates_processing_times", time_taken as f64)
@@ -162,15 +162,13 @@ impl Pipeline {
                                 .update_gauge("updates_queued", update_receiver.len() as f64)
                                 .await?;
                         }
-
                         None => {
-                            self.increment_counter("updates_failed", 1).await?;
-                            log::error!("error processing update");
+                            log::trace!("All the updates were processed. Shutting down.");
 
-                            break
+                            self.flush_metrics().await?;
+                            break;
                         }
                     }
-
                 }
             }
         }

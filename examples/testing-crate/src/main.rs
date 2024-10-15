@@ -1,43 +1,29 @@
 use carbon_core::account::{AccountDecoder, AccountMetadata, DecodedAccount};
 use carbon_core::datasource::TransactionUpdate;
 use carbon_core::metrics::Metrics;
-use carbon_core::schema::{InstructionSchemaNode, SchemaNode, TransactionSchema};
-use carbon_proc_macros::{instruction_decoder_collection, InstructionType};
+use carbon_core::transformers::transaction_metadata_from_original_meta;
 // use investment_watches_program_decoder::instructions::InvestmentWatchesProgramInstruction;
 // use jupiter_decoder::instructions::{JupiterInstruction, JupiterInstructionType};
 // use jupiter_decoder::JupiterDecoder;
-use serde::Deserialize;
 use solana_client::rpc_client::RpcClient;
 use solana_client::rpc_config::RpcTransactionConfig;
 use solana_sdk::account::ReadableAccount;
 use solana_sdk::commitment_config::CommitmentConfig;
-use solana_sdk::instruction::CompiledInstruction;
-use solana_sdk::message::v0::LoadedAddresses;
 use solana_sdk::program_pack::Pack;
-use solana_sdk::pubkey::Pubkey;
 use solana_sdk::signature::Signature;
-use solana_transaction_status::{
-    InnerInstruction, InnerInstructions, Reward, TransactionStatusMeta, TransactionTokenBalance,
-    UiInstruction,
-};
 use std::str::FromStr;
 use std::sync::Arc;
 use std::time::Duration;
+use tokio_util::sync::CancellationToken;
 //use whirlpool_decoder::instructions::WhirlpoolInstruction;
 //use whirlpool_decoder::WhirlpoolDecoder;
-
 use async_trait::async_trait;
-use carbon_core::instruction::{InstructionMetadata, NestedInstruction};
 use carbon_core::processor::Processor;
-use carbon_core::transaction::ParsedTransaction;
 use carbon_core::{
-    collection::InstructionDecoderCollection,
     datasource::{Datasource, Update, UpdateType},
     error::CarbonResult,
-    instruction::{DecodedInstruction, InstructionDecoder},
 };
 pub use carbon_macros::*;
-use once_cell::sync::Lazy;
 
 pub struct TestDatasource;
 
@@ -46,7 +32,8 @@ impl Datasource for TestDatasource {
     async fn consume(
         &self,
         sender: &tokio::sync::mpsc::UnboundedSender<Update>,
-    ) -> CarbonResult<tokio::task::AbortHandle> {
+        _cancellation_token: CancellationToken,
+    ) -> CarbonResult<()> {
         let sender = sender.clone();
 
         let rpc_client = RpcClient::new_with_commitment(
@@ -62,105 +49,10 @@ impl Datasource for TestDatasource {
 
         let meta_original = tx.transaction.meta.unwrap();
 
-        let meta_needed = TransactionStatusMeta {
-            status: meta_original.status,
-            fee: meta_original.fee,
-            pre_balances: meta_original.pre_balances,
-            post_balances: meta_original.post_balances,
-            log_messages: Some(meta_original.log_messages.unwrap()),
-            pre_token_balances: Some(
-                meta_original
-                    .pre_token_balances
-                    .unwrap()
-                    .iter()
-                    .map(|tok| TransactionTokenBalance {
-                        account_index: tok.account_index,
-                        mint: tok.mint.clone(),
-                        ui_token_amount: tok.ui_token_amount.clone(),
-                        owner: tok.owner.clone().unwrap(),
-                        program_id: tok.program_id.clone().unwrap(),
-                    })
-                    .collect::<Vec<TransactionTokenBalance>>(),
-            ),
-            inner_instructions: Some(
-                meta_original
-                    .inner_instructions
-                    .unwrap()
-                    .iter()
-                    .map(|iixs| InnerInstructions {
-                        index: iixs.index,
-                        instructions: iixs
-                            .instructions
-                            .iter()
-                            .map(|iix| match iix {
-                                UiInstruction::Compiled(ui_compiled_instruction) => {
-                                    InnerInstruction {
-                                        instruction: CompiledInstruction {
-                                            program_id_index: ui_compiled_instruction
-                                                .program_id_index,
-                                            accounts: ui_compiled_instruction.accounts.clone(),
-                                            data: bs58::decode(
-                                                ui_compiled_instruction.data.clone(),
-                                            )
-                                            .into_vec()
-                                            .unwrap(),
-                                        },
-                                        stack_height: ui_compiled_instruction.stack_height,
-                                    }
-                                }
-                                _ => {
-                                    panic!("unimplemented instruction type");
-                                }
-                            })
-                            .collect::<Vec<InnerInstruction>>(),
-                    })
-                    .collect::<Vec<InnerInstructions>>(),
-            ),
-            post_token_balances: Some(
-                meta_original
-                    .post_token_balances
-                    .unwrap()
-                    .iter()
-                    .map(|ptb| TransactionTokenBalance {
-                        account_index: ptb.account_index,
-                        mint: ptb.mint.clone(),
-                        ui_token_amount: ptb.ui_token_amount.clone(),
-                        owner: ptb.owner.clone().unwrap(),
-                        program_id: ptb.program_id.clone().unwrap(),
-                    })
-                    .collect::<Vec<TransactionTokenBalance>>(),
-            ),
-            rewards: Some(
-                meta_original
-                    .rewards
-                    .unwrap()
-                    .iter()
-                    .map(|rewards| Reward {
-                        pubkey: rewards.pubkey.clone(),
-                        lamports: rewards.lamports,
-                        post_balance: rewards.post_balance,
-                        reward_type: rewards.reward_type,
-                        commission: rewards.commission,
-                    })
-                    .collect::<Vec<Reward>>(),
-            ),
-            loaded_addresses: {
-                let loaded = meta_original.loaded_addresses.unwrap();
-                LoadedAddresses {
-                    writable: loaded
-                        .writable
-                        .iter()
-                        .map(|w| Pubkey::from_str(&w).unwrap())
-                        .collect::<Vec<Pubkey>>(),
-                    readonly: loaded
-                        .readonly
-                        .iter()
-                        .map(|r| Pubkey::from_str(&r).unwrap())
-                        .collect::<Vec<Pubkey>>(),
-                }
-            },
-            return_data: None,
-            compute_units_consumed: Some(meta_original.compute_units_consumed.unwrap()),
+        let Ok(meta_needed) = transaction_metadata_from_original_meta(meta_original) else {
+            return CarbonResult::Err(carbon_core::error::Error::Custom(
+                "Error getting metadata from transaction original meta.".to_string(),
+            ));
         };
 
         let update = Update::Transaction(TransactionUpdate {
@@ -171,12 +63,11 @@ impl Datasource for TestDatasource {
             slot: tx.slot,
         });
 
-        let abort_handle = tokio::spawn(async move {
+        tokio::spawn(async move {
             sender.send(update).unwrap();
-        })
-        .abort_handle();
+        });
 
-        Ok(abort_handle)
+        Ok(())
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
@@ -191,9 +82,10 @@ impl Datasource for MockDatasource {
     async fn consume(
         &self,
         sender: &tokio::sync::mpsc::UnboundedSender<Update>,
-    ) -> CarbonResult<tokio::task::AbortHandle> {
+        _cancellation_token: CancellationToken,
+    ) -> CarbonResult<()> {
         let sender = sender.clone();
-        let abort_handle = tokio::spawn(async move {
+        tokio::spawn(async move {
             loop {
                 tokio::time::sleep(Duration::from_secs(1)).await;
                 sender
@@ -221,10 +113,9 @@ impl Datasource for MockDatasource {
                     ))
                     .unwrap();
             }
-        })
-        .abort_handle();
+        });
 
-        Ok(abort_handle)
+        Ok(())
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
