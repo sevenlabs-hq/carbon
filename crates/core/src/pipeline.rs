@@ -73,7 +73,7 @@ impl Pipeline {
         }
 
         let mut interval = tokio::time::interval(time::Duration::from_secs(
-            self.metrics_flush_interval.unwrap_or(10),
+            self.metrics_flush_interval.unwrap_or(5),
         ));
 
         loop {
@@ -121,7 +121,12 @@ impl Pipeline {
                                 .await?;
                         }
 
-                        None => break
+                        None => {
+                            self.increment_counter("updates_failed", 1).await?;
+                            log::error!("error processing update");
+
+                            break
+                        }
                     }
 
                 }
@@ -146,6 +151,9 @@ impl Pipeline {
                     )
                     .await?;
                 }
+
+                self.increment_counter("account_updates_processed", 1)
+                    .await?;
             }
             Update::Transaction(transaction_update) => {
                 let transaction_metadata =
@@ -169,13 +177,18 @@ impl Pipeline {
                 for pipe in self.transaction_pipes.iter_mut() {
                     pipe.run(&nested_instructions, self.metrics.clone()).await?;
                 }
-            }
 
+                self.increment_counter("transaction_updates_processed", 1)
+                    .await?;
+            }
             Update::AccountDeletion(account_deletion) => {
                 for pipe in self.account_deletion_pipes.iter_mut() {
                     pipe.run(account_deletion.clone(), self.metrics.clone())
                         .await?;
                 }
+
+                self.increment_counter("account_deletions_processed", 1)
+                    .await?;
             }
         };
 

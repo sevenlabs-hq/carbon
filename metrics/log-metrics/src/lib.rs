@@ -12,6 +12,10 @@ pub struct LogMetrics {
     pub updates_queued: RwLock<u64>,
     pub updates_processing_times: RwLock<Vec<u64>>,
 
+    pub account_updates_processed: RwLock<u64>,
+    pub transaction_updates_processed: RwLock<u64>,
+    pub account_deletions_processed: RwLock<u64>,
+
     pub counters: RwLock<HashMap<String, u64>>,
     pub gauges: RwLock<HashMap<String, f64>>,
     pub histograms: RwLock<HashMap<String, Vec<f64>>>,
@@ -29,6 +33,9 @@ impl LogMetrics {
             updates_failed: RwLock::new(0),
             updates_queued: RwLock::new(0),
             updates_processing_times: RwLock::new(Vec::new()),
+            account_updates_processed: RwLock::new(0),
+            transaction_updates_processed: RwLock::new(0),
+            account_deletions_processed: RwLock::new(0),
             counters: RwLock::new(HashMap::new()),
             gauges: RwLock::new(HashMap::new()),
             histograms: RwLock::new(HashMap::new()),
@@ -90,6 +97,44 @@ impl Metrics for LogMetrics {
             updates_processing_times_max
         );
 
+        for counter in self.counters.read().await.iter() {
+            log::info!("{}: {}", counter.0, counter.1);
+        }
+
+        for gauge in self.gauges.read().await.iter() {
+            log::info!("{}: {}", gauge.0, gauge.1);
+        }
+
+        for histogram in self.histograms.read().await.iter() {
+            let histogram_values = histogram.1;
+
+            let avg = if !histogram_values.is_empty() {
+                histogram_values.iter().sum::<f64>() / histogram_values.len() as f64
+            } else {
+                0.0
+            };
+            let min = histogram_values
+                .iter()
+                .min_by(|a, b| a.partial_cmp(b).unwrap())
+                .copied()
+                .unwrap_or(0.0);
+            let max = histogram_values
+                .iter()
+                .max_by(|a, b| a.partial_cmp(b).unwrap())
+                .copied()
+                .unwrap_or(0.0);
+
+            log::info!(
+                "{} -> avg: {}, min: {}, max: {}",
+                histogram.0,
+                avg,
+                min,
+                max
+            );
+        }
+
+        self.histograms.write().await.clear();
+
         *last_flush = Instant::now();
 
         updates_processing_times.clear();
@@ -118,6 +163,20 @@ impl Metrics for LogMetrics {
             "updates_failed" => {
                 let mut updates_failed = self.updates_failed.write().await;
                 *updates_failed += value;
+            }
+            "account_updates_processed" => {
+                let mut account_updates_processed = self.account_updates_processed.write().await;
+                *account_updates_processed += value;
+            }
+            "transaction_updates_processed" => {
+                let mut transaction_updates_processed =
+                    self.transaction_updates_processed.write().await;
+                *transaction_updates_processed += value;
+            }
+            "account_deletions_processed" => {
+                let mut account_deletions_processed =
+                    self.account_deletions_processed.write().await;
+                *account_deletions_processed += value;
             }
             _ => {
                 let mut counters = self.counters.write().await;
