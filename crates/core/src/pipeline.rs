@@ -1,4 +1,7 @@
-use std::sync::Arc;
+use core::time;
+use std::{sync::Arc, time::Instant};
+
+use serde::de::DeserializeOwned;
 
 use crate::{
     account::{AccountDecoder, AccountMetadata, AccountPipe, AccountPipes, DecodedAccount},
@@ -10,12 +13,12 @@ use crate::{
         DecodedInstruction, InstructionDecoder, InstructionMetadata, InstructionPipe,
         InstructionPipes, NestedInstruction,
     },
+    metrics::Metrics,
     processor::Processor,
     schema::TransactionSchema,
     transaction::{TransactionPipe, TransactionPipes},
     transformers,
 };
-use serde::de::DeserializeOwned;
 
 pub struct Pipeline {
     pub datasources: Vec<Arc<dyn Datasource + Send + Sync>>,
@@ -23,6 +26,8 @@ pub struct Pipeline {
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
+    pub metrics: Vec<Arc<dyn Metrics>>,
+    pub metrics_flush_interval: Option<u64>,
 }
 
 impl Pipeline {
@@ -33,10 +38,14 @@ impl Pipeline {
             account_deletion_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
+            metrics: Vec::new(),
+            metrics_flush_interval: None,
         }
     }
 
     pub async fn run(&mut self) -> CarbonResult<()> {
+        self.initialize_metrics().await?;
+
         let (update_sender, mut update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
 
         let update_types: Vec<UpdateType> = self
@@ -79,21 +88,64 @@ impl Pipeline {
             });
         }
 
+        let mut interval = tokio::time::interval(time::Duration::from_secs(
+            self.metrics_flush_interval.unwrap_or(5),
+        ));
+
         loop {
-            match update_receiver.try_recv() {
-                Ok(update) => match self.process(update.clone()).await {
-                    Ok(_) => log::trace!("processed update"),
-                    Err(error) => log::error!("error processing update: {:?}", error),
-                },
-                Err(error) => match error {
-                    tokio::sync::mpsc::error::TryRecvError::Disconnected => {
-                        break;
+            tokio::select! {
+                _ = interval.tick() => {
+                    self.flush_metrics().await?;
+                }
+                update = update_receiver.recv() => {
+                    match update {
+                        Some(update) => {
+                            self
+                                .increment_counter("updates_received", 1)
+                                .await?;
+
+                            let start = Instant::now();
+                            let process_result = self.process(update.clone()).await;
+                            let time_taken = start.elapsed().as_millis();
+
+
+                            self
+                                .record_histogram("updates_processing_times", time_taken as f64)
+                                .await?;
+
+                            match process_result {
+                                Ok(_) => {
+                                    self
+                                        .increment_counter("updates_successful", 1)
+                                        .await?;
+
+                                    log::trace!("processed update")
+                                }
+                                Err(error) => {
+                                    self.increment_counter("updates_failed", 1).await?;
+
+                                    log::error!("error processing update: {:?}", error)
+                                }
+                            };
+
+                            self
+                                .increment_counter("updates_processed", 1)
+                                .await?;
+
+                            self
+                                .update_gauge("updates_queued", update_receiver.len() as f64)
+                                .await?;
+                        }
+
+                        None => {
+                            self.increment_counter("updates_failed", 1).await?;
+                            log::error!("error processing update");
+
+                            break
+                        }
                     }
-                    tokio::sync::mpsc::error::TryRecvError::Empty => {
-                        tokio::time::sleep(tokio::time::Duration::from_secs(1)).await;
-                        continue;
-                    }
-                },
+
+                }
             }
         }
 
@@ -107,10 +159,17 @@ impl Pipeline {
                     slot: account_update.slot,
                     pubkey: account_update.pubkey,
                 };
+
                 for pipe in self.account_pipes.iter_mut() {
-                    pipe.run((account_metadata.clone(), account_update.account.clone()))
-                        .await?;
+                    pipe.run(
+                        (account_metadata.clone(), account_update.account.clone()),
+                        self.metrics.clone(),
+                    )
+                    .await?;
                 }
+
+                self.increment_counter("account_updates_processed", 1)
+                    .await?;
             }
             Update::Transaction(transaction_update) => {
                 let transaction_metadata =
@@ -124,24 +183,68 @@ impl Pipeline {
                 let nested_instructions =
                     transformers::nest_instructions(instructions_with_metadata);
 
-                // TODO: Check if this or other way around
                 for pipe in self.instruction_pipes.iter_mut() {
                     for nested_instruction in nested_instructions.iter().cloned() {
-                        pipe.run(&nested_instruction).await?;
+                        pipe.run(&nested_instruction, self.metrics.clone()).await?;
                     }
                 }
 
                 for pipe in self.transaction_pipes.iter_mut() {
-                    pipe.run(&nested_instructions).await?;
+                    pipe.run(&nested_instructions, self.metrics.clone()).await?;
                 }
-            }
 
+                self.increment_counter("transaction_updates_processed", 1)
+                    .await?;
+            }
             Update::AccountDeletion(account_deletion) => {
                 for pipe in self.account_deletion_pipes.iter_mut() {
-                    pipe.run(account_deletion.clone()).await?;
+                    pipe.run(account_deletion.clone(), self.metrics.clone())
+                        .await?;
                 }
+
+                self.increment_counter("account_deletions_processed", 1)
+                    .await?;
             }
         };
+
+        Ok(())
+    }
+
+    pub async fn initialize_metrics(&self) -> CarbonResult<()> {
+        for metrics in self.metrics.iter() {
+            metrics.initialize().await?;
+        }
+        Ok(())
+    }
+    pub async fn flush_metrics(&self) -> CarbonResult<()> {
+        for metrics in self.metrics.iter() {
+            metrics.flush().await?;
+        }
+        Ok(())
+    }
+    pub async fn shutdown_metrics(&self) -> CarbonResult<()> {
+        for metrics in self.metrics.iter() {
+            metrics.shutdown().await?;
+        }
+        Ok(())
+    }
+
+    pub async fn update_gauge(&self, name: &str, value: f64) -> CarbonResult<()> {
+        for metrics in self.metrics.iter() {
+            metrics.update_gauge(name, value).await?;
+        }
+        Ok(())
+    }
+    pub async fn increment_counter(&self, name: &str, value: u64) -> CarbonResult<()> {
+        for metrics in self.metrics.iter() {
+            metrics.increment_counter(name, value).await?;
+        }
+        Ok(())
+    }
+    pub async fn record_histogram(&self, name: &str, value: f64) -> CarbonResult<()> {
+        for metrics in self.metrics.iter() {
+            metrics.record_histogram(name, value).await?;
+        }
         Ok(())
     }
 }
@@ -152,6 +255,8 @@ pub struct PipelineBuilder {
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
+    pub metrics: Vec<Arc<dyn Metrics>>,
+    pub metrics_flush_interval: Option<u64>,
 }
 
 impl PipelineBuilder {
@@ -162,6 +267,8 @@ impl PipelineBuilder {
             account_deletion_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
+            metrics: Vec::new(),
+            metrics_flush_interval: None,
         }
     }
 
@@ -215,6 +322,7 @@ impl PipelineBuilder {
         }));
         self
     }
+
     pub fn transaction<T, U>(
         mut self,
         schema: TransactionSchema<T>,
@@ -229,6 +337,16 @@ impl PipelineBuilder {
         self
     }
 
+    pub fn metrics(mut self, metrics: Arc<dyn Metrics>) -> Self {
+        self.metrics.push(metrics);
+        self
+    }
+
+    pub fn metrics_flush_interval(mut self, interval: u64) -> Self {
+        self.metrics_flush_interval = Some(interval);
+        self
+    }
+
     pub fn build(self) -> CarbonResult<Pipeline> {
         Ok(Pipeline {
             datasources: self.datasources,
@@ -236,6 +354,8 @@ impl PipelineBuilder {
             account_deletion_pipes: self.account_deletion_pipes,
             instruction_pipes: self.instruction_pipes,
             transaction_pipes: self.transaction_pipes,
+            metrics: self.metrics,
+            metrics_flush_interval: self.metrics_flush_interval,
         })
     }
 }
