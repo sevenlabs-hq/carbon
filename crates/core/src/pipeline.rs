@@ -116,6 +116,7 @@ impl Pipeline {
                     if self.shutdown_strategy == ShutdownStrategy::Immediate {
                         log::trace!("Shutting down updates stream and processing.");
                         self.flush_metrics().await?;
+                        self.shutdown_metrics().await?;
                         break;
                     } else {
                         log::trace!("Shutting down updates stream, continuing to process remaining updates.");
@@ -166,6 +167,7 @@ impl Pipeline {
                             log::trace!("All the updates were processed. Shutting down.");
 
                             self.flush_metrics().await?;
+                            self.shutdown_metrics().await?;
                             break;
                         }
                     }
