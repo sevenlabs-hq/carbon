@@ -36,7 +36,7 @@ pub struct AccountPipe<T: Send> {
 }
 
 #[async_trait]
-pub trait AccountPipes {
+pub trait AccountPipes: Send + Sync {
     async fn run(
         &mut self,
         account_with_metadata: (AccountMetadata, solana_sdk::account::Account),

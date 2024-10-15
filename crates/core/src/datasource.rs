@@ -4,7 +4,7 @@ use solana_sdk::{pubkey::Pubkey, signature::Signature};
 use crate::error::CarbonResult;
 
 #[async_trait]
-pub trait Datasource {
+pub trait Datasource: Send + Sync {
     async fn consume(
         &self,
         sender: &tokio::sync::mpsc::UnboundedSender<Update>,

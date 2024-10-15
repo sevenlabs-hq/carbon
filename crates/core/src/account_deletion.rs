@@ -11,7 +11,7 @@ pub struct AccountDeletionPipe {
 }
 
 #[async_trait]
-pub trait AccountDeletionPipes {
+pub trait AccountDeletionPipes: Send + Sync {
     async fn run(
         &mut self,
         account_deletion: AccountDeletion,

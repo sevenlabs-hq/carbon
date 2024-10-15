@@ -4,8 +4,6 @@ use crate::datasource::UpdateType;
 
 #[derive(Error, Debug)]
 pub enum Error {
-    #[error("Missing datasource")]
-    MissingDatasource,
     #[error("Missing update type in datasource")]
     MissingUpdateTypeInDatasource(UpdateType),
     #[error("Failed to receive updates({0})")]
