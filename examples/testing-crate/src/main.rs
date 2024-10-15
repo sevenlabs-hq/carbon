@@ -1,5 +1,6 @@
 use carbon_core::account::{AccountDecoder, AccountMetadata, DecodedAccount};
 use carbon_core::datasource::TransactionUpdate;
+use carbon_core::metrics::Metrics;
 use carbon_core::schema::{InstructionSchemaNode, SchemaNode, TransactionSchema};
 use carbon_proc_macros::{instruction_decoder_collection, InstructionType};
 // use investment_watches_program_decoder::instructions::InvestmentWatchesProgramInstruction;
@@ -20,6 +21,7 @@ use solana_transaction_status::{
     UiInstruction,
 };
 use std::str::FromStr;
+use std::sync::Arc;
 use std::time::Duration;
 //use whirlpool_decoder::instructions::WhirlpoolInstruction;
 //use whirlpool_decoder::WhirlpoolDecoder;
@@ -353,7 +355,11 @@ pub struct TokenProgramAccountProcessor;
 impl Processor for TokenProgramAccountProcessor {
     type InputType = (AccountMetadata, DecodedAccount<TokenProgramAccount>);
 
-    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
+    async fn process(
+        &mut self,
+        data: Self::InputType,
+        _metrics: Vec<Arc<dyn Metrics>>,
+    ) -> CarbonResult<()> {
         match data.1.data {
             TokenProgramAccount::Account(account) => {
                 log::info!("Account: {:?}", account);
