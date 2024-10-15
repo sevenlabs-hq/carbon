@@ -1,6 +1,7 @@
 mod jupiter;
 use async_trait::async_trait;
 use carbon_core::instruction::{InstructionMetadata, NestedInstruction};
+use carbon_core::metrics::Metrics;
 use carbon_core::processor::Processor;
 use carbon_core::schema::{InstructionSchemaNode, SchemaNode, TransactionSchema};
 use carbon_core::{
@@ -77,7 +78,11 @@ pub struct JupTransactionProcessor;
 impl Processor for JupTransactionProcessor {
     type InputType = JupOutput;
 
-    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
+    async fn process(
+        &mut self,
+        data: Self::InputType,
+        _metrics: Vec<Arc<dyn Metrics>>,
+    ) -> CarbonResult<()> {
         log::info!("Output: {:?}", data);
         println!("Matched Jupiter transaction: {:#?}", data);
         Ok(())
@@ -94,7 +99,11 @@ impl Processor for JupInstructionProcessor {
         Vec<NestedInstruction>,
     );
 
-    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
+    async fn process(
+        &mut self,
+        data: Self::InputType,
+        _metrics: Vec<Arc<dyn Metrics>>,
+    ) -> CarbonResult<()> {
         println!("Matched Jupiter instruction: {:#?}", data);
 
         Ok(())
