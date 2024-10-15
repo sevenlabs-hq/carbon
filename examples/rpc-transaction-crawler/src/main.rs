@@ -52,23 +52,9 @@ pub async fn main() -> CarbonResult<()> {
 
     let db_pool = init_pool(&env.database_url);
 
-    let metrics = Arc::new(LogMetrics {
-        updates_received: RwLock::new(0),
-        updates_processed: RwLock::new(0),
-        updates_successful: RwLock::new(0),
-        updates_failed: RwLock::new(0),
-        updates_queued: RwLock::new(0),
-        updates_processing_times: RwLock::new(Vec::new()),
-        counters: RwLock::new(HashMap::new()),
-        gauges: RwLock::new(HashMap::new()),
-        histograms: RwLock::new(HashMap::new()),
-        start: RwLock::new(Instant::now()),
-        last_flush: RwLock::new(Instant::now()),
-    });
-
     carbon_core::pipeline::Pipeline::builder()
         .datasource(transaction_crawler)
-        .metrics(metrics.clone())
+        .metrics(Arc::new(LogMetrics::new()))
         .metrics(Arc::new(PrometheusMetrics::new()))
         .instruction(
             VotingProgramDecoder,

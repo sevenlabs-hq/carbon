@@ -20,9 +20,27 @@ pub struct LogMetrics {
     pub last_flush: RwLock<Instant>,
 }
 
+impl LogMetrics {
+    pub fn new() -> Self {
+        Self {
+            updates_received: RwLock::new(0),
+            updates_processed: RwLock::new(0),
+            updates_successful: RwLock::new(0),
+            updates_failed: RwLock::new(0),
+            updates_queued: RwLock::new(0),
+            updates_processing_times: RwLock::new(Vec::new()),
+            counters: RwLock::new(HashMap::new()),
+            gauges: RwLock::new(HashMap::new()),
+            histograms: RwLock::new(HashMap::new()),
+            start: RwLock::new(Instant::now()),
+            last_flush: RwLock::new(Instant::now()),
+        }
+    }
+}
+
 #[async_trait]
 impl Metrics for LogMetrics {
-    async fn initialize(&self) -> CarbonResult<()> {
+    async fn initialize_metrics(&self) -> CarbonResult<()> {
         let mut start = self.start.write().await;
         *start = Instant::now();
 
@@ -32,7 +50,7 @@ impl Metrics for LogMetrics {
         Ok(())
     }
 
-    async fn flush(&self) -> CarbonResult<()> {
+    async fn flush_metrics(&self) -> CarbonResult<()> {
         let mut updates_processing_times = self.updates_processing_times.write().await;
 
         let updates_processing_times_avg = if !updates_processing_times.is_empty() {
@@ -79,7 +97,7 @@ impl Metrics for LogMetrics {
         Ok(())
     }
 
-    async fn shutdown(&self) -> CarbonResult<()> {
+    async fn shutdown_metrics(&self) -> CarbonResult<()> {
         Ok(())
     }
 

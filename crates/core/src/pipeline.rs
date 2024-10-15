@@ -27,6 +27,7 @@ pub struct Pipeline {
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
     pub metrics: Vec<Arc<dyn Metrics>>,
+    pub metrics_interval: Option<u64>,
 }
 
 impl Pipeline {
@@ -38,6 +39,7 @@ impl Pipeline {
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
             metrics: Vec::new(),
+            metrics_interval: None,
         }
     }
 
@@ -70,7 +72,9 @@ impl Pipeline {
             ));
         }
 
-        let mut interval = tokio::time::interval(time::Duration::from_secs(10));
+        let mut interval = tokio::time::interval(time::Duration::from_secs(
+            self.metrics_interval.unwrap_or(10),
+        ));
 
         loop {
             tokio::select! {
@@ -180,19 +184,19 @@ impl Pipeline {
 
     pub async fn initialize(&self) -> CarbonResult<()> {
         for metrics in self.metrics.iter() {
-            metrics.initialize().await?;
+            metrics.initialize_metrics().await?;
         }
         Ok(())
     }
     pub async fn flush(&self) -> CarbonResult<()> {
         for metrics in self.metrics.iter() {
-            metrics.flush().await?;
+            metrics.flush_metrics().await?;
         }
         Ok(())
     }
     pub async fn shutdown(&self) -> CarbonResult<()> {
         for metrics in self.metrics.iter() {
-            metrics.shutdown().await?;
+            metrics.shutdown_metrics().await?;
         }
         Ok(())
     }
@@ -224,6 +228,7 @@ pub struct PipelineBuilder {
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
     pub metrics: Vec<Arc<dyn Metrics>>,
+    pub metrics_interval: Option<u64>,
 }
 
 impl PipelineBuilder {
@@ -235,6 +240,7 @@ impl PipelineBuilder {
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
             metrics: Vec::new(),
+            metrics_interval: None,
         }
     }
 
@@ -308,6 +314,11 @@ impl PipelineBuilder {
         self
     }
 
+    pub fn metrics_interval(mut self, interval: u64) -> Self {
+        self.metrics_interval = Some(interval);
+        self
+    }
+
     pub fn build(self) -> CarbonResult<Pipeline> {
         Ok(Pipeline {
             datasource: self.datasource.ok_or(Error::MissingDatasource)?,
@@ -316,6 +327,7 @@ impl PipelineBuilder {
             instruction_pipes: self.instruction_pipes,
             transaction_pipes: self.transaction_pipes,
             metrics: self.metrics,
+            metrics_interval: self.metrics_interval,
         })
     }
 }
