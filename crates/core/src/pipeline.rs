@@ -27,7 +27,7 @@ pub struct Pipeline {
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
     pub metrics: Vec<Arc<dyn Metrics>>,
-    pub metrics_interval: Option<u64>,
+    pub metrics_flush_interval: Option<u64>,
 }
 
 impl Pipeline {
@@ -39,7 +39,7 @@ impl Pipeline {
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
             metrics: Vec::new(),
-            metrics_interval: None,
+            metrics_flush_interval: None,
         }
     }
 
@@ -73,7 +73,7 @@ impl Pipeline {
         }
 
         let mut interval = tokio::time::interval(time::Duration::from_secs(
-            self.metrics_interval.unwrap_or(10),
+            self.metrics_flush_interval.unwrap_or(10),
         ));
 
         loop {
@@ -228,7 +228,7 @@ pub struct PipelineBuilder {
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
     pub metrics: Vec<Arc<dyn Metrics>>,
-    pub metrics_interval: Option<u64>,
+    pub metrics_flush_interval: Option<u64>,
 }
 
 impl PipelineBuilder {
@@ -240,7 +240,7 @@ impl PipelineBuilder {
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
             metrics: Vec::new(),
-            metrics_interval: None,
+            metrics_flush_interval: None,
         }
     }
 
@@ -314,8 +314,8 @@ impl PipelineBuilder {
         self
     }
 
-    pub fn metrics_interval(mut self, interval: u64) -> Self {
-        self.metrics_interval = Some(interval);
+    pub fn metrics_flush_interval(mut self, interval: u64) -> Self {
+        self.metrics_flush_interval = Some(interval);
         self
     }
 
@@ -327,7 +327,7 @@ impl PipelineBuilder {
             instruction_pipes: self.instruction_pipes,
             transaction_pipes: self.transaction_pipes,
             metrics: self.metrics,
-            metrics_interval: self.metrics_interval,
+            metrics_flush_interval: self.metrics_flush_interval,
         })
     }
 }
