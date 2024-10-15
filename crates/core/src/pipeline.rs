@@ -1,8 +1,3 @@
-use core::time;
-use std::{sync::Arc, time::Instant};
-
-use serde::de::DeserializeOwned;
-
 use crate::{
     account::{AccountDecoder, AccountMetadata, AccountPipe, AccountPipes, DecodedAccount},
     account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
@@ -19,6 +14,19 @@ use crate::{
     transaction::{TransactionPipe, TransactionPipes},
     transformers,
 };
+use core::time;
+use serde::de::DeserializeOwned;
+use std::{sync::Arc, time::Instant};
+use tokio_util::sync::CancellationToken;
+
+#[derive(Default, PartialEq)]
+pub enum ShutdownStrategy {
+    /// Stop the whole pipeline immediately.
+    Immediate,
+    /// Terminate the datasource(s) and finish processing all pending updates.
+    #[default]
+    ProcessPending,
+}
 
 pub struct Pipeline {
     pub datasources: Vec<Arc<dyn Datasource + Send + Sync>>,
@@ -28,6 +36,7 @@ pub struct Pipeline {
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
     pub metrics: Vec<Arc<dyn Metrics>>,
     pub metrics_flush_interval: Option<u64>,
+    pub shutdown_strategy: ShutdownStrategy,
 }
 
 impl Pipeline {
@@ -40,14 +49,11 @@ impl Pipeline {
             transaction_pipes: Vec::new(),
             metrics: Vec::new(),
             metrics_flush_interval: None,
+            shutdown_strategy: ShutdownStrategy::default(),
         }
     }
 
     pub async fn run(&mut self) -> CarbonResult<()> {
-        self.initialize_metrics().await?;
-
-        let (update_sender, mut update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
-
         let update_types: Vec<UpdateType> = self
             .datasources
             .iter()
@@ -77,12 +83,21 @@ impl Pipeline {
             ));
         }
 
+        self.initialize_metrics().await?;
+        let (update_sender, mut update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
+
+        let datasource_cancellation_token = CancellationToken::new();
+
         for datasource in &self.datasources {
+            let datasource_cancellation_token_clone = datasource_cancellation_token.clone();
             let sender_clone = update_sender.clone();
             let datasource_clone = Arc::clone(datasource);
 
             tokio::spawn(async move {
-                if let Err(e) = datasource_clone.consume(&sender_clone).await {
+                if let Err(e) = datasource_clone
+                    .consume(&sender_clone, datasource_cancellation_token_clone)
+                    .await
+                {
                     log::error!("Datasource consume error: {:?}", e);
                 }
             });
@@ -94,6 +109,19 @@ impl Pipeline {
 
         loop {
             tokio::select! {
+                _ = tokio::signal::ctrl_c() => {
+                    log::trace!("Shutdown signal received, sending cancellation requests...");
+                    datasource_cancellation_token.cancel();
+
+                    if self.shutdown_strategy == ShutdownStrategy::Immediate {
+                        log::trace!("Shutting down updates stream and processing.");
+                        self.flush_metrics().await?;
+                        self.shutdown_metrics().await?;
+                        break;
+                    } else {
+                        log::trace!("Shutting down updates stream, continuing to process remaining updates.");
+                    }
+                }
                 _ = interval.tick() => {
                     self.flush_metrics().await?;
                 }
@@ -107,7 +135,6 @@ impl Pipeline {
                             let start = Instant::now();
                             let process_result = self.process(update.clone()).await;
                             let time_taken = start.elapsed().as_millis();
-
 
                             self
                                 .record_histogram("updates_processing_times", time_taken as f64)
@@ -136,15 +163,14 @@ impl Pipeline {
                                 .update_gauge("updates_queued", update_receiver.len() as f64)
                                 .await?;
                         }
-
                         None => {
-                            self.increment_counter("updates_failed", 1).await?;
-                            log::error!("error processing update");
+                            log::trace!("All the updates were processed. Shutting down.");
 
-                            break
+                            self.flush_metrics().await?;
+                            self.shutdown_metrics().await?;
+                            break;
                         }
                     }
-
                 }
             }
         }
@@ -175,7 +201,10 @@ impl Pipeline {
                 let transaction_metadata =
                     transformers::extract_transaction_metadata(&transaction_update)?;
 
-                let instructions_with_metadata = transformers::extract_instructions_with_metadata(
+                let instructions_with_metadata: Vec<(
+                    InstructionMetadata,
+                    solana_sdk::instruction::Instruction,
+                )> = transformers::extract_instructions_with_metadata(
                     &transaction_metadata,
                     &transaction_update,
                 )?;
@@ -257,6 +286,7 @@ pub struct PipelineBuilder {
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
     pub metrics: Vec<Arc<dyn Metrics>>,
     pub metrics_flush_interval: Option<u64>,
+    pub shutdown_strategy: ShutdownStrategy,
 }
 
 impl PipelineBuilder {
@@ -267,6 +297,7 @@ impl PipelineBuilder {
             account_deletion_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
+            shutdown_strategy: ShutdownStrategy::default(),
             metrics: Vec::new(),
             metrics_flush_interval: None,
         }
@@ -274,6 +305,11 @@ impl PipelineBuilder {
 
     pub fn datasource(mut self, datasource: impl Datasource + Send + Sync + 'static) -> Self {
         self.datasources.push(Arc::new(datasource));
+        self
+    }
+
+    pub fn shutdown_strategy(mut self, shutdown_strategy: ShutdownStrategy) -> Self {
+        self.shutdown_strategy = shutdown_strategy;
         self
     }
 
@@ -354,6 +390,7 @@ impl PipelineBuilder {
             account_deletion_pipes: self.account_deletion_pipes,
             instruction_pipes: self.instruction_pipes,
             transaction_pipes: self.transaction_pipes,
+            shutdown_strategy: self.shutdown_strategy,
             metrics: self.metrics,
             metrics_flush_interval: self.metrics_flush_interval,
         })

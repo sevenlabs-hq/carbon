@@ -18,6 +18,7 @@ use solana_transaction_status::{
 };
 use std::{collections::HashSet, str::FromStr, sync::Arc};
 use tokio::sync::{mpsc::UnboundedSender, RwLock};
+use tokio_util::sync::CancellationToken;
 
 #[derive(Debug, Clone)]
 pub struct Filters {
@@ -66,7 +67,8 @@ impl Datasource for HeliusWebsocket {
     async fn consume(
         &self,
         sender: &UnboundedSender<Update>,
-    ) -> CarbonResult<tokio::task::AbortHandle> {
+        cancellation_token: CancellationToken,
+    ) -> CarbonResult<()> {
         if self.filters.accounts.is_empty() && self.filters.transactions.is_none() {
             return Err(carbon_core::error::Error::FailedToConsumeDatasource(
                 "Filters can't be empty.".to_string(),
@@ -81,15 +83,17 @@ impl Datasource for HeliusWebsocket {
 
         let account_deletions_tracked = Arc::clone(&self.account_deletions_tracked);
         let filters = self.filters.clone();
+        let cancellation_token = cancellation_token.clone();
         let sender = sender.clone();
         let helius = Arc::new(helius);
 
-        let abort_handle = tokio::spawn(async move {
+        tokio::spawn(async move {
             let mut handles = vec![];
 
             // Accounts subscriptions
             if !filters.accounts.is_empty() {
                 for account in filters.accounts {
+                    let cancellation_token = cancellation_token.clone();
                     let sender_clone = sender.clone();
                     let helius_clone = Arc::clone(&helius);
                     let account_deletions_tracked = Arc::clone(&account_deletions_tracked);
@@ -118,11 +122,10 @@ impl Datasource for HeliusWebsocket {
 
                         loop {
                             tokio::select! {
-                                // TODO
-                                // _ = cancellation_token.cancelled() => {
-                                //     log::info!("Cancelling Helius WS accounts subscription...");
-                                //     break;
-                                // }
+                                _ = cancellation_token.cancelled() => {
+                                    log::info!("Cancelling Helius WS accounts subscription...");
+                                    break;
+                                }
                                 event_result = stream.next() => {
                                     match event_result {
                                         Some(acc_event) => {
@@ -180,6 +183,7 @@ impl Datasource for HeliusWebsocket {
 
             // Transactions subscription
             if let Some(config) = filters.transactions {
+                let cancellation_token = cancellation_token.clone();
                 let sender_clone = sender.clone();
                 let helius_clone = Arc::clone(&helius);
 
@@ -203,11 +207,10 @@ impl Datasource for HeliusWebsocket {
 
                     loop {
                         tokio::select! {
-                            // TODO
-                            // _ = cancellation_token.cancelled() => {
-                            //     log::info!("Cancelling Helius WS transaction subscription...");
-                            //     break;
-                            // }
+                            _ = cancellation_token.cancelled() => {
+                                log::info!("Cancelling Helius WS transaction subscription...");
+                                break;
+                            }
                             event_result = stream.next() => {
                                 match event_result {
                                     Some(tx_event) => {
@@ -426,9 +429,9 @@ impl Datasource for HeliusWebsocket {
                     log::error!("Helius WS Task failed: {:?}", e);
                 }
             }
-        }).abort_handle();
+        });
 
-        Ok(abort_handle)
+        Ok(())
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
