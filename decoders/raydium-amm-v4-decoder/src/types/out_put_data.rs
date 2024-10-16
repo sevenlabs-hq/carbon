@@ -1,11 +1,10 @@
-
-use super::*;
+use carbon_core::borsh;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_proc_macros::CarbonDeserialize;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 pub struct OutPutData {
     pub need_take_pnl_coin: u64,
     pub need_take_pnl_pc: u64,
@@ -22,4 +21,3 @@ pub struct OutPutData {
     pub swap_coin_out_amount: u128,
     pub swap_take_coin_fee: u64,
 }
-

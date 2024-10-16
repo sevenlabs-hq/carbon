@@ -1,13 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x01e676fb2db165bb")]
-pub struct FulfillDlmmFill{
+pub struct FulfillDlmmFill {
     pub repay_amount: u64,
 }
 
@@ -32,7 +31,10 @@ pub struct FulfillDlmmFillInstructionAccounts {
 impl ArrangeAccounts for FulfillDlmmFill {
     type ArrangedAccounts = FulfillDlmmFillInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let keeper = accounts.get(0)?;
         let dca = accounts.get(1)?;
         let input_mint = accounts.get(2)?;
@@ -67,4 +69,4 @@ impl ArrangeAccounts for FulfillDlmmFill {
             program: program.pubkey,
         })
     }
-}
+}

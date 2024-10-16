@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xef98e322e1c8ceaa")]
-pub struct ThawDelegatedAccount{
-}
+pub struct ThawDelegatedAccount {}
 
 pub struct ThawDelegatedAccountInstructionAccounts {
     pub delegate: solana_sdk::pubkey::Pubkey,
@@ -21,7 +19,10 @@ pub struct ThawDelegatedAccountInstructionAccounts {
 impl ArrangeAccounts for ThawDelegatedAccount {
     type ArrangedAccounts = ThawDelegatedAccountInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let delegate = accounts.get(0)?;
         let token_account = accounts.get(1)?;
         let edition = accounts.get(2)?;
@@ -36,4 +37,4 @@ impl ArrangeAccounts for ThawDelegatedAccount {
             token_program: token_program.pubkey,
         })
     }
-}
+}

@@ -1,26 +1,18 @@
-
-use super::*;
+use carbon_core::borsh;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_proc_macros::CarbonDeserialize;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 pub enum ExtraAccounts {
     None,
-    SplHook
-                {
-                    extra_account_metas: solana_sdk::pubkey::Pubkey,
-                }
-    ,
-    MplHook
-                {
-                    mint_pda: Option<solana_sdk::pubkey::Pubkey>,
-                    collection_pda: Option<solana_sdk::pubkey::Pubkey>,
-                    owner_pda: Option<solana_sdk::pubkey::Pubkey>,
-                }
-    ,
+    SplHook {
+        extra_account_metas: solana_sdk::pubkey::Pubkey,
+    },
+    MplHook {
+        mint_pda: Option<solana_sdk::pubkey::Pubkey>,
+        collection_pda: Option<solana_sdk::pubkey::Pubkey>,
+        owner_pda: Option<solana_sdk::pubkey::Pubkey>,
+    },
 }
-
-
-

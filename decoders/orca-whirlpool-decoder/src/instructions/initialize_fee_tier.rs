@@ -1,13 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xb74a9ca070022a1e")]
-pub struct InitializeFeeTier{
+pub struct InitializeFeeTier {
     pub tick_spacing: u16,
     pub default_fee_rate: u16,
 }
@@ -23,7 +22,10 @@ pub struct InitializeFeeTierInstructionAccounts {
 impl ArrangeAccounts for InitializeFeeTier {
     type ArrangedAccounts = InitializeFeeTierInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let config = accounts.get(0)?;
         let fee_tier = accounts.get(1)?;
         let funder = accounts.get(2)?;
@@ -38,4 +40,4 @@ impl ArrangeAccounts for InitializeFeeTier {
             system_program: system_program.pubkey,
         })
     }
-}
+}

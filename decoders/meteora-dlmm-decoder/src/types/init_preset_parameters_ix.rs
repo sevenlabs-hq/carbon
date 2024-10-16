@@ -1,11 +1,10 @@
-
-use super::*;
+use carbon_core::borsh;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_proc_macros::CarbonDeserialize;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 pub struct InitPresetParametersIx {
     pub bin_step: u16,
     pub base_factor: u16,
@@ -18,4 +17,3 @@ pub struct InitPresetParametersIx {
     pub max_bin_id: i32,
     pub protocol_share: u16,
 }
-

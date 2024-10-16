@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x7b86510031446262")]
-pub struct ClosePosition{
-}
+pub struct ClosePosition {}
 
 pub struct ClosePositionInstructionAccounts {
     pub position: solana_sdk::pubkey::Pubkey,
@@ -24,7 +22,10 @@ pub struct ClosePositionInstructionAccounts {
 impl ArrangeAccounts for ClosePosition {
     type ArrangedAccounts = ClosePositionInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let position = accounts.get(0)?;
         let lb_pair = accounts.get(1)?;
         let bin_array_lower = accounts.get(2)?;
@@ -45,4 +46,4 @@ impl ArrangeAccounts for ClosePosition {
             program: program.pubkey,
         })
     }
-}
+}

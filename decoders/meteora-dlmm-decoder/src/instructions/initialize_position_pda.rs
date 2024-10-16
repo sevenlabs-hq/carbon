@@ -1,13 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x2e527d92558de499")]
-pub struct InitializePositionPda{
+pub struct InitializePositionPda {
     pub lower_bin_id: i32,
     pub width: i32,
 }
@@ -27,7 +26,10 @@ pub struct InitializePositionPdaInstructionAccounts {
 impl ArrangeAccounts for InitializePositionPda {
     type ArrangedAccounts = InitializePositionPdaInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let payer = accounts.get(0)?;
         let base = accounts.get(1)?;
         let position = accounts.get(2)?;
@@ -50,4 +52,4 @@ impl ArrangeAccounts for InitializePositionPda {
             program: program.pubkey,
         })
     }
-}
+}

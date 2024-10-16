@@ -1,13 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x9447381437da9885")]
-pub struct SetLockReleasePoint{
+pub struct SetLockReleasePoint {
     pub new_lock_release_point: u64,
 }
 
@@ -22,7 +21,10 @@ pub struct SetLockReleasePointInstructionAccounts {
 impl ArrangeAccounts for SetLockReleasePoint {
     type ArrangedAccounts = SetLockReleasePointInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let position = accounts.get(0)?;
         let lb_pair = accounts.get(1)?;
         let sender = accounts.get(2)?;
@@ -37,4 +39,4 @@ impl ArrangeAccounts for SetLockReleasePoint {
             program: program.pubkey,
         })
     }
-}
+}
