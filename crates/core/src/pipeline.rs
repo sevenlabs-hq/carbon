@@ -19,7 +19,7 @@ use serde::de::DeserializeOwned;
 use std::{sync::Arc, time::Instant};
 use tokio_util::sync::CancellationToken;
 
-#[derive(Default, PartialEq)]
+#[derive(Default, PartialEq, Debug)]
 pub enum ShutdownStrategy {
     /// Stop the whole pipeline immediately.
     Immediate,
@@ -41,6 +41,7 @@ pub struct Pipeline {
 
 impl Pipeline {
     pub fn builder() -> PipelineBuilder {
+        log::trace!("Pipeline::builder()");
         PipelineBuilder {
             datasources: Vec::new(),
             account_pipes: Vec::new(),
@@ -54,6 +55,16 @@ impl Pipeline {
     }
 
     pub async fn run(&mut self) -> CarbonResult<()> {
+        log::info!("starting pipeline. num_datasources: {}, num_metrics: {}, num_account_pipes: {}, num_account_deletion_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}",
+            self.datasources.len(),
+            self.metrics.len(),
+            self.account_pipes.len(),
+            self.account_deletion_pipes.len(),
+            self.instruction_pipes.len(),
+            self.transaction_pipes.len(),
+        );
+
+        log::trace!("run(self)");
         let update_types: Vec<UpdateType> = self
             .datasources
             .iter()
@@ -98,7 +109,7 @@ impl Pipeline {
                     .consume(&sender_clone, datasource_cancellation_token_clone)
                     .await
                 {
-                    log::error!("Datasource consume error: {:?}", e);
+                    log::error!("error consuming datasource: {:?}", e);
                 }
             });
         }
@@ -110,16 +121,16 @@ impl Pipeline {
         loop {
             tokio::select! {
                 _ = tokio::signal::ctrl_c() => {
-                    log::trace!("Shutdown signal received, sending cancellation requests...");
+                    log::trace!("received SIGINT, shutting down.");
                     datasource_cancellation_token.cancel();
 
                     if self.shutdown_strategy == ShutdownStrategy::Immediate {
-                        log::trace!("Shutting down updates stream and processing.");
+                        log::info!("shutting down the pipeline immediately.");
                         self.flush_metrics().await?;
                         self.shutdown_metrics().await?;
                         break;
                     } else {
-                        log::trace!("Shutting down updates stream, continuing to process remaining updates.");
+                        log::info!("shutting down the pipeline after processing pending updates.");
                     }
                 }
                 _ = interval.tick() => {
@@ -149,9 +160,8 @@ impl Pipeline {
                                     log::trace!("processed update")
                                 }
                                 Err(error) => {
+                                    log::error!("error processing update ({:?}): {:?}", update, error);
                                     self.increment_counter("updates_failed", 1).await?;
-
-                                    log::error!("error processing update: {:?}", error)
                                 }
                             };
 
@@ -164,8 +174,7 @@ impl Pipeline {
                                 .await?;
                         }
                         None => {
-                            log::trace!("All the updates were processed. Shutting down.");
-
+                            log::info!("update_receiver closed, shutting down.");
                             self.flush_metrics().await?;
                             self.shutdown_metrics().await?;
                             break;
@@ -175,10 +184,13 @@ impl Pipeline {
             }
         }
 
+        log::info!("pipeline shutdown complete.");
+
         Ok(())
     }
 
     async fn process(&mut self, update: Update) -> CarbonResult<()> {
+        log::trace!("process(self, update: {:?})", update);
         match update {
             Update::Account(account_update) => {
                 let account_metadata = AccountMetadata {
@@ -240,18 +252,21 @@ impl Pipeline {
     }
 
     pub async fn initialize_metrics(&self) -> CarbonResult<()> {
+        log::trace!("initialize_metrics(self)");
         for metrics in self.metrics.iter() {
             metrics.initialize().await?;
         }
         Ok(())
     }
     pub async fn flush_metrics(&self) -> CarbonResult<()> {
+        log::trace!("flush_metrics(self)");
         for metrics in self.metrics.iter() {
             metrics.flush().await?;
         }
         Ok(())
     }
     pub async fn shutdown_metrics(&self) -> CarbonResult<()> {
+        log::trace!("shutdown_metrics(self)");
         for metrics in self.metrics.iter() {
             metrics.shutdown().await?;
         }
@@ -259,18 +274,29 @@ impl Pipeline {
     }
 
     pub async fn update_gauge(&self, name: &str, value: f64) -> CarbonResult<()> {
+        log::trace!("update_gauge(self, name: {:?}, value: {:?})", name, value);
         for metrics in self.metrics.iter() {
             metrics.update_gauge(name, value).await?;
         }
         Ok(())
     }
     pub async fn increment_counter(&self, name: &str, value: u64) -> CarbonResult<()> {
+        log::trace!(
+            "increment_counter(self, name: {:?}, value: {:?})",
+            name,
+            value
+        );
         for metrics in self.metrics.iter() {
             metrics.increment_counter(name, value).await?;
         }
         Ok(())
     }
     pub async fn record_histogram(&self, name: &str, value: f64) -> CarbonResult<()> {
+        log::trace!(
+            "record_histogram(self, name: {:?}, value: {:?})",
+            name,
+            value
+        );
         for metrics in self.metrics.iter() {
             metrics.record_histogram(name, value).await?;
         }
@@ -291,6 +317,7 @@ pub struct PipelineBuilder {
 
 impl PipelineBuilder {
     pub fn new() -> Self {
+        log::trace!("PipelineBuilder::new()");
         Self {
             datasources: Vec::new(),
             account_pipes: Vec::new(),
@@ -304,11 +331,16 @@ impl PipelineBuilder {
     }
 
     pub fn datasource(mut self, datasource: impl Datasource + Send + Sync + 'static) -> Self {
+        log::trace!("datasource(self, datasource: {:?})", stringify!(datasource));
         self.datasources.push(Arc::new(datasource));
         self
     }
 
     pub fn shutdown_strategy(mut self, shutdown_strategy: ShutdownStrategy) -> Self {
+        log::trace!(
+            "shutdown_strategy(self, shutdown_strategy: {:?})",
+            shutdown_strategy
+        );
         self.shutdown_strategy = shutdown_strategy;
         self
     }
@@ -321,6 +353,11 @@ impl PipelineBuilder {
             + Sync
             + 'static,
     ) -> Self {
+        log::trace!(
+            "account(self, decoder: {:?}, processor: {:?})",
+            stringify!(decoder),
+            stringify!(processor)
+        );
         self.account_pipes.push(Box::new(AccountPipe {
             decoder: Box::new(decoder),
             processor: Box::new(processor),
@@ -332,6 +369,10 @@ impl PipelineBuilder {
         mut self,
         processor: impl Processor<InputType = AccountDeletion> + Send + Sync + 'static,
     ) -> Self {
+        log::trace!(
+            "account_deletions(self, processor: {:?})",
+            stringify!(processor)
+        );
         self.account_deletion_pipes
             .push(Box::new(AccountDeletionPipe {
                 processor: Box::new(processor),
@@ -352,6 +393,11 @@ impl PipelineBuilder {
             + Sync
             + 'static,
     ) -> Self {
+        log::trace!(
+            "instruction(self, decoder: {:?}, processor: {:?})",
+            stringify!(decoder),
+            stringify!(processor)
+        );
         self.instruction_pipes.push(Box::new(InstructionPipe {
             decoder: Box::new(decoder),
             processor: Box::new(processor),
@@ -368,22 +414,30 @@ impl PipelineBuilder {
         T: InstructionDecoderCollection + 'static,
         U: DeserializeOwned + Send + Sync + 'static,
     {
+        log::trace!(
+            "transaction(self, schema: {:?}, processor: {:?})",
+            stringify!(schema),
+            stringify!(processor)
+        );
         self.transaction_pipes
             .push(Box::new(TransactionPipe::<T, U>::new(schema, processor)));
         self
     }
 
     pub fn metrics(mut self, metrics: Arc<dyn Metrics>) -> Self {
+        log::trace!("metrics(self, metrics: {:?})", stringify!(metrics));
         self.metrics.push(metrics);
         self
     }
 
     pub fn metrics_flush_interval(mut self, interval: u64) -> Self {
+        log::trace!("metrics_flush_interval(self, interval: {:?})", interval);
         self.metrics_flush_interval = Some(interval);
         self
     }
 
     pub fn build(self) -> CarbonResult<Pipeline> {
+        log::trace!("build(self)");
         Ok(Pipeline {
             datasources: self.datasources,
             account_pipes: self.account_pipes,
