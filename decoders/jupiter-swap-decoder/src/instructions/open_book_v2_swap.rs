@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x871aa32bc6dd1d43")]
-pub struct OpenBookV2Swap{
-}
+pub struct OpenBookV2Swap {}
 
 pub struct OpenBookV2SwapInstructionAccounts {
     pub swap_program: solana_sdk::pubkey::Pubkey,
@@ -33,7 +31,10 @@ pub struct OpenBookV2SwapInstructionAccounts {
 impl ArrangeAccounts for OpenBookV2Swap {
     type ArrangedAccounts = OpenBookV2SwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let signer = accounts.get(1)?;
         let penalty_payer = accounts.get(2)?;
@@ -72,4 +73,4 @@ impl ArrangeAccounts for OpenBookV2Swap {
             open_orders_admin: open_orders_admin.pubkey,
         })
     }
-}
+}

@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x9293e12f33407001")]
-pub struct CreateEscrowAccount{
-}
+pub struct CreateEscrowAccount {}
 
 pub struct CreateEscrowAccountInstructionAccounts {
     pub escrow: solana_sdk::pubkey::Pubkey,
@@ -25,7 +23,10 @@ pub struct CreateEscrowAccountInstructionAccounts {
 impl ArrangeAccounts for CreateEscrowAccount {
     type ArrangedAccounts = CreateEscrowAccountInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let escrow = accounts.get(0)?;
         let metadata = accounts.get(1)?;
         let mint = accounts.get(2)?;
@@ -48,4 +49,4 @@ impl ArrangeAccounts for CreateEscrowAccount {
             authority: authority.pubkey,
         })
     }
-}
+}

@@ -1,11 +1,10 @@
-
-use super::*;
+use carbon_core::borsh;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_proc_macros::CarbonDeserialize;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 pub struct WhirlpoolRewardInfo {
     pub mint: solana_sdk::pubkey::Pubkey,
     pub vault: solana_sdk::pubkey::Pubkey,
@@ -13,4 +12,3 @@ pub struct WhirlpoolRewardInfo {
     pub emissions_per_second_x64: u128,
     pub growth_global_x64: u128,
 }
-

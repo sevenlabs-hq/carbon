@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x58b746f9d67652d2")]
-pub struct SerumSwap{
-}
+pub struct SerumSwap {}
 
 pub struct SerumSwapInstructionAccounts {
     pub market: solana_sdk::pubkey::Pubkey,
@@ -24,7 +22,10 @@ pub struct SerumSwapInstructionAccounts {
 impl ArrangeAccounts for SerumSwap {
     type ArrangedAccounts = SerumSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let market = accounts.get(0)?;
         let authority = accounts.get(1)?;
         let order_payer_token_account = accounts.get(2)?;
@@ -45,4 +46,4 @@ impl ArrangeAccounts for SerumSwap {
             rent: rent.pubkey,
         })
     }
-}
+}

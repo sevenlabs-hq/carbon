@@ -1,13 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xc360ed6c44a2dbe6")]
-pub struct TwoHopSwap{
+pub struct TwoHopSwap {
     pub amount: u64,
     pub other_amount_threshold: u64,
     pub amount_specified_is_input: bool,
@@ -43,7 +42,10 @@ pub struct TwoHopSwapInstructionAccounts {
 impl ArrangeAccounts for TwoHopSwap {
     type ArrangedAccounts = TwoHopSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let token_program = accounts.get(0)?;
         let token_authority = accounts.get(1)?;
         let whirlpool_one = accounts.get(2)?;
@@ -88,4 +90,4 @@ impl ArrangeAccounts for TwoHopSwap {
             oracle_two: oracle_two.pubkey,
         })
     }
-}
+}

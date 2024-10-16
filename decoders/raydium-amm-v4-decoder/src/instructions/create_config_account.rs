@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xbee37a5449a62864")]
-pub struct CreateConfigAccount{
-}
+pub struct CreateConfigAccount {}
 
 pub struct CreateConfigAccountInstructionAccounts {
     pub admin: solana_sdk::pubkey::Pubkey,
@@ -21,7 +19,10 @@ pub struct CreateConfigAccountInstructionAccounts {
 impl ArrangeAccounts for CreateConfigAccount {
     type ArrangedAccounts = CreateConfigAccountInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let admin = accounts.get(0)?;
         let amm_config = accounts.get(1)?;
         let owner = accounts.get(2)?;
@@ -36,4 +37,4 @@ impl ArrangeAccounts for CreateConfigAccount {
             rent: rent.pubkey,
         })
     }
-}
+}

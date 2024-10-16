@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x1f013257ed656184")]
-pub struct SetFeeAuthority{
-}
+pub struct SetFeeAuthority {}
 
 pub struct SetFeeAuthorityInstructionAccounts {
     pub whirlpools_config: solana_sdk::pubkey::Pubkey,
@@ -19,7 +17,10 @@ pub struct SetFeeAuthorityInstructionAccounts {
 impl ArrangeAccounts for SetFeeAuthority {
     type ArrangedAccounts = SetFeeAuthorityInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let whirlpools_config = accounts.get(0)?;
         let fee_authority = accounts.get(1)?;
         let new_fee_authority = accounts.get(2)?;
@@ -30,4 +31,4 @@ impl ArrangeAccounts for SetFeeAuthority {
             new_fee_authority: new_fee_authority.pubkey,
         })
     }
-}
+}

@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x35924408127511b9")]
-pub struct DeleteTokenBadge{
-}
+pub struct DeleteTokenBadge {}
 
 pub struct DeleteTokenBadgeInstructionAccounts {
     pub whirlpools_config: solana_sdk::pubkey::Pubkey,
@@ -22,7 +20,10 @@ pub struct DeleteTokenBadgeInstructionAccounts {
 impl ArrangeAccounts for DeleteTokenBadge {
     type ArrangedAccounts = DeleteTokenBadgeInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let whirlpools_config = accounts.get(0)?;
         let whirlpools_config_extension = accounts.get(1)?;
         let token_badge_authority = accounts.get(2)?;
@@ -39,4 +40,4 @@ impl ArrangeAccounts for DeleteTokenBadge {
             receiver: receiver.pubkey,
         })
     }
-}
+}

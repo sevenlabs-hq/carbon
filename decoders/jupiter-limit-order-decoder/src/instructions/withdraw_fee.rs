@@ -1,13 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x0e7ae7da1feedf96")]
-pub struct WithdrawFee{
+pub struct WithdrawFee {
     pub amount: u64,
 }
 
@@ -23,7 +22,10 @@ pub struct WithdrawFeeInstructionAccounts {
 impl ArrangeAccounts for WithdrawFee {
     type ArrangedAccounts = WithdrawFeeInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let admin = accounts.get(0)?;
         let fee_authority = accounts.get(1)?;
         let program_fee_account = accounts.get(2)?;
@@ -40,4 +42,4 @@ impl ArrangeAccounts for WithdrawFee {
             mint: mint.pubkey,
         })
     }
-}
+}

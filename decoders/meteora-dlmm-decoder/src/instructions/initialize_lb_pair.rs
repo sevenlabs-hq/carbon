@@ -1,13 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x2d9aedd2dd0fa65c")]
-pub struct InitializeLbPair{
+pub struct InitializeLbPair {
     pub active_id: i32,
     pub bin_step: u16,
 }
@@ -32,7 +31,10 @@ pub struct InitializeLbPairInstructionAccounts {
 impl ArrangeAccounts for InitializeLbPair {
     type ArrangedAccounts = InitializeLbPairInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let lb_pair = accounts.get(0)?;
         let bin_array_bitmap_extension = accounts.get(1)?;
         let token_mint_x = accounts.get(2)?;
@@ -65,4 +67,4 @@ impl ArrangeAccounts for InitializeLbPair {
             program: program.pubkey,
         })
     }
-}
+}

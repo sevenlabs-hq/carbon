@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x7be5b83f0c005c91")]
-pub struct WhirlpoolSwap{
-}
+pub struct WhirlpoolSwap {}
 
 pub struct WhirlpoolSwapInstructionAccounts {
     pub swap_program: solana_sdk::pubkey::Pubkey,
@@ -28,7 +26,10 @@ pub struct WhirlpoolSwapInstructionAccounts {
 impl ArrangeAccounts for WhirlpoolSwap {
     type ArrangedAccounts = WhirlpoolSwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let token_program = accounts.get(1)?;
         let token_authority = accounts.get(2)?;
@@ -57,4 +58,4 @@ impl ArrangeAccounts for WhirlpoolSwap {
             oracle: oracle.pubkey,
         })
     }
-}
+}

@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x7ff5139e52fa2112")]
-pub struct PerpsV2Swap{
-}
+pub struct PerpsV2Swap {}
 
 pub struct PerpsV2SwapInstructionAccounts {
     pub swap_program: solana_sdk::pubkey::Pubkey,
@@ -34,7 +32,10 @@ pub struct PerpsV2SwapInstructionAccounts {
 impl ArrangeAccounts for PerpsV2Swap {
     type ArrangedAccounts = PerpsV2SwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let owner = accounts.get(1)?;
         let funding_account = accounts.get(2)?;
@@ -68,11 +69,12 @@ impl ArrangeAccounts for PerpsV2Swap {
             receiving_custody_token_account: receiving_custody_token_account.pubkey,
             dispensing_custody: dispensing_custody.pubkey,
             dispensing_custody_doves_price_account: dispensing_custody_doves_price_account.pubkey,
-            dispensing_custody_pythnet_price_account: dispensing_custody_pythnet_price_account.pubkey,
+            dispensing_custody_pythnet_price_account: dispensing_custody_pythnet_price_account
+                .pubkey,
             dispensing_custody_token_account: dispensing_custody_token_account.pubkey,
             token_program: token_program.pubkey,
             event_authority: event_authority.pubkey,
             program: program.pubkey,
         })
     }
-}
+}

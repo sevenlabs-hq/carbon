@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x04949164861ab53d")]
-pub struct ClosePresetParameter{
-}
+pub struct ClosePresetParameter {}
 
 pub struct ClosePresetParameterInstructionAccounts {
     pub preset_parameter: solana_sdk::pubkey::Pubkey,
@@ -19,7 +17,10 @@ pub struct ClosePresetParameterInstructionAccounts {
 impl ArrangeAccounts for ClosePresetParameter {
     type ArrangedAccounts = ClosePresetParameterInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let preset_parameter = accounts.get(0)?;
         let admin = accounts.get(1)?;
         let rent_receiver = accounts.get(2)?;
@@ -30,4 +31,4 @@ impl ArrangeAccounts for ClosePresetParameter {
             rent_receiver: rent_receiver.pubkey,
         })
     }
-}
+}

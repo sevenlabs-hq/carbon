@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x8fcd03bfa2d7f531")]
-pub struct InitiateFlashFill{
-}
+pub struct InitiateFlashFill {}
 
 pub struct InitiateFlashFillInstructionAccounts {
     pub keeper: solana_sdk::pubkey::Pubkey,
@@ -26,7 +24,10 @@ pub struct InitiateFlashFillInstructionAccounts {
 impl ArrangeAccounts for InitiateFlashFill {
     type ArrangedAccounts = InitiateFlashFillInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let keeper = accounts.get(0)?;
         let dca = accounts.get(1)?;
         let input_mint = accounts.get(2)?;
@@ -51,4 +52,4 @@ impl ArrangeAccounts for InitiateFlashFill {
             associated_token_program: associated_token_program.pubkey,
         })
     }
-}
+}

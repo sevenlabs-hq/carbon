@@ -1,13 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xfa49652126cf4bb8")]
-pub struct SwapExactOut{
+pub struct SwapExactOut {
     pub max_in_amount: u64,
     pub out_amount: u64,
 }
@@ -33,7 +32,10 @@ pub struct SwapExactOutInstructionAccounts {
 impl ArrangeAccounts for SwapExactOut {
     type ArrangedAccounts = SwapExactOutInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let lb_pair = accounts.get(0)?;
         let bin_array_bitmap_extension = accounts.get(1)?;
         let reserve_x = accounts.get(2)?;
@@ -68,4 +70,4 @@ impl ArrangeAccounts for SwapExactOut {
             program: program.pubkey,
         })
     }
-}
+}

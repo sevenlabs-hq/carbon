@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xfafb2a6a2989baa8")]
-pub struct UnverifyCollection{
-}
+pub struct UnverifyCollection {}
 
 pub struct UnverifyCollectionInstructionAccounts {
     pub metadata: solana_sdk::pubkey::Pubkey,
@@ -22,7 +20,10 @@ pub struct UnverifyCollectionInstructionAccounts {
 impl ArrangeAccounts for UnverifyCollection {
     type ArrangedAccounts = UnverifyCollectionInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let metadata = accounts.get(0)?;
         let collection_authority = accounts.get(1)?;
         let collection_mint = accounts.get(2)?;
@@ -39,4 +40,4 @@ impl ArrangeAccounts for UnverifyCollection {
             collection_authority_record: collection_authority_record.pubkey,
         })
     }
-}
+}

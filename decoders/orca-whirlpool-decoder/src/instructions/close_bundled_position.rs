@@ -1,13 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x2924d8f51b556743")]
-pub struct CloseBundledPosition{
+pub struct CloseBundledPosition {
     pub bundle_index: u16,
 }
 
@@ -22,7 +21,10 @@ pub struct CloseBundledPositionInstructionAccounts {
 impl ArrangeAccounts for CloseBundledPosition {
     type ArrangedAccounts = CloseBundledPositionInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let bundled_position = accounts.get(0)?;
         let position_bundle = accounts.get(1)?;
         let position_bundle_token_account = accounts.get(2)?;
@@ -37,4 +39,4 @@ impl ArrangeAccounts for CloseBundledPosition {
             receiver: receiver.pubkey,
         })
     }
-}
+}

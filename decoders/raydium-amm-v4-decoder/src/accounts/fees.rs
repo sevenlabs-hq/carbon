@@ -1,4 +1,3 @@
-use super::super::types::*;
 use carbon_core::borsh;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_proc_macros::CarbonDeserialize;

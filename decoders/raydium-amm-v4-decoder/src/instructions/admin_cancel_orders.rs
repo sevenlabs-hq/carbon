@@ -1,13 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x975a6ed9c4dffb5f")]
-pub struct AdminCancelOrders{
+pub struct AdminCancelOrders {
     pub limit: u16,
 }
 
@@ -34,7 +33,10 @@ pub struct AdminCancelOrdersInstructionAccounts {
 impl ArrangeAccounts for AdminCancelOrders {
     type ArrangedAccounts = AdminCancelOrdersInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let token_program = accounts.get(0)?;
         let amm = accounts.get(1)?;
         let amm_authority = accounts.get(2)?;
@@ -73,4 +75,4 @@ impl ArrangeAccounts for AdminCancelOrders {
             serum_asks: serum_asks.pubkey,
         })
     }
-}
+}

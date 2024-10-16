@@ -1,13 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xfcdb123057b71a9a")]
-pub struct MonitorStep{
+pub struct MonitorStep {
     pub plan_order_limit: u16,
     pub place_order_limit: u16,
     pub cancel_order_limit: u16,
@@ -40,7 +39,10 @@ pub struct MonitorStepInstructionAccounts {
 impl ArrangeAccounts for MonitorStep {
     type ArrangedAccounts = MonitorStepInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let token_program = accounts.get(0)?;
         let rent = accounts.get(1)?;
         let clock = accounts.get(2)?;
@@ -87,4 +89,4 @@ impl ArrangeAccounts for MonitorStep {
             referrer_pc_account: referrer_pc_account.pubkey,
         })
     }
-}
+}
