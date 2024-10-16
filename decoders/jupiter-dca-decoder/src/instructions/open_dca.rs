@@ -1,13 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x2441b93601d264a3")]
-pub struct OpenDca{
+pub struct OpenDca {
     pub application_idx: u64,
     pub in_amount: u64,
     pub in_amount_per_cycle: u64,
@@ -36,7 +35,10 @@ pub struct OpenDcaInstructionAccounts {
 impl ArrangeAccounts for OpenDca {
     type ArrangedAccounts = OpenDcaInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let dca = accounts.get(0)?;
         let user = accounts.get(1)?;
         let input_mint = accounts.get(2)?;
@@ -65,4 +67,4 @@ impl ArrangeAccounts for OpenDca {
             program: program.pubkey,
         })
     }
-}
+}

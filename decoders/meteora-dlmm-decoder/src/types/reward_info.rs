@@ -1,11 +1,10 @@
-
-use super::*;
+use carbon_core::borsh;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_proc_macros::CarbonDeserialize;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 pub struct RewardInfo {
     pub mint: solana_sdk::pubkey::Pubkey,
     pub vault: solana_sdk::pubkey::Pubkey,
@@ -16,4 +15,3 @@ pub struct RewardInfo {
     pub last_update_time: u64,
     pub cumulative_seconds_with_empty_liquidity_reward: u64,
 }
-

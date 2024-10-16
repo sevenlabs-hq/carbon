@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x29780f0071db2a01")]
-pub struct MarinadeUnstake{
-}
+pub struct MarinadeUnstake {}
 
 pub struct MarinadeUnstakeInstructionAccounts {
     pub marinade_finance_program: solana_sdk::pubkey::Pubkey,
@@ -28,7 +26,10 @@ pub struct MarinadeUnstakeInstructionAccounts {
 impl ArrangeAccounts for MarinadeUnstake {
     type ArrangedAccounts = MarinadeUnstakeInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let marinade_finance_program = accounts.get(0)?;
         let state = accounts.get(1)?;
         let msol_mint = accounts.get(2)?;
@@ -57,4 +58,4 @@ impl ArrangeAccounts for MarinadeUnstake {
             user_wsol_token_account: user_wsol_token_account.pubkey,
         })
     }
-}
+}

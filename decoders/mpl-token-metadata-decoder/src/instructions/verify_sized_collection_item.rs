@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x566fdf441163b493")]
-pub struct VerifySizedCollectionItem{
-}
+pub struct VerifySizedCollectionItem {}
 
 pub struct VerifySizedCollectionItemInstructionAccounts {
     pub metadata: solana_sdk::pubkey::Pubkey,
@@ -23,7 +21,10 @@ pub struct VerifySizedCollectionItemInstructionAccounts {
 impl ArrangeAccounts for VerifySizedCollectionItem {
     type ArrangedAccounts = VerifySizedCollectionItemInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let metadata = accounts.get(0)?;
         let collection_authority = accounts.get(1)?;
         let payer = accounts.get(2)?;
@@ -42,4 +43,4 @@ impl ArrangeAccounts for VerifySizedCollectionItem {
             collection_authority_record: collection_authority_record.pubkey,
         })
     }
-}
+}

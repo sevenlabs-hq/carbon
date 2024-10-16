@@ -1,13 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x38ade6d0ade49ccd")]
-pub struct SwapWithPriceImpact{
+pub struct SwapWithPriceImpact {
     pub amount_in: u64,
     pub active_id: Option<i32>,
     pub max_price_impact_bps: u16,
@@ -34,7 +33,10 @@ pub struct SwapWithPriceImpactInstructionAccounts {
 impl ArrangeAccounts for SwapWithPriceImpact {
     type ArrangedAccounts = SwapWithPriceImpactInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let lb_pair = accounts.get(0)?;
         let bin_array_bitmap_extension = accounts.get(1)?;
         let reserve_x = accounts.get(2)?;
@@ -69,4 +71,4 @@ impl ArrangeAccounts for SwapWithPriceImpact {
             program: program.pubkey,
         })
     }
-}
+}

@@ -1,13 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xcf2d57f21b3fcc43")]
-pub struct InitializePoolV2{
+pub struct InitializePoolV2 {
     pub tick_spacing: u16,
     pub initial_sqrt_price: u128,
 }
@@ -32,7 +31,10 @@ pub struct InitializePoolV2InstructionAccounts {
 impl ArrangeAccounts for InitializePoolV2 {
     type ArrangedAccounts = InitializePoolV2InstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let whirlpools_config = accounts.get(0)?;
         let token_mint_a = accounts.get(1)?;
         let token_mint_b = accounts.get(2)?;
@@ -65,4 +67,4 @@ impl ArrangeAccounts for InitializePoolV2 {
             rent: rent.pubkey,
         })
     }
-}
+}

@@ -1,13 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xd07f1501c2bec446")]
-pub struct InitializeConfig{
+pub struct InitializeConfig {
     pub fee_authority: solana_sdk::pubkey::Pubkey,
     pub collect_protocol_fees_authority: solana_sdk::pubkey::Pubkey,
     pub reward_emissions_super_authority: solana_sdk::pubkey::Pubkey,
@@ -23,7 +22,10 @@ pub struct InitializeConfigInstructionAccounts {
 impl ArrangeAccounts for InitializeConfig {
     type ArrangedAccounts = InitializeConfigInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let config = accounts.get(0)?;
         let funder = accounts.get(1)?;
         let system_program = accounts.get(2)?;
@@ -34,4 +36,4 @@ impl ArrangeAccounts for InitializeConfig {
             system_program: system_program.pubkey,
         })
     }
-}
+}

@@ -1,13 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x1a526698f04a691a")]
-pub struct RemoveLiquidityByRange{
+pub struct RemoveLiquidityByRange {
     pub from_bin_id: i32,
     pub to_bin_id: i32,
     pub bps_to_remove: u16,
@@ -35,7 +34,10 @@ pub struct RemoveLiquidityByRangeInstructionAccounts {
 impl ArrangeAccounts for RemoveLiquidityByRange {
     type ArrangedAccounts = RemoveLiquidityByRangeInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let position = accounts.get(0)?;
         let lb_pair = accounts.get(1)?;
         let bin_array_bitmap_extension = accounts.get(2)?;
@@ -72,4 +74,4 @@ impl ArrangeAccounts for RemoveLiquidityByRange {
             program: program.pubkey,
         })
     }
-}
+}

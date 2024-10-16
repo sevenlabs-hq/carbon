@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x537da645f7fc6785")]
-pub struct EndAndClose{
-}
+pub struct EndAndClose {}
 
 pub struct EndAndCloseInstructionAccounts {
     pub keeper: solana_sdk::pubkey::Pubkey,
@@ -31,7 +29,10 @@ pub struct EndAndCloseInstructionAccounts {
 impl ArrangeAccounts for EndAndClose {
     type ArrangedAccounts = EndAndCloseInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let keeper = accounts.get(0)?;
         let dca = accounts.get(1)?;
         let input_mint = accounts.get(2)?;
@@ -66,4 +67,4 @@ impl ArrangeAccounts for EndAndClose {
             program: program.pubkey,
         })
     }
-}
+}

@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x1f8b87c61d30a09a")]
-pub struct RevokeCollectionAuthority{
-}
+pub struct RevokeCollectionAuthority {}
 
 pub struct RevokeCollectionAuthorityInstructionAccounts {
     pub collection_authority_record: solana_sdk::pubkey::Pubkey,
@@ -21,7 +19,10 @@ pub struct RevokeCollectionAuthorityInstructionAccounts {
 impl ArrangeAccounts for RevokeCollectionAuthority {
     type ArrangedAccounts = RevokeCollectionAuthorityInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let collection_authority_record = accounts.get(0)?;
         let delegate_authority = accounts.get(1)?;
         let revoke_authority = accounts.get(2)?;
@@ -36,4 +37,4 @@ impl ArrangeAccounts for RevokeCollectionAuthority {
             mint: mint.pubkey,
         })
     }
-}
+}

@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x9beae792ec9ea21e")]
-pub struct Migrate{
-}
+pub struct Migrate {}
 
 pub struct MigrateInstructionAccounts {
     pub metadata: solana_sdk::pubkey::Pubkey,
@@ -31,7 +29,10 @@ pub struct MigrateInstructionAccounts {
 impl ArrangeAccounts for Migrate {
     type ArrangedAccounts = MigrateInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let metadata = accounts.get(0)?;
         let edition = accounts.get(1)?;
         let token = accounts.get(2)?;
@@ -66,4 +67,4 @@ impl ArrangeAccounts for Migrate {
             authorization_rules: authorization_rules.pubkey,
         })
     }
-}
+}

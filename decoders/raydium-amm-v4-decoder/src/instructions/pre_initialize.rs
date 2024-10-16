@@ -1,13 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xff5c572dc6acec02")]
-pub struct PreInitialize{
+pub struct PreInitialize {
     pub nonce: u8,
 }
 
@@ -31,7 +30,10 @@ pub struct PreInitializeInstructionAccounts {
 impl ArrangeAccounts for PreInitialize {
     type ArrangedAccounts = PreInitializeInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let token_program = accounts.get(0)?;
         let system_program = accounts.get(1)?;
         let rent = accounts.get(2)?;
@@ -64,4 +66,4 @@ impl ArrangeAccounts for PreInitialize {
             user_wallet: user_wallet.pubkey,
         })
     }
-}
+}

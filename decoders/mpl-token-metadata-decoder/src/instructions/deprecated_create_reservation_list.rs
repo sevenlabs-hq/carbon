@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xabe3a19e01b06948")]
-pub struct DeprecatedCreateReservationList{
-}
+pub struct DeprecatedCreateReservationList {}
 
 pub struct DeprecatedCreateReservationListInstructionAccounts {
     pub reservation_list: solana_sdk::pubkey::Pubkey,
@@ -24,7 +22,10 @@ pub struct DeprecatedCreateReservationListInstructionAccounts {
 impl ArrangeAccounts for DeprecatedCreateReservationList {
     type ArrangedAccounts = DeprecatedCreateReservationListInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let reservation_list = accounts.get(0)?;
         let payer = accounts.get(1)?;
         let update_authority = accounts.get(2)?;
@@ -45,4 +46,4 @@ impl ArrangeAccounts for DeprecatedCreateReservationList {
             rent: rent.pubkey,
         })
     }
-}
+}

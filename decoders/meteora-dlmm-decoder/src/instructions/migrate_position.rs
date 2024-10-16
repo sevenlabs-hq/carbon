@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x0f843b32c706fb2e")]
-pub struct MigratePosition{
-}
+pub struct MigratePosition {}
 
 pub struct MigratePositionInstructionAccounts {
     pub position_v2: solana_sdk::pubkey::Pubkey,
@@ -26,7 +24,10 @@ pub struct MigratePositionInstructionAccounts {
 impl ArrangeAccounts for MigratePosition {
     type ArrangedAccounts = MigratePositionInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let position_v2 = accounts.get(0)?;
         let position_v1 = accounts.get(1)?;
         let lb_pair = accounts.get(2)?;
@@ -51,4 +52,4 @@ impl ArrangeAccounts for MigratePosition {
             program: program.pubkey,
         })
     }
-}
+}
