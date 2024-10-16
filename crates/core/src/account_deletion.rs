@@ -26,6 +26,11 @@ impl AccountDeletionPipes for AccountDeletionPipe {
         account_deletion: AccountDeletion,
         metrics: Vec<Arc<dyn Metrics>>,
     ) -> CarbonResult<()> {
+        log::trace!(
+            "AccountDeletionPipe::run(account_deletion: {:?}, metrics)",
+            account_deletion,
+        );
+
         self.processor.process(account_deletion, metrics).await?;
 
         Ok(())
