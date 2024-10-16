@@ -34,6 +34,11 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
         schema: TransactionSchema<T>,
         processor: impl Processor<InputType = U> + Send + Sync + 'static,
     ) -> Self {
+        log::trace!(
+            "TransactionPipe::new(schema: {:?}, processor: {:?})",
+            schema,
+            stringify!(processor)
+        );
         Self {
             schema,
             processor: Box::new(processor),
@@ -44,6 +49,11 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
         &self,
         instructions: &[NestedInstruction],
     ) -> Box<Vec<ParsedInstruction<T>>> {
+        log::trace!(
+            "TransactionPipe::parse_instructions(instructions: {:?})",
+            instructions
+        );
+
         let mut parsed_instructions: Box<Vec<ParsedInstruction<T>>> = Box::new(vec![]);
 
         instructions
@@ -91,6 +101,11 @@ where
         instructions: &[NestedInstruction],
         metrics: Vec<Arc<dyn Metrics>>,
     ) -> CarbonResult<()> {
+        log::trace!(
+            "TransactionPipe::run(instructions: {:?}, metrics)",
+            instructions,
+        );
+
         let parsed_instructions = self.parse_instructions(&instructions);
 
         if let Some(matched_data) = self.matches_schema(&parsed_instructions) {

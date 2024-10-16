@@ -51,6 +51,11 @@ impl<T: Send> AccountPipes for AccountPipe<T> {
         account_with_metadata: (AccountMetadata, solana_sdk::account::Account),
         metrics: Vec<Arc<dyn Metrics>>,
     ) -> CarbonResult<()> {
+        log::trace!(
+            "AccountPipe::run(account_with_metadata: {:?}, metrics)",
+            account_with_metadata,
+        );
+
         if let Some(decoded_account) = self.decoder.decode_account(&account_with_metadata.1) {
             self.processor
                 .process((account_with_metadata.0, decoded_account), metrics)
