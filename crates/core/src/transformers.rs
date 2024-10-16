@@ -60,6 +60,10 @@ use std::{collections::HashSet, str::FromStr};
 pub fn extract_transaction_metadata(
     transaction_update: &TransactionUpdate,
 ) -> CarbonResult<TransactionMetadata> {
+    log::trace!(
+        "extract_transaction_metadata(transaction_update: {:?})",
+        transaction_update
+    );
     let message = transaction_update.transaction.message.clone();
     let accounts = message.static_account_keys();
 
@@ -93,6 +97,11 @@ pub fn extract_instructions_with_metadata(
     transaction_metadata: &TransactionMetadata,
     transaction_update: &TransactionUpdate,
 ) -> CarbonResult<Vec<(InstructionMetadata, solana_sdk::instruction::Instruction)>> {
+    log::trace!(
+        "extract_instructions_with_metadata(transaction_metadata: {:?}, transaction_update: {:?})",
+        transaction_metadata,
+        transaction_update
+    );
     let message = transaction_update.transaction.message.clone();
     let meta = transaction_update.meta.clone();
 
@@ -303,6 +312,11 @@ pub fn extract_account_metas(
     compiled_instruction: &solana_sdk::instruction::CompiledInstruction,
     message: &solana_sdk::message::VersionedMessage,
 ) -> CarbonResult<Vec<solana_sdk::instruction::AccountMeta>> {
+    log::trace!(
+        "extract_account_metas(compiled_instruction: {:?}, message: {:?})",
+        compiled_instruction,
+        message
+    );
     let mut accounts = Vec::<solana_sdk::instruction::AccountMeta>::new();
 
     for account_index in compiled_instruction.accounts.iter() {
@@ -344,6 +358,7 @@ pub fn extract_account_metas(
 pub fn nest_instructions(
     instructions: Vec<(InstructionMetadata, solana_sdk::instruction::Instruction)>,
 ) -> Vec<NestedInstruction> {
+    log::trace!("nest_instructions(instructions: {:?})", instructions);
     let mut result = Vec::<NestedInstruction>::new();
     let mut stack = Vec::<(Vec<usize>, usize)>::new();
 
@@ -402,6 +417,10 @@ pub fn nest_instructions(
 pub fn transaction_metadata_from_original_meta(
     meta_original: UiTransactionStatusMeta,
 ) -> CarbonResult<TransactionStatusMeta> {
+    log::trace!(
+        "transaction_metadata_from_original_meta(meta_original: {:?})",
+        meta_original
+    );
     Ok(TransactionStatusMeta {
         status: meta_original.status,
         fee: meta_original.fee,
