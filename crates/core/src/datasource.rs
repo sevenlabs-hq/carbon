@@ -32,6 +32,7 @@
 use crate::error::CarbonResult;
 use async_trait::async_trait;
 use solana_sdk::{pubkey::Pubkey, signature::Signature};
+use tokio_util::sync::CancellationToken;
 
 /// Defines the interface for data sources that produce updates for accounts, transactions,
 /// and account deletions.
@@ -76,7 +77,8 @@ pub trait Datasource: Send + Sync {
     async fn consume(
         &self,
         sender: &tokio::sync::mpsc::UnboundedSender<Update>,
-    ) -> CarbonResult<tokio::task::AbortHandle>;
+        cancellation_token: CancellationToken,
+    ) -> CarbonResult<()>;
 
     fn update_types(&self) -> Vec<UpdateType>;
 }

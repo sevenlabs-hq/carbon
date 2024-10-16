@@ -5,12 +5,12 @@ use carbon_core::{
 };
 use futures::StreamExt;
 use solana_client::{
-    nonblocking::pubsub_client::PubsubClient,
-    rpc_config::RpcProgramAccountsConfig,
+    nonblocking::pubsub_client::PubsubClient, rpc_config::RpcProgramAccountsConfig,
 };
 use solana_sdk::{account::Account, pubkey::Pubkey};
 use std::{collections::HashSet, str::FromStr, sync::Arc};
 use tokio::sync::{mpsc::UnboundedSender, RwLock};
+use tokio_util::sync::CancellationToken;
 
 #[derive(Debug, Clone)]
 pub struct Filters {
@@ -37,8 +37,16 @@ pub struct RpcProgramSubscribe {
 }
 
 impl RpcProgramSubscribe {
-    pub fn new(rpc_url: String, filters: Filters, account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,) -> Self {
-        Self { rpc_url, filters, account_deletions_tracked }
+    pub fn new(
+        rpc_url: String,
+        filters: Filters,
+        account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
+    ) -> Self {
+        Self {
+            rpc_url,
+            filters,
+            account_deletions_tracked,
+        }
     }
 }
 
@@ -47,7 +55,8 @@ impl Datasource for RpcProgramSubscribe {
     async fn consume(
         &self,
         sender: &UnboundedSender<Update>,
-    ) -> CarbonResult<tokio::task::AbortHandle> {
+        cancellation_token: CancellationToken,
+    ) -> CarbonResult<()> {
         let client = PubsubClient::new(&self.rpc_url).await.map_err(|err| {
             carbon_core::error::Error::Custom(format!(
                 "Failed to create an RPC subscribe client: {err}"
@@ -58,7 +67,7 @@ impl Datasource for RpcProgramSubscribe {
         let filters = self.filters.clone();
         let sender = sender.clone();
 
-        let abort_handle = tokio::spawn(async move {
+        tokio::spawn(async move {
             let sender_clone = sender.clone();
             let (mut stream, _unsub) = match client
                 .program_subscribe(&filters.pubkey, filters.program_subscribe_config)
@@ -73,11 +82,10 @@ impl Datasource for RpcProgramSubscribe {
 
             loop {
                 tokio::select! {
-                    // TODO:
-                    // _ = cancellation_token.cancelled() => {
-                    //     log::info!("Cancelling RPC program subscription...");
-                    //     break;
-                    // }
+                    _ = cancellation_token.cancelled() => {
+                        log::info!("Cancelling RPC program subscription...");
+                        break;
+                    }
                     event_result = stream.next() => {
                         match event_result {
                             Some(acc_event) => {
@@ -87,7 +95,7 @@ impl Datasource for RpcProgramSubscribe {
                                             log::error!("Error decoding Helius WS Account event");
                                             continue;
                                         }
-                                    }; 
+                                    };
 
                                     let Ok(account_pubkey) = Pubkey::from_str(&acc_event.value.pubkey) else {
                                         log::error!("Error parsing account pubkey. Value: {}", &acc_event.value.pubkey);
@@ -132,10 +140,9 @@ impl Datasource for RpcProgramSubscribe {
                     }
                 }
             }
-        })
-        .abort_handle();
+        });
 
-        Ok(abort_handle)
+        Ok(())
     }
 
     fn update_types(&self) -> Vec<UpdateType> {

@@ -126,6 +126,11 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
         &self,
         instructions: &[ParsedInstruction<T>],
     ) -> Option<HashMap<String, (T, Vec<AccountMeta>)>> {
+        log::trace!(
+            "Schema::match_nodes(self: {:?}, instructions: {:?})",
+            self,
+            instructions
+        );
         let mut output = HashMap::<String, (T, Vec<AccountMeta>)>::new();
 
         let current_index = 0;
@@ -197,6 +202,7 @@ pub fn merge_hashmaps<K, V>(
 where
     K: std::cmp::Eq + std::hash::Hash,
 {
+    log::trace!("merge_hashmaps(a, b)");
     let mut output = a;
     for (key, value) in b {
         output.insert(key, value);
