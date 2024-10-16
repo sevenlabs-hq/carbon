@@ -878,10 +878,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "carbon-bigquery-datasource"
-version = "0.1.0"
-
-[[package]]
 name = "carbon-cli"
 version = "0.1.0"
 dependencies = [
