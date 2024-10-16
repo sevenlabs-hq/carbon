@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xe5c2d4ac080a8693")]
-pub struct CreateOpenOrders{
-}
+pub struct CreateOpenOrders {}
 
 pub struct CreateOpenOrdersInstructionAccounts {
     pub open_orders: solana_sdk::pubkey::Pubkey,
@@ -22,7 +20,10 @@ pub struct CreateOpenOrdersInstructionAccounts {
 impl ArrangeAccounts for CreateOpenOrders {
     type ArrangedAccounts = CreateOpenOrdersInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let open_orders = accounts.get(0)?;
         let payer = accounts.get(1)?;
         let dex_program = accounts.get(2)?;
@@ -39,4 +40,4 @@ impl ArrangeAccounts for CreateOpenOrders {
             market: market.pubkey,
         })
     }
-}
+}

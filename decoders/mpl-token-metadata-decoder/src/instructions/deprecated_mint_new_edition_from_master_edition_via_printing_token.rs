@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x9a24ae6fbe509be4")]
-pub struct DeprecatedMintNewEditionFromMasterEditionViaPrintingToken{
-}
+pub struct DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {}
 
 pub struct DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionAccounts {
     pub metadata: solana_sdk::pubkey::Pubkey,
@@ -30,9 +28,13 @@ pub struct DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionA
 }
 
 impl ArrangeAccounts for DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {
-    type ArrangedAccounts = DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionAccounts;
+    type ArrangedAccounts =
+        DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let metadata = accounts.get(0)?;
         let edition = accounts.get(1)?;
         let master_edition = accounts.get(2)?;
@@ -50,23 +52,25 @@ impl ArrangeAccounts for DeprecatedMintNewEditionFromMasterEditionViaPrintingTok
         let rent = accounts.get(14)?;
         let reservation_list = accounts.get(15)?;
 
-        Some(DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionAccounts {
-            metadata: metadata.pubkey,
-            edition: edition.pubkey,
-            master_edition: master_edition.pubkey,
-            mint: mint.pubkey,
-            mint_authority: mint_authority.pubkey,
-            printing_mint: printing_mint.pubkey,
-            master_token_account: master_token_account.pubkey,
-            edition_marker: edition_marker.pubkey,
-            burn_authority: burn_authority.pubkey,
-            payer: payer.pubkey,
-            master_update_authority: master_update_authority.pubkey,
-            master_metadata: master_metadata.pubkey,
-            token_program: token_program.pubkey,
-            system_program: system_program.pubkey,
-            rent: rent.pubkey,
-            reservation_list: reservation_list.pubkey,
-        })
+        Some(
+            DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionAccounts {
+                metadata: metadata.pubkey,
+                edition: edition.pubkey,
+                master_edition: master_edition.pubkey,
+                mint: mint.pubkey,
+                mint_authority: mint_authority.pubkey,
+                printing_mint: printing_mint.pubkey,
+                master_token_account: master_token_account.pubkey,
+                edition_marker: edition_marker.pubkey,
+                burn_authority: burn_authority.pubkey,
+                payer: payer.pubkey,
+                master_update_authority: master_update_authority.pubkey,
+                master_metadata: master_metadata.pubkey,
+                token_program: token_program.pubkey,
+                system_program: system_program.pubkey,
+                rent: rent.pubkey,
+                reservation_list: reservation_list.pubkey,
+            },
+        )
     }
-}
+}

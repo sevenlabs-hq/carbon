@@ -1,13 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x09cbfe405920b39f")]
-pub struct Initialize2{
+pub struct Initialize2 {
     pub nonce: u8,
     pub open_time: u64,
     pub init_pc_amount: u64,
@@ -41,7 +40,10 @@ pub struct Initialize2InstructionAccounts {
 impl ArrangeAccounts for Initialize2 {
     type ArrangedAccounts = Initialize2InstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let token_program = accounts.get(0)?;
         let spl_associated_token_account = accounts.get(1)?;
         let system_program = accounts.get(2)?;
@@ -88,4 +90,4 @@ impl ArrangeAccounts for Initialize2 {
             user_lp_token_account: user_lp_token_account.pubkey,
         })
     }
-}
+}

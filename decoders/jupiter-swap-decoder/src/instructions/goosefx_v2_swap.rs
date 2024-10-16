@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xb26cd0899ac2a8d5")]
-pub struct GoosefxV2Swap{
-}
+pub struct GoosefxV2Swap {}
 
 pub struct GoosefxV2SwapInstructionAccounts {
     pub swap_program: solana_sdk::pubkey::Pubkey,
@@ -36,7 +34,10 @@ pub struct GoosefxV2SwapInstructionAccounts {
 impl ArrangeAccounts for GoosefxV2Swap {
     type ArrangedAccounts = GoosefxV2SwapInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let pair = accounts.get(1)?;
         let pool_registry = accounts.get(2)?;
@@ -81,4 +82,4 @@ impl ArrangeAccounts for GoosefxV2Swap {
             token_program: token_program.pubkey,
         })
     }
-}
+}

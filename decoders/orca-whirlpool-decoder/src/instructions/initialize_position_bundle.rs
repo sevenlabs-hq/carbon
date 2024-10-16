@@ -1,14 +1,12 @@
-
+use carbon_core::borsh;
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
-use carbon_core::borsh;
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x752df1951812c241")]
-pub struct InitializePositionBundle{
-}
+pub struct InitializePositionBundle {}
 
 pub struct InitializePositionBundleInstructionAccounts {
     pub position_bundle: solana_sdk::pubkey::Pubkey,
@@ -25,7 +23,10 @@ pub struct InitializePositionBundleInstructionAccounts {
 impl ArrangeAccounts for InitializePositionBundle {
     type ArrangedAccounts = InitializePositionBundleInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let position_bundle = accounts.get(0)?;
         let position_bundle_mint = accounts.get(1)?;
         let position_bundle_token_account = accounts.get(2)?;
@@ -48,4 +49,4 @@ impl ArrangeAccounts for InitializePositionBundle {
             associated_token_program: associated_token_program.pubkey,
         })
     }
-}
+}
