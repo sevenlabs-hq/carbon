@@ -901,7 +901,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-core"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "async-trait",
  "borsh 0.10.4",
@@ -1038,7 +1038,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-proc-macros"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "borsh-derive-internal",
  "carbon-core",
