@@ -1,7 +1,9 @@
 [package]
 name = "carbon-proc-macros"
-version = "0.1.0"
+version = "0.0.1"
 edition = "2018"
+description = "Procedural macros for Carbon"
+license = "MIT"
 
 [dependencies]
 carbon-core = { workspace = true }
