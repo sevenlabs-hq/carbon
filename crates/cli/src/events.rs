@@ -109,8 +109,3 @@ fn legacy_compute_event_discriminator(event_name: &str) -> String {
     let discriminator_bytes = &hash[..8];
     format!("0xe445a52e51cb9a1d{}", hex::encode(discriminator_bytes))
 }
-
-fn _compute_event_discriminator(bytes: &[u8]) -> String {
-    // TODO: Figure out if this first part is handled as well
-    format!("0xe445a52e51cb9a1d{}", hex::encode(bytes))
-}
