@@ -8,7 +8,7 @@ Carbon is a lightweight indexing framework on Solana. It provides a modular pipe
 
 The core of the framework. It orchestrates data flow from data sources through indexing pipes.
 
-### Datasources
+### Datasources
 
 A consumable datasource that will provide updates to the pipeline. These can either be `AccountUpdate`s, `TransactionUpdate`s or `AccountDeletion`s.
 
