@@ -1,7 +1,9 @@
+{%- if instruction.requires_imports %}
+use super::super::types::*;
+{%- endif %}
 {% raw %}
 use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
 use carbon_proc_macros::CarbonDeserialize;
-use super::super::types::*;
 use carbon_core::borsh;
 {% endraw %}
 
