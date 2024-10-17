@@ -114,11 +114,11 @@ impl Processor for MyAccountProcessor {
 For most use cases, we recommend chosing from one of our datasource crates:
 | Crate Name | Description | Affordability | Ease of Setup |
 |------------|-------------|---------------|----------------|
-| `carbon-block-subscribe` | Uses `blockSubscribe` with Solana WS JSON RPC to listen to real-time on-chain transactions | Medium | Easy |
-| `carbon-program-subscribe` | Uses `programSubscribe` with Solana WS JSON RPC to listen to real-time on-chain account updates | Medium | Easy |
-| `carbon-transaction-crawler` | Crawls historical successful transactions for a specific address in reverse chronological order using Solana JSON RPC | Low | Medium |
-| `carbon-yellowstone-grpc` | Subscribes to a Yellowstone gRPC Geyser plugin enhanced full node to stream account and transaction updates | High | Complex |
-| `carbon-helius-atlas-ws` | Utilizes Helius Geyser-enhanced WebSocket for streaming account and transaction updates | High | Medium |
+| `carbon-block-subscribe` | Uses `blockSubscribe` with Solana WS JSON RPC to listen to real-time on-chain transactions | Cheap (just RPC) | Easy |
+| `carbon-program-subscribe` | Uses `programSubscribe` with Solana WS JSON RPC to listen to real-time on-chain account updates | Cheap (just RPC) | Easy |
+| `carbon-transaction-crawler` | Crawls historical successful transactions for a specific address in reverse chronological order using Solana JSON RPC | Cheap (just RPC) | Easy |
+| `carbon-helius-atlas-ws` | Utilizes Helius Geyser-enhanced WebSocket for streaming account and transaction updates | Medium (Helius Plan) | Medium |
+| `carbon-yellowstone-grpc` | Subscribes to a Yellowstone gRPC Geyser plugin enhanced full node to stream account and transaction updates | Expensive (Geyser Fullnode) | Complex |
 
 You can still implement custom datasources in the following manner:
 
