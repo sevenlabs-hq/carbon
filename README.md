@@ -144,18 +144,6 @@ impl Datasource for MyDataSource {
 }
 ```
 
-## Configuration
-
-The pipeline can be configured with various components:
-
-- **Datasources**: Add multiple data sources using `.datasource()`.
-- **Account Pipes**: Add account processing logic with `.account()`.
-- **Account Deletion Pipes**: Add account deletion processing logic with `.account_deletion()`.
-- **Instruction Pipes**: Configure instruction handling using `.instruction()`.
-- **Transaction Pipes**: Set up transaction processing with `.transaction()`.
-- **Metrics**: Add metrics collectors with `.metrics()`.
-- **Shutdown Strategy**: Configure shutdown behavior using `.shutdown_strategy()`.
-
 ## License
 
 We are under the [MIT license](https://github.com/sevenlabs-hq/carbon/tree/main/LICENSE.md).
