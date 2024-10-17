@@ -2,6 +2,8 @@
 name = "carbon-macros"
 version = "0.1.0"
 edition = "2018"
+description = "Macros for Carbon"
+license = "MIT"
 
 [dependencies]
 carbon-core = { workspace = true }
