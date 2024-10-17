@@ -10,7 +10,7 @@ The core of the framework. It orchestrates data flow from data sources through i
 
 ### Datasources
 
-A consumable datasource that will provide updates to the pipeline. These can either be `AccountUpdate`s, `TransactionUpdate`s or `AccountDeletion`s.
+A consumable datasource that will provide updates to the pipeline. These can either be `AccountUpdate`, `TransactionUpdate` or `AccountDeletion`.
 
 ### Pipes
 
