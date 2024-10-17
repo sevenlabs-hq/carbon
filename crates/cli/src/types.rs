@@ -12,6 +12,7 @@ pub struct TypeData {
     pub name: String,
     pub fields: Vec<FieldData>,
     pub kind: TypeKind,
+    pub requires_imports: bool,
 }
 
 #[allow(dead_code)]
@@ -54,6 +55,7 @@ pub fn legacy_process_types(idl: &LegacyIdl) -> Vec<TypeData> {
     let mut types_data = Vec::new();
 
     for idl_type_def in &idl.types {
+        let mut requires_imports = false;
         let name = idl_type_def.name.clone();
         let mut fields = Vec::new();
         let mut kind = TypeKind::Struct;
@@ -63,15 +65,18 @@ pub fn legacy_process_types(idl: &LegacyIdl) -> Vec<TypeData> {
                 if let Some(ref fields_vec) = idl_type_def.type_.fields {
                     for field in fields_vec {
                         let rust_type = idl_type_to_rust_type(&field.type_);
-                        let is_pubkey = rust_type.contains("Pubkey");
-                        let attributes = if is_big_array(&rust_type) {
+                        if rust_type.1 {
+                            requires_imports = true;
+                        }
+                        let is_pubkey = rust_type.0.contains("Pubkey");
+                        let attributes = if is_big_array(&rust_type.0) {
                             Some("#[serde(with = \"BigArray\")]".to_string())
                         } else {
                             None
                         };
                         fields.push(FieldData {
                             name: field.name.to_snake_case(),
-                            rust_type,
+                            rust_type: rust_type.0,
                             is_pubkey,
                             attributes,
                         });
@@ -89,10 +94,13 @@ pub fn legacy_process_types(idl: &LegacyIdl) -> Vec<TypeData> {
                                     let mut variant_field_data = Vec::new();
                                     for field in named_fields {
                                         let rust_type = idl_type_to_rust_type(&field.type_);
-                                        let is_pubkey = rust_type.contains("Pubkey");
+                                        if rust_type.1 {
+                                            requires_imports = true;
+                                        }
+                                        let is_pubkey = rust_type.0.contains("Pubkey");
                                         variant_field_data.push(FieldData {
                                             name: field.name.to_snake_case(),
-                                            rust_type,
+                                            rust_type: rust_type.0,
                                             is_pubkey,
                                             attributes: None,
                                         });
@@ -102,7 +110,13 @@ pub fn legacy_process_types(idl: &LegacyIdl) -> Vec<TypeData> {
                                 LegacyIdlEnumFields::Tuple(tuple_fields) => {
                                     let rust_types = tuple_fields
                                         .iter()
-                                        .map(|ty| idl_type_to_rust_type(ty))
+                                        .map(|ty| {
+                                            let rust_type = idl_type_to_rust_type(ty);
+                                            if rust_type.1 {
+                                                requires_imports = true;
+                                            }
+                                            rust_type.0
+                                        })
                                         .collect();
                                     Some(EnumVariantFields::Unnamed(rust_types))
                                 }
@@ -121,7 +135,12 @@ pub fn legacy_process_types(idl: &LegacyIdl) -> Vec<TypeData> {
             _ => {}
         }
 
-        types_data.push(TypeData { name, fields, kind });
+        types_data.push(TypeData {
+            name,
+            fields,
+            kind,
+            requires_imports,
+        });
     }
 
     types_data
@@ -131,6 +150,7 @@ pub fn process_types(idl: &Idl) -> Vec<TypeData> {
     let mut types_data = Vec::new();
 
     for idl_type_def in &idl.types {
+        let mut requires_imports = false;
         let name = idl_type_def.name.clone();
         let mut fields = Vec::new();
         let mut kind = TypeKind::Struct;
@@ -140,15 +160,18 @@ pub fn process_types(idl: &Idl) -> Vec<TypeData> {
                 if let Some(ref fields_vec) = idl_type_def.type_.fields {
                     for field in fields_vec {
                         let rust_type = idl_type_to_rust_type(&field.type_);
-                        let is_pubkey = rust_type.contains("Pubkey");
-                        let attributes = if is_big_array(&rust_type) {
+                        if rust_type.1 {
+                            requires_imports = true;
+                        }
+                        let is_pubkey = rust_type.0.contains("Pubkey");
+                        let attributes = if is_big_array(&rust_type.0) {
                             Some("#[serde(with = \"BigArray\")]".to_string())
                         } else {
                             None
                         };
                         fields.push(FieldData {
                             name: field.name.to_snake_case(),
-                            rust_type,
+                            rust_type: rust_type.0,
                             is_pubkey,
                             attributes,
                         });
@@ -166,10 +189,13 @@ pub fn process_types(idl: &Idl) -> Vec<TypeData> {
                                     let mut variant_field_data = Vec::new();
                                     for field in named_fields {
                                         let rust_type = idl_type_to_rust_type(&field.type_);
-                                        let is_pubkey = rust_type.contains("Pubkey");
+                                        if rust_type.1 {
+                                            requires_imports = true;
+                                        }
+                                        let is_pubkey = rust_type.0.contains("Pubkey");
                                         variant_field_data.push(FieldData {
                                             name: field.name.to_snake_case(),
-                                            rust_type,
+                                            rust_type: rust_type.0,
                                             is_pubkey,
                                             attributes: None,
                                         });
@@ -179,7 +205,13 @@ pub fn process_types(idl: &Idl) -> Vec<TypeData> {
                                 LegacyIdlEnumFields::Tuple(tuple_fields) => {
                                     let rust_types = tuple_fields
                                         .iter()
-                                        .map(|ty| idl_type_to_rust_type(ty))
+                                        .map(|ty| {
+                                            let rust_type = idl_type_to_rust_type(ty);
+                                            if rust_type.1 {
+                                                requires_imports = true;
+                                            }
+                                            rust_type.0
+                                        })
                                         .collect();
                                     Some(EnumVariantFields::Unnamed(rust_types))
                                 }
@@ -198,7 +230,12 @@ pub fn process_types(idl: &Idl) -> Vec<TypeData> {
             _ => {}
         }
 
-        types_data.push(TypeData { name, fields, kind });
+        types_data.push(TypeData {
+            name,
+            fields,
+            kind,
+            requires_imports,
+        });
     }
 
     types_data
