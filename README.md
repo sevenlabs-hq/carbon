@@ -153,10 +153,6 @@ The pipeline can be configured with various components:
 - **Metrics**: Add metrics collectors with `.metrics()`.
 - **Shutdown Strategy**: Configure shutdown behavior using `.shutdown_strategy()`.
 
-## Contributions
-
-Contributions to Carbon are welcome! Please refer to our [contributing guidelines](https://github.com/sevenlabs-hq/carbon/tree/main/CONTRIBUTING.md) for more information on how to get started.
-
 ## License
 
 We are under the [MIT license](https://github.com/sevenlabs-hq/carbon/tree/main/LICENSE.md).
