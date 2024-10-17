@@ -100,7 +100,6 @@ pub fn parse(options: ParseOptions) -> Result<()> {
     for type_data in &types_data {
         let template = TypeStructTemplate { type_data };
         let rendered = template.render().unwrap();
-
         let filename = format!("{}/{}.rs", types_dir, type_data.name.to_snake_case());
         fs::write(&filename, rendered).expect("Failed to write type struct file");
         println!("Generated {}", filename);

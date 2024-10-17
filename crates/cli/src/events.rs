@@ -10,6 +10,7 @@ pub struct EventData {
     pub module_name: String,
     pub discriminator: String,
     pub args: Vec<ArgumentData>,
+    pub requires_imports: bool,
 }
 
 #[allow(dead_code)]
@@ -29,6 +30,7 @@ pub fn legacy_process_events(idl: &LegacyIdl) -> Vec<EventData> {
     let mut events_data = Vec::new();
 
     for event in &idl.events {
+        let mut requires_imports = false;
         let ends_with_event = event.name.ends_with("Event");
 
         let module_name = if ends_with_event {
@@ -46,9 +48,12 @@ pub fn legacy_process_events(idl: &LegacyIdl) -> Vec<EventData> {
         let mut args = Vec::new();
         for field in &event.fields {
             let rust_type = idl_type_to_rust_type(&field.type_);
+            if rust_type.1 {
+                requires_imports = true;
+            }
             args.push(ArgumentData {
                 name: field.name.to_snek_case(),
-                rust_type,
+                rust_type: rust_type.0,
             });
         }
 
@@ -57,6 +62,7 @@ pub fn legacy_process_events(idl: &LegacyIdl) -> Vec<EventData> {
             module_name,
             discriminator,
             args,
+            requires_imports,
         });
     }
 
@@ -88,6 +94,7 @@ pub fn process_events(idl: &Idl) -> Vec<EventData> {
             module_name,
             discriminator,
             args,
+            requires_imports: false,
         });
     }
 
@@ -103,7 +110,7 @@ fn legacy_compute_event_discriminator(event_name: &str) -> String {
     format!("0xe445a52e51cb9a1d{}", hex::encode(discriminator_bytes))
 }
 
-fn compute_event_discriminator(bytes: &[u8]) -> String {
+fn _compute_event_discriminator(bytes: &[u8]) -> String {
     // TODO: Figure out if this first part is handled as well
     format!("0xe445a52e51cb9a1d{}", hex::encode(bytes))
 }

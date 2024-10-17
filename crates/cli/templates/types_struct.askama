@@ -1,5 +1,7 @@
-{% raw %}
+{%- if type_data.requires_imports %}
 use super::*;
+{%- endif %}
+{% raw %}
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_proc_macros::CarbonDeserialize;
 use carbon_core::borsh;

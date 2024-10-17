@@ -1,8 +1,10 @@
+{%- if event.requires_imports %}
+use super::super::types::*;
+{%- endif %}
 {% raw %}
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_proc_macros::CarbonDeserialize;
 use carbon_core::borsh;
-use super::super::types::*;
 {% endraw %}
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]

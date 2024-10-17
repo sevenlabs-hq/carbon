@@ -11,6 +11,7 @@ pub struct InstructionData {
     pub discriminator: String,
     pub args: Vec<ArgumentData>,
     pub accounts: Vec<AccountMetaData>,
+    pub requires_imports: bool,
 }
 
 #[allow(dead_code)]
@@ -48,6 +49,7 @@ pub fn legacy_process_instructions(idl: &LegacyIdl) -> Vec<InstructionData> {
     let mut instructions_data = Vec::new();
 
     for instruction in &idl.instructions {
+        let mut requires_imports = false;
         let module_name = instruction.name.to_snek_case();
         let struct_name = instruction.name.to_upper_camel_case();
         let discriminator =
@@ -56,9 +58,12 @@ pub fn legacy_process_instructions(idl: &LegacyIdl) -> Vec<InstructionData> {
         let mut args = Vec::new();
         for arg in &instruction.args {
             let rust_type = idl_type_to_rust_type(&arg.type_);
+            if rust_type.1 {
+                requires_imports = true;
+            }
             args.push(ArgumentData {
                 name: arg.name.to_snek_case(),
-                rust_type,
+                rust_type: rust_type.0,
             });
         }
 
@@ -78,6 +83,7 @@ pub fn legacy_process_instructions(idl: &LegacyIdl) -> Vec<InstructionData> {
             discriminator,
             args,
             accounts,
+            requires_imports,
         });
     }
 
@@ -88,6 +94,7 @@ pub fn process_instructions(idl: &Idl) -> Vec<InstructionData> {
     let mut instructions_data = Vec::new();
 
     for instruction in &idl.instructions {
+        let mut requires_imports = false;
         let module_name = instruction.name.to_snek_case();
         let struct_name = instruction.name.to_upper_camel_case();
         let discriminator = compute_instruction_discriminator(&instruction.discriminator);
@@ -95,9 +102,12 @@ pub fn process_instructions(idl: &Idl) -> Vec<InstructionData> {
         let mut args = Vec::new();
         for arg in &instruction.args {
             let rust_type = idl_type_to_rust_type(&arg.type_);
+            if rust_type.1 {
+                requires_imports = true;
+            }
             args.push(ArgumentData {
                 name: arg.name.to_snek_case(),
-                rust_type,
+                rust_type: rust_type.0,
             });
         }
 
@@ -118,6 +128,7 @@ pub fn process_instructions(idl: &Idl) -> Vec<InstructionData> {
             discriminator,
             args,
             accounts,
+            requires_imports,
         });
     }
 
