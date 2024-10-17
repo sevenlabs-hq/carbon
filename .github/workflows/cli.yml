@@ -9,6 +9,8 @@ jobs:
   build:
     name: Build and Release
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
     strategy:
       matrix:
         include:
@@ -39,3 +41,7 @@ jobs:
           file: target/release/${{ matrix.artifact_name }}
           asset_name: ${{ matrix.asset_name }}
           tag: ${{ github.ref }}
+          overwrite: true
+          body: |
+            **Changes:**
+            ${{ steps.changes.outputs.changes }}
