@@ -60,7 +60,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ### Generating Decoders from IDL
 
-Decoders implementations enable to input raw account or instruction data and to receive deserialized account or instruction data. They are the backbone of indexing with Carbon.
+Decoders implementations allow the pipeline to input raw account or instruction data and to receive deserialized account or instruction data. They are the backbone of indexing with Carbon.
 
 Carbon provides a CLI tool to generate decoders based on IDL files. This can significantly speed up the process of creating custom decoders for your Solana programs.
 
