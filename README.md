@@ -65,6 +65,38 @@ Decoders implementations allow the pipeline to input raw account or instruction 
 
 Carbon provides a CLI tool to generate decoders based on IDL files. This can significantly speed up the process of creating custom decoders for your Solana programs.
 
+#### CLI Installation
+
+You can install the Carbon CLI by downloading the pre-built binary for your operating system:
+
+##### Linux
+
+```sh
+curl -LO https://github.com/sevenlabs-hq/carbon/releases/latest/download/carbon-cli-linux-amd64
+chmod +x carbon-cli-linux-amd64
+sudo mv carbon-cli-linux-amd64 /usr/local/bin/carbon-cli
+```
+
+##### macOS
+
+```sh
+curl -LO https://github.com/sevenlabs-hq/carbon/releases/latest/download/carbon-cli-macos-amd64
+chmod +x carbon-cli-macos-amd64
+sudo mv carbon-cli-macos-amd64 /usr/local/bin/carbon-cli
+```
+
+##### Windows
+
+1. Download the latest release from https://github.com/sevenlabs-hq/carbon/releases/latest/download/carbon-cli-windows-amd64.exe
+2. Rename the downloaded file to `carbon-cli.exe`
+3. Move the file to a directory in your PATH
+
+Alternatively, you can build from source using Cargo:
+
+```sh
+cargo install --git https://github.com/sevenlabs-hq/carbon.git carbon-cli
+```
+
 #### CLI Usage
 
 ```sh
