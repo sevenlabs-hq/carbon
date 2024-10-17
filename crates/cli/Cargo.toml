@@ -1,9 +1,13 @@
 [package]
 name = "carbon-cli"
 version = "0.1.0"
-edition = "2021"
+edition = "2018"
 description = "CLI for Carbon"
 license = "MIT"
+
+[[bin]]
+name = "carbon-cli"
+path = "src/main.rs"
 
 [dependencies]
 carbon-core = { workspace = true }
