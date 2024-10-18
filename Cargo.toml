@@ -41,6 +41,7 @@ carbon-token-program-decoder = { path = "decoders/token-program-decoder", versio
 solana-sdk = "=2.0.10"
 solana-transaction-status = "=2.0.10"
 solana-client = "=2.0.10"
+solana-account-decoder = "=2.0.10"
 
 helius = { path = "libs/helius-rust-sdk", version = "0.2.1" }
 
