@@ -2825,6 +2825,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "meteora-activities"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "carbon-macros",
+ "carbon-meteora-dlmm-decoder",
+ "carbon-proc-macros",
+ "carbon-pumpfun-decoder",
+ "carbon-rpc-transaction-crawler-datasource",
+ "env_logger 0.11.5",
+ "log",
+ "log-metrics",
+ "solana-client",
+ "solana-sdk",
+ "solana-transaction-status",
+ "tokio",
+ "yellowstone-grpc-proto",
+]
+
+[[package]]
 name = "metrics"
 version = "0.24.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4314,6 +4335,7 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "carbon-rpc-program-subscribe-datasource",
+ "env_logger 0.11.5",
  "log-metrics",
  "serde",
  "solana-client",
