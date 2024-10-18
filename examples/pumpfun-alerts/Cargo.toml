@@ -4,16 +4,17 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-carbon-yellowstone-grpc-datasource = { path = "../../datasources/yellowstone-grpc-datasource"}
-carbon-pumpfun-decoder = { path = "../../decoders/pumpfun-decoder" }
-yellowstone-grpc-proto = { version = "=1.15.0+solana.2.0.10",  git = "https://github.com/rpcpool/yellowstone-grpc.git" }
-tokio = { version = "1.40.0", features = ["full"] }
-async-trait = "0.1.83"
 carbon-core = { workspace = true }
 carbon-macros = { workspace = true }
 carbon-proc-macros = { workspace = true }
 solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
+carbon-yellowstone-grpc-datasource = { workspace = true }
+carbon-pumpfun-decoder = { workspace = true}
+
+yellowstone-grpc-proto = { version = "=1.15.0+solana.2.0.10",  git = "https://github.com/rpcpool/yellowstone-grpc.git" }
+tokio = { version = "1.40.0", features = ["full"] }
+async-trait = "0.1.83"
 log = "0.4.22"
 env_logger = "0.11.5"
