@@ -102,14 +102,12 @@ impl Processor for SharkyAccountProcessor {
         update: Self::InputType,
         _metrics: Vec<Arc<dyn Metrics>>,
     ) -> CarbonResult<()> {
-        let (metadata, account) = update;
+        let (_metadata, account) = update;
 
         match account.data {
-            SharkyAccount::EscrowPda(escrow_pda) => {}
-            SharkyAccount::OrderBook(order_book) => {}
-            SharkyAccount::Loan(loan) => {}
-            SharkyAccount::NftList(nft_list) => {}
-            SharkyAccount::ProgramVersion(program_version) => {}
+            SharkyAccount::OrderBook(_order_book) => {} // store each collection/order book in a database
+            SharkyAccount::Loan(_loan) => {}            // store each loan in a database
+            _ => {}                                     // uninteresting account type(s)
         }
 
         Ok(())
