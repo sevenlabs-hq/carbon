@@ -4286,6 +4286,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "sharky-offers-carbon-example"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "carbon-rpc-program-subscribe-datasource",
+ "log-metrics",
+ "serde",
+ "solana-client",
+ "solana-sdk",
+ "tokio",
+ "tokio-util",
+]
+
+[[package]]
 name = "shell-words"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
