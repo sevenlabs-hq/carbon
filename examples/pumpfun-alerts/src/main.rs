@@ -23,6 +23,7 @@ pub const PUMPFUN_PROGRAM_ID: Pubkey = pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
     env_logger::init();
+    dotenv::dotenv().ok();
 
     let account_filters: HashMap<String, SubscribeRequestFilterAccounts> = HashMap::new();
 
