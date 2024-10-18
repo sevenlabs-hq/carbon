@@ -1,6 +1,6 @@
 use async_trait::async_trait;
 use carbon_core::{
-    datasource::{AccountDeletion, AccountUpdate, Datasource, Update, UpdateType},
+    datasource::{AccountUpdate, Datasource, Update, UpdateType},
     error::CarbonResult,
 };
 use futures::StreamExt;
@@ -8,8 +8,8 @@ use solana_client::{
     nonblocking::pubsub_client::PubsubClient, rpc_config::RpcProgramAccountsConfig,
 };
 use solana_sdk::{account::Account, pubkey::Pubkey};
-use std::{collections::HashSet, str::FromStr, sync::Arc};
-use tokio::sync::{mpsc::UnboundedSender, RwLock};
+use std::str::FromStr;
+use tokio::sync::mpsc::UnboundedSender;
 use tokio_util::sync::CancellationToken;
 
 #[derive(Debug, Clone)]
@@ -28,21 +28,15 @@ impl Filters {
 }
 
 pub struct RpcProgramSubscribe {
-    pub rpc_url: String,
+    pub rpc_ws_url: String,
     pub filters: Filters,
-    pub account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
 }
 
 impl RpcProgramSubscribe {
-    pub fn new(
-        rpc_url: String,
-        filters: Filters,
-        account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
-    ) -> Self {
+    pub fn new(rpc_ws_url: String, filters: Filters) -> Self {
         Self {
-            rpc_url,
+            rpc_ws_url,
             filters,
-            account_deletions_tracked,
         }
     }
 }
@@ -54,13 +48,12 @@ impl Datasource for RpcProgramSubscribe {
         sender: &UnboundedSender<Update>,
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
-        let client = PubsubClient::new(&self.rpc_url).await.map_err(|err| {
+        let client = PubsubClient::new(&self.rpc_ws_url).await.map_err(|err| {
             carbon_core::error::Error::Custom(format!(
                 "Failed to create an RPC subscribe client: {err}"
             ))
         })?;
 
-        let account_deletions_tracked = Arc::clone(&self.account_deletions_tracked);
         let filters = self.filters.clone();
         let sender = sender.clone();
 
@@ -99,34 +92,15 @@ impl Datasource for RpcProgramSubscribe {
                                         continue;
                                     };
 
-                                    if decoded_account.lamports == 0 && decoded_account.data.is_empty() && decoded_account.owner == solana_sdk::system_program::ID {
-                                        let accounts_tracked =
-                                            account_deletions_tracked.read().await;
-                                        if !accounts_tracked.is_empty() {
-                                            if accounts_tracked.contains(&account_pubkey) {
-                                                let account_deletion = AccountDeletion {
-                                                    pubkey: account_pubkey,
-                                                    slot: acc_event.context.slot,
-                                                };
-                                                if let Err(err) = sender_clone.send(
-                                                    Update::AccountDeletion(account_deletion),
-                                                ) {
-                                                    log::error!("Error sending account update: {:?}", err);
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    } else {
-                                        let update = Update::Account(AccountUpdate {
-                                            pubkey: account_pubkey,
-                                            account: decoded_account,
-                                            slot: acc_event.context.slot,
-                                        });
+                                    let update = Update::Account(AccountUpdate {
+                                        pubkey: account_pubkey,
+                                        account: decoded_account,
+                                        slot: acc_event.context.slot,
+                                    });
 
-                                        if let Err(err) = sender_clone.send(update) {
-                                            log::error!("Error sending account update: {:?}", err);
-                                            break;
-                                        }
+                                    if let Err(err) = sender_clone.send(update) {
+                                        log::error!("Error sending account update: {:?}", err);
+                                        break;
                                     }
                             }
                             None => {
@@ -143,6 +117,6 @@ impl Datasource for RpcProgramSubscribe {
     }
 
     fn update_types(&self) -> Vec<UpdateType> {
-        vec![UpdateType::AccountDeletion, UpdateType::AccountDeletion]
+        vec![UpdateType::AccountUpdate]
     }
 }
