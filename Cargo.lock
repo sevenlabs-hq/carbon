@@ -980,6 +980,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-log-metrics"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "log",
+ "tokio",
+]
+
+[[package]]
 name = "carbon-macros"
 version = "0.1.0"
 dependencies = [
@@ -1052,6 +1062,18 @@ dependencies = [
  "solana-transaction-status",
  "syn 1.0.109",
  "unicode-xid",
+]
+
+[[package]]
+name = "carbon-prometheus-metrics"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "log",
+ "metrics",
+ "metrics-exporter-prometheus",
+ "tokio",
 ]
 
 [[package]]
@@ -2779,16 +2801,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a7a70ba024b9dc04c27ea2f0c0548feb474ec5c54bba33a7f72f873a39d07b24"
 
 [[package]]
-name = "log-metrics"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "carbon-core",
- "log",
- "tokio",
-]
-
-[[package]]
 name = "matchit"
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2831,11 +2843,12 @@ dependencies = [
 ]
 
 [[package]]
-name = "meteora-activities"
+name = "meteora-activities-carbon-example"
 version = "0.1.0"
 dependencies = [
  "async-trait",
  "carbon-core",
+ "carbon-log-metrics",
  "carbon-macros",
  "carbon-meteora-dlmm-decoder",
  "carbon-proc-macros",
@@ -2844,7 +2857,6 @@ dependencies = [
  "dotenv",
  "env_logger 0.11.5",
  "log",
- "log-metrics",
  "solana-client",
  "solana-sdk",
  "solana-transaction-status",
@@ -3500,18 +3512,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "prometheus-metrics"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "carbon-core",
- "log",
- "metrics",
- "metrics-exporter-prometheus",
- "tokio",
-]
-
-[[package]]
 name = "prost"
 version = "0.13.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3574,7 +3574,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "pumpfun-alerts"
+name = "pumpfun-alerts-carbon-example"
 version = "0.1.0"
 dependencies = [
  "async-trait",
@@ -3583,6 +3583,7 @@ dependencies = [
  "carbon-proc-macros",
  "carbon-pumpfun-decoder",
  "carbon-yellowstone-grpc-datasource",
+ "dotenv",
  "env_logger 0.11.5",
  "log",
  "solana-client",
@@ -4339,11 +4340,12 @@ dependencies = [
  "anyhow",
  "async-trait",
  "carbon-core",
+ "carbon-log-metrics",
  "carbon-macros",
  "carbon-proc-macros",
  "carbon-rpc-program-subscribe-datasource",
+ "dotenv",
  "env_logger 0.11.5",
- "log-metrics",
  "serde",
  "solana-client",
  "solana-sdk",
