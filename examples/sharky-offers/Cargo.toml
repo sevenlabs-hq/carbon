@@ -10,7 +10,7 @@ carbon-core = { workspace = true }
 carbon-macros = { workspace = true }
 carbon-proc-macros = { workspace = true }
 carbon-rpc-program-subscribe-datasource = { workspace = true }
-log-metrics = { workspace = true }
+carbon-log-metrics = { workspace = true}
 serde = { version = "1.0.210", features = ["derive"] }
 solana-client.workspace = true
 solana-sdk.workspace = true

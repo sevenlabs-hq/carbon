@@ -16,6 +16,6 @@ carbon-proc-macros = { workspace = true }
 solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
+carbon-log-metrics = { workspace = true }
 log = "0.4.22"
 env_logger = "0.11.5"
-log-metrics = { workspace = true }

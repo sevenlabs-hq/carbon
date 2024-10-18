@@ -980,6 +980,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-log-metrics"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "log",
+ "tokio",
+]
+
+[[package]]
 name = "carbon-macros"
 version = "0.1.0"
 dependencies = [
@@ -1052,6 +1062,18 @@ dependencies = [
  "solana-transaction-status",
  "syn 1.0.109",
  "unicode-xid",
+]
+
+[[package]]
+name = "carbon-prometheus-metrics"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "log",
+ "metrics",
+ "metrics-exporter-prometheus",
+ "tokio",
 ]
 
 [[package]]
@@ -2773,16 +2795,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a7a70ba024b9dc04c27ea2f0c0548feb474ec5c54bba33a7f72f873a39d07b24"
 
 [[package]]
-name = "log-metrics"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "carbon-core",
- "log",
- "tokio",
-]
-
-[[package]]
 name = "matchit"
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2830,6 +2842,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "carbon-core",
+ "carbon-log-metrics",
  "carbon-macros",
  "carbon-meteora-dlmm-decoder",
  "carbon-proc-macros",
@@ -2837,7 +2850,6 @@ dependencies = [
  "carbon-rpc-transaction-crawler-datasource",
  "env_logger 0.11.5",
  "log",
- "log-metrics",
  "solana-client",
  "solana-sdk",
  "solana-transaction-status",
@@ -3490,18 +3502,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5e719e8df665df0d1c8fbfd238015744736151d4445ec0836b8e628aae103b77"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "prometheus-metrics"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "carbon-core",
- "log",
- "metrics",
- "metrics-exporter-prometheus",
- "tokio",
 ]
 
 [[package]]
@@ -4332,10 +4332,10 @@ dependencies = [
  "anyhow",
  "async-trait",
  "carbon-core",
+ "carbon-log-metrics",
  "carbon-macros",
  "carbon-proc-macros",
  "carbon-rpc-program-subscribe-datasource",
- "log-metrics",
  "serde",
  "solana-client",
  "solana-sdk",
