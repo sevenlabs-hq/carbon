@@ -4295,6 +4295,7 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "carbon-rpc-program-subscribe-datasource",
+ "env_logger 0.11.5",
  "log-metrics",
  "serde",
  "solana-client",
