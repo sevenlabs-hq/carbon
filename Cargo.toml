@@ -1,5 +1,4 @@
 [workspace]
-# TODO: Add examples back
 members = [
     "crates/*",
     "datasources/*",
