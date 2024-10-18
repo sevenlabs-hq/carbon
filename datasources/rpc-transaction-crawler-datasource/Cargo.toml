@@ -7,13 +7,14 @@ edition = "2018"
 crate-type = ["rlib"]
 
 [dependencies]
+carbon-core = { workspace = true }
+solana-transaction-status = { workspace = true }
+solana-client = { workspace = true }
+solana-sdk = { workspace = true }
+
 tokio = { version = "1.40.0", features = ["full"] }
 tokio-util = "0.7.12"
 async-trait = "0.1.83"
-carbon-core = { path = "../../crates/core" }
-solana-client = "2.0.10"
-solana-sdk = "2.0.10"
-solana-transaction-status = "2.0.9"
 log = "0.4.22"
 env_logger = "0.11.5"
 async-stream = "0.3.6"
