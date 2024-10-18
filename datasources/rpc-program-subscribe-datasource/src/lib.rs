@@ -19,14 +19,11 @@ pub struct Filters {
 }
 
 impl Filters {
-    pub fn new(
-        pubkey: Pubkey,
-        program_subscribe_config: Option<RpcProgramAccountsConfig>,
-    ) -> CarbonResult<Self> {
-        Ok(Filters {
+    pub fn new(pubkey: Pubkey, program_subscribe_config: Option<RpcProgramAccountsConfig>) -> Self {
+        Filters {
             pubkey,
             program_subscribe_config,
-        })
+        }
     }
 }
 
