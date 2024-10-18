@@ -25,6 +25,12 @@ Process specific updates:
 
 Collect and report on pipeline performance and operational data.
 
+Our premade metrics crates assist with common use cases:
+| Crate Name | Description | Ease of Setup |
+|------------|-------------|---------------|
+| `carbon-log-metrics` | Logs useful program info to the terminal | Easy |
+| `carbon-prometheus-metrics` | Provides a way of exporting default and custom metrics to a Prometheus server | Medium |
+
 ## Usage
 
 ### Basic Setup
@@ -175,6 +181,24 @@ impl Datasource for MyDataSource {
     }
 }
 ```
+
+### Available Program Decoders
+
+Decoders for most popular Solana programs are published and maintained:
+| Crate Name | Description | Program ID |
+|------------|-------------|------------|
+| `carbon-jupiter-dca-decoder` | Jupiter DCA Program Decoder | DCA265Vj8a9CEuX1eb1LWRnDT7uK6q1xMipnNyatn23M |
+| `carbon-jupiter-limit-order-decoder` | Jupiter Limit Order Program Decoder | jupoNjAxXgZ4rjzxzPMP4oxduvQsQtZzyknqvzYNrNu |
+| `carbon-jupiter-limit-order-2-decoder` | Jupiter Limit Order 2 Program Decoder | j1o2qRpjcyUwEvwtcfhEQefh773ZgjxcVRry7LDqg5X |
+| `carbon-jupiter-swap-decoder` | Jupiter Swap Program Decoder | JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 |
+| `carbon-meteora-dlmm-decoder` | Meteora DLMM Program Decoder | LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo |
+| `carbon-mpl-core-decoder` | MPL Core Program Decoder | CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d |
+| `carbon-mpl-token-metadata-decoder` | MPL Token Metadata Program Decoder | metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s |
+| `carbon-orca-whirlpool-decoder` | Orca Whirlpool Program Decoder | whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc |
+| `carbon-pumpfun-decoder` | Pumpfun Program Decoder | 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P |
+| `carbon-raydium-amm-v4-decoder` | Raydium AMM V4 Program Decoder | 675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8 |
+| `carbon-system-program-decoder` | System Program Decoder | 11111111111111111111111111111111 |
+| `carbon-token-program-decoder` | Token Program Decoder | TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA |
 
 ## License
 

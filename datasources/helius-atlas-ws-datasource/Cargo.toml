@@ -7,14 +7,15 @@ edition = "2018"
 crate-type = ["rlib"]
 
 [dependencies]
-tokio = { version = "1.37.0", features = ["full"] }
-tokio-util = "0.7.12"
-async-trait = "0.1.83"
-carbon-core = { path = "../../crates/core" }
-log = "0.4.22"
-env_logger = "0.11.5"
-futures = "0.3.30"
 solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
 solana-sdk = { workspace = true }
-helius = { path = "../../libs/helius-rust-sdk" }
+helius = { workspace = true }
+carbon-core = { workspace = true }
+
+tokio = { version = "1.37.0", features = ["full"] }
+tokio-util = "0.7.12"
+async-trait = "0.1.83"
+log = "0.4.22"
+env_logger = "0.11.5"
+futures = "0.3.30"

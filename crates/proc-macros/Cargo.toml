@@ -7,9 +7,9 @@ license = "MIT"
 
 [dependencies]
 carbon-core = { workspace = true }
-solana-transaction-status = "=2.0.10"
-solana-client = "=2.0.10"
-solana-sdk = "=2.0.10"
+solana-transaction-status = { workspace = true }
+solana-client = { workspace = true }
+solana-sdk = { workspace = true }
 
 syn = { version = "1.0", features = ["full"] }
 paste = "1.0.15"

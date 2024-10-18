@@ -9,6 +9,7 @@ license = "MIT"
 solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
 solana-sdk = { workspace = true }
+
 async-trait = "0.1.82"
 futures = "0.3.30"
 log = "0.4.22"
