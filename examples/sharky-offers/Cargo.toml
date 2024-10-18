@@ -16,3 +16,4 @@ solana-client.workspace = true
 solana-sdk.workspace = true
 tokio = { version = "1.40.0", features = ["full"] }
 tokio-util = "0.7.12"
+dotenv = "0.15.0"
