@@ -7,6 +7,7 @@ edition = "2021"
 carbon-rpc-transaction-crawler-datasource = { path = "../../datasources/rpc-transaction-crawler-datasource"}
 carbon-pumpfun-decoder = { path = "../../decoders/pumpfun-decoder" }
 yellowstone-grpc-proto = { version = "=1.15.0+solana.2.0.10",  git = "https://github.com/rpcpool/yellowstone-grpc.git" }
+carbon-meteora-dlmm-decoder = { path = "../../decoders/meteora-dlmm-decoder" }
 tokio = { version = "1.40.0", features = ["full"] }
 async-trait = "0.1.83"
 carbon-core = { workspace = true }
@@ -17,3 +18,4 @@ solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
 log = "0.4.22"
 env_logger = "0.11.5"
+log-metrics = { workspace = true }
