@@ -17,3 +17,4 @@ solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
 log = "0.4.22"
 env_logger = "0.11.5"
+dotenv = "0.15.0"
