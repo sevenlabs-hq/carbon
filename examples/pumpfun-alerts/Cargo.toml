@@ -1,5 +1,5 @@
 [package]
-name = "pumpfun-alerts"
+name = "pumpfun-alerts-carbon-example"
 version = "0.1.0"
 edition = "2021"
 
