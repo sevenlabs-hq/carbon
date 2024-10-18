@@ -3565,6 +3565,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "pumpfun-alerts"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "carbon-pumpfun-decoder",
+ "carbon-yellowstone-grpc-datasource",
+ "env_logger 0.11.5",
+ "log",
+ "solana-client",
+ "solana-sdk",
+ "solana-transaction-status",
+ "tokio",
+ "yellowstone-grpc-proto",
+]
+
+[[package]]
 name = "qstring"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4302,6 +4321,24 @@ checksum = "75872d278a8f37ef87fa0ddbda7802605cb18344497949862c0d4dcb291eba60"
 dependencies = [
  "digest 0.10.7",
  "keccak",
+]
+
+[[package]]
+name = "sharky-offers-carbon-example"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "carbon-rpc-program-subscribe-datasource",
+ "log-metrics",
+ "serde",
+ "solana-client",
+ "solana-sdk",
+ "tokio",
+ "tokio-util",
 ]
 
 [[package]]
