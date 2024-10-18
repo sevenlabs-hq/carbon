@@ -116,6 +116,8 @@ impl Processor for SharkyAccountProcessor {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
+    env_logger::init();
+
     Pipeline::builder()
         .datasource(GpaBackfillDatasource::new(
             env::var("RPC_URL")?,
