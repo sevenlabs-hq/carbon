@@ -33,13 +33,16 @@ impl Filters {
 }
 
 pub struct RpcBlockSubscribe {
-    pub rpc_url: String,
+    pub rpc_ws_url: String,
     pub filters: Filters,
 }
 
 impl RpcBlockSubscribe {
-    pub fn new(rpc_url: String, filters: Filters) -> Self {
-        Self { rpc_url, filters }
+    pub fn new(rpc_ws_url: String, filters: Filters) -> Self {
+        Self {
+            rpc_ws_url,
+            filters,
+        }
     }
 }
 
@@ -50,7 +53,7 @@ impl Datasource for RpcBlockSubscribe {
         sender: &UnboundedSender<Update>,
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
-        let client = PubsubClient::new(&self.rpc_url).await.map_err(|err| {
+        let client = PubsubClient::new(&self.rpc_ws_url).await.map_err(|err| {
             carbon_core::error::Error::Custom(format!(
                 "Failed to create an RPC subscribe client: {err}"
             ))

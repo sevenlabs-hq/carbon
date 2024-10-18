@@ -8,11 +8,8 @@ use sharky_decoder::accounts::SharkyAccount;
 use sharky_decoder::SharkyDecoder;
 use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_client::rpc_config::RpcProgramAccountsConfig;
-use std::collections::HashSet;
-use std::env;
 use std::sync::Arc;
 use tokio::sync::mpsc::UnboundedSender;
-use tokio::sync::RwLock;
 use tokio_util::sync::CancellationToken;
 
 use carbon_core::pipeline::{Pipeline, ShutdownStrategy};
@@ -105,9 +102,13 @@ impl Processor for SharkyAccountProcessor {
         let (_metadata, account) = update;
 
         match account.data {
-            SharkyAccount::OrderBook(_order_book) => {} // store each collection/order book in a database
-            SharkyAccount::Loan(_loan) => {}            // store each loan in a database
-            _ => {}                                     // uninteresting account type(s)
+            SharkyAccount::OrderBook(order_book) => {
+                println!("Orderbook: {:?}", &order_book);
+            }
+            SharkyAccount::Loan(loan) => {
+                println!("Loan: {:?}", &loan);
+            }
+            _ => {}
         }
 
         Ok(())
@@ -120,14 +121,15 @@ async fn main() -> anyhow::Result<()> {
 
     Pipeline::builder()
         .datasource(GpaBackfillDatasource::new(
-            env::var("RPC_URL")?,
+            "https://mainnet.helius-rpc.com/?api-key=d2215080-73ef-4fb8-a5e0-3ef90a039164"
+                .to_string(),
             SHARKY_PROGRAM_ID,
             None,
         ))
         .datasource(RpcProgramSubscribe::new(
-            env::var("RPC_URL")?,
+            "wss://mainnet.helius-rpc.com/?api-key=d2215080-73ef-4fb8-a5e0-3ef90a039164"
+                .to_string(),
             Filters::new(SHARKY_PROGRAM_ID, None),
-            Arc::new(RwLock::new(HashSet::new())),
         ))
         .account(SharkyDecoder, SharkyAccountProcessor)
         .metrics(Arc::new(LogMetrics::new()))
