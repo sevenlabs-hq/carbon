@@ -6,7 +6,8 @@
 //! the deletion of accounts and associated resources, integrating with metrics for monitoring.
 
 use crate::{
-    datasource::AccountDeletion, error::CarbonResult, metrics::Metrics, processor::Processor,
+    datasource::AccountDeletion, error::CarbonResult, metrics::MetricsCollection,
+    processor::Processor,
 };
 use async_trait::async_trait;
 use std::sync::Arc;
@@ -35,7 +36,7 @@ use std::sync::Arc;
 ///     async fn process(
 ///         &self,
 ///         account_deletion: AccountDeletion,
-///         metrics: Vec<Arc<dyn Metrics>>,
+///         metrics: Arc<MetricsCollection>,
 ///     ) -> CarbonResult<()> {
 ///         // Custom deletion logic
 ///         Ok(())
@@ -86,7 +87,7 @@ pub struct AccountDeletionPipe {
 ///     async fn run(
 ///         &mut self,
 ///         account_deletion: AccountDeletion,
-///         metrics: Vec<Arc<dyn Metrics>>,
+///         metrics: Arc<MetricsCollection>,
 ///     ) -> CarbonResult<()> {
 ///         // Custom processing logic for the deletion event
 ///         Ok(())
@@ -128,7 +129,7 @@ pub trait AccountDeletionPipes: Send + Sync {
     async fn run(
         &mut self,
         account_deletion: AccountDeletion,
-        metrics: Vec<Arc<dyn Metrics>>,
+        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
 }
 
@@ -137,7 +138,7 @@ impl AccountDeletionPipes for AccountDeletionPipe {
     async fn run(
         &mut self,
         account_deletion: AccountDeletion,
-        metrics: Vec<Arc<dyn Metrics>>,
+        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         log::trace!(
             "AccountDeletionPipe::run(account_deletion: {:?}, metrics)",

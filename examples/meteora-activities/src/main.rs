@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use carbon_core::{
     error::CarbonResult,
     instruction::{DecodedInstruction, InstructionMetadata, NestedInstruction},
-    metrics::Metrics,
+    metrics::MetricsCollection,
     processor::Processor,
 };
 use carbon_log_metrics::LogMetrics;
@@ -55,7 +55,7 @@ impl Processor for MeteoraInstructionProcessor {
     async fn process(
         &mut self,
         data: Self::InputType,
-        _metrics: Vec<Arc<dyn Metrics>>,
+        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let (_instruction_metadata, decoded_instruction, _nested_instructions) = data;
 

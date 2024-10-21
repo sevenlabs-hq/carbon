@@ -46,7 +46,7 @@
 //! - This module requires access to Solana SDK structures, specifically `Account` and `Pubkey`.
 //! - All components support asynchronous processing to enable concurrent data handling in the pipeline.
 
-use crate::{error::CarbonResult, metrics::Metrics, processor::Processor};
+use crate::{error::CarbonResult, metrics::MetricsCollection, processor::Processor};
 use async_trait::async_trait;
 use solana_sdk::pubkey::Pubkey;
 use std::sync::Arc;
@@ -146,7 +146,7 @@ pub struct AccountPipe<T: Send> {
 ///     async fn run(
 ///         &mut self,
 ///         account_with_metadata: (AccountMetadata, solana_sdk::account::Account),
-///         metrics: Vec<Arc<dyn Metrics>>,
+///         metrics: Arc<MetricsCollection>,
 ///     ) -> CarbonResult<()> {
 ///         // Custom processing logic here
 ///         Ok(())
@@ -163,7 +163,7 @@ pub trait AccountPipes: Send + Sync {
     async fn run(
         &mut self,
         account_with_metadata: (AccountMetadata, solana_sdk::account::Account),
-        metrics: Vec<Arc<dyn Metrics>>,
+        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
 }
 
@@ -172,7 +172,7 @@ impl<T: Send> AccountPipes for AccountPipe<T> {
     async fn run(
         &mut self,
         account_with_metadata: (AccountMetadata, solana_sdk::account::Account),
-        metrics: Vec<Arc<dyn Metrics>>,
+        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         log::trace!(
             "AccountPipe::run(account_with_metadata: {:?}, metrics)",

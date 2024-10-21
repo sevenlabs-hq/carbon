@@ -28,7 +28,7 @@ use crate::{
     collection::InstructionDecoderCollection,
     error::CarbonResult,
     instruction::NestedInstruction,
-    metrics::Metrics,
+    metrics::MetricsCollection,
     processor::Processor,
     schema::{ParsedInstruction, TransactionSchema},
 };
@@ -175,7 +175,7 @@ pub trait TransactionPipes<'a>: Send + Sync {
     async fn run(
         &mut self,
         instructions: &[NestedInstruction],
-        metrics: Vec<Arc<dyn Metrics>>,
+        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
 }
 
@@ -188,7 +188,7 @@ where
     async fn run(
         &mut self,
         instructions: &[NestedInstruction],
-        metrics: Vec<Arc<dyn Metrics>>,
+        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         log::trace!(
             "TransactionPipe::run(instructions: {:?}, metrics)",
