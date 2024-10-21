@@ -4,6 +4,7 @@ use carbon_core::{
         AccountDeletion, AccountUpdate, Datasource, TransactionUpdate, Update, UpdateType,
     },
     error::CarbonResult,
+    metrics::MetricsCollection,
 };
 use futures::StreamExt;
 use helius::types::{Cluster, RpcTransactionsConfig};
@@ -61,13 +62,13 @@ impl HeliusWebsocket {
         }
     }
 }
-
 #[async_trait]
 impl Datasource for HeliusWebsocket {
     async fn consume(
         &self,
         sender: &UnboundedSender<Update>,
         cancellation_token: CancellationToken,
+        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         if self.filters.accounts.is_empty() && self.filters.transactions.is_none() {
             return Err(carbon_core::error::Error::FailedToConsumeDatasource(
@@ -97,6 +98,7 @@ impl Datasource for HeliusWebsocket {
                     let sender_clone = sender.clone();
                     let helius_clone = Arc::clone(&helius);
                     let account_deletions_tracked = Arc::clone(&account_deletions_tracked);
+                    let metrics = metrics.clone();
 
                     let handle = tokio::spawn(async move {
                         let ws = match helius_clone.ws() {
@@ -129,6 +131,7 @@ impl Datasource for HeliusWebsocket {
                                 event_result = stream.next() => {
                                     match event_result {
                                         Some(acc_event) => {
+                                            let start_time = std::time::Instant::now();
                                             let decoded_account: Account = match acc_event.value.decode() {
                                                 Some(account_data) => account_data,
                                                 None => {
@@ -146,6 +149,12 @@ impl Datasource for HeliusWebsocket {
                                                             pubkey: account.clone(),
                                                             slot: acc_event.context.slot,
                                                         };
+
+                                                        metrics.record_histogram("helius_atlas_ws_account_deletion_process_time_milliseconds", start_time.elapsed().as_millis() as f64).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+
+                                                        metrics.increment_counter("helius_atlas_ws_account_deletions_received", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+
+
                                                         if let Err(err) = sender_clone.send(
                                                             Update::AccountDeletion(account_deletion),
                                                         ) {
@@ -160,6 +169,11 @@ impl Datasource for HeliusWebsocket {
                                                     account: decoded_account,
                                                     slot: acc_event.context.slot,
                                                 });
+
+                                                metrics.record_histogram("helius_atlas_ws_account_process_time_milliseconds", start_time.elapsed().as_millis() as f64).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+
+                                                metrics.increment_counter("helius_atlas_ws_account_updates_received", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+
 
                                                 if let Err(err) = sender_clone.send(update) {
                                                     log::error!("Error sending account update: {:?}", err);
@@ -214,6 +228,7 @@ impl Datasource for HeliusWebsocket {
                             event_result = stream.next() => {
                                 match event_result {
                                     Some(tx_event) => {
+                                        let start_time = std::time::Instant::now();
                                         let encoded_transaction_with_status_meta = tx_event.transaction;
                                         let signature_str = tx_event.signature;
                                         let Ok(signature) = Signature::from_str(&signature_str) else {
@@ -405,6 +420,17 @@ impl Datasource for HeliusWebsocket {
                                             is_vote: config.filter.vote.is_some_and(|is_vote| is_vote == true),
                                             slot: tx_event.slot,
                                         });
+
+                                        metrics
+                                                .record_histogram(
+                                                    "helius_atlas_ws_transaction_process_time_milliseconds",
+                                                    start_time.elapsed().as_millis() as f64
+                                                )
+                                                .await
+                                                .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+
+                                        metrics.increment_counter("helius_atlas_ws_transaction_updates_received", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+
 
                                         if let Err(err) = sender_clone.send(update) {
                                             log::error!("Error sending transaction update: {:?}", err);

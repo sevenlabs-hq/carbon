@@ -141,7 +141,7 @@ impl Processor for MyAccountProcessor {
     async fn process(
         &mut self,
         input: Self::InputType,
-        metrics: Vec<Arc<dyn Metrics>>,
+        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         // Implement processing logic
     }

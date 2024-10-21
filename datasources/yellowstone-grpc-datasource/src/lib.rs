@@ -1,5 +1,6 @@
 use async_trait::async_trait;
 use carbon_core::datasource::AccountDeletion;
+use carbon_core::metrics::MetricsCollection;
 use carbon_core::{
     datasource::{AccountUpdate, Datasource, TransactionUpdate, Update, UpdateType},
     error::CarbonResult,
@@ -56,6 +57,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
         &self,
         sender: &UnboundedSender<Update>,
         cancellation_token: CancellationToken,
+        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let sender = sender.clone();
         let endpoint = self.endpoint.clone();
@@ -102,6 +104,11 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                     match message {
                                         Ok(msg) => match msg.update_oneof {
                                             Some(UpdateOneof::Account(account_update)) => {
+                                                let start_time = std::time::Instant::now();
+
+                                                metrics.increment_counter("yellowstone_grpc_account_updates_received", 1).await.unwrap();
+
+
                                                 if let Some(account_info) = account_update.account {
                                                     let Ok(account_pubkey) =
                                                         Pubkey::try_from(account_info.pubkey)
@@ -152,12 +159,25 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                             log::error!("Failed to send account update for pubkey {:?} at slot {}: {:?}", account_pubkey, account_update.slot, e);
                                                         }
                                                     }
+
+                                                    metrics
+                                                            .record_histogram(
+                                                                "yellowstone_grpc_account_process_time_milliseconds",
+                                                                start_time.elapsed().as_millis() as f64
+                                                            )
+                                                            .await
+                                                            .unwrap();
+
+                                                    metrics.increment_counter("yellowstone_grpc_account_updates_received", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+
                                                 } else {
                                                     log::error!("No account info in UpdateOneof::Account at slot {}", account_update.slot);
                                                 }
                                             }
 
                                             Some(UpdateOneof::Transaction(transaction_update)) => {
+                                                let start_time = std::time::Instant::now();
+
                                                 if let Some(transaction_info) =
                                                     transaction_update.transaction
                                                 {
@@ -206,6 +226,17 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                 } else {
                                                     log::error!("No transaction info in `UpdateOneof::Transaction` at slot {}", transaction_update.slot);
                                                 }
+
+                                                metrics
+                                                        .record_histogram(
+                                                            "yellowstone_grpc_transaction_process_time_milliseconds",
+                                                            start_time.elapsed().as_millis() as f64
+                                                        )
+                                                        .await
+                                                        .unwrap();
+
+                                                metrics.increment_counter("yellowstone_grpc_transaction_updates_received", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+
                                             }
 
                                             Some(UpdateOneof::Ping(_)) => {
