@@ -12,7 +12,8 @@
 //! decoding them into structured types and facilitating hierarchical processing.
 
 use crate::{
-    error::CarbonResult, metrics::Metrics, processor::Processor, transaction::TransactionMetadata,
+    error::CarbonResult, metrics::MetricsCollection, processor::Processor,
+    transaction::TransactionMetadata,
 };
 use async_trait::async_trait;
 use serde::Deserialize;
@@ -122,7 +123,7 @@ pub trait InstructionPipes<'a>: Send + Sync {
     async fn run(
         &mut self,
         nested_instruction: &NestedInstruction,
-        metrics: Vec<Arc<dyn Metrics>>,
+        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
 }
 
@@ -131,7 +132,7 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
     async fn run(
         &mut self,
         nested_instruction: &NestedInstruction,
-        metrics: Vec<Arc<dyn Metrics>>,
+        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         log::trace!(
             "InstructionPipe::run(nested_instruction: {:?}, metrics)",

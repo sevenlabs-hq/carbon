@@ -47,7 +47,7 @@ use crate::{
         DecodedInstruction, InstructionDecoder, InstructionMetadata, InstructionPipe,
         InstructionPipes, NestedInstruction,
     },
-    metrics::Metrics,
+    metrics::{Metrics, MetricsCollection},
     processor::Processor,
     schema::TransactionSchema,
     transaction::{TransactionPipe, TransactionPipes},
@@ -167,7 +167,7 @@ pub struct Pipeline {
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
-    pub metrics: Vec<Arc<dyn Metrics>>,
+    pub metrics: Arc<MetricsCollection>,
     pub metrics_flush_interval: Option<u64>,
     pub shutdown_strategy: ShutdownStrategy,
 }
@@ -207,7 +207,7 @@ impl Pipeline {
             account_deletion_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
-            metrics: Vec::new(),
+            metrics: MetricsCollection::default(),
             metrics_flush_interval: None,
             shutdown_strategy: ShutdownStrategy::default(),
         }
@@ -265,7 +265,7 @@ impl Pipeline {
     pub async fn run(&mut self) -> CarbonResult<()> {
         log::info!("starting pipeline. num_datasources: {}, num_metrics: {}, num_account_pipes: {}, num_account_deletion_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}",
             self.datasources.len(),
-            self.metrics.len(),
+            self.metrics.metrics.len(),
             self.account_pipes.len(),
             self.account_deletion_pipes.len(),
             self.instruction_pipes.len(),
@@ -302,7 +302,7 @@ impl Pipeline {
             ));
         }
 
-        self.initialize_metrics().await?;
+        self.metrics.initialize_metrics().await?;
         let (update_sender, mut update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
 
         let datasource_cancellation_token = CancellationToken::new();
@@ -311,10 +311,15 @@ impl Pipeline {
             let datasource_cancellation_token_clone = datasource_cancellation_token.clone();
             let sender_clone = update_sender.clone();
             let datasource_clone = Arc::clone(datasource);
+            let metrics_collection = self.metrics.clone();
 
             tokio::spawn(async move {
                 if let Err(e) = datasource_clone
-                    .consume(&sender_clone, datasource_cancellation_token_clone)
+                    .consume(
+                        &sender_clone,
+                        datasource_cancellation_token_clone,
+                        metrics_collection,
+                    )
                     .await
                 {
                     log::error!("error consuming datasource: {:?}", e);
@@ -334,21 +339,21 @@ impl Pipeline {
 
                     if self.shutdown_strategy == ShutdownStrategy::Immediate {
                         log::info!("shutting down the pipeline immediately.");
-                        self.flush_metrics().await?;
-                        self.shutdown_metrics().await?;
+                        self.metrics.flush_metrics().await?;
+                        self.metrics.shutdown_metrics().await?;
                         break;
                     } else {
                         log::info!("shutting down the pipeline after processing pending updates.");
                     }
                 }
                 _ = interval.tick() => {
-                    self.flush_metrics().await?;
+                    self.metrics.flush_metrics().await?;
                 }
                 update = update_receiver.recv() => {
                     match update {
                         Some(update) => {
                             self
-                                .increment_counter("updates_received", 1)
+                                .metrics.increment_counter("updates_received", 1)
                                 .await?;
 
                             let start = Instant::now();
@@ -356,35 +361,35 @@ impl Pipeline {
                             let time_taken = start.elapsed().as_millis();
 
                             self
-                                .record_histogram("updates_processing_times", time_taken as f64)
+                                .metrics.record_histogram("updates_processing_times", time_taken as f64)
                                 .await?;
 
                             match process_result {
                                 Ok(_) => {
                                     self
-                                        .increment_counter("updates_successful", 1)
+                                        .metrics.increment_counter("updates_successful", 1)
                                         .await?;
 
                                     log::trace!("processed update")
                                 }
                                 Err(error) => {
                                     log::error!("error processing update ({:?}): {:?}", update, error);
-                                    self.increment_counter("updates_failed", 1).await?;
+                                    self.metrics.increment_counter("updates_failed", 1).await?;
                                 }
                             };
 
                             self
-                                .increment_counter("updates_processed", 1)
+                                .metrics.increment_counter("updates_processed", 1)
                                 .await?;
 
                             self
-                                .update_gauge("updates_queued", update_receiver.len() as f64)
+                                .metrics.update_gauge("updates_queued", update_receiver.len() as f64)
                                 .await?;
                         }
                         None => {
                             log::info!("update_receiver closed, shutting down.");
-                            self.flush_metrics().await?;
-                            self.shutdown_metrics().await?;
+                            self.metrics.flush_metrics().await?;
+                            self.metrics.shutdown_metrics().await?;
                             break;
                         }
                     }
@@ -458,7 +463,8 @@ impl Pipeline {
                     .await?;
                 }
 
-                self.increment_counter("account_updates_processed", 1)
+                self.metrics
+                    .increment_counter("account_updates_processed", 1)
                     .await?;
             }
             Update::Transaction(transaction_update) => {
@@ -486,7 +492,8 @@ impl Pipeline {
                     pipe.run(&nested_instructions, self.metrics.clone()).await?;
                 }
 
-                self.increment_counter("transaction_updates_processed", 1)
+                self.metrics
+                    .increment_counter("transaction_updates_processed", 1)
                     .await?;
             }
             Update::AccountDeletion(account_deletion) => {
@@ -495,63 +502,12 @@ impl Pipeline {
                         .await?;
                 }
 
-                self.increment_counter("account_deletions_processed", 1)
+                self.metrics
+                    .increment_counter("account_deletions_processed", 1)
                     .await?;
             }
         };
 
-        Ok(())
-    }
-
-    pub async fn initialize_metrics(&self) -> CarbonResult<()> {
-        log::trace!("initialize_metrics(self)");
-        for metrics in self.metrics.iter() {
-            metrics.initialize().await?;
-        }
-        Ok(())
-    }
-    pub async fn flush_metrics(&self) -> CarbonResult<()> {
-        log::trace!("flush_metrics(self)");
-        for metrics in self.metrics.iter() {
-            metrics.flush().await?;
-        }
-        Ok(())
-    }
-    pub async fn shutdown_metrics(&self) -> CarbonResult<()> {
-        log::trace!("shutdown_metrics(self)");
-        for metrics in self.metrics.iter() {
-            metrics.shutdown().await?;
-        }
-        Ok(())
-    }
-
-    pub async fn update_gauge(&self, name: &str, value: f64) -> CarbonResult<()> {
-        log::trace!("update_gauge(self, name: {:?}, value: {:?})", name, value);
-        for metrics in self.metrics.iter() {
-            metrics.update_gauge(name, value).await?;
-        }
-        Ok(())
-    }
-    pub async fn increment_counter(&self, name: &str, value: u64) -> CarbonResult<()> {
-        log::trace!(
-            "increment_counter(self, name: {:?}, value: {:?})",
-            name,
-            value
-        );
-        for metrics in self.metrics.iter() {
-            metrics.increment_counter(name, value).await?;
-        }
-        Ok(())
-    }
-    pub async fn record_histogram(&self, name: &str, value: f64) -> CarbonResult<()> {
-        log::trace!(
-            "record_histogram(self, name: {:?}, value: {:?})",
-            name,
-            value
-        );
-        for metrics in self.metrics.iter() {
-            metrics.record_histogram(name, value).await?;
-        }
         Ok(())
     }
 }
@@ -620,7 +576,7 @@ pub struct PipelineBuilder {
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
-    pub metrics: Vec<Arc<dyn Metrics>>,
+    pub metrics: MetricsCollection,
     pub metrics_flush_interval: Option<u64>,
     pub shutdown_strategy: ShutdownStrategy,
 }
@@ -648,7 +604,7 @@ impl PipelineBuilder {
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
             shutdown_strategy: ShutdownStrategy::default(),
-            metrics: Vec::new(),
+            metrics: MetricsCollection::default(),
             metrics_flush_interval: None,
         }
     }
@@ -870,7 +826,7 @@ impl PipelineBuilder {
     ///
     pub fn metrics(mut self, metrics: Arc<dyn Metrics>) -> Self {
         log::trace!("metrics(self, metrics: {:?})", stringify!(metrics));
-        self.metrics.push(metrics);
+        self.metrics.metrics.push(metrics);
         self
     }
 
@@ -935,7 +891,7 @@ impl PipelineBuilder {
             instruction_pipes: self.instruction_pipes,
             transaction_pipes: self.transaction_pipes,
             shutdown_strategy: self.shutdown_strategy,
-            metrics: self.metrics,
+            metrics: Arc::new(self.metrics),
             metrics_flush_interval: self.metrics_flush_interval,
         })
     }

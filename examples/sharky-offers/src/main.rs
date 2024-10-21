@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use carbon_core::account::{AccountMetadata, DecodedAccount};
 use carbon_core::datasource::{AccountUpdate, Datasource, Update, UpdateType};
 use carbon_core::error::CarbonResult;
-use carbon_core::metrics::Metrics;
+use carbon_core::metrics::MetricsCollection;
 use carbon_core::processor::Processor;
 use sharky_decoder::accounts::SharkyAccount;
 use sharky_decoder::SharkyDecoder;
@@ -48,6 +48,7 @@ impl Datasource for GpaBackfillDatasource {
         &self,
         sender: &UnboundedSender<Update>,
         _cancellation_token: CancellationToken,
+        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let rpc_client = RpcClient::new(self.rpc_url.clone());
 
@@ -97,7 +98,7 @@ impl Processor for SharkyAccountProcessor {
     async fn process(
         &mut self,
         update: Self::InputType,
-        _metrics: Vec<Arc<dyn Metrics>>,
+        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let (_metadata, account) = update;
 

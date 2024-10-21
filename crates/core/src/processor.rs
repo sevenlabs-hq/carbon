@@ -43,7 +43,7 @@
 //! - When implementing the `process` method, consider which metrics are relevant to your data processing,
 //!   and update those metrics accordingly to enable monitoring and alerting on key performance indicators.
 
-use crate::{error::CarbonResult, metrics::Metrics};
+use crate::{error::CarbonResult, metrics::MetricsCollection};
 use async_trait::async_trait;
 use std::sync::Arc;
 
@@ -76,7 +76,7 @@ use std::sync::Arc;
 ///     async fn process(
 ///         &mut self,
 ///         data: Self::InputType,
-///         metrics: Vec<Arc<dyn Metrics>>,
+///         metrics: Arc<MetricsCollection>,
 ///     ) -> CarbonResult<()> {
 ///         // Perform data processing logic
 ///
@@ -96,6 +96,6 @@ pub trait Processor {
     async fn process(
         &mut self,
         data: Self::InputType,
-        metrics: Vec<Arc<dyn Metrics>>,
+        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
 }
