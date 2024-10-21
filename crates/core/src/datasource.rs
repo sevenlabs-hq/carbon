@@ -29,9 +29,10 @@
 //! - Ensure implementations handle errors gracefully, especially when fetching data
 //!   and sending updates to the pipeline.
 
-use crate::error::CarbonResult;
+use crate::{error::CarbonResult, metrics::MetricsCollection};
 use async_trait::async_trait;
 use solana_sdk::{pubkey::Pubkey, signature::Signature};
+use std::sync::Arc;
 use tokio_util::sync::CancellationToken;
 
 /// Defines the interface for data sources that produce updates for accounts, transactions,
@@ -57,6 +58,8 @@ use tokio_util::sync::CancellationToken;
 ///     async fn consume(
 ///         &self,
 ///         sender: &tokio::sync::mpsc::UnboundedSender<Update>,
+///         cancellation_token: CancellationToken,
+///         metrics: Arc<MetricsCollection>,
 ///     ) -> CarbonResult<tokio::task::AbortHandle> {
 ///         // Implement update fetching logic
 ///     }
@@ -78,6 +81,7 @@ pub trait Datasource: Send + Sync {
         &self,
         sender: &tokio::sync::mpsc::UnboundedSender<Update>,
         cancellation_token: CancellationToken,
+        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
 
     fn update_types(&self) -> Vec<UpdateType>;

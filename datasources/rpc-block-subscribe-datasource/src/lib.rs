@@ -2,6 +2,7 @@ use async_trait::async_trait;
 use carbon_core::{
     datasource::{Datasource, TransactionUpdate, Update, UpdateType},
     error::CarbonResult,
+    metrics::MetricsCollection,
     transformers::transaction_metadata_from_original_meta,
 };
 use futures::StreamExt;
@@ -10,7 +11,7 @@ use solana_client::{
     rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
 };
 use solana_sdk::signature::Signature;
-use std::str::FromStr;
+use std::{str::FromStr, sync::Arc};
 use tokio::sync::mpsc::UnboundedSender;
 use tokio_util::sync::CancellationToken;
 
@@ -52,6 +53,7 @@ impl Datasource for RpcBlockSubscribe {
         &self,
         sender: &UnboundedSender<Update>,
         cancellation_token: CancellationToken,
+        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let client = PubsubClient::new(&self.rpc_ws_url).await.map_err(|err| {
             carbon_core::error::Error::Custom(format!(
@@ -87,8 +89,10 @@ impl Datasource for RpcBlockSubscribe {
                                 let slot = tx_event.context.slot;
 
                                 if let Some(block) = tx_event.value.block {
+                                    let block_start_time = std::time::Instant::now();
                                     if let (Some(transactions), Some(signatures)) = (block.transactions, block.signatures) {
                                         for (encoded_transaction_with_status_meta, signature_str) in transactions.into_iter().zip(signatures.into_iter()) {
+                                            let start_time = std::time::Instant::now();
                                             let Ok(signature) = Signature::from_str(&signature_str) else {
                                                 log::error!("Error getting Signature from string");
                                                 continue;
@@ -128,12 +132,33 @@ impl Datasource for RpcBlockSubscribe {
                                                 slot,
                                             });
 
+                                            metrics
+                                                    .record_histogram(
+                                                        "block_subscribe_transaction_process_time_milliseconds",
+                                                        start_time.elapsed().as_millis() as f64
+                                                    )
+                                                    .await
+                                                    .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+
+                                            metrics.increment_counter("block_subscribe_transactions_processed", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+
+
                                             if let Err(err) = sender_clone.send(update) {
                                                 log::error!("Error sending transaction update: {:?}", err);
                                                 break;
                                             }
                                         }
                                     }
+
+                                    metrics
+                                            .record_histogram(
+                                                "block_subscribe_block_process_time_milliseconds",
+                                                block_start_time.elapsed().as_millis() as f64
+                                            )
+                                            .await
+                                            .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+
+                                    metrics.increment_counter("block_subscribe_blocks_received", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
                                 }
                             }
                             None => {
