@@ -1,5 +1,6 @@
 [package]
 name = "carbon-rpc-program-subscribe-datasource"
+description = "RPC Program Subscribe Datasource"
 version = "0.1.1"
 edition = "2021"
 
