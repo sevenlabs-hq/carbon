@@ -6,8 +6,10 @@ use carbon_core::metrics::MetricsCollection;
 use carbon_core::processor::Processor;
 use sharky_decoder::accounts::SharkyAccount;
 use sharky_decoder::SharkyDecoder;
+use solana_account_decoder::UiAccountEncoding;
 use solana_client::nonblocking::rpc_client::RpcClient;
-use solana_client::rpc_config::RpcProgramAccountsConfig;
+use solana_client::rpc_config::{RpcAccountInfoConfig, RpcProgramAccountsConfig};
+use std::env;
 use std::sync::Arc;
 use tokio::sync::mpsc::UnboundedSender;
 use tokio_util::sync::CancellationToken;
@@ -123,15 +125,24 @@ async fn main() -> anyhow::Result<()> {
 
     Pipeline::builder()
         .datasource(GpaBackfillDatasource::new(
-            "https://mainnet.helius-rpc.com/?api-key=d2215080-73ef-4fb8-a5e0-3ef90a039164"
-                .to_string(),
+            env::var("RPC_URL").unwrap_or_default(),
             SHARKY_PROGRAM_ID,
             None,
         ))
         .datasource(RpcProgramSubscribe::new(
-            "wss://mainnet.helius-rpc.com/?api-key=d2215080-73ef-4fb8-a5e0-3ef90a039164"
-                .to_string(),
-            Filters::new(SHARKY_PROGRAM_ID, None),
+            // Websocket RPC url, usually starts with "wss://"
+            env::var("RPC_WS_URL").unwrap_or_default(),
+            Filters::new(
+                SHARKY_PROGRAM_ID,
+                Some(RpcProgramAccountsConfig {
+                    filters: None,
+                    account_config: RpcAccountInfoConfig {
+                        encoding: Some(UiAccountEncoding::Base64),
+                        ..Default::default()
+                    },
+                    ..Default::default()
+                }),
+            ),
         ))
         .account(SharkyDecoder, SharkyAccountProcessor)
         .metrics(Arc::new(LogMetrics::new()))

@@ -22,6 +22,7 @@ use yellowstone_grpc_proto::{
     },
 };
 
+#[derive(Debug)]
 pub struct YellowstoneGrpcGeyserClient {
     pub endpoint: String,
     pub x_token: Option<String>,
