@@ -1,6 +1,8 @@
 [package]
 name = "carbon-jupiter-limit-order-decoder"
 version = "0.1.1"
+description = "Jupiter Limit Order Decoder"
+license = "MIT"
 edition = "2018"
 
 [lib]

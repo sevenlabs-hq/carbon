@@ -1,6 +1,8 @@
 [package]
 name = "carbon-token-program-decoder"
 version = "0.1.1"
+description = "Token Program Decoder"
+license = "MIT"
 edition = "2018"
 
 [lib]

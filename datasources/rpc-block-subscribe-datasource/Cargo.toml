@@ -1,5 +1,7 @@
 [package]
 name = "carbon-rpc-block-subscribe-datasource"
+description = "RPC Block Subscribe Datasource"
+license = "MIT"
 version = "0.1.1"
 edition = "2021"
 

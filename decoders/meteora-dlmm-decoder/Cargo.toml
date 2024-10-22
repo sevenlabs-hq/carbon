@@ -1,6 +1,8 @@
 [package]
 name = "carbon-meteora-dlmm-decoder"
 version = "0.1.1"
+description = "Meteora DLMM Decoder"
+license = "MIT"
 edition = "2018"
 
 [lib]
