@@ -1,5 +1,6 @@
 [package]
 name = "carbon-yellowstone-grpc-datasource"
+description = "Yellowstone gRPC Datasource"
 version = "0.1.1"
 edition = "2021"
 

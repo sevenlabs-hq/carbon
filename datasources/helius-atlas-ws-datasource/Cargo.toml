@@ -1,5 +1,6 @@
 [package]
 name = "carbon-helius-atlas-ws-datasource"
+description = "Helius Atlas WebSocket Datasource"
 version = "0.1.1"
 edition = "2018"
 
