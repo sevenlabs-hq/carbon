@@ -11,6 +11,7 @@ carbon-rpc-program-subscribe-datasource = { workspace = true }
 carbon-log-metrics = { workspace = true }
 solana-client.workspace = true
 solana-sdk.workspace = true
+solana-account-decoder.workspace = true
 
 anyhow = "1.0.89"
 async-trait = "0.1.83"
