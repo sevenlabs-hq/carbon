@@ -14,6 +14,7 @@ use std::{collections::HashMap, sync::Arc};
 use tokio::sync::{mpsc::UnboundedSender, RwLock};
 use tokio_util::sync::CancellationToken;
 use yellowstone_grpc_client::GeyserGrpcClient;
+use yellowstone_grpc_proto::tonic::transport::ClientTlsConfig;
 use yellowstone_grpc_proto::{
     convert_from::{create_tx_meta, create_tx_versioned},
     geyser::{
@@ -74,6 +75,8 @@ impl Datasource for YellowstoneGrpcGeyserClient {
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?
             .connect_timeout(Duration::from_secs(15))
             .timeout(Duration::from_secs(15))
+            .tls_config(ClientTlsConfig::new().with_enabled_roots())
+            .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?
             .connect()
             .await
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?;
