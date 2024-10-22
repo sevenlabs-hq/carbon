@@ -1,6 +1,8 @@
 [package]
 name = "carbon-mpl-core-decoder"
 version = "0.1.1"
+description = "MPL Core Decoder"
+license = "MIT"
 edition = "2018"
 
 [lib]

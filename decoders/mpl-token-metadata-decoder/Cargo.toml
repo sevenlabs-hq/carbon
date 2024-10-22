@@ -1,6 +1,8 @@
 [package]
 name = "carbon-mpl-token-metadata-decoder"
 version = "0.1.1"
+description = "MPL Token Metadata Decoder"
+license = "MIT"
 edition = "2018"
 
 [lib]

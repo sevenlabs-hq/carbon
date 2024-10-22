@@ -1,6 +1,7 @@
 [package]
 name = "carbon-rpc-transaction-crawler-datasource"
 description = "RPC Transaction Crawler Datasource"
+license = "MIT"
 version = "0.1.1"
 edition = "2018"
 

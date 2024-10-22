@@ -1,6 +1,7 @@
 [package]
 name = "carbon-yellowstone-grpc-datasource"
 description = "Yellowstone gRPC Datasource"
+license = "MIT"
 version = "0.1.1"
 edition = "2021"
 

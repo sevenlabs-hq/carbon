@@ -1,6 +1,8 @@
 [package]
 name = "carbon-orca-whirlpool-decoder"
 version = "0.1.1"
+description = "Orca Whirlpool Decoder"
+license = "MIT"
 edition = "2018"
 
 [lib]
