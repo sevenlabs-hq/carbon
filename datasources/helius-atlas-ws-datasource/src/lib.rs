@@ -244,11 +244,6 @@ impl Datasource for HeliusWebsocket {
                                         };
 
                                         if meta_original.status.is_err() {
-                                            log::warn!(
-                                                "Transaction failed or encountered an error: {:?} (signature: {:?})",
-                                                meta_original.status,
-                                                signature_str
-                                            );
                                             continue;
                                         }
 
