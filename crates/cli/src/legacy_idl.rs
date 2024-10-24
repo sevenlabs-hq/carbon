@@ -86,6 +86,9 @@ pub enum LegacyIdlType {
     Defined {
         defined: String,
     },
+    DefinedWithName {
+        defined: IdlDefinedType,
+    },
     HashMap {
         #[serde(rename = "hashMap")]
         hash_map: (Box<LegacyIdlType>, Box<LegacyIdlType>),
@@ -179,4 +182,9 @@ pub struct LegacyIdlError {
     pub code: f64,
     pub name: String,
     pub msg: Option<String>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct IdlDefinedType {
+    pub name: String,
 }
