@@ -97,6 +97,9 @@ pub enum IdlType {
     Defined {
         defined: String,
     },
+    DefinedWithName {
+        defined: IdlDefinedType,
+    },
     HashMap {
         #[serde(rename = "hashMap")]
         hash_map: (Box<LegacyIdlType>, Box<LegacyIdlType>),
@@ -165,4 +168,9 @@ pub struct IdlEventField {
     #[serde(rename = "type")]
     pub type_: LegacyIdlType,
     pub index: bool,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct IdlDefinedType {
+    pub name: String,
 }
