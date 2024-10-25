@@ -43,7 +43,7 @@ solana-transaction-status = "=2.0.10"
 solana-client = "=2.0.10"
 solana-account-decoder = "=2.0.10"
 
-helius = { path = "libs/helius-rust-sdk", version = "0.2.1" }
+helius = { version = "0.2.2", git = "https://github.com/helius-labs/helius-rust-sdk.git" }
 
 [patch.crates-io.curve25519-dalek]
 git = "https://github.com/anza-xyz/curve25519-dalek.git"
