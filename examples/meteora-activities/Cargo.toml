@@ -15,7 +15,7 @@ carbon-rpc-transaction-crawler-datasource = { workspace = true }
 carbon-pumpfun-decoder = { workspace = true }
 carbon-meteora-dlmm-decoder = { workspace = true }
 
-yellowstone-grpc-proto = { version = "=1.15.0+solana.2.0.10", git = "https://github.com/rpcpool/yellowstone-grpc.git" }
+yellowstone-grpc-proto = { version = "2.0.0", git = "https://github.com/rpcpool/yellowstone-grpc.git" }
 tokio = { version = "1.40.0", features = ["full"] }
 async-trait = "0.1.83"
 log = "0.4.22"
