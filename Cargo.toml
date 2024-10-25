@@ -5,7 +5,6 @@ members = [
     "decoders/*",
     "metrics/*",
     "examples/*",
-    "libs/*",
 ]
 resolver = "2"
 
