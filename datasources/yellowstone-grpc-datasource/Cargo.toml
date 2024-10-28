@@ -9,10 +9,11 @@ edition = "2021"
 crate-type = ["rlib"]
 
 [dependencies]
-carbon-core = "0.1.1"
 solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
+
+carbon-core = "0.1.1"
 
 yellowstone-grpc-proto = { version = "=2.0.0", git = "https://github.com/rpcpool/yellowstone-grpc.git" }
 yellowstone-grpc-client = { version = "=2.0.0", git = "https://github.com/rpcpool/yellowstone-grpc.git" }
