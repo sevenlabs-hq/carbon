@@ -1,12 +1,12 @@
 [package]
 name = "sharky-offers-carbon-example"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2018"
 
 [dependencies]
-carbon-core = { workspace = true }
-carbon-macros = { workspace = true }
-carbon-proc-macros = { workspace = true }
+carbon-core = "0.1.1"
+carbon-macros = "0.1.1"
+carbon-proc-macros = "0.1.1"
 carbon-rpc-program-subscribe-datasource = { workspace = true }
 carbon-log-metrics = { workspace = true }
 solana-client.workspace = true
