@@ -2,14 +2,14 @@
 name = "carbon-yellowstone-grpc-datasource"
 description = "Yellowstone gRPC Datasource"
 license = "MIT"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 
 [lib]
 crate-type = ["rlib"]
 
 [dependencies]
-carbon-core = { workspace = true }
+carbon-core = "0.1.1"
 solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
