@@ -2,17 +2,18 @@
 name = "carbon-rpc-transaction-crawler-datasource"
 description = "RPC Transaction Crawler Datasource"
 license = "MIT"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2018"
 
 [lib]
 crate-type = ["rlib"]
 
 [dependencies]
-carbon-core = { workspace = true }
 solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
 solana-sdk = { workspace = true }
+
+carbon-core = "0.1.1"
 
 tokio = { version = "1.40.0", features = ["full"] }
 tokio-util = "0.7.12"

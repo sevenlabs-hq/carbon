@@ -874,7 +874,7 @@ dependencies = [
  "anyhow",
  "askama",
  "borsh 1.5.1",
- "carbon-core",
+ "carbon-core 0.1.1",
  "clap 4.5.19",
  "console",
  "dialoguer 0.11.0",
@@ -909,11 +909,32 @@ dependencies = [
 ]
 
 [[package]]
-name = "carbon-helius-atlas-ws-datasource"
+name = "carbon-core"
 version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4ec16fed2b1fd70f4828795161064a34485d8b6f07a9057d8d5c12e0f417c7ae"
 dependencies = [
  "async-trait",
- "carbon-core",
+ "borsh 0.10.4",
+ "bs58",
+ "futures",
+ "log",
+ "serde",
+ "serde_json",
+ "solana-client",
+ "solana-sdk",
+ "solana-transaction-status",
+ "thiserror",
+ "tokio",
+ "tokio-util",
+]
+
+[[package]]
+name = "carbon-helius-atlas-ws-datasource"
+version = "0.1.2"
+dependencies = [
+ "async-trait",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.11.5",
  "futures",
  "helius",
@@ -927,54 +948,54 @@ dependencies = [
 
 [[package]]
 name = "carbon-jupiter-dca-decoder"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-proc-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "solana-sdk",
 ]
 
 [[package]]
 name = "carbon-jupiter-limit-order-2-decoder"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-proc-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "solana-sdk",
 ]
 
 [[package]]
 name = "carbon-jupiter-limit-order-decoder"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-proc-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "solana-sdk",
 ]
 
 [[package]]
 name = "carbon-jupiter-swap-decoder"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-proc-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "solana-sdk",
 ]
 
 [[package]]
 name = "carbon-log-metrics"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "async-trait",
- "carbon-core",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "log",
  "tokio",
 ]
@@ -983,7 +1004,21 @@ dependencies = [
 name = "carbon-macros"
 version = "0.1.1"
 dependencies = [
- "carbon-core",
+ "carbon-core 0.1.1",
+ "hex",
+ "paste",
+ "solana-client",
+ "solana-sdk",
+ "solana-transaction-status",
+]
+
+[[package]]
+name = "carbon-macros"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e863238c0d401d8aab9a22bc6d742b8b9d9ae9b99008d95d3458f15a02b84682"
+dependencies = [
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "hex",
  "paste",
  "solana-client",
@@ -993,11 +1028,11 @@ dependencies = [
 
 [[package]]
 name = "carbon-meteora-dlmm-decoder"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-proc-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "serde-big-array",
  "solana-sdk",
@@ -1005,33 +1040,33 @@ dependencies = [
 
 [[package]]
 name = "carbon-mpl-core-decoder"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-proc-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "solana-sdk",
 ]
 
 [[package]]
 name = "carbon-mpl-token-metadata-decoder"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-proc-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "solana-sdk",
 ]
 
 [[package]]
 name = "carbon-orca-whirlpool-decoder"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-proc-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "solana-sdk",
 ]
@@ -1041,7 +1076,27 @@ name = "carbon-proc-macros"
 version = "0.1.1"
 dependencies = [
  "borsh-derive-internal",
- "carbon-core",
+ "carbon-core 0.1.1",
+ "hex",
+ "paste",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "solana-client",
+ "solana-sdk",
+ "solana-transaction-status",
+ "syn 1.0.109",
+ "unicode-xid",
+]
+
+[[package]]
+name = "carbon-proc-macros"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "27ce5e6880f7e3dc02458f95ef964d81fc5acd2c099aa7c707e7021f9f75a2bb"
+dependencies = [
+ "borsh-derive-internal",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "hex",
  "paste",
  "proc-macro2",
@@ -1056,10 +1111,10 @@ dependencies = [
 
 [[package]]
 name = "carbon-prometheus-metrics"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "async-trait",
- "carbon-core",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "log",
  "metrics",
  "metrics-exporter-prometheus",
@@ -1068,22 +1123,22 @@ dependencies = [
 
 [[package]]
 name = "carbon-pumpfun-decoder"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-proc-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "solana-sdk",
 ]
 
 [[package]]
 name = "carbon-raydium-amm-v4-decoder"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-proc-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "serde-big-array",
  "solana-sdk",
@@ -1091,10 +1146,10 @@ dependencies = [
 
 [[package]]
 name = "carbon-rpc-block-subscribe-datasource"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "async-trait",
- "carbon-core",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.11.5",
  "futures",
  "log",
@@ -1106,10 +1161,10 @@ dependencies = [
 
 [[package]]
 name = "carbon-rpc-program-subscribe-datasource"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "async-trait",
- "carbon-core",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.11.5",
  "futures",
  "log",
@@ -1121,11 +1176,11 @@ dependencies = [
 
 [[package]]
 name = "carbon-rpc-transaction-crawler-datasource"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "async-stream",
  "async-trait",
- "carbon-core",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.11.5",
  "futures",
  "log",
@@ -1140,11 +1195,11 @@ dependencies = [
 
 [[package]]
 name = "carbon-system-program-decoder"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-proc-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "solana-sdk",
  "spl-token",
@@ -1152,11 +1207,11 @@ dependencies = [
 
 [[package]]
 name = "carbon-token-program-decoder"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-proc-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "solana-sdk",
  "spl-token",
@@ -1164,10 +1219,10 @@ dependencies = [
 
 [[package]]
 name = "carbon-yellowstone-grpc-datasource"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "async-trait",
- "carbon-core",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "env_logger 0.11.5",
  "futures",
  "futures-util",
@@ -2826,14 +2881,14 @@ dependencies = [
 
 [[package]]
 name = "meteora-activities-carbon-example"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "async-trait",
- "carbon-core",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "carbon-log-metrics",
- "carbon-macros",
+ "carbon-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "carbon-meteora-dlmm-decoder",
- "carbon-proc-macros",
+ "carbon-proc-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "carbon-pumpfun-decoder",
  "carbon-rpc-transaction-crawler-datasource",
  "dotenv",
@@ -3557,12 +3612,12 @@ dependencies = [
 
 [[package]]
 name = "pumpfun-alerts-carbon-example"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "async-trait",
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-proc-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "carbon-pumpfun-decoder",
  "carbon-yellowstone-grpc-datasource",
  "dotenv",
@@ -4317,14 +4372,14 @@ dependencies = [
 
 [[package]]
 name = "sharky-offers-carbon-example"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "anyhow",
  "async-trait",
- "carbon-core",
+ "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "carbon-log-metrics",
- "carbon-macros",
- "carbon-proc-macros",
+ "carbon-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-proc-macros 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "carbon-rpc-program-subscribe-datasource",
  "dotenv",
  "env_logger 0.11.5",
