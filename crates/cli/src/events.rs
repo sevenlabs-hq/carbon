@@ -73,6 +73,8 @@ pub fn process_events(idl: &Idl) -> Vec<EventData> {
     let mut events_data = Vec::new();
 
     for event in &idl.events {
+        let mut requires_imports = false;
+
         let ends_with_event = event.name.ends_with("Event");
 
         let module_name = if ends_with_event {
@@ -87,14 +89,31 @@ pub fn process_events(idl: &Idl) -> Vec<EventData> {
         };
         let discriminator = legacy_compute_event_discriminator(&event.name);
 
-        let args = Vec::new();
+        let mut args = Vec::new();
+
+        for ty in &idl.types {
+            if ty.name == struct_name {
+                if let Some(fields) = &ty.type_.fields {
+                    for field in fields {
+                        let rust_type = idl_type_to_rust_type(&field.type_);
+                        if rust_type.1 {
+                            requires_imports = true;
+                        }
+                        args.push(ArgumentData {
+                            name: field.name.to_snek_case(),
+                            rust_type: rust_type.0,
+                        });
+                    }
+                }
+            }
+        }
 
         events_data.push(EventData {
             struct_name,
             module_name,
             discriminator,
             args,
-            requires_imports: false,
+            requires_imports,
         });
     }
 
