@@ -76,20 +76,37 @@ pub fn legacy_process_accounts(idl: &LegacyIdl) -> Vec<AccountData> {
 
 pub fn process_accounts(idl: &Idl) -> Vec<AccountData> {
     let mut accounts_data = Vec::new();
-    let requires_imports = false;
 
     for account in &idl.accounts {
+        let mut requires_imports = false;
         let module_name = account.name.to_snek_case();
         let struct_name = account.name.to_upper_camel_case();
         let discriminator = compute_account_discriminator(&account.discriminator);
 
-        let fields = Vec::new();
+        let mut account_fields = Vec::new();
+
+        for ty in &idl.types {
+            if ty.name == struct_name {
+                if let Some(fields) = &ty.type_.fields {
+                    for field in fields {
+                        let rust_type = idl_type_to_rust_type(&field.type_);
+                        if rust_type.1 {
+                            requires_imports = true;
+                        }
+                        account_fields.push(FieldData {
+                            name: field.name.to_snek_case(),
+                            rust_type: rust_type.0,
+                        });
+                    }
+                }
+            }
+        }
 
         accounts_data.push(AccountData {
             struct_name,
             module_name,
             discriminator,
-            fields,
+            fields: account_fields,
             requires_imports,
         });
     }
