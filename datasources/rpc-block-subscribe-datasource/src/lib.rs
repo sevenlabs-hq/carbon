@@ -25,11 +25,11 @@ impl Filters {
     pub fn new(
         block_filter: RpcBlockSubscribeFilter,
         block_subscribe_config: Option<RpcBlockSubscribeConfig>,
-    ) -> CarbonResult<Self> {
-        Ok(Filters {
+    ) -> Self {
+        Filters {
             block_filter,
             block_subscribe_config,
-        })
+        }
     }
 }
 
