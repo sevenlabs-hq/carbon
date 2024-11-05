@@ -65,6 +65,7 @@ pub fn idl_type_to_rust_type(idl_type: &LegacyIdlType) -> (String, bool) {
             (format!("Option<{}>", rust_type.0), rust_type.1)
         }
         LegacyIdlType::Defined { defined } => (defined.clone(), true),
+        LegacyIdlType::DefinedWithName { defined } => (defined.name.clone(), true),
         LegacyIdlType::HashMap { hash_map } => {
             let (key_type, value_type) = hash_map;
             let rust_key_type = idl_type_to_rust_type(key_type);
