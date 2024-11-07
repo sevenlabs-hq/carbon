@@ -8,10 +8,10 @@ use carbon_core::{
 use futures::StreamExt;
 use solana_client::{
     nonblocking::pubsub_client::PubsubClient,
+    rpc_client::SerializableTransaction,
     rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
 };
-use solana_sdk::signature::Signature;
-use std::{str::FromStr, sync::Arc};
+use std::sync::Arc;
 use tokio::sync::mpsc::UnboundedSender;
 use tokio_util::sync::CancellationToken;
 
@@ -90,18 +90,13 @@ impl Datasource for RpcBlockSubscribe {
 
                                 if let Some(block) = tx_event.value.block {
                                     let block_start_time = std::time::Instant::now();
-                                    if let (Some(transactions), Some(signatures)) = (block.transactions, block.signatures) {
-                                        for (encoded_transaction_with_status_meta, signature_str) in transactions.into_iter().zip(signatures.into_iter()) {
+                                    if let Some(transactions) = block.transactions {
+                                        for encoded_transaction_with_status_meta in transactions {
                                             let start_time = std::time::Instant::now();
-                                            let Ok(signature) = Signature::from_str(&signature_str) else {
-                                                log::error!("Error getting Signature from string");
-                                                continue;
-                                            };
 
                                             let meta_original = if let Some(meta) = encoded_transaction_with_status_meta.clone().meta {
                                                 meta
                                             } else {
-                                                log::warn!("Meta is malformed for transaction: {:?}", signature_str);
                                                 continue;
                                             };
 
@@ -120,7 +115,7 @@ impl Datasource for RpcBlockSubscribe {
                                             };
 
                                             let update = Update::Transaction(TransactionUpdate {
-                                                signature,
+                                                signature: decoded_transaction.get_signature().clone(),
                                                 transaction: decoded_transaction.clone(),
                                                 meta: meta_needed,
                                                 is_vote: false,
