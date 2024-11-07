@@ -1146,7 +1146,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-rpc-block-subscribe-datasource"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "async-trait",
  "carbon-core 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
