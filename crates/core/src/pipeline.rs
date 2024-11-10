@@ -50,7 +50,7 @@ use crate::{
     metrics::{Metrics, MetricsCollection},
     processor::Processor,
     schema::TransactionSchema,
-    transaction::{TransactionPipe, TransactionPipes},
+    transaction::{TransactionMetadata, TransactionPipe, TransactionPipes},
     transformers,
 };
 use core::time;
@@ -489,7 +489,12 @@ impl Pipeline {
                 }
 
                 for pipe in self.transaction_pipes.iter_mut() {
-                    pipe.run(&nested_instructions, self.metrics.clone()).await?;
+                    pipe.run(
+                        transaction_metadata.clone(),
+                        &nested_instructions,
+                        self.metrics.clone(),
+                    )
+                    .await?;
                 }
 
                 self.metrics
@@ -792,7 +797,7 @@ impl PipelineBuilder {
     pub fn transaction<T, U>(
         mut self,
         schema: TransactionSchema<T>,
-        processor: impl Processor<InputType = U> + Send + Sync + 'static,
+        processor: impl Processor<InputType = (TransactionMetadata, U)> + Send + Sync + 'static,
     ) -> Self
     where
         T: InstructionDecoderCollection + 'static,

@@ -58,7 +58,7 @@ pub struct TransactionMetadata {
 /// - `U`: The output type for the processor, implementing `DeserializeOwned`.
 pub struct TransactionPipe<T: InstructionDecoderCollection, U> {
     schema: TransactionSchema<T>,
-    processor: Box<dyn Processor<InputType = U> + Send + Sync>,
+    processor: Box<dyn Processor<InputType = (TransactionMetadata, U)> + Send + Sync>,
 }
 
 /// Represents a parsed transaction, including its metadata and parsed instructions.
@@ -81,7 +81,7 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
 
     pub fn new(
         schema: TransactionSchema<T>,
-        processor: impl Processor<InputType = U> + Send + Sync + 'static,
+        processor: impl Processor<InputType = (TransactionMetadata, U)> + Send + Sync + 'static,
     ) -> Self {
         log::trace!(
             "TransactionPipe::new(schema: {:?}, processor: {:?})",
@@ -174,6 +174,7 @@ pub trait TransactionPipes<'a>: Send + Sync {
     /// A `CarbonResult<()>` indicating success or failure.
     async fn run(
         &mut self,
+        transaction_metadata: TransactionMetadata,
         instructions: &[NestedInstruction],
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
@@ -187,6 +188,7 @@ where
 {
     async fn run(
         &mut self,
+        transaction_metadata: TransactionMetadata,
         instructions: &[NestedInstruction],
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -198,7 +200,9 @@ where
         let parsed_instructions = self.parse_instructions(&instructions);
 
         if let Some(matched_data) = self.matches_schema(&parsed_instructions) {
-            self.processor.process(matched_data, metrics).await?;
+            self.processor
+                .process((transaction_metadata, matched_data), metrics)
+                .await?;
         }
 
         Ok(())
