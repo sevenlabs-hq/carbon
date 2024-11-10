@@ -1,12 +1,12 @@
 [package]
 name = "meteora-activities-carbon-example"
-version = "0.1.2"
+version = "0.1.4"
 edition = "2021"
 
 [dependencies]
-carbon-core = "0.1.1"
-carbon-macros = "0.1.1"
-carbon-proc-macros = "0.1.1"
+carbon-core = "0.1.4"
+carbon-macros = "0.1.4"
+carbon-proc-macros = "0.1.4"
 solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }

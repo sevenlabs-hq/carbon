@@ -197,7 +197,7 @@ pub fn parse(options: ParseOptions) -> Result<()> {
         let cargo_toml_content = format!(
             r#"[package]
 name = "{decoder_name_kebab}-decoder"
-version = "0.1.1"
+version = "0.1.4"
 edition = "2018"
 
 [lib]

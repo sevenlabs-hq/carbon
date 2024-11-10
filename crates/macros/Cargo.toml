@@ -1,6 +1,6 @@
 [package]
 name = "carbon-macros"
-version = "0.1.1"
+version = "0.1.4"
 edition = "2018"
 description = "Macros for Carbon"
 license = "MIT"
