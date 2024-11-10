@@ -5,7 +5,7 @@ use carbon_proc_macros::CarbonDeserialize;
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x02")]
+#[carbon(discriminator = "0x02000000")]
 pub struct Transfer {
     pub lamports: u64,
 }
