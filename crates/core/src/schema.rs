@@ -105,7 +105,15 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
     where
         U: DeserializeOwned,
     {
-        serde_json::from_value::<U>(serde_json::to_value(self.match_nodes(instructions)).ok()?).ok()
+        log::trace!(
+            "Schema::match_schema(self: {:?}, instructions: {:?})",
+            self,
+            instructions
+        );
+        let value = serde_json::to_value(self.match_nodes(instructions)).ok()?;
+
+        log::trace!("Schema::match_schema: deserializing value: {:?}", value);
+        serde_json::from_value::<U>(value).ok()
     }
 
     /// Matches the instructions against the schema nodes and returns a mapping of instruction names to data.
@@ -151,6 +159,10 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
                             continue;
                         }
                     } else {
+                        log::trace!(
+                            "Schema::match_nodes: matched instruction type {:?}",
+                            ix.ix_type
+                        );
                         output.insert(
                             ix.name.clone(),
                             (
@@ -161,6 +173,10 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
                     }
 
                     if !ix.inner_instructions.is_empty() {
+                        log::trace!(
+                            "Schema::match_nodes: matching inner instructions for {:?}",
+                            ix.inner_instructions
+                        );
                         match self.match_nodes(&current_instruction.inner_instructions) {
                             Some(inner_output) => {
                                 output = merge_hashmaps(output, inner_output);
