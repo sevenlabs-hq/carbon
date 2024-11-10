@@ -3,7 +3,7 @@ use clap::{Parser, Subcommand};
 #[derive(Parser)]
 #[command(name = "IDL Parser CLI")]
 #[command(about = "Generate Program Parsers for Carbon.")]
-#[command(version = "0.1.1", author = "aimbot-labs")]
+#[command(version = "0.1.4", author = "aimbot-labs")]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
