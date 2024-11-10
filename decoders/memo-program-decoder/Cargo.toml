@@ -1,0 +1,19 @@
+[package]
+name = "carbon-memo-program-decoder"
+version = "0.1.2"
+description = "Memo Program Decoder"
+license = "MIT"
+edition = "2018"
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+carbon-core = "0.1.1"
+carbon-proc-macros = "0.1.1"
+carbon-macros = "0.1.1"
+
+solana-sdk = "2.0.10"
+serde = "1.0.136"
+spl-token = "6.0.0"
+spl-memo = "5.0.0"
