@@ -7,12 +7,12 @@ use carbon_proc_macros::CarbonDeserialize;
 )]
 #[carbon(discriminator = "0x02")]
 pub struct Transfer {
-    pub onwer: solana_sdk::pubkey::Pubkey,
+    pub lamports: u64,
 }
 
 pub struct TransferAccounts {
-    pub funding_account: solana_sdk::pubkey::Pubkey,
-    pub recipient_account: solana_sdk::pubkey::Pubkey,
+    pub from: solana_sdk::pubkey::Pubkey,
+    pub to: solana_sdk::pubkey::Pubkey,
 }
 
 impl ArrangeAccounts for Transfer {
@@ -26,8 +26,8 @@ impl ArrangeAccounts for Transfer {
         let recipient_account = accounts.get(1)?;
 
         Some(TransferAccounts {
-            funding_account: funding_account.pubkey,
-            recipient_account: recipient_account.pubkey,
+            from: funding_account.pubkey,
+            to: recipient_account.pubkey,
         })
     }
 }
