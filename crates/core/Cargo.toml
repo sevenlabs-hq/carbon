@@ -1,6 +1,6 @@
 [package]
 name = "carbon-core"
-version = "0.1.5"
+version = "0.1.52"
 edition = "2018"
 description = "Core library for Carbon"
 license = "MIT"

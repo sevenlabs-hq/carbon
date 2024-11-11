@@ -141,60 +141,89 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
         );
         let mut output = HashMap::<String, (T, Vec<AccountMeta>)>::new();
 
-        let current_index = 0;
-        let current_instruction = instructions.get(current_index)?;
+        let mut node_index = 0;
+        let mut instruction_index = 0;
 
         let mut any = false;
 
-        for node in self.root.iter() {
-            match node {
-                SchemaNode::Any => {
-                    any = true;
-                }
-                SchemaNode::Instruction(ix) => {
-                    if ix.ix_type != current_instruction.instruction.data.get_type() {
-                        if !any {
-                            return None;
-                        } else {
-                            continue;
-                        }
-                    } else {
-                        log::trace!(
-                            "Schema::match_nodes: matched instruction type {:?}",
-                            ix.ix_type
-                        );
-                        output.insert(
-                            ix.name.clone(),
-                            (
-                                current_instruction.instruction.data.clone(),
-                                current_instruction.instruction.accounts.clone(),
-                            ),
-                        );
-                    }
+        while let Some(node) = self.root.get(node_index) {
+            log::trace!(
+                "Schema::match_nodes: current node ({}): {:?}",
+                node_index,
+                node
+            );
 
-                    if !ix.inner_instructions.is_empty() {
-                        log::trace!(
-                            "Schema::match_nodes: matching inner instructions for {:?}",
-                            ix.inner_instructions
-                        );
-                        match self.match_nodes(&current_instruction.inner_instructions) {
-                            Some(inner_output) => {
-                                output = merge_hashmaps(output, inner_output);
-                            }
-                            None => {
-                                if !any {
-                                    return None;
-                                } else {
-                                    continue;
-                                }
-                            }
-                        }
-                    }
+            if let SchemaNode::Any = node {
+                log::trace!("Schema::match_nodes: Any node detected, skipping");
+                any = true;
+                node_index += 1;
+                continue;
+            }
 
-                    any = false;
+            let mut matched = false;
+
+            while let Some(current_instruction) = instructions.get(instruction_index) {
+                log::trace!(
+                    "Schema::match_nodes: current instruction ({}): {:?}",
+                    instruction_index,
+                    current_instruction
+                );
+
+                let SchemaNode::Instruction(instruction_node) = node else {
+                    return None;
+                };
+
+                if current_instruction.instruction.data.get_type() != instruction_node.ix_type
+                    && !any
+                {
+                    log::trace!(
+                        "Schema::match_nodes: instruction type mismatch, returning (any = false)"
+                    );
+                    return None;
                 }
+
+                if current_instruction.instruction.data.get_type() != instruction_node.ix_type
+                    && any
+                {
+                    log::trace!(
+                        "Schema::match_nodes: instruction type mismatch, skipping (any = true)"
+                    );
+                    instruction_index += 1;
+                    continue;
+                }
+
+                output.insert(
+                    instruction_node.name.clone(),
+                    (
+                        current_instruction.instruction.data.clone(),
+                        current_instruction.instruction.accounts.clone(),
+                    ),
+                );
+
+                if !instruction_node.inner_instructions.is_empty() {
+                    let inner_output = self.match_nodes(&current_instruction.inner_instructions)?;
+                    output = merge_hashmaps(output, inner_output);
+                }
+
+                log::trace!(
+                    "Schema::match_nodes: instruction matched, output: {:?}",
+                    output
+                );
+
+                instruction_index += 1;
+                node_index += 1;
+                any = false;
+                matched = true;
+                break;
+            }
+
+            if !matched {
+                log::trace!("Schema::match_nodes: node not matched, returning");
+                return None;
             }
         }
+
+        log::trace!("Schema::match_nodes: final output: {:?}", output);
 
         Some(output)
     }
