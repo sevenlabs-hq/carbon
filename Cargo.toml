@@ -28,7 +28,7 @@ carbon-mpl-token-metadata-decoder = { path = "decoders/mpl-token-metadata-decode
 carbon-orca-whirlpool-decoder = { path = "decoders/orca-whirlpool-decoder", version = "0.1.4" }
 carbon-pumpfun-decoder = { path = "decoders/pumpfun-decoder", version = "0.1.4" }
 carbon-raydium-amm-v4-decoder = { path = "decoders/raydium-amm-v4-decoder", version = "0.1.4" }
-carbon-system-program-decoder = { path = "decoders/system-program-decoder", version = "0.1.5" }
+carbon-system-program-decoder = { path = "decoders/system-program-decoder", version = "0.1.51" }
 carbon-token-program-decoder = { path = "decoders/token-program-decoder", version = "0.1.4" }
 carbon-memo-program-decoder = { path = "decoders/memo-program-decoder", version = "0.1.5" }
 
