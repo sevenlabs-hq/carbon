@@ -1,7 +1,3 @@
-use carbon_core::deserialize::CarbonDeserialize;
-use carbon_core::instruction::InstructionDecoder;
-use carbon_macros::try_decode_instructions;
-
 use super::JupiterLimitOrder2Decoder;
 pub mod cancel_order;
 pub mod cancel_order_event;
@@ -14,7 +10,7 @@ pub mod update_fee;
 pub mod withdraw_fee;
 
 #[derive(
-    carbon_proc_macros::InstructionType,
+    carbon_core::InstructionType,
     serde::Serialize,
     serde::Deserialize,
     PartialEq,
@@ -35,14 +31,14 @@ pub enum JupiterLimitOrder2Instruction {
     CreateOrderEvent(create_order_event::CreateOrderEvent),
 }
 
-impl<'a> InstructionDecoder<'a> for JupiterLimitOrder2Decoder {
+impl<'a> carbon_core::instruction::InstructionDecoder<'a> for JupiterLimitOrder2Decoder {
     type InstructionType = JupiterLimitOrder2Instruction;
 
     fn decode_instruction(
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
-        try_decode_instructions!(instruction,
+        carbon_core::try_decode_instructions!(instruction,
             JupiterLimitOrder2Instruction::UpdateFee => update_fee::UpdateFee,
             JupiterLimitOrder2Instruction::WithdrawFee => withdraw_fee::WithdrawFee,
             JupiterLimitOrder2Instruction::InitializeOrder => initialize_order::InitializeOrder,

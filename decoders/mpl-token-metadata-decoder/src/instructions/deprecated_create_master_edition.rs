@@ -1,8 +1,6 @@
 
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
-use carbon_core::borsh;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
@@ -27,7 +25,7 @@ pub struct DeprecatedCreateMasterEditionInstructionAccounts {
     pub one_time_printing_authorization_mint_authority: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for DeprecatedCreateMasterEdition {
+impl carbon_core::deserialize::ArrangeAccounts for DeprecatedCreateMasterEdition {
     type ArrangedAccounts = DeprecatedCreateMasterEditionInstructionAccounts;
 
     fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
@@ -61,4 +59,4 @@ impl ArrangeAccounts for DeprecatedCreateMasterEdition {
             one_time_printing_authorization_mint_authority: one_time_printing_authorization_mint_authority.pubkey,
         })
     }
-}
+}

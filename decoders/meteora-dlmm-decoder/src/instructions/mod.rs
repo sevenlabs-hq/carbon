@@ -1,7 +1,3 @@
-use carbon_core::deserialize::CarbonDeserialize;
-use carbon_core::instruction::InstructionDecoder;
-use carbon_macros::try_decode_instructions;
-
 use super::MeteoraDlmmDecoder;
 pub mod add_liquidity;
 pub mod add_liquidity_by_strategy;
@@ -56,7 +52,7 @@ pub mod withdraw_ineligible_reward;
 pub mod withdraw_protocol_fee;
 
 #[derive(
-    carbon_proc_macros::InstructionType,
+    carbon_core::InstructionType,
     serde::Serialize,
     serde::Deserialize,
     PartialEq,
@@ -125,14 +121,14 @@ pub enum MeteoraDlmmInstruction {
     ),
 }
 
-impl<'a> InstructionDecoder<'a> for MeteoraDlmmDecoder {
+impl<'a> carbon_core::instruction::InstructionDecoder<'a> for MeteoraDlmmDecoder {
     type InstructionType = MeteoraDlmmInstruction;
 
     fn decode_instruction(
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
-        try_decode_instructions!(instruction,
+        carbon_core::try_decode_instructions!(instruction,
             MeteoraDlmmInstruction::InitializeLbPair => initialize_lb_pair::InitializeLbPair,
             MeteoraDlmmInstruction::InitializePermissionLbPair => initialize_permission_lb_pair::InitializePermissionLbPair,
             MeteoraDlmmInstruction::InitializeBinArrayBitmapExtension => initialize_bin_array_bitmap_extension::InitializeBinArrayBitmapExtension,

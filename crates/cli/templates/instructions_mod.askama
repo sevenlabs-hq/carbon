@@ -1,7 +1,5 @@
 {% raw %}
-use carbon_core::deserialize::CarbonDeserialize;
-use carbon_core::instruction::InstructionDecoder;
-use carbon_macros::try_decode_instructions;
+
 {% endraw %}
 
 use super::{{ decoder_name }};
@@ -13,7 +11,7 @@ pub mod {{ instruction.module_name }};
 pub mod {{ event.module_name }};
 {%- endfor %}
 
-#[derive(carbon_proc_macros::InstructionType, serde::Serialize, serde::Deserialize, PartialEq, Eq, Debug, Clone, Hash)]
+#[derive(carbon_core::InstructionType, serde::Serialize, serde::Deserialize, PartialEq, Eq, Debug, Clone, Hash)]
 pub enum {{ program_instruction_enum }} {
     {%- for instruction in instructions %}
     {{ instruction.struct_name }}({{ instruction.module_name }}::{{ instruction.struct_name }}),
@@ -23,7 +21,7 @@ pub enum {{ program_instruction_enum }} {
     {%- endfor %}
 }
 
-impl<'a> InstructionDecoder<'a> for {{ decoder_name }} {
+impl<'a> carbon_core::instruction::InstructionDecoder<'a> for {{ decoder_name }} {
     type InstructionType = {{ program_instruction_enum }};
 
     fn decode_instruction(

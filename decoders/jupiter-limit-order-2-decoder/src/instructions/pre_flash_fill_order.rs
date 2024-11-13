@@ -1,8 +1,6 @@
 
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
-use carbon_core::borsh;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
@@ -21,7 +19,7 @@ pub struct PreFlashFillOrderInstructionAccounts {
     pub instruction: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for PreFlashFillOrder {
+impl carbon_core::deserialize::ArrangeAccounts for PreFlashFillOrder {
     type ArrangedAccounts = PreFlashFillOrderInstructionAccounts;
 
     fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
@@ -43,4 +41,4 @@ impl ArrangeAccounts for PreFlashFillOrder {
             instruction: instruction.pubkey,
         })
     }
-}
+}

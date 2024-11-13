@@ -1,7 +1,4 @@
-use carbon_core::borsh;
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-
+use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -20,7 +17,7 @@ pub struct CollectFeesInstructionAccounts {
     pub token_program: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for CollectFees {
+impl carbon_core::deserialize::ArrangeAccounts for CollectFees {
     type ArrangedAccounts = CollectFeesInstructionAccounts;
 
     fn arrange_accounts(

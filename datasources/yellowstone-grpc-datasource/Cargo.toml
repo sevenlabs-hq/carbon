@@ -2,7 +2,7 @@
 name = "carbon-yellowstone-grpc-datasource"
 description = "Yellowstone gRPC Datasource"
 license = "MIT"
-version = "0.1.4"
+version = "0.2.1"
 edition = "2021"
 
 [lib]
@@ -13,7 +13,7 @@ solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
 
-carbon-core = "0.1.4"
+carbon-core = "0.2.1"
 
 yellowstone-grpc-proto = { version = "=2.0.0", git = "https://github.com/rpcpool/yellowstone-grpc.git" }
 yellowstone-grpc-client = { version = "=2.0.0", git = "https://github.com/rpcpool/yellowstone-grpc.git" }

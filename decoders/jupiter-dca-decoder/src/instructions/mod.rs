@@ -1,7 +1,3 @@
-use carbon_core::deserialize::CarbonDeserialize;
-use carbon_core::instruction::InstructionDecoder;
-use carbon_macros::try_decode_instructions;
-
 use super::JupiterDcaDecoder;
 pub mod close_dca;
 pub mod closed;
@@ -21,7 +17,7 @@ pub mod withdraw;
 pub mod withdraw_fees;
 
 #[derive(
-    carbon_proc_macros::InstructionType,
+    carbon_core::InstructionType,
     serde::Serialize,
     serde::Deserialize,
     PartialEq,
@@ -49,14 +45,14 @@ pub enum JupiterDcaInstruction {
     Closed(closed::Closed),
 }
 
-impl<'a> InstructionDecoder<'a> for JupiterDcaDecoder {
+impl<'a> carbon_core::instruction::InstructionDecoder<'a> for JupiterDcaDecoder {
     type InstructionType = JupiterDcaInstruction;
 
     fn decode_instruction(
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
-        try_decode_instructions!(instruction,
+        carbon_core::try_decode_instructions!(instruction,
             JupiterDcaInstruction::OpenDca => open_dca::OpenDca,
             JupiterDcaInstruction::OpenDcaV2 => open_dca_v2::OpenDcaV2,
             JupiterDcaInstruction::CloseDca => close_dca::CloseDca,

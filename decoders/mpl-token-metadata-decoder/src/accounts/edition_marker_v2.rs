@@ -1,7 +1,5 @@
  
-use carbon_core::deserialize::CarbonDeserialize; 
-use carbon_proc_macros::CarbonDeserialize; 
-use carbon_core::borsh;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
 #[derive(CarbonDeserialize, Debug)] 
@@ -11,4 +9,4 @@ use super::super::types::*;
 pub struct EditionMarkerV2 { 
         pub key: Key, 
         pub ledger: Vec<u8>, 
-}
+}

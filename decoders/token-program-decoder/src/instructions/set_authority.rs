@@ -1,8 +1,5 @@
 use crate::types::*;
-use carbon_core::borsh;
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-
+use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -18,7 +15,7 @@ pub struct SetAuthorityAccounts {
     pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 
-impl ArrangeAccounts for SetAuthority {
+impl carbon_core::deserialize::ArrangeAccounts for SetAuthority {
     type ArrangedAccounts = SetAuthorityAccounts;
 
     fn arrange_accounts(

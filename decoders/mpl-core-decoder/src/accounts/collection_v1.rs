@@ -1,7 +1,5 @@
  
-use carbon_core::deserialize::CarbonDeserialize; 
-use carbon_proc_macros::CarbonDeserialize; 
-use carbon_core::borsh;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
 #[derive(CarbonDeserialize, Debug)] 
@@ -15,4 +13,4 @@ pub struct CollectionV1 {
         pub uri: String, 
         pub num_minted: u32, 
         pub current_size: u32, 
-}
+}

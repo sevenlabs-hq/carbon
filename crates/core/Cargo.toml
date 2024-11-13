@@ -1,9 +1,13 @@
 [package]
 name = "carbon-core"
-version = "0.1.4"
+version = "0.2.1"
 edition = "2018"
 description = "Core library for Carbon"
 license = "MIT"
+
+[features]
+default = ["macros"]
+macros = ["carbon-macros", "carbon-proc-macros"]
 
 [dependencies]
 solana-transaction-status = { workspace = true }
@@ -20,6 +24,10 @@ serde_json = "1.0.85"
 bs58 = "0.5.1"
 borsh = { version = "0.10.3" }
 tokio-util = "0.7.12"
+
+# Optional macro dependencies
+carbon-proc-macros = { workspace = true, optional = true }
+carbon-macros = { workspace = true, optional = true }
 
 [lib]
 crate-type = ["rlib"]
