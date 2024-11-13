@@ -1,13 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-use carbon_core::borsh;
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x471b11834e493e5c")]
-pub struct ExtendLoanV3{
+pub struct ExtendLoanV3 {
     pub expected_loan: String,
 }
 
@@ -35,10 +32,13 @@ pub struct ExtendLoanV3InstructionAccounts {
     pub mpl_token_metadata_program: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for ExtendLoanV3 {
+impl carbon_core::deserialize::ArrangeAccounts for ExtendLoanV3 {
     type ArrangedAccounts = ExtendLoanV3InstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let loan = accounts.get(0)?;
         let new_loan = accounts.get(1)?;
         let borrower = accounts.get(2)?;

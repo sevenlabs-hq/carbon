@@ -1,8 +1,6 @@
 
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
-use carbon_core::borsh;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
@@ -24,7 +22,7 @@ pub struct SimulateInfoInstructionAccounts {
     pub serum_event_queue: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for SimulateInfo {
+impl carbon_core::deserialize::ArrangeAccounts for SimulateInfo {
     type ArrangedAccounts = SimulateInfoInstructionAccounts;
 
     fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
@@ -48,4 +46,4 @@ impl ArrangeAccounts for SimulateInfo {
             serum_event_queue: serum_event_queue.pubkey,
         })
     }
-}
+}

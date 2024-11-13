@@ -1,10 +1,4 @@
 use crate::SystemProgramDecoder;
-use carbon_core::{
-    deserialize::CarbonDeserialize,
-    instruction::{DecodedInstruction, InstructionDecoder},
-};
-use carbon_macros::try_decode_instructions;
-
 pub mod advance_nonce_account;
 pub mod allocate;
 pub mod allocate_with_seed;
@@ -20,7 +14,7 @@ pub mod upgrade_nonce_account;
 pub mod withdraw_nonce_account;
 
 #[derive(
-    carbon_proc_macros::InstructionType,
+    carbon_core::InstructionType,
     serde::Serialize,
     serde::Deserialize,
     PartialEq,
@@ -45,14 +39,14 @@ pub enum SystemProgramInstruction {
     UpgradeNonceAccount(upgrade_nonce_account::UpgradeNonceAccount),
 }
 
-impl<'a> InstructionDecoder<'a> for SystemProgramDecoder {
+impl<'a> carbon_core::instruction::InstructionDecoder<'a> for SystemProgramDecoder {
     type InstructionType = SystemProgramInstruction;
 
     fn decode_instruction(
         &self,
         instruction: &solana_sdk::instruction::Instruction,
-    ) -> Option<DecodedInstruction<Self::InstructionType>> {
-        try_decode_instructions!(instruction,
+    ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        carbon_core::try_decode_instructions!(instruction,
             SystemProgramInstruction::CreateAccount => create_account::CreateAccount,
             SystemProgramInstruction::Assign => assign::Assign,
             SystemProgramInstruction::Transfer => transfer::Transfer,

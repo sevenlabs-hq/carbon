@@ -1,7 +1,5 @@
  
-use carbon_core::deserialize::CarbonDeserialize; 
-use carbon_proc_macros::CarbonDeserialize; 
-use carbon_core::borsh;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
 #[derive(CarbonDeserialize, Debug)] 
@@ -12,4 +10,4 @@ pub struct PluginRegistryV1 {
         pub key: Key, 
         pub registry: Vec<RegistryRecord>, 
         pub external_plugins: Vec<ExternalPluginRecord>, 
-}
+}

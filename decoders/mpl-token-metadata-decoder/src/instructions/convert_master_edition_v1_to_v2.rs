@@ -1,7 +1,4 @@
-use carbon_core::borsh;
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-
+use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -14,7 +11,7 @@ pub struct ConvertMasterEditionV1ToV2InstructionAccounts {
     pub printing_mint: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for ConvertMasterEditionV1ToV2 {
+impl carbon_core::deserialize::ArrangeAccounts for ConvertMasterEditionV1ToV2 {
     type ArrangedAccounts = ConvertMasterEditionV1ToV2InstructionAccounts;
 
     fn arrange_accounts(

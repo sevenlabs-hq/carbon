@@ -1,6 +1,4 @@
-use carbon_core::borsh;
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -28,7 +26,7 @@ pub struct FulfillFlashFillInstructionAccounts {
     pub program: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for FulfillFlashFill {
+impl carbon_core::deserialize::ArrangeAccounts for FulfillFlashFill {
     type ArrangedAccounts = FulfillFlashFillInstructionAccounts;
 
     fn arrange_accounts(

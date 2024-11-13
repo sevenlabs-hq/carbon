@@ -1,7 +1,4 @@
-use carbon_core::borsh;
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-
+use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -14,7 +11,7 @@ pub struct UpdatePrimarySaleHappenedViaTokenInstructionAccounts {
     pub token: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for UpdatePrimarySaleHappenedViaToken {
+impl carbon_core::deserialize::ArrangeAccounts for UpdatePrimarySaleHappenedViaToken {
     type ArrangedAccounts = UpdatePrimarySaleHappenedViaTokenInstructionAccounts;
 
     fn arrange_accounts(

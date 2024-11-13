@@ -1,7 +1,4 @@
-use carbon_core::borsh;
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-
+use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -19,7 +16,7 @@ pub struct WithdrawSrmInstructionAccounts {
     pub dest_srm_token: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for WithdrawSrm {
+impl carbon_core::deserialize::ArrangeAccounts for WithdrawSrm {
     type ArrangedAccounts = WithdrawSrmInstructionAccounts;
 
     fn arrange_accounts(

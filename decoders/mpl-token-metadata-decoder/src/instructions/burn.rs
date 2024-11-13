@@ -1,8 +1,6 @@
 
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
-use carbon_core::borsh;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
@@ -28,7 +26,7 @@ pub struct BurnInstructionAccounts {
     pub spl_token_program: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for Burn {
+impl carbon_core::deserialize::ArrangeAccounts for Burn {
     type ArrangedAccounts = BurnInstructionAccounts;
 
     fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
@@ -64,4 +62,4 @@ impl ArrangeAccounts for Burn {
             spl_token_program: spl_token_program.pubkey,
         })
     }
-}
+}

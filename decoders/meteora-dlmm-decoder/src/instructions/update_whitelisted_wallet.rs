@@ -1,7 +1,4 @@
-use carbon_core::borsh;
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-
+use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -15,7 +12,7 @@ pub struct UpdateWhitelistedWalletInstructionAccounts {
     pub creator: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for UpdateWhitelistedWallet {
+impl carbon_core::deserialize::ArrangeAccounts for UpdateWhitelistedWallet {
     type ArrangedAccounts = UpdateWhitelistedWalletInstructionAccounts;
 
     fn arrange_accounts(

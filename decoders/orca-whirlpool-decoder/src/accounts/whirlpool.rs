@@ -1,7 +1,5 @@
  
-use carbon_core::deserialize::CarbonDeserialize; 
-use carbon_proc_macros::CarbonDeserialize; 
-use carbon_core::borsh;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
 #[derive(CarbonDeserialize, Debug)] 
@@ -28,4 +26,4 @@ pub struct Whirlpool {
         pub fee_growth_global_b: u128, 
         pub reward_last_updated_timestamp: u64, 
         pub reward_infos: [WhirlpoolRewardInfo; 3], 
-}
+}

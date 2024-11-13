@@ -1,8 +1,5 @@
 use super::super::types::*;
-use carbon_core::borsh;
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-
+use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -26,7 +23,7 @@ pub struct UseInstructionAccounts {
     pub authorization_rules: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for Use {
+impl carbon_core::deserialize::ArrangeAccounts for Use {
     type ArrangedAccounts = UseInstructionAccounts;
 
     fn arrange_accounts(
