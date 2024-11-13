@@ -1,13 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-use carbon_core::borsh;
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x67d800ee5c6bdb79")]
-pub struct CreateProgramVersion{
+pub struct CreateProgramVersion {
     pub version: u8,
 }
 
@@ -18,10 +15,13 @@ pub struct CreateProgramVersionInstructionAccounts {
     pub rent: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for CreateProgramVersion {
+impl carbon_core::deserialize::ArrangeAccounts for CreateProgramVersion {
     type ArrangedAccounts = CreateProgramVersionInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let authority = accounts.get(0)?;
         let program_version = accounts.get(1)?;
         let system_program = accounts.get(2)?;

@@ -1,7 +1,4 @@
-use carbon_core::borsh;
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-
+use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -26,7 +23,7 @@ pub struct PerpsV2AddLiquidityInstructionAccounts {
     pub program: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for PerpsV2AddLiquidity {
+impl carbon_core::deserialize::ArrangeAccounts for PerpsV2AddLiquidity {
     type ArrangedAccounts = PerpsV2AddLiquidityInstructionAccounts;
 
     fn arrange_accounts(

@@ -1,12 +1,14 @@
 [package]
 name = "carbon-proc-macros"
-version = "0.1.52"
+version = "0.2.1"
 edition = "2018"
 description = "Procedural macros for Carbon"
 license = "MIT"
 
+[lib]
+proc-macro = true
+
 [dependencies]
-carbon-core = { workspace = true }
 solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
 solana-sdk = { workspace = true }
@@ -19,7 +21,3 @@ serde = "1.0.136"
 borsh-derive-internal = "0.10.3"
 proc-macro2 = "1"
 unicode-xid = "0.2"
-
-
-[lib]
-crate-type = ["proc-macro"]

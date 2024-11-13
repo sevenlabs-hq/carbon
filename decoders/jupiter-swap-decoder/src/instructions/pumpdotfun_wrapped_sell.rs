@@ -1,7 +1,4 @@
-use carbon_core::borsh;
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-
+use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -25,7 +22,7 @@ pub struct PumpdotfunWrappedSellInstructionAccounts {
     pub user_wsol_token_account: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for PumpdotfunWrappedSell {
+impl carbon_core::deserialize::ArrangeAccounts for PumpdotfunWrappedSell {
     type ArrangedAccounts = PumpdotfunWrappedSellInstructionAccounts;
 
     fn arrange_accounts(

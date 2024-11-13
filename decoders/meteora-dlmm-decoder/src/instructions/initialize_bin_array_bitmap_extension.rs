@@ -1,7 +1,4 @@
-use carbon_core::borsh;
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-
+use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -16,7 +13,7 @@ pub struct InitializeBinArrayBitmapExtensionInstructionAccounts {
     pub rent: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for InitializeBinArrayBitmapExtension {
+impl carbon_core::deserialize::ArrangeAccounts for InitializeBinArrayBitmapExtension {
     type ArrangedAccounts = InitializeBinArrayBitmapExtensionInstructionAccounts;
 
     fn arrange_accounts(

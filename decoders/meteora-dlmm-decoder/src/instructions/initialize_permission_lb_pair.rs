@@ -1,13 +1,11 @@
-
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
 use super::super::types::*;
-use carbon_core::borsh;
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x6c66d555fb033515")]
-pub struct InitializePermissionLbPair{
+pub struct InitializePermissionLbPair {
     pub ix_data: InitPermissionPairIx,
 }
 
@@ -28,10 +26,13 @@ pub struct InitializePermissionLbPairInstructionAccounts {
     pub program: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for InitializePermissionLbPair {
+impl carbon_core::deserialize::ArrangeAccounts for InitializePermissionLbPair {
     type ArrangedAccounts = InitializePermissionLbPairInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let base = accounts.get(0)?;
         let lb_pair = accounts.get(1)?;
         let bin_array_bitmap_extension = accounts.get(2)?;
@@ -64,4 +65,4 @@ impl ArrangeAccounts for InitializePermissionLbPair {
             program: program.pubkey,
         })
     }
-}
+}

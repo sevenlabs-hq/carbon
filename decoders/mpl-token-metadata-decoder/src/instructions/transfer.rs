@@ -1,8 +1,6 @@
 
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
-use carbon_core::borsh;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
@@ -31,7 +29,7 @@ pub struct TransferInstructionAccounts {
     pub authorization_rules: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for Transfer {
+impl carbon_core::deserialize::ArrangeAccounts for Transfer {
     type ArrangedAccounts = TransferInstructionAccounts;
 
     fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
@@ -73,4 +71,4 @@ impl ArrangeAccounts for Transfer {
             authorization_rules: authorization_rules.pubkey,
         })
     }
-}
+}

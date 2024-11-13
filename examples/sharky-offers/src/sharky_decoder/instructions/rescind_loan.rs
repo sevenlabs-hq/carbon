@@ -1,14 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-use carbon_core::borsh;
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x4040a0d33324b19e")]
-pub struct RescindLoan{
-}
+pub struct RescindLoan {}
 
 pub struct RescindLoanInstructionAccounts {
     pub loan: solana_sdk::pubkey::Pubkey,
@@ -21,10 +17,13 @@ pub struct RescindLoanInstructionAccounts {
     pub token_program: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for RescindLoan {
+impl carbon_core::deserialize::ArrangeAccounts for RescindLoan {
     type ArrangedAccounts = RescindLoanInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let loan = accounts.get(0)?;
         let lender_value_token_account = accounts.get(1)?;
         let lender = accounts.get(2)?;

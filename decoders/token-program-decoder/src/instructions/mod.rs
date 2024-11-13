@@ -1,9 +1,4 @@
 use crate::TokenProgramDecoder;
-use carbon_core::{
-    deserialize::CarbonDeserialize,
-    instruction::{DecodedInstruction, InstructionDecoder},
-};
-use carbon_macros::try_decode_instructions;
 
 pub mod amount_to_ui_amount;
 pub mod approve;
@@ -32,7 +27,7 @@ pub mod transfer_checked;
 pub mod ui_amount_to_amount;
 
 #[derive(
-    carbon_proc_macros::InstructionType,
+    carbon_core::InstructionType,
     serde::Serialize,
     serde::Deserialize,
     PartialEq,
@@ -69,14 +64,14 @@ pub enum TokenProgramInstruction {
     UiAmountToAmount(ui_amount_to_amount::UiAmountToAmount),
 }
 
-impl<'a> InstructionDecoder<'a> for TokenProgramDecoder {
+impl<'a> carbon_core::instruction::InstructionDecoder<'a> for TokenProgramDecoder {
     type InstructionType = TokenProgramInstruction;
 
     fn decode_instruction(
         &self,
         instruction: &solana_sdk::instruction::Instruction,
-    ) -> Option<DecodedInstruction<Self::InstructionType>> {
-        try_decode_instructions!(instruction,
+    ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        carbon_core::try_decode_instructions!(instruction,
             TokenProgramInstruction::AmountToUiAmount => amount_to_ui_amount::AmountToUiAmount,
             TokenProgramInstruction::ApproveChecked => approve_checked::ApproveChecked,
             TokenProgramInstruction::Approve => approve::Approve,

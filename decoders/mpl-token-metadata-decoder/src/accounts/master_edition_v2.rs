@@ -1,7 +1,5 @@
  
-use carbon_core::deserialize::CarbonDeserialize; 
-use carbon_proc_macros::CarbonDeserialize; 
-use carbon_core::borsh;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
 #[derive(CarbonDeserialize, Debug)] 
@@ -12,4 +10,4 @@ pub struct MasterEditionV2 {
         pub key: Key, 
         pub supply: u64, 
         pub max_supply: Option<u64>, 
-}
+}

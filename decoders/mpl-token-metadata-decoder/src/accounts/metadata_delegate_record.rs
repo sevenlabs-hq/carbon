@@ -1,7 +1,5 @@
  
-use carbon_core::deserialize::CarbonDeserialize; 
-use carbon_proc_macros::CarbonDeserialize; 
-use carbon_core::borsh;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
 #[derive(CarbonDeserialize, Debug)] 
@@ -14,4 +12,4 @@ pub struct MetadataDelegateRecord {
         pub mint: solana_sdk::pubkey::Pubkey, 
         pub delegate: solana_sdk::pubkey::Pubkey, 
         pub update_authority: solana_sdk::pubkey::Pubkey, 
-}
+}

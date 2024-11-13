@@ -1,7 +1,5 @@
  
-use carbon_core::deserialize::CarbonDeserialize; 
-use carbon_proc_macros::CarbonDeserialize; 
-use carbon_core::borsh;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
 #[derive(CarbonDeserialize, Debug)] 
@@ -25,4 +23,4 @@ pub struct PositionV2 {
         pub subjected_to_bootstrap_liquidity_locking: u8, 
         pub fee_owner: solana_sdk::pubkey::Pubkey, 
         pub reserved: [u8; 87], 
-}
+}

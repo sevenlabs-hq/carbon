@@ -1,8 +1,6 @@
 
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
-use carbon_core::borsh;
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
@@ -29,7 +27,7 @@ pub struct MintInstructionAccounts {
     pub authorization_rules: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for Mint {
+impl carbon_core::deserialize::ArrangeAccounts for Mint {
     type ArrangedAccounts = MintInstructionAccounts;
 
     fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
@@ -67,4 +65,4 @@ impl ArrangeAccounts for Mint {
             authorization_rules: authorization_rules.pubkey,
         })
     }
-}
+}

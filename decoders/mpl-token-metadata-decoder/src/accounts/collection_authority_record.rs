@@ -1,7 +1,5 @@
  
-use carbon_core::deserialize::CarbonDeserialize; 
-use carbon_proc_macros::CarbonDeserialize; 
-use carbon_core::borsh;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
 #[derive(CarbonDeserialize, Debug)] 
@@ -12,4 +10,4 @@ pub struct CollectionAuthorityRecord {
         pub key: Key, 
         pub bump: u8, 
         pub update_authority: Option<solana_sdk::pubkey::Pubkey>, 
-}
+}

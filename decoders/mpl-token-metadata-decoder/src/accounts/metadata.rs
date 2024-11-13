@@ -1,7 +1,5 @@
  
-use carbon_core::deserialize::CarbonDeserialize; 
-use carbon_proc_macros::CarbonDeserialize; 
-use carbon_core::borsh;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
 #[derive(CarbonDeserialize, Debug)] 
@@ -21,4 +19,4 @@ pub struct Metadata {
         pub uses: Option<Uses>, 
         pub collection_details: Option<CollectionDetails>, 
         pub programmable_config: Option<ProgrammableConfig>, 
-}
+}

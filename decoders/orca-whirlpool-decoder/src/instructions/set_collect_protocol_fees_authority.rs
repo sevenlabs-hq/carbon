@@ -1,7 +1,4 @@
-use carbon_core::borsh;
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-
+use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -14,7 +11,7 @@ pub struct SetCollectProtocolFeesAuthorityInstructionAccounts {
     pub new_collect_protocol_fees_authority: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for SetCollectProtocolFeesAuthority {
+impl carbon_core::deserialize::ArrangeAccounts for SetCollectProtocolFeesAuthority {
     type ArrangedAccounts = SetCollectProtocolFeesAuthorityInstructionAccounts;
 
     fn arrange_accounts(

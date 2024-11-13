@@ -1,7 +1,4 @@
-use carbon_core::borsh;
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-
+use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -28,7 +25,7 @@ pub struct OpenBookV2SwapInstructionAccounts {
     pub open_orders_admin: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for OpenBookV2Swap {
+impl carbon_core::deserialize::ArrangeAccounts for OpenBookV2Swap {
     type ArrangedAccounts = OpenBookV2SwapInstructionAccounts;
 
     fn arrange_accounts(

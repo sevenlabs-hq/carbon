@@ -1,7 +1,5 @@
  
-use carbon_core::deserialize::CarbonDeserialize; 
-use carbon_proc_macros::CarbonDeserialize; 
-use carbon_core::borsh;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
 #[derive(CarbonDeserialize, Debug)] 
@@ -13,4 +11,4 @@ pub struct TokenOwnedEscrow {
         pub base_token: solana_sdk::pubkey::Pubkey, 
         pub authority: EscrowAuthority, 
         pub bump: u8, 
-}
+}

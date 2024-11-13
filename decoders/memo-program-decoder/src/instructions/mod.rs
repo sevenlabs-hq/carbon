@@ -1,8 +1,8 @@
 use crate::MemoProgramDecoder;
-use carbon_core::instruction::{DecodedInstruction, InstructionDecoder};
+use carbon_core::instruction::DecodedInstruction;
 
 #[derive(
-    carbon_proc_macros::InstructionType,
+    carbon_core::InstructionType,
     serde::Serialize,
     serde::Deserialize,
     PartialEq,
@@ -15,7 +15,7 @@ pub enum MemoProgramInstruction {
     Memo(Vec<u8>),
 }
 
-impl<'a> InstructionDecoder<'a> for MemoProgramDecoder {
+impl<'a> carbon_core::instruction::InstructionDecoder<'a> for MemoProgramDecoder {
     type InstructionType = MemoProgramInstruction;
 
     fn decode_instruction(

@@ -1,14 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-use carbon_core::borsh;
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x88b8323ab75c3fd8")]
-pub struct ForecloseLoanV3{
-}
+pub struct ForecloseLoanV3 {}
 
 pub struct ForecloseLoanV3InstructionAccounts {
     pub loan: solana_sdk::pubkey::Pubkey,
@@ -28,10 +24,13 @@ pub struct ForecloseLoanV3InstructionAccounts {
     pub mpl_token_metadata_program: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for ForecloseLoanV3 {
+impl carbon_core::deserialize::ArrangeAccounts for ForecloseLoanV3 {
     type ArrangedAccounts = ForecloseLoanV3InstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let loan = accounts.get(0)?;
         let escrow = accounts.get(1)?;
         let escrow_collateral_token_account = accounts.get(2)?;

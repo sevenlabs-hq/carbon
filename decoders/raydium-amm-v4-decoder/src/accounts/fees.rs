@@ -1,6 +1,4 @@
-use carbon_core::borsh;
-use carbon_core::deserialize::CarbonDeserialize;
-use carbon_proc_macros::CarbonDeserialize;
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
