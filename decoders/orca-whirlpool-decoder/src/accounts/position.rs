@@ -1,7 +1,5 @@
  
-use carbon_core::deserialize::CarbonDeserialize; 
-use carbon_proc_macros::CarbonDeserialize; 
-use carbon_core::borsh;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
 #[derive(CarbonDeserialize, Debug)] 
@@ -19,4 +17,4 @@ pub struct Position {
         pub fee_growth_checkpoint_b: u128, 
         pub fee_owed_b: u64, 
         pub reward_infos: [PositionRewardInfo; 3], 
-}
+}

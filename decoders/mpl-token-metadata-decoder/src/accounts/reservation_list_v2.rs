@@ -1,7 +1,5 @@
  
-use carbon_core::deserialize::CarbonDeserialize; 
-use carbon_proc_macros::CarbonDeserialize; 
-use carbon_core::borsh;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
 #[derive(CarbonDeserialize, Debug)] 
@@ -15,4 +13,4 @@ pub struct ReservationListV2 {
         pub reservations: Vec<Reservation>, 
         pub total_reservation_spots: u64, 
         pub current_reservation_spots: u64, 
-}
+}

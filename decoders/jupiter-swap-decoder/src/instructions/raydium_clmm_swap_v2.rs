@@ -1,7 +1,4 @@
-use carbon_core::borsh;
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-
+use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -25,7 +22,7 @@ pub struct RaydiumClmmSwapV2InstructionAccounts {
     pub output_vault_mint: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for RaydiumClmmSwapV2 {
+impl carbon_core::deserialize::ArrangeAccounts for RaydiumClmmSwapV2 {
     type ArrangedAccounts = RaydiumClmmSwapV2InstructionAccounts;
 
     fn arrange_accounts(

@@ -1,7 +1,4 @@
-use carbon_core::borsh;
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-
+use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -17,7 +14,7 @@ pub struct MintToAccounts {
     pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 
-impl ArrangeAccounts for MintTo {
+impl carbon_core::deserialize::ArrangeAccounts for MintTo {
     type ArrangedAccounts = MintToAccounts;
 
     fn arrange_accounts(

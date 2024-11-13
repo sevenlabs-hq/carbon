@@ -1,7 +1,5 @@
  
-use carbon_core::deserialize::CarbonDeserialize; 
-use carbon_proc_macros::CarbonDeserialize; 
-use carbon_core::borsh;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
 #[derive(CarbonDeserialize, Debug)] 
@@ -40,4 +38,4 @@ pub struct LbPair {
         pub lock_duration: u64, 
         pub creator: solana_sdk::pubkey::Pubkey, 
         pub reserved: [u8; 24], 
-}
+}

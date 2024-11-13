@@ -1,12 +1,11 @@
 [package]
 name = "carbon-macros"
-version = "0.1.52"
+version = "0.2.1"
 edition = "2018"
 description = "Macros for Carbon"
 license = "MIT"
 
 [dependencies]
-carbon-core = { workspace = true }
 solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
 solana-sdk = { workspace = true }

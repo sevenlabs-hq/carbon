@@ -1,12 +1,10 @@
 [package]
 name = "pumpfun-alerts-carbon-example"
-version = "0.1.4"
+version = "0.2.1"
 edition = "2021"
 
 [dependencies]
-carbon-core = "0.1.4"
-carbon-macros = "0.1.4"
-carbon-proc-macros = "0.1.4"
+carbon-core = "0.2.1"
 solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }

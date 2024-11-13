@@ -128,7 +128,7 @@ pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream
         #deser
 
         #[automatically_derived]
-        impl CarbonDeserialize for #name {
+        impl carbon_core::deserialize::CarbonDeserialize for #name {
             fn deserialize(data: &[u8]) -> Option<Self> {
                 let discriminator: &[u8] = #discriminator;
                 if data.len() < discriminator.len() {
@@ -625,7 +625,7 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
 
         parse_instruction_arms.push(quote! {
             if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
-                return Some(DecodedInstruction {
+                return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     accounts: instruction.accounts.clone(),
                     data: #instructions_enum_name::#program_variant(decoded_instruction.data),
@@ -656,12 +656,12 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
             #(#program_variants),*
         }
 
-        impl InstructionDecoderCollection for #instructions_enum_name {
+        impl carbon_core::collection::InstructionDecoderCollection for #instructions_enum_name {
             type InstructionType = #instruction_types_enum_name;
 
             fn parse_instruction(
                 instruction: &solana_sdk::instruction::Instruction
-            ) -> Option<DecodedInstruction<Self>> {
+            ) -> Option<carbon_core::instruction::DecodedInstruction<Self>> {
                 #(#parse_instruction_arms)*
                 None
             }

@@ -1,7 +1,5 @@
  
-use carbon_core::deserialize::CarbonDeserialize; 
-use carbon_proc_macros::CarbonDeserialize; 
-use carbon_core::borsh;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
 #[derive(CarbonDeserialize, Debug)] 
@@ -16,4 +14,4 @@ pub struct TokenRecord {
         pub delegate: Option<solana_sdk::pubkey::Pubkey>, 
         pub delegate_role: Option<TokenDelegateRole>, 
         pub locked_transfer: Option<solana_sdk::pubkey::Pubkey>, 
-}
+}

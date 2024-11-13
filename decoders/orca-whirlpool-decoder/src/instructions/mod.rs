@@ -1,7 +1,3 @@
-use carbon_core::deserialize::CarbonDeserialize;
-use carbon_core::instruction::InstructionDecoder;
-use carbon_macros::try_decode_instructions;
-
 use super::OrcaWhirlpoolDecoder;
 pub mod close_bundled_position;
 pub mod close_position;
@@ -51,7 +47,7 @@ pub mod two_hop_swap_v2;
 pub mod update_fees_and_rewards;
 
 #[derive(
-    carbon_proc_macros::InstructionType,
+    carbon_core::InstructionType,
     serde::Serialize,
     serde::Deserialize,
     PartialEq,
@@ -117,14 +113,14 @@ pub enum OrcaWhirlpoolInstruction {
     DeleteTokenBadge(delete_token_badge::DeleteTokenBadge),
 }
 
-impl<'a> InstructionDecoder<'a> for OrcaWhirlpoolDecoder {
+impl<'a> carbon_core::instruction::InstructionDecoder<'a> for OrcaWhirlpoolDecoder {
     type InstructionType = OrcaWhirlpoolInstruction;
 
     fn decode_instruction(
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
-        try_decode_instructions!(instruction,
+        carbon_core::try_decode_instructions!(instruction,
             OrcaWhirlpoolInstruction::InitializeConfig => initialize_config::InitializeConfig,
             OrcaWhirlpoolInstruction::InitializePool => initialize_pool::InitializePool,
             OrcaWhirlpoolInstruction::InitializeTickArray => initialize_tick_array::InitializeTickArray,

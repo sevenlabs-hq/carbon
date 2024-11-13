@@ -1,7 +1,5 @@
  
-use carbon_core::deserialize::CarbonDeserialize; 
-use carbon_proc_macros::CarbonDeserialize; 
-use carbon_core::borsh;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
 #[derive(CarbonDeserialize, Debug)] 
@@ -34,4 +32,4 @@ pub struct TargetOrders {
         pub valid_sell_order_num: u64, 
         pub padding3: [u64; 10], 
         pub free_slot_bits: u128, 
-}
+}

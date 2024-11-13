@@ -1,7 +1,5 @@
  
-use carbon_core::deserialize::CarbonDeserialize; 
-use carbon_proc_macros::CarbonDeserialize; 
-use carbon_core::borsh;
+use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
 #[derive(CarbonDeserialize, Debug)] 
@@ -14,4 +12,4 @@ pub struct BinArray {
         pub padding: [u8; 7], 
         pub lb_pair: solana_sdk::pubkey::Pubkey, 
         pub bins: [Bin; 70], 
-}
+}

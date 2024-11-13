@@ -1,7 +1,4 @@
-use carbon_core::borsh;
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-
+use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -25,7 +22,7 @@ pub struct LifinityV2SwapInstructionAccounts {
     pub oracle_pc_account: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for LifinityV2Swap {
+impl carbon_core::deserialize::ArrangeAccounts for LifinityV2Swap {
     type ArrangedAccounts = LifinityV2SwapInstructionAccounts;
 
     fn arrange_accounts(

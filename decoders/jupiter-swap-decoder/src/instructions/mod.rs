@@ -1,7 +1,3 @@
-use carbon_core::deserialize::CarbonDeserialize;
-use carbon_core::instruction::InstructionDecoder;
-use carbon_macros::try_decode_instructions;
-
 use super::JupiterSwapDecoder;
 pub mod aldrin_swap;
 pub mod aldrin_v2_swap;
@@ -71,7 +67,7 @@ pub mod whirlpool_swap;
 pub mod whirlpool_swap_v2;
 
 #[derive(
-    carbon_proc_macros::InstructionType,
+    carbon_core::InstructionType,
     serde::Serialize,
     serde::Deserialize,
     PartialEq,
@@ -153,14 +149,14 @@ pub enum JupiterSwapInstruction {
     FeeEvent(fee_event::FeeEvent),
 }
 
-impl<'a> InstructionDecoder<'a> for JupiterSwapDecoder {
+impl<'a> carbon_core::instruction::InstructionDecoder<'a> for JupiterSwapDecoder {
     type InstructionType = JupiterSwapInstruction;
 
     fn decode_instruction(
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
-        try_decode_instructions!(instruction,
+        carbon_core::try_decode_instructions!(instruction,
             JupiterSwapInstruction::Route => route::Route,
             JupiterSwapInstruction::RouteWithTokenLedger => route_with_token_ledger::RouteWithTokenLedger,
             JupiterSwapInstruction::ExactOutRoute => exact_out_route::ExactOutRoute,

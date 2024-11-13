@@ -1,13 +1,10 @@
-
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
 use super::super::types::*;
-use carbon_core::borsh;
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+use carbon_core::{borsh, CarbonDeserialize};
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xd033ef977b2bed5c")]
-pub struct ExactOutRoute{
+pub struct ExactOutRoute {
     pub route_plan: Vec<RoutePlanStep>,
     pub out_amount: u64,
     pub quoted_in_amount: u64,
@@ -29,10 +26,13 @@ pub struct ExactOutRouteInstructionAccounts {
     pub program: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for ExactOutRoute {
+impl carbon_core::deserialize::ArrangeAccounts for ExactOutRoute {
     type ArrangedAccounts = ExactOutRouteInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let token_program = accounts.get(0)?;
         let user_transfer_authority = accounts.get(1)?;
         let user_source_token_account = accounts.get(2)?;
@@ -59,4 +59,4 @@ impl ArrangeAccounts for ExactOutRoute {
             program: program.pubkey,
         })
     }
-}
+}

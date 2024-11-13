@@ -1,14 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::deserialize::{ArrangeAccounts, CarbonDeserialize};
-use carbon_proc_macros::CarbonDeserialize;
-use carbon_core::borsh;
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x2c0c4c90d2d0ef55")]
-pub struct OfferLoan{
+pub struct OfferLoan {
     pub escrow_bump: u8,
     pub principal_lamports: u64,
     pub terms_choice: Option<LoanTermsSpec>,
@@ -28,10 +26,13 @@ pub struct OfferLoanInstructionAccounts {
     pub rent: solana_sdk::pubkey::Pubkey,
 }
 
-impl ArrangeAccounts for OfferLoan {
+impl carbon_core::deserialize::ArrangeAccounts for OfferLoan {
     type ArrangedAccounts = OfferLoanInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        &self,
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let lender = accounts.get(0)?;
         let lender_value_token_account = accounts.get(1)?;
         let value_mint = accounts.get(2)?;
