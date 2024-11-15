@@ -3,7 +3,7 @@ use super::fees::Fees;
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(CarbonDeserialize, Debug)]
-#[carbon(discriminator = "0x21d902cbb853eb5b")]
+// #[carbon(discriminator = "0x21d902cbb853eb5b")]
 pub struct AmmInfo {
     pub status: u64,
     pub nonce: u64,
@@ -39,3 +39,5 @@ pub struct AmmInfo {
     pub client_order_id: u64,
     pub padding: [u64; 2],
 }
+
+pub const AMM_INFO_SIZE: usize = 752; // a size of #[repr(C)] version of AmmInfo

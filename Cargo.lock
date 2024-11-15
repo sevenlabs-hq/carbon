@@ -3769,6 +3769,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "raydium-alerts-carbon-example"
+version = "0.2.1"
+dependencies = [
+ "async-trait",
+ "carbon-core 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-raydium-amm-v4-decoder",
+ "carbon-yellowstone-grpc-datasource",
+ "dotenv",
+ "env_logger 0.11.5",
+ "log",
+ "solana-client",
+ "solana-sdk",
+ "solana-transaction-status",
+ "tokio",
+ "yellowstone-grpc-proto",
+]
+
+[[package]]
 name = "rayon"
 version = "1.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
