@@ -1,6 +1,7 @@
 use carbon_core::{borsh, CarbonDeserialize};
 
 pub(crate) const FEES_SIZE: usize = std::mem::size_of::<Fees>();
+
 #[derive(
     CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
 )]
