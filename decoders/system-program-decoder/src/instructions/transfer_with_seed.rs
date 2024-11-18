@@ -4,9 +4,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0x0B")]
 pub struct TransferWithSeed {
-    lamports: u64,
-    from_seed: String,
-    from_owner: solana_sdk::pubkey::Pubkey,
+    pub lamports: u64,
+    pub from_seed: String,
+    pub from_owner: solana_sdk::pubkey::Pubkey,
 }
 
 pub struct TransferWithSeedAccounts {

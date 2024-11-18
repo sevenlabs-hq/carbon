@@ -4,10 +4,10 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0x08")]
 pub struct AllocateWithSeed {
-    base: solana_sdk::pubkey::Pubkey,
-    seed: String,
-    space: u64,
-    owner: solana_sdk::pubkey::Pubkey,
+    pub base: solana_sdk::pubkey::Pubkey,
+    pub seed: String,
+    pub space: u64,
+    pub owner: solana_sdk::pubkey::Pubkey,
 }
 
 pub struct AllocateWithSeedAccounts {

@@ -4,7 +4,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0x08")]
 pub struct Allocate {
-    space: u64,
+    pub space: u64,
 }
 
 pub struct AllocateAccounts {
