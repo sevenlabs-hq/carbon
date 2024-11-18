@@ -4,7 +4,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x1beab2349302bb8d")]
+#[carbon(discriminator = "0x06")]
 pub struct SetParams {
     pub param: u8,
     pub value: Option<u64>,
@@ -31,6 +31,7 @@ pub struct SetParamsInstructionAccounts {
     pub serum_bids: solana_sdk::pubkey::Pubkey,
     pub serum_asks: solana_sdk::pubkey::Pubkey,
     pub amm_admin_account: solana_sdk::pubkey::Pubkey,
+    /// Optional field
     pub new_amm_open_orders_account: solana_sdk::pubkey::Pubkey,
 }
 

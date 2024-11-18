@@ -2,7 +2,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x56249e9e5cf1fb5e")]
+#[carbon(discriminator = "0x07")]
 pub struct WithdrawPnl {}
 
 pub struct WithdrawPnlInstructionAccounts {
