@@ -29,6 +29,7 @@ pub struct WithdrawInstructionAccounts {
     pub serum_event_queue: solana_sdk::pubkey::Pubkey,
     pub serum_bids: solana_sdk::pubkey::Pubkey,
     pub serum_asks: solana_sdk::pubkey::Pubkey,
+    pub referrer_pc_wallet: Option<solana_sdk::pubkey::Pubkey>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Withdraw {
@@ -40,11 +41,12 @@ impl carbon_core::deserialize::ArrangeAccounts for Withdraw {
     ) -> Option<Self::ArrangedAccounts> {
         // inspired by https://github.com/raydium-io/raydium-amm/blob/master/program/src/processor.rs#L1882 just wrote differently
         const LOWER_BOUND_ACCOUNT_LEN: usize = 20;
+        let input_accounts_len = accounts.len();
 
-        if accounts.len() != LOWER_BOUND_ACCOUNT_LEN
-            && accounts.len() != LOWER_BOUND_ACCOUNT_LEN + 1
-            && accounts.len() != LOWER_BOUND_ACCOUNT_LEN + 2
-            && accounts.len() != LOWER_BOUND_ACCOUNT_LEN + 3
+        if input_accounts_len != LOWER_BOUND_ACCOUNT_LEN
+            && input_accounts_len != LOWER_BOUND_ACCOUNT_LEN + 1
+            && input_accounts_len != LOWER_BOUND_ACCOUNT_LEN + 2
+            && input_accounts_len != LOWER_BOUND_ACCOUNT_LEN + 3
         {
             return None;
         }
@@ -59,8 +61,8 @@ impl carbon_core::deserialize::ArrangeAccounts for Withdraw {
         let pool_coin_token_account = accounts.next()?;
         let pool_pc_token_account = accounts.next()?;
 
-        if accounts.len() == LOWER_BOUND_ACCOUNT_LEN + 2
-            || accounts.len() == LOWER_BOUND_ACCOUNT_LEN + 3
+        if input_accounts_len == LOWER_BOUND_ACCOUNT_LEN + 2
+            || input_accounts_len == LOWER_BOUND_ACCOUNT_LEN + 3
         {
             let _ = accounts.next();
             let _ = accounts.next();
@@ -80,6 +82,15 @@ impl carbon_core::deserialize::ArrangeAccounts for Withdraw {
         let serum_event_queue = accounts.next()?;
         let serum_bids = accounts.next()?;
         let serum_asks = accounts.next()?;
+        let referrer_pc_wallet = {
+            if input_accounts_len == LOWER_BOUND_ACCOUNT_LEN + 1
+                || input_accounts_len == LOWER_BOUND_ACCOUNT_LEN + 3
+            {
+                accounts.next()
+            } else {
+                None
+            }
+        };
 
         Some(WithdrawInstructionAccounts {
             token_program: token_program.pubkey,
@@ -102,6 +113,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Withdraw {
             serum_event_queue: serum_event_queue.pubkey,
             serum_bids: serum_bids.pubkey,
             serum_asks: serum_asks.pubkey,
+            referrer_pc_wallet: referrer_pc_wallet.map(|a| a.pubkey),
         })
     }
 }
