@@ -2,7 +2,6 @@ use super::RaydiumAmmV4Decoder;
 pub mod admin_cancel_orders;
 pub mod create_config_account;
 pub mod deposit;
-pub mod init;
 pub mod initialize;
 pub mod initialize2;
 pub mod migrate_to_open_book;
@@ -44,7 +43,6 @@ pub enum RaydiumAmmV4Instruction {
     AdminCancelOrders(admin_cancel_orders::AdminCancelOrders),
     CreateConfigAccount(create_config_account::CreateConfigAccount),
     UpdateConfigAccount(update_config_account::UpdateConfigAccount),
-    Init(init::Init),
 }
 
 impl<'a> carbon_core::instruction::InstructionDecoder<'a> for RaydiumAmmV4Decoder {
@@ -71,7 +69,6 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for RaydiumAmmV4Decode
             RaydiumAmmV4Instruction::AdminCancelOrders => admin_cancel_orders::AdminCancelOrders,
             RaydiumAmmV4Instruction::CreateConfigAccount => create_config_account::CreateConfigAccount,
             RaydiumAmmV4Instruction::UpdateConfigAccount => update_config_account::UpdateConfigAccount,
-            RaydiumAmmV4Instruction::Init => init::Init,
         )
     }
 }
