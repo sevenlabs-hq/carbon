@@ -1,6 +1,6 @@
 # Carbon Pipeline Example
 
-This project demonstrates how to set up and run a Carbon pipeline that processes Solana transactions using the Pumpfun decoder. It utilizes the `YellowstoneGrpcGeyserClient` as a data source to fetch Solana transactions and events. The example showcases how to decode Pumpfun instructions and implement a custom processor to handle specific events.
+This project demonstrates how to set up and run a Carbon pipeline that processes Solana transactions using the RaydiumAmmV4 decoder. It utilizes the `YellowstoneGrpcGeyserClient` as a data source to fetch Solana transactions and events. The example showcases how to decode RaydiumAmmV4instructions and implement a custom processor to handle specific events.
 
 ## Setup Instructions
 
@@ -10,7 +10,7 @@ To get started, clone the repository:
 
 ```sh
 git clone git@github.com:sevenlabs-hq/carbon.git
-cd examples/pumpfun-activities
+cd examples/raydium-alerts
 ```
 
 ### Step 2: Set Environment Variables
@@ -41,7 +41,7 @@ After building the project, you can run the pipeline using:
 cargo run --release
 ```
 
-This will start the Geyser client and the pipeline will begin processing transactions for the specified program ID (`PUMPFUN_PROGRAM_ID`).
+This will start the Geyser client and the pipeline will begin processing transactions for the specified program ID (`RAYDIUM_AMM_V4_PROGRAM_ID`).
 
 ## Metrics
 

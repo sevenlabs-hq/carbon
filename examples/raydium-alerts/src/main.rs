@@ -100,18 +100,18 @@ impl Processor for RaydiumAmmV4InstructionProcessor {
                     signature, init_pool, accounts
                 );
             }
-            // RaydiumAmmV4Instruction::SwapBaseIn(swap) => {
-            //     println!(
-            //         "\nsignature: {:#?}\nSwap: {:#?}",
-            //         signature, swap
-            //     );
-            // }
-            // RaydiumAmmV4Instruction::SwapBaseOut(swap) => {
-            //     println!(
-            //         "\nsignature: {:#?}\nSwap: {:#?}",
-            //         signature, swap
-            //     );
-            // }
+            RaydiumAmmV4Instruction::SwapBaseIn(swap) => {
+                println!(
+                    "\nsignature: {:#?}\nSwap: {:#?}",
+                    signature, swap
+                );
+            }
+            RaydiumAmmV4Instruction::SwapBaseOut(swap) => {
+                println!(
+                    "\nsignature: {:#?}\nSwap: {:#?}",
+                    signature, swap
+                );
+            }
             _ => {}
         };
 
