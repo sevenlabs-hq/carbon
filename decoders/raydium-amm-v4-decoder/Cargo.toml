@@ -1,6 +1,6 @@
 [package]
 name = "carbon-raydium-amm-v4-decoder"
-version = "0.2.1"
+version = "0.2.2"
 description = "Raydium AMM V4 Decoder"
 license = "MIT"
 edition = "2018"
