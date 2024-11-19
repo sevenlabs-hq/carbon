@@ -199,6 +199,8 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-raydium-amm-v4-decoder` | Raydium AMM V4 Program Decoder | 675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8 |
 | `carbon-system-program-decoder` | System Program Decoder | 11111111111111111111111111111111 |
 | `carbon-token-program-decoder` | Token Program Decoder | TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA |
+| `carbon-kamino-lend-decoder` | Kamino Lend Decoder | KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD |
+| `carbon-kamino-vault-decoder` | Kamino Vault Decoder | kvauTFR8qm1dhniz6pYuBZkuene3Hfrs1VQhVRgCNrr |
 
 ## License
 
