@@ -2726,6 +2726,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "kamino-alerts-carbon-example"
+version = "0.2.1"
+dependencies = [
+ "async-trait",
+ "carbon-core 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-kamino-lending-decoder",
+ "carbon-yellowstone-grpc-datasource",
+ "dotenv",
+ "env_logger 0.11.5",
+ "log",
+ "solana-client",
+ "solana-sdk",
+ "solana-transaction-status",
+ "tokio",
+ "yellowstone-grpc-proto",
+]
+
+[[package]]
 name = "keccak"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
