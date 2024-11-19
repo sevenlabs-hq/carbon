@@ -1,0 +1,15 @@
+[package]
+name = "carbon-kamino-lending-decoder"
+version = "0.2.1"
+description = "Kamino Lending Decoder"
+license = "MIT"
+edition = "2018"
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+carbon-core = "0.2.1"
+solana-sdk = "2.0.10"
+serde = "1.0.136"
+serde-big-array = "0.5.1"

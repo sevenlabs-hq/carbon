@@ -987,6 +987,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-kamino-lending-decoder"
+version = "0.2.1"
+dependencies = [
+ "carbon-core 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde",
+ "serde-big-array",
+ "solana-sdk",
+]
+
+[[package]]
+name = "carbon-kamino-vault-decoder"
+version = "0.2.1"
+dependencies = [
+ "carbon-core 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde",
+ "serde-big-array",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-log-metrics"
 version = "0.2.1"
 dependencies = [
