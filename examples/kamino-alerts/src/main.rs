@@ -91,22 +91,17 @@ impl Processor for KaminoLendingInstructionProcessor {
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let signature = metadata.transaction_metadata.signature;
-        let accounts = instruction.accounts;
 
-        match instruction.data {
-            KaminoLendingInstruction::InitObligation(init_obligation) => {
-                println!(
-                    "\nsignature: {:#?}\nInitObligation: {:#?}\nAccounts: {:#?}",
-                    signature, init_obligation, accounts
-                );
-            }
-            _ => {
-                println!(
-                    "\nsignature: {:#?}\nInstruction: {:#?}",
-                    signature, instruction.data
-                );
-            }
-        };
+        let signature = format!(
+            "{}...{}",
+            &signature.to_string()[..4],
+            &signature.to_string()[signature.to_string().len() - 4..signature.to_string().len()]
+        );
+
+        println!(
+            "instruction processed ({}) {:?}",
+            signature, instruction.data
+        );
 
         Ok(())
     }
@@ -124,18 +119,42 @@ impl Processor for KaminoLendingAccountProcessor {
     ) -> CarbonResult<()> {
         let account = data.1;
 
-        match account.data {
-            KaminoLendingAccount::UserState(pool) => {
-                println!("\nAccount: {:#?}\nUserState: {:#?}", data.0.pubkey, pool);
+        let pubkey_str = format!(
+            "{}...{}",
+            &data.0.pubkey.to_string()[..4],
+            &data.0.pubkey.to_string()[4..]
+        );
+
+        fn max_total_chars(s: &str, max: usize) -> String {
+            if s.len() > max {
+                format!("{}...", &s[..max])
+            } else {
+                s.to_string()
             }
-            KaminoLendingAccount::LendingMarket(lending_market) => {
-                println!(
-                    "\nAccount: {:#}\nLendingMarket {:#?}",
-                    data.0.pubkey, lending_market
-                );
-            }
-            _ => {}
-        };
+        }
+
+        println!(
+            "account updated ({}) {:?}",
+            pubkey_str,
+            max_total_chars(
+                &match account.data {
+                    KaminoLendingAccount::UserState(user_state) => format!("{:?}", user_state),
+                    KaminoLendingAccount::LendingMarket(lending_market) =>
+                        format!("{:?}", lending_market),
+                    KaminoLendingAccount::Obligation(obligation) => format!("{:?}", obligation),
+                    KaminoLendingAccount::ReferrerState(referrer_state) =>
+                        format!("{:?}", referrer_state),
+                    KaminoLendingAccount::ReferrerTokenState(referrer_token_state) => {
+                        format!("{:?}", referrer_token_state)
+                    }
+                    KaminoLendingAccount::ShortUrl(short_url) => format!("{:?}", short_url),
+                    KaminoLendingAccount::UserMetadata(user_metadata) =>
+                        format!("{:?}", user_metadata),
+                    KaminoLendingAccount::Reserve(reserve) => format!("{:?}", reserve),
+                },
+                100
+            )
+        );
 
         Ok(())
     }
