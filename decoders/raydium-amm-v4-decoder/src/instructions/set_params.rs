@@ -4,7 +4,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x1beab2349302bb8d")]
+#[carbon(discriminator = "0x06")]
 pub struct SetParams {
     pub param: u8,
     pub value: Option<u64>,
@@ -31,7 +31,7 @@ pub struct SetParamsInstructionAccounts {
     pub serum_bids: solana_sdk::pubkey::Pubkey,
     pub serum_asks: solana_sdk::pubkey::Pubkey,
     pub amm_admin_account: solana_sdk::pubkey::Pubkey,
-    pub new_amm_open_orders_account: solana_sdk::pubkey::Pubkey,
+    pub new_amm_open_orders_account: Option<solana_sdk::pubkey::Pubkey>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetParams {
@@ -57,7 +57,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetParams {
         let serum_bids = accounts.get(13)?;
         let serum_asks = accounts.get(14)?;
         let amm_admin_account = accounts.get(15)?;
-        let new_amm_open_orders_account = accounts.get(16)?;
+        let new_amm_open_orders_account = accounts.get(16);
 
         Some(SetParamsInstructionAccounts {
             token_program: token_program.pubkey,
@@ -76,7 +76,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetParams {
             serum_bids: serum_bids.pubkey,
             serum_asks: serum_asks.pubkey,
             amm_admin_account: amm_admin_account.pubkey,
-            new_amm_open_orders_account: new_amm_open_orders_account.pubkey,
+            new_amm_open_orders_account: new_amm_open_orders_account.map(|a| a.pubkey),
         })
     }
 }

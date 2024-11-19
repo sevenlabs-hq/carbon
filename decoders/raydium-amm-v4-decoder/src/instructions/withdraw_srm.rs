@@ -2,7 +2,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0xc1653a41784e631f")]
+#[carbon(discriminator = "0x08")]
 pub struct WithdrawSrm {
     pub amount: u64,
 }
