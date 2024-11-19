@@ -31,6 +31,8 @@ carbon-raydium-amm-v4-decoder = { path = "decoders/raydium-amm-v4-decoder", vers
 carbon-system-program-decoder = { path = "decoders/system-program-decoder", version = "0.2.2" }
 carbon-token-program-decoder = { path = "decoders/token-program-decoder", version = "0.2.1" }
 carbon-memo-program-decoder = { path = "decoders/memo-program-decoder", version = "0.2.1" }
+carbon-kamino-lending-decoder = { path = "decoders/kamino-lending-decoder", version = "0.2.1" }
+carbon-kamino-vault-decoder = { path = "decoders/kamino-vault-decoder", version = "0.2.1" }
 
 solana-sdk = "2.0.10"
 solana-transaction-status = "2.0.10"

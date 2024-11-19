@@ -987,6 +987,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-kamino-lending-decoder"
+version = "0.2.1"
+dependencies = [
+ "carbon-core 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde",
+ "serde-big-array",
+ "solana-sdk",
+]
+
+[[package]]
+name = "carbon-kamino-vault-decoder"
+version = "0.2.1"
+dependencies = [
+ "carbon-core 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "serde",
+ "serde-big-array",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-log-metrics"
 version = "0.2.1"
 dependencies = [
@@ -2703,6 +2723,24 @@ dependencies = [
  "serde",
  "serde_derive",
  "serde_json",
+]
+
+[[package]]
+name = "kamino-alerts-carbon-example"
+version = "0.2.1"
+dependencies = [
+ "async-trait",
+ "carbon-core 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-kamino-lending-decoder",
+ "carbon-yellowstone-grpc-datasource",
+ "dotenv",
+ "env_logger 0.11.5",
+ "log",
+ "solana-client",
+ "solana-sdk",
+ "solana-transaction-status",
+ "tokio",
+ "yellowstone-grpc-proto",
 ]
 
 [[package]]
