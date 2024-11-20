@@ -30,7 +30,7 @@ pub struct SwapBaseOutInstructionAccounts {
     pub user_source_owner: solana_sdk::pubkey::Pubkey,
 }
 
-impl carbon_core::deserialize::ArrangeAccounts for SwapBaseOutInstructionAccounts {
+impl carbon_core::deserialize::ArrangeAccounts for SwapBaseOut {
     type ArrangedAccounts = SwapBaseOutInstructionAccounts;
 
     fn arrange_accounts(
