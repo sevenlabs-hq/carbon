@@ -796,8 +796,16 @@ impl PipelineBuilder {
     ///
     pub fn transaction<T, U>(
         mut self,
-        schema: TransactionSchema<T>,
-        processor: impl Processor<InputType = (TransactionMetadata, U)> + Send + Sync + 'static,
+        schema: Option<TransactionSchema<T>>,
+        processor: impl Processor<
+                InputType = (
+                    TransactionMetadata,
+                    Vec<(InstructionMetadata, DecodedInstruction<T>)>,
+                    Option<U>,
+                ),
+            > + Send
+            + Sync
+            + 'static,
     ) -> Self
     where
         T: InstructionDecoderCollection + 'static,
