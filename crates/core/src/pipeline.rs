@@ -358,10 +358,17 @@ impl Pipeline {
 
                             let start = Instant::now();
                             let process_result = self.process(update.clone()).await;
-                            let time_taken = start.elapsed().as_millis();
+                            let time_taken_nanoseconds = start.elapsed().as_nanos();
+                            let time_taken_milliseconds = time_taken_nanoseconds / 1_000_000;
 
                             self
-                                .metrics.record_histogram("updates_processing_times", time_taken as f64)
+                                .metrics
+                                .record_histogram("updates_process_time_nanoseconds", time_taken_nanoseconds as f64)
+                                .await?;
+
+                            self
+                                .metrics
+                                .record_histogram("updates_process_time_milliseconds", time_taken_milliseconds as f64)
                                 .await?;
 
                             match process_result {

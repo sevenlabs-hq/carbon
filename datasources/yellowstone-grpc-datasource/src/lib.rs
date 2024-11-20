@@ -166,8 +166,8 @@ impl Datasource for YellowstoneGrpcGeyserClient {
 
                                                     metrics
                                                             .record_histogram(
-                                                                "yellowstone_grpc_account_process_time_milliseconds",
-                                                                start_time.elapsed().as_millis() as f64
+                                                                "yellowstone_grpc_account_process_time_nanoseconds",
+                                                                start_time.elapsed().as_nanos() as f64
                                                             )
                                                             .await
                                                             .unwrap();
@@ -233,8 +233,8 @@ impl Datasource for YellowstoneGrpcGeyserClient {
 
                                                 metrics
                                                         .record_histogram(
-                                                            "yellowstone_grpc_transaction_process_time_milliseconds",
-                                                            start_time.elapsed().as_millis() as f64
+                                                            "yellowstone_grpc_transaction_process_time_nanoseconds",
+                                                            start_time.elapsed().as_nanos() as f64
                                                         )
                                                         .await
                                                         .unwrap();
