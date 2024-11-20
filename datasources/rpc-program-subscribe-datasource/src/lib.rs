@@ -103,8 +103,8 @@ impl Datasource for RpcProgramSubscribe {
 
                                     metrics
                                             .record_histogram(
-                                                "program_subscribe_account_process_time_milliseconds",
-                                                start_time.elapsed().as_millis() as f64
+                                                "program_subscribe_account_process_time_nanoseconds",
+                                                start_time.elapsed().as_nanos() as f64
                                             )
                                             .await
                                             .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));

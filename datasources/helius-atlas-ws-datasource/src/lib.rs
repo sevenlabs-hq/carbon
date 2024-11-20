@@ -150,7 +150,7 @@ impl Datasource for HeliusWebsocket {
                                                             slot: acc_event.context.slot,
                                                         };
 
-                                                        metrics.record_histogram("helius_atlas_ws_account_deletion_process_time_milliseconds", start_time.elapsed().as_millis() as f64).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                                                        metrics.record_histogram("helius_atlas_ws_account_deletion_process_time_nanoseconds", start_time.elapsed().as_nanos() as f64).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
                                                         metrics.increment_counter("helius_atlas_ws_account_deletions_received", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
@@ -170,7 +170,7 @@ impl Datasource for HeliusWebsocket {
                                                     slot: acc_event.context.slot,
                                                 });
 
-                                                metrics.record_histogram("helius_atlas_ws_account_process_time_milliseconds", start_time.elapsed().as_millis() as f64).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                                                metrics.record_histogram("helius_atlas_ws_account_process_time_nanoseconds", start_time.elapsed().as_nanos() as f64).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
                                                 metrics.increment_counter("helius_atlas_ws_account_updates_received", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
@@ -418,8 +418,8 @@ impl Datasource for HeliusWebsocket {
 
                                         metrics
                                                 .record_histogram(
-                                                    "helius_atlas_ws_transaction_process_time_milliseconds",
-                                                    start_time.elapsed().as_millis() as f64
+                                                    "helius_atlas_ws_transaction_process_time_nanoseconds",
+                                                    start_time.elapsed().as_nanos() as f64
                                                 )
                                                 .await
                                                 .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
