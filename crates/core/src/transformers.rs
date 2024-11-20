@@ -18,9 +18,11 @@
 //!   addresses and inner instructions.
 
 use crate::{
+    collection::InstructionDecoderCollection,
     datasource::TransactionUpdate,
     error::{CarbonResult, Error},
-    instruction::{InstructionMetadata, NestedInstruction},
+    instruction::{DecodedInstruction, InstructionMetadata, NestedInstruction},
+    schema::ParsedInstruction,
     transaction::TransactionMetadata,
 };
 use solana_sdk::{
@@ -390,6 +392,50 @@ pub fn nest_instructions(
             let new_path = vec![result.len() - 1];
             stack.push((new_path, metadata.stack_height as usize));
         }
+    }
+
+    result
+}
+
+/// Unnests parsed instructions, producing an array of `(InstructionMetadata, DecodedInstruction<T>)` tuple
+///
+/// This function takes a vector of `ParsedInstruction` and unnests them into a vector of `(InstructionMetadata, DecodedInstruction<T>)` tuples.
+/// It recursively processes nested instructions, increasing the stack height for each level of nesting.
+///
+/// # Parameters
+///
+/// - `transaction_metadata`: The metadata of the transaction containing the instructions.
+/// - `instructions`: The vector of `ParsedInstruction` to be unnested.
+/// - `stack_height`: The current stack height.
+///
+/// # Returns
+///
+/// A vector of `(InstructionMetadata, DecodedInstruction<T>)` tuples representing the unnested instructions.
+pub fn unnest_parsed_instructions<T: InstructionDecoderCollection>(
+    transaction_metadata: TransactionMetadata,
+    instructions: Vec<ParsedInstruction<T>>,
+    stack_height: u32,
+) -> Vec<(InstructionMetadata, DecodedInstruction<T>)> {
+    log::trace!(
+        "unnest_parsed_instructions(instructions: {:?})",
+        instructions
+    );
+
+    let mut result = Vec::new();
+
+    for parsed_instruction in instructions.into_iter() {
+        result.push((
+            InstructionMetadata {
+                transaction_metadata: transaction_metadata.clone(),
+                stack_height,
+            },
+            parsed_instruction.instruction,
+        ));
+        result.extend(unnest_parsed_instructions(
+            transaction_metadata.clone(),
+            *parsed_instruction.inner_instructions,
+            stack_height + 1,
+        ));
     }
 
     result
