@@ -47,6 +47,16 @@ pub struct TransactionMetadata {
     pub fee_payer: Pubkey,
 }
 
+/// The input type for the transaction processor.
+///
+/// - `T`: The instruction type, implementing `InstructionDecoderCollection`.
+/// - `U`: The output type for the matched data, if schema-matching, implementing `DeserializeOwned`.
+pub type TransactionProcessorInputType<T, U> = (
+    TransactionMetadata,
+    Vec<(InstructionMetadata, DecodedInstruction<T>)>,
+    Option<U>,
+);
+
 /// A pipe for processing transactions based on a defined schema and processor.
 ///
 /// The `TransactionPipe` parses a transaction's instructions, optionally checks them against the schema,
@@ -59,16 +69,7 @@ pub struct TransactionMetadata {
 /// - `U`: The output type for the matched data, if schema-matching, implementing `DeserializeOwned`.
 pub struct TransactionPipe<T: InstructionDecoderCollection, U> {
     schema: Option<TransactionSchema<T>>,
-    processor: Box<
-        dyn Processor<
-                InputType = (
-                    TransactionMetadata,
-                    Vec<(InstructionMetadata, DecodedInstruction<T>)>,
-                    Option<U>,
-                ),
-            > + Send
-            + Sync,
-    >,
+    processor: Box<dyn Processor<InputType = TransactionProcessorInputType<T, U>> + Send + Sync>,
 }
 
 /// Represents a parsed transaction, including its metadata and parsed instructions.
@@ -91,13 +92,8 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
 
     pub fn new(
         schema: Option<TransactionSchema<T>>,
-        processor: impl Processor<
-                InputType = (
-                    TransactionMetadata,
-                    Vec<(InstructionMetadata, DecodedInstruction<T>)>,
-                    Option<U>,
-                ),
-            > + Send
+        processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
+            + Send
             + Sync
             + 'static,
     ) -> Self {

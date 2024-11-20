@@ -38,19 +38,21 @@
 //! - Proper metric collection and flushing are essential for monitoring pipeline performance, especially in production environments.
 
 use crate::{
-    account::{AccountDecoder, AccountMetadata, AccountPipe, AccountPipes, DecodedAccount},
+    account::{
+        AccountDecoder, AccountMetadata, AccountPipe, AccountPipes, AccountProcessorInputType,
+    },
     account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
     collection::InstructionDecoderCollection,
     datasource::{AccountDeletion, Datasource, Update, UpdateType},
     error::{CarbonResult, Error},
     instruction::{
-        DecodedInstruction, InstructionDecoder, InstructionMetadata, InstructionPipe,
-        InstructionPipes, NestedInstruction,
+        InstructionDecoder, InstructionMetadata, InstructionPipe, InstructionPipes,
+        InstructionProcessorInputType,
     },
     metrics::{Metrics, MetricsCollection},
     processor::Processor,
     schema::TransactionSchema,
-    transaction::{TransactionMetadata, TransactionPipe, TransactionPipes},
+    transaction::{TransactionPipe, TransactionPipes, TransactionProcessorInputType},
     transformers,
 };
 use core::time;
@@ -687,10 +689,7 @@ impl PipelineBuilder {
     pub fn account<T: Send + Sync + 'static>(
         mut self,
         decoder: impl for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
-        processor: impl Processor<InputType = (AccountMetadata, DecodedAccount<T>)>
-            + Send
-            + Sync
-            + 'static,
+        processor: impl Processor<InputType = AccountProcessorInputType<T>> + Send + Sync + 'static,
     ) -> Self {
         log::trace!(
             "account(self, decoder: {:?}, processor: {:?})",
@@ -755,15 +754,7 @@ impl PipelineBuilder {
     pub fn instruction<T: Send + Sync + 'static>(
         mut self,
         decoder: impl for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
-        processor: impl Processor<
-                InputType = (
-                    InstructionMetadata,
-                    DecodedInstruction<T>,
-                    Vec<NestedInstruction>,
-                ),
-            > + Send
-            + Sync
-            + 'static,
+        processor: impl Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static,
     ) -> Self {
         log::trace!(
             "instruction(self, decoder: {:?}, processor: {:?})",
@@ -797,13 +788,8 @@ impl PipelineBuilder {
     pub fn transaction<T, U>(
         mut self,
         schema: Option<TransactionSchema<T>>,
-        processor: impl Processor<
-                InputType = (
-                    TransactionMetadata,
-                    Vec<(InstructionMetadata, DecodedInstruction<T>)>,
-                    Option<U>,
-                ),
-            > + Send
+        processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
+            + Send
             + Sync
             + 'static,
     ) -> Self

@@ -129,14 +129,14 @@ This will parse the my_program.json IDL file and generate the corresponding deco
 ### Implementing Processors
 
 ```rs
-use carbon_core::account::{AccountDecoder, AccountMetadata, DecodedAccount};
+use carbon_core::account::{AccountDecoder, AccountMetadata, AccountProcessorInputType, DecodedAccount};
 use crate::MyCustomAccountData;
 
 struct MyAccountProcessor;
 
 #[async_trait]
 impl Processor for MyAccountProcessor {
-    type InputType = (AccountMetadata, DecodedAccount<MyCustomAccountData>);
+    type InputType = AccountProcessorInputType<MyCustomAccountData>;
 
     async fn process(
         &mut self,
