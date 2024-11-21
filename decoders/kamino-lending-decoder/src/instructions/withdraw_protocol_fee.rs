@@ -23,7 +23,7 @@ pub struct WithdrawProtocolFeeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawProtocolFee {
     type ArrangedAccounts = WithdrawProtocolFeeInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let lending_market_owner = accounts.get(0)?;
         let lending_market = accounts.get(1)?;
         let reserve = accounts.get(2)?;

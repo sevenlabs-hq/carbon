@@ -19,7 +19,7 @@ pub struct DeleteReferrerStateAndShortUrlInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for DeleteReferrerStateAndShortUrl {
     type ArrangedAccounts = DeleteReferrerStateAndShortUrlInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let referrer = accounts.get(0)?;
         let referrer_state = accounts.get(1)?;
         let short_url = accounts.get(2)?;

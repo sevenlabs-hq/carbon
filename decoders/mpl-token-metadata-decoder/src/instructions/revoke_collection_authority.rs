@@ -16,8 +16,7 @@ pub struct RevokeCollectionAuthorityInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for RevokeCollectionAuthority {
     type ArrangedAccounts = RevokeCollectionAuthorityInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let collection_authority_record = accounts.get(0)?;

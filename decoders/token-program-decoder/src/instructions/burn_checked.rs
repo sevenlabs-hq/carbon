@@ -18,8 +18,7 @@ pub struct BurnCheckedAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for BurnChecked {
     type ArrangedAccounts = BurnCheckedAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let account = accounts.get(0)?;

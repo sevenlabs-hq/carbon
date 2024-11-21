@@ -22,7 +22,7 @@ pub struct DeprecatedMintPrintingTokensInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for DeprecatedMintPrintingTokens {
     type ArrangedAccounts = DeprecatedMintPrintingTokensInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let destination = accounts.get(0)?;
         let printing_mint = accounts.get(1)?;
         let update_authority = accounts.get(2)?;

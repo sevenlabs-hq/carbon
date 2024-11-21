@@ -19,8 +19,7 @@ pub struct SerumSwapInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SerumSwap {
     type ArrangedAccounts = SerumSwapInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let market = accounts.get(0)?;

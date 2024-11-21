@@ -14,8 +14,7 @@ pub struct SetRewardEmissionsSuperAuthorityInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SetRewardEmissionsSuperAuthority {
     type ArrangedAccounts = SetRewardEmissionsSuperAuthorityInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let whirlpools_config = accounts.get(0)?;

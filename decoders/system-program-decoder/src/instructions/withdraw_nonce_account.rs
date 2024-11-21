@@ -16,8 +16,7 @@ pub struct WithdrawNonceAccountAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawNonceAccount {
     type ArrangedAccounts = WithdrawNonceAccountAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let nonce_account = accounts.get(0)?;

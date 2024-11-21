@@ -16,8 +16,7 @@ pub struct CreateConfigAccountInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CreateConfigAccount {
     type ArrangedAccounts = CreateConfigAccountInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let admin = accounts.get(0)?;

@@ -18,8 +18,7 @@ pub struct MintToCheckedAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for MintToChecked {
     type ArrangedAccounts = MintToCheckedAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let mint = accounts.get(0)?;

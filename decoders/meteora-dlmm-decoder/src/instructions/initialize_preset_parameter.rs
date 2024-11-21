@@ -19,8 +19,7 @@ pub struct InitializePresetParameterInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitializePresetParameter {
     type ArrangedAccounts = InitializePresetParameterInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let preset_parameter = accounts.get(0)?;

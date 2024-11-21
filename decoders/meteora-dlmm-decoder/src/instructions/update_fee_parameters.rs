@@ -19,7 +19,7 @@ pub struct UpdateFeeParametersInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UpdateFeeParameters {
     type ArrangedAccounts = UpdateFeeParametersInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let lb_pair = accounts.get(0)?;
         let admin = accounts.get(1)?;
         let event_authority = accounts.get(2)?;

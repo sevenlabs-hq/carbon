@@ -26,8 +26,7 @@ pub struct MigrateInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Migrate {
     type ArrangedAccounts = MigrateInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let metadata = accounts.get(0)?;

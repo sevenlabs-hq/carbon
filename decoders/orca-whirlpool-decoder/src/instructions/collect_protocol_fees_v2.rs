@@ -27,7 +27,7 @@ pub struct CollectProtocolFeesV2InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CollectProtocolFeesV2 {
     type ArrangedAccounts = CollectProtocolFeesV2InstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let whirlpools_config = accounts.get(0)?;
         let whirlpool = accounts.get(1)?;
         let collect_protocol_fees_authority = accounts.get(2)?;

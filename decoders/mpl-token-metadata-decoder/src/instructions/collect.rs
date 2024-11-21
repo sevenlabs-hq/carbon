@@ -13,8 +13,7 @@ pub struct CollectInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Collect {
     type ArrangedAccounts = CollectInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let authority = accounts.get(0)?;

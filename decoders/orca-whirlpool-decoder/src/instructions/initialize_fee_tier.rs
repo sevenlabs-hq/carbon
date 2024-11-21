@@ -19,8 +19,7 @@ pub struct InitializeFeeTierInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitializeFeeTier {
     type ArrangedAccounts = InitializeFeeTierInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let config = accounts.get(0)?;

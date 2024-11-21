@@ -27,8 +27,7 @@ pub struct RouteWithTokenLedgerInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for RouteWithTokenLedger {
     type ArrangedAccounts = RouteWithTokenLedgerInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let token_program = accounts.get(0)?;

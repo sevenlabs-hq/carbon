@@ -29,8 +29,7 @@ pub struct PerpsV2SwapInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for PerpsV2Swap {
     type ArrangedAccounts = PerpsV2SwapInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;

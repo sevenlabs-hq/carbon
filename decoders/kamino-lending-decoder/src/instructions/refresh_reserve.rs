@@ -20,7 +20,7 @@ pub struct RefreshReserveInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for RefreshReserve {
     type ArrangedAccounts = RefreshReserveInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let reserve = accounts.get(0)?;
         let lending_market = accounts.get(1)?;
         let pyth_oracle = accounts.get(2)?;

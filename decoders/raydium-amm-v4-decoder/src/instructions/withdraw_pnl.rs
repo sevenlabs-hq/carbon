@@ -29,8 +29,7 @@ pub struct WithdrawPnlInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawPnl {
     type ArrangedAccounts = WithdrawPnlInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let token_program = accounts.get(0)?;
