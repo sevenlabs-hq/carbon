@@ -27,10 +27,11 @@
 use crate::{
     collection::InstructionDecoderCollection,
     error::CarbonResult,
-    instruction::NestedInstruction,
+    instruction::{DecodedInstruction, InstructionMetadata, NestedInstruction},
     metrics::MetricsCollection,
     processor::Processor,
     schema::{ParsedInstruction, TransactionSchema},
+    transformers,
 };
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
@@ -47,19 +48,29 @@ pub struct TransactionMetadata {
     pub meta: solana_transaction_status::TransactionStatusMeta,
 }
 
+/// The input type for the transaction processor.
+///
+/// - `T`: The instruction type, implementing `InstructionDecoderCollection`.
+/// - `U`: The output type for the matched data, if schema-matching, implementing `DeserializeOwned`.
+pub type TransactionProcessorInputType<T, U> = (
+    TransactionMetadata,
+    Vec<(InstructionMetadata, DecodedInstruction<T>)>,
+    Option<U>,
+);
+
 /// A pipe for processing transactions based on a defined schema and processor.
 ///
-/// The `TransactionPipe` parses a transaction's instructions, checks them against the schema,
+/// The `TransactionPipe` parses a transaction's instructions, optionally checks them against the schema,
 /// and runs the processor if the instructions match the schema. It provides methods for parsing
 /// nested instructions and matching transaction data to the schema.
 ///
 /// ## Generics
 ///
 /// - `T`: The instruction type, implementing `InstructionDecoderCollection`.
-/// - `U`: The output type for the processor, implementing `DeserializeOwned`.
+/// - `U`: The output type for the matched data, if schema-matching, implementing `DeserializeOwned`.
 pub struct TransactionPipe<T: InstructionDecoderCollection, U> {
-    schema: TransactionSchema<T>,
-    processor: Box<dyn Processor<InputType = (TransactionMetadata, U)> + Send + Sync>,
+    schema: Option<TransactionSchema<T>>,
+    processor: Box<dyn Processor<InputType = TransactionProcessorInputType<T, U>> + Send + Sync>,
 }
 
 /// Represents a parsed transaction, including its metadata and parsed instructions.
@@ -81,8 +92,11 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
     /// A `TransactionPipe` instance configured with the specified schema and processor.
 
     pub fn new(
-        schema: TransactionSchema<T>,
-        processor: impl Processor<InputType = (TransactionMetadata, U)> + Send + Sync + 'static,
+        schema: Option<TransactionSchema<T>>,
+        processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
+            + Send
+            + Sync
+            + 'static,
     ) -> Self {
         log::trace!(
             "TransactionPipe::new(schema: {:?}, processor: {:?})",
@@ -150,7 +164,10 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
     where
         U: DeserializeOwned,
     {
-        self.schema.match_schema(instructions)
+        match self.schema {
+            Some(ref schema) => schema.match_schema(instructions),
+            None => None,
+        }
     }
 }
 
@@ -200,11 +217,20 @@ where
 
         let parsed_instructions = self.parse_instructions(&instructions);
 
-        if let Some(matched_data) = self.matches_schema(&parsed_instructions) {
-            self.processor
-                .process((transaction_metadata, matched_data), metrics)
-                .await?;
-        }
+        let matched_data = self.matches_schema(&parsed_instructions);
+
+        let unnested_instructions = transformers::unnest_parsed_instructions(
+            transaction_metadata.clone(),
+            *parsed_instructions,
+            0,
+        );
+
+        self.processor
+            .process(
+                (transaction_metadata, unnested_instructions, matched_data),
+                metrics,
+            )
+            .await?;
 
         Ok(())
     }

@@ -80,6 +80,15 @@ pub trait InstructionDecoder<'a> {
     ) -> Option<DecodedInstruction<Self::InstructionType>>;
 }
 
+/// The input type for the instruction processor.
+///
+/// - `T`: The instruction type
+pub type InstructionProcessorInputType<T> = (
+    InstructionMetadata,
+    DecodedInstruction<T>,
+    Vec<NestedInstruction>,
+);
+
 /// A processing pipeline for instructions, using a decoder and processor.
 ///
 /// The `InstructionPipe` structure enables the processing of decoded instructions,
@@ -96,17 +105,8 @@ pub trait InstructionDecoder<'a> {
 pub struct InstructionPipe<T: Send> {
     pub decoder:
         Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
-    pub processor: Box<
-        dyn Processor<
-                InputType = (
-                    InstructionMetadata,
-                    DecodedInstruction<T>,
-                    Vec<NestedInstruction>,
-                ),
-            > + Send
-            + Sync
-            + 'static,
-    >,
+    pub processor:
+        Box<dyn Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static>,
 }
 
 /// An async trait for processing instructions within nested contexts.

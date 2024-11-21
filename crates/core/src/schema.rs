@@ -201,7 +201,10 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
                 );
 
                 if !instruction_node.inner_instructions.is_empty() {
-                    let inner_output = self.match_nodes(&current_instruction.inner_instructions)?;
+                    let inner_output = TransactionSchema {
+                        root: instruction_node.inner_instructions.clone(),
+                    }
+                    .match_nodes(&current_instruction.inner_instructions)?;
                     output = merge_hashmaps(output, inner_output);
                 }
 

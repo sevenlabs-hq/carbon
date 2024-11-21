@@ -112,6 +112,11 @@ pub trait AccountDecoder<'a> {
     ) -> Option<DecodedAccount<Self::AccountType>>;
 }
 
+/// The input type for the account processor.
+///
+/// - `T`: The account type, as determined by the decoder.
+pub type AccountProcessorInputType<T> = (AccountMetadata, DecodedAccount<T>);
+
 /// A processing pipe that decodes and processes Solana account updates.
 ///
 /// `AccountPipe` combines an `AccountDecoder` and a `Processor` to manage account
@@ -128,8 +133,7 @@ pub trait AccountDecoder<'a> {
 /// - `processor`: A `Processor` that handles the processing logic for decoded accounts.
 pub struct AccountPipe<T: Send> {
     pub decoder: Box<dyn for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static>,
-    pub processor:
-        Box<dyn Processor<InputType = (AccountMetadata, DecodedAccount<T>)> + Send + Sync>,
+    pub processor: Box<dyn Processor<InputType = AccountProcessorInputType<T>> + Send + Sync>,
 }
 
 /// A trait for processing account updates in the pipeline asynchronously.
