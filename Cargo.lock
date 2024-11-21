@@ -869,7 +869,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-cli"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "anyhow",
  "askama",
@@ -891,7 +891,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-core"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "async-trait",
  "borsh 0.10.4",
@@ -995,7 +995,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-macros"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "hex",
  "paste",
@@ -1054,7 +1054,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-proc-macros"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "borsh-derive-internal",
  "hex",

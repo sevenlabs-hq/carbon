@@ -3,10 +3,10 @@ members = ["crates/*", "datasources/*", "decoders/*", "metrics/*", "examples/*"]
 resolver = "2"
 
 [workspace.dependencies]
-carbon-core = { path = "crates/core", version = "0.2.1" }
-carbon-macros = { path = "crates/macros", version = "0.2.1" }
-carbon-proc-macros = { path = "crates/proc-macros", version = "0.2.1" }
-carbon-cli = { path = "crates/cli", version = "0.2.1" }
+carbon-core = { path = "crates/core", version = "0.3.0" }
+carbon-macros = { path = "crates/macros", version = "0.3.0" }
+carbon-proc-macros = { path = "crates/proc-macros", version = "0.3.0" }
+carbon-cli = { path = "crates/cli", version = "0.3.0" }
 
 
 carbon-rpc-program-subscribe-datasource = { path = "datasources/rpc-program-subscribe-datasource", version = "0.2.1" }
