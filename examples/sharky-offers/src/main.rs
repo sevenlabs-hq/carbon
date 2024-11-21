@@ -1,10 +1,15 @@
+use crate::sharky_decoder::instructions::SharkyInstructionType;
 use async_trait::async_trait;
-use carbon_core::account::{AccountMetadata, DecodedAccount};
+use carbon_core::account::AccountProcessorInputType;
 use carbon_core::datasource::{AccountUpdate, Datasource, Update, UpdateType};
 use carbon_core::error::CarbonResult;
+use carbon_core::instruction::InstructionDecoder;
+use carbon_core::instruction_decoder_collection;
 use carbon_core::metrics::MetricsCollection;
 use carbon_core::processor::Processor;
+use carbon_core::transaction::TransactionProcessorInputType;
 use sharky_decoder::accounts::SharkyAccount;
+use sharky_decoder::instructions::SharkyInstruction;
 use sharky_decoder::SharkyDecoder;
 use solana_account_decoder::UiAccountEncoding;
 use solana_client::nonblocking::rpc_client::RpcClient;
@@ -95,7 +100,7 @@ pub struct SharkyAccountProcessor;
 
 #[async_trait]
 impl Processor for SharkyAccountProcessor {
-    type InputType = (AccountMetadata, DecodedAccount<SharkyAccount>);
+    type InputType = AccountProcessorInputType<SharkyAccount>;
 
     async fn process(
         &mut self,
@@ -113,6 +118,29 @@ impl Processor for SharkyAccountProcessor {
             }
             _ => {}
         }
+
+        Ok(())
+    }
+}
+
+instruction_decoder_collection!(
+    AllInstructions, AllInstructionsType, AllPrograms,
+    Sharky => SharkyDecoder => SharkyInstruction
+);
+
+pub struct SharkyTransactionProcessor;
+#[async_trait]
+impl Processor for SharkyTransactionProcessor {
+    type InputType = TransactionProcessorInputType<AllInstructions>;
+
+    async fn process(
+        &mut self,
+        update: Self::InputType,
+        _metrics: Arc<MetricsCollection>,
+    ) -> CarbonResult<()> {
+        let (_metadata, instructions, _) = update;
+
+        println!("Instructions: {:?}", &instructions);
 
         Ok(())
     }
@@ -145,6 +173,7 @@ async fn main() -> anyhow::Result<()> {
             ),
         ))
         .account(SharkyDecoder, SharkyAccountProcessor)
+        .transaction(SharkyTransactionProcessor, None)
         .metrics(Arc::new(LogMetrics::new()))
         .shutdown_strategy(ShutdownStrategy::ProcessPending)
         .build()?

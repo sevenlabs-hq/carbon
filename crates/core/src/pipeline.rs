@@ -794,11 +794,11 @@ impl PipelineBuilder {
     ///
     pub fn transaction<T, U>(
         mut self,
-        schema: Option<TransactionSchema<T>>,
         processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
             + Send
             + Sync
             + 'static,
+        schema: Option<TransactionSchema<T>>,
     ) -> Self
     where
         T: InstructionDecoderCollection + 'static,
