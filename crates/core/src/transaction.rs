@@ -52,7 +52,7 @@ pub struct TransactionMetadata {
 ///
 /// - `T`: The instruction type, implementing `InstructionDecoderCollection`.
 /// - `U`: The output type for the matched data, if schema-matching, implementing `DeserializeOwned`.
-pub type TransactionProcessorInputType<T, U> = (
+pub type TransactionProcessorInputType<T, U = ()> = (
     TransactionMetadata,
     Vec<(InstructionMetadata, DecodedInstruction<T>)>,
     Option<U>,
