@@ -929,7 +929,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-jupiter-dca-decoder"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "carbon-core",
  "serde",
@@ -938,7 +938,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-jupiter-limit-order-2-decoder"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "carbon-core",
  "serde",
@@ -947,7 +947,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-jupiter-limit-order-decoder"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "carbon-core",
  "serde",
@@ -956,7 +956,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-jupiter-swap-decoder"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "carbon-core",
  "serde",
@@ -965,7 +965,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-kamino-lending-decoder"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "carbon-core",
  "serde",
@@ -975,7 +975,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-kamino-vault-decoder"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "carbon-core",
  "serde",
@@ -1006,7 +1006,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-memo-program-decoder"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "carbon-core",
  "serde",
@@ -1017,7 +1017,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-meteora-dlmm-decoder"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "carbon-core",
  "serde",
@@ -1027,7 +1027,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-mpl-core-decoder"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "carbon-core",
  "serde",
@@ -1036,7 +1036,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-mpl-token-metadata-decoder"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "carbon-core",
  "serde",
@@ -1045,7 +1045,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-orca-whirlpool-decoder"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "carbon-core",
  "serde",
@@ -1083,7 +1083,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-pumpfun-decoder"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "carbon-core",
  "serde",
@@ -1092,7 +1092,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-raydium-amm-v4-decoder"
-version = "0.2.2"
+version = "0.3.0"
 dependencies = [
  "carbon-core",
  "serde",
@@ -1151,7 +1151,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-system-program-decoder"
-version = "0.2.2"
+version = "0.3.0"
 dependencies = [
  "carbon-core",
  "serde",
@@ -1161,7 +1161,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-token-program-decoder"
-version = "0.2.1"
+version = "0.3.0"
 dependencies = [
  "carbon-core",
  "serde",

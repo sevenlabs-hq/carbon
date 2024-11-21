@@ -1,6 +1,6 @@
 [package]
 name = "carbon-kamino-lending-decoder"
-version = "0.2.1"
+version = "0.3.0"
 description = "Kamino Lending Decoder"
 license = "MIT"
 edition = "2018"
