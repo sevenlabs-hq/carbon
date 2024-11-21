@@ -52,7 +52,7 @@ use std::{collections::HashSet, str::FromStr};
 ///
 /// # Returns
 ///
-/// A `CarbonResult<TransactionMetadata>` which includes the slot, signature, and fee payer of the transaction.
+/// A `CarbonResult<TransactionMetadata>` which includes the slot, signature, fee payer and transaction status metadata.
 ///
 /// # Errors
 ///
@@ -64,13 +64,13 @@ pub fn extract_transaction_metadata(
         "extract_transaction_metadata(transaction_update: {:?})",
         transaction_update
     );
-    let message = transaction_update.transaction.message.clone();
-    let accounts = message.static_account_keys();
+    let accounts = transaction_update.transaction.message.static_account_keys();
 
     Ok(TransactionMetadata {
         slot: transaction_update.slot,
         signature: transaction_update.signature,
         fee_payer: *accounts.get(0).ok_or(Error::MissingFeePayer)?,
+        meta: transaction_update.meta.clone(),
     })
 }
 
