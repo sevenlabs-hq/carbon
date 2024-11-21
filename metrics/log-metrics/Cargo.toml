@@ -1,6 +1,6 @@
 [package]
 name = "carbon-log-metrics"
-version = "0.2.2"
+version = "0.3.0"
 description = "Log Metrics"
 license = "MIT"
 edition = "2021"
