@@ -4,7 +4,7 @@ version = "0.2.1"
 edition = "2018"
 
 [dependencies]
-carbon-core = "0.2.1"
+carbon-core = { workspace = true }
 carbon-rpc-program-subscribe-datasource = { workspace = true }
 carbon-log-metrics = { workspace = true }
 solana-client.workspace = true

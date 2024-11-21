@@ -25,7 +25,6 @@ impl carbon_core::deserialize::ArrangeAccounts for Transfer {
     type ArrangedAccounts = TransferInstructionAccounts;
 
     fn arrange_accounts(
-        &self,
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let keeper = accounts.get(0)?;

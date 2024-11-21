@@ -34,7 +34,6 @@ impl carbon_core::deserialize::ArrangeAccounts for OpenDca {
     type ArrangedAccounts = OpenDcaInstructionAccounts;
 
     fn arrange_accounts(
-        &self,
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let dca = accounts.get(0)?;

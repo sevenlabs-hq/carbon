@@ -19,8 +19,7 @@ pub struct SaberAddDecimalsInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SaberAddDecimals {
     type ArrangedAccounts = SaberAddDecimalsInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let add_decimals_program = accounts.get(0)?;

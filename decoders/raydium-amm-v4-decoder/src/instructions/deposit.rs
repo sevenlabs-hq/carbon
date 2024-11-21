@@ -30,8 +30,7 @@ pub struct DepositInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Deposit {
     type ArrangedAccounts = DepositInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let token_program = accounts.get(0)?;

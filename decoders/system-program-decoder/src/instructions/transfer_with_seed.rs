@@ -18,8 +18,7 @@ pub struct TransferWithSeedAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for TransferWithSeed {
     type ArrangedAccounts = TransferWithSeedAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let funding_account = accounts.get(0)?;

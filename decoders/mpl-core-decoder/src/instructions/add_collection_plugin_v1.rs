@@ -20,7 +20,7 @@ pub struct AddCollectionPluginV1InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for AddCollectionPluginV1 {
     type ArrangedAccounts = AddCollectionPluginV1InstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let collection = accounts.get(0)?;
         let payer = accounts.get(1)?;
         let authority = accounts.get(2)?;

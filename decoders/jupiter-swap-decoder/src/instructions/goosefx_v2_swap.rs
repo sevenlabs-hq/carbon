@@ -31,8 +31,7 @@ pub struct GoosefxV2SwapInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for GoosefxV2Swap {
     type ArrangedAccounts = GoosefxV2SwapInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;

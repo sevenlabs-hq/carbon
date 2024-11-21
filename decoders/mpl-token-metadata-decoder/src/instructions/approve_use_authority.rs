@@ -26,7 +26,7 @@ pub struct ApproveUseAuthorityInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for ApproveUseAuthority {
     type ArrangedAccounts = ApproveUseAuthorityInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let use_authority_record = accounts.get(0)?;
         let owner = accounts.get(1)?;
         let payer = accounts.get(2)?;

@@ -15,8 +15,7 @@ pub struct FreezeAccountAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for FreezeAccount {
     type ArrangedAccounts = FreezeAccountAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let account = accounts.get(0)?;

@@ -18,8 +18,7 @@ pub struct CancelOrderInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CancelOrder {
     type ArrangedAccounts = CancelOrderInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let order = accounts.get(0)?;

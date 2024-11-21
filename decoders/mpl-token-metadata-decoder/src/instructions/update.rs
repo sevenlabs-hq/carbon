@@ -26,7 +26,7 @@ pub struct UpdateInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Update {
     type ArrangedAccounts = UpdateInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let authority = accounts.get(0)?;
         let delegate_record = accounts.get(1)?;
         let token = accounts.get(2)?;

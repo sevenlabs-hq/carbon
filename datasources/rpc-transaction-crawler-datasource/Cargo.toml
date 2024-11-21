@@ -13,7 +13,7 @@ solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
 solana-sdk = { workspace = true }
 
-carbon-core = "0.2.1"
+carbon-core = { workspace = true }
 
 tokio = { version = "1.40.0", features = ["full"] }
 tokio-util = "0.7.12"

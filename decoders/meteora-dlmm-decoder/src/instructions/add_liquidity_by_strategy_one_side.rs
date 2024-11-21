@@ -27,8 +27,7 @@ pub struct AddLiquidityByStrategyOneSideInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for AddLiquidityByStrategyOneSide {
     type ArrangedAccounts = AddLiquidityByStrategyOneSideInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let position = accounts.get(0)?;
