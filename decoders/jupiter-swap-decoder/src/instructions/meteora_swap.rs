@@ -27,8 +27,7 @@ pub struct MeteoraSwapInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for MeteoraSwap {
     type ArrangedAccounts = MeteoraSwapInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;

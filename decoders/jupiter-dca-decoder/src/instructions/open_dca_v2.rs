@@ -33,8 +33,7 @@ pub struct OpenDcaV2InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for OpenDcaV2 {
     type ArrangedAccounts = OpenDcaV2InstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let dca = accounts.get(0)?;

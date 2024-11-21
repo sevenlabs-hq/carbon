@@ -33,7 +33,7 @@ pub struct SharedAccountsExactOutRouteInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SharedAccountsExactOutRoute {
     type ArrangedAccounts = SharedAccountsExactOutRouteInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let token_program = accounts.get(0)?;
         let program_authority = accounts.get(1)?;
         let user_transfer_authority = accounts.get(2)?;

@@ -29,8 +29,7 @@ pub struct SwapExactOutInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SwapExactOut {
     type ArrangedAccounts = SwapExactOutInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let lb_pair = accounts.get(0)?;

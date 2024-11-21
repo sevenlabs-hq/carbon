@@ -18,8 +18,7 @@ pub struct UnverifySizedCollectionItemInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UnverifySizedCollectionItem {
     type ArrangedAccounts = UnverifySizedCollectionItemInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let metadata = accounts.get(0)?;

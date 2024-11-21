@@ -19,8 +19,7 @@ pub struct SetLockReleasePointInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SetLockReleasePoint {
     type ArrangedAccounts = SetLockReleasePointInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let position = accounts.get(0)?;

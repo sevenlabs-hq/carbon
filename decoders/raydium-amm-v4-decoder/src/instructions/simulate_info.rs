@@ -25,7 +25,7 @@ pub struct SimulateInfoInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SimulateInfo {
     type ArrangedAccounts = SimulateInfoInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let amm = accounts.get(0)?;
         let amm_authority = accounts.get(1)?;
         let amm_open_orders = accounts.get(2)?;

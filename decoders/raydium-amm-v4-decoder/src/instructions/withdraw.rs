@@ -35,8 +35,7 @@ pub struct WithdrawInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Withdraw {
     type ArrangedAccounts = WithdrawInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         // inspired by https://github.com/raydium-io/raydium-amm/blob/master/program/src/processor.rs#L1882 just wrote differently

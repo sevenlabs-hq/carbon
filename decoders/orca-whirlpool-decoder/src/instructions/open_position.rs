@@ -27,7 +27,7 @@ pub struct OpenPositionInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for OpenPosition {
     type ArrangedAccounts = OpenPositionInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let funder = accounts.get(0)?;
         let owner = accounts.get(1)?;
         let position = accounts.get(2)?;

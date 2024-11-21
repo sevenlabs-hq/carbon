@@ -22,8 +22,7 @@ pub struct RaydiumClmmSwapInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for RaydiumClmmSwap {
     type ArrangedAccounts = RaydiumClmmSwapInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;

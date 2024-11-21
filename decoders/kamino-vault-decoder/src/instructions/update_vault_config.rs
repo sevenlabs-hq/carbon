@@ -20,7 +20,7 @@ pub struct UpdateVaultConfigInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UpdateVaultConfig {
     type ArrangedAccounts = UpdateVaultConfigInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let admin_authority = accounts.get(0)?;
         let vault_state = accounts.get(1)?;
         let klend_program = accounts.get(2)?;

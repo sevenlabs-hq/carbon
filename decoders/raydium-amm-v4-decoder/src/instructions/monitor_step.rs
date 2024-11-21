@@ -36,8 +36,7 @@ pub struct MonitorStepInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for MonitorStep {
     type ArrangedAccounts = MonitorStepInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let token_program = accounts.get(0)?;

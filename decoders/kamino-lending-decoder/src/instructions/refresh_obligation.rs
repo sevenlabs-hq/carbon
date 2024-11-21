@@ -16,7 +16,7 @@ pub struct RefreshObligationInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for RefreshObligation {
     type ArrangedAccounts = RefreshObligationInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let lending_market = accounts.get(0)?;
         let obligation = accounts.get(1)?;
 

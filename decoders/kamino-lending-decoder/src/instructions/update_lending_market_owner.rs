@@ -16,7 +16,7 @@ pub struct UpdateLendingMarketOwnerInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UpdateLendingMarketOwner {
     type ArrangedAccounts = UpdateLendingMarketOwnerInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let lending_market_owner_cached = accounts.get(0)?;
         let lending_market = accounts.get(1)?;
 

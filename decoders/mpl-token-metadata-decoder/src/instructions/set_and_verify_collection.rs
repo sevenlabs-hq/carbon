@@ -19,8 +19,7 @@ pub struct SetAndVerifyCollectionInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SetAndVerifyCollection {
     type ArrangedAccounts = SetAndVerifyCollectionInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let metadata = accounts.get(0)?;

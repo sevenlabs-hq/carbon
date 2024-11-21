@@ -16,7 +16,7 @@ pub struct UpdateAdminInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UpdateAdmin {
     type ArrangedAccounts = UpdateAdminInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let pending_admin = accounts.get(0)?;
         let vault_state = accounts.get(1)?;
 

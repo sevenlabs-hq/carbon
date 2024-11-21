@@ -21,8 +21,7 @@ pub struct PreFlashFillOrderInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for PreFlashFillOrder {
     type ArrangedAccounts = PreFlashFillOrderInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let order = accounts.get(0)?;

@@ -31,8 +31,7 @@ pub struct AddLiquidityByStrategyInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for AddLiquidityByStrategy {
     type ArrangedAccounts = AddLiquidityByStrategyInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let position = accounts.get(0)?;

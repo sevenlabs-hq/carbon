@@ -19,8 +19,7 @@ pub struct InitFeeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitFee {
     type ArrangedAccounts = InitFeeInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let keeper = accounts.get(0)?;

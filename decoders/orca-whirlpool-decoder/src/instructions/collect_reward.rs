@@ -20,8 +20,7 @@ pub struct CollectRewardInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CollectReward {
     type ArrangedAccounts = CollectRewardInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let whirlpool = accounts.get(0)?;

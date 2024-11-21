@@ -29,8 +29,7 @@ pub struct RepayLoanV3InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for RepayLoanV3 {
     type ArrangedAccounts = RepayLoanV3InstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let loan = accounts.get(0)?;

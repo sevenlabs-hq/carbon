@@ -30,7 +30,7 @@ pub struct WithdrawPendingFeesInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawPendingFees {
     type ArrangedAccounts = WithdrawPendingFeesInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let admin_authority = accounts.get(0)?;
         let vault_state = accounts.get(1)?;
         let reserve = accounts.get(2)?;

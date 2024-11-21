@@ -15,8 +15,7 @@ pub struct UiAmountToAmountAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UiAmountToAmount {
     type ArrangedAccounts = UiAmountToAmountAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let mint = accounts.get(0)?;

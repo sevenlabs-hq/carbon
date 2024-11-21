@@ -1,11 +1,11 @@
-
-use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x1513d02bed3eff57")]
-pub struct Lock{
+pub struct Lock {
     pub lock_args: LockArgs,
 }
 
@@ -28,7 +28,9 @@ pub struct LockInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Lock {
     type ArrangedAccounts = LockInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let authority = accounts.get(0)?;
         let token_owner = accounts.get(1)?;
         let token = accounts.get(2)?;

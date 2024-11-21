@@ -28,8 +28,7 @@ pub struct DradexSwapInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for DradexSwap {
     type ArrangedAccounts = DradexSwapInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
