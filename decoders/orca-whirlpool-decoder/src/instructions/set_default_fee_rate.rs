@@ -16,8 +16,7 @@ pub struct SetDefaultFeeRateInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SetDefaultFeeRate {
     type ArrangedAccounts = SetDefaultFeeRateInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let whirlpools_config = accounts.get(0)?;

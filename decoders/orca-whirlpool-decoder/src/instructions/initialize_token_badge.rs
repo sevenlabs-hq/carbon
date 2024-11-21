@@ -18,8 +18,7 @@ pub struct InitializeTokenBadgeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitializeTokenBadge {
     type ArrangedAccounts = InitializeTokenBadgeInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let whirlpools_config = accounts.get(0)?;

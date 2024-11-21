@@ -13,7 +13,7 @@ solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
 
-carbon-core = "0.2.1"
+carbon-core = { workspace = true }
 
 yellowstone-grpc-proto = { version = "=2.0.0", git = "https://github.com/rpcpool/yellowstone-grpc.git" }
 yellowstone-grpc-client = { version = "=2.0.0", git = "https://github.com/rpcpool/yellowstone-grpc.git" }

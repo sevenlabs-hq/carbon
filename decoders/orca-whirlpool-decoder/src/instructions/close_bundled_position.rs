@@ -18,8 +18,7 @@ pub struct CloseBundledPositionInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CloseBundledPosition {
     type ArrangedAccounts = CloseBundledPositionInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let bundled_position = accounts.get(0)?;

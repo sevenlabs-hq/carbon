@@ -29,7 +29,7 @@ pub struct RevokeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Revoke {
     type ArrangedAccounts = RevokeInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let delegate_record = accounts.get(0)?;
         let delegate = accounts.get(1)?;
         let metadata = accounts.get(2)?;

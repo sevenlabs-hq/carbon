@@ -25,8 +25,7 @@ pub struct InitializePositionByOperatorInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitializePositionByOperator {
     type ArrangedAccounts = InitializePositionByOperatorInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let payer = accounts.get(0)?;

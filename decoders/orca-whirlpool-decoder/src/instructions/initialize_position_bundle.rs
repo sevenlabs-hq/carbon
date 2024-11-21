@@ -20,8 +20,7 @@ pub struct InitializePositionBundleInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitializePositionBundle {
     type ArrangedAccounts = InitializePositionBundleInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let position_bundle = accounts.get(0)?;

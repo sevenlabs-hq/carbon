@@ -18,8 +18,7 @@ pub struct CreateProgramVersionInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CreateProgramVersion {
     type ArrangedAccounts = CreateProgramVersionInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let authority = accounts.get(0)?;

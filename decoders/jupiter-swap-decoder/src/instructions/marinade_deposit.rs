@@ -29,8 +29,7 @@ pub struct MarinadeDepositInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for MarinadeDeposit {
     type ArrangedAccounts = MarinadeDepositInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let marinade_finance_program = accounts.get(0)?;

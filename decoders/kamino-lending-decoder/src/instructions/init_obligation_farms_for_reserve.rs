@@ -26,7 +26,7 @@ pub struct InitObligationFarmsForReserveInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitObligationFarmsForReserve {
     type ArrangedAccounts = InitObligationFarmsForReserveInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let payer = accounts.get(0)?;
         let owner = accounts.get(1)?;
         let obligation = accounts.get(2)?;

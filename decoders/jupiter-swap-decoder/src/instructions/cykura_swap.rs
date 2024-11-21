@@ -22,8 +22,7 @@ pub struct CykuraSwapInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CykuraSwap {
     type ArrangedAccounts = CykuraSwapInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;

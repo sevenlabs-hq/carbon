@@ -28,7 +28,7 @@ pub struct DeprecatedCreateMasterEditionInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for DeprecatedCreateMasterEdition {
     type ArrangedAccounts = DeprecatedCreateMasterEditionInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let edition = accounts.get(0)?;
         let mint = accounts.get(1)?;
         let printing_mint = accounts.get(2)?;

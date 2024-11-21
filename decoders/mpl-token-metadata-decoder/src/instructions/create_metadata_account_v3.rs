@@ -22,7 +22,7 @@ pub struct CreateMetadataAccountV3InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CreateMetadataAccountV3 {
     type ArrangedAccounts = CreateMetadataAccountV3InstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let metadata = accounts.get(0)?;
         let mint = accounts.get(1)?;
         let mint_authority = accounts.get(2)?;

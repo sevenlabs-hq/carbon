@@ -21,7 +21,7 @@ pub struct UpdateCollectionV1InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UpdateCollectionV1 {
     type ArrangedAccounts = UpdateCollectionV1InstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let collection = accounts.get(0)?;
         let payer = accounts.get(1)?;
         let authority = accounts.get(2)?;

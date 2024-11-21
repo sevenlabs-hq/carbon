@@ -33,8 +33,7 @@ pub struct SwapBaseOutInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SwapBaseOut {
     type ArrangedAccounts = SwapBaseOutInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let spl_token_id = accounts.get(0)?;

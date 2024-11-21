@@ -22,8 +22,7 @@ pub struct AldrinSwapInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for AldrinSwap {
     type ArrangedAccounts = AldrinSwapInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;

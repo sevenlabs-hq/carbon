@@ -27,8 +27,7 @@ pub struct PreInitializeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for PreInitialize {
     type ArrangedAccounts = PreInitializeInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let token_program = accounts.get(0)?;

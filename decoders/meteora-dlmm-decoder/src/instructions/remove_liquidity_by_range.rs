@@ -31,8 +31,7 @@ pub struct RemoveLiquidityByRangeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for RemoveLiquidityByRange {
     type ArrangedAccounts = RemoveLiquidityByRangeInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let position = accounts.get(0)?;

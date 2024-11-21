@@ -23,7 +23,7 @@ pub struct WithdrawReferrerFeesInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawReferrerFees {
     type ArrangedAccounts = WithdrawReferrerFeesInstructionAccounts;
 
-    fn arrange_accounts(&self, accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let referrer = accounts.get(0)?;
         let referrer_token_state = accounts.get(1)?;
         let reserve = accounts.get(2)?;

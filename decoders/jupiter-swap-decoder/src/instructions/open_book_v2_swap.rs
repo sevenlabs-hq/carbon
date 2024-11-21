@@ -28,8 +28,7 @@ pub struct OpenBookV2SwapInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for OpenBookV2Swap {
     type ArrangedAccounts = OpenBookV2SwapInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;

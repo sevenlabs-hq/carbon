@@ -26,8 +26,7 @@ pub struct BuyInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Buy {
     type ArrangedAccounts = BuyInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let global = accounts.get(0)?;

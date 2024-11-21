@@ -27,8 +27,7 @@ pub struct InitializeOrderInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitializeOrder {
     type ArrangedAccounts = InitializeOrderInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let base = accounts.get(0)?;

@@ -25,8 +25,7 @@ pub struct LifinityV2SwapInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for LifinityV2Swap {
     type ArrangedAccounts = LifinityV2SwapInstructionAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;

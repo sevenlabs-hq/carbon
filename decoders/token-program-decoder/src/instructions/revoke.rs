@@ -14,8 +14,7 @@ pub struct RevokeAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Revoke {
     type ArrangedAccounts = RevokeAccounts;
 
-    fn arrange_accounts(
-        &self,
+fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let source = accounts.get(0)?;
