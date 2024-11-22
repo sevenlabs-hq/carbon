@@ -33,12 +33,21 @@ pub struct LegacyIdlConst {
 #[serde(rename_all = "camelCase")]
 pub struct LegacyIdlInstruction {
     pub name: String,
+    pub discriminant: Option<LegacyIdlInstructionDiscriminant>,
     #[serde(default)]
     pub docs: Option<Vec<String>>,
     #[serde(default)]
     pub accounts: Vec<LegacyIdlInstructionAccount>,
     #[serde(default)]
     pub args: Vec<LegacyIdlInstructionArgField>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LegacyIdlInstructionDiscriminant {
+    #[serde(rename = "type")]
+    pub type_: String,
+    pub value: u8,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

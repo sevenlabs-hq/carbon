@@ -18,13 +18,13 @@ use std::fs::{self};
 
 pub fn parse(options: ParseOptions) -> Result<()> {
     let (accounts_data, instructions_data, types_data, events_data, program_name) =
-        match legacy_read_idl(&options.idl) {
+        match read_idl(&options.idl) {
             Ok(idl) => {
-                let accounts_data = legacy_process_accounts(&idl);
-                let instructions_data = legacy_process_instructions(&idl);
-                let types_data = legacy_process_types(&idl);
-                let events_data = legacy_process_events(&idl);
-                let program_name = idl.name;
+                let accounts_data = process_accounts(&idl);
+                let instructions_data = process_instructions(&idl);
+                let types_data = process_types(&idl);
+                let events_data = process_events(&idl);
+                let program_name = idl.metadata.name;
 
                 (
                     accounts_data,
@@ -34,13 +34,13 @@ pub fn parse(options: ParseOptions) -> Result<()> {
                     program_name,
                 )
             }
-            Err(_legacy_idl_err) => match read_idl(&options.idl) {
+            Err(_legacy_idl_err) => match legacy_read_idl(&options.idl) {
                 Ok(idl) => {
-                    let accounts_data = process_accounts(&idl);
-                    let instructions_data = process_instructions(&idl);
-                    let types_data = process_types(&idl);
-                    let events_data = process_events(&idl);
-                    let program_name = idl.metadata.name;
+                    let accounts_data = legacy_process_accounts(&idl);
+                    let instructions_data = legacy_process_instructions(&idl);
+                    let types_data = legacy_process_types(&idl);
+                    let events_data = legacy_process_events(&idl);
+                    let program_name = idl.name;
 
                     (
                         accounts_data,
