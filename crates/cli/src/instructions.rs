@@ -104,7 +104,6 @@ pub fn process_instructions(idl: &Idl) -> Vec<InstructionData> {
         let mut requires_imports = false;
         let module_name = instruction.name.to_snek_case();
         let struct_name = instruction.name.to_upper_camel_case();
-        println!("{} {:?}", instruction.name, instruction.discriminator);
         let discriminator = compute_instruction_discriminator(&instruction.discriminator);
 
         let mut args = Vec::new();
@@ -149,20 +148,10 @@ fn legacy_compute_instruction_discriminator(
 ) -> String {
     if let Some(discriminant) = option_discriminant {
         let disc = format!("0x{}", hex::encode(discriminant.value.to_be_bytes()));
-        println!("{}", disc);
         return disc;
-        // match discriminant.type_.as_str() {
-        //     "u8" => {
-        //         let disc = format!("0x{}", hex::encode(discriminant.value));
-        //         println!("{}", disc);
-        //         return disc;
-        //     }
-        //     _ => {}
-        // }
     } else {
         let mut hasher = Sha256::new();
         let discriminator_input = format!("global:{}", instruction_name);
-        println!("{}", discriminator_input);
         hasher.update(discriminator_input.as_bytes());
         let hash = hasher.finalize();
         let discriminator_bytes = &hash[..8];
