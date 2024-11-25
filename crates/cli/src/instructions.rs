@@ -1,4 +1,9 @@
-use crate::{events::EventData, idl::Idl, legacy_idl::LegacyIdl, util::idl_type_to_rust_type};
+use crate::{
+    events::EventData,
+    idl::Idl,
+    legacy_idl::{LegacyIdl, LegacyIdlInstructionDiscriminant},
+    util::idl_type_to_rust_type,
+};
 use askama::Template;
 use heck::{ToSnekCase, ToUpperCamelCase};
 use sha2::{Digest, Sha256};
@@ -52,8 +57,10 @@ pub fn legacy_process_instructions(idl: &LegacyIdl) -> Vec<InstructionData> {
         let mut requires_imports = false;
         let module_name = instruction.name.to_snek_case();
         let struct_name = instruction.name.to_upper_camel_case();
-        let discriminator =
-            legacy_compute_instruction_discriminator(&instruction.name.to_snek_case());
+        let discriminator = legacy_compute_instruction_discriminator(
+            &instruction.name.to_snek_case(),
+            instruction.discriminant.as_ref(),
+        );
 
         let mut args = Vec::new();
         for arg in &instruction.args {
@@ -135,13 +142,21 @@ pub fn process_instructions(idl: &Idl) -> Vec<InstructionData> {
     instructions_data
 }
 
-fn legacy_compute_instruction_discriminator(instruction_name: &str) -> String {
-    let mut hasher = Sha256::new();
-    let discriminator_input = format!("global:{}", instruction_name);
-    hasher.update(discriminator_input.as_bytes());
-    let hash = hasher.finalize();
-    let discriminator_bytes = &hash[..8];
-    format!("0x{}", hex::encode(discriminator_bytes))
+fn legacy_compute_instruction_discriminator(
+    instruction_name: &str,
+    option_discriminant: Option<&LegacyIdlInstructionDiscriminant>,
+) -> String {
+    if let Some(discriminant) = option_discriminant {
+        let disc = format!("0x{}", hex::encode(discriminant.value.to_be_bytes()));
+        return disc;
+    } else {
+        let mut hasher = Sha256::new();
+        let discriminator_input = format!("global:{}", instruction_name);
+        hasher.update(discriminator_input.as_bytes());
+        let hash = hasher.finalize();
+        let discriminator_bytes = &hash[..8];
+        format!("0x{}", hex::encode(discriminator_bytes))
+    }
 }
 
 fn compute_instruction_discriminator(bytes: &[u8]) -> String {
