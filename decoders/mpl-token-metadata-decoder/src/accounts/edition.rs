@@ -1,13 +1,10 @@
- 
-use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
-#[derive(CarbonDeserialize, Debug)] 
- 
+use carbon_core::{borsh, CarbonDeserialize};
 
-#[carbon(discriminator = "0xea75f94a0763eba7")] 
-pub struct Edition { 
-        pub key: Key, 
-        pub parent: solana_sdk::pubkey::Pubkey, 
-        pub edition: u64, 
+#[derive(CarbonDeserialize, Debug)]
+pub struct Edition {
+    pub key: Key,
+    pub parent: solana_sdk::pubkey::Pubkey,
+    pub edition: u64,
 }

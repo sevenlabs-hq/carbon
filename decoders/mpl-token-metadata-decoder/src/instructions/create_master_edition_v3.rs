@@ -1,10 +1,11 @@
 
-use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
+
+use carbon_core::{CarbonDeserialize, borsh};
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0x9395119f4a8672ed")]
+#[carbon(discriminator = "0x11")]
 pub struct CreateMasterEditionV3{
     pub create_master_edition_args: CreateMasterEditionArgs,
 }

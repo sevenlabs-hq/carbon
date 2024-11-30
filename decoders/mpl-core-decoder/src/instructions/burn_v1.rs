@@ -1,10 +1,11 @@
 
-use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
+
+use carbon_core::{CarbonDeserialize, borsh};
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xf163c24c067e319a")]
+#[carbon(discriminator = "0x0c")]
 pub struct BurnV1{
     pub burn_v1_args: BurnV1Args,
 }

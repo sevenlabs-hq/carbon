@@ -1,9 +1,12 @@
-use carbon_core::{borsh, CarbonDeserialize};
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
-#[carbon(discriminator = "0xdd69c440a41b5dc5")]
-pub struct BurnEditionNft {}
+
+
+use carbon_core::{CarbonDeserialize, borsh};
+
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[carbon(discriminator = "0x25")]
+pub struct BurnEditionNft{
+}
 
 pub struct BurnEditionNftInstructionAccounts {
     pub metadata: solana_sdk::pubkey::Pubkey,
@@ -21,9 +24,7 @@ pub struct BurnEditionNftInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for BurnEditionNft {
     type ArrangedAccounts = BurnEditionNftInstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
-    ) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let metadata = accounts.get(0)?;
         let owner = accounts.get(1)?;
         let print_edition_mint = accounts.get(2)?;
