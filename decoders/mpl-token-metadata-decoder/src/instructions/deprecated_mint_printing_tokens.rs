@@ -1,12 +1,11 @@
 
-use carbon_core::{borsh, CarbonDeserialize};
-use super::super::types::*;
+
+use carbon_core::{CarbonDeserialize, borsh};
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xc26b90097e8f3579")]
+#[carbon(discriminator = "0x09")]
 pub struct DeprecatedMintPrintingTokens{
-    pub mint_printing_tokens_via_token_args: MintPrintingTokensViaTokenArgs,
 }
 
 pub struct DeprecatedMintPrintingTokensInstructionAccounts {

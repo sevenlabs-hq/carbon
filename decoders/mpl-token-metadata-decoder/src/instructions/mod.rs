@@ -1,10 +1,12 @@
-use super::MplTokenMetadataDecoder;
+use super::TokenMetadataDecoder;
+pub mod _use;
 pub mod approve_collection_authority;
 pub mod approve_use_authority;
 pub mod bubblegum_set_collection_size;
 pub mod burn;
 pub mod burn_edition_nft;
 pub mod burn_nft;
+pub mod close_accounts;
 pub mod close_escrow_account;
 pub mod collect;
 pub mod convert_master_edition_v1_to_v2;
@@ -31,6 +33,7 @@ pub mod mint_new_edition_from_master_edition_via_vault_proxy;
 pub mod print;
 pub mod puff_metadata;
 pub mod remove_creator_verification;
+pub mod resize;
 pub mod revoke;
 pub mod revoke_collection_authority;
 pub mod revoke_use_authority;
@@ -50,7 +53,6 @@ pub mod update;
 pub mod update_metadata_account;
 pub mod update_metadata_account_v2;
 pub mod update_primary_sale_happened_via_token;
-pub mod use_ix;
 pub mod utilize;
 pub mod verify;
 pub mod verify_collection;
@@ -66,7 +68,7 @@ pub mod verify_sized_collection_item;
     Clone,
     Hash,
 )]
-pub enum MplTokenMetadataInstruction {
+pub enum TokenMetadataInstruction {
     CreateMetadataAccount(create_metadata_account::CreateMetadataAccount),
     UpdateMetadataAccount(update_metadata_account::UpdateMetadataAccount),
     DeprecatedCreateMasterEdition(deprecated_create_master_edition::DeprecatedCreateMasterEdition),
@@ -118,77 +120,81 @@ pub enum MplTokenMetadataInstruction {
     Migrate(migrate::Migrate),
     Transfer(transfer::Transfer),
     Update(update::Update),
-    Use(use_ix::Use),
+    Use(_use::Use),
     Verify(verify::Verify),
     Unverify(unverify::Unverify),
     Collect(collect::Collect),
     Print(print::Print),
+    Resize(resize::Resize),
+    CloseAccounts(close_accounts::CloseAccounts),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for MplTokenMetadataDecoder {
-    type InstructionType = MplTokenMetadataInstruction;
+impl<'a> carbon_core::instruction::InstructionDecoder<'a> for TokenMetadataDecoder {
+    type InstructionType = TokenMetadataInstruction;
 
     fn decode_instruction(
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         carbon_core::try_decode_instructions!(instruction,
-            MplTokenMetadataInstruction::CreateMetadataAccount => create_metadata_account::CreateMetadataAccount,
-            MplTokenMetadataInstruction::UpdateMetadataAccount => update_metadata_account::UpdateMetadataAccount,
-            MplTokenMetadataInstruction::DeprecatedCreateMasterEdition => deprecated_create_master_edition::DeprecatedCreateMasterEdition,
-            MplTokenMetadataInstruction::DeprecatedMintNewEditionFromMasterEditionViaPrintingToken => deprecated_mint_new_edition_from_master_edition_via_printing_token::DeprecatedMintNewEditionFromMasterEditionViaPrintingToken,
-            MplTokenMetadataInstruction::UpdatePrimarySaleHappenedViaToken => update_primary_sale_happened_via_token::UpdatePrimarySaleHappenedViaToken,
-            MplTokenMetadataInstruction::DeprecatedSetReservationList => deprecated_set_reservation_list::DeprecatedSetReservationList,
-            MplTokenMetadataInstruction::DeprecatedCreateReservationList => deprecated_create_reservation_list::DeprecatedCreateReservationList,
-            MplTokenMetadataInstruction::SignMetadata => sign_metadata::SignMetadata,
-            MplTokenMetadataInstruction::DeprecatedMintPrintingTokensViaToken => deprecated_mint_printing_tokens_via_token::DeprecatedMintPrintingTokensViaToken,
-            MplTokenMetadataInstruction::DeprecatedMintPrintingTokens => deprecated_mint_printing_tokens::DeprecatedMintPrintingTokens,
-            MplTokenMetadataInstruction::CreateMasterEdition => create_master_edition::CreateMasterEdition,
-            MplTokenMetadataInstruction::MintNewEditionFromMasterEditionViaToken => mint_new_edition_from_master_edition_via_token::MintNewEditionFromMasterEditionViaToken,
-            MplTokenMetadataInstruction::ConvertMasterEditionV1ToV2 => convert_master_edition_v1_to_v2::ConvertMasterEditionV1ToV2,
-            MplTokenMetadataInstruction::MintNewEditionFromMasterEditionViaVaultProxy => mint_new_edition_from_master_edition_via_vault_proxy::MintNewEditionFromMasterEditionViaVaultProxy,
-            MplTokenMetadataInstruction::PuffMetadata => puff_metadata::PuffMetadata,
-            MplTokenMetadataInstruction::UpdateMetadataAccountV2 => update_metadata_account_v2::UpdateMetadataAccountV2,
-            MplTokenMetadataInstruction::CreateMetadataAccountV2 => create_metadata_account_v2::CreateMetadataAccountV2,
-            MplTokenMetadataInstruction::CreateMasterEditionV3 => create_master_edition_v3::CreateMasterEditionV3,
-            MplTokenMetadataInstruction::VerifyCollection => verify_collection::VerifyCollection,
-            MplTokenMetadataInstruction::Utilize => utilize::Utilize,
-            MplTokenMetadataInstruction::ApproveUseAuthority => approve_use_authority::ApproveUseAuthority,
-            MplTokenMetadataInstruction::RevokeUseAuthority => revoke_use_authority::RevokeUseAuthority,
-            MplTokenMetadataInstruction::UnverifyCollection => unverify_collection::UnverifyCollection,
-            MplTokenMetadataInstruction::ApproveCollectionAuthority => approve_collection_authority::ApproveCollectionAuthority,
-            MplTokenMetadataInstruction::RevokeCollectionAuthority => revoke_collection_authority::RevokeCollectionAuthority,
-            MplTokenMetadataInstruction::SetAndVerifyCollection => set_and_verify_collection::SetAndVerifyCollection,
-            MplTokenMetadataInstruction::FreezeDelegatedAccount => freeze_delegated_account::FreezeDelegatedAccount,
-            MplTokenMetadataInstruction::ThawDelegatedAccount => thaw_delegated_account::ThawDelegatedAccount,
-            MplTokenMetadataInstruction::RemoveCreatorVerification => remove_creator_verification::RemoveCreatorVerification,
-            MplTokenMetadataInstruction::BurnNft => burn_nft::BurnNft,
-            MplTokenMetadataInstruction::VerifySizedCollectionItem => verify_sized_collection_item::VerifySizedCollectionItem,
-            MplTokenMetadataInstruction::UnverifySizedCollectionItem => unverify_sized_collection_item::UnverifySizedCollectionItem,
-            MplTokenMetadataInstruction::SetAndVerifySizedCollectionItem => set_and_verify_sized_collection_item::SetAndVerifySizedCollectionItem,
-            MplTokenMetadataInstruction::CreateMetadataAccountV3 => create_metadata_account_v3::CreateMetadataAccountV3,
-            MplTokenMetadataInstruction::SetCollectionSize => set_collection_size::SetCollectionSize,
-            MplTokenMetadataInstruction::SetTokenStandard => set_token_standard::SetTokenStandard,
-            MplTokenMetadataInstruction::BubblegumSetCollectionSize => bubblegum_set_collection_size::BubblegumSetCollectionSize,
-            MplTokenMetadataInstruction::BurnEditionNft => burn_edition_nft::BurnEditionNft,
-            MplTokenMetadataInstruction::CreateEscrowAccount => create_escrow_account::CreateEscrowAccount,
-            MplTokenMetadataInstruction::CloseEscrowAccount => close_escrow_account::CloseEscrowAccount,
-            MplTokenMetadataInstruction::TransferOutOfEscrow => transfer_out_of_escrow::TransferOutOfEscrow,
-            MplTokenMetadataInstruction::Burn => burn::Burn,
-            MplTokenMetadataInstruction::Create => create::Create,
-            MplTokenMetadataInstruction::Mint => mint::Mint,
-            MplTokenMetadataInstruction::Delegate => delegate::Delegate,
-            MplTokenMetadataInstruction::Revoke => revoke::Revoke,
-            MplTokenMetadataInstruction::Lock => lock::Lock,
-            MplTokenMetadataInstruction::Unlock => unlock::Unlock,
-            MplTokenMetadataInstruction::Migrate => migrate::Migrate,
-            MplTokenMetadataInstruction::Transfer => transfer::Transfer,
-            MplTokenMetadataInstruction::Update => update::Update,
-            MplTokenMetadataInstruction::Use => use_ix::Use,
-            MplTokenMetadataInstruction::Verify => verify::Verify,
-            MplTokenMetadataInstruction::Unverify => unverify::Unverify,
-            MplTokenMetadataInstruction::Collect => collect::Collect,
-            MplTokenMetadataInstruction::Print => print::Print,
+            TokenMetadataInstruction::CreateMetadataAccount => create_metadata_account::CreateMetadataAccount,
+            TokenMetadataInstruction::UpdateMetadataAccount => update_metadata_account::UpdateMetadataAccount,
+            TokenMetadataInstruction::DeprecatedCreateMasterEdition => deprecated_create_master_edition::DeprecatedCreateMasterEdition,
+            TokenMetadataInstruction::DeprecatedMintNewEditionFromMasterEditionViaPrintingToken => deprecated_mint_new_edition_from_master_edition_via_printing_token::DeprecatedMintNewEditionFromMasterEditionViaPrintingToken,
+            TokenMetadataInstruction::UpdatePrimarySaleHappenedViaToken => update_primary_sale_happened_via_token::UpdatePrimarySaleHappenedViaToken,
+            TokenMetadataInstruction::DeprecatedSetReservationList => deprecated_set_reservation_list::DeprecatedSetReservationList,
+            TokenMetadataInstruction::DeprecatedCreateReservationList => deprecated_create_reservation_list::DeprecatedCreateReservationList,
+            TokenMetadataInstruction::SignMetadata => sign_metadata::SignMetadata,
+            TokenMetadataInstruction::DeprecatedMintPrintingTokensViaToken => deprecated_mint_printing_tokens_via_token::DeprecatedMintPrintingTokensViaToken,
+            TokenMetadataInstruction::DeprecatedMintPrintingTokens => deprecated_mint_printing_tokens::DeprecatedMintPrintingTokens,
+            TokenMetadataInstruction::CreateMasterEdition => create_master_edition::CreateMasterEdition,
+            TokenMetadataInstruction::MintNewEditionFromMasterEditionViaToken => mint_new_edition_from_master_edition_via_token::MintNewEditionFromMasterEditionViaToken,
+            TokenMetadataInstruction::ConvertMasterEditionV1ToV2 => convert_master_edition_v1_to_v2::ConvertMasterEditionV1ToV2,
+            TokenMetadataInstruction::MintNewEditionFromMasterEditionViaVaultProxy => mint_new_edition_from_master_edition_via_vault_proxy::MintNewEditionFromMasterEditionViaVaultProxy,
+            TokenMetadataInstruction::PuffMetadata => puff_metadata::PuffMetadata,
+            TokenMetadataInstruction::UpdateMetadataAccountV2 => update_metadata_account_v2::UpdateMetadataAccountV2,
+            TokenMetadataInstruction::CreateMetadataAccountV2 => create_metadata_account_v2::CreateMetadataAccountV2,
+            TokenMetadataInstruction::CreateMasterEditionV3 => create_master_edition_v3::CreateMasterEditionV3,
+            TokenMetadataInstruction::VerifyCollection => verify_collection::VerifyCollection,
+            TokenMetadataInstruction::Utilize => utilize::Utilize,
+            TokenMetadataInstruction::ApproveUseAuthority => approve_use_authority::ApproveUseAuthority,
+            TokenMetadataInstruction::RevokeUseAuthority => revoke_use_authority::RevokeUseAuthority,
+            TokenMetadataInstruction::UnverifyCollection => unverify_collection::UnverifyCollection,
+            TokenMetadataInstruction::ApproveCollectionAuthority => approve_collection_authority::ApproveCollectionAuthority,
+            TokenMetadataInstruction::RevokeCollectionAuthority => revoke_collection_authority::RevokeCollectionAuthority,
+            TokenMetadataInstruction::SetAndVerifyCollection => set_and_verify_collection::SetAndVerifyCollection,
+            TokenMetadataInstruction::FreezeDelegatedAccount => freeze_delegated_account::FreezeDelegatedAccount,
+            TokenMetadataInstruction::ThawDelegatedAccount => thaw_delegated_account::ThawDelegatedAccount,
+            TokenMetadataInstruction::RemoveCreatorVerification => remove_creator_verification::RemoveCreatorVerification,
+            TokenMetadataInstruction::BurnNft => burn_nft::BurnNft,
+            TokenMetadataInstruction::VerifySizedCollectionItem => verify_sized_collection_item::VerifySizedCollectionItem,
+            TokenMetadataInstruction::UnverifySizedCollectionItem => unverify_sized_collection_item::UnverifySizedCollectionItem,
+            TokenMetadataInstruction::SetAndVerifySizedCollectionItem => set_and_verify_sized_collection_item::SetAndVerifySizedCollectionItem,
+            TokenMetadataInstruction::CreateMetadataAccountV3 => create_metadata_account_v3::CreateMetadataAccountV3,
+            TokenMetadataInstruction::SetCollectionSize => set_collection_size::SetCollectionSize,
+            TokenMetadataInstruction::SetTokenStandard => set_token_standard::SetTokenStandard,
+            TokenMetadataInstruction::BubblegumSetCollectionSize => bubblegum_set_collection_size::BubblegumSetCollectionSize,
+            TokenMetadataInstruction::BurnEditionNft => burn_edition_nft::BurnEditionNft,
+            TokenMetadataInstruction::CreateEscrowAccount => create_escrow_account::CreateEscrowAccount,
+            TokenMetadataInstruction::CloseEscrowAccount => close_escrow_account::CloseEscrowAccount,
+            TokenMetadataInstruction::TransferOutOfEscrow => transfer_out_of_escrow::TransferOutOfEscrow,
+            TokenMetadataInstruction::Burn => burn::Burn,
+            TokenMetadataInstruction::Create => create::Create,
+            TokenMetadataInstruction::Mint => mint::Mint,
+            TokenMetadataInstruction::Delegate => delegate::Delegate,
+            TokenMetadataInstruction::Revoke => revoke::Revoke,
+            TokenMetadataInstruction::Lock => lock::Lock,
+            TokenMetadataInstruction::Unlock => unlock::Unlock,
+            TokenMetadataInstruction::Migrate => migrate::Migrate,
+            TokenMetadataInstruction::Transfer => transfer::Transfer,
+            TokenMetadataInstruction::Update => update::Update,
+            TokenMetadataInstruction::Use => _use::Use,
+            TokenMetadataInstruction::Verify => verify::Verify,
+            TokenMetadataInstruction::Unverify => unverify::Unverify,
+            TokenMetadataInstruction::Collect => collect::Collect,
+            TokenMetadataInstruction::Print => print::Print,
+            TokenMetadataInstruction::Resize => resize::Resize,
+            TokenMetadataInstruction::CloseAccounts => close_accounts::CloseAccounts,
         )
     }
 }

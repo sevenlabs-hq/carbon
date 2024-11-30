@@ -1,10 +1,11 @@
 
-use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
+
+use carbon_core::{CarbonDeserialize, borsh};
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xe97f67bd47f17fb2")]
+#[carbon(discriminator = "0x11")]
 pub struct CompressV1{
     pub compress_v1_args: CompressV1Args,
 }

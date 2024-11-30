@@ -1,10 +1,11 @@
 
-use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
+
+use carbon_core::{CarbonDeserialize, borsh};
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xfcdabfa87e457d76")]
+#[carbon(discriminator = "0x0b")]
 pub struct MintNewEditionFromMasterEditionViaToken{
     pub mint_new_edition_from_master_edition_via_token_args: MintNewEditionFromMasterEditionViaTokenArgs,
 }

@@ -1,10 +1,11 @@
 
-use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
+
+use carbon_core::{CarbonDeserialize, borsh};
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xc3cf2f4c5aac7369")]
+#[carbon(discriminator = "0x37")]
 pub struct Print{
     pub print_args: PrintArgs,
 }

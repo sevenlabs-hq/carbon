@@ -1,10 +1,11 @@
 
-use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
+
+use carbon_core::{CarbonDeserialize, borsh};
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xca8498e5d8d989d4")]
+#[carbon(discriminator = "0x0f")]
 pub struct UpdateMetadataAccountV2{
     pub update_metadata_account_args_v2: UpdateMetadataAccountArgsV2,
 }
