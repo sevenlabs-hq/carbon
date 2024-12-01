@@ -1,10 +1,11 @@
 
-use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
+
+use carbon_core::{CarbonDeserialize, borsh};
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0x788729dc5e06c286")]
+#[carbon(discriminator = "0x0b")]
 pub struct RevokeCollectionPluginAuthorityV1{
     pub revoke_collection_plugin_authority_v1_args: RevokeCollectionPluginAuthorityV1Args,
 }

@@ -59,6 +59,23 @@ pub fn idl_type_to_rust_type(idl_type: &LegacyIdlType) -> (String, bool) {
             let rust_type = idl_type_to_rust_type(vec);
             (format!("Vec<{}>", rust_type.0), rust_type.1)
         }
+        LegacyIdlType::Tuple { tuple } => {
+            let rust_types = tuple
+                .iter()
+                .map(|t| idl_type_to_rust_type(t))
+                .collect::<Vec<_>>();
+            (
+                format!(
+                    "({})",
+                    rust_types
+                        .iter()
+                        .map(|t| t.0.clone())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                ),
+                rust_types.iter().any(|t| t.1),
+            )
+        }
         LegacyIdlType::Option { option } => {
             let rust_type = idl_type_to_rust_type(option);
 

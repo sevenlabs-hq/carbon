@@ -1,9 +1,12 @@
-use carbon_core::{borsh, CarbonDeserialize};
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
-#[carbon(discriminator = "0x29c28cd95aa08b06")]
-pub struct RemoveCreatorVerification {}
+
+
+use carbon_core::{CarbonDeserialize, borsh};
+
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[carbon(discriminator = "0x1c")]
+pub struct RemoveCreatorVerification{
+}
 
 pub struct RemoveCreatorVerificationInstructionAccounts {
     pub metadata: solana_sdk::pubkey::Pubkey,
@@ -13,9 +16,7 @@ pub struct RemoveCreatorVerificationInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for RemoveCreatorVerification {
     type ArrangedAccounts = RemoveCreatorVerificationInstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
-    ) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let metadata = accounts.get(0)?;
         let creator = accounts.get(1)?;
 

@@ -5,4 +5,5 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 pub enum PrintArgs {
     V1 { edition: u64 },
+    V2 { edition: u64 },
 }
