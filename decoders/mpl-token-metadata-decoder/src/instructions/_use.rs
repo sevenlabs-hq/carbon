@@ -1,10 +1,12 @@
+
 use super::super::types::*;
-use carbon_core::{borsh, CarbonDeserialize};
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
-#[carbon(discriminator = "0x56cd74a60cb1fc53")]
-pub struct Use {
+
+use carbon_core::{CarbonDeserialize, borsh};
+
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[carbon(discriminator = "0x33")]
+pub struct Use{
     pub use_args: UseArgs,
 }
 
@@ -26,9 +28,7 @@ pub struct UseInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Use {
     type ArrangedAccounts = UseInstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
-    ) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let authority = accounts.get(0)?;
         let delegate_record = accounts.get(1)?;
         let token = accounts.get(2)?;

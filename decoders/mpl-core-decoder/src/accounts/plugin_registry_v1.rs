@@ -1,13 +1,10 @@
- 
-use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
-#[derive(CarbonDeserialize, Debug)] 
- 
+use carbon_core::{borsh, CarbonDeserialize};
 
-#[carbon(discriminator = "0xa916f6dce5e5a4cc")] 
-pub struct PluginRegistryV1 { 
-        pub key: Key, 
-        pub registry: Vec<RegistryRecord>, 
-        pub external_plugins: Vec<ExternalPluginRecord>, 
+#[derive(CarbonDeserialize, Debug)]
+pub struct PluginRegistryV1 {
+    pub key: Key,
+    pub registry: Vec<RegistryRecord>,
+    pub external_registry: Vec<ExternalRegistryRecord>,
 }

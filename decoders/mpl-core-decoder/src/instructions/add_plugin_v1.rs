@@ -1,10 +1,11 @@
 
-use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
+
+use carbon_core::{CarbonDeserialize, borsh};
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0x60155ee2c2357803")]
+#[carbon(discriminator = "0x02")]
 pub struct AddPluginV1{
     pub add_plugin_v1_args: AddPluginV1Args,
 }

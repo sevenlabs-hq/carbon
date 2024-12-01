@@ -86,6 +86,9 @@ pub enum LegacyIdlType {
     Vec {
         vec: Box<LegacyIdlType>,
     },
+    Tuple {
+        tuple: Vec<LegacyIdlType>,
+    },
     Option {
         option: Box<LegacyIdlType>,
     },

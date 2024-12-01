@@ -1,9 +1,12 @@
-use carbon_core::{borsh, CarbonDeserialize};
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
-#[carbon(discriminator = "0xabe3a19e01b06948")]
-pub struct DeprecatedCreateReservationList {}
+
+
+use carbon_core::{CarbonDeserialize, borsh};
+
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[carbon(discriminator = "0x06")]
+pub struct DeprecatedCreateReservationList{
+}
 
 pub struct DeprecatedCreateReservationListInstructionAccounts {
     pub reservation_list: solana_sdk::pubkey::Pubkey,
@@ -19,9 +22,7 @@ pub struct DeprecatedCreateReservationListInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for DeprecatedCreateReservationList {
     type ArrangedAccounts = DeprecatedCreateReservationListInstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
-    ) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let reservation_list = accounts.get(0)?;
         let payer = accounts.get(1)?;
         let update_authority = accounts.get(2)?;

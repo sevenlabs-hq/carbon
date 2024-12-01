@@ -1,10 +1,11 @@
 
-use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
+
+use carbon_core::{CarbonDeserialize, borsh};
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "0xdb5f400a3789856d")]
+#[carbon(discriminator = "0x0e")]
 pub struct TransferV1{
     pub transfer_v1_args: TransferV1Args,
 }

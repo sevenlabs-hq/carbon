@@ -1,6 +1,7 @@
 
 use super::*;
-use carbon_core::{borsh, CarbonDeserialize};
+
+use carbon_core::{CarbonDeserialize, borsh};
 
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
@@ -10,4 +11,3 @@ pub struct UpdateMetadataAccountArgsV2 {
     pub primary_sale_happened: Option<bool>,
     pub is_mutable: Option<bool>,
 }
-

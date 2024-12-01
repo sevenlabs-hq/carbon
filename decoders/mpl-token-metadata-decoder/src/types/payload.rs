@@ -1,13 +1,12 @@
+use std::hash::{Hash, Hasher};
+
 use super::*;
+
 use carbon_core::{borsh, CarbonDeserialize};
-use std::{
-    collections::HashMap,
-    hash::{Hash, Hasher},
-};
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone)]
 pub struct Payload {
-    pub map: HashMap<String, PayloadType>,
+    pub map: std::collections::HashMap<String, PayloadType>,
 }
 
 impl Hash for Payload {

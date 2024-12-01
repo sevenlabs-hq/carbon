@@ -1,12 +1,11 @@
-use super::super::types::*;
-use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
-#[carbon(discriminator = "0x184929ed2c8ec2fe")]
-pub struct CreateMetadataAccountV2 {
-    pub create_metadata_account_args_v2: CreateMetadataAccountArgsV2,
+
+use carbon_core::{CarbonDeserialize, borsh};
+
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[carbon(discriminator = "0x10")]
+pub struct CreateMetadataAccountV2{
 }
 
 pub struct CreateMetadataAccountV2InstructionAccounts {
@@ -22,9 +21,7 @@ pub struct CreateMetadataAccountV2InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CreateMetadataAccountV2 {
     type ArrangedAccounts = CreateMetadataAccountV2InstructionAccounts;
 
-    fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
-    ) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
         let metadata = accounts.get(0)?;
         let mint = accounts.get(1)?;
         let mint_authority = accounts.get(2)?;
