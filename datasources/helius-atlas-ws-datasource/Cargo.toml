@@ -12,7 +12,7 @@ crate-type = ["rlib"]
 solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
 solana-sdk = { workspace = true }
-helius = { workspace = true }
+helius = { version = "0.2.2" }
 
 carbon-core = { workspace = true }
 
