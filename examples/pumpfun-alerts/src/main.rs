@@ -66,10 +66,10 @@ pub fn create_helius_websocket_datasource(api_key: String) -> HeliusWebsocket {
                 },
                 options: helius::types::enhanced_websocket::TransactionSubscribeOptions {
                     commitment: Some(helius::types::TransactionCommitment::Confirmed),
-                    encoding: None,
+                    encoding: Some(helius::types::UiEnhancedTransactionEncoding::Base64),
                     transaction_details: Some(helius::types::TransactionDetails::Full),
                     show_rewards: None,
-                    max_supported_transaction_version: None,
+                    max_supported_transaction_version: Some(0),
                 },
             }),
         },
