@@ -17,8 +17,11 @@ pub const PUMPFUN_PROGRAM_ID: Pubkey = pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
+    dotenv::dotenv().ok();
+    env_logger::init();
+
     let helius_websocket = carbon_helius_atlas_ws_datasource::HeliusWebsocket::new(
-        "YOUR_HELIUS_API_KEY".to_string(),
+        std::env::var("API_KEY").unwrap(),
         carbon_helius_atlas_ws_datasource::Filters {
             accounts: vec![],
             transactions: Some(RpcTransactionsConfig {
