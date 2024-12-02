@@ -1,6 +1,6 @@
 # Carbon Pipeline Example
 
-This project demonstrates how to set up and run a Carbon pipeline that processes Solana transactions using the Pumpfun decoder. It utilizes the `YellowstoneGrpcGeyserClient` as a data source to fetch Solana transactions and events. The example showcases how to decode Pumpfun instructions and implement a custom processor to handle specific events.
+This project demonstrates how to set up and run a Carbon pipeline that processes Solana transactions using the Pumpfun decoder. It utilizes the `HeliusWebsocket` as a data source to subscribe to Solana transactions and events. The example showcases how to decode Pumpfun instructions and implement a custom processor to handle specific events.
 
 ## Setup Instructions
 
@@ -18,12 +18,10 @@ cd examples/pumpfun-activities
 Create a `.env` file in the root of your project and set the following environment variables:
 
 ```env
-GEYSER_URL=...
-X_TOKEN=...
+API_KEY=...
 ```
 
-- `GEYSER_URL` should point to the Yellowstone Geyser RPC URL you want to use for Solana transaction crawling.
-- `X_TOKEN` is optional and can be used if your Geyser endpoint requires an authentication token.
+- `API_KEY` should point your Helius API key.
 
 ### Step 3: Build the Project
 
