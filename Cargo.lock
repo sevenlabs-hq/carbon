@@ -3581,7 +3581,6 @@ dependencies = [
  "carbon-core",
  "carbon-helius-atlas-ws-datasource",
  "carbon-pumpfun-decoder",
- "carbon-yellowstone-grpc-datasource",
  "dotenv",
  "env_logger 0.11.5",
  "helius",
@@ -3590,7 +3589,6 @@ dependencies = [
  "solana-sdk",
  "solana-transaction-status",
  "tokio",
- "yellowstone-grpc-proto",
 ]
 
 [[package]]
