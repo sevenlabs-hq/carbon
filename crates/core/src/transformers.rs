@@ -73,6 +73,7 @@ pub fn extract_transaction_metadata(
         signature: transaction_update.signature,
         fee_payer: *accounts.get(0).ok_or(Error::MissingFeePayer)?,
         meta: transaction_update.meta.clone(),
+        message: transaction_update.transaction.message.clone(),
     })
 }
 
