@@ -38,7 +38,7 @@ use serde::de::DeserializeOwned;
 use solana_sdk::{pubkey::Pubkey, signature::Signature};
 use std::sync::Arc;
 
-/// Contains metadata about a transaction, including its slot, signature, fee payer and transaction status metadata.
+/// Contains metadata about a transaction, including its slot, signature, fee payer, transaction status metadata and the version transaction message.
 
 #[derive(Debug, Clone)]
 pub struct TransactionMetadata {

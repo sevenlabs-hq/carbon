@@ -54,7 +54,7 @@ use std::{collections::HashSet, str::FromStr};
 ///
 /// # Returns
 ///
-/// A `CarbonResult<TransactionMetadata>` which includes the slot, signature, fee payer and transaction status metadata.
+/// A `CarbonResult<TransactionMetadata>` which includes the slot, signature, fee payer, transaction status metadata and the version transaction message.
 ///
 /// # Errors
 ///
