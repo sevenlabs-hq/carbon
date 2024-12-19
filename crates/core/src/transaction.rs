@@ -46,6 +46,7 @@ pub struct TransactionMetadata {
     pub signature: Signature,
     pub fee_payer: Pubkey,
     pub meta: solana_transaction_status::TransactionStatusMeta,
+    pub message: solana_sdk::message::VersionedMessage,
 }
 
 /// The input type for the transaction processor.
