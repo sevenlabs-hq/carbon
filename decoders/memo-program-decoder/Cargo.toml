@@ -1,6 +1,6 @@
 [package]
 name = "carbon-memo-program-decoder"
-version = "0.3.1"
+version = "0.4.0"
 description = "Memo Program Decoder"
 license = "MIT"
 edition = "2018"
