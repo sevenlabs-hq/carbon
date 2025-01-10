@@ -33,7 +33,7 @@ use tokio_util::sync::CancellationToken;
 const DEVNET_WS_URL: &str = "wss://atlas-devnet.helius-rpc.com/";
 const MAINNET_WS_URL: &str = "wss://atlas-mainnet.helius-rpc.com/";
 const MAX_MISSED_BLOCKS: u64 = 10;
-const MAX_RECONNECTION_ATTEMPTS: u32 = 10;
+const MAX_RECONNECTION_ATTEMPTS: u32 = 30;
 const RECONNECTION_DELAY_MS: u64 = 3000;
 
 #[derive(Debug, Clone)]
