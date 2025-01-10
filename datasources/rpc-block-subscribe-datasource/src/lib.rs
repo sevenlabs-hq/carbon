@@ -11,17 +11,12 @@ use solana_client::{
     rpc_client::SerializableTransaction,
     rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
 };
-use solana_sdk::sysvar::clock::Clock;
-use std::{
-    sync::Arc,
-    time::{Duration, Instant},
-};
+use std::{sync::Arc, time::Duration};
 use tokio::sync::mpsc::UnboundedSender;
 use tokio_util::sync::CancellationToken;
 
 const MAX_RECONNECTION_ATTEMPTS: u32 = 10;
 const RECONNECTION_DELAY_MS: u64 = 3000;
-const MAX_MISSED_BLOCKS: u64 = 10;
 
 #[derive(Debug, Clone)]
 pub struct Filters {
@@ -109,64 +104,13 @@ impl Datasource for RpcBlockSubscribe {
                 }
             };
 
-            let (mut clock_stream, _clock_unsub) = match client
-                .program_subscribe(&solana_sdk::sysvar::clock::ID, None)
-                .await
-            {
-                Ok(subscription) => subscription,
-                Err(err) => {
-                    log::error!("Failed to subscribe to Clock sysvar: {:?}", err);
-                    reconnection_attempts += 1;
-                    if reconnection_attempts > MAX_RECONNECTION_ATTEMPTS {
-                        return Err(carbon_core::error::Error::Custom(format!(
-                            "Failed to subscribe to Clock after {} attempts: {}",
-                            MAX_RECONNECTION_ATTEMPTS, err
-                        )));
-                    }
-                    tokio::time::sleep(Duration::from_millis(RECONNECTION_DELAY_MS)).await;
-                    continue;
-                }
-            };
-
             reconnection_attempts = 0;
-
-            let mut last_slot = 0u64;
-            let mut last_clock_update = Instant::now();
 
             loop {
                 tokio::select! {
                     _ = cancellation_token.cancelled() => {
                         log::info!("Cancellation requested, stopping subscription...");
                         return Ok(());
-                    }
-                    _ = tokio::time::sleep(Duration::from_secs(5)) => {
-                        if last_clock_update.elapsed() > Duration::from_secs(5) {
-                            log::warn!("No Clock updates received for 5 seconds, considering connection stale and reconnecting...");
-                            break;
-                        }
-                    }
-                    clock_event = clock_stream.next() => {
-                        match clock_event {
-                            Some(clock_update) => {
-                                last_clock_update = Instant::now();
-                                if let Some(clock_data) = clock_update.value.account.decode::<solana_sdk::account::Account>() {
-                                    if let Ok(clock) = bincode::deserialize::<Clock>(&clock_data.data) {
-                                        let current_slot = clock.slot;
-
-                                        if last_slot > 0 && current_slot > last_slot + MAX_MISSED_BLOCKS {
-                                            log::warn!("Detected large slot gap: last_slot={}, current_slot={}, gap={}",
-                                                last_slot, current_slot, current_slot - last_slot);
-                                            break;
-                                        }
-                                        last_slot = current_slot;
-                                    }
-                                }
-                            }
-                            None => {
-                                log::warn!("Clock sysvar stream closed, reconnecting...");
-                                break;
-                            }
-                        }
                     }
                     block_event = block_stream.next() => {
                         match block_event {

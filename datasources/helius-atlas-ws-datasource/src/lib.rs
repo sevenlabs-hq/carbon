@@ -151,15 +151,21 @@ impl Datasource for HeliusWebsocket {
 
             let account_deletions_tracked = Arc::clone(&self.account_deletions_tracked);
             let filters = self.filters.clone();
-            let cancellation_token = cancellation_token.clone();
             let sender = sender.clone();
             let helius = Arc::new(helius);
             let metrics = Arc::clone(&metrics);
 
-            tokio::spawn(async move {
+            let iteration_cancellation = CancellationToken::new();
+            let iteration_cancellation_clone = iteration_cancellation.clone();
+
+            let main_cancellation = cancellation_token.clone();
+
+            let handle = tokio::spawn(async move {
                 let mut handles = vec![];
 
-                let cancellation_token_clock = cancellation_token.clone();
+                // Clock subscription
+                let cancellation_token_clock = main_cancellation.clone();
+                let iteration_cancellation_clock = iteration_cancellation.clone();
                 let helius_clone = Arc::clone(&helius);
                 let metrics_clone = Arc::clone(&metrics);
 
@@ -168,6 +174,7 @@ impl Datasource for HeliusWebsocket {
                         Some(ws) => ws,
                         None => {
                             log::error!("Helius Websocket not available for Clock subscription");
+                            iteration_cancellation_clock.cancel();
                             return;
                         }
                     };
@@ -179,6 +186,7 @@ impl Datasource for HeliusWebsocket {
                         Ok(subscription) => subscription,
                         Err(err) => {
                             log::error!("Failed to subscribe to Clock sysvar: {:?}", err);
+                            iteration_cancellation_clock.cancel();
                             return;
                         }
                     };
@@ -189,13 +197,16 @@ impl Datasource for HeliusWebsocket {
                     loop {
                         tokio::select! {
                             _ = cancellation_token_clock.cancelled() => {
-                                log::info!("Cancelling Helius WS Clock subscription...");
-                                break;
+                                return;
+                            }
+                            _ = iteration_cancellation_clock.cancelled() => {
+                                return;
                             }
                             _ = tokio::time::sleep(Duration::from_secs(5)) => {
                                 if last_clock_update.elapsed() > Duration::from_secs(5) {
-                                    log::warn!("No Clock updates received for 5 seconds, considering connection stale...");
-                                    break;
+                                    log::warn!("No Clock updates received for 5 seconds, triggering reconnection");
+                                    iteration_cancellation_clock.cancel();
+                                    return;
                                 }
                             }
                             event_result = stream.next() => {
@@ -211,7 +222,8 @@ impl Datasource for HeliusWebsocket {
                                                         "Detected large slot gap: last_slot={}, current_slot={}, gap={}",
                                                         last_slot, current_slot, current_slot - last_slot
                                                     );
-                                                    break;
+                                                    iteration_cancellation_clock.cancel();
+                                                    return;
                                                 }
                                                 last_slot = current_slot;
 
@@ -226,8 +238,9 @@ impl Datasource for HeliusWebsocket {
                                         }
                                     }
                                     None => {
-                                        log::warn!("Clock sysvar stream closed, reconnecting...");
-                                        break;
+                                        log::warn!("Clock sysvar stream closed, triggering reconnection");
+                                        iteration_cancellation_clock.cancel();
+                                        return;
                                     }
                                 }
                             }
@@ -237,10 +250,11 @@ impl Datasource for HeliusWebsocket {
 
                 handles.push(handle);
 
-                // Accounts subscriptions
+                // Account subscriptions
                 if !filters.accounts.is_empty() {
                     for account in filters.accounts {
-                        let cancellation_token = cancellation_token.clone();
+                        let cancellation_token_acc = main_cancellation.clone();
+                        let iteration_cancellation_acc = iteration_cancellation.clone();
                         let sender_clone = sender.clone();
                         let helius_clone = Arc::clone(&helius);
                         let account_deletions_tracked = Arc::clone(&account_deletions_tracked);
@@ -270,9 +284,13 @@ impl Datasource for HeliusWebsocket {
 
                             loop {
                                 tokio::select! {
-                                    _ = cancellation_token.cancelled() => {
-                                        log::info!("Cancelling Helius WS accounts subscription...");
-                                        break;
+                                    _ = cancellation_token_acc.cancelled() => {
+                                        log::info!("Main cancellation requested for account subscription");
+                                        return;
+                                    }
+                                    _ = iteration_cancellation_acc.cancelled() => {
+                                        log::info!("Iteration cancelled for account subscription");
+                                        return;
                                     }
                                     event_result = stream.next() => {
                                         match event_result {
@@ -341,9 +359,10 @@ impl Datasource for HeliusWebsocket {
                     }
                 }
 
-                // Transactions subscription
+                // Transaction subscription
                 if let Some(config) = filters.transactions {
-                    let cancellation_token = cancellation_token.clone();
+                    let cancellation_token_tx = main_cancellation.clone();
+                    let iteration_cancellation_tx = iteration_cancellation.clone();
                     let sender_clone = sender.clone();
                     let helius_clone = Arc::clone(&helius);
 
@@ -367,9 +386,13 @@ impl Datasource for HeliusWebsocket {
 
                         loop {
                             tokio::select! {
-                                _ = cancellation_token.cancelled() => {
-                                    log::info!("Cancelling Helius WS transaction subscription...");
-                                    break;
+                                _ = cancellation_token_tx.cancelled() => {
+                                    log::info!("Main cancellation requested for transaction subscription");
+                                    return;
+                                }
+                                _ = iteration_cancellation_tx.cancelled() => {
+                                    log::info!("Iteration cancelled for transaction subscription");
+                                    return;
                                 }
                                 event_result = stream.next() => {
                                     match event_result {
@@ -596,7 +619,24 @@ impl Datasource for HeliusWebsocket {
                         log::error!("Helius WS Task failed: {:?}", e);
                     }
                 }
+
+                iteration_cancellation.cancel();
             });
+
+            tokio::select! {
+                _ = cancellation_token.cancelled() => {
+                    iteration_cancellation_clone.cancel();
+                    break;
+                }
+                _ = iteration_cancellation_clone.cancelled() => {
+
+                }
+                result = handle => {
+                    if let Err(e) = result {
+                        log::error!("Main task failed: {:?}", e);
+                    }
+                }
+            }
 
             reconnection_attempts = 0;
             tokio::time::sleep(Duration::from_millis(RECONNECTION_DELAY_MS)).await;

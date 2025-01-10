@@ -8,7 +8,6 @@ edition = "2021"
 [dependencies]
 solana-client = { workspace = true }
 solana-sdk = { workspace = true }
-bincode = "1.3.3"
 
 carbon-core = { workspace = true }
 
