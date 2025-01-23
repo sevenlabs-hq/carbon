@@ -43,12 +43,13 @@ use crate::{
     },
     account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
     collection::InstructionDecoderCollection,
-    datasource::{AccountDeletion, Datasource, Update, UpdateType},
+    datasource::{AccountDeletion, Datasource, LogsUpdate, Update, UpdateType},
     error::{CarbonResult, Error},
     instruction::{
         InstructionDecoder, InstructionMetadata, InstructionPipe, InstructionPipes,
         InstructionProcessorInputType,
     },
+    logs::{LogsPipe, LogsPipes},
     metrics::{Metrics, MetricsCollection},
     processor::Processor,
     schema::TransactionSchema,
@@ -169,6 +170,7 @@ pub struct Pipeline {
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
+    pub logs_pipes: Vec<Box<dyn LogsPipes>>,
     pub metrics: Arc<MetricsCollection>,
     pub metrics_flush_interval: Option<u64>,
     pub shutdown_strategy: ShutdownStrategy,
@@ -209,6 +211,7 @@ impl Pipeline {
             account_deletion_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
+            logs_pipes: Vec::new(),
             metrics: MetricsCollection::default(),
             metrics_flush_interval: None,
             shutdown_strategy: ShutdownStrategy::default(),
@@ -265,13 +268,14 @@ impl Pipeline {
     /// - The `run` method operates in an infinite loop, handling updates until a termination condition occurs.
     ///
     pub async fn run(&mut self) -> CarbonResult<()> {
-        log::info!("starting pipeline. num_datasources: {}, num_metrics: {}, num_account_pipes: {}, num_account_deletion_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}",
+        log::info!("starting pipeline. num_datasources: {}, num_metrics: {}, num_account_pipes: {}, num_account_deletion_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}, num_logs_pipes: {}",
             self.datasources.len(),
             self.metrics.metrics.len(),
             self.account_pipes.len(),
             self.account_deletion_pipes.len(),
             self.instruction_pipes.len(),
             self.transaction_pipes.len(),
+            self.logs_pipes.len(),
         );
 
         log::trace!("run(self)");
@@ -302,6 +306,10 @@ impl Pipeline {
             return Err(Error::MissingUpdateTypeInDatasource(
                 UpdateType::Transaction,
             ));
+        }
+
+        if !self.logs_pipes.is_empty() && !update_types.contains(&UpdateType::Logs) {
+            return Err(Error::MissingUpdateTypeInDatasource(UpdateType::Logs));
         }
 
         self.metrics.initialize_metrics().await?;
@@ -520,6 +528,15 @@ impl Pipeline {
                     .increment_counter("account_deletions_processed", 1)
                     .await?;
             }
+            Update::Logs(logs_update) => {
+                for pipe in self.logs_pipes.iter_mut() {
+                    pipe.run(logs_update.clone(), self.metrics.clone()).await?;
+                }
+
+                self.metrics
+                    .increment_counter("logs_updates_processed", 1)
+                    .await?;
+            }
         };
 
         Ok(())
@@ -590,6 +607,7 @@ pub struct PipelineBuilder {
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
+    pub logs_pipes: Vec<Box<dyn LogsPipes>>,
     pub metrics: MetricsCollection,
     pub metrics_flush_interval: Option<u64>,
     pub shutdown_strategy: ShutdownStrategy,
@@ -617,6 +635,7 @@ impl PipelineBuilder {
             account_deletion_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
+            logs_pipes: Vec::new(),
             shutdown_strategy: ShutdownStrategy::default(),
             metrics: MetricsCollection::default(),
             metrics_flush_interval: None,
@@ -814,6 +833,17 @@ impl PipelineBuilder {
         self
     }
 
+    pub fn logs(
+        mut self,
+        processor: impl Processor<InputType = LogsUpdate> + Send + Sync + 'static,
+    ) -> Self {
+        log::trace!("logs(self, processor: {:?})", stringify!(processor));
+        self.logs_pipes.push(Box::new(LogsPipe {
+            processor: Box::new(processor),
+        }));
+        self
+    }
+
     /// Adds a metrics component to the pipeline for performance tracking.
     ///
     /// This component collects and reports on pipeline metrics, providing insights into
@@ -896,6 +926,7 @@ impl PipelineBuilder {
             account_deletion_pipes: self.account_deletion_pipes,
             instruction_pipes: self.instruction_pipes,
             transaction_pipes: self.transaction_pipes,
+            logs_pipes: self.logs_pipes,
             shutdown_strategy: self.shutdown_strategy,
             metrics: Arc::new(self.metrics),
             metrics_flush_interval: self.metrics_flush_interval,

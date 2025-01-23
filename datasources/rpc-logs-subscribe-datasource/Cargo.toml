@@ -1,0 +1,18 @@
+[package]
+name = "carbon-rpc-logs-subscribe-datasource"
+description = "RPC Logs Subscribe Datasource"
+license = "MIT"
+version = "0.4.0"
+edition = "2021"
+
+[dependencies]
+solana-client = { workspace = true }
+solana-sdk = { workspace = true }
+
+carbon-core = { workspace = true }
+
+tokio = { version = "1.37.0", features = ["full"] }
+tokio-util = "0.7.12"
+async-trait = "0.1.83"
+log = "0.4.22"
+futures = "0.3.30"

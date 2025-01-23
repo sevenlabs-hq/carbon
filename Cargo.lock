@@ -1116,6 +1116,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-rpc-logs-subscribe-datasource"
+version = "0.4.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "futures",
+ "log",
+ "solana-client",
+ "solana-sdk",
+ "tokio",
+ "tokio-util",
+]
+
+[[package]]
 name = "carbon-rpc-program-subscribe-datasource"
 version = "0.4.0"
 dependencies = [

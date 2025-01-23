@@ -98,6 +98,7 @@ pub enum Update {
     Account(AccountUpdate),
     Transaction(TransactionUpdate),
     AccountDeletion(AccountDeletion),
+    Logs(LogsUpdate),
 }
 
 /// Enumerates the types of updates a datasource can provide.
@@ -112,6 +113,7 @@ pub enum UpdateType {
     AccountUpdate,
     Transaction,
     AccountDeletion,
+    Logs,
 }
 
 /// Represents an update to a Solana account, including its public key, data, and slot information.
@@ -163,4 +165,11 @@ pub struct TransactionUpdate {
     pub meta: solana_transaction_status::TransactionStatusMeta,
     pub is_vote: bool,
     pub slot: u64,
+}
+
+#[derive(Debug, Clone)]
+pub struct LogsUpdate {
+    pub signature: Signature,
+    pub slot: u64,
+    pub logs: Vec<String>,
 }

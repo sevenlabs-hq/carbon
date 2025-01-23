@@ -103,6 +103,7 @@ pub mod datasource;
 pub mod deserialize;
 pub mod error;
 pub mod instruction;
+pub mod logs;
 pub mod metrics;
 pub mod pipeline;
 pub mod processor;

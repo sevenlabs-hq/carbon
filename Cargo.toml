@@ -10,6 +10,7 @@ carbon-cli = { path = "crates/cli", version = "0.4.0" }
 
 carbon-rpc-program-subscribe-datasource = { path = "datasources/rpc-program-subscribe-datasource", version = "0.4.0" }
 carbon-rpc-block-subscribe-datasource = { path = "datasources/rpc-block-subscribe-datasource", version = "0.4.0" }
+carbon-rpc-logs-subscribe-datasource = { path = "datasources/rpc-logs-subscribe-datasource", version = "0.4.0" }
 carbon-helius-atlas-ws-datasource = { path = "datasources/helius-atlas-ws-datasource", version = "0.4.0" }
 carbon-rpc-transaction-crawler-datasource = { path = "datasources/rpc-transaction-crawler-datasource", version = "0.4.0" }
 carbon-yellowstone-grpc-datasource = { path = "datasources/yellowstone-grpc-datasource", version = "0.4.0" }
