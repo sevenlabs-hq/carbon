@@ -143,7 +143,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                             account_deletions_tracked.read().await;
                                                         if accounts.contains(&account_pubkey) {
                                                             let account_deletion = AccountDeletion {
-                                                                pubkey: account_pubkey.clone(),
+                                                                pubkey: account_pubkey,
                                                                 slot: account_update.slot,
                                                             };
                                                             if let Err(e) = sender.send(

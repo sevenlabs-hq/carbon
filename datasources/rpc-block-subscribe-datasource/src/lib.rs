@@ -115,7 +115,7 @@ impl Datasource for RpcBlockSubscribe {
                                             };
 
                                             let update = Update::Transaction(TransactionUpdate {
-                                                signature: decoded_transaction.get_signature().clone(),
+                                                signature: *decoded_transaction.get_signature(),
                                                 transaction: decoded_transaction.clone(),
                                                 meta: meta_needed,
                                                 is_vote: false,
