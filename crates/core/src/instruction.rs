@@ -18,7 +18,7 @@ use crate::{
 use async_trait::async_trait;
 use serde::Deserialize;
 use solana_sdk::{instruction::AccountMeta, pubkey::Pubkey};
-use std::sync::Arc;
+use std::{ops::Deref, sync::Arc};
 
 /// Metadata associated with a specific instruction, including transaction-level details.
 ///
@@ -36,6 +36,9 @@ pub struct InstructionMetadata {
     pub transaction_metadata: TransactionMetadata,
     pub stack_height: u32,
 }
+
+pub type InstructionsWithMetadata =
+    Vec<(InstructionMetadata, solana_sdk::instruction::Instruction)>;
 
 /// A decoded instruction containing program ID, data, and associated accounts.
 ///
@@ -179,4 +182,74 @@ pub struct NestedInstruction {
     pub metadata: InstructionMetadata,
     pub instruction: solana_sdk::instruction::Instruction,
     pub inner_instructions: Vec<NestedInstruction>,
+}
+
+#[derive(Debug)]
+pub struct NestedInstructions(pub Vec<NestedInstruction>);
+
+impl NestedInstructions {
+    pub fn iter(&self) -> std::slice::Iter<NestedInstruction> {
+        self.0.iter()
+    }
+}
+
+impl Deref for NestedInstructions {
+    type Target = [NestedInstruction];
+
+    fn deref(&self) -> &[NestedInstruction] {
+        &self.0[..]
+    }
+}
+
+/// Nests instructions based on stack height, producing a hierarchy of `NestedInstruction`.
+///
+/// This function organizes instructions into a nested structure, enabling hierarchical
+/// transaction analysis. Instructions are nested according to their stack height,
+/// forming a tree-like structure.
+///
+/// # Parameters
+///
+/// - `instructions`: A list of tuples containing `InstructionMetadata` and instructions.
+///
+/// # Returns
+///
+/// A vector of `NestedInstruction`, representing the instructions organized by stack depth.
+impl From<InstructionsWithMetadata> for NestedInstructions {
+    fn from(instructions: InstructionsWithMetadata) -> Self {
+        log::trace!("from(instructions: {:?})", instructions);
+        let mut result = Vec::<NestedInstruction>::new();
+        let mut stack = Vec::<(Vec<usize>, usize)>::new();
+
+        for (metadata, instruction) in instructions {
+            let nested_instruction = NestedInstruction {
+                metadata: metadata.clone(),
+                instruction,
+                inner_instructions: Vec::new(),
+            };
+
+            while let Some((_, parent_stack_height)) = stack.last() {
+                if metadata.stack_height as usize > *parent_stack_height {
+                    break;
+                }
+                stack.pop();
+            }
+
+            if let Some((path_to_parent, _)) = stack.last() {
+                let mut current_instructions = &mut result;
+                for &index in path_to_parent {
+                    current_instructions = &mut current_instructions[index].inner_instructions;
+                }
+                current_instructions.push(nested_instruction);
+                let mut new_path = path_to_parent.clone();
+                new_path.push(current_instructions.len() - 1);
+                stack.push((new_path, metadata.stack_height as usize));
+            } else {
+                result.push(nested_instruction);
+                let new_path = vec![result.len() - 1];
+                stack.push((new_path, metadata.stack_height as usize));
+            }
+        }
+
+        NestedInstructions(result)
+    }
 }

@@ -156,11 +156,8 @@ fn signature_fetcher(
     metrics: Arc<MetricsCollection>,
 ) -> JoinHandle<()> {
     let rpc_client = Arc::clone(&rpc_client);
-    let account = account;
-    let batch_limit = batch_limit;
     let filters = filters.clone();
     let signature_sender = signature_sender.clone();
-    let polling_interval = polling_interval;
 
     tokio::spawn(async move {
         let mut last_fetched_signature = filters.before_signature;
@@ -178,7 +175,6 @@ fn signature_fetcher(
                         until: filters.until_signature,
                         limit: Some(batch_limit),
                         commitment: Some(commitment.unwrap_or(CommitmentConfig::confirmed())),
-                        ..Default::default()
                     }
                 ) => {
                     match result {
@@ -265,7 +261,6 @@ fn transaction_fetcher(
                                         commitment.unwrap_or(CommitmentConfig::confirmed()),
                                     ),
                                     max_supported_transaction_version: Some(0),
-                                    ..Default::default()
                                 },
                             )
                             .await
@@ -312,7 +307,6 @@ fn transaction_fetcher(
         tokio::select! {
             _ = cancellation_token.cancelled() => {
                 log::info!("Cancelling RPC Crawler transaction fetcher...");
-                return;
             }
             _ = fetch_stream_task => {}
         }
