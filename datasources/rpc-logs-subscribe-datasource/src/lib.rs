@@ -9,20 +9,26 @@ use solana_client::{
     nonblocking::pubsub_client::PubsubClient,
     rpc_config::{RpcTransactionLogsConfig, RpcTransactionLogsFilter},
 };
-use solana_sdk::{pubkey::Pubkey, signature::Signature};
+use solana_sdk::signature::Signature;
 use std::{str::FromStr, sync::Arc};
 use tokio::sync::mpsc::UnboundedSender;
 use tokio_util::sync::CancellationToken;
 
 #[derive(Debug, Clone)]
 pub struct Filters {
-    pub pubkeys: Vec<Pubkey>,
-    pub config: RpcTransactionLogsConfig,
+    pub logs_filter: RpcTransactionLogsFilter,
+    pub logs_subscribe_config: RpcTransactionLogsConfig,
 }
 
 impl Filters {
-    pub fn new(pubkeys: Vec<Pubkey>, config: RpcTransactionLogsConfig) -> Self {
-        Filters { pubkeys, config }
+    pub fn new(
+        logs_filter: RpcTransactionLogsFilter,
+        logs_subscribe_config: RpcTransactionLogsConfig,
+    ) -> Self {
+        Self {
+            logs_filter,
+            logs_subscribe_config,
+        }
     }
 }
 
@@ -59,13 +65,8 @@ impl Datasource for RpcLogsSubscribe {
 
         tokio::spawn(async move {
             let sender_clone = sender.clone();
-            let program_mentions: Vec<String> =
-                filters.pubkeys.iter().map(|p| p.to_string()).collect();
             let (mut stream, _unsub) = match client
-                .logs_subscribe(
-                    RpcTransactionLogsFilter::Mentions(program_mentions),
-                    filters.config,
-                )
+                .logs_subscribe(filters.logs_filter, filters.logs_subscribe_config)
                 .await
             {
                 Ok(subscription) => subscription,
@@ -105,7 +106,8 @@ impl Datasource for RpcLogsSubscribe {
                                     .await
                                     .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
-                                metrics.increment_counter("logs_subscribe_logs_processed", 1)
+                                metrics
+                                    .increment_counter("logs_subscribe_logs_processed", 1)
                                     .await
                                     .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
