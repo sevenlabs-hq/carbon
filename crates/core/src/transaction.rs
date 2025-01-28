@@ -36,8 +36,8 @@ use crate::{
 use async_trait::async_trait;
 use serde::de::DeserializeOwned;
 use solana_sdk::{pubkey::Pubkey, signature::Signature};
+use std::convert::TryFrom;
 use std::sync::Arc;
-
 /// Contains metadata about a transaction, including its slot, signature, fee payer, transaction status metadata and the version transaction message.
 
 #[derive(Debug, Clone)]
@@ -47,6 +47,45 @@ pub struct TransactionMetadata {
     pub fee_payer: Pubkey,
     pub meta: solana_transaction_status::TransactionStatusMeta,
     pub message: solana_sdk::message::VersionedMessage,
+}
+
+/// Tries convert transaction update into the metadata.
+///
+/// This function retrieves core metadata such as the transaction's slot, signature, and
+/// fee payer from the transaction's message. It ensures that these details are available
+/// and ready for further processing.
+///
+/// # Parameters
+///
+/// - `transaction_update`: The `TransactionUpdate` containing the transaction details.
+///
+/// # Returns
+///
+/// A `CarbonResult<TransactionMetadata>` which includes the slot, signature, fee payer, transaction status metadata and the version transaction message.
+///
+/// # Errors
+///
+/// Returns an error if the fee payer cannot be extracted from the transaction's account keys.
+impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
+    type Error = crate::error::Error;
+
+    fn try_from(value: crate::datasource::TransactionUpdate) -> Result<Self, Self::Error> {
+        log::trace!(
+            "try_from(transaction_update: {:?})",
+            value
+        );
+        let accounts = value.transaction.message.static_account_keys();
+
+        Ok(TransactionMetadata {
+            slot: value.slot,
+            signature: value.signature,
+            fee_payer: *accounts
+                .first()
+                .ok_or(crate::error::Error::MissingFeePayer)?,
+            meta: value.meta.clone(),
+            message: value.transaction.message.clone(),
+        })
+    }
 }
 
 /// The input type for the transaction processor.

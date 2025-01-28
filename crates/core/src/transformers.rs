@@ -21,7 +21,7 @@ use crate::{
     collection::InstructionDecoderCollection,
     datasource::TransactionUpdate,
     error::{CarbonResult, Error},
-    instruction::{DecodedInstruction, InstructionMetadata, NestedInstruction},
+    instruction::{DecodedInstruction, InstructionMetadata},
     schema::ParsedInstruction,
     transaction::TransactionMetadata,
 };
@@ -41,41 +41,6 @@ use solana_transaction_status::{
     UiTransactionStatusMeta,
 };
 use std::{collections::HashSet, str::FromStr};
-
-/// Extracts the metadata from a transaction update.
-///
-/// This function retrieves core metadata such as the transaction's slot, signature, and
-/// fee payer from the transaction's message. It ensures that these details are available
-/// and ready for further processing.
-///
-/// # Parameters
-///
-/// - `transaction_update`: The `TransactionUpdate` containing the transaction details.
-///
-/// # Returns
-///
-/// A `CarbonResult<TransactionMetadata>` which includes the slot, signature, fee payer, transaction status metadata and the version transaction message.
-///
-/// # Errors
-///
-/// Returns an error if the fee payer cannot be extracted from the transaction's account keys.
-pub fn extract_transaction_metadata(
-    transaction_update: &TransactionUpdate,
-) -> CarbonResult<TransactionMetadata> {
-    log::trace!(
-        "extract_transaction_metadata(transaction_update: {:?})",
-        transaction_update
-    );
-    let accounts = transaction_update.transaction.message.static_account_keys();
-
-    Ok(TransactionMetadata {
-        slot: transaction_update.slot,
-        signature: transaction_update.signature,
-        fee_payer: *accounts.get(0).ok_or(Error::MissingFeePayer)?,
-        meta: transaction_update.meta.clone(),
-        message: transaction_update.transaction.message.clone(),
-    })
-}
 
 /// Extracts instructions with metadata from a transaction update.
 ///
@@ -343,59 +308,6 @@ pub fn extract_account_metas(
     }
 
     Ok(accounts)
-}
-
-/// Nests instructions based on stack height, producing a hierarchy of `NestedInstruction`.
-///
-/// This function organizes instructions into a nested structure, enabling hierarchical
-/// transaction analysis. Instructions are nested according to their stack height,
-/// forming a tree-like structure.
-///
-/// # Parameters
-///
-/// - `instructions`: A list of tuples containing `InstructionMetadata` and instructions.
-///
-/// # Returns
-///
-/// A vector of `NestedInstruction`, representing the instructions organized by stack depth.
-pub fn nest_instructions(
-    instructions: Vec<(InstructionMetadata, solana_sdk::instruction::Instruction)>,
-) -> Vec<NestedInstruction> {
-    log::trace!("nest_instructions(instructions: {:?})", instructions);
-    let mut result = Vec::<NestedInstruction>::new();
-    let mut stack = Vec::<(Vec<usize>, usize)>::new();
-
-    for (metadata, instruction) in instructions {
-        let nested_instruction = NestedInstruction {
-            metadata: metadata.clone(),
-            instruction,
-            inner_instructions: Vec::new(),
-        };
-
-        while let Some((_, parent_stack_height)) = stack.last() {
-            if metadata.stack_height as usize > *parent_stack_height {
-                break;
-            }
-            stack.pop();
-        }
-
-        if let Some((path_to_parent, _)) = stack.last() {
-            let mut current_instructions = &mut result;
-            for &index in path_to_parent {
-                current_instructions = &mut current_instructions[index].inner_instructions;
-            }
-            current_instructions.push(nested_instruction);
-            let mut new_path = path_to_parent.clone();
-            new_path.push(current_instructions.len() - 1);
-            stack.push((new_path, metadata.stack_height as usize));
-        } else {
-            result.push(nested_instruction);
-            let new_path = vec![result.len() - 1];
-            stack.push((new_path, metadata.stack_height as usize));
-        }
-    }
-
-    result
 }
 
 /// Unnests parsed instructions, producing an array of `(InstructionMetadata, DecodedInstruction<T>)` tuple
