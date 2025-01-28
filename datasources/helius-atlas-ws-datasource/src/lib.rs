@@ -48,7 +48,7 @@ impl Filters {
         transactions: Option<RpcTransactionsConfig>,
     ) -> CarbonResult<Self> {
         if accounts.is_empty() && transactions.is_none() {
-            return CarbonResult::Err(carbon_core::error::Error::Custom(format!("Error creating Filters for the Helius WebSocket: accounts and transactions can't be both empty")));
+            return CarbonResult::Err(carbon_core::error::Error::Custom("Error creating Filters for the Helius WebSocket: accounts and transactions can't be both empty".to_string()));
         };
 
         Ok(Filters {
@@ -96,9 +96,7 @@ impl Datasource for HeliusWebsocket {
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         if self.filters.accounts.is_empty() && self.filters.transactions.is_none() {
-            return Err(carbon_core::error::Error::FailedToConsumeDatasource(
-                "Filters can't be empty.".to_string(),
-            ));
+            return CarbonResult::Err(carbon_core::error::Error::Custom("Error creating Filters for the Helius WebSocket: accounts and transactions can't be both empty".to_string()));
         }
 
         let mut reconnection_attempts = 0;
@@ -429,7 +427,7 @@ impl Datasource for HeliusWebsocket {
                                                 inner_instructions: Some(
                                                     meta_original
                                                         .inner_instructions
-                                                        .unwrap_or_else(|| vec![])
+                                                        .unwrap_or_else(std::vec::Vec::new)
                                                         .iter()
                                                         .map(|inner_instruction_group| InnerInstructions {
                                                             index: inner_instruction_group.index,
@@ -474,11 +472,11 @@ impl Datasource for HeliusWebsocket {
                                                         })
                                                         .collect::<Vec<InnerInstructions>>(),
                                                 ),
-                                                log_messages: Some(meta_original.log_messages.unwrap_or_else(|| vec![])),
+                                                log_messages: Some(meta_original.log_messages.unwrap_or_else(std::vec::Vec::new)),
                                                 pre_token_balances: Some(
                                                     meta_original
                                                         .pre_token_balances
-                                                        .unwrap_or_else(|| vec![])
+                                                        .unwrap_or_else(std::vec::Vec::new)
                                                         .iter()
                                                         .filter_map(|transaction_token_balance| {
                                                             if let (
@@ -506,7 +504,7 @@ impl Datasource for HeliusWebsocket {
                                                 post_token_balances: Some(
                                                     meta_original
                                                         .post_token_balances
-                                                        .unwrap_or_else(|| vec![])
+                                                        .unwrap_or_else(std::vec::Vec::new)
                                                         .iter()
                                                         .filter_map(|transaction_token_balance| {
                                                             if let (
@@ -534,7 +532,7 @@ impl Datasource for HeliusWebsocket {
                                                 rewards: Some(
                                                     meta_original
                                                         .rewards
-                                                        .unwrap_or_else(|| vec![])
+                                                        .unwrap_or_else(std::vec::Vec::new)
                                                         .iter()
                                                         .map(|rewards| Reward {
                                                             pubkey: rewards.pubkey.clone(),
@@ -556,12 +554,12 @@ impl Datasource for HeliusWebsocket {
                                                         writable: loaded
                                                             .writable
                                                             .iter()
-                                                            .map(|w| Pubkey::from_str(&w).unwrap_or_default())
+                                                            .map(|w| Pubkey::from_str(w).unwrap_or_default())
                                                             .collect::<Vec<Pubkey>>(),
                                                         readonly: loaded
                                                             .readonly
                                                             .iter()
-                                                            .map(|r| Pubkey::from_str(&r).unwrap_or_default())
+                                                            .map(|r| Pubkey::from_str(r).unwrap_or_default())
                                                             .collect::<Vec<Pubkey>>(),
                                                     }
                                                 },
@@ -581,7 +579,7 @@ impl Datasource for HeliusWebsocket {
                                                 signature,
                                                 transaction: decoded_transaction.clone(),
                                                 meta: meta_needed,
-                                                is_vote: config.filter.vote.is_some_and(|is_vote| is_vote == true),
+                                                is_vote: config.filter.vote.is_some_and(|is_vote| is_vote),
                                                 slot: tx_event.slot,
                                             });
 
