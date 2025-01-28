@@ -46,8 +46,8 @@ use crate::{
     datasource::{AccountDeletion, Datasource, Update, UpdateType},
     error::{CarbonResult, Error},
     instruction::{
-        InstructionDecoder, InstructionMetadata, InstructionPipe, InstructionPipes,
-        InstructionProcessorInputType,
+        InstructionDecoder, InstructionPipe, InstructionPipes, InstructionProcessorInputType,
+        InstructionsWithMetadata, NestedInstructions,
     },
     metrics::{Metrics, MetricsCollection},
     processor::Processor,
@@ -57,7 +57,7 @@ use crate::{
 };
 use core::time;
 use serde::de::DeserializeOwned;
-use std::{sync::Arc, time::Instant};
+use std::{convert::TryInto, sync::Arc, time::Instant};
 use tokio_util::sync::CancellationToken;
 
 /// Defines the shutdown behavior for the pipeline.
@@ -477,23 +477,19 @@ impl Pipeline {
                     .await?;
             }
             Update::Transaction(transaction_update) => {
-                let transaction_metadata =
-                    transformers::extract_transaction_metadata(&transaction_update)?;
+                let transaction_metadata = &transaction_update.clone().try_into()?;
 
-                let instructions_with_metadata: Vec<(
-                    InstructionMetadata,
-                    solana_sdk::instruction::Instruction,
-                )> = transformers::extract_instructions_with_metadata(
-                    &transaction_metadata,
-                    &transaction_update,
-                )?;
+                let instructions_with_metadata: InstructionsWithMetadata =
+                    transformers::extract_instructions_with_metadata(
+                        transaction_metadata,
+                        &transaction_update,
+                    )?;
 
-                let nested_instructions =
-                    transformers::nest_instructions(instructions_with_metadata);
+                let nested_instructions: NestedInstructions = instructions_with_metadata.into();
 
                 for pipe in self.instruction_pipes.iter_mut() {
-                    for nested_instruction in nested_instructions.iter().cloned() {
-                        pipe.run(&nested_instruction, self.metrics.clone()).await?;
+                    for nested_instruction in nested_instructions.iter() {
+                        pipe.run(nested_instruction, self.metrics.clone()).await?;
                     }
                 }
 
