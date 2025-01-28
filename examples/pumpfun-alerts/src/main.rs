@@ -5,8 +5,8 @@ use carbon_core::{
 };
 use carbon_pumpfun_decoder::{instructions::PumpfunInstruction, PumpfunDecoder};
 use helius::types::{
-    RpcTransactionsConfig, TransactionCommitment, TransactionDetails, TransactionSubscribeFilter,
-    TransactionSubscribeOptions, UiEnhancedTransactionEncoding,
+    Cluster, RpcTransactionsConfig, TransactionCommitment, TransactionDetails,
+    TransactionSubscribeFilter, TransactionSubscribeOptions, UiEnhancedTransactionEncoding,
 };
 use solana_sdk::pubkey;
 use solana_sdk::{native_token::LAMPORTS_PER_SOL, pubkey::Pubkey};
@@ -43,6 +43,7 @@ pub async fn main() -> CarbonResult<()> {
             }),
         },
         Arc::new(RwLock::new(HashSet::new())),
+        Cluster::MainnetBeta,
     );
 
     carbon_core::pipeline::Pipeline::builder()
