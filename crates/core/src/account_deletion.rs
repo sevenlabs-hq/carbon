@@ -125,7 +125,6 @@ pub trait AccountDeletionPipes: Send + Sync {
     /// # Returns
     ///
     /// Returns a `CarbonResult<()>`, which is `Ok` on success, or an error if processing fails.
-
     async fn run(
         &mut self,
         account_deletion: AccountDeletion,
