@@ -202,6 +202,20 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-kamino-lend-decoder` | Kamino Lend Decoder | KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD |
 | `carbon-kamino-vault-decoder` | Kamino Vault Decoder | kvauTFR8qm1dhniz6pYuBZkuene3Hfrs1VQhVRgCNrr |
 
+## Future Roadmap
+
+- A docs website for Carbon.
+- More decoder crates for ecosystem programs. We plan to add support for the following programs:
+  - Raydium CPMM & CLMM - [IDL](https://github.com/raydium-io/raydium-idl)
+  - Openbook - [IDL](https://github.com/openbook-dex/openbook-v2/blob/master/idl/openbook_v2.json)
+  - Phoenix V1 - [IDL](https://github.com/Ellipsis-Labs/phoenix-v1/blob/master/idl/phoenix_v1.json)
+  - Drift - [Anchor Program](https://github.com/drift-labs/protocol-v2)
+  - Mango V4 - [Anchor Program](https://github.com/blockworks-foundation/mango-v4)
+  - Marginfi V2 - [Anchor Program](https://github.com/mrgnlabs/marginfi-v2)
+- More datasources for historical data indexing.
+- Scaffolding of an indexer with an exposed GraphQL API from an IDL using our CLI.
+- Support for Codama IDLs
+
 ## License
 
 We are under the [MIT license](https://github.com/sevenlabs-hq/carbon/tree/main/LICENSE.md).
