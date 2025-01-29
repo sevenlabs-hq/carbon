@@ -1104,6 +1104,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-raydium-clmm-decoder"
+version = "0.4.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-rpc-block-subscribe-datasource"
 version = "0.4.0"
 dependencies = [
@@ -3781,6 +3792,22 @@ dependencies = [
  "solana-transaction-status",
  "tokio",
  "yellowstone-grpc-proto 2.0.0 (git+https://github.com/rpcpool/yellowstone-grpc.git?rev=17faff5ac068c2f212c471acf67a8dcc1d7caff5)",
+]
+
+[[package]]
+name = "raydium-clmm-alerts-carbon-example"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "carbon-raydium-clmm-decoder",
+ "dotenv",
+ "env_logger 0.11.5",
+ "log",
+ "solana-client",
+ "solana-sdk",
+ "solana-transaction-status",
+ "tokio",
 ]
 
 [[package]]
