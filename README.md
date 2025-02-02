@@ -206,13 +206,7 @@ Decoders for most popular Solana programs are published and maintained:
 
 - A docs website for Carbon.
 - More decoder crates for ecosystem programs. We plan to add support for the following programs:
-  - Raydium CPMM & CLMM - [IDL](https://github.com/raydium-io/raydium-idl)
-  - Openbook - [IDL](https://github.com/openbook-dex/openbook-v2/blob/master/idl/openbook_v2.json)
-  - Phoenix V1 - [IDL](https://github.com/Ellipsis-Labs/phoenix-v1/blob/master/idl/phoenix_v1.json)
-  - Drift - [Anchor Program](https://github.com/drift-labs/protocol-v2)
-  - Mango V4 - [Anchor Program](https://github.com/blockworks-foundation/mango-v4)
-  - Marginfi V2 - [Anchor Program](https://github.com/mrgnlabs/marginfi-v2)
-- More datasources for historical data indexing.
+- New decoder crates for ecosystem programs.
 - Scaffolding of an indexer with an exposed GraphQL API from an IDL using our CLI.
 - Support for Codama IDLs
 
