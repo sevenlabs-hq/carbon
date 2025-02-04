@@ -8,7 +8,9 @@ carbon-core = { workspace = true }
 solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
+carbon-log-metrics = { workspace = true }
 carbon-raydium-clmm-decoder = { workspace = true }
+carbon-rpc-block-subscribe-datasource = { workspace = true }
 
 tokio = { version = "1.40.0", features = ["full"] }
 async-trait = "0.1.83"

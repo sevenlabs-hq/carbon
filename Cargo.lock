@@ -3800,7 +3800,9 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "carbon-core",
+ "carbon-log-metrics",
  "carbon-raydium-clmm-decoder",
+ "carbon-rpc-block-subscribe-datasource",
  "dotenv",
  "env_logger 0.11.5",
  "log",
