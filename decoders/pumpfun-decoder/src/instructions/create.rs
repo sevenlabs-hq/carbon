@@ -29,39 +29,28 @@ pub struct CreateInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Create {
     type ArrangedAccounts = CreateInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
-        let mint = accounts.get(0)?;
-        let mint_authority = accounts.get(1)?;
-        let bonding_curve = accounts.get(2)?;
-        let associated_bonding_curve = accounts.get(3)?;
-        let global = accounts.get(4)?;
-        let mpl_token_metadata = accounts.get(5)?;
-        let metadata = accounts.get(6)?;
-        let user = accounts.get(7)?;
-        let system_program = accounts.get(8)?;
-        let token_program = accounts.get(9)?;
-        let associated_token_program = accounts.get(10)?;
-        let rent = accounts.get(11)?;
-        let event_authority = accounts.get(12)?;
-        let program = accounts.get(13)?;
+        if accounts.len() != 14 {
+            return None;
+        }
 
         Some(CreateInstructionAccounts {
-            mint: mint.pubkey,
-            mint_authority: mint_authority.pubkey,
-            bonding_curve: bonding_curve.pubkey,
-            associated_bonding_curve: associated_bonding_curve.pubkey,
-            global: global.pubkey,
-            mpl_token_metadata: mpl_token_metadata.pubkey,
-            metadata: metadata.pubkey,
-            user: user.pubkey,
-            system_program: system_program.pubkey,
-            token_program: token_program.pubkey,
-            associated_token_program: associated_token_program.pubkey,
-            rent: rent.pubkey,
-            event_authority: event_authority.pubkey,
-            program: program.pubkey,
+            mint: accounts[0].pubkey,
+            mint_authority: accounts[1].pubkey,
+            bonding_curve: accounts[2].pubkey,
+            associated_bonding_curve: accounts[3].pubkey,
+            global: accounts[4].pubkey,
+            mpl_token_metadata: accounts[5].pubkey,
+            metadata: accounts[6].pubkey,
+            user: accounts[7].pubkey,
+            system_program: accounts[8].pubkey,
+            token_program: accounts[9].pubkey,
+            associated_token_program: accounts[10].pubkey,
+            rent: accounts[11].pubkey,
+            event_authority: accounts[12].pubkey,
+            program: accounts[13].pubkey,
         })
     }
 }
