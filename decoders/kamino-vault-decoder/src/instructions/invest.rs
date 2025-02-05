@@ -30,7 +30,7 @@ pub struct InvestInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Invest {
     type ArrangedAccounts = InvestInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let payer = accounts.get(0)?;
         let payer_token_account = accounts.get(1)?;
         let vault_state = accounts.get(2)?;

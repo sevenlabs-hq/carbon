@@ -13,7 +13,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpgradeNonceAccount {
     type ArrangedAccounts = UpgradeNonceAccountAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let nonce_account = accounts.get(0)?;
 

@@ -27,7 +27,7 @@ impl carbon_core::deserialize::ArrangeAccounts for TokenSwapV2 {
     type ArrangedAccounts = TokenSwapV2InstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let swap = accounts.get(1)?;

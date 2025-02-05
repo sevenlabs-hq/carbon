@@ -22,7 +22,7 @@ pub struct PreFlashFillOrderInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for PreFlashFillOrder {
     type ArrangedAccounts = PreFlashFillOrderInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let taker = accounts.get(0)?;
         let order = accounts.get(1)?;
         let input_mint_reserve = accounts.get(2)?;

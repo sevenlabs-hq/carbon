@@ -15,7 +15,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CloseNftList {
     type ArrangedAccounts = CloseNftListInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let nft_list = accounts.get(0)?;
         let payer = accounts.get(1)?;

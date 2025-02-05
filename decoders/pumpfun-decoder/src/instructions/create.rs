@@ -30,27 +30,29 @@ impl carbon_core::deserialize::ArrangeAccounts for Create {
     type ArrangedAccounts = CreateInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        if accounts.len() != 14 {
+        let [mint, mint_authority, bonding_curve, associated_bonding_curve, global, mpl_token_metadata, metadata, user, system_program, token_program, associated_token_program, rent, event_authority, program] =
+            accounts
+        else {
             return None;
-        }
+        };
 
         Some(CreateInstructionAccounts {
-            mint: accounts[0].pubkey,
-            mint_authority: accounts[1].pubkey,
-            bonding_curve: accounts[2].pubkey,
-            associated_bonding_curve: accounts[3].pubkey,
-            global: accounts[4].pubkey,
-            mpl_token_metadata: accounts[5].pubkey,
-            metadata: accounts[6].pubkey,
-            user: accounts[7].pubkey,
-            system_program: accounts[8].pubkey,
-            token_program: accounts[9].pubkey,
-            associated_token_program: accounts[10].pubkey,
-            rent: accounts[11].pubkey,
-            event_authority: accounts[12].pubkey,
-            program: accounts[13].pubkey,
+            mint: mint.pubkey,
+            mint_authority: mint_authority.pubkey,
+            bonding_curve: bonding_curve.pubkey,
+            associated_bonding_curve: associated_bonding_curve.pubkey,
+            global: global.pubkey,
+            mpl_token_metadata: mpl_token_metadata.pubkey,
+            metadata: metadata.pubkey,
+            user: user.pubkey,
+            system_program: system_program.pubkey,
+            token_program: token_program.pubkey,
+            associated_token_program: associated_token_program.pubkey,
+            rent: rent.pubkey,
+            event_authority: event_authority.pubkey,
+            program: program.pubkey,
         })
     }
 }

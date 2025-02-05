@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for AllocateWithSeed {
     type ArrangedAccounts = AllocateWithSeedAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let allocated_account = accounts.get(0)?;
         let base_account = accounts.get(1)?;

@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializePositionBundleWithM
     type ArrangedAccounts = InitializePositionBundleWithMetadataInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let position_bundle = accounts.get(0)?;
         let position_bundle_mint = accounts.get(1)?;

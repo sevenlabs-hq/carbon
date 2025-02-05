@@ -25,7 +25,7 @@ pub struct InitializeSharesMetadataInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitializeSharesMetadata {
     type ArrangedAccounts = InitializeSharesMetadataInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let admin_authority = accounts.get(0)?;
         let vault_state = accounts.get(1)?;
         let shares_mint = accounts.get(2)?;

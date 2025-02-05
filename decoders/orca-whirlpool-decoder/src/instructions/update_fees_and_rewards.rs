@@ -16,7 +16,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateFeesAndRewards {
     type ArrangedAccounts = UpdateFeesAndRewardsInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let whirlpool = accounts.get(0)?;
         let position = accounts.get(1)?;

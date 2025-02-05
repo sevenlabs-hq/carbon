@@ -16,7 +16,7 @@ pub struct CollectInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Collect {
     type ArrangedAccounts = CollectInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let recipient1 = accounts.get(0)?;
         let recipient2 = accounts.get(1)?;
 

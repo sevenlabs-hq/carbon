@@ -22,7 +22,7 @@ pub struct ApproveCollectionAuthorityInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for ApproveCollectionAuthority {
     type ArrangedAccounts = ApproveCollectionAuthorityInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let collection_authority_record = accounts.get(0)?;
         let new_collection_authority = accounts.get(1)?;
         let update_authority = accounts.get(2)?;

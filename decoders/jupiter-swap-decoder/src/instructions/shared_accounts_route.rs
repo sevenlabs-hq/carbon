@@ -33,7 +33,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SharedAccountsRoute {
     type ArrangedAccounts = SharedAccountsRouteInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let token_program = accounts.get(0)?;
         let program_authority = accounts.get(1)?;

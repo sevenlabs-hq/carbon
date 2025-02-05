@@ -30,7 +30,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RaydiumSwap {
     type ArrangedAccounts = RaydiumSwapInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let token_program = accounts.get(1)?;

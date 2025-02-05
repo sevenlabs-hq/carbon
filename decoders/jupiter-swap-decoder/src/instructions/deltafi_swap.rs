@@ -25,7 +25,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DeltafiSwap {
     type ArrangedAccounts = DeltafiSwapInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let market_config = accounts.get(1)?;

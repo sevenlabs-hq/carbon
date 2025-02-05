@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for TransferWithSeed {
     type ArrangedAccounts = TransferWithSeedAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let funding_account = accounts.get(0)?;
         let base_for_funding_account = accounts.get(1)?;

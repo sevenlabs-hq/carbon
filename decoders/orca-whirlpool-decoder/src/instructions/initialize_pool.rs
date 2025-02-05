@@ -28,7 +28,7 @@ pub struct InitializePoolInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitializePool {
     type ArrangedAccounts = InitializePoolInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let whirlpools_config = accounts.get(0)?;
         let token_mint_a = accounts.get(1)?;
         let token_mint_b = accounts.get(2)?;

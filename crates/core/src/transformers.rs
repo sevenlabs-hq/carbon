@@ -261,7 +261,7 @@ pub fn extract_instructions_with_metadata(
 ///
 /// # Returns
 ///
-/// A `CarbonResult<Vec<solana_sdk::instruction::AccountMeta>>` containing metadata
+/// A `CarbonResult<&[solana_sdk::instruction::AccountMeta]>` containing metadata
 /// for each account involved in the instruction.
 ///
 /// # Errors
@@ -276,7 +276,9 @@ pub fn extract_account_metas(
         compiled_instruction,
         message
     );
-    let mut accounts = Vec::<solana_sdk::instruction::AccountMeta>::new();
+    let mut accounts = Vec::<solana_sdk::instruction::AccountMeta>::with_capacity(
+        compiled_instruction.accounts.len(),
+    );
 
     for account_index in compiled_instruction.accounts.iter() {
         accounts.push(solana_sdk::instruction::AccountMeta {

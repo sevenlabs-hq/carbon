@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SaberAddDecimals {
     type ArrangedAccounts = SaberAddDecimalsInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let add_decimals_program = accounts.get(0)?;
         let wrapper = accounts.get(1)?;

@@ -24,7 +24,7 @@ pub struct CreateV1InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CreateV1 {
     type ArrangedAccounts = CreateV1InstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let asset = accounts.get(0)?;
         let collection = accounts.get(1)?;
         let authority = accounts.get(2)?;
