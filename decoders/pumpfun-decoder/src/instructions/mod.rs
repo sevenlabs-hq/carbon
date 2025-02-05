@@ -35,7 +35,7 @@ pub enum PumpfunInstruction {
     SetParamsEvent(set_params_event::SetParamsEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for PumpfunDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for PumpfunDecoder {
     type InstructionType = PumpfunInstruction;
 
     fn decode_instruction(

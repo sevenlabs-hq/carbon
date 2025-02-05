@@ -125,12 +125,13 @@ pub fn extract_instructions_with_metadata(
                                     .filter_map(|account_index| {
                                         let account_pubkey =
                                             legacy.account_keys.get(*account_index as usize)?;
-                                        return Some(AccountMeta {
+
+                                        Some(AccountMeta {
                                             pubkey: *account_pubkey,
                                             is_writable: legacy
                                                 .is_maybe_writable(*account_index as usize, None),
                                             is_signer: legacy.is_signer(*account_index as usize),
-                                        });
+                                        })
                                     })
                                     .collect();
 
@@ -153,18 +154,8 @@ pub fn extract_instructions_with_metadata(
         }
         VersionedMessage::V0(v0) => {
             let loaded_addresses = LoadedAddresses {
-                writable: meta
-                    .loaded_addresses
-                    .writable
-                    .iter()
-                    .map(|key| key.clone())
-                    .collect(),
-                readonly: meta
-                    .loaded_addresses
-                    .readonly
-                    .iter()
-                    .map(|key| key.clone())
-                    .collect(),
+                writable: meta.loaded_addresses.writable.to_vec(),
+                readonly: meta.loaded_addresses.readonly.to_vec(),
             };
 
             let loaded_message = LoadedMessage::new(
@@ -182,15 +173,15 @@ pub fn extract_instructions_with_metadata(
                 let accounts: Vec<AccountMeta> = compiled_instruction
                     .accounts
                     .iter()
-                    .filter_map(|account_index| {
+                    .map(|account_index| {
                         let account_pubkey =
                             loaded_message.account_keys().get(*account_index as usize);
 
-                        return Some(AccountMeta {
-                            pubkey: account_pubkey.map(|acc| acc.clone()).unwrap_or_default(),
+                        AccountMeta {
+                            pubkey: account_pubkey.copied().unwrap_or_default(),
                             is_writable: loaded_message.is_writable(*account_index as usize),
                             is_signer: loaded_message.is_signer(*account_index as usize),
-                        });
+                        }
                     })
                     .collect();
 
@@ -219,19 +210,20 @@ pub fn extract_instructions_with_metadata(
                                     .instruction
                                     .accounts
                                     .iter()
-                                    .filter_map(|account_index| {
+                                    .map(|account_index| {
                                         let account_pubkey = loaded_message
                                             .account_keys()
                                             .get(*account_index as usize)
-                                            .map(|pubkey| pubkey.clone())
+                                            .copied()
                                             .unwrap_or_default();
-                                        return Some(AccountMeta {
-                                            pubkey: account_pubkey.clone(),
+
+                                        AccountMeta {
+                                            pubkey: account_pubkey,
                                             is_writable: loaded_message
                                                 .is_writable(*account_index as usize),
                                             is_signer: loaded_message
                                                 .is_signer(*account_index as usize),
-                                        });
+                                        }
                                     })
                                     .collect();
 
@@ -275,7 +267,6 @@ pub fn extract_instructions_with_metadata(
 /// # Errors
 ///
 /// Returns an error if any referenced account key is missing from the transaction.
-
 pub fn extract_account_metas(
     compiled_instruction: &solana_sdk::instruction::CompiledInstruction,
     message: &solana_sdk::message::VersionedMessage,
@@ -299,8 +290,8 @@ pub fn extract_account_metas(
                 Some(
                     &message
                         .static_account_keys()
-                        .into_iter()
-                        .map(|pubkey| pubkey.clone())
+                        .iter()
+                        .copied()
                         .collect::<HashSet<_>>(),
                 ),
             ),
@@ -346,7 +337,7 @@ pub fn unnest_parsed_instructions<T: InstructionDecoderCollection>(
         ));
         result.extend(unnest_parsed_instructions(
             transaction_metadata.clone(),
-            *parsed_instruction.inner_instructions,
+            parsed_instruction.inner_instructions,
             stack_height + 1,
         ));
     }
@@ -372,7 +363,6 @@ pub fn unnest_parsed_instructions<T: InstructionDecoderCollection>(
 ///
 /// This function handles various metadata fields, including inner instructions, token
 /// balances, and rewards, providing a complete view of the transaction's effects.
-
 pub fn transaction_metadata_from_original_meta(
     meta_original: UiTransactionStatusMeta,
 ) -> CarbonResult<TransactionStatusMeta> {
@@ -388,7 +378,7 @@ pub fn transaction_metadata_from_original_meta(
         inner_instructions: Some(
             meta_original
                 .inner_instructions
-                .unwrap_or_else(|| vec![])
+                .unwrap_or_else(std::vec::Vec::new)
                 .iter()
                 .map(|inner_instruction_group| InnerInstructions {
                     index: inner_instruction_group.index,
@@ -426,11 +416,15 @@ pub fn transaction_metadata_from_original_meta(
                 })
                 .collect::<Vec<InnerInstructions>>(),
         ),
-        log_messages: Some(meta_original.log_messages.unwrap_or_else(|| vec![])),
+        log_messages: Some(
+            meta_original
+                .log_messages
+                .unwrap_or_else(std::vec::Vec::new),
+        ),
         pre_token_balances: Some(
             meta_original
                 .pre_token_balances
-                .unwrap_or_else(|| vec![])
+                .unwrap_or_else(std::vec::Vec::new)
                 .iter()
                 .filter_map(|transaction_token_balance| {
                     if let (OptionSerializer::Some(owner), OptionSerializer::Some(program_id)) = (
@@ -453,7 +447,7 @@ pub fn transaction_metadata_from_original_meta(
         post_token_balances: Some(
             meta_original
                 .post_token_balances
-                .unwrap_or_else(|| vec![])
+                .unwrap_or_else(std::vec::Vec::new)
                 .iter()
                 .filter_map(|transaction_token_balance| {
                     if let (OptionSerializer::Some(owner), OptionSerializer::Some(program_id)) = (
@@ -476,7 +470,7 @@ pub fn transaction_metadata_from_original_meta(
         rewards: Some(
             meta_original
                 .rewards
-                .unwrap_or_else(|| vec![])
+                .unwrap_or_else(std::vec::Vec::new)
                 .iter()
                 .map(|rewards| Reward {
                     pubkey: rewards.pubkey.clone(),
@@ -498,12 +492,12 @@ pub fn transaction_metadata_from_original_meta(
                 writable: loaded
                     .writable
                     .iter()
-                    .map(|w| Pubkey::from_str(&w).unwrap_or_default())
+                    .map(|w| Pubkey::from_str(w).unwrap_or_default())
                     .collect::<Vec<Pubkey>>(),
                 readonly: loaded
                     .readonly
                     .iter()
-                    .map(|r| Pubkey::from_str(&r).unwrap_or_default())
+                    .map(|r| Pubkey::from_str(r).unwrap_or_default())
                     .collect::<Vec<Pubkey>>(),
             }
         },

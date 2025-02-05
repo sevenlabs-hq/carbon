@@ -14,17 +14,17 @@ pub struct InitializeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Initialize {
     type ArrangedAccounts = InitializeInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
-        let global = accounts.get(0)?;
-        let user = accounts.get(1)?;
-        let system_program = accounts.get(2)?;
+        if accounts.len() != 3 {
+            return None;
+        }
 
         Some(InitializeInstructionAccounts {
-            global: global.pubkey,
-            user: user.pubkey,
-            system_program: system_program.pubkey,
+            global: accounts[0].pubkey,
+            user: accounts[1].pubkey,
+            system_program: accounts[2].pubkey,
         })
     }
 }
