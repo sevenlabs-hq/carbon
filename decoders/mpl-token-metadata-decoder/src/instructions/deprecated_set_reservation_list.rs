@@ -17,7 +17,7 @@ pub struct DeprecatedSetReservationListInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for DeprecatedSetReservationList {
     type ArrangedAccounts = DeprecatedSetReservationListInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let master_edition = accounts.get(0)?;
         let reservation_list = accounts.get(1)?;
         let resource = accounts.get(2)?;

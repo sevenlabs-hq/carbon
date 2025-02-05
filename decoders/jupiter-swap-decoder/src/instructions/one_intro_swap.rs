@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for OneIntroSwap {
     type ArrangedAccounts = OneIntroSwapInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let metadata_state = accounts.get(1)?;

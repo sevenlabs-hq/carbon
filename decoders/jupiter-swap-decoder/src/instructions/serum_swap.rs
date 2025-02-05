@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SerumSwap {
     type ArrangedAccounts = SerumSwapInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let market = accounts.get(0)?;
         let authority = accounts.get(1)?;

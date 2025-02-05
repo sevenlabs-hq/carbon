@@ -27,25 +27,27 @@ impl carbon_core::deserialize::ArrangeAccounts for Sell {
     type ArrangedAccounts = SellInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        if accounts.len() != 12 {
+        let [global, fee_recipient, mint, bonding_curve, associated_bonding_curve, associated_user, user, system_program, associated_token_program, token_program, event_authority, program] =
+            accounts
+        else {
             return None;
-        }
+        };
 
         Some(SellInstructionAccounts {
-            global: accounts[0].pubkey,
-            fee_recipient: accounts[1].pubkey,
-            mint: accounts[2].pubkey,
-            bonding_curve: accounts[3].pubkey,
-            associated_bonding_curve: accounts[4].pubkey,
-            associated_user: accounts[5].pubkey,
-            user: accounts[6].pubkey,
-            system_program: accounts[7].pubkey,
-            associated_token_program: accounts[8].pubkey,
-            token_program: accounts[9].pubkey,
-            event_authority: accounts[10].pubkey,
-            program: accounts[11].pubkey,
+            global: global.pubkey,
+            fee_recipient: fee_recipient.pubkey,
+            mint: mint.pubkey,
+            bonding_curve: bonding_curve.pubkey,
+            associated_bonding_curve: associated_bonding_curve.pubkey,
+            associated_user: associated_user.pubkey,
+            user: user.pubkey,
+            system_program: system_program.pubkey,
+            associated_token_program: associated_token_program.pubkey,
+            token_program: token_program.pubkey,
+            event_authority: event_authority.pubkey,
+            program: program.pubkey,
         })
     }
 }

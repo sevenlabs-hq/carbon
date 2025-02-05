@@ -24,18 +24,18 @@ impl carbon_core::deserialize::ArrangeAccounts for SetParams {
     type ArrangedAccounts = SetParamsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        if accounts.len() != 5 {
+        let [global, user, system_program, event_authority, program] = accounts else {
             return None;
-        }
+        };
 
         Some(SetParamsInstructionAccounts {
-            global: accounts[0].pubkey,
-            user: accounts[1].pubkey,
-            system_program: accounts[2].pubkey,
-            event_authority: accounts[3].pubkey,
-            program: accounts[4].pubkey,
+            global: global.pubkey,
+            user: user.pubkey,
+            system_program: system_program.pubkey,
+            event_authority: event_authority.pubkey,
+            program: program.pubkey,
         })
     }
 }

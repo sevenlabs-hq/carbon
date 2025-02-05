@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateAccountWithSeed {
     type ArrangedAccounts = CreateAccountWithSeedAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let funding_account = accounts.get(0)?;
         let created_account = accounts.get(1)?;

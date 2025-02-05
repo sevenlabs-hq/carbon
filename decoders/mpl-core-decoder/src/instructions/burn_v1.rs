@@ -22,7 +22,7 @@ pub struct BurnV1InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for BurnV1 {
     type ArrangedAccounts = BurnV1InstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let asset = accounts.get(0)?;
         let collection = accounts.get(1)?;
         let payer = accounts.get(2)?;

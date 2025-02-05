@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawNonceAccount {
     type ArrangedAccounts = WithdrawNonceAccountAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let nonce_account = accounts.get(0)?;
         let recipient_account = accounts.get(1)?;

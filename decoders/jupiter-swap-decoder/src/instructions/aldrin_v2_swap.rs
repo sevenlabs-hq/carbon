@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for AldrinV2Swap {
     type ArrangedAccounts = AldrinV2SwapInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let pool = accounts.get(1)?;

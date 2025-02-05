@@ -23,7 +23,7 @@ pub struct RevokeUseAuthorityInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for RevokeUseAuthority {
     type ArrangedAccounts = RevokeUseAuthorityInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let use_authority_record = accounts.get(0)?;
         let owner = accounts.get(1)?;
         let user = accounts.get(2)?;

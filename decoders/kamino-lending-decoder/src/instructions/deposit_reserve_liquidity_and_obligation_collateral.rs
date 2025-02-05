@@ -29,7 +29,7 @@ pub struct DepositReserveLiquidityAndObligationCollateralInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for DepositReserveLiquidityAndObligationCollateral {
     type ArrangedAccounts = DepositReserveLiquidityAndObligationCollateralInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let owner = accounts.get(0)?;
         let obligation = accounts.get(1)?;
         let lending_market = accounts.get(2)?;

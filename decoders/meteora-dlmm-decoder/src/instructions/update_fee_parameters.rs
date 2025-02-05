@@ -1,12 +1,11 @@
-use super::super::types::*;
 
 use carbon_core::{borsh, CarbonDeserialize};
+use super::super::types::*;
 
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 #[carbon(discriminator = "0x8080d05bf6351fb0")]
-pub struct UpdateFeeParameters {
+pub struct UpdateFeeParameters{
     pub fee_parameter: FeeParameter,
 }
 
@@ -20,9 +19,7 @@ pub struct UpdateFeeParametersInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UpdateFeeParameters {
     type ArrangedAccounts = UpdateFeeParametersInstructionAccounts;
 
-    fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
-    ) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let lb_pair = accounts.get(0)?;
         let admin = accounts.get(1)?;
         let event_authority = accounts.get(2)?;

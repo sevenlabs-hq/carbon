@@ -28,7 +28,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CloneSwap {
     type ArrangedAccounts = CloneSwapInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let user = accounts.get(1)?;

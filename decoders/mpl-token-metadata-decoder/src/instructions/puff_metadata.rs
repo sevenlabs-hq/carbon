@@ -15,7 +15,7 @@ pub struct PuffMetadataInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for PuffMetadata {
     type ArrangedAccounts = PuffMetadataInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let metadata = accounts.get(0)?;
 
         Some(PuffMetadataInstructionAccounts {

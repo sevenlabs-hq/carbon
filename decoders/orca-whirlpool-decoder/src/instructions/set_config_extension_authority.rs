@@ -16,7 +16,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetConfigExtensionAuthority {
     type ArrangedAccounts = SetConfigExtensionAuthorityInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let whirlpools_config = accounts.get(0)?;
         let whirlpools_config_extension = accounts.get(1)?;

@@ -28,7 +28,7 @@ impl carbon_core::deserialize::ArrangeAccounts for WhirlpoolSwapV2 {
     type ArrangedAccounts = WhirlpoolSwapV2InstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let token_program_a = accounts.get(1)?;

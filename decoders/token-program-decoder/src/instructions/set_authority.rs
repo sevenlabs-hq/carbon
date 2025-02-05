@@ -18,8 +18,8 @@ pub struct SetAuthorityAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SetAuthority {
     type ArrangedAccounts = SetAuthorityAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let account = accounts.get(0)?;
         let authority = accounts.get(1)?;

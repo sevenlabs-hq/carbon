@@ -19,7 +19,7 @@ pub struct CloseAccountsInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CloseAccounts {
     type ArrangedAccounts = CloseAccountsInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let metadata = accounts.get(0)?;
         let edition = accounts.get(1)?;
         let mint = accounts.get(2)?;

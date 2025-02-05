@@ -33,7 +33,7 @@ pub struct SharedAccountsRouteWithTokenLedgerInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SharedAccountsRouteWithTokenLedger {
     type ArrangedAccounts = SharedAccountsRouteWithTokenLedgerInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let token_program = accounts.get(0)?;
         let program_authority = accounts.get(1)?;
         let user_transfer_authority = accounts.get(2)?;

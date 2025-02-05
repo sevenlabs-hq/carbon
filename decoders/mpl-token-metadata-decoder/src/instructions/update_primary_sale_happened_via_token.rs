@@ -17,7 +17,7 @@ pub struct UpdatePrimarySaleHappenedViaTokenInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UpdatePrimarySaleHappenedViaToken {
     type ArrangedAccounts = UpdatePrimarySaleHappenedViaTokenInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let metadata = accounts.get(0)?;
         let owner = accounts.get(1)?;
         let token = accounts.get(2)?;

@@ -21,7 +21,7 @@ pub struct RedeemFeesInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for RedeemFees {
     type ArrangedAccounts = RedeemFeesInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let reserve = accounts.get(0)?;
         let reserve_liquidity_mint = accounts.get(1)?;
         let reserve_liquidity_fee_receiver = accounts.get(2)?;

@@ -1,5 +1,4 @@
 use super::super::types::*;
-
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
@@ -32,8 +31,8 @@ pub struct AddLiquidityByStrategyInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for AddLiquidityByStrategy {
     type ArrangedAccounts = AddLiquidityByStrategyInstructionAccounts;
 
-    fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let position = accounts.get(0)?;
         let lb_pair = accounts.get(1)?;

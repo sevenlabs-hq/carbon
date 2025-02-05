@@ -29,7 +29,7 @@ impl carbon_core::deserialize::ArrangeAccounts for OpenBookV2Swap {
     type ArrangedAccounts = OpenBookV2SwapInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let signer = accounts.get(1)?;

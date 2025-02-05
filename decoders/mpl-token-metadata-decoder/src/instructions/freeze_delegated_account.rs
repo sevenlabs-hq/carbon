@@ -19,7 +19,7 @@ pub struct FreezeDelegatedAccountInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for FreezeDelegatedAccount {
     type ArrangedAccounts = FreezeDelegatedAccountInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let delegate = accounts.get(0)?;
         let token_account = accounts.get(1)?;
         let edition = accounts.get(2)?;

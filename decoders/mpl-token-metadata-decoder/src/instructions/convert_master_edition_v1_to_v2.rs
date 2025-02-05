@@ -17,7 +17,7 @@ pub struct ConvertMasterEditionV1ToV2InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for ConvertMasterEditionV1ToV2 {
     type ArrangedAccounts = ConvertMasterEditionV1ToV2InstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let master_edition = accounts.get(0)?;
         let one_time_auth = accounts.get(1)?;
         let printing_mint = accounts.get(2)?;

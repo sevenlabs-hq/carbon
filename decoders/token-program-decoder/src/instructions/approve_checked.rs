@@ -19,8 +19,8 @@ pub struct ApproveCheckedAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for ApproveChecked {
     type ArrangedAccounts = ApproveCheckedAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let source = accounts.get(0)?;
         let mint = accounts.get(1)?;
