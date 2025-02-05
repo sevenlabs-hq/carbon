@@ -16,7 +16,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Transfer {
     type ArrangedAccounts = TransferAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let funding_account = accounts.get(0)?;
         let recipient_account = accounts.get(1)?;

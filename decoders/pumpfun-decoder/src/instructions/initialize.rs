@@ -15,16 +15,16 @@ impl carbon_core::deserialize::ArrangeAccounts for Initialize {
     type ArrangedAccounts = InitializeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        if accounts.len() != 3 {
+        let [global, user, system_program] = accounts else {
             return None;
-        }
+        };
 
         Some(InitializeInstructionAccounts {
-            global: accounts[0].pubkey,
-            user: accounts[1].pubkey,
-            system_program: accounts[2].pubkey,
+            global: global.pubkey,
+            user: user.pubkey,
+            system_program: system_program.pubkey,
         })
     }
 }

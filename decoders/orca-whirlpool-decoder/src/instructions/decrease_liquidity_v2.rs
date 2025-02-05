@@ -33,7 +33,7 @@ pub struct DecreaseLiquidityV2InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for DecreaseLiquidityV2 {
     type ArrangedAccounts = DecreaseLiquidityV2InstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let whirlpool = accounts.get(0)?;
         let token_program_a = accounts.get(1)?;
         let token_program_b = accounts.get(2)?;

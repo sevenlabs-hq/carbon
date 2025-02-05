@@ -21,7 +21,7 @@ pub struct InitUserMetadataInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitUserMetadata {
     type ArrangedAccounts = InitUserMetadataInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let owner = accounts.get(0)?;
         let fee_payer = accounts.get(1)?;
         let user_metadata = accounts.get(2)?;

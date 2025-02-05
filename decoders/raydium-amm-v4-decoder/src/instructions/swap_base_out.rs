@@ -34,7 +34,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SwapBaseOut {
     type ArrangedAccounts = SwapBaseOutInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         match accounts.len() {
             17 => {
@@ -76,7 +76,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SwapBaseOut {
                     user_destination_token_account: user_destination_token_account.pubkey,
                     user_source_owner: user_source_owner.pubkey,
                 })
-            },
+            }
             18 => {
                 let spl_token_id = accounts.get(0)?;
                 let amm_id = accounts.get(1)?;

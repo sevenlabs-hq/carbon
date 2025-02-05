@@ -1,5 +1,4 @@
 use super::super::types::*;
-
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
@@ -30,8 +29,8 @@ pub struct InitializePermissionLbPairInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitializePermissionLbPair {
     type ArrangedAccounts = InitializePermissionLbPairInstructionAccounts;
 
-    fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let base = accounts.get(0)?;
         let lb_pair = accounts.get(1)?;

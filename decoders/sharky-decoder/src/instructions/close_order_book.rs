@@ -14,8 +14,8 @@ pub struct CloseOrderBookInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CloseOrderBook {
     type ArrangedAccounts = CloseOrderBookInstructionAccounts;
 
-    fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let order_book = accounts.get(0)?;
         let payer = accounts.get(1)?;

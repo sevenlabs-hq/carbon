@@ -22,7 +22,7 @@ pub struct UpdateSharesMetadataInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UpdateSharesMetadata {
     type ArrangedAccounts = UpdateSharesMetadataInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let admin_authority = accounts.get(0)?;
         let vault_state = accounts.get(1)?;
         let base_vault_authority = accounts.get(2)?;

@@ -30,7 +30,7 @@ impl carbon_core::deserialize::ArrangeAccounts for PerpsV2Swap {
     type ArrangedAccounts = PerpsV2SwapInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let swap_program = accounts.get(0)?;
         let owner = accounts.get(1)?;

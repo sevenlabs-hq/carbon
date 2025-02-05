@@ -1,5 +1,4 @@
 use carbon_core::{borsh, CarbonDeserialize};
-
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -19,8 +18,8 @@ pub struct IncreaseOracleLengthInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for IncreaseOracleLength {
     type ArrangedAccounts = IncreaseOracleLengthInstructionAccounts;
 
-    fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let oracle = accounts.get(0)?;
         let funder = accounts.get(1)?;

@@ -24,25 +24,27 @@ impl carbon_core::deserialize::ArrangeAccounts for Withdraw {
     type ArrangedAccounts = WithdrawInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        if accounts.len() != 12 {
+        let [global, last_withdraw, mint, bonding_curve, associated_bonding_curve, associated_user, user, system_program, token_program, rent, event_authority, program] =
+            accounts
+        else {
             return None;
-        }
+        };
 
         Some(WithdrawInstructionAccounts {
-            global: accounts[0].pubkey,
-            last_withdraw: accounts[1].pubkey,
-            mint: accounts[2].pubkey,
-            bonding_curve: accounts[3].pubkey,
-            associated_bonding_curve: accounts[4].pubkey,
-            associated_user: accounts[5].pubkey,
-            user: accounts[6].pubkey,
-            system_program: accounts[7].pubkey,
-            token_program: accounts[8].pubkey,
-            rent: accounts[9].pubkey,
-            event_authority: accounts[10].pubkey,
-            program: accounts[11].pubkey,
+            global: global.pubkey,
+            last_withdraw: last_withdraw.pubkey,
+            mint: mint.pubkey,
+            bonding_curve: bonding_curve.pubkey,
+            associated_bonding_curve: associated_bonding_curve.pubkey,
+            associated_user: associated_user.pubkey,
+            user: user.pubkey,
+            system_program: system_program.pubkey,
+            token_program: token_program.pubkey,
+            rent: rent.pubkey,
+            event_authority: event_authority.pubkey,
+            program: program.pubkey,
         })
     }
 }

@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateOpenOrders {
     type ArrangedAccounts = CreateOpenOrdersInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let open_orders = accounts.get(0)?;
         let payer = accounts.get(1)?;

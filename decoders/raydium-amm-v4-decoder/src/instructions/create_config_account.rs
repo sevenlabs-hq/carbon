@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateConfigAccount {
     type ArrangedAccounts = CreateConfigAccountInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let admin = accounts.get(0)?;
         let amm_config = accounts.get(1)?;

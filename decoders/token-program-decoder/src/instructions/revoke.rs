@@ -15,7 +15,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Revoke {
     type ArrangedAccounts = RevokeAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let source = accounts.get(0)?;
         let owner = accounts.get(1)?;

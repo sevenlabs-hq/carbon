@@ -25,7 +25,7 @@ pub struct CreateMasterEditionV3InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CreateMasterEditionV3 {
     type ArrangedAccounts = CreateMasterEditionV3InstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let edition = accounts.get(0)?;
         let mint = accounts.get(1)?;
         let update_authority = accounts.get(2)?;

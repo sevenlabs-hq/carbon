@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeMultisig {
     type ArrangedAccounts = InitializeMultisigAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let account = accounts.get(0)?;
         let rent = accounts.get(1)?;

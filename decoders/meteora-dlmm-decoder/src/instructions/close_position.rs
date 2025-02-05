@@ -1,5 +1,4 @@
 use carbon_core::{borsh, CarbonDeserialize};
-
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -20,8 +19,8 @@ pub struct ClosePositionInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for ClosePosition {
     type ArrangedAccounts = ClosePositionInstructionAccounts;
 
-    fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let position = accounts.get(0)?;
         let lb_pair = accounts.get(1)?;

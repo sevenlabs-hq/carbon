@@ -21,7 +21,7 @@ pub struct InitReferrerStateAndShortUrlInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitReferrerStateAndShortUrl {
     type ArrangedAccounts = InitReferrerStateAndShortUrlInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let referrer = accounts.get(0)?;
         let referrer_state = accounts.get(1)?;
         let referrer_short_url = accounts.get(2)?;

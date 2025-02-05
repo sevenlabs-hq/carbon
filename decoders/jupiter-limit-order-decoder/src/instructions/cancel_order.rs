@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CancelOrder {
     type ArrangedAccounts = CancelOrderInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let order = accounts.get(0)?;
         let reserve = accounts.get(1)?;

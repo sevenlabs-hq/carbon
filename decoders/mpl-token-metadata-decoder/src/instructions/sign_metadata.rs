@@ -16,7 +16,7 @@ pub struct SignMetadataInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SignMetadata {
     type ArrangedAccounts = SignMetadataInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let metadata = accounts.get(0)?;
         let creator = accounts.get(1)?;
 

@@ -46,7 +46,7 @@ pub struct TwoHopSwapV2InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for TwoHopSwapV2 {
     type ArrangedAccounts = TwoHopSwapV2InstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let whirlpool_one = accounts.get(0)?;
         let whirlpool_two = accounts.get(1)?;
         let token_mint_input = accounts.get(2)?;

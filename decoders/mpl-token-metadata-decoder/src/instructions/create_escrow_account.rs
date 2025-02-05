@@ -23,7 +23,7 @@ pub struct CreateEscrowAccountInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CreateEscrowAccount {
     type ArrangedAccounts = CreateEscrowAccountInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let escrow = accounts.get(0)?;
         let metadata = accounts.get(1)?;
         let mint = accounts.get(2)?;

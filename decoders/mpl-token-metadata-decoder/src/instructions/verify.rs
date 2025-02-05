@@ -24,7 +24,7 @@ pub struct VerifyInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Verify {
     type ArrangedAccounts = VerifyInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let authority = accounts.get(0)?;
         let delegate_record = accounts.get(1)?;
         let metadata = accounts.get(2)?;

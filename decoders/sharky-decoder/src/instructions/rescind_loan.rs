@@ -20,8 +20,8 @@ pub struct RescindLoanInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for RescindLoan {
     type ArrangedAccounts = RescindLoanInstructionAccounts;
 
-    fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let loan = accounts.get(0)?;
         let lender_value_token_account = accounts.get(1)?;
