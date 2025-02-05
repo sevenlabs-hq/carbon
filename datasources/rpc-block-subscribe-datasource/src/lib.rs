@@ -143,13 +143,13 @@ impl Datasource for RpcBlockSubscribe {
                                                 continue;
                                             };
 
-                                            let update = Update::Transaction(TransactionUpdate {
+                                            let update = Update::Transaction(Box::new(TransactionUpdate {
                                                 signature: *decoded_transaction.get_signature(),
                                                 transaction: decoded_transaction.clone(),
                                                 meta: meta_needed,
                                                 is_vote: false,
                                                 slot,
-                                            });
+                                            }));
 
                                             metrics
                                                 .record_histogram(

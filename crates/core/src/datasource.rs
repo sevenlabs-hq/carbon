@@ -96,7 +96,7 @@ pub trait Datasource: Send + Sync {
 #[derive(Debug, Clone)]
 pub enum Update {
     Account(AccountUpdate),
-    Transaction(TransactionUpdate),
+    Transaction(Box<TransactionUpdate>),
     AccountDeletion(AccountDeletion),
 }
 
