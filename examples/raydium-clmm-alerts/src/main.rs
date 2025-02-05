@@ -8,7 +8,7 @@ use carbon_core::{
 use carbon_log_metrics::LogMetrics;
 use carbon_raydium_clmm_decoder::{instructions::RaydiumClmmInstruction, RaydiumClmmDecoder};
 use carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe};
-use solana_client::rpc_config::RpcBlockSubscribeFilter;
+use solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter};
 use solana_sdk::{pubkey, pubkey::Pubkey};
 use std::{env, sync::Arc};
 
@@ -21,12 +21,15 @@ pub async fn main() -> CarbonResult<()> {
 
     let filters = Filters::new(
         RpcBlockSubscribeFilter::MentionsAccountOrProgram(RAYDIUM_CLMM_PROGRAM_ID.to_string()),
-        None,
+        Some(RpcBlockSubscribeConfig {
+            max_supported_transaction_version: Some(0),
+            ..RpcBlockSubscribeConfig::default()
+        }),
     );
 
     let rpc_ws_url =
         env::var("RPC_WS_URL").unwrap_or("wss://api.mainnet-beta.solana.com/".to_string());
-        
+
     log::info!("Starting with RPC: {}", rpc_ws_url);
     let block_subscribe = RpcBlockSubscribe::new(rpc_ws_url, filters);
 
