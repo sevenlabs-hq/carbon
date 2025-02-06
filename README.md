@@ -150,7 +150,7 @@ impl Processor for MyAccountProcessor {
 
 ### Implementing a Datasource
 
-For most use cases, we recommend chosing from one of our datasource crates:
+For most use cases, we recommend choosing from one of our datasource crates:
 | Crate Name | Description | Affordability | Ease of Setup |
 |------------|-------------|---------------|----------------|
 | `carbon-block-subscribe` | Uses `blockSubscribe` with Solana WS JSON RPC to listen to real-time on-chain transactions | Cheap (just RPC) | Easy |
