@@ -2,7 +2,6 @@ use crate::{
     accounts::{
         legacy_process_accounts, process_accounts, AccountsModTemplate, AccountsStructTemplate,
     },
-    commands::ParseOptions,
     events::{legacy_process_events, process_events, EventsStructTemplate},
     instructions::{
         legacy_process_instructions, process_instructions, InstructionsModTemplate,
@@ -16,9 +15,9 @@ use askama::Template;
 use heck::{ToKebabCase, ToSnakeCase, ToSnekCase, ToUpperCamelCase};
 use std::fs::{self};
 
-pub fn parse(options: ParseOptions) -> Result<()> {
+pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
     let (accounts_data, instructions_data, types_data, events_data, program_name) =
-        match read_idl(&options.idl) {
+        match read_idl(&path) {
             Ok(idl) => {
                 let accounts_data = process_accounts(&idl);
                 let instructions_data = process_instructions(&idl);
@@ -34,7 +33,7 @@ pub fn parse(options: ParseOptions) -> Result<()> {
                     program_name,
                 )
             }
-            Err(_legacy_idl_err) => match legacy_read_idl(&options.idl) {
+            Err(_legacy_idl_err) => match legacy_read_idl(&path) {
                 Ok(idl) => {
                     let accounts_data = legacy_process_accounts(&idl);
                     let instructions_data = legacy_process_instructions(&idl);
@@ -61,23 +60,23 @@ pub fn parse(options: ParseOptions) -> Result<()> {
     let program_struct_name = format!("{}Account", program_name.to_upper_camel_case());
     let program_instruction_enum = format!("{}Instruction", program_name.to_upper_camel_case());
 
-    let crate_dir = if options.output.ends_with("/") {
-        if options.as_crate {
-            format!("{}{}-decoder", options.output, decoder_name_kebab)
+    let crate_dir = if output.ends_with("/") {
+        if as_crate {
+            format!("{}{}-decoder", output, decoder_name_kebab)
         } else {
-            format!("{}{}_decoder", options.output, program_name.to_snek_case())
+            format!("{}{}_decoder", output, program_name.to_snek_case())
         }
     } else {
-        if options.as_crate {
-            format!("{}/{}-decoder", options.output, decoder_name_kebab)
+        if as_crate {
+            format!("{}/{}-decoder", output, decoder_name_kebab)
         } else {
-            format!("{}/{}_decoder", options.output, program_name.to_snek_case())
+            format!("{}/{}_decoder", output, program_name.to_snek_case())
         }
     };
 
     fs::create_dir_all(&crate_dir).expect("Failed to create decoder directory");
 
-    let src_dir = if options.as_crate {
+    let src_dir = if as_crate {
         format!("{}/src", crate_dir)
     } else {
         crate_dir.clone()
@@ -185,7 +184,7 @@ pub fn parse(options: ParseOptions) -> Result<()> {
 
     println!("Generated {}", instructions_mod_filename);
 
-    if options.as_crate {
+    if as_crate {
         let lib_rs_content = format!(
             "pub struct {decoder_name};\npub mod accounts;\npub mod instructions;\npub mod types;",
             decoder_name = decoder_name
