@@ -1,0 +1,19 @@
+[package]
+name = "raydium-clmm-alerts-carbon-example"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+carbon-core = { workspace = true }
+solana-sdk = { workspace = true }
+solana-transaction-status = { workspace = true }
+solana-client = { workspace = true }
+carbon-log-metrics = { workspace = true }
+carbon-raydium-clmm-decoder = { workspace = true }
+carbon-rpc-block-subscribe-datasource = { workspace = true }
+
+tokio = { version = "1.40.0", features = ["full"] }
+async-trait = "0.1.83"
+log = "0.4.22"
+env_logger = "0.11.5"
+dotenv = "0.15.0"
