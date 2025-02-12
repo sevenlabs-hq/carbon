@@ -18,7 +18,7 @@ pub struct SetTokenStandardInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SetTokenStandard {
     type ArrangedAccounts = SetTokenStandardInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let metadata = accounts.get(0)?;
         let update_authority = accounts.get(1)?;
         let mint = accounts.get(2)?;

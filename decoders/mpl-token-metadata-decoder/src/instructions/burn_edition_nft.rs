@@ -24,7 +24,7 @@ pub struct BurnEditionNftInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for BurnEditionNft {
     type ArrangedAccounts = BurnEditionNftInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let metadata = accounts.get(0)?;
         let owner = accounts.get(1)?;
         let print_edition_mint = accounts.get(2)?;

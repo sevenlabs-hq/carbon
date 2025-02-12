@@ -16,7 +16,7 @@ pub struct RemoveCreatorVerificationInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for RemoveCreatorVerification {
     type ArrangedAccounts = RemoveCreatorVerificationInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let metadata = accounts.get(0)?;
         let creator = accounts.get(1)?;
 

@@ -33,7 +33,7 @@ pub struct MintNewEditionFromMasterEditionViaVaultProxyInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for MintNewEditionFromMasterEditionViaVaultProxy {
     type ArrangedAccounts = MintNewEditionFromMasterEditionViaVaultProxyInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let new_metadata = accounts.get(0)?;
         let new_edition = accounts.get(1)?;
         let master_edition = accounts.get(2)?;

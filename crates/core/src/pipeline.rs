@@ -278,8 +278,7 @@ impl Pipeline {
         let update_types: Vec<UpdateType> = self
             .datasources
             .iter()
-            .map(|datasource| datasource.update_types())
-            .flatten()
+            .flat_map(|datasource| datasource.update_types())
             .collect();
 
         if !self.account_pipes.is_empty() && !update_types.contains(&UpdateType::AccountUpdate) {
@@ -477,7 +476,7 @@ impl Pipeline {
                     .await?;
             }
             Update::Transaction(transaction_update) => {
-                let transaction_metadata = &transaction_update.clone().try_into()?;
+                let transaction_metadata = &(*transaction_update).clone().try_into()?;
 
                 let instructions_with_metadata: InstructionsWithMetadata =
                     transformers::extract_instructions_with_metadata(
@@ -580,6 +579,7 @@ impl Pipeline {
 ///   add components to the `Pipeline`.
 /// - Ensure that each component matches the data and update types expected by your application.
 ///
+#[derive(Default)]
 pub struct PipelineBuilder {
     pub datasources: Vec<Arc<dyn Datasource + Send + Sync>>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
@@ -607,16 +607,7 @@ impl PipelineBuilder {
     ///
     pub fn new() -> Self {
         log::trace!("PipelineBuilder::new()");
-        Self {
-            datasources: Vec::new(),
-            account_pipes: Vec::new(),
-            account_deletion_pipes: Vec::new(),
-            instruction_pipes: Vec::new(),
-            transaction_pipes: Vec::new(),
-            shutdown_strategy: ShutdownStrategy::default(),
-            metrics: MetricsCollection::default(),
-            metrics_flush_interval: None,
-        }
+        Self::default()
     }
 
     /// Adds a datasource to the pipeline.
@@ -635,7 +626,7 @@ impl PipelineBuilder {
     ///     .datasource(MyDatasource::new());
     /// ```
     ///
-    pub fn datasource(mut self, datasource: impl Datasource + Send + Sync + 'static) -> Self {
+    pub fn datasource(mut self, datasource: impl Datasource + 'static) -> Self {
         log::trace!("datasource(self, datasource: {:?})", stringify!(datasource));
         self.datasources.push(Arc::new(datasource));
         self

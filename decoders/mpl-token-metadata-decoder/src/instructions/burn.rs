@@ -30,7 +30,7 @@ pub struct BurnInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Burn {
     type ArrangedAccounts = BurnInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let authority = accounts.get(0)?;
         let collection_metadata = accounts.get(1)?;
         let metadata = accounts.get(2)?;

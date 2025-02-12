@@ -14,13 +14,18 @@ pub struct PrometheusMetrics {
     pub histograms: RwLock<HashMap<String, metrics::Histogram>>,
 }
 
-impl PrometheusMetrics {
-    pub fn new() -> Self {
+impl Default for PrometheusMetrics {
+    fn default() -> Self {
         Self {
             counters: RwLock::new(HashMap::new()),
             gauges: RwLock::new(HashMap::new()),
             histograms: RwLock::new(HashMap::new()),
         }
+    }
+}
+impl PrometheusMetrics {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 

@@ -29,7 +29,7 @@ pub struct UnlockInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Unlock {
     type ArrangedAccounts = UnlockInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let authority = accounts.get(0)?;
         let token_owner = accounts.get(1)?;
         let token = accounts.get(2)?;

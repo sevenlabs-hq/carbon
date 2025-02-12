@@ -14,7 +14,7 @@ impl carbon_core::deserialize::ArrangeAccounts for TogglePairStatus {
     type ArrangedAccounts = TogglePairStatusInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let lb_pair = accounts.get(0)?;
         let admin = accounts.get(1)?;

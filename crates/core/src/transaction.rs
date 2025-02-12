@@ -70,10 +70,7 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
     type Error = crate::error::Error;
 
     fn try_from(value: crate::datasource::TransactionUpdate) -> Result<Self, Self::Error> {
-        log::trace!(
-            "try_from(transaction_update: {:?})",
-            value
-        );
+        log::trace!("try_from(transaction_update: {:?})", value);
         let accounts = value.transaction.message.static_account_keys();
 
         Ok(TransactionMetadata {
@@ -130,7 +127,6 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
     /// # Returns
     ///
     /// A `TransactionPipe` instance configured with the specified schema and processor.
-
     pub fn new(
         schema: Option<TransactionSchema<T>>,
         processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
@@ -161,30 +157,23 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
     /// # Returns
     ///
     /// A `Box<Vec<ParsedInstruction<T>>>` containing the parsed instructions.
-    fn parse_instructions(
-        &self,
-        instructions: &[NestedInstruction],
-    ) -> Box<Vec<ParsedInstruction<T>>> {
+    fn parse_instructions(&self, instructions: &[NestedInstruction]) -> Vec<ParsedInstruction<T>> {
         log::trace!(
             "TransactionPipe::parse_instructions(instructions: {:?})",
             instructions
         );
 
-        let mut parsed_instructions: Box<Vec<ParsedInstruction<T>>> = Box::new(vec![]);
+        let mut parsed_instructions: Vec<ParsedInstruction<T>> = vec![];
 
-        instructions
-            .iter()
-            .enumerate()
-            .for_each(|(_i, nested_instr)| {
-                if let Some(parsed) = T::parse_instruction(&nested_instr.instruction) {
-                    parsed_instructions.push(ParsedInstruction {
-                        program_id: nested_instr.instruction.program_id,
-                        instruction: parsed,
-                        inner_instructions: self
-                            .parse_instructions(&nested_instr.inner_instructions),
-                    });
-                }
-            });
+        instructions.iter().for_each(|nested_instr| {
+            if let Some(parsed) = T::parse_instruction(&nested_instr.instruction) {
+                parsed_instructions.push(ParsedInstruction {
+                    program_id: nested_instr.instruction.program_id,
+                    instruction: parsed,
+                    inner_instructions: self.parse_instructions(&nested_instr.inner_instructions),
+                });
+            }
+        });
 
         parsed_instructions
     }
@@ -255,13 +244,13 @@ where
             instructions,
         );
 
-        let parsed_instructions = self.parse_instructions(&instructions);
+        let parsed_instructions = self.parse_instructions(instructions);
 
         let matched_data = self.matches_schema(&parsed_instructions);
 
         let unnested_instructions = transformers::unnest_parsed_instructions(
             transaction_metadata.clone(),
-            *parsed_instructions,
+            parsed_instructions,
             0,
         );
 

@@ -30,7 +30,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SwapExactOut {
     type ArrangedAccounts = SwapExactOutInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let lb_pair = accounts.get(0)?;
         let bin_array_bitmap_extension = accounts.get(1)?;

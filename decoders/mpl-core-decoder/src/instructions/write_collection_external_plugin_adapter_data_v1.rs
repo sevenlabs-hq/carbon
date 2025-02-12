@@ -22,7 +22,7 @@ pub struct WriteCollectionExternalPluginAdapterDataV1InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for WriteCollectionExternalPluginAdapterDataV1 {
     type ArrangedAccounts = WriteCollectionExternalPluginAdapterDataV1InstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let collection = accounts.get(0)?;
         let payer = accounts.get(1)?;
         let authority = accounts.get(2)?;

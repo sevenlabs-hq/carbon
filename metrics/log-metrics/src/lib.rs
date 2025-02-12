@@ -24,8 +24,8 @@ pub struct LogMetrics {
     pub last_flush: RwLock<Instant>,
 }
 
-impl LogMetrics {
-    pub fn new() -> Self {
+impl Default for LogMetrics {
+    fn default() -> Self {
         Self {
             updates_received: RwLock::new(0),
             updates_processed: RwLock::new(0),
@@ -42,6 +42,12 @@ impl LogMetrics {
             start: RwLock::new(Instant::now()),
             last_flush: RwLock::new(Instant::now()),
         }
+    }
+}
+
+impl LogMetrics {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 

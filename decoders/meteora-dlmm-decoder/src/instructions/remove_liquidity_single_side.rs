@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RemoveLiquiditySingleSide {
     type ArrangedAccounts = RemoveLiquiditySingleSideInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let position = accounts.get(0)?;
         let lb_pair = accounts.get(1)?;

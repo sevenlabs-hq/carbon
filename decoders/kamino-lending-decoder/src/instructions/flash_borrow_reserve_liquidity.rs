@@ -27,7 +27,7 @@ pub struct FlashBorrowReserveLiquidityInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for FlashBorrowReserveLiquidity {
     type ArrangedAccounts = FlashBorrowReserveLiquidityInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let user_transfer_authority = accounts.get(0)?;
         let lending_market_authority = accounts.get(1)?;
         let lending_market = accounts.get(2)?;

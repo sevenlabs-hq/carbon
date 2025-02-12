@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateOrderBook {
     type ArrangedAccounts = CreateOrderBookInstructionAccounts;
 
 fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let order_book = accounts.get(0)?;
         let payer = accounts.get(1)?;
