@@ -1,11 +1,12 @@
-
-use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
+use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x1c8cee63e7a21595")]
-pub struct AddLiquidityByWeight{
+pub struct AddLiquidityByWeight {
     pub liquidity_parameter: LiquidityParameterByWeight,
 }
 
@@ -31,7 +32,9 @@ pub struct AddLiquidityByWeightInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for AddLiquidityByWeight {
     type ArrangedAccounts = AddLiquidityByWeightInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
         let position = accounts.get(0)?;
         let lb_pair = accounts.get(1)?;
         let bin_array_bitmap_extension = accounts.get(2)?;
