@@ -6,4 +6,5 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub enum PairType {
     Permissionless,
     Permission,
+    CustomizablePermissionless,
 }
