@@ -29,7 +29,7 @@ pub struct OfferLoanInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for OfferLoan {
     type ArrangedAccounts = OfferLoanInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let lender = accounts.get(0)?;

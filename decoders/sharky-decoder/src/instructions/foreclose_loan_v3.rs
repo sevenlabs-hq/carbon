@@ -27,7 +27,7 @@ pub struct ForecloseLoanV3InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for ForecloseLoanV3 {
     type ArrangedAccounts = ForecloseLoanV3InstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let loan = accounts.get(0)?;

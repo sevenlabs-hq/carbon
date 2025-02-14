@@ -3,26 +3,24 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0xf326c64cac407f18")]
-pub struct CreateNftList {
-    pub collection_name: String,
-}
+#[carbon(discriminator = "0x23087952da4efca2")]
+pub struct CloseNftList {}
 
-pub struct CreateNftListInstructionAccounts {
+pub struct CloseNftListInstructionAccounts {
     pub nft_list: solana_sdk::pubkey::Pubkey,
     pub payer: solana_sdk::pubkey::Pubkey,
 }
 
-impl carbon_core::deserialize::ArrangeAccounts for CreateNftList {
-    type ArrangedAccounts = CreateNftListInstructionAccounts;
+impl carbon_core::deserialize::ArrangeAccounts for CloseNftList {
+    type ArrangedAccounts = CloseNftListInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let nft_list = accounts.get(0)?;
         let payer = accounts.get(1)?;
 
-        Some(CreateNftListInstructionAccounts {
+        Some(CloseNftListInstructionAccounts {
             nft_list: nft_list.pubkey,
             payer: payer.pubkey,
         })

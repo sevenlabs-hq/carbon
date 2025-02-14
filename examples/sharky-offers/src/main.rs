@@ -1,4 +1,3 @@
-use crate::sharky_decoder::instructions::SharkyInstructionType;
 use async_trait::async_trait;
 use carbon_core::account::AccountProcessorInputType;
 use carbon_core::datasource::{AccountUpdate, Datasource, Update, UpdateType};
@@ -7,10 +6,10 @@ use carbon_core::instruction::InstructionDecoder;
 use carbon_core::instruction_decoder_collection;
 use carbon_core::metrics::MetricsCollection;
 use carbon_core::processor::Processor;
-use carbon_core::transaction::TransactionProcessorInputType;
-use sharky_decoder::accounts::SharkyAccount;
-use sharky_decoder::instructions::SharkyInstruction;
-use sharky_decoder::SharkyDecoder;
+use carbon_sharky_decoder::accounts::SharkyAccount;
+use carbon_sharky_decoder::instructions::SharkyInstruction;
+use carbon_sharky_decoder::instructions::SharkyInstructionType;
+use carbon_sharky_decoder::SharkyDecoder;
 use solana_account_decoder::UiAccountEncoding;
 use solana_client::nonblocking::rpc_client::RpcClient;
 use solana_client::rpc_config::{RpcAccountInfoConfig, RpcProgramAccountsConfig};
@@ -24,8 +23,6 @@ use carbon_log_metrics::LogMetrics;
 use carbon_rpc_program_subscribe_datasource::{Filters, RpcProgramSubscribe};
 use solana_sdk::pubkey;
 use solana_sdk::pubkey::Pubkey;
-
-pub mod sharky_decoder;
 
 pub const SHARKY_PROGRAM_ID: Pubkey = pubkey!("SHARKobtfF1bHhxD2eqftjHBdVSCbKo9JtgK71FhELP");
 
@@ -81,11 +78,13 @@ impl Datasource for GpaBackfillDatasource {
         };
 
         for (pubkey, account) in program_accounts {
-            _ = sender.send(Update::Account(AccountUpdate {
+            if let Err(e) = sender.send(Update::Account(AccountUpdate {
                 pubkey,
                 account,
                 slot,
-            }));
+            })) {
+                println!("\nFailed to send account update: {:?}", e);
+            }
         }
 
         Ok(())
@@ -128,24 +127,6 @@ instruction_decoder_collection!(
     Sharky => SharkyDecoder => SharkyInstruction
 );
 
-pub struct SharkyTransactionProcessor;
-#[async_trait]
-impl Processor for SharkyTransactionProcessor {
-    type InputType = TransactionProcessorInputType<AllInstructions>;
-
-    async fn process(
-        &mut self,
-        update: Self::InputType,
-        _metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
-        let (_metadata, instructions, _) = update;
-
-        println!("Instructions: {:?}", &instructions);
-
-        Ok(())
-    }
-}
-
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     env_logger::init();
@@ -173,7 +154,6 @@ async fn main() -> anyhow::Result<()> {
             ),
         ))
         .account(SharkyDecoder, SharkyAccountProcessor)
-        .transaction(SharkyTransactionProcessor, None)
         .metrics(Arc::new(LogMetrics::new()))
         .shutdown_strategy(ShutdownStrategy::ProcessPending)
         .build()?
