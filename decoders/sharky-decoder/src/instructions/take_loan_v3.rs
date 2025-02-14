@@ -31,7 +31,7 @@ pub struct TakeLoanV3InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for TakeLoanV3 {
     type ArrangedAccounts = TakeLoanV3InstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let lender = accounts.get(0)?;
