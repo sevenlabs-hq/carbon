@@ -31,22 +31,13 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeCustomizablePermiss
     type ArrangedAccounts = InitializeCustomizablePermissionlessLbPairInstructionAccounts;
 
     fn arrange_accounts(
-        accounts:&[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let lb_pair = accounts.get(0)?;
-        let bin_array_bitmap_extension = accounts.get(1)?;
-        let token_mint_x = accounts.get(2)?;
-        let token_mint_y = accounts.get(3)?;
-        let reserve_x = accounts.get(4)?;
-        let reserve_y = accounts.get(5)?;
-        let oracle = accounts.get(6)?;
-        let user_token_x = accounts.get(7)?;
-        let funder = accounts.get(8)?;
-        let token_program = accounts.get(9)?;
-        let system_program = accounts.get(10)?;
-        let rent = accounts.get(11)?;
-        let event_authority = accounts.get(12)?;
-        let program = accounts.get(13)?;
+        let [lb_pair, bin_array_bitmap_extension, token_mint_x, token_mint_y, reserve_x, reserve_y, oracle, user_token_x, funder, token_program, system_program, rent, event_authority, program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(
             InitializeCustomizablePermissionlessLbPairInstructionAccounts {

@@ -26,17 +26,13 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeReward {
     type ArrangedAccounts = InitializeRewardInstructionAccounts;
 
     fn arrange_accounts(
-        accounts:&[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let lb_pair = accounts.get(0)?;
-        let reward_vault = accounts.get(1)?;
-        let reward_mint = accounts.get(2)?;
-        let admin = accounts.get(3)?;
-        let token_program = accounts.get(4)?;
-        let system_program = accounts.get(5)?;
-        let rent = accounts.get(6)?;
-        let event_authority = accounts.get(7)?;
-        let program = accounts.get(8)?;
+        let [lb_pair, reward_vault, reward_mint, admin, token_program, system_program, rent, event_authority, program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(InitializeRewardInstructionAccounts {
             lb_pair: lb_pair.pubkey,

@@ -31,24 +31,14 @@ pub struct TakeLoanV3InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for TakeLoanV3 {
     type ArrangedAccounts = TakeLoanV3InstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let lender = accounts.get(0)?;
-        let borrower = accounts.get(1)?;
-        let borrower_collateral_token_account = accounts.get(2)?;
-        let collateral_mint = accounts.get(3)?;
-        let loan = accounts.get(4)?;
-        let escrow = accounts.get(5)?;
-        let escrow_collateral_token_account = accounts.get(6)?;
-        let order_book = accounts.get(7)?;
-        let metadata = accounts.get(8)?;
-        let edition = accounts.get(9)?;
-        let system_program = accounts.get(10)?;
-        let token_program = accounts.get(11)?;
-        let associated_token_program = accounts.get(12)?;
-        let rent = accounts.get(13)?;
-        let mpl_token_metadata_program = accounts.get(14)?;
+        let [lender, borrower, borrower_collateral_token_account, collateral_mint, loan, escrow, escrow_collateral_token_account, order_book, metadata, edition, system_program, token_program, associated_token_program, rent, mpl_token_metadata_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(TakeLoanV3InstructionAccounts {
             lender: lender.pubkey,

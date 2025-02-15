@@ -23,10 +23,14 @@ impl carbon_core::deserialize::ArrangeAccounts for {{ instruction.struct_name }}
     type ArrangedAccounts = {{ instruction.struct_name }}InstructionAccounts;
 
     fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        // TODO: use destructor
-        {%- for i in (0..instruction.accounts.len()) %}
-        let {{ instruction.accounts[i].name }} = accounts.get({{ i }})?;
-        {%- endfor %}
+        let [
+            {%- for i in (0..instruction.accounts.len()) %}
+            {{ instruction.accounts[i].name }},
+            {%- endfor %}
+        ] = accounts else {
+            return None;
+        };
+       
 
         Some({{ instruction.struct_name }}InstructionAccounts {
             {%- for account in instruction.accounts %}

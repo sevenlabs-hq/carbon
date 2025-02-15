@@ -18,13 +18,12 @@ pub struct CreateProgramVersionInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CreateProgramVersion {
     type ArrangedAccounts = CreateProgramVersionInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let authority = accounts.get(0)?;
-        let program_version = accounts.get(1)?;
-        let system_program = accounts.get(2)?;
-        let rent = accounts.get(3)?;
+        let [authority, program_version, system_program, rent] = accounts else {
+            return None;
+        };
 
         Some(CreateProgramVersionInstructionAccounts {
             authority: authority.pubkey,

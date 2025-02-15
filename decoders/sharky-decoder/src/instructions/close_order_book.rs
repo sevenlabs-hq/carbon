@@ -14,11 +14,12 @@ pub struct CloseOrderBookInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CloseOrderBook {
     type ArrangedAccounts = CloseOrderBookInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let order_book = accounts.get(0)?;
-        let payer = accounts.get(1)?;
+        let [order_book, payer] = accounts else {
+            return None;
+        };
 
         Some(CloseOrderBookInstructionAccounts {
             order_book: order_book.pubkey,

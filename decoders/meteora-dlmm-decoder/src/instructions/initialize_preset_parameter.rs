@@ -1,4 +1,5 @@
 use super::super::types::*;
+
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
@@ -19,13 +20,12 @@ pub struct InitializePresetParameterInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitializePresetParameter {
     type ArrangedAccounts = InitializePresetParameterInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let preset_parameter = accounts.get(0)?;
-        let admin = accounts.get(1)?;
-        let system_program = accounts.get(2)?;
-        let rent = accounts.get(3)?;
+        let [preset_parameter, admin, system_program, rent] = accounts else {
+            return None;
+        };
 
         Some(InitializePresetParameterInstructionAccounts {
             preset_parameter: preset_parameter.pubkey,

@@ -21,8 +21,9 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateNftList {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let nft_list = accounts.get(0)?;
-        let payer = accounts.get(1)?;
+        let [nft_list, payer] = accounts else {
+            return None;
+        };
 
         Some(UpdateNftListInstructionAccounts {
             nft_list: nft_list.pubkey,

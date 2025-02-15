@@ -33,24 +33,14 @@ pub struct RepayLoanV3CompressedInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for RepayLoanV3Compressed {
     type ArrangedAccounts = RepayLoanV3CompressedInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let loan = accounts.get(0)?;
-        let borrower = accounts.get(1)?;
-        let lender = accounts.get(2)?;
-        let escrow = accounts.get(3)?;
-        let value_mint = accounts.get(4)?;
-        let order_book = accounts.get(5)?;
-        let fee_authority = accounts.get(6)?;
-        let tree_authority = accounts.get(7)?;
-        let log_wrapper = accounts.get(8)?;
-        let merkle_tree = accounts.get(9)?;
-        let system_program = accounts.get(10)?;
-        let token_program = accounts.get(11)?;
-        let mpl_bubblegum_program = accounts.get(12)?;
-        let compression_program = accounts.get(13)?;
-        let rent = accounts.get(14)?;
+        let [loan, borrower, lender, escrow, value_mint, order_book, fee_authority, tree_authority, log_wrapper, merkle_tree, system_program, token_program, mpl_bubblegum_program, compression_program, rent] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(RepayLoanV3CompressedInstructionAccounts {
             loan: loan.pubkey,
