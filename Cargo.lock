@@ -1152,6 +1152,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-sharky-decoder"
+version = "0.4.0"
+dependencies = [
+ "carbon-core",
+ "serde",
+ "solana-sdk",
+ "spl-token",
+]
+
+[[package]]
 name = "carbon-system-program-decoder"
 version = "0.4.0"
 dependencies = [
@@ -4400,6 +4410,7 @@ dependencies = [
  "carbon-core",
  "carbon-log-metrics",
  "carbon-rpc-program-subscribe-datasource",
+ "carbon-sharky-decoder",
  "dotenv",
  "env_logger 0.11.5",
  "serde",

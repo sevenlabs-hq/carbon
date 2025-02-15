@@ -1,30 +1,28 @@
-use super::super::types::*;
-
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0xd70d19bb0b5d228f")]
-pub struct UpdateNftList {
-    pub mints: Vec<UpdateIndex>,
+#[carbon(discriminator = "0xf326c64cac407f18")]
+pub struct CreateNftList {
+    pub collection_name: String,
 }
 
-pub struct UpdateNftListInstructionAccounts {
+pub struct CreateNftListInstructionAccounts {
     pub nft_list: solana_sdk::pubkey::Pubkey,
     pub payer: solana_sdk::pubkey::Pubkey,
 }
 
-impl carbon_core::deserialize::ArrangeAccounts for UpdateNftList {
-    type ArrangedAccounts = UpdateNftListInstructionAccounts;
+impl carbon_core::deserialize::ArrangeAccounts for CreateNftList {
+    type ArrangedAccounts = CreateNftListInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let nft_list = accounts.get(0)?;
         let payer = accounts.get(1)?;
 
-        Some(UpdateNftListInstructionAccounts {
+        Some(CreateNftListInstructionAccounts {
             nft_list: nft_list.pubkey,
             payer: payer.pubkey,
         })
