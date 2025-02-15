@@ -33,7 +33,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DecreaseLiquidityV2 {
     type ArrangedAccounts = DecreaseLiquidityV2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts:&[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let nft_owner = accounts.get(0)?;
         let nft_account = accounts.get(1)?;

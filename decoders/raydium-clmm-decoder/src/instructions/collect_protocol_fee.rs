@@ -27,7 +27,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CollectProtocolFee {
     type ArrangedAccounts = CollectProtocolFeeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts:&[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let owner = accounts.get(0)?;
         let pool_state = accounts.get(1)?;

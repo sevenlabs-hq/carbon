@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetRewardParams {
     type ArrangedAccounts = SetRewardParamsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts:&[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let authority = accounts.get(0)?;
         let amm_config = accounts.get(1)?;
