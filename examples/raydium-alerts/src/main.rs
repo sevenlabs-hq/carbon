@@ -31,7 +31,7 @@ pub async fn main() -> CarbonResult<()> {
 
     let mut account_filters: HashMap<String, SubscribeRequestFilterAccounts> = HashMap::new();
     account_filters.insert(
-        "pumpfun_account_filter".to_string(),
+        "raydium_account_filter".to_string(),
         SubscribeRequestFilterAccounts {
             account: vec![],
             owner: vec![RAYDIUM_AMM_V4_PROGRAM_ID.to_string().clone()],
