@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SwapRouterBaseIn {
     type ArrangedAccounts = SwapRouterBaseInInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts:&[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let payer = accounts.get(0)?;
         let input_token_account = accounts.get(1)?;

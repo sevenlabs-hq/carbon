@@ -18,7 +18,7 @@ pub struct UpdateNftListInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UpdateNftList {
     type ArrangedAccounts = UpdateNftListInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let nft_list = accounts.get(0)?;

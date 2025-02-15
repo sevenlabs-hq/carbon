@@ -26,7 +26,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ClaimReward {
     type ArrangedAccounts = ClaimRewardInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts:&[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let lb_pair = accounts.get(0)?;
         let position = accounts.get(1)?;
