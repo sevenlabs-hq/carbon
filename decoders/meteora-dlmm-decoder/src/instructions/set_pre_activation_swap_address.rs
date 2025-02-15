@@ -1,4 +1,5 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -15,7 +16,7 @@ pub struct SetPreActivationSwapAddressInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SetPreActivationSwapAddress {
     type ArrangedAccounts = SetPreActivationSwapAddressInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: Vec<solana_sdk::instruction::AccountMeta>,
     ) -> Option<Self::ArrangedAccounts> {
         let lb_pair = accounts.get(0)?;

@@ -9,6 +9,5 @@ pub struct InitPermissionPairIx {
     pub base_factor: u16,
     pub min_bin_id: i32,
     pub max_bin_id: i32,
-    pub lock_duration: u64,
     pub activation_type: u8,
 }
