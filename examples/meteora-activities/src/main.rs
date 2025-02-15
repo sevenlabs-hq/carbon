@@ -70,14 +70,14 @@ impl Processor for MeteoraInstructionProcessor {
             MeteoraDlmmInstruction::UpdateRewardFunder(_update_reward_funder) => {}
             MeteoraDlmmInstruction::UpdateRewardDuration(_update_reward_duration) => {}
             MeteoraDlmmInstruction::ClaimFee(_claim_fee) => {}
-            MeteoraDlmmInstruction::PositionClose(_position_close) => {}
-            MeteoraDlmmInstruction::LbPairCreate(_lb_pair_create) => {}
-            MeteoraDlmmInstruction::PositionCreate(_position_create) => {}
-            MeteoraDlmmInstruction::FeeParameterUpdate(_fee_parameter_update) => {}
-            MeteoraDlmmInstruction::IncreaseObservation(_increase_observation) => {}
+            MeteoraDlmmInstruction::ClosePosition(_position_close) => {}
+            MeteoraDlmmInstruction::LbPairCreateEvent(_lb_pair_create) => {}
+            MeteoraDlmmInstruction::PositionCreateEvent(_position_create) => {}
+            MeteoraDlmmInstruction::FeeParameterUpdateEvent(_fee_parameter_update) => {}
+            MeteoraDlmmInstruction::IncreaseObservationEvent(_increase_observation) => {}
             MeteoraDlmmInstruction::WithdrawIneligibleReward(_withdraw_ineligible_reward) => {}
             MeteoraDlmmInstruction::UpdatePositionOperator(_update_position_operator) => {}
-            MeteoraDlmmInstruction::UpdatePositionLockReleasePoint(
+            MeteoraDlmmInstruction::UpdatePositionLockReleasePointEvent(
                 _update_position_lock_release_point,
             ) => {}
             MeteoraDlmmInstruction::InitializeLbPair(_initialize_lb_pair) => {}
