@@ -1,4 +1,5 @@
 use super::super::types::*;
+
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
@@ -27,21 +28,14 @@ pub struct AddLiquidityOneSidePreciseInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for AddLiquidityOneSidePrecise {
     type ArrangedAccounts = AddLiquidityOneSidePreciseInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let position = accounts.get(0)?;
-        let lb_pair = accounts.get(1)?;
-        let bin_array_bitmap_extension = accounts.get(2)?;
-        let user_token = accounts.get(3)?;
-        let reserve = accounts.get(4)?;
-        let token_mint = accounts.get(5)?;
-        let bin_array_lower = accounts.get(6)?;
-        let bin_array_upper = accounts.get(7)?;
-        let sender = accounts.get(8)?;
-        let token_program = accounts.get(9)?;
-        let event_authority = accounts.get(10)?;
-        let program = accounts.get(11)?;
+        let [position, lb_pair, bin_array_bitmap_extension, user_token, reserve, token_mint, bin_array_lower, bin_array_upper, sender, token_program, event_authority, program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(AddLiquidityOneSidePreciseInstructionAccounts {
             position: position.pubkey,
