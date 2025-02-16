@@ -29,9 +29,13 @@ pub struct ParseOptions {
     #[arg(help = "Path to the desired output directory.")]
     pub output: String,
 
-    #[arg(short = 'C', long = "as-crate", default_value_t = false)]
+    #[arg(short = 'c', long = "as-crate", default_value_t = false)]
     #[arg(help = "Generate a directory or a crate.")]
     pub as_crate: bool,
+
+    #[arg(long = "codama", default_value_t = false)]
+    #[arg(help = "The IDL json file to parse is a Codama IDL.")]
+    pub codama: bool,
 
     #[arg(short, long, required_if_eq("idl", "ProgramAddress"))]
     #[arg(help = "Network URL to fetch the IDL from. Required if input is a program address.")]
