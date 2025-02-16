@@ -20,7 +20,11 @@ fn main() -> Result<()> {
     match cli.command {
         Commands::Parse(options) => match options.idl {
             IdlSource::FilePath(path) => {
-                handlers::parse(path, options.output, options.as_crate)?;
+                if options.codama {
+                    handlers::parse_codama(path, options.output, options.as_crate)?;
+                } else {
+                    handlers::parse(path, options.output, options.as_crate)?;
+                }
             }
             IdlSource::ProgramAddress(program_address) => {
                 let url = options
