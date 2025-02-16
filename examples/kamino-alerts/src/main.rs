@@ -86,7 +86,7 @@ impl Processor for KaminoLendingInstructionProcessor {
     );
 
     async fn process(
-        &mut self,
+        &self,
         (metadata, instruction, _nested_instructions): Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -113,7 +113,7 @@ impl Processor for KaminoLendingAccountProcessor {
     type InputType = (AccountMetadata, DecodedAccount<KaminoLendingAccount>);
 
     async fn process(
-        &mut self,
+        &self,
         data: Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {

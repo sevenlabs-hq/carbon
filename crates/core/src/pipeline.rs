@@ -30,7 +30,8 @@
 //! - **transaction_pipes**: For handling full transactions.
 //! - **metrics**: A vector of `Metrics` implementations that gather and report on performance data.
 //! - **metrics_flush_interval**: Specifies how frequently metrics are flushed. Defaults to 5 seconds if unset.
-//!
+//! - **shutdown_strategy**: Defines the shutdown behavior for the pipeline.
+//! - **parallel_workers**: An optional amount of workers to process datasource updates with in parallel. If not set, processes updates sequentially.
 //! ## Notes
 //!
 //! - Each pipe and data source must implement the appropriate traits (`Datasource`, `AccountPipes`, `Metrics`, etc.).
@@ -58,6 +59,7 @@ use crate::{
 use core::time;
 use serde::de::DeserializeOwned;
 use std::{convert::TryInto, sync::Arc, time::Instant};
+use tokio::sync::Mutex;
 use tokio_util::sync::CancellationToken;
 
 /// Defines the shutdown behavior for the pipeline.
@@ -92,10 +94,12 @@ pub enum ShutdownStrategy {
 /// Represents the primary data processing pipeline in the `carbon-core` framework.
 ///
 /// The `Pipeline` struct is responsible for orchestrating the flow of data from various
-/// sources, processing it through multiple pipes (for accounts, transactions, instructions,
-/// and account deletions), and recording metrics at each stage. This flexible design
-/// allows for customized data processing, handling a variety of update types with minimal
-/// boilerplate code.
+/// sources, distributing the workload across multiple worker tasks if configured,
+/// processing it through multiple pipes (for accounts, transactions, instructions,
+/// and account deletions), and recording metrics at each stage.
+///
+/// This flexible design allows for customized data processing, handling a
+/// variety of update types with minimal boilerplate code, with configurable parallelism
 ///
 /// ## Overview
 ///
@@ -113,6 +117,8 @@ pub enum ShutdownStrategy {
 ///   - `AccountDeletionPipes` for account deletions.
 ///   - `InstructionPipes` for instruction data within transactions.
 ///   - `TransactionPipes` for entire transaction payloads.
+/// - **Parallel Processing**: The pipeline can be configured to spawn multiple workers,
+///   enabling parallel processing of data source updates to handle high throughput.
 /// - **Metrics**: Collect performance data, enabling real-time insights and efficient monitoring.
 ///
 /// ## Fields
@@ -120,17 +126,16 @@ pub enum ShutdownStrategy {
 /// - `datasources`: A vector of data sources (`Datasource` implementations) that provide
 ///   the data for processing. Each data source must be wrapped in an `Arc` for safe,
 ///   concurrent access.
-/// - `account_pipes`: A vector of `AccountPipes`, each responsible for handling account updates.
-/// - `account_deletion_pipes`: A vector of `AccountDeletionPipes` to handle deletion events.
-/// - `instruction_pipes`: A vector of `InstructionPipes` for processing instructions within
-///   transactions. These pipes work with nested instructions and are generically defined
-///   to support varied instruction types.
-/// - `transaction_pipes`: A vector of `TransactionPipes` responsible for processing
-///   complete transaction payloads.
-/// - `metrics`: A vector of `Metrics` implementations to record and track performance data.
-///   Each metrics instance is managed within an `Arc` to ensure thread safety.
+/// - `shared`: An `Arc<PipelineShared>` containing processing pipes and metrics,
+///   designed to be safely shared across multiple workers.
 /// - `metrics_flush_interval`: An optional interval, in seconds, defining how frequently
 ///   metrics should be flushed. If `None`, the default interval is used.
+/// - `shutdown_strategy`: Determines how the pipeline shuts down when a termination signal is received:
+///   - `Immediate`: Stops immediately.
+///   - `ProcessPending`: Stops accepting new data but completes processing of pending updates.
+/// - `parallel_workers`: Optional number of worker tasks for parallel update processing.
+///   If less than Some(2), updates are processed sequentially.
+///   Setting `Some(n)` will spawn `n` parallel workers to handle incoming updates concurrently.
 ///
 /// ## Example
 ///
@@ -150,6 +155,8 @@ pub enum ShutdownStrategy {
 /// )
 /// .transaction(TEST_SCHEMA.clone(), TestProgramTransactionProcessor)
 /// .account_deletions(TestProgramAccountDeletionProcessor)
+/// .parallel_workers(None) // Optional: sequential processing
+/// .shutdown_strategy(ShutdownStrategy::ProcessPending)
 /// .build()?
 /// .run()
 /// .await?;
@@ -163,15 +170,58 @@ pub enum ShutdownStrategy {
 ///   types to handle shared ownership and trait object storage.
 /// - The `metrics_flush_interval` controls how frequently the pipeline's metrics
 ///   are flushed. If `None`, a default interval (usually 5 seconds) is used.
+/// - Enabling `parallel_workers` is recommended for high-throughput environments like Solana gRPC nodes,
+///   but it may introduce complexity depending on your account/transaction processing logic.
 pub struct Pipeline {
     pub datasources: Vec<Arc<dyn Datasource + Send + Sync>>,
-    pub account_pipes: Vec<Box<dyn AccountPipes>>,
-    pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
-    pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
-    pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
-    pub metrics: Arc<MetricsCollection>,
+    pub shared: Arc<PipelineShared>,
     pub metrics_flush_interval: Option<u64>,
     pub shutdown_strategy: ShutdownStrategy,
+    pub parallel_workers: Option<usize>,
+}
+
+/// Contains shared processing resources for the `Pipeline`, designed to be accessed by multiple workers concurrently.
+///
+/// `PipelineShared` groups together the processing pipes and metrics required for update processing.
+/// This structure is wrapped in an `Arc` and shared across worker tasks when parallel processing is enabled.
+///
+/// ## Purpose
+///
+/// By separating pipes and metrics into `PipelineShared`, the `Pipeline` can safely spawn multiple workers
+/// while allowing each worker to access the processing resources without duplicating state.
+///
+/// ## Fields
+///
+/// - `account_pipes`: A collection of `AccountPipes` responsible for processing account updates.
+/// - `account_deletion_pipes`: A collection of `AccountDeletionPipes` that handle account deletions.
+/// - `instruction_pipes`: A collection of `InstructionPipes` for decoding and processing Solana instructions from transactions.
+/// - `transaction_pipes`: A collection of `TransactionPipes` that process complete transactions.
+/// - `metrics`: A reference-counted `MetricsCollection` for tracking pipeline performance, shared across workers.
+///
+/// ## Concurrency
+///
+/// - This struct is designed to be accessed concurrently by multiple worker tasks.
+/// - Processing pipes are treated as stateless or independently safe; they are invoked within each worker task.
+/// - Metrics are collected across workers using `Arc<MetricsCollection>`.
+///
+/// ## Example
+///
+/// ```rust
+/// let shared = Arc::new(PipelineShared {
+///     account_pipes: vec![Box::new(MyAccountPipe)],
+///     instruction_pipes: vec![Box::new(MyInstructionPipe)],
+///     transaction_pipes: vec![Box::new(MyTransactionPipe)],
+///     account_deletion_pipes: vec![Box::new(MyAccountDeletionPipe)],
+///     metrics: Arc::new(MetricsCollection::default()),
+/// });
+/// ```
+///
+pub struct PipelineShared {
+    pub account_pipes: Arc<Vec<Box<dyn AccountPipes>>>,
+    pub account_deletion_pipes: Arc<Vec<Box<dyn AccountDeletionPipes>>>,
+    pub instruction_pipes: Arc<Vec<Box<dyn for<'a> InstructionPipes<'a>>>>,
+    pub transaction_pipes: Arc<Vec<Box<dyn for<'a> TransactionPipes<'a>>>>,
+    pub metrics: Arc<MetricsCollection>,
 }
 
 impl Pipeline {
@@ -200,7 +250,6 @@ impl Pipeline {
     ///
     /// Returns a `PipelineBuilder` instance with empty collections for data sources,
     /// pipes, and metrics. You can then configure each component using the builder pattern.
-    ///
     pub fn builder() -> PipelineBuilder {
         log::trace!("Pipeline::builder()");
         PipelineBuilder {
@@ -212,6 +261,7 @@ impl Pipeline {
             metrics: MetricsCollection::default(),
             metrics_flush_interval: None,
             shutdown_strategy: ShutdownStrategy::default(),
+            parallel_workers: None,
         }
     }
 
@@ -264,14 +314,15 @@ impl Pipeline {
     /// - The pipeline monitors metrics and flushes them based on the configured `metrics_flush_interval`.
     /// - The `run` method operates in an infinite loop, handling updates until a termination condition occurs.
     ///
-    pub async fn run(&mut self) -> CarbonResult<()> {
-        log::info!("starting pipeline. num_datasources: {}, num_metrics: {}, num_account_pipes: {}, num_account_deletion_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}",
+    pub async fn run(&self) -> CarbonResult<()> {
+        log::info!("starting pipeline. num_datasources: {}, num_metrics: {}, num_account_pipes: {}, num_account_deletion_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}, parallel_workers: {:?}",
             self.datasources.len(),
-            self.metrics.metrics.len(),
-            self.account_pipes.len(),
-            self.account_deletion_pipes.len(),
-            self.instruction_pipes.len(),
-            self.transaction_pipes.len(),
+            self.shared.metrics.metrics.len(),
+            self.shared.account_pipes.len(),
+            self.shared.account_deletion_pipes.len(),
+            self.shared.instruction_pipes.len(),
+            self.shared.transaction_pipes.len(),
+            self.parallel_workers
         );
 
         log::trace!("run(self)");
@@ -282,13 +333,15 @@ impl Pipeline {
             .flatten()
             .collect();
 
-        if !self.account_pipes.is_empty() && !update_types.contains(&UpdateType::AccountUpdate) {
+        if !self.shared.account_pipes.is_empty()
+            && !update_types.contains(&UpdateType::AccountUpdate)
+        {
             return Err(Error::MissingUpdateTypeInDatasource(
                 UpdateType::AccountUpdate,
             ));
         }
 
-        if !self.account_deletion_pipes.is_empty()
+        if !self.shared.account_deletion_pipes.is_empty()
             && !update_types.contains(&UpdateType::AccountDeletion)
         {
             return Err(Error::MissingUpdateTypeInDatasource(
@@ -296,7 +349,7 @@ impl Pipeline {
             ));
         }
 
-        if (!self.instruction_pipes.is_empty() || !self.transaction_pipes.is_empty())
+        if (!self.shared.instruction_pipes.is_empty() || !self.shared.transaction_pipes.is_empty())
             && !update_types.contains(&UpdateType::Transaction)
         {
             return Err(Error::MissingUpdateTypeInDatasource(
@@ -304,16 +357,15 @@ impl Pipeline {
             ));
         }
 
-        self.metrics.initialize_metrics().await?;
-        let (update_sender, mut update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
+        self.shared.metrics.initialize_metrics().await?;
+        let (update_sender, update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
 
         let datasource_cancellation_token = CancellationToken::new();
-
         for datasource in &self.datasources {
             let datasource_cancellation_token_clone = datasource_cancellation_token.clone();
             let sender_clone = update_sender.clone();
             let datasource_clone = Arc::clone(datasource);
-            let metrics_collection = self.metrics.clone();
+            let metrics_collection = self.shared.metrics.clone();
 
             tokio::spawn(async move {
                 if let Err(e) = datasource_clone
@@ -329,77 +381,224 @@ impl Pipeline {
             });
         }
 
-        let mut interval = tokio::time::interval(time::Duration::from_secs(
-            self.metrics_flush_interval.unwrap_or(5),
-        ));
-
-        loop {
-            tokio::select! {
-                _ = tokio::signal::ctrl_c() => {
-                    log::trace!("received SIGINT, shutting down.");
-                    datasource_cancellation_token.cancel();
-
-                    if self.shutdown_strategy == ShutdownStrategy::Immediate {
-                        log::info!("shutting down the pipeline immediately.");
-                        self.metrics.flush_metrics().await?;
-                        self.metrics.shutdown_metrics().await?;
+        let metrics_clone = self.shared.metrics.clone();
+        let flush_interval = self.metrics_flush_interval.unwrap_or(5);
+        let metrics_flush_cancellation_token = CancellationToken::new();
+        tokio::spawn(async move {
+            let mut interval = tokio::time::interval(time::Duration::from_secs(flush_interval));
+            loop {
+                tokio::select! {
+                    _ = interval.tick() => {
+                        if let Err(err) = metrics_clone.flush_metrics().await {
+                            log::error!("Failed to flush metrics: {:?}", err);
+                        }
+                    }
+                    _ = metrics_flush_cancellation_token.cancelled() => {
+                        log::info!("Metrics flush task shutting down.");
                         break;
-                    } else {
-                        log::info!("shutting down the pipeline after processing pending updates.");
                     }
                 }
-                _ = interval.tick() => {
-                    self.metrics.flush_metrics().await?;
-                }
-                update = update_receiver.recv() => {
-                    match update {
-                        Some(update) => {
-                            self
-                                .metrics.increment_counter("updates_received", 1)
-                                .await?;
+            }
+        });
+
+        let sequential_processor_cancellation_token = CancellationToken::new();
+        let update_receiver_mutex = Arc::new(Mutex::new(update_receiver));
+        let parallel_workers = self.parallel_workers.unwrap_or(0);
+
+        if parallel_workers > 1 {
+            log::info!(
+                "Processing datasource updates in parallel with {parallel_workers} workers..."
+            );
+
+            let mut workers = vec![];
+
+            for _ in 0..parallel_workers {
+                let worker_receiver = update_receiver_mutex.clone();
+                let shared = self.shared.clone();
+
+                workers.push(tokio::spawn(async move {
+                    loop {
+                        let mut receiver_lock = worker_receiver.lock().await;
+                        let update = receiver_lock.recv().await;
+
+                        if let Some(update) = update {
+                            if let Err(err) = shared
+                                .metrics
+                                .increment_counter("updates_received", 1)
+                                .await
+                            {
+                                log::warn!(
+                                    "Failed to increment updates_received counter: {:?}",
+                                    err
+                                );
+                            }
 
                             let start = Instant::now();
-                            let process_result = self.process(update.clone()).await;
-                            let time_taken_nanoseconds = start.elapsed().as_nanos();
-                            let time_taken_milliseconds = time_taken_nanoseconds / 1_000_000;
+                            let process_result = Pipeline::process(shared.clone(), &update).await;
+                            let elapsed_ns = start.elapsed().as_nanos();
 
-                            self
+                            if let Err(err) = shared
                                 .metrics
-                                .record_histogram("updates_process_time_nanoseconds", time_taken_nanoseconds as f64)
-                                .await?;
+                                .record_histogram(
+                                    "updates_process_time_nanoseconds",
+                                    elapsed_ns as f64,
+                                )
+                                .await
+                            {
+                                log::warn!("Failed to record process_time_nanoseconds: {:?}", err);
+                            }
 
-                            self
+                            if let Err(err) = shared
                                 .metrics
-                                .record_histogram("updates_process_time_milliseconds", time_taken_milliseconds as f64)
-                                .await?;
+                                .record_histogram(
+                                    "updates_process_time_milliseconds",
+                                    (elapsed_ns / 1_000_000) as f64,
+                                )
+                                .await
+                            {
+                                log::warn!("Failed to record process_time_milliseconds: {:?}", err);
+                            }
 
                             match process_result {
                                 Ok(_) => {
-                                    self
-                                        .metrics.increment_counter("updates_successful", 1)
-                                        .await?;
-
-                                    log::trace!("processed update")
+                                    if let Err(err) = shared
+                                        .metrics
+                                        .increment_counter("updates_successful", 1)
+                                        .await
+                                    {
+                                        log::warn!(
+                                            "Failed to increment updates_successful: {:?}",
+                                            err
+                                        );
+                                    }
                                 }
-                                Err(error) => {
-                                    log::error!("error processing update ({:?}): {:?}", update, error);
-                                    self.metrics.increment_counter("updates_failed", 1).await?;
+                                Err(err) => {
+                                    log::error!(
+                                        "Failed to process an update within a worker: {:?}",
+                                        err
+                                    );
+                                    if let Err(metric_err) =
+                                        shared.metrics.increment_counter("updates_failed", 1).await
+                                    {
+                                        log::warn!(
+                                            "Failed to increment updates_failed: {:?}",
+                                            metric_err
+                                        );
+                                    }
                                 }
-                            };
+                            }
 
-                            self
-                                .metrics.increment_counter("updates_processed", 1)
-                                .await?;
+                            if let Err(err) = shared
+                                .metrics
+                                .increment_counter("updates_processed", 1)
+                                .await
+                            {
+                                log::warn!("Failed to increment updates_processed: {:?}", err);
+                            }
 
-                            self
-                                .metrics.update_gauge("updates_queued", update_receiver.len() as f64)
-                                .await?;
-                        }
-                        None => {
-                            log::info!("update_receiver closed, shutting down.");
-                            self.metrics.flush_metrics().await?;
-                            self.metrics.shutdown_metrics().await?;
+                            let queue_len = receiver_lock.len() as f64;
+                            drop(receiver_lock);
+                            if let Err(err) = shared
+                                .metrics
+                                .update_gauge("updates_queued", queue_len)
+                                .await
+                            {
+                                log::warn!("Failed to update updates_queued gauge: {:?}", err);
+                            }
+                        } else {
+                            log::info!("Worker exiting: update_receiver closed.");
+                            if let Err(err) = shared.metrics.flush_metrics().await {
+                                log::error!("Final worker metrics flush failed: {:?}", err);
+                            }
+                            if let Err(err) = shared.metrics.shutdown_metrics().await {
+                                log::error!("Final worker metrics shutdown failed: {:?}", err);
+                            }
                             break;
+                        }
+                    }
+                }));
+            }
+
+            for worker in workers {
+                let _ = worker.await;
+            }
+        } else {
+            log::info!("Processing datasource updates sequentially...");
+
+            loop {
+                tokio::select! {
+                    _ = tokio::signal::ctrl_c() => {
+                        log::trace!("received SIGINT, shutting down.");
+                        sequential_processor_cancellation_token.cancel();
+
+                        if self.shutdown_strategy == ShutdownStrategy::Immediate {
+                            log::info!("shutting down the pipeline immediately.");
+                            self.shared.metrics.flush_metrics().await?;
+                            self.shared.metrics.shutdown_metrics().await?;
+                            break;
+                        } else {
+                            log::info!("shutting down the pipeline after processing pending updates.");
+                        }
+                    }
+                    update = async {
+                        let mut update_receiver_lock = update_receiver_mutex.lock().await;
+                        update_receiver_lock.recv().await
+                    } => {
+                        match update {
+                            Some(update) => {
+                                self
+                                    .shared
+                                    .metrics.increment_counter("updates_received", 1)
+                                    .await?;
+
+                                let start = Instant::now();
+                                let process_result = Pipeline::process(self.shared.clone(), &update).await;
+                                let time_taken_nanoseconds = start.elapsed().as_nanos();
+                                let time_taken_milliseconds = time_taken_nanoseconds / 1_000_000;
+
+                                self
+                                    .shared
+                                    .metrics
+                                    .record_histogram("updates_process_time_nanoseconds", time_taken_nanoseconds as f64)
+                                    .await?;
+
+                                self
+                                    .shared
+                                    .metrics
+                                    .record_histogram("updates_process_time_milliseconds", time_taken_milliseconds as f64)
+                                    .await?;
+
+                                match process_result {
+                                    Ok(_) => {
+                                        self
+                                            .shared
+                                            .metrics.increment_counter("updates_successful", 1)
+                                            .await?;
+
+                                        log::trace!("processed update")
+                                    }
+                                    Err(error) => {
+                                        log::error!("error processing update ({:?}): {:?}", update, error);
+                                        self.shared.metrics.increment_counter("updates_failed", 1).await?;
+                                    }
+                                };
+
+                                self
+                                    .shared
+                                    .metrics.increment_counter("updates_processed", 1)
+                                    .await?;
+
+                                self
+                                    .shared
+                                    .metrics.update_gauge("updates_queued", update_receiver_mutex.lock().await.len() as f64)
+                                    .await?;
+                            }
+                            None => {
+                                log::info!("update_receiver closed, shutting down.");
+                                self.shared.metrics.flush_metrics().await?;
+                                self.shared.metrics.shutdown_metrics().await?;
+                                break;
+                            }
                         }
                     }
                 }
@@ -455,7 +654,7 @@ impl Pipeline {
     /// while incrementing counters or updating metrics. Handle errors gracefully to ensure
     /// continuous pipeline operation.
     ///
-    async fn process(&mut self, update: Update) -> CarbonResult<()> {
+    async fn process(shared: Arc<PipelineShared>, update: &Update) -> CarbonResult<()> {
         log::trace!("process(self, update: {:?})", update);
         match update {
             Update::Account(account_update) => {
@@ -464,15 +663,16 @@ impl Pipeline {
                     pubkey: account_update.pubkey,
                 };
 
-                for pipe in self.account_pipes.iter_mut() {
+                for pipe in shared.account_pipes.iter() {
                     pipe.run(
                         (account_metadata.clone(), account_update.account.clone()),
-                        self.metrics.clone(),
+                        shared.metrics.clone(),
                     )
                     .await?;
                 }
 
-                self.metrics
+                shared
+                    .metrics
                     .increment_counter("account_updates_processed", 1)
                     .await?;
             }
@@ -487,32 +687,34 @@ impl Pipeline {
 
                 let nested_instructions: NestedInstructions = instructions_with_metadata.into();
 
-                for pipe in self.instruction_pipes.iter_mut() {
+                for pipe in shared.instruction_pipes.iter() {
                     for nested_instruction in nested_instructions.iter() {
-                        pipe.run(nested_instruction, self.metrics.clone()).await?;
+                        pipe.run(nested_instruction, shared.metrics.clone()).await?;
                     }
                 }
 
-                for pipe in self.transaction_pipes.iter_mut() {
+                for pipe in shared.transaction_pipes.iter() {
                     pipe.run(
                         transaction_metadata.clone(),
                         &nested_instructions,
-                        self.metrics.clone(),
+                        shared.metrics.clone(),
                     )
                     .await?;
                 }
 
-                self.metrics
+                shared
+                    .metrics
                     .increment_counter("transaction_updates_processed", 1)
                     .await?;
             }
             Update::AccountDeletion(account_deletion) => {
-                for pipe in self.account_deletion_pipes.iter_mut() {
-                    pipe.run(account_deletion.clone(), self.metrics.clone())
+                for pipe in shared.account_deletion_pipes.iter() {
+                    pipe.run(account_deletion.clone(), shared.metrics.clone())
                         .await?;
                 }
 
-                self.metrics
+                shared
+                    .metrics
                     .increment_counter("account_deletions_processed", 1)
                     .await?;
             }
@@ -567,6 +769,9 @@ impl Pipeline {
 /// - `metrics`: A vector of `Metrics` implementations for tracking pipeline performance.
 /// - `metrics_flush_interval`: An optional interval (in seconds) for flushing metrics data.
 ///   If not set, a default flush interval will be used.
+/// - `shutdown_strategy`: Defines the shutdown behavior for the pipeline.
+/// - `parallel_workers`: An optional amount of workers to process datasource updates with in parallel.
+///   If not set, processes updates sequentially.
 ///
 /// # Returns
 ///
@@ -589,6 +794,7 @@ pub struct PipelineBuilder {
     pub metrics: MetricsCollection,
     pub metrics_flush_interval: Option<u64>,
     pub shutdown_strategy: ShutdownStrategy,
+    pub parallel_workers: Option<usize>,
 }
 
 impl PipelineBuilder {
@@ -616,6 +822,7 @@ impl PipelineBuilder {
             shutdown_strategy: ShutdownStrategy::default(),
             metrics: MetricsCollection::default(),
             metrics_flush_interval: None,
+            parallel_workers: None,
         }
     }
 
@@ -854,6 +1061,26 @@ impl PipelineBuilder {
         self
     }
 
+    /// Sets the number of workers to process datasource updates with.
+    ///
+    /// If not set, datasource updates are processed sequentially.
+    ///
+    /// # Parameters
+    ///
+    /// - `workers`: The number of workers.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// let builder = PipelineBuilder::new()
+    ///     .parallel_workers(15);
+    /// ```
+    ///
+    pub fn parallel_workers(mut self, workers: usize) -> Self {
+        self.parallel_workers = Some(workers);
+        self
+    }
+
     /// Builds and returns a `Pipeline` configured with the specified components.
     ///
     /// After configuring the `PipelineBuilder` with data sources, pipes, and metrics,
@@ -886,15 +1113,21 @@ impl PipelineBuilder {
     ///
     pub fn build(self) -> CarbonResult<Pipeline> {
         log::trace!("build(self)");
+
+        let shared = Arc::new(PipelineShared {
+            account_pipes: Arc::new(self.account_pipes),
+            instruction_pipes: Arc::new(self.instruction_pipes),
+            transaction_pipes: Arc::new(self.transaction_pipes),
+            account_deletion_pipes: Arc::new(self.account_deletion_pipes),
+            metrics: Arc::new(self.metrics),
+        });
+
         Ok(Pipeline {
             datasources: self.datasources,
-            account_pipes: self.account_pipes,
-            account_deletion_pipes: self.account_deletion_pipes,
-            instruction_pipes: self.instruction_pipes,
-            transaction_pipes: self.transaction_pipes,
+            shared,
             shutdown_strategy: self.shutdown_strategy,
-            metrics: Arc::new(self.metrics),
             metrics_flush_interval: self.metrics_flush_interval,
+            parallel_workers: self.parallel_workers,
         })
     }
 }

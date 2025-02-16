@@ -102,7 +102,7 @@ impl Processor for SharkyAccountProcessor {
     type InputType = AccountProcessorInputType<SharkyAccount>;
 
     async fn process(
-        &mut self,
+        &self,
         update: Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {

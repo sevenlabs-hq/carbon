@@ -70,10 +70,7 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
     type Error = crate::error::Error;
 
     fn try_from(value: crate::datasource::TransactionUpdate) -> Result<Self, Self::Error> {
-        log::trace!(
-            "try_from(transaction_update: {:?})",
-            value
-        );
+        log::trace!("try_from(transaction_update: {:?})", value);
         let accounts = value.transaction.message.static_account_keys();
 
         Ok(TransactionMetadata {
@@ -231,7 +228,7 @@ pub trait TransactionPipes<'a>: Send + Sync {
     ///
     /// A `CarbonResult<()>` indicating success or failure.
     async fn run(
-        &mut self,
+        &self,
         transaction_metadata: TransactionMetadata,
         instructions: &[NestedInstruction],
         metrics: Arc<MetricsCollection>,
@@ -245,7 +242,7 @@ where
     U: DeserializeOwned + Send + Sync + 'static,
 {
     async fn run(
-        &mut self,
+        &self,
         transaction_metadata: TransactionMetadata,
         instructions: &[NestedInstruction],
         metrics: Arc<MetricsCollection>,

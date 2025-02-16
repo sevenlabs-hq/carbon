@@ -124,7 +124,7 @@ pub struct InstructionPipe<T: Send> {
 #[async_trait]
 pub trait InstructionPipes<'a>: Send + Sync {
     async fn run(
-        &mut self,
+        &self,
         nested_instruction: &NestedInstruction,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
@@ -133,7 +133,7 @@ pub trait InstructionPipes<'a>: Send + Sync {
 #[async_trait]
 impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
     async fn run(
-        &mut self,
+        &self,
         nested_instruction: &NestedInstruction,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
