@@ -16,12 +16,14 @@ pub mod init_referrer_token_state;
 pub mod init_reserve;
 pub mod init_user_metadata;
 pub mod liquidate_obligation_and_redeem_reserve_collateral;
+pub mod mark_obligation_for_deleveraging;
 pub mod redeem_fees;
 pub mod redeem_reserve_collateral;
 pub mod refresh_obligation;
 pub mod refresh_obligation_farms_for_reserve;
 pub mod refresh_reserve;
 pub mod refresh_reserves_batch;
+pub mod repay_and_withdraw_and_redeem;
 pub mod repay_obligation_liquidity;
 pub mod request_elevation_group;
 pub mod socialize_loss;
@@ -51,8 +53,9 @@ pub enum KaminoLendingInstruction {
     InitFarmsForReserve(init_farms_for_reserve::InitFarmsForReserve),
     UpdateReserveConfig(update_reserve_config::UpdateReserveConfig),
     RedeemFees(redeem_fees::RedeemFees),
-    SocializeLoss(socialize_loss::SocializeLoss),
     WithdrawProtocolFee(withdraw_protocol_fee::WithdrawProtocolFee),
+    SocializeLoss(socialize_loss::SocializeLoss),
+    MarkObligationForDeleveraging(mark_obligation_for_deleveraging::MarkObligationForDeleveraging),
     RefreshReserve(refresh_reserve::RefreshReserve),
     RefreshReservesBatch(refresh_reserves_batch::RefreshReservesBatch),
     DepositReserveLiquidity(deposit_reserve_liquidity::DepositReserveLiquidity),
@@ -65,6 +68,7 @@ pub enum KaminoLendingInstruction {
     WithdrawObligationCollateral(withdraw_obligation_collateral::WithdrawObligationCollateral),
     BorrowObligationLiquidity(borrow_obligation_liquidity::BorrowObligationLiquidity),
     RepayObligationLiquidity(repay_obligation_liquidity::RepayObligationLiquidity),
+    RepayAndWithdrawAndRedeem(repay_and_withdraw_and_redeem::RepayAndWithdrawAndRedeem),
     DepositReserveLiquidityAndObligationCollateral(deposit_reserve_liquidity_and_obligation_collateral::DepositReserveLiquidityAndObligationCollateral),
     WithdrawObligationCollateralAndRedeemReserveCollateral(withdraw_obligation_collateral_and_redeem_reserve_collateral::WithdrawObligationCollateralAndRedeemReserveCollateral),
     LiquidateObligationAndRedeemReserveCollateral(liquidate_obligation_and_redeem_reserve_collateral::LiquidateObligationAndRedeemReserveCollateral),
@@ -94,8 +98,9 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for KaminoLendingDecod
             KaminoLendingInstruction::InitFarmsForReserve => init_farms_for_reserve::InitFarmsForReserve,
             KaminoLendingInstruction::UpdateReserveConfig => update_reserve_config::UpdateReserveConfig,
             KaminoLendingInstruction::RedeemFees => redeem_fees::RedeemFees,
-            KaminoLendingInstruction::SocializeLoss => socialize_loss::SocializeLoss,
             KaminoLendingInstruction::WithdrawProtocolFee => withdraw_protocol_fee::WithdrawProtocolFee,
+            KaminoLendingInstruction::SocializeLoss => socialize_loss::SocializeLoss,
+            KaminoLendingInstruction::MarkObligationForDeleveraging => mark_obligation_for_deleveraging::MarkObligationForDeleveraging,
             KaminoLendingInstruction::RefreshReserve => refresh_reserve::RefreshReserve,
             KaminoLendingInstruction::RefreshReservesBatch => refresh_reserves_batch::RefreshReservesBatch,
             KaminoLendingInstruction::DepositReserveLiquidity => deposit_reserve_liquidity::DepositReserveLiquidity,
@@ -108,6 +113,7 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for KaminoLendingDecod
             KaminoLendingInstruction::WithdrawObligationCollateral => withdraw_obligation_collateral::WithdrawObligationCollateral,
             KaminoLendingInstruction::BorrowObligationLiquidity => borrow_obligation_liquidity::BorrowObligationLiquidity,
             KaminoLendingInstruction::RepayObligationLiquidity => repay_obligation_liquidity::RepayObligationLiquidity,
+            KaminoLendingInstruction::RepayAndWithdrawAndRedeem => repay_and_withdraw_and_redeem::RepayAndWithdrawAndRedeem,
             KaminoLendingInstruction::DepositReserveLiquidityAndObligationCollateral => deposit_reserve_liquidity_and_obligation_collateral::DepositReserveLiquidityAndObligationCollateral,
             KaminoLendingInstruction::WithdrawObligationCollateralAndRedeemReserveCollateral => withdraw_obligation_collateral_and_redeem_reserve_collateral::WithdrawObligationCollateralAndRedeemReserveCollateral,
             KaminoLendingInstruction::LiquidateObligationAndRedeemReserveCollateral => liquidate_obligation_and_redeem_reserve_collateral::LiquidateObligationAndRedeemReserveCollateral,

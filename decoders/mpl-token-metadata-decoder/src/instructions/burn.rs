@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x29")]
-pub struct Burn{
+pub struct Burn {
     pub burn_args: BurnArgs,
 }
 
@@ -30,21 +30,14 @@ pub struct BurnInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Burn {
     type ArrangedAccounts = BurnInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let authority = accounts.get(0)?;
-        let collection_metadata = accounts.get(1)?;
-        let metadata = accounts.get(2)?;
-        let edition = accounts.get(3)?;
-        let mint = accounts.get(4)?;
-        let token = accounts.get(5)?;
-        let master_edition = accounts.get(6)?;
-        let master_edition_mint = accounts.get(7)?;
-        let master_edition_token = accounts.get(8)?;
-        let edition_marker = accounts.get(9)?;
-        let token_record = accounts.get(10)?;
-        let system_program = accounts.get(11)?;
-        let sysvar_instructions = accounts.get(12)?;
-        let spl_token_program = accounts.get(13)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [authority, collection_metadata, metadata, edition, mint, token, master_edition, master_edition_mint, master_edition_token, edition_marker, token_record, system_program, sysvar_instructions, spl_token_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(BurnInstructionAccounts {
             authority: authority.pubkey,

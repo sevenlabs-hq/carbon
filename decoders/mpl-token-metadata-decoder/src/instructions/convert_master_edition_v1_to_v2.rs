@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x0c")]
-pub struct ConvertMasterEditionV1ToV2{
-}
+pub struct ConvertMasterEditionV1ToV2 {}
 
 pub struct ConvertMasterEditionV1ToV2InstructionAccounts {
     pub master_edition: solana_sdk::pubkey::Pubkey,
@@ -17,10 +15,12 @@ pub struct ConvertMasterEditionV1ToV2InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for ConvertMasterEditionV1ToV2 {
     type ArrangedAccounts = ConvertMasterEditionV1ToV2InstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let master_edition = accounts.get(0)?;
-        let one_time_auth = accounts.get(1)?;
-        let printing_mint = accounts.get(2)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [master_edition, one_time_auth, printing_mint] = accounts else {
+            return None;
+        };
 
         Some(ConvertMasterEditionV1ToV2InstructionAccounts {
             master_edition: master_edition.pubkey,

@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x91b20de14cf09348")]
-pub struct RepayObligationLiquidity{
+pub struct RepayObligationLiquidity {
     pub liquidity_amount: u64,
 }
 
@@ -24,16 +23,14 @@ pub struct RepayObligationLiquidityInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for RepayObligationLiquidity {
     type ArrangedAccounts = RepayObligationLiquidityInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let owner = accounts.get(0)?;
-        let obligation = accounts.get(1)?;
-        let lending_market = accounts.get(2)?;
-        let repay_reserve = accounts.get(3)?;
-        let reserve_liquidity_mint = accounts.get(4)?;
-        let reserve_destination_liquidity = accounts.get(5)?;
-        let user_source_liquidity = accounts.get(6)?;
-        let token_program = accounts.get(7)?;
-        let instruction_sysvar_account = accounts.get(8)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [owner, obligation, lending_market, repay_reserve, reserve_liquidity_mint, reserve_destination_liquidity, user_source_liquidity, token_program, instruction_sysvar_account] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(RepayObligationLiquidityInstructionAccounts {
             owner: owner.pubkey,

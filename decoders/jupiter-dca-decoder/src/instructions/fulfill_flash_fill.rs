@@ -29,24 +29,14 @@ pub struct FulfillFlashFillInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for FulfillFlashFill {
     type ArrangedAccounts = FulfillFlashFillInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let keeper = accounts.get(0)?;
-        let dca = accounts.get(1)?;
-        let input_mint = accounts.get(2)?;
-        let output_mint = accounts.get(3)?;
-        let keeper_in_ata = accounts.get(4)?;
-        let in_ata = accounts.get(5)?;
-        let out_ata = accounts.get(6)?;
-        let fee_authority = accounts.get(7)?;
-        let fee_ata = accounts.get(8)?;
-        let instructions_sysvar = accounts.get(9)?;
-        let system_program = accounts.get(10)?;
-        let token_program = accounts.get(11)?;
-        let associated_token_program = accounts.get(12)?;
-        let event_authority = accounts.get(13)?;
-        let program = accounts.get(14)?;
+        let [keeper, dca, input_mint, output_mint, keeper_in_ata, in_ata, out_ata, fee_authority, fee_ata, instructions_sysvar, system_program, token_program, associated_token_program, event_authority, program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(FulfillFlashFillInstructionAccounts {
             keeper: keeper.pubkey,

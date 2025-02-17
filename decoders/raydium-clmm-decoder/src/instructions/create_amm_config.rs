@@ -22,11 +22,11 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateAmmConfig {
     type ArrangedAccounts = CreateAmmConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts:&[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let owner = accounts.get(0)?;
-        let amm_config = accounts.get(1)?;
-        let system_program = accounts.get(2)?;
+        let [owner, amm_config, system_program] = accounts else {
+            return None;
+        };
 
         Some(CreateAmmConfigInstructionAccounts {
             owner: owner.pubkey,

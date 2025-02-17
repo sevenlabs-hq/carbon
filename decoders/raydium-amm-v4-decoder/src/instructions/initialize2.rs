@@ -1,8 +1,9 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x01")]
+#[carbon(discriminator = "0x09cbfe405920b39f")]
 pub struct Initialize2 {
     pub nonce: u8,
     pub open_time: u64,
@@ -37,30 +38,14 @@ pub struct Initialize2InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Initialize2 {
     type ArrangedAccounts = Initialize2InstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let token_program = accounts.get(0)?;
-        let spl_associated_token_account = accounts.get(1)?;
-        let system_program = accounts.get(2)?;
-        let rent = accounts.get(3)?;
-        let amm = accounts.get(4)?;
-        let amm_authority = accounts.get(5)?;
-        let amm_open_orders = accounts.get(6)?;
-        let lp_mint = accounts.get(7)?;
-        let coin_mint = accounts.get(8)?;
-        let pc_mint = accounts.get(9)?;
-        let pool_coin_token_account = accounts.get(10)?;
-        let pool_pc_token_account = accounts.get(11)?;
-        let pool_withdraw_queue = accounts.get(12)?;
-        let amm_target_orders = accounts.get(13)?;
-        let pool_temp_lp = accounts.get(14)?;
-        let serum_program = accounts.get(15)?;
-        let serum_market = accounts.get(16)?;
-        let user_wallet = accounts.get(17)?;
-        let user_token_coin = accounts.get(18)?;
-        let user_token_pc = accounts.get(19)?;
-        let user_lp_token_account = accounts.get(20)?;
+        let [token_program, spl_associated_token_account, system_program, rent, amm, amm_authority, amm_open_orders, lp_mint, coin_mint, pc_mint, pool_coin_token_account, pool_pc_token_account, pool_withdraw_queue, amm_target_orders, pool_temp_lp, serum_program, serum_market, user_wallet, user_token_coin, user_token_pc, user_lp_token_account] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(Initialize2InstructionAccounts {
             token_program: token_program.pubkey,

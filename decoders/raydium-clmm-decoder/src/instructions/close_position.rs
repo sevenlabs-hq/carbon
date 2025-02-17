@@ -19,14 +19,13 @@ impl carbon_core::deserialize::ArrangeAccounts for ClosePosition {
     type ArrangedAccounts = ClosePositionInstructionAccounts;
 
     fn arrange_accounts(
-        accounts:&[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let nft_owner = accounts.get(0)?;
-        let position_nft_mint = accounts.get(1)?;
-        let position_nft_account = accounts.get(2)?;
-        let personal_position = accounts.get(3)?;
-        let system_program = accounts.get(4)?;
-        let token_program = accounts.get(5)?;
+        let [nft_owner, position_nft_mint, position_nft_account, personal_position, system_program, token_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(ClosePositionInstructionAccounts {
             nft_owner: nft_owner.pubkey,

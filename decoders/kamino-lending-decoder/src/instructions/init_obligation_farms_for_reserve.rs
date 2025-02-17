@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x883f0fbad398a8a4")]
-pub struct InitObligationFarmsForReserve{
+pub struct InitObligationFarmsForReserve {
     pub mode: u8,
 }
 
@@ -26,18 +25,14 @@ pub struct InitObligationFarmsForReserveInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitObligationFarmsForReserve {
     type ArrangedAccounts = InitObligationFarmsForReserveInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let payer = accounts.get(0)?;
-        let owner = accounts.get(1)?;
-        let obligation = accounts.get(2)?;
-        let lending_market_authority = accounts.get(3)?;
-        let reserve = accounts.get(4)?;
-        let reserve_farm_state = accounts.get(5)?;
-        let obligation_farm = accounts.get(6)?;
-        let lending_market = accounts.get(7)?;
-        let farms_program = accounts.get(8)?;
-        let rent = accounts.get(9)?;
-        let system_program = accounts.get(10)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [payer, owner, obligation, lending_market_authority, reserve, reserve_farm_state, obligation_farm, lending_market, farms_program, rent, system_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(InitObligationFarmsForReserveInstructionAccounts {
             payer: payer.pubkey,

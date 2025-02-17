@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x1383709baadc2239")]
-pub struct WithdrawFromAvailable{
+pub struct WithdrawFromAvailable {
     pub shares_amount: u64,
 }
 
@@ -26,18 +25,14 @@ pub struct WithdrawFromAvailableInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawFromAvailable {
     type ArrangedAccounts = WithdrawFromAvailableInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let user = accounts.get(0)?;
-        let vault_state = accounts.get(1)?;
-        let token_vault = accounts.get(2)?;
-        let base_vault_authority = accounts.get(3)?;
-        let user_token_ata = accounts.get(4)?;
-        let token_mint = accounts.get(5)?;
-        let user_shares_ata = accounts.get(6)?;
-        let shares_mint = accounts.get(7)?;
-        let token_program = accounts.get(8)?;
-        let shares_token_program = accounts.get(9)?;
-        let klend_program = accounts.get(10)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [user, vault_state, token_vault, base_vault_authority, user_token_ata, token_mint, user_shares_ata, shares_mint, token_program, shares_token_program, klend_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(WithdrawFromAvailableInstructionAccounts {
             user: user.pubkey,

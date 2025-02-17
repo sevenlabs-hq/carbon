@@ -31,21 +31,13 @@ impl carbon_core::deserialize::ArrangeAccounts for SwapV2 {
     type ArrangedAccounts = SwapV2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts:&[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let payer = accounts.get(0)?;
-        let amm_config = accounts.get(1)?;
-        let pool_state = accounts.get(2)?;
-        let input_token_account = accounts.get(3)?;
-        let output_token_account = accounts.get(4)?;
-        let input_vault = accounts.get(5)?;
-        let output_vault = accounts.get(6)?;
-        let observation_state = accounts.get(7)?;
-        let token_program = accounts.get(8)?;
-        let token_program2022 = accounts.get(9)?;
-        let memo_program = accounts.get(10)?;
-        let input_vault_mint = accounts.get(11)?;
-        let output_vault_mint = accounts.get(12)?;
+        let [payer, amm_config, pool_state, input_token_account, output_token_account, input_vault, output_vault, observation_state, token_program, token_program2022, memo_program, input_vault_mint, output_vault_mint] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(SwapV2InstructionAccounts {
             payer: payer.pubkey,

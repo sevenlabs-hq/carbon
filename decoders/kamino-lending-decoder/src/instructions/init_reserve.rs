@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x8af547e19904032b")]
-pub struct InitReserve{
-}
+pub struct InitReserve {}
 
 pub struct InitReserveInstructionAccounts {
     pub lending_market_owner: solana_sdk::pubkey::Pubkey,
@@ -27,20 +25,14 @@ pub struct InitReserveInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitReserve {
     type ArrangedAccounts = InitReserveInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let lending_market_owner = accounts.get(0)?;
-        let lending_market = accounts.get(1)?;
-        let lending_market_authority = accounts.get(2)?;
-        let reserve = accounts.get(3)?;
-        let reserve_liquidity_mint = accounts.get(4)?;
-        let reserve_liquidity_supply = accounts.get(5)?;
-        let fee_receiver = accounts.get(6)?;
-        let reserve_collateral_mint = accounts.get(7)?;
-        let reserve_collateral_supply = accounts.get(8)?;
-        let rent = accounts.get(9)?;
-        let liquidity_token_program = accounts.get(10)?;
-        let collateral_token_program = accounts.get(11)?;
-        let system_program = accounts.get(12)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [lending_market_owner, lending_market, lending_market_authority, reserve, reserve_liquidity_mint, reserve_liquidity_supply, fee_receiver, reserve_collateral_mint, reserve_collateral_supply, rent, liquidity_token_program, collateral_token_program, system_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(InitReserveInstructionAccounts {
             lending_market_owner: lending_market_owner.pubkey,

@@ -1,4 +1,5 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -39,29 +40,14 @@ pub struct TwoHopSwapInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for TwoHopSwap {
     type ArrangedAccounts = TwoHopSwapInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let token_program = accounts.get(0)?;
-        let token_authority = accounts.get(1)?;
-        let whirlpool_one = accounts.get(2)?;
-        let whirlpool_two = accounts.get(3)?;
-        let token_owner_account_one_a = accounts.get(4)?;
-        let token_vault_one_a = accounts.get(5)?;
-        let token_owner_account_one_b = accounts.get(6)?;
-        let token_vault_one_b = accounts.get(7)?;
-        let token_owner_account_two_a = accounts.get(8)?;
-        let token_vault_two_a = accounts.get(9)?;
-        let token_owner_account_two_b = accounts.get(10)?;
-        let token_vault_two_b = accounts.get(11)?;
-        let tick_array_one0 = accounts.get(12)?;
-        let tick_array_one1 = accounts.get(13)?;
-        let tick_array_one2 = accounts.get(14)?;
-        let tick_array_two0 = accounts.get(15)?;
-        let tick_array_two1 = accounts.get(16)?;
-        let tick_array_two2 = accounts.get(17)?;
-        let oracle_one = accounts.get(18)?;
-        let oracle_two = accounts.get(19)?;
+        let [token_program, token_authority, whirlpool_one, whirlpool_two, token_owner_account_one_a, token_vault_one_a, token_owner_account_one_b, token_vault_one_b, token_owner_account_two_a, token_vault_two_a, token_owner_account_two_b, token_vault_two_b, tick_array_one0, tick_array_one1, tick_array_one2, tick_array_two0, tick_array_two1, tick_array_two2, oracle_one, oracle_two] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(TwoHopSwapInstructionAccounts {
             token_program: token_program.pubkey,

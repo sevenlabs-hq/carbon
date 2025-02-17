@@ -1,4 +1,5 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -22,18 +23,14 @@ pub struct ClaimTokenInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for ClaimToken {
     type ArrangedAccounts = ClaimTokenInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let payer = accounts.get(0)?;
-        let wallet = accounts.get(1)?;
-        let program_authority = accounts.get(2)?;
-        let program_token_account = accounts.get(3)?;
-        let destination_token_account = accounts.get(4)?;
-        let mint = accounts.get(5)?;
-        let associated_token_token_program = accounts.get(6)?;
-        let associated_token_program = accounts.get(7)?;
-        let system_program = accounts.get(8)?;
+        let [payer, wallet, program_authority, program_token_account, destination_token_account, mint, associated_token_token_program, associated_token_program, system_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(ClaimTokenInstructionAccounts {
             payer: payer.pubkey,

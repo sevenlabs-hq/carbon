@@ -1,11 +1,12 @@
-
-use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
+use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x3a7fbc3e4f52c460")]
-pub struct DecreaseLiquidityV2{
+pub struct DecreaseLiquidityV2 {
     pub liquidity_amount: u128,
     pub token_min_a: u64,
     pub token_min_b: u64,
@@ -33,22 +34,14 @@ pub struct DecreaseLiquidityV2InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for DecreaseLiquidityV2 {
     type ArrangedAccounts = DecreaseLiquidityV2InstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let whirlpool = accounts.get(0)?;
-        let token_program_a = accounts.get(1)?;
-        let token_program_b = accounts.get(2)?;
-        let memo_program = accounts.get(3)?;
-        let position_authority = accounts.get(4)?;
-        let position = accounts.get(5)?;
-        let position_token_account = accounts.get(6)?;
-        let token_mint_a = accounts.get(7)?;
-        let token_mint_b = accounts.get(8)?;
-        let token_owner_account_a = accounts.get(9)?;
-        let token_owner_account_b = accounts.get(10)?;
-        let token_vault_a = accounts.get(11)?;
-        let token_vault_b = accounts.get(12)?;
-        let tick_array_lower = accounts.get(13)?;
-        let tick_array_upper = accounts.get(14)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [whirlpool, token_program_a, token_program_b, memo_program, position_authority, position, position_token_account, token_mint_a, token_mint_b, token_owner_account_a, token_owner_account_b, token_vault_a, token_vault_b, tick_array_lower, tick_array_upper] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(DecreaseLiquidityV2InstructionAccounts {
             whirlpool: whirlpool.pubkey,

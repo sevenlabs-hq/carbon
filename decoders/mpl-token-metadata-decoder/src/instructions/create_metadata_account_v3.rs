@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x21")]
-pub struct CreateMetadataAccountV3{
+pub struct CreateMetadataAccountV3 {
     pub create_metadata_account_args_v3: CreateMetadataAccountArgsV3,
 }
 
@@ -23,14 +23,14 @@ pub struct CreateMetadataAccountV3InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CreateMetadataAccountV3 {
     type ArrangedAccounts = CreateMetadataAccountV3InstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let metadata = accounts.get(0)?;
-        let mint = accounts.get(1)?;
-        let mint_authority = accounts.get(2)?;
-        let payer = accounts.get(3)?;
-        let update_authority = accounts.get(4)?;
-        let system_program = accounts.get(5)?;
-        let rent = accounts.get(6)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [metadata, mint, mint_authority, payer, update_authority, system_program, rent] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(CreateMetadataAccountV3InstructionAccounts {
             metadata: metadata.pubkey,

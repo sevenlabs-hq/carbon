@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xf54b5b00ec611303")]
-pub struct SocializeLoss{
+pub struct SocializeLoss {
     pub liquidity_amount: u64,
 }
 
@@ -20,12 +19,14 @@ pub struct SocializeLossInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SocializeLoss {
     type ArrangedAccounts = SocializeLossInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let risk_council = accounts.get(0)?;
-        let obligation = accounts.get(1)?;
-        let lending_market = accounts.get(2)?;
-        let reserve = accounts.get(3)?;
-        let instruction_sysvar_account = accounts.get(4)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [risk_council, obligation, lending_market, reserve, instruction_sysvar_account] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(SocializeLossInstructionAccounts {
             risk_council: risk_council.pubkey,

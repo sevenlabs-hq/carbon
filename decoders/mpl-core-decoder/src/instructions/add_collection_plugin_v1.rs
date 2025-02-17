@@ -24,11 +24,9 @@ impl carbon_core::deserialize::ArrangeAccounts for AddCollectionPluginV1 {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let collection = accounts.get(0)?;
-        let payer = accounts.get(1)?;
-        let authority = accounts.get(2)?;
-        let system_program = accounts.get(3)?;
-        let log_wrapper = accounts.get(4)?;
+        let [collection, payer, authority, system_program, log_wrapper] = accounts else {
+            return None;
+        };
 
         Some(AddCollectionPluginV1InstructionAccounts {
             collection: collection.pubkey,

@@ -1,8 +1,9 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x00")]
+#[carbon(discriminator = "0xafaf6d1f0d989bed")]
 pub struct Initialize {
     pub nonce: u8,
     pub open_time: u64,
@@ -32,27 +33,14 @@ pub struct InitializeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Initialize {
     type ArrangedAccounts = InitializeInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let token_program = accounts.get(0)?;
-        let system_program = accounts.get(1)?;
-        let rent = accounts.get(2)?;
-        let amm = accounts.get(3)?;
-        let amm_authority = accounts.get(4)?;
-        let amm_open_orders = accounts.get(5)?;
-        let lp_mint_address = accounts.get(6)?;
-        let coin_mint_address = accounts.get(7)?;
-        let pc_mint_address = accounts.get(8)?;
-        let pool_coin_token_account = accounts.get(9)?;
-        let pool_pc_token_account = accounts.get(10)?;
-        let pool_withdraw_queue = accounts.get(11)?;
-        let pool_target_orders_account = accounts.get(12)?;
-        let user_lp_token_account = accounts.get(13)?;
-        let pool_temp_lp_token_account = accounts.get(14)?;
-        let serum_program = accounts.get(15)?;
-        let serum_market = accounts.get(16)?;
-        let user_wallet = accounts.get(17)?;
+        let [token_program, system_program, rent, amm, amm_authority, amm_open_orders, lp_mint_address, coin_mint_address, pc_mint_address, pool_coin_token_account, pool_pc_token_account, pool_withdraw_queue, pool_target_orders_account, user_lp_token_account, pool_temp_lp_token_account, serum_program, serum_market, user_wallet] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(InitializeInstructionAccounts {
             token_program: token_program.pubkey,

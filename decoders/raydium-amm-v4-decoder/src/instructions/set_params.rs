@@ -1,10 +1,11 @@
 use super::super::types::*;
 use crate::accounts::fees::Fees;
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x06")]
+#[carbon(discriminator = "0x1beab2349302bb8d")]
 pub struct SetParams {
     pub param: u8,
     pub value: Option<u64>,
@@ -37,25 +38,14 @@ pub struct SetParamsInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SetParams {
     type ArrangedAccounts = SetParamsInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let token_program = accounts.get(0)?;
-        let amm = accounts.get(1)?;
-        let amm_authority = accounts.get(2)?;
-        let amm_open_orders = accounts.get(3)?;
-        let amm_target_orders = accounts.get(4)?;
-        let amm_coin_vault = accounts.get(5)?;
-        let amm_pc_vault = accounts.get(6)?;
-        let serum_program = accounts.get(7)?;
-        let serum_market = accounts.get(8)?;
-        let serum_coin_vault = accounts.get(9)?;
-        let serum_pc_vault = accounts.get(10)?;
-        let serum_vault_signer = accounts.get(11)?;
-        let serum_event_queue = accounts.get(12)?;
-        let serum_bids = accounts.get(13)?;
-        let serum_asks = accounts.get(14)?;
-        let amm_admin_account = accounts.get(15)?;
+        let [token_program, amm, amm_authority, amm_open_orders, amm_target_orders, amm_coin_vault, amm_pc_vault, serum_program, serum_market, serum_coin_vault, serum_pc_vault, serum_vault_signer, serum_event_queue, serum_bids, serum_asks, amm_admin_account] =
+            accounts
+        else {
+            return None;
+        };
         let new_amm_open_orders_account = accounts.get(16);
 
         Some(SetParamsInstructionAccounts {

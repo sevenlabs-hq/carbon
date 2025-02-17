@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x9ec99ebd215da267")]
-pub struct WithdrawProtocolFee{
+pub struct WithdrawProtocolFee {
     pub amount: u64,
 }
 
@@ -23,15 +22,14 @@ pub struct WithdrawProtocolFeeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawProtocolFee {
     type ArrangedAccounts = WithdrawProtocolFeeInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let lending_market_owner = accounts.get(0)?;
-        let lending_market = accounts.get(1)?;
-        let reserve = accounts.get(2)?;
-        let reserve_liquidity_mint = accounts.get(3)?;
-        let lending_market_authority = accounts.get(4)?;
-        let fee_vault = accounts.get(5)?;
-        let lending_market_owner_ata = accounts.get(6)?;
-        let token_program = accounts.get(7)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [lending_market_owner, lending_market, reserve, reserve_liquidity_mint, lending_market_authority, fee_vault, lending_market_owner_ata, token_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(WithdrawProtocolFeeInstructionAccounts {
             lending_market_owner: lending_market_owner.pubkey,

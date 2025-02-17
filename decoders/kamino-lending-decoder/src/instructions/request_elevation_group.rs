@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x2477fb8122f00793")]
-pub struct RequestElevationGroup{
+pub struct RequestElevationGroup {
     pub elevation_group: u8,
 }
 
@@ -18,10 +17,12 @@ pub struct RequestElevationGroupInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for RequestElevationGroup {
     type ArrangedAccounts = RequestElevationGroupInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let owner = accounts.get(0)?;
-        let obligation = accounts.get(1)?;
-        let lending_market = accounts.get(2)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [owner, obligation, lending_market] = accounts else {
+            return None;
+        };
 
         Some(RequestElevationGroupInstructionAccounts {
             owner: owner.pubkey,

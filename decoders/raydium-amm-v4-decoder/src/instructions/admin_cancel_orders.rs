@@ -1,8 +1,9 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x0d")]
+#[carbon(discriminator = "0x975a6ed9c4dffb5f")]
 pub struct AdminCancelOrders {
     pub limit: u16,
 }
@@ -30,26 +31,14 @@ pub struct AdminCancelOrdersInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for AdminCancelOrders {
     type ArrangedAccounts = AdminCancelOrdersInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let token_program = accounts.get(0)?;
-        let amm = accounts.get(1)?;
-        let amm_authority = accounts.get(2)?;
-        let amm_open_orders = accounts.get(3)?;
-        let amm_target_orders = accounts.get(4)?;
-        let pool_coin_token_account = accounts.get(5)?;
-        let pool_pc_token_account = accounts.get(6)?;
-        let amm_owner_account = accounts.get(7)?;
-        let amm_config = accounts.get(8)?;
-        let serum_program = accounts.get(9)?;
-        let serum_market = accounts.get(10)?;
-        let serum_coin_vault_account = accounts.get(11)?;
-        let serum_pc_vault_account = accounts.get(12)?;
-        let serum_vault_signer = accounts.get(13)?;
-        let serum_event_q = accounts.get(14)?;
-        let serum_bids = accounts.get(15)?;
-        let serum_asks = accounts.get(16)?;
+        let [token_program, amm, amm_authority, amm_open_orders, amm_target_orders, pool_coin_token_account, pool_pc_token_account, amm_owner_account, amm_config, serum_program, serum_market, serum_coin_vault_account, serum_pc_vault_account, serum_vault_signer, serum_event_q, serum_bids, serum_asks] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(AdminCancelOrdersInstructionAccounts {
             token_program: token_program.pubkey,

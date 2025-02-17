@@ -78,24 +78,16 @@ impl Processor for RaydiumClmmInstructionProcessor {
                 log::info!("CreatePool: signature: {signature}, create_pool: {create_pool:?}");
             }
             RaydiumClmmInstruction::UpdatePoolStatus(update_pool_status) => {
-                log::info!(
-                    "UpdatePoolStatus: signature: {signature}, update_pool_status: {update_pool_status:?}"
-                );
+                log::info!("UpdatePoolStatus: signature: {signature}, update_pool_status: {update_pool_status:?}");
             }
             RaydiumClmmInstruction::CreateOperationAccount(create_opperation_acc) => {
-                log::info!(
-                    "CreateOperationAccount: signature: {signature}, create_opperation_acc: {create_opperation_acc:?}"
-                );
+                log::info!("CreateOperationAccount: signature: {signature}, create_opperation_acc: {create_opperation_acc:?}");
             }
             RaydiumClmmInstruction::UpdateOperationAccount(update_opperation_acc) => {
-                log::info!(
-                    "UpdateOperationAccount: signature: {signature}, update_opperation_acc: {update_opperation_acc:?}"
-                );
+                log::info!("UpdateOperationAccount: signature: {signature}, update_opperation_acc: {update_opperation_acc:?}");
             }
             RaydiumClmmInstruction::TransferRewardOwner(transfer_reward_owner) => {
-                log::info!(
-                    "TransferRewardOwner: signature: {signature}, transfer_reward_owner: {transfer_reward_owner:?}"
-                );
+                log::info!("TransferRewardOwner: signature: {signature}, transfer_reward_owner: {transfer_reward_owner:?}");
             }
             RaydiumClmmInstruction::InitializeReward(init_reward) => {
                 log::info!(
@@ -103,29 +95,19 @@ impl Processor for RaydiumClmmInstructionProcessor {
                 );
             }
             RaydiumClmmInstruction::CollectRemainingRewards(collect_remaining_rewards) => {
-                log::info!(
-                    "CollectRemainingRewards: signature: {signature}, collect_remaining_rewards: {collect_remaining_rewards:?}"
-                );
+                log::info!("CollectRemainingRewards: signature: {signature}, collect_remaining_rewards: {collect_remaining_rewards:?}");
             }
             RaydiumClmmInstruction::UpdateRewardInfos(update_reward_infos) => {
-                log::info!(
-                    "UpdateRewardInfos: signature: {signature}, update_reward_infos: {update_reward_infos:?}"
-                );
+                log::info!("UpdateRewardInfos: signature: {signature}, update_reward_infos: {update_reward_infos:?}");
             }
             RaydiumClmmInstruction::SetRewardParams(set_reward_params) => {
-                log::info!(
-                    "SetRewardParams: signature: {signature}, set_reward_params: {set_reward_params:?}"
-                );
+                log::info!("SetRewardParams: signature: {signature}, set_reward_params: {set_reward_params:?}");
             }
             RaydiumClmmInstruction::CollectProtocolFee(collect_protocol_fee) => {
-                log::info!(
-                    "CollectProtocolFee: signature: {signature}, collect_protocol_fee: {collect_protocol_fee:?}"
-                );
+                log::info!("CollectProtocolFee: signature: {signature}, collect_protocol_fee: {collect_protocol_fee:?}");
             }
             RaydiumClmmInstruction::CollectFundFee(collect_fund_fee) => {
-                log::info!(
-                    "CollectFundFee: signature: {signature}, collect_fund_fee: {collect_fund_fee:?}"
-                );
+                log::info!("CollectFundFee: signature: {signature}, collect_fund_fee: {collect_fund_fee:?}");
             }
             RaydiumClmmInstruction::OpenPosition(open_position) => {
                 log::info!(
@@ -133,9 +115,7 @@ impl Processor for RaydiumClmmInstructionProcessor {
                 );
             }
             RaydiumClmmInstruction::OpenPositionV2(open_position_v2) => {
-                log::info!(
-                    "OpenPositionV2: signature: {signature}, open_position_v2: {open_position_v2:?}"
-                );
+                log::info!("OpenPositionV2: signature: {signature}, open_position_v2: {open_position_v2:?}");
             }
             RaydiumClmmInstruction::ClosePosition(close_position) => {
                 log::info!(
@@ -148,9 +128,7 @@ impl Processor for RaydiumClmmInstructionProcessor {
                 );
             }
             RaydiumClmmInstruction::IncreaseLiquidityV2(increase_liq_v2) => {
-                log::info!(
-                    "IncreaseLiquidityV2: signature: {signature}, increase_liq_v2: {increase_liq_v2:?}"
-                );
+                log::info!("IncreaseLiquidityV2: signature: {signature}, increase_liq_v2: {increase_liq_v2:?}");
             }
             RaydiumClmmInstruction::DecreaseLiquidity(decrease_liq) => {
                 log::info!(
@@ -158,9 +136,7 @@ impl Processor for RaydiumClmmInstructionProcessor {
                 );
             }
             RaydiumClmmInstruction::DecreaseLiquidityV2(decrease_liq_v2) => {
-                log::info!(
-                    "DecreaseLiquidityV2: signature: {signature}, decrease_liq_v2: {decrease_liq_v2:?}"
-                );
+                log::info!("DecreaseLiquidityV2: signature: {signature}, decrease_liq_v2: {decrease_liq_v2:?}");
             }
             RaydiumClmmInstruction::Swap(swap) => {
                 log::info!("Swap: signature: {signature}, swap: {swap:?}");
@@ -205,6 +181,9 @@ impl Processor for RaydiumClmmInstructionProcessor {
             }
             RaydiumClmmInstruction::LiquidityChangeEvent(liq_change_event) => {
                 log::info!("LiquidityChangeEvent: signature: {signature}, liq_change_event: {liq_change_event:?}");
+            }
+            RaydiumClmmInstruction::OpenPositionWithToken22Nft(open_position_with_token22_nft) => {
+                log::info!("OpenPositionWithToken22Nft: signature: {signature}, open_position_with_token22_nft: {open_position_with_token22_nft:?}");
             }
         };
 

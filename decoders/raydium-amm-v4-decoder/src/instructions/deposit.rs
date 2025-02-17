@@ -3,7 +3,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x03")]
+#[carbon(discriminator = "0xf223c68952e1f2b6")]
 pub struct Deposit {
     pub max_coin_amount: u64,
     pub max_pc_amount: u64,
@@ -30,23 +30,14 @@ pub struct DepositInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Deposit {
     type ArrangedAccounts = DepositInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let token_program = accounts.get(0)?;
-        let amm = accounts.get(1)?;
-        let amm_authority = accounts.get(2)?;
-        let amm_open_orders = accounts.get(3)?;
-        let amm_target_orders = accounts.get(4)?;
-        let lp_mint_address = accounts.get(5)?;
-        let pool_coin_token_account = accounts.get(6)?;
-        let pool_pc_token_account = accounts.get(7)?;
-        let serum_market = accounts.get(8)?;
-        let user_coin_token_account = accounts.get(9)?;
-        let user_pc_token_account = accounts.get(10)?;
-        let user_lp_token_account = accounts.get(11)?;
-        let user_owner = accounts.get(12)?;
-        let serum_event_queue = accounts.get(13)?;
+        let [token_program, amm, amm_authority, amm_open_orders, amm_target_orders, lp_mint_address, pool_coin_token_account, pool_pc_token_account, serum_market, user_coin_token_account, user_pc_token_account, user_lp_token_account, user_owner, serum_event_queue] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(DepositInstructionAccounts {
             token_program: token_program.pubkey,
