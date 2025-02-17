@@ -43,8 +43,8 @@ use crate::{
     },
     account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
     collection::InstructionDecoderCollection,
-    datasource::{AccountDeletion, Datasource, Update, UpdateType},
-    error::{CarbonResult, Error},
+    datasource::{AccountDeletion, Datasource, Update},
+    error::CarbonResult,
     instruction::{
         InstructionDecoder, InstructionPipe, InstructionPipes, InstructionProcessorInputType,
         InstructionsWithMetadata, NestedInstructions,
@@ -275,34 +275,6 @@ impl Pipeline {
         );
 
         log::trace!("run(self)");
-        let update_types: Vec<UpdateType> = self
-            .datasources
-            .iter()
-            .map(|datasource| datasource.update_types())
-            .flatten()
-            .collect();
-
-        if !self.account_pipes.is_empty() && !update_types.contains(&UpdateType::AccountUpdate) {
-            return Err(Error::MissingUpdateTypeInDatasource(
-                UpdateType::AccountUpdate,
-            ));
-        }
-
-        if !self.account_deletion_pipes.is_empty()
-            && !update_types.contains(&UpdateType::AccountDeletion)
-        {
-            return Err(Error::MissingUpdateTypeInDatasource(
-                UpdateType::AccountDeletion,
-            ));
-        }
-
-        if (!self.instruction_pipes.is_empty() || !self.transaction_pipes.is_empty())
-            && !update_types.contains(&UpdateType::Transaction)
-        {
-            return Err(Error::MissingUpdateTypeInDatasource(
-                UpdateType::Transaction,
-            ));
-        }
 
         self.metrics.initialize_metrics().await?;
         let (update_sender, mut update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
