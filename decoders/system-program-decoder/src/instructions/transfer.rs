@@ -15,11 +15,12 @@ pub struct TransferAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Transfer {
     type ArrangedAccounts = TransferAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let funding_account = accounts.get(0)?;
-        let recipient_account = accounts.get(1)?;
+        let [funding_account, recipient_account] = accounts else {
+            return None;
+        };
 
         Some(TransferAccounts {
             from: funding_account.pubkey,

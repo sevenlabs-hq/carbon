@@ -16,14 +16,14 @@ pub struct WithdrawNonceAccountAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawNonceAccount {
     type ArrangedAccounts = WithdrawNonceAccountAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let nonce_account = accounts.get(0)?;
-        let recipient_account = accounts.get(1)?;
-        let recent_blockhashes_sysvar = accounts.get(2)?;
-        let rent_sysvar = accounts.get(3)?;
-        let nonce_authority = accounts.get(4)?;
+        let [nonce_account, recipient_account, recent_blockhashes_sysvar, rent_sysvar, nonce_authority] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(WithdrawNonceAccountAccounts {
             nonce_account: nonce_account.pubkey,

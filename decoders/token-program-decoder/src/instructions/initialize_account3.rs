@@ -15,11 +15,12 @@ pub struct InitializeAccount3Accounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitializeAccount3 {
     type ArrangedAccounts = InitializeAccount3Accounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let account = accounts.get(0)?;
-        let mint = accounts.get(1)?;
+        let [account, mint] = accounts else {
+            return None;
+        };
 
         Some(InitializeAccount3Accounts {
             account: account.pubkey,

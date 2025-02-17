@@ -22,10 +22,9 @@ impl carbon_core::deserialize::ArrangeAccounts for ApproveChecked {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let source = accounts.get(0)?;
-        let mint = accounts.get(1)?;
-        let delegate = accounts.get(2)?;
-        let owner = accounts.get(3)?;
+        let [source, mint, delegate, owner] = accounts else {
+            return None;
+        };
 
         Some(ApproveCheckedAccounts {
             source: source.pubkey,

@@ -21,8 +21,9 @@ impl carbon_core::deserialize::ArrangeAccounts for SetAuthority {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let account = accounts.get(0)?;
-        let authority = accounts.get(1)?;
+        let [account, authority] = accounts else {
+            return None;
+        };
 
         Some(SetAuthorityAccounts {
             account: account.pubkey,

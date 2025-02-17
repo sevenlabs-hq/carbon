@@ -15,10 +15,10 @@ pub struct UiAmountToAmountAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UiAmountToAmount {
     type ArrangedAccounts = UiAmountToAmountAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let mint = accounts.get(0)?;
+        let mint = accounts.first()?;
 
         Some(UiAmountToAmountAccounts { mint: mint.pubkey })
     }

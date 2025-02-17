@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Allocate {
 fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let new_account = accounts.get(0)?;
+        let new_account = accounts.first()?;
 
         Some(AllocateAccounts {
             new_account: new_account.pubkey,

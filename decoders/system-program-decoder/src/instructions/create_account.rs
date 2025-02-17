@@ -17,11 +17,12 @@ pub struct CreateAccountAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CreateAccount {
     type ArrangedAccounts = CreateAccountAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let funding_account = accounts.get(0)?;
-        let new_account = accounts.get(1)?;
+        let [funding_account, new_account] = accounts else {
+            return None;
+        };
 
         Some(CreateAccountAccounts {
             funding_account: funding_account.pubkey,
