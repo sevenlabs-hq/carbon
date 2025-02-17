@@ -13,11 +13,12 @@ pub struct AuthorizeNonceAccountAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for AuthorizeNonceAccount {
     type ArrangedAccounts = AuthorizeNonceAccountAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let nonce_account = accounts.get(0)?;
-        let nonce_authority = accounts.get(1)?;
+        let [nonce_account, nonce_authority] = accounts else {
+            return None;
+        };
 
         Some(AuthorizeNonceAccountAccounts {
             nonce_account: nonce_account.pubkey,

@@ -14,11 +14,12 @@ pub struct RevokeAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Revoke {
     type ArrangedAccounts = RevokeAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let source = accounts.get(0)?;
-        let owner = accounts.get(1)?;
+        let [source, owner] = accounts else {
+            return None;
+        };
 
         Some(RevokeAccounts {
             source: source.pubkey,

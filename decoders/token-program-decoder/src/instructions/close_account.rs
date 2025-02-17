@@ -15,12 +15,12 @@ pub struct CloseAccountAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CloseAccount {
     type ArrangedAccounts = CloseAccountAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let account = accounts.get(0)?;
-        let destination = accounts.get(1)?;
-        let owner = accounts.get(2)?;
+        let [account, destination, owner] = accounts else {
+            return None;
+        };
 
         Some(CloseAccountAccounts {
             account: account.pubkey,

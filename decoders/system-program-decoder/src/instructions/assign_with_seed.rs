@@ -17,11 +17,12 @@ pub struct AssignWithSeedAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for AssignWithSeed {
     type ArrangedAccounts = AssignWithSeedAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let assigned_account = accounts.get(0)?;
-        let base_account = accounts.get(1)?;
+        let [assigned_account, base_account] = accounts else {
+            return None;
+        };
 
         Some(AssignWithSeedAccounts {
             assigned_account: assigned_account.pubkey,

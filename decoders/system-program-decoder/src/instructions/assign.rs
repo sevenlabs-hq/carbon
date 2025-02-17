@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Assign {
 fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let assigned_account = accounts.get(0)?;
+        let assigned_account = accounts.first()?;
 
         Some(AssignAccounts {
             assigned_account: assigned_account.pubkey,

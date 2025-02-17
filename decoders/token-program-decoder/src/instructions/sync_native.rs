@@ -12,10 +12,10 @@ pub struct SyncNativeAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SyncNative {
     type ArrangedAccounts = SyncNativeAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let account = accounts.get(0)?;
+        let account = accounts.first()?;
 
         Some(SyncNativeAccounts {
             account: account.pubkey,

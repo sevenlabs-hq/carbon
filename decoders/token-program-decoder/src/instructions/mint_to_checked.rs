@@ -18,12 +18,12 @@ pub struct MintToCheckedAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for MintToChecked {
     type ArrangedAccounts = MintToCheckedAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let mint = accounts.get(0)?;
-        let account = accounts.get(1)?;
-        let authority = accounts.get(2)?;
+        let [mint, account, authority] = accounts else {
+            return None;
+        };
 
         Some(MintToCheckedAccounts {
             mint: mint.pubkey,

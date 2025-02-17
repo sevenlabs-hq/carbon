@@ -22,10 +22,9 @@ impl carbon_core::deserialize::ArrangeAccounts for TransferChecked {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let source = accounts.get(0)?;
-        let mint = accounts.get(1)?;
-        let destination = accounts.get(2)?;
-        let authority = accounts.get(3)?;
+        let [source, mint, destination, authority] = accounts else {
+            return None;
+        };
 
         Some(TransferCheckedAccounts {
             source: source.pubkey,
