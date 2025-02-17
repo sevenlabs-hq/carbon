@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x18")]
-pub struct RevokeCollectionAuthority{
-}
+pub struct RevokeCollectionAuthority {}
 
 pub struct RevokeCollectionAuthorityInstructionAccounts {
     pub collection_authority_record: solana_sdk::pubkey::Pubkey,
@@ -19,12 +17,14 @@ pub struct RevokeCollectionAuthorityInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for RevokeCollectionAuthority {
     type ArrangedAccounts = RevokeCollectionAuthorityInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let collection_authority_record = accounts.get(0)?;
-        let delegate_authority = accounts.get(1)?;
-        let revoke_authority = accounts.get(2)?;
-        let metadata = accounts.get(3)?;
-        let mint = accounts.get(4)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [collection_authority_record, delegate_authority, revoke_authority, metadata, mint] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(RevokeCollectionAuthorityInstructionAccounts {
             collection_authority_record: collection_authority_record.pubkey,

@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x17")]
-pub struct ApproveCollectionAuthority{
-}
+pub struct ApproveCollectionAuthority {}
 
 pub struct ApproveCollectionAuthorityInstructionAccounts {
     pub collection_authority_record: solana_sdk::pubkey::Pubkey,
@@ -22,15 +20,14 @@ pub struct ApproveCollectionAuthorityInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for ApproveCollectionAuthority {
     type ArrangedAccounts = ApproveCollectionAuthorityInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let collection_authority_record = accounts.get(0)?;
-        let new_collection_authority = accounts.get(1)?;
-        let update_authority = accounts.get(2)?;
-        let payer = accounts.get(3)?;
-        let metadata = accounts.get(4)?;
-        let mint = accounts.get(5)?;
-        let system_program = accounts.get(6)?;
-        let rent = accounts.get(7)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [collection_authority_record, new_collection_authority, update_authority, payer, metadata, mint, system_program, rent] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(ApproveCollectionAuthorityInstructionAccounts {
             collection_authority_record: collection_authority_record.pubkey,

@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x34")]
-pub struct Verify{
+pub struct Verify {
     pub verification_args: VerificationArgs,
 }
 
@@ -24,15 +24,14 @@ pub struct VerifyInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Verify {
     type ArrangedAccounts = VerifyInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let authority = accounts.get(0)?;
-        let delegate_record = accounts.get(1)?;
-        let metadata = accounts.get(2)?;
-        let collection_mint = accounts.get(3)?;
-        let collection_metadata = accounts.get(4)?;
-        let collection_master_edition = accounts.get(5)?;
-        let system_program = accounts.get(6)?;
-        let sysvar_instructions = accounts.get(7)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [authority, delegate_record, metadata, collection_mint, collection_metadata, collection_master_edition, system_program, sysvar_instructions] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(VerifyInstructionAccounts {
             authority: authority.pubkey,

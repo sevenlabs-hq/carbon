@@ -1,9 +1,9 @@
 use super::super::types::*;
+
 use carbon_core::{borsh, CarbonDeserialize};
 
-pub(crate) const TARGET_ORDERS_SIZE: usize = std::mem::size_of::<TargetOrders>();
-
 #[derive(CarbonDeserialize, Debug)]
+#[carbon(discriminator = "0x71e18cff4190efe7")]
 pub struct TargetOrders {
     pub owner: [u64; 4],
     pub buy_orders: [TargetOrder; 50],

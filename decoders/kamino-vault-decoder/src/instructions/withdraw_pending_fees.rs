@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x83c2c88caff4d9b7")]
-pub struct WithdrawPendingFees{
-}
+pub struct WithdrawPendingFees {}
 
 pub struct WithdrawPendingFeesInstructionAccounts {
     pub admin_authority: solana_sdk::pubkey::Pubkey,
@@ -30,23 +28,14 @@ pub struct WithdrawPendingFeesInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawPendingFees {
     type ArrangedAccounts = WithdrawPendingFeesInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let admin_authority = accounts.get(0)?;
-        let vault_state = accounts.get(1)?;
-        let reserve = accounts.get(2)?;
-        let token_vault = accounts.get(3)?;
-        let ctoken_vault = accounts.get(4)?;
-        let base_vault_authority = accounts.get(5)?;
-        let token_ata = accounts.get(6)?;
-        let token_mint = accounts.get(7)?;
-        let lending_market = accounts.get(8)?;
-        let lending_market_authority = accounts.get(9)?;
-        let reserve_liquidity_supply = accounts.get(10)?;
-        let reserve_collateral_mint = accounts.get(11)?;
-        let klend_program = accounts.get(12)?;
-        let token_program = accounts.get(13)?;
-        let reserve_collateral_token_program = accounts.get(14)?;
-        let instruction_sysvar_account = accounts.get(15)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [admin_authority, vault_state, reserve, token_vault, ctoken_vault, base_vault_authority, token_ata, token_mint, lending_market, lending_market_authority, reserve_liquidity_supply, reserve_collateral_mint, klend_program, token_program, reserve_collateral_token_program, instruction_sysvar_account] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(WithdrawPendingFeesInstructionAccounts {
             admin_authority: admin_authority.pubkey,

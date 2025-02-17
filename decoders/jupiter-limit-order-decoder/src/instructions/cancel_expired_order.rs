@@ -1,4 +1,5 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -18,16 +19,14 @@ pub struct CancelExpiredOrderInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CancelExpiredOrder {
     type ArrangedAccounts = CancelExpiredOrderInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let order = accounts.get(0)?;
-        let reserve = accounts.get(1)?;
-        let maker = accounts.get(2)?;
-        let maker_input_account = accounts.get(3)?;
-        let system_program = accounts.get(4)?;
-        let token_program = accounts.get(5)?;
-        let input_mint = accounts.get(6)?;
+        let [order, reserve, maker, maker_input_account, system_program, token_program, input_mint] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(CancelExpiredOrderInstructionAccounts {
             order: order.pubkey,

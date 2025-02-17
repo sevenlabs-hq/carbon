@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x8250269950d4b6fd")]
-pub struct IdlMissingTypes{
+pub struct IdlMissingTypes {
     pub reserve_farm_kind: ReserveFarmKind,
     pub asset_tier: AssetTier,
     pub fee_calculation: FeeCalculation,
@@ -25,10 +25,12 @@ pub struct IdlMissingTypesInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for IdlMissingTypes {
     type ArrangedAccounts = IdlMissingTypesInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let lending_market_owner = accounts.get(0)?;
-        let lending_market = accounts.get(1)?;
-        let reserve = accounts.get(2)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [lending_market_owner, lending_market, reserve] = accounts else {
+            return None;
+        };
 
         Some(IdlMissingTypesInstructionAccounts {
             lending_market_owner: lending_market_owner.pubkey,

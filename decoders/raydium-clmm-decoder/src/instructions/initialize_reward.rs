@@ -27,18 +27,13 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeReward {
     type ArrangedAccounts = InitializeRewardInstructionAccounts;
 
     fn arrange_accounts(
-        accounts:&[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let reward_funder = accounts.get(0)?;
-        let funder_token_account = accounts.get(1)?;
-        let amm_config = accounts.get(2)?;
-        let pool_state = accounts.get(3)?;
-        let operation_state = accounts.get(4)?;
-        let reward_token_mint = accounts.get(5)?;
-        let reward_token_vault = accounts.get(6)?;
-        let reward_token_program = accounts.get(7)?;
-        let system_program = accounts.get(8)?;
-        let rent = accounts.get(9)?;
+        let [reward_funder, funder_token_account, amm_config, pool_state, operation_state, reward_token_mint, reward_token_vault, reward_token_program, system_program, rent] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(InitializeRewardInstructionAccounts {
             reward_funder: reward_funder.pubkey,

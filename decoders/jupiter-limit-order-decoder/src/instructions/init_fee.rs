@@ -1,4 +1,5 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -19,12 +20,12 @@ pub struct InitFeeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitFee {
     type ArrangedAccounts = InitFeeInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let keeper = accounts.get(0)?;
-        let fee_authority = accounts.get(1)?;
-        let system_program = accounts.get(2)?;
+        let [keeper, fee_authority, system_program] = accounts else {
+            return None;
+        };
 
         Some(InitFeeInstructionAccounts {
             keeper: keeper.pubkey,

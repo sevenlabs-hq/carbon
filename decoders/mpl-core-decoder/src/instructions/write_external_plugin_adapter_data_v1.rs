@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x1c")]
-pub struct WriteExternalPluginAdapterDataV1{
+pub struct WriteExternalPluginAdapterDataV1 {
     pub write_external_plugin_adapter_data_v1_args: WriteExternalPluginAdapterDataV1Args,
 }
 
@@ -23,14 +23,13 @@ pub struct WriteExternalPluginAdapterDataV1InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for WriteExternalPluginAdapterDataV1 {
     type ArrangedAccounts = WriteExternalPluginAdapterDataV1InstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let asset = accounts.get(0)?;
-        let collection = accounts.get(1)?;
-        let payer = accounts.get(2)?;
-        let authority = accounts.get(3)?;
-        let buffer = accounts.get(4)?;
-        let system_program = accounts.get(5)?;
-        let log_wrapper = accounts.get(6)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [asset, collection, payer, authority, buffer, system_program, log_wrapper] = accounts
+        else {
+            return None;
+        };
 
         Some(WriteExternalPluginAdapterDataV1InstructionAccounts {
             asset: asset.pubkey,

@@ -1,8 +1,9 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x0f")]
+#[carbon(discriminator = "0xf0200a98082d573a")]
 pub struct UpdateConfigAccount {
     pub param: u8,
     pub owner: solana_sdk::pubkey::Pubkey,
@@ -16,11 +17,12 @@ pub struct UpdateConfigAccountInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UpdateConfigAccount {
     type ArrangedAccounts = UpdateConfigAccountInstructionAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let admin = accounts.get(0)?;
-        let amm_config = accounts.get(1)?;
+        let [admin, amm_config] = accounts else {
+            return None;
+        };
 
         Some(UpdateConfigAccountInstructionAccounts {
             admin: admin.pubkey,

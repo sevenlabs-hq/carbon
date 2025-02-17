@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x2f")]
-pub struct Unlock{
+pub struct Unlock {
     pub unlock_args: UnlockArgs,
 }
 
@@ -29,20 +29,14 @@ pub struct UnlockInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Unlock {
     type ArrangedAccounts = UnlockInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let authority = accounts.get(0)?;
-        let token_owner = accounts.get(1)?;
-        let token = accounts.get(2)?;
-        let mint = accounts.get(3)?;
-        let metadata = accounts.get(4)?;
-        let edition = accounts.get(5)?;
-        let token_record = accounts.get(6)?;
-        let payer = accounts.get(7)?;
-        let system_program = accounts.get(8)?;
-        let sysvar_instructions = accounts.get(9)?;
-        let spl_token_program = accounts.get(10)?;
-        let authorization_rules_program = accounts.get(11)?;
-        let authorization_rules = accounts.get(12)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [authority, token_owner, token, mint, metadata, edition, token_record, payer, system_program, sysvar_instructions, spl_token_program, authorization_rules_program, authorization_rules] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(UnlockInstructionAccounts {
             authority: authority.pubkey,

@@ -29,21 +29,13 @@ impl carbon_core::deserialize::ArrangeAccounts for CreatePool {
     type ArrangedAccounts = CreatePoolInstructionAccounts;
 
     fn arrange_accounts(
-        accounts:&[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let pool_creator = accounts.get(0)?;
-        let amm_config = accounts.get(1)?;
-        let pool_state = accounts.get(2)?;
-        let token_mint0 = accounts.get(3)?;
-        let token_mint1 = accounts.get(4)?;
-        let token_vault0 = accounts.get(5)?;
-        let token_vault1 = accounts.get(6)?;
-        let observation_state = accounts.get(7)?;
-        let tick_array_bitmap = accounts.get(8)?;
-        let token_program0 = accounts.get(9)?;
-        let token_program1 = accounts.get(10)?;
-        let system_program = accounts.get(11)?;
-        let rent = accounts.get(12)?;
+        let [pool_creator, amm_config, pool_state, token_mint0, token_mint1, token_vault0, token_vault1, observation_state, tick_array_bitmap, token_program0, token_program1, system_program, rent] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(CreatePoolInstructionAccounts {
             pool_creator: pool_creator.pubkey,

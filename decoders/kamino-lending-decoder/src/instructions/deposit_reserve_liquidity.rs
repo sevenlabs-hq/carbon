@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xa9c91e7e06cd6644")]
-pub struct DepositReserveLiquidity{
+pub struct DepositReserveLiquidity {
     pub liquidity_amount: u64,
 }
 
@@ -27,19 +26,14 @@ pub struct DepositReserveLiquidityInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for DepositReserveLiquidity {
     type ArrangedAccounts = DepositReserveLiquidityInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let owner = accounts.get(0)?;
-        let reserve = accounts.get(1)?;
-        let lending_market = accounts.get(2)?;
-        let lending_market_authority = accounts.get(3)?;
-        let reserve_liquidity_mint = accounts.get(4)?;
-        let reserve_liquidity_supply = accounts.get(5)?;
-        let reserve_collateral_mint = accounts.get(6)?;
-        let user_source_liquidity = accounts.get(7)?;
-        let user_destination_collateral = accounts.get(8)?;
-        let collateral_token_program = accounts.get(9)?;
-        let liquidity_token_program = accounts.get(10)?;
-        let instruction_sysvar_account = accounts.get(11)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [owner, reserve, lending_market, lending_market_authority, reserve_liquidity_mint, reserve_liquidity_supply, reserve_collateral_mint, user_source_liquidity, user_destination_collateral, collateral_token_program, liquidity_token_program, instruction_sysvar_account] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(DepositReserveLiquidityInstructionAccounts {
             owner: owner.pubkey,

@@ -14,9 +14,11 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateRewardInfos {
     type ArrangedAccounts = UpdateRewardInfosInstructionAccounts;
 
     fn arrange_accounts(
-        accounts:&[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let pool_state = accounts.get(0)?;
+        let [pool_state] = accounts else {
+            return None;
+        };
 
         Some(UpdateRewardInfosInstructionAccounts {
             pool_state: pool_state.pubkey,

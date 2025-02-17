@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x1e")]
-pub struct UpdateV2{
+pub struct UpdateV2 {
     pub update_v2_args: UpdateV2Args,
 }
 
@@ -23,14 +23,14 @@ pub struct UpdateV2InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UpdateV2 {
     type ArrangedAccounts = UpdateV2InstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let asset = accounts.get(0)?;
-        let collection = accounts.get(1)?;
-        let payer = accounts.get(2)?;
-        let authority = accounts.get(3)?;
-        let new_collection = accounts.get(4)?;
-        let system_program = accounts.get(5)?;
-        let log_wrapper = accounts.get(6)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [asset, collection, payer, authority, new_collection, system_program, log_wrapper] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(UpdateV2InstructionAccounts {
             asset: asset.pubkey,

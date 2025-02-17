@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x2c")]
-pub struct Delegate{
+pub struct Delegate {
     pub delegate_args: DelegateArgs,
 }
 
@@ -30,21 +30,14 @@ pub struct DelegateInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Delegate {
     type ArrangedAccounts = DelegateInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let delegate_record = accounts.get(0)?;
-        let delegate = accounts.get(1)?;
-        let metadata = accounts.get(2)?;
-        let master_edition = accounts.get(3)?;
-        let token_record = accounts.get(4)?;
-        let mint = accounts.get(5)?;
-        let token = accounts.get(6)?;
-        let authority = accounts.get(7)?;
-        let payer = accounts.get(8)?;
-        let system_program = accounts.get(9)?;
-        let sysvar_instructions = accounts.get(10)?;
-        let spl_token_program = accounts.get(11)?;
-        let authorization_rules_program = accounts.get(12)?;
-        let authorization_rules = accounts.get(13)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [delegate_record, delegate, metadata, master_edition, token_record, mint, token, authority, payer, system_program, sysvar_instructions, spl_token_program, authorization_rules_program, authorization_rules] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(DelegateInstructionAccounts {
             delegate_record: delegate_record.pubkey,

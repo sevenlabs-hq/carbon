@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x31")]
-pub struct Transfer{
+pub struct Transfer {
     pub transfer_args: TransferArgs,
 }
 
@@ -33,24 +33,14 @@ pub struct TransferInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Transfer {
     type ArrangedAccounts = TransferInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let token = accounts.get(0)?;
-        let token_owner = accounts.get(1)?;
-        let destination = accounts.get(2)?;
-        let destination_owner = accounts.get(3)?;
-        let mint = accounts.get(4)?;
-        let metadata = accounts.get(5)?;
-        let edition = accounts.get(6)?;
-        let owner_token_record = accounts.get(7)?;
-        let destination_token_record = accounts.get(8)?;
-        let authority = accounts.get(9)?;
-        let payer = accounts.get(10)?;
-        let system_program = accounts.get(11)?;
-        let sysvar_instructions = accounts.get(12)?;
-        let spl_token_program = accounts.get(13)?;
-        let spl_ata_program = accounts.get(14)?;
-        let authorization_rules_program = accounts.get(15)?;
-        let authorization_rules = accounts.get(16)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [token, token_owner, destination, destination_owner, mint, metadata, edition, owner_token_record, destination_token_record, authority, payer, system_program, sysvar_instructions, spl_token_program, spl_ata_program, authorization_rules_program, authorization_rules] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(TransferInstructionAccounts {
             token: token.pubkey,
