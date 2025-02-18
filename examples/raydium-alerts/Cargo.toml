@@ -11,7 +11,7 @@ solana-client = { workspace = true }
 carbon-yellowstone-grpc-datasource = { workspace = true }
 carbon-raydium-amm-v4-decoder = { workspace = true }
 
-yellowstone-grpc-proto = { version = "2.0.0", git = "https://github.com/rpcpool/yellowstone-grpc.git", rev = "17faff5ac068c2f212c471acf67a8dcc1d7caff5" }
+yellowstone-grpc-proto = { version = "=5.0.0", git = "https://github.com/rpcpool/yellowstone-grpc.git", tag = "v5.0.0+solana.2.1.13" }
 tokio = { version = "1.40.0", features = ["full"] }
 async-trait = "0.1.83"
 log = "0.4.22"

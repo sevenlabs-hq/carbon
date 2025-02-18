@@ -15,8 +15,8 @@ solana-client = { workspace = true }
 
 carbon-core = { workspace = true }
 
-yellowstone-grpc-proto = { version = "=2.0.0", git = "https://github.com/rpcpool/yellowstone-grpc.git", rev = "17faff5ac068c2f212c471acf67a8dcc1d7caff5" }
-yellowstone-grpc-client = { version = "=2.0.0", git = "https://github.com/rpcpool/yellowstone-grpc.git", rev = "17faff5ac068c2f212c471acf67a8dcc1d7caff5" }
+yellowstone-grpc-proto = { version = "=5.0.0", git = "https://github.com/rpcpool/yellowstone-grpc.git", tag = "v5.0.0+solana.2.1.13" }
+yellowstone-grpc-client = { version = "=5.0.0", git = "https://github.com/rpcpool/yellowstone-grpc.git", tag = "v5.0.0+solana.2.1.13" }
 futures = "0.3.30"
 futures-util = "0.3.30"
 tokio = { version = "1.40.0", features = ["full"] }
