@@ -21,8 +21,16 @@ fn main() -> Result<()> {
         Commands::Parse(options) => match options.idl {
             IdlSource::FilePath(path) => {
                 if options.codama {
-                    handlers::parse_codama(path, options.output, options.as_crate)?;
+                    handlers::parse_codama(
+                        path,
+                        options.output,
+                        options.as_crate,
+                        options.event_hints,
+                    )?;
                 } else {
+                    if options.event_hints.is_some() {
+                        anyhow::bail!("The '--event-hints' option can only be used with --codama.");
+                    }
                     handlers::parse(path, options.output, options.as_crate)?;
                 }
             }

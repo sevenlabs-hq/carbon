@@ -1,30 +1,37 @@
 use crate::{
-    accounts::{
-        legacy_process_accounts, process_accounts, AccountsModTemplate, AccountsStructTemplate,
+    accounts::{AccountsModTemplate, AccountsStructTemplate},
+    events::EventsStructTemplate,
+    handlers::codama::{
+        processors::{
+            process_codama_accounts, process_codama_defined_types, process_codama_instructions,
+        },
+        utils::{parse_event_hints, read_codama_idl},
     },
-    events::{legacy_process_events, process_events, EventsStructTemplate},
-    instructions::{
-        legacy_process_instructions, process_instructions, InstructionsModTemplate,
-        InstructionsStructTemplate,
-    },
-    types::{legacy_process_types, process_types, TypeStructTemplate},
-    util::{is_big_array, legacy_read_idl, read_idl},
+    instructions::{InstructionsModTemplate, InstructionsStructTemplate},
+    types::TypeStructTemplate,
+    util::is_big_array,
 };
 use anyhow::{bail, Result};
 use askama::Template;
 use heck::{ToKebabCase, ToSnakeCase, ToSnekCase, ToUpperCamelCase};
 use std::fs::{self};
 
-pub fn parse_codama(path: String, output: String, as_crate: bool) -> Result<()> {
-    // TODO: read codama idl
+pub fn parse_codama(
+    path: String,
+    output: String,
+    as_crate: bool,
+    event_hints: Option<String>,
+) -> Result<()> {
     let (accounts_data, instructions_data, types_data, events_data, program_name) =
-        match read_idl(&path) {
+        match read_codama_idl(&path) {
             Ok(idl) => {
-                let accounts_data = process_accounts(&idl);
-                let instructions_data = process_instructions(&idl);
-                let types_data = process_types(&idl);
-                let events_data = process_events(&idl);
-                let program_name = idl.metadata.name;
+                let accounts_data = process_codama_accounts(&idl.program);
+                let instructions_data = process_codama_instructions(&idl.program);
+
+                let event_hints = parse_event_hints(event_hints);
+                let (types_data, events_data) =
+                    process_codama_defined_types(&idl.program, &event_hints);
+                let program_name = idl.program.name;
 
                 (
                     accounts_data,
