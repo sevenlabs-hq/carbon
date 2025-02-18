@@ -1,0 +1,15 @@
+[package]
+name = "carbon-openbook-v2-decoder"
+version = "0.4.0"
+description = "Openbook V2 Decoder"
+license = "MIT"
+edition = "2018"
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+carbon-core = { workspace = true }
+solana-sdk = "2.0.10"
+serde = "1.0.136"
+serde-big-array = "0.5.1"
