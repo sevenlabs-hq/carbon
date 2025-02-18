@@ -12,10 +12,10 @@ solana-client.workspace = true
 solana-sdk.workspace = true
 solana-account-decoder.workspace = true
 
+async-trait = { workspace = true }
 anyhow = "1.0.89"
-async-trait = "0.1.83"
 serde = { version = "1.0.210", features = ["derive"] }
-tokio = { version = "1.40.0", features = ["full"] }
+tokio = { workspace = true, features = ["full"] }
 tokio-util = "0.7.12"
 dotenv = "0.15.0"
 env_logger = "0.11.5"

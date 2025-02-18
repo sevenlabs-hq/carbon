@@ -14,7 +14,7 @@ solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
 solana-sdk = { workspace = true }
 
-async-trait = "0.1.82"
+async-trait = { workspace = true }
 futures = "0.3.30"
 log = "0.4.22"
 thiserror = "1.0.63"
