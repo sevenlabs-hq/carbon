@@ -37,6 +37,10 @@ pub struct ParseOptions {
     #[arg(help = "The IDL json file to parse is a Codama IDL.")]
     pub codama: bool,
 
+    #[arg(short, long)]
+    #[arg(help = "Comma-separated names of defined types to parse as CPI Events.")]
+    pub event_hints: Option<String>,
+
     #[arg(short, long, required_if_eq("idl", "ProgramAddress"))]
     #[arg(help = "Network URL to fetch the IDL from. Required if input is a program address.")]
     pub url: Option<Url>,
