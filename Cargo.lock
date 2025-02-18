@@ -1047,6 +1047,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-openbook-v2-decoder"
+version = "0.4.0"
+dependencies = [
+ "carbon-core",
+ "serde",
+ "serde-big-array",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-orca-whirlpool-decoder"
 version = "0.4.0"
 dependencies = [
@@ -3224,6 +3234,24 @@ name = "opaque-debug"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c08d65885ee38876c4f86fa503fb49d7b507c2b62552df7c70b2fce627e06381"
+
+[[package]]
+name = "openbook-v2-alerts-carbon-example"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "carbon-log-metrics",
+ "carbon-openbook-v2-decoder",
+ "carbon-rpc-block-subscribe-datasource",
+ "dotenv",
+ "env_logger 0.11.5",
+ "log",
+ "solana-client",
+ "solana-sdk",
+ "solana-transaction-status",
+ "tokio",
+]
 
 [[package]]
 name = "openssl"

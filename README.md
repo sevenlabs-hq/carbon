@@ -202,6 +202,7 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-token-program-decoder` | Token Program Decoder | TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA |
 | `carbon-kamino-lend-decoder` | Kamino Lend Decoder | KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD |
 | `carbon-kamino-vault-decoder` | Kamino Vault Decoder | kvauTFR8qm1dhniz6pYuBZkuene3Hfrs1VQhVRgCNrr |
+| `carbon-openbook-v2-decoder` | Openbook V2 Decoder | opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb |
 
 ## License
 
