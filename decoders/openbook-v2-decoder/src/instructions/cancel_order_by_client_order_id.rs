@@ -20,13 +20,11 @@ impl carbon_core::deserialize::ArrangeAccounts for CancelOrderByClientOrderId {
     type ArrangedAccounts = CancelOrderByClientOrderIdInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let signer = accounts.get(0)?;
-        let open_orders_account = accounts.get(1)?;
-        let market = accounts.get(2)?;
-        let bids = accounts.get(3)?;
-        let asks = accounts.get(4)?;
+        let [signer, open_orders_account, market, bids, asks] = accounts else {
+            return None;
+        };
 
         Some(CancelOrderByClientOrderIdInstructionAccounts {
             signer: signer.pubkey,

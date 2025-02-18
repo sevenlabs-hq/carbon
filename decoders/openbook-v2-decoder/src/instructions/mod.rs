@@ -38,12 +38,7 @@ pub mod sweep_fees_log_event;
 pub mod total_order_fill_event;
 
 #[derive(
-    carbon_core::InstructionType,
-    serde::Serialize,
-    serde::Deserialize,
-    PartialEq,
-    Debug,
-    Clone,
+    carbon_core::InstructionType, serde::Serialize, serde::Deserialize, PartialEq, Debug, Clone,
 )]
 pub enum OpenbookV2Instruction {
     CreateMarket(create_market::CreateMarket),

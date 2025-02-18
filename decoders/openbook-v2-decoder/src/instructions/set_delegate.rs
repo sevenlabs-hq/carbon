@@ -16,11 +16,11 @@ impl carbon_core::deserialize::ArrangeAccounts for SetDelegate {
     type ArrangedAccounts = SetDelegateInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let owner = accounts.get(0)?;
-        let open_orders_account = accounts.get(1)?;
-        let delegate_account = accounts.get(2)?;
+        let [owner, open_orders_account, delegate_account] = accounts else {
+            return None;
+        };
 
         Some(SetDelegateInstructionAccounts {
             owner: owner.pubkey,
