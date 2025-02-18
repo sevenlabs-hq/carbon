@@ -1,6 +1,6 @@
 # Carbon Pipeline Example
 
-This project demonstrates how to set up and run a Carbon pipeline that processes Solana transactions. It uses the `RpcBlockSubscribe` to fetch Solana transactions related to a specific program and processes these transactions using the `OpenbookV2Decoder`. The example demonstrates how to decode OpenbookV2 instructions and implement a custom processor for handling various types of events.
+This project demonstrates how to set up and run a Carbon pipeline that processes Solana transactions. It uses the `RpcBlockSubscribe` to fetch Solana transactions related to a specific program and processes these transactions using the `MoonshotDecoder`. The example demonstrates how to decode Moonshot instructions and implement a custom processor for handling various types of events.
 
 ## Setup Instructions
 
@@ -10,7 +10,7 @@ To get started, clone the repository:
 
 ```sh
 git clone git@github.com:sevenlabs-hq/carbon.git
-cd examples/openbook-v2-alerts
+cd examples/moonshot-alerts
 ```
 
 ### Step 2: Set Environment Variables
@@ -39,7 +39,7 @@ After building the project, you can run the pipeline using:
 cargo run --release
 ```
 
-This will start the block subscriber, and the pipeline will begin processing transactions for the specified program ID (`OPENBOOK_V2_PROGRAM_ID`).
+This will start the block subscriber, and the pipeline will begin processing transactions for the specified program ID (`MOONSHOT_PROGRAM_ID`).
 
 ## Metrics
 

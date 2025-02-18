@@ -1,0 +1,59 @@
+use super::super::types::*;
+
+use carbon_core::{borsh, CarbonDeserialize};
+
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
+#[carbon(discriminator = "0x33e685a4017f83ad")]
+pub struct Sell {
+    pub data: TradeParams,
+}
+
+pub struct SellInstructionAccounts {
+    pub sender: solana_sdk::pubkey::Pubkey,
+    pub sender_token_account: solana_sdk::pubkey::Pubkey,
+    pub curve_account: solana_sdk::pubkey::Pubkey,
+    pub curve_token_account: solana_sdk::pubkey::Pubkey,
+    pub dex_fee: solana_sdk::pubkey::Pubkey,
+    pub helio_fee: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_sdk::pubkey::Pubkey,
+    pub config_account: solana_sdk::pubkey::Pubkey,
+    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub associated_token_program: solana_sdk::pubkey::Pubkey,
+    pub system_program: solana_sdk::pubkey::Pubkey,
+}
+
+impl carbon_core::deserialize::ArrangeAccounts for Sell {
+    type ArrangedAccounts = SellInstructionAccounts;
+
+    fn arrange_accounts(
+        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    ) -> Option<Self::ArrangedAccounts> {
+        let sender = accounts.get(0)?;
+        let sender_token_account = accounts.get(1)?;
+        let curve_account = accounts.get(2)?;
+        let curve_token_account = accounts.get(3)?;
+        let dex_fee = accounts.get(4)?;
+        let helio_fee = accounts.get(5)?;
+        let mint = accounts.get(6)?;
+        let config_account = accounts.get(7)?;
+        let token_program = accounts.get(8)?;
+        let associated_token_program = accounts.get(9)?;
+        let system_program = accounts.get(10)?;
+
+        Some(SellInstructionAccounts {
+            sender: sender.pubkey,
+            sender_token_account: sender_token_account.pubkey,
+            curve_account: curve_account.pubkey,
+            curve_token_account: curve_token_account.pubkey,
+            dex_fee: dex_fee.pubkey,
+            helio_fee: helio_fee.pubkey,
+            mint: mint.pubkey,
+            config_account: config_account.pubkey,
+            token_program: token_program.pubkey,
+            associated_token_program: associated_token_program.pubkey,
+            system_program: system_program.pubkey,
+        })
+    }
+}
