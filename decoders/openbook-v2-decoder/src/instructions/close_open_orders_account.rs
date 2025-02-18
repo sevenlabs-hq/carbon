@@ -18,13 +18,13 @@ impl carbon_core::deserialize::ArrangeAccounts for CloseOpenOrdersAccount {
     type ArrangedAccounts = CloseOpenOrdersAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let owner = accounts.get(0)?;
-        let open_orders_indexer = accounts.get(1)?;
-        let open_orders_account = accounts.get(2)?;
-        let sol_destination = accounts.get(3)?;
-        let system_program = accounts.get(4)?;
+        let [owner, open_orders_indexer, open_orders_account, sol_destination, system_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(CloseOpenOrdersAccountInstructionAccounts {
             owner: owner.pubkey,

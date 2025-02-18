@@ -17,12 +17,11 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateOpenOrdersIndexer {
     type ArrangedAccounts = CreateOpenOrdersIndexerInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let payer = accounts.get(0)?;
-        let owner = accounts.get(1)?;
-        let open_orders_indexer = accounts.get(2)?;
-        let system_program = accounts.get(3)?;
+        let [payer, owner, open_orders_indexer, system_program] = accounts else {
+            return None;
+        };
 
         Some(CreateOpenOrdersIndexerInstructionAccounts {
             payer: payer.pubkey,

@@ -93,6 +93,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                 commitment: commitment.map(|x| x as i32),
                 accounts_data_slice: vec![],
                 ping: None,
+                from_slot: None,
             };
 
             loop {

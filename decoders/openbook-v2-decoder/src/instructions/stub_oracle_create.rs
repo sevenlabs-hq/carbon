@@ -18,13 +18,11 @@ impl carbon_core::deserialize::ArrangeAccounts for StubOracleCreate {
     type ArrangedAccounts = StubOracleCreateInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let payer = accounts.get(0)?;
-        let owner = accounts.get(1)?;
-        let oracle = accounts.get(2)?;
-        let mint = accounts.get(3)?;
-        let system_program = accounts.get(4)?;
+        let [payer, owner, oracle, mint, system_program] = accounts else {
+            return None;
+        };
 
         Some(StubOracleCreateInstructionAccounts {
             payer: payer.pubkey,

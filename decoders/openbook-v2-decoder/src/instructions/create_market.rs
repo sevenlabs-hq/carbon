@@ -42,29 +42,13 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateMarket {
     type ArrangedAccounts = CreateMarketInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let market = accounts.get(0)?;
-        let market_authority = accounts.get(1)?;
-        let bids = accounts.get(2)?;
-        let asks = accounts.get(3)?;
-        let event_heap = accounts.get(4)?;
-        let payer = accounts.get(5)?;
-        let market_base_vault = accounts.get(6)?;
-        let market_quote_vault = accounts.get(7)?;
-        let base_mint = accounts.get(8)?;
-        let quote_mint = accounts.get(9)?;
-        let system_program = accounts.get(10)?;
-        let token_program = accounts.get(11)?;
-        let associated_token_program = accounts.get(12)?;
-        let oracle_a = accounts.get(13)?;
-        let oracle_b = accounts.get(14)?;
-        let collect_fee_admin = accounts.get(15)?;
-        let open_orders_admin = accounts.get(16)?;
-        let consume_events_admin = accounts.get(17)?;
-        let close_market_admin = accounts.get(18)?;
-        let event_authority = accounts.get(19)?;
-        let program = accounts.get(20)?;
+        let [market, market_authority, bids, asks, event_heap, payer, market_base_vault, market_quote_vault, base_mint, quote_mint, system_program, token_program, associated_token_program, oracle_a, oracle_b, collect_fee_admin, open_orders_admin, consume_events_admin, close_market_admin, event_authority, program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(CreateMarketInstructionAccounts {
             market: market.pubkey,

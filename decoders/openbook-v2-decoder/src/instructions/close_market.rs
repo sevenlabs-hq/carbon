@@ -20,15 +20,13 @@ impl carbon_core::deserialize::ArrangeAccounts for CloseMarket {
     type ArrangedAccounts = CloseMarketInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let close_market_admin = accounts.get(0)?;
-        let market = accounts.get(1)?;
-        let bids = accounts.get(2)?;
-        let asks = accounts.get(3)?;
-        let event_heap = accounts.get(4)?;
-        let sol_destination = accounts.get(5)?;
-        let token_program = accounts.get(6)?;
+        let [close_market_admin, market, bids, asks, event_heap, sol_destination, token_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(CloseMarketInstructionAccounts {
             close_market_admin: close_market_admin.pubkey,

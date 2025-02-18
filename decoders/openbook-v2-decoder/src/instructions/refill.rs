@@ -24,16 +24,13 @@ impl carbon_core::deserialize::ArrangeAccounts for Refill {
     type ArrangedAccounts = RefillInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let owner = accounts.get(0)?;
-        let user_base_account = accounts.get(1)?;
-        let user_quote_account = accounts.get(2)?;
-        let open_orders_account = accounts.get(3)?;
-        let market = accounts.get(4)?;
-        let market_base_vault = accounts.get(5)?;
-        let market_quote_vault = accounts.get(6)?;
-        let token_program = accounts.get(7)?;
+        let [owner, user_base_account, user_quote_account, open_orders_account, market, market_base_vault, market_quote_vault, token_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(RefillInstructionAccounts {
             owner: owner.pubkey,
