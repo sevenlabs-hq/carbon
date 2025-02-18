@@ -127,7 +127,7 @@ $ carbon-cli parse [OPTIONS] --idl <IDL> --output <OUTPUT>
 $ carbon-cli parse --idl my_program.json --output ./src/decoders
 ```
 
-This will parse the my_program.json IDL file and generate the corresponding decoder code in the ./src/decoders directory.
+1. This will parse the my_program.json IDL file and generate the corresponding decoder code in the ./src/decoders directory.
 
 - To generate a decoder from an Anchor PDA IDL, specify a program address (Meteora DLMM program in this case):
 
@@ -135,7 +135,7 @@ This will parse the my_program.json IDL file and generate the corresponding deco
 $ carbon-cli parse --idl LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo -u mainnet-beta --output ./src/decoders
 ```
 
-This will fetch Meteora DLMM program's IDL from chain and generate the corresponding decoder code in the ./src/decoders directory.
+2. This will fetch Meteora DLMM program's IDL from chain and generate the corresponding decoder code in the ./src/decoders directory.
 
 - To generate a decoder from a Codama IDL:
 
@@ -143,7 +143,7 @@ This will fetch Meteora DLMM program's IDL from chain and generate the correspon
 $ carbon-cli parse --idl my_program_codama.json --output ./src/decoders --codama
 ```
 
-This will parse the my_program_codama.json Codama IDL file and generate the corresponding decoder code in the ./src/decoders directory.
+3. This will parse the my_program_codama.json Codama IDL file and generate the corresponding decoder code in the ./src/decoders directory.
 
 **Note**: in order to parse CPI Events for a provided Codama IDL, add `--event-hints` option with comma-separated names of corresponding defined Codama types:
 
