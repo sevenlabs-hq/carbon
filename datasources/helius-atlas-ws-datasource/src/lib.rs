@@ -129,7 +129,7 @@ impl Datasource for HeliusWebsocket {
                 self.api_key
             );
 
-            let ws = match EnhancedWebsocket::new(&ws_url).await {
+            let ws = match EnhancedWebsocket::new(&ws_url, None, None).await {
                 Ok(ws) => ws,
                 Err(err) => {
                     log::error!("Failed to create Enhanced Helius Websocket: {}", err);
