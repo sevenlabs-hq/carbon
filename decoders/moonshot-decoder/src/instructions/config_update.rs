@@ -19,10 +19,11 @@ impl carbon_core::deserialize::ArrangeAccounts for ConfigUpdate {
     type ArrangedAccounts = ConfigUpdateInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let config_authority = accounts.get(0)?;
-        let config_account = accounts.get(1)?;
+        let [config_authority, config_account] = accounts else {
+            return None;
+        };
 
         Some(ConfigUpdateInstructionAccounts {
             config_authority: config_authority.pubkey,
