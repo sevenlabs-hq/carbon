@@ -204,6 +204,7 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-kamino-vault-decoder`          | Kamino Vault Decoder                  | kvauTFR8qm1dhniz6pYuBZkuene3Hfrs1VQhVRgCNrr  |
 | `carbon-openbook-v2-decoder`           | Openbook V2 Decoder                   | opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb  |
 | `carbon-sharky-decoder`                | SharkyFi Decoder                      | SHARKobtfF1bHhxD2eqftjHBdVSCbKo9JtgK71FhELP  |
+| `carbon-moonshot-decoder`              | Moonshot Decoder                      | MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG  |
 
 ## License
 
