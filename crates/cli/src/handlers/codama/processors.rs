@@ -161,7 +161,7 @@ pub fn process_codama_defined_types(
                                                 requires_imports = true;
                                             }
                                             FieldData {
-                                                name: field.name.to_upper_camel_case(),
+                                                name: field.name.to_snek_case(),
                                                 rust_type: rust_type.0.clone(),
                                                 is_pubkey: rust_type.0 == "Pubkey",
                                                 attributes: None,
