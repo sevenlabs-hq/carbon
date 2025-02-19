@@ -3,7 +3,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x975a6ed9c4dffb5f")]
+#[carbon(discriminator = "0x0d")]
 pub struct AdminCancelOrders {
     pub limit: u16,
 }

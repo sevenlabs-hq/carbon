@@ -7,7 +7,7 @@ use {
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x1beab2349302bb8d")]
+#[carbon(discriminator = "0x06")]
 pub struct SetParams {
     pub param: u8,
     pub value: Option<u64>,
