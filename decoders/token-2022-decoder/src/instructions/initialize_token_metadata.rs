@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeTokenMetadata {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [metadata, update_authority, mint, mint_authority] = accounts else {
+        let [metadata, update_authority, mint, mint_authority, _remaining @ ..] = accounts else {
             return None;
         };
 

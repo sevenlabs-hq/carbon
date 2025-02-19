@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawExcessLamports {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [source_account, destination_account, authority] = accounts else {
+        let [source_account, destination_account, authority, _remaining @ ..] = accounts else {
             return None;
         };
 

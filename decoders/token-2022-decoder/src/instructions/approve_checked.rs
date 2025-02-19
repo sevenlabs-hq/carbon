@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ApproveChecked {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [source, mint, delegate, owner] = accounts else {
+        let [source, mint, delegate, owner, _remaining @ ..] = accounts else {
             return None;
         };
 

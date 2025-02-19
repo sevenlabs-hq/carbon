@@ -20,7 +20,8 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeTokenGroupMember {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [member, member_mint, member_mint_authority, group, group_update_authority] = accounts
+        let [member, member_mint, member_mint_authority, group, group_update_authority, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

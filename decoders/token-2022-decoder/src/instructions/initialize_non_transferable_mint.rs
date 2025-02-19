@@ -16,7 +16,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeNonTransferableMint
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [mint] = accounts else {
+        let [mint, _remaining @ ..] = accounts else {
             return None;
         };
 

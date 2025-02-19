@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeMultisig2 {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [multisig] = accounts else {
+        let [multisig, _remaining @ ..] = accounts else {
             return None;
         };
 

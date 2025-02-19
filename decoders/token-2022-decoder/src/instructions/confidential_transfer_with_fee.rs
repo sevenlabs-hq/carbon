@@ -35,7 +35,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ConfidentialTransferWithFee {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [source_token, mint, destination_token, instructions_sysvar, equality_record, transfer_amount_ciphertext_validity_record, fee_sigma_record, fee_ciphertext_validity_record, range_record, authority] =
+        let [source_token, mint, destination_token, instructions_sysvar, equality_record, transfer_amount_ciphertext_validity_record, fee_sigma_record, fee_ciphertext_validity_record, range_record, authority, _remaining @ ..] =
             accounts
         else {
             return None;

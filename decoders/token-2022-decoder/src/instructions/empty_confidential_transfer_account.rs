@@ -22,7 +22,9 @@ impl carbon_core::deserialize::ArrangeAccounts for EmptyConfidentialTransferAcco
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [token, instructions_sysvar_or_context_state, record, authority] = accounts else {
+        let [token, instructions_sysvar_or_context_state, record, authority, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
 
