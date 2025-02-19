@@ -18,11 +18,11 @@ impl carbon_core::deserialize::ArrangeAccounts for ConsumeEvents {
     type ArrangedAccounts = ConsumeEventsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let consume_events_admin = accounts.get(0)?;
-        let market = accounts.get(1)?;
-        let event_heap = accounts.get(2)?;
+        let [consume_events_admin, market, event_heap] = accounts else {
+            return None;
+        };
 
         Some(ConsumeEventsInstructionAccounts {
             consume_events_admin: consume_events_admin.pubkey,

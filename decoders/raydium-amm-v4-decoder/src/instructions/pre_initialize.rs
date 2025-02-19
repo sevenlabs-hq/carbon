@@ -1,8 +1,9 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x0a")]
+#[carbon(discriminator = "0xff5c572dc6acec02")]
 pub struct PreInitialize {
     pub nonce: u8,
 }
@@ -27,23 +28,14 @@ pub struct PreInitializeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for PreInitialize {
     type ArrangedAccounts = PreInitializeInstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let token_program = accounts.get(0)?;
-        let system_program = accounts.get(1)?;
-        let rent = accounts.get(2)?;
-        let amm_target_orders = accounts.get(3)?;
-        let pool_withdraw_queue = accounts.get(4)?;
-        let amm_authority = accounts.get(5)?;
-        let lp_mint_address = accounts.get(6)?;
-        let coin_mint_address = accounts.get(7)?;
-        let pc_mint_address = accounts.get(8)?;
-        let pool_coin_token_account = accounts.get(9)?;
-        let pool_pc_token_account = accounts.get(10)?;
-        let pool_temp_lp_token_account = accounts.get(11)?;
-        let serum_market = accounts.get(12)?;
-        let user_wallet = accounts.get(13)?;
+        let [token_program, system_program, rent, amm_target_orders, pool_withdraw_queue, amm_authority, lp_mint_address, coin_mint_address, pc_mint_address, pool_coin_token_account, pool_pc_token_account, pool_temp_lp_token_account, serum_market, user_wallet] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(PreInitializeInstructionAccounts {
             token_program: token_program.pubkey,

@@ -1,11 +1,12 @@
-
-use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
+use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xe8fdc3f794d449de")]
-pub struct UpdateFee{
+pub struct UpdateFee {
     pub params: UpdateFeeParams,
 }
 
@@ -18,10 +19,12 @@ pub struct UpdateFeeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UpdateFee {
     type ArrangedAccounts = UpdateFeeInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
-        let admin = accounts.get(0)?;
-        let fee_authority = accounts.get(1)?;
-        let system_program = accounts.get(2)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [admin, fee_authority, system_program] = accounts else {
+            return None;
+        };
 
         Some(UpdateFeeInstructionAccounts {
             admin: admin.pubkey,

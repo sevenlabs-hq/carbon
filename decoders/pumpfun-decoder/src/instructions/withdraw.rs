@@ -23,21 +23,14 @@ pub struct WithdrawInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Withdraw {
     type ArrangedAccounts = WithdrawInstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let global = accounts.get(0)?;
-        let last_withdraw = accounts.get(1)?;
-        let mint = accounts.get(2)?;
-        let bonding_curve = accounts.get(3)?;
-        let associated_bonding_curve = accounts.get(4)?;
-        let associated_user = accounts.get(5)?;
-        let user = accounts.get(6)?;
-        let system_program = accounts.get(7)?;
-        let token_program = accounts.get(8)?;
-        let rent = accounts.get(9)?;
-        let event_authority = accounts.get(10)?;
-        let program = accounts.get(11)?;
+        let [global, last_withdraw, mint, bonding_curve, associated_bonding_curve, associated_user, user, system_program, token_program, rent, event_authority, program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(WithdrawInstructionAccounts {
             global: global.pubkey,

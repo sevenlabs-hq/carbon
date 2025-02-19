@@ -24,14 +24,13 @@ impl carbon_core::deserialize::ArrangeAccounts for SetRewardParams {
     type ArrangedAccounts = SetRewardParamsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let authority = accounts.get(0)?;
-        let amm_config = accounts.get(1)?;
-        let pool_state = accounts.get(2)?;
-        let operation_state = accounts.get(3)?;
-        let token_program = accounts.get(4)?;
-        let token_program2022 = accounts.get(5)?;
+        let [authority, amm_config, pool_state, operation_state, token_program, token_program2022] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(SetRewardParamsInstructionAccounts {
             authority: authority.pubkey,

@@ -15,10 +15,11 @@ impl carbon_core::deserialize::ArrangeAccounts for StubOracleSet {
     type ArrangedAccounts = StubOracleSetInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let owner = accounts.get(0)?;
-        let oracle = accounts.get(1)?;
+        let [owner, oracle] = accounts else {
+            return None;
+        };
 
         Some(StubOracleSetInstructionAccounts {
             owner: owner.pubkey,

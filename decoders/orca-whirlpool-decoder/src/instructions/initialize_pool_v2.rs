@@ -1,4 +1,5 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -28,23 +29,14 @@ pub struct InitializePoolV2InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitializePoolV2 {
     type ArrangedAccounts = InitializePoolV2InstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let whirlpools_config = accounts.get(0)?;
-        let token_mint_a = accounts.get(1)?;
-        let token_mint_b = accounts.get(2)?;
-        let token_badge_a = accounts.get(3)?;
-        let token_badge_b = accounts.get(4)?;
-        let funder = accounts.get(5)?;
-        let whirlpool = accounts.get(6)?;
-        let token_vault_a = accounts.get(7)?;
-        let token_vault_b = accounts.get(8)?;
-        let fee_tier = accounts.get(9)?;
-        let token_program_a = accounts.get(10)?;
-        let token_program_b = accounts.get(11)?;
-        let system_program = accounts.get(12)?;
-        let rent = accounts.get(13)?;
+        let [whirlpools_config, token_mint_a, token_mint_b, token_badge_a, token_badge_b, funder, whirlpool, token_vault_a, token_vault_b, fee_tier, token_program_a, token_program_b, system_program, rent] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(InitializePoolV2InstructionAccounts {
             whirlpools_config: whirlpools_config.pubkey,

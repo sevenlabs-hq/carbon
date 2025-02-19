@@ -18,11 +18,12 @@ pub struct AllocateWithSeedAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for AllocateWithSeed {
     type ArrangedAccounts = AllocateWithSeedAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let allocated_account = accounts.get(0)?;
-        let base_account = accounts.get(1)?;
+        let [allocated_account, base_account] = accounts else {
+            return None;
+        };
 
         Some(AllocateWithSeedAccounts {
             allocated_account: allocated_account.pubkey,

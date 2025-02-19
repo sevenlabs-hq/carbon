@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x08")]
-pub struct DeprecatedMintPrintingTokensViaToken{
-}
+pub struct DeprecatedMintPrintingTokensViaToken {}
 
 pub struct DeprecatedMintPrintingTokensViaTokenInstructionAccounts {
     pub destination: solana_sdk::pubkey::Pubkey,
@@ -23,16 +21,14 @@ pub struct DeprecatedMintPrintingTokensViaTokenInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for DeprecatedMintPrintingTokensViaToken {
     type ArrangedAccounts = DeprecatedMintPrintingTokensViaTokenInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
-        let destination = accounts.get(0)?;
-        let token = accounts.get(1)?;
-        let one_time_printing_authorization_mint = accounts.get(2)?;
-        let printing_mint = accounts.get(3)?;
-        let burn_authority = accounts.get(4)?;
-        let metadata = accounts.get(5)?;
-        let master_edition = accounts.get(6)?;
-        let token_program = accounts.get(7)?;
-        let rent = accounts.get(8)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [destination, token, one_time_printing_authorization_mint, printing_mint, burn_authority, metadata, master_edition, token_program, rent] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(DeprecatedMintPrintingTokensViaTokenInstructionAccounts {
             destination: destination.pubkey,

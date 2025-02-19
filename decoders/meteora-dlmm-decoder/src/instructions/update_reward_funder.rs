@@ -20,12 +20,11 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateRewardFunder {
     type ArrangedAccounts = UpdateRewardFunderInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let lb_pair = accounts.get(0)?;
-        let admin = accounts.get(1)?;
-        let event_authority = accounts.get(2)?;
-        let program = accounts.get(3)?;
+        let [lb_pair, admin, event_authority, program] = accounts else {
+            return None;
+        };
 
         Some(UpdateRewardFunderInstructionAccounts {
             lb_pair: lb_pair.pubkey,

@@ -1,13 +1,14 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x0b")]
-pub struct MintNewEditionFromMasterEditionViaToken{
-    pub mint_new_edition_from_master_edition_via_token_args: MintNewEditionFromMasterEditionViaTokenArgs,
+pub struct MintNewEditionFromMasterEditionViaToken {
+    pub mint_new_edition_from_master_edition_via_token_args:
+        MintNewEditionFromMasterEditionViaTokenArgs,
 }
 
 pub struct MintNewEditionFromMasterEditionViaTokenInstructionAccounts {
@@ -30,21 +31,14 @@ pub struct MintNewEditionFromMasterEditionViaTokenInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for MintNewEditionFromMasterEditionViaToken {
     type ArrangedAccounts = MintNewEditionFromMasterEditionViaTokenInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
-        let new_metadata = accounts.get(0)?;
-        let new_edition = accounts.get(1)?;
-        let master_edition = accounts.get(2)?;
-        let new_mint = accounts.get(3)?;
-        let edition_mark_pda = accounts.get(4)?;
-        let new_mint_authority = accounts.get(5)?;
-        let payer = accounts.get(6)?;
-        let token_account_owner = accounts.get(7)?;
-        let token_account = accounts.get(8)?;
-        let new_metadata_update_authority = accounts.get(9)?;
-        let metadata = accounts.get(10)?;
-        let token_program = accounts.get(11)?;
-        let system_program = accounts.get(12)?;
-        let rent = accounts.get(13)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [new_metadata, new_edition, master_edition, new_mint, edition_mark_pda, new_mint_authority, payer, token_account_owner, token_account, new_metadata_update_authority, metadata, token_program, system_program, rent] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(MintNewEditionFromMasterEditionViaTokenInstructionAccounts {
             new_metadata: new_metadata.pubkey,

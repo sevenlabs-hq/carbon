@@ -21,16 +21,13 @@ impl carbon_core::deserialize::ArrangeAccounts for RescindLoan {
     type ArrangedAccounts = RescindLoanInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let loan = accounts.get(0)?;
-        let lender_value_token_account = accounts.get(1)?;
-        let lender = accounts.get(2)?;
-        let value_mint = accounts.get(3)?;
-        let escrow = accounts.get(4)?;
-        let escrow_token_account = accounts.get(5)?;
-        let system_program = accounts.get(6)?;
-        let token_program = accounts.get(7)?;
+        let [loan, lender_value_token_account, lender, value_mint, escrow, escrow_token_account, system_program, token_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(RescindLoanInstructionAccounts {
             loan: loan.pubkey,

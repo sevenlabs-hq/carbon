@@ -21,14 +21,13 @@ impl carbon_core::deserialize::ArrangeAccounts for GoToABin {
     type ArrangedAccounts = GoToABinInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let lb_pair = accounts.get(0)?;
-        let bin_array_bitmap_extension = accounts.get(1)?;
-        let from_bin_array = accounts.get(2)?;
-        let to_bin_array = accounts.get(3)?;
-        let event_authority = accounts.get(4)?;
-        let program = accounts.get(5)?;
+        let [lb_pair, bin_array_bitmap_extension, from_bin_array, to_bin_array, event_authority, program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(GoToABinInstructionAccounts {
             lb_pair: lb_pair.pubkey,

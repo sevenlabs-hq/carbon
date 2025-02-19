@@ -93,6 +93,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                 commitment: commitment.map(|x| x as i32),
                 accounts_data_slice: vec![],
                 ping: None,
+                from_slot: None,
             };
 
             loop {
@@ -216,13 +217,13 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                             continue;
                                                         }
                                                     };
-                                                    let update = Update::Transaction(TransactionUpdate {
-                                                        signature: signature,
+                                                    let update = Update::Transaction(Box::new(TransactionUpdate {
+                                                        signature,
                                                         transaction: versioned_transaction,
                                                         meta: meta_original,
                                                         is_vote: transaction_info.is_vote,
                                                         slot: transaction_update.slot,
-                                                    });
+                                                    }));
                                                     if let Err(e) = sender.send(update) {
                                                         log::error!("Failed to send transaction update with signature {:?} at slot {}: {:?}", signature, transaction_update.slot, e);
                                                         continue;

@@ -22,14 +22,13 @@ impl carbon_core::deserialize::ArrangeAccounts for SwapRouterBaseIn {
     type ArrangedAccounts = SwapRouterBaseInInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let payer = accounts.get(0)?;
-        let input_token_account = accounts.get(1)?;
-        let input_token_mint = accounts.get(2)?;
-        let token_program = accounts.get(3)?;
-        let token_program2022 = accounts.get(4)?;
-        let memo_program = accounts.get(5)?;
+        let [payer, input_token_account, input_token_mint, token_program, token_program2022, memo_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(SwapRouterBaseInInstructionAccounts {
             payer: payer.pubkey,

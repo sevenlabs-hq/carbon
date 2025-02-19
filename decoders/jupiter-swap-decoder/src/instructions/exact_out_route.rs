@@ -1,5 +1,7 @@
 use super::super::types::*;
+
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -21,7 +23,7 @@ pub struct ExactOutRouteInstructionAccounts {
     pub source_mint: solana_sdk::pubkey::Pubkey,
     pub destination_mint: solana_sdk::pubkey::Pubkey,
     pub platform_fee_account: solana_sdk::pubkey::Pubkey,
-    pub token2022_program: solana_sdk::pubkey::Pubkey,
+    pub token_2022_program: solana_sdk::pubkey::Pubkey,
     pub event_authority: solana_sdk::pubkey::Pubkey,
     pub program: solana_sdk::pubkey::Pubkey,
 }
@@ -29,20 +31,14 @@ pub struct ExactOutRouteInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for ExactOutRoute {
     type ArrangedAccounts = ExactOutRouteInstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let token_program = accounts.get(0)?;
-        let user_transfer_authority = accounts.get(1)?;
-        let user_source_token_account = accounts.get(2)?;
-        let user_destination_token_account = accounts.get(3)?;
-        let destination_token_account = accounts.get(4)?;
-        let source_mint = accounts.get(5)?;
-        let destination_mint = accounts.get(6)?;
-        let platform_fee_account = accounts.get(7)?;
-        let token2022_program = accounts.get(8)?;
-        let event_authority = accounts.get(9)?;
-        let program = accounts.get(10)?;
+        let [token_program, user_transfer_authority, user_source_token_account, user_destination_token_account, destination_token_account, source_mint, destination_mint, platform_fee_account, token_2022_program, event_authority, program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(ExactOutRouteInstructionAccounts {
             token_program: token_program.pubkey,
@@ -53,7 +49,7 @@ fn arrange_accounts(
             source_mint: source_mint.pubkey,
             destination_mint: destination_mint.pubkey,
             platform_fee_account: platform_fee_account.pubkey,
-            token2022_program: token2022_program.pubkey,
+            token_2022_program: token_2022_program.pubkey,
             event_authority: event_authority.pubkey,
             program: program.pubkey,
         })

@@ -29,5 +29,5 @@ pub use curve_point::*;
 pub mod vault_config_field;
 pub use vault_config_field::*;
 pub mod vault_allocation;
-pub use vault_allocation::*;
 use serde_big_array::BigArray;
+pub use vault_allocation::*;

@@ -305,24 +305,22 @@ impl Datasource for HeliusWebsocket {
                                                 if decoded_account.lamports == 0 && decoded_account.data.is_empty() && decoded_account.owner == solana_sdk::system_program::ID {
                                                     let accounts_tracked =
                                                         account_deletions_tracked.read().await;
-                                                    if !accounts_tracked.is_empty() {
-                                                        if accounts_tracked.contains(&account) {
-                                                            let account_deletion = AccountDeletion {
-                                                                pubkey: account.clone(),
-                                                                slot: acc_event.context.slot,
-                                                            };
+                                                    if !accounts_tracked.is_empty() && accounts_tracked.contains(&account) {
+                                                        let account_deletion = AccountDeletion {
+                                                            pubkey: account,
+                                                            slot: acc_event.context.slot,
+                                                        };
 
-                                                            metrics.record_histogram("helius_atlas_ws_account_deletion_process_time_nanoseconds", start_time.elapsed().as_nanos() as f64).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                                                        metrics.record_histogram("helius_atlas_ws_account_deletion_process_time_nanoseconds", start_time.elapsed().as_nanos() as f64).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
-                                                            metrics.increment_counter("helius_atlas_ws_account_deletions_received", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                                                        metrics.increment_counter("helius_atlas_ws_account_deletions_received", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
 
-                                                            if let Err(err) = sender_clone.send(
-                                                                Update::AccountDeletion(account_deletion),
-                                                            ) {
-                                                                log::error!("Error sending account update: {:?}", err);
-                                                                break;
-                                                            }
+                                                        if let Err(err) = sender_clone.send(
+                                                            Update::AccountDeletion(account_deletion),
+                                                        ) {
+                                                            log::error!("Error sending account update: {:?}", err);
+                                                            break;
                                                         }
                                                     }
                                                 } else {
@@ -575,13 +573,13 @@ impl Datasource for HeliusWebsocket {
                                                     .or(None),
                                             };
 
-                                            let update = Update::Transaction(TransactionUpdate {
+                                            let update = Update::Transaction(Box::new(TransactionUpdate {
                                                 signature,
                                                 transaction: decoded_transaction.clone(),
                                                 meta: meta_needed,
                                                 is_vote: config.filter.vote.is_some_and(|is_vote| is_vote),
                                                 slot: tx_event.slot,
-                                            });
+                                            }));
 
                                             metrics
                                                     .record_histogram(

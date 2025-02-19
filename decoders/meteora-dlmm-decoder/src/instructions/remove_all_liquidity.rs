@@ -29,24 +29,13 @@ impl carbon_core::deserialize::ArrangeAccounts for RemoveAllLiquidity {
     type ArrangedAccounts = RemoveAllLiquidityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let position = accounts.get(0)?;
-        let lb_pair = accounts.get(1)?;
-        let bin_array_bitmap_extension = accounts.get(2)?;
-        let user_token_x = accounts.get(3)?;
-        let user_token_y = accounts.get(4)?;
-        let reserve_x = accounts.get(5)?;
-        let reserve_y = accounts.get(6)?;
-        let token_x_mint = accounts.get(7)?;
-        let token_y_mint = accounts.get(8)?;
-        let bin_array_lower = accounts.get(9)?;
-        let bin_array_upper = accounts.get(10)?;
-        let sender = accounts.get(11)?;
-        let token_x_program = accounts.get(12)?;
-        let token_y_program = accounts.get(13)?;
-        let event_authority = accounts.get(14)?;
-        let program = accounts.get(15)?;
+        let [position, lb_pair, bin_array_bitmap_extension, user_token_x, user_token_y, reserve_x, reserve_y, token_x_mint, token_y_mint, bin_array_lower, bin_array_upper, sender, token_x_program, token_y_program, event_authority, program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(RemoveAllLiquidityInstructionAccounts {
             position: position.pubkey,

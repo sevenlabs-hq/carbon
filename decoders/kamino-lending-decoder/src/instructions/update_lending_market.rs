@@ -19,11 +19,12 @@ pub struct UpdateLendingMarketInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UpdateLendingMarket {
     type ArrangedAccounts = UpdateLendingMarketInstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let lending_market_owner = accounts.get(0)?;
-        let lending_market = accounts.get(1)?;
+        let [lending_market_owner, lending_market] = accounts else {
+            return None;
+        };
 
         Some(UpdateLendingMarketInstructionAccounts {
             lending_market_owner: lending_market_owner.pubkey,

@@ -29,23 +29,14 @@ pub struct CreateInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Create {
     type ArrangedAccounts = CreateInstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let mint = accounts.get(0)?;
-        let mint_authority = accounts.get(1)?;
-        let bonding_curve = accounts.get(2)?;
-        let associated_bonding_curve = accounts.get(3)?;
-        let global = accounts.get(4)?;
-        let mpl_token_metadata = accounts.get(5)?;
-        let metadata = accounts.get(6)?;
-        let user = accounts.get(7)?;
-        let system_program = accounts.get(8)?;
-        let token_program = accounts.get(9)?;
-        let associated_token_program = accounts.get(10)?;
-        let rent = accounts.get(11)?;
-        let event_authority = accounts.get(12)?;
-        let program = accounts.get(13)?;
+        let [mint, mint_authority, bonding_curve, associated_bonding_curve, global, mpl_token_metadata, metadata, user, system_program, token_program, associated_token_program, rent, event_authority, program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(CreateInstructionAccounts {
             mint: mint.pubkey,

@@ -23,16 +23,13 @@ impl carbon_core::deserialize::ArrangeAccounts for CollectRemainingRewards {
     type ArrangedAccounts = CollectRemainingRewardsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let reward_funder = accounts.get(0)?;
-        let funder_token_account = accounts.get(1)?;
-        let pool_state = accounts.get(2)?;
-        let reward_token_vault = accounts.get(3)?;
-        let reward_vault_mint = accounts.get(4)?;
-        let token_program = accounts.get(5)?;
-        let token_program2022 = accounts.get(6)?;
-        let memo_program = accounts.get(7)?;
+        let [reward_funder, funder_token_account, pool_state, reward_token_vault, reward_vault_mint, token_program, token_program2022, memo_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(CollectRemainingRewardsInstructionAccounts {
             reward_funder: reward_funder.pubkey,

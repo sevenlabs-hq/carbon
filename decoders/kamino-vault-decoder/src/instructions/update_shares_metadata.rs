@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x9b227aa5f589936b")]
-pub struct UpdateSharesMetadata{
+pub struct UpdateSharesMetadata {
     pub name: String,
     pub symbol: String,
     pub uri: String,
@@ -22,12 +21,14 @@ pub struct UpdateSharesMetadataInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UpdateSharesMetadata {
     type ArrangedAccounts = UpdateSharesMetadataInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
-        let admin_authority = accounts.get(0)?;
-        let vault_state = accounts.get(1)?;
-        let base_vault_authority = accounts.get(2)?;
-        let shares_metadata = accounts.get(3)?;
-        let metadata_program = accounts.get(4)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [admin_authority, vault_state, base_vault_authority, shares_metadata, metadata_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(UpdateSharesMetadataInstructionAccounts {
             admin_authority: admin_authority.pubkey,

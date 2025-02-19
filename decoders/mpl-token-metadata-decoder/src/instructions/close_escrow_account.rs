@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x27")]
-pub struct CloseEscrowAccount{
-}
+pub struct CloseEscrowAccount {}
 
 pub struct CloseEscrowAccountInstructionAccounts {
     pub escrow: solana_sdk::pubkey::Pubkey,
@@ -22,15 +20,14 @@ pub struct CloseEscrowAccountInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CloseEscrowAccount {
     type ArrangedAccounts = CloseEscrowAccountInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
-        let escrow = accounts.get(0)?;
-        let metadata = accounts.get(1)?;
-        let mint = accounts.get(2)?;
-        let token_account = accounts.get(3)?;
-        let edition = accounts.get(4)?;
-        let payer = accounts.get(5)?;
-        let system_program = accounts.get(6)?;
-        let sysvar_instructions = accounts.get(7)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [escrow, metadata, mint, token_account, edition, payer, system_program, sysvar_instructions] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(CloseEscrowAccountInstructionAccounts {
             escrow: escrow.pubkey,

@@ -28,23 +28,13 @@ impl carbon_core::deserialize::ArrangeAccounts for EndAndClose {
     type ArrangedAccounts = EndAndCloseInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let keeper = accounts.get(0)?;
-        let dca = accounts.get(1)?;
-        let input_mint = accounts.get(2)?;
-        let output_mint = accounts.get(3)?;
-        let in_ata = accounts.get(4)?;
-        let out_ata = accounts.get(5)?;
-        let user = accounts.get(6)?;
-        let user_out_ata = accounts.get(7)?;
-        let init_user_out_ata = accounts.get(8)?;
-        let intermediate_account = accounts.get(9)?;
-        let system_program = accounts.get(10)?;
-        let token_program = accounts.get(11)?;
-        let associated_token_program = accounts.get(12)?;
-        let event_authority = accounts.get(13)?;
-        let program = accounts.get(14)?;
+        let [keeper, dca, input_mint, output_mint, in_ata, out_ata, user, user_out_ata, init_user_out_ata, intermediate_account, system_program, token_program, associated_token_program, event_authority, program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(EndAndCloseInstructionAccounts {
             keeper: keeper.pubkey,

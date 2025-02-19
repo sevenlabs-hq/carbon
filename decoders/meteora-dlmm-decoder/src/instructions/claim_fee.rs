@@ -27,22 +27,13 @@ impl carbon_core::deserialize::ArrangeAccounts for ClaimFee {
     type ArrangedAccounts = ClaimFeeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let lb_pair = accounts.get(0)?;
-        let position = accounts.get(1)?;
-        let bin_array_lower = accounts.get(2)?;
-        let bin_array_upper = accounts.get(3)?;
-        let sender = accounts.get(4)?;
-        let reserve_x = accounts.get(5)?;
-        let reserve_y = accounts.get(6)?;
-        let user_token_x = accounts.get(7)?;
-        let user_token_y = accounts.get(8)?;
-        let token_x_mint = accounts.get(9)?;
-        let token_y_mint = accounts.get(10)?;
-        let token_program = accounts.get(11)?;
-        let event_authority = accounts.get(12)?;
-        let program = accounts.get(13)?;
+        let [lb_pair, position, bin_array_lower, bin_array_upper, sender, reserve_x, reserve_y, user_token_x, user_token_y, token_x_mint, token_y_mint, token_program, event_authority, program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(ClaimFeeInstructionAccounts {
             lb_pair: lb_pair.pubkey,

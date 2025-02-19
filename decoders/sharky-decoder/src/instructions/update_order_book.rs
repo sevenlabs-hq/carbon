@@ -23,10 +23,11 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateOrderBook {
     type ArrangedAccounts = UpdateOrderBookInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let order_book = accounts.get(0)?;
-        let payer = accounts.get(1)?;
+        let [order_book, payer] = accounts else {
+            return None;
+        };
 
         Some(UpdateOrderBookInstructionAccounts {
             order_book: order_book.pubkey,

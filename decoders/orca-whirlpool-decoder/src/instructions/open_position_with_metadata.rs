@@ -1,11 +1,12 @@
-
-use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
+use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xf21d86303a6e0e3c")]
-pub struct OpenPositionWithMetadata{
+pub struct OpenPositionWithMetadata {
     pub bumps: OpenPositionWithMetadataBumps,
     pub tick_lower_index: i32,
     pub tick_upper_index: i32,
@@ -30,20 +31,14 @@ pub struct OpenPositionWithMetadataInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for OpenPositionWithMetadata {
     type ArrangedAccounts = OpenPositionWithMetadataInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
-        let funder = accounts.get(0)?;
-        let owner = accounts.get(1)?;
-        let position = accounts.get(2)?;
-        let position_mint = accounts.get(3)?;
-        let position_metadata_account = accounts.get(4)?;
-        let position_token_account = accounts.get(5)?;
-        let whirlpool = accounts.get(6)?;
-        let token_program = accounts.get(7)?;
-        let system_program = accounts.get(8)?;
-        let rent = accounts.get(9)?;
-        let associated_token_program = accounts.get(10)?;
-        let metadata_program = accounts.get(11)?;
-        let metadata_update_auth = accounts.get(12)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [funder, owner, position, position_mint, position_metadata_account, position_token_account, whirlpool, token_program, system_program, rent, associated_token_program, metadata_program, metadata_update_auth] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(OpenPositionWithMetadataInstructionAccounts {
             funder: funder.pubkey,

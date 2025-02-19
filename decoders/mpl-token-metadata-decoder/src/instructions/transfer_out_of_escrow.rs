@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x28")]
-pub struct TransferOutOfEscrow{
+pub struct TransferOutOfEscrow {
     pub transfer_out_of_escrow_args: TransferOutOfEscrowArgs,
 }
 
@@ -29,20 +29,14 @@ pub struct TransferOutOfEscrowInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for TransferOutOfEscrow {
     type ArrangedAccounts = TransferOutOfEscrowInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
-        let escrow = accounts.get(0)?;
-        let metadata = accounts.get(1)?;
-        let payer = accounts.get(2)?;
-        let attribute_mint = accounts.get(3)?;
-        let attribute_src = accounts.get(4)?;
-        let attribute_dst = accounts.get(5)?;
-        let escrow_mint = accounts.get(6)?;
-        let escrow_account = accounts.get(7)?;
-        let system_program = accounts.get(8)?;
-        let ata_program = accounts.get(9)?;
-        let token_program = accounts.get(10)?;
-        let sysvar_instructions = accounts.get(11)?;
-        let authority = accounts.get(12)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [escrow, metadata, payer, attribute_mint, attribute_src, attribute_dst, escrow_mint, escrow_account, system_program, ata_program, token_program, sysvar_instructions, authority] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(TransferOutOfEscrowInstructionAccounts {
             escrow: escrow.pubkey,

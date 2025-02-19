@@ -1,4 +1,5 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -27,21 +28,14 @@ pub struct InitializeOrderInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitializeOrder {
     type ArrangedAccounts = InitializeOrderInstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let base = accounts.get(0)?;
-        let maker = accounts.get(1)?;
-        let order = accounts.get(2)?;
-        let reserve = accounts.get(3)?;
-        let maker_input_account = accounts.get(4)?;
-        let input_mint = accounts.get(5)?;
-        let maker_output_account = accounts.get(6)?;
-        let referral = accounts.get(7)?;
-        let output_mint = accounts.get(8)?;
-        let system_program = accounts.get(9)?;
-        let token_program = accounts.get(10)?;
-        let rent = accounts.get(11)?;
+        let [base, maker, order, reserve, maker_input_account, input_mint, maker_output_account, referral, output_mint, system_program, token_program, rent] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(InitializeOrderInstructionAccounts {
             base: base.pubkey,

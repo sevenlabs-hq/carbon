@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x2574cd67f3c05cc6")]
-pub struct WithdrawObligationCollateral{
+pub struct WithdrawObligationCollateral {
     pub collateral_amount: u64,
 }
 
@@ -24,16 +23,14 @@ pub struct WithdrawObligationCollateralInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawObligationCollateral {
     type ArrangedAccounts = WithdrawObligationCollateralInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
-        let owner = accounts.get(0)?;
-        let obligation = accounts.get(1)?;
-        let lending_market = accounts.get(2)?;
-        let lending_market_authority = accounts.get(3)?;
-        let withdraw_reserve = accounts.get(4)?;
-        let reserve_source_collateral = accounts.get(5)?;
-        let user_destination_collateral = accounts.get(6)?;
-        let token_program = accounts.get(7)?;
-        let instruction_sysvar_account = accounts.get(8)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [owner, obligation, lending_market, lending_market_authority, withdraw_reserve, reserve_source_collateral, user_destination_collateral, token_program, instruction_sysvar_account] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(WithdrawObligationCollateralInstructionAccounts {
             owner: owner.pubkey,

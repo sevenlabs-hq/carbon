@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x87e734a70734d4c1")]
-pub struct FlashBorrowReserveLiquidity{
+pub struct FlashBorrowReserveLiquidity {
     pub liquidity_amount: u64,
 }
 
@@ -27,19 +26,14 @@ pub struct FlashBorrowReserveLiquidityInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for FlashBorrowReserveLiquidity {
     type ArrangedAccounts = FlashBorrowReserveLiquidityInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
-        let user_transfer_authority = accounts.get(0)?;
-        let lending_market_authority = accounts.get(1)?;
-        let lending_market = accounts.get(2)?;
-        let reserve = accounts.get(3)?;
-        let reserve_liquidity_mint = accounts.get(4)?;
-        let reserve_source_liquidity = accounts.get(5)?;
-        let user_destination_liquidity = accounts.get(6)?;
-        let reserve_liquidity_fee_receiver = accounts.get(7)?;
-        let referrer_token_state = accounts.get(8)?;
-        let referrer_account = accounts.get(9)?;
-        let sysvar_info = accounts.get(10)?;
-        let token_program = accounts.get(11)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [user_transfer_authority, lending_market_authority, lending_market, reserve, reserve_liquidity_mint, reserve_source_liquidity, user_destination_liquidity, reserve_liquidity_fee_receiver, referrer_token_state, referrer_account, sysvar_info, token_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(FlashBorrowReserveLiquidityInstructionAccounts {
             user_transfer_authority: user_transfer_authority.pubkey,

@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x32")]
-pub struct Update{
+pub struct Update {
     pub update_args: UpdateArgs,
 }
 
@@ -27,18 +27,14 @@ pub struct UpdateInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Update {
     type ArrangedAccounts = UpdateInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
-        let authority = accounts.get(0)?;
-        let delegate_record = accounts.get(1)?;
-        let token = accounts.get(2)?;
-        let mint = accounts.get(3)?;
-        let metadata = accounts.get(4)?;
-        let edition = accounts.get(5)?;
-        let payer = accounts.get(6)?;
-        let system_program = accounts.get(7)?;
-        let sysvar_instructions = accounts.get(8)?;
-        let authorization_rules_program = accounts.get(9)?;
-        let authorization_rules = accounts.get(10)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [authority, delegate_record, token, mint, metadata, edition, payer, system_program, sysvar_instructions, authorization_rules_program, authorization_rules] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(UpdateInstructionAccounts {
             authority: authority.pubkey,

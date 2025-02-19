@@ -19,12 +19,11 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdatePositionOperator {
     type ArrangedAccounts = UpdatePositionOperatorInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let position = accounts.get(0)?;
-        let owner = accounts.get(1)?;
-        let event_authority = accounts.get(2)?;
-        let program = accounts.get(3)?;
+        let [position, owner, event_authority, program] = accounts else {
+            return None;
+        };
 
         Some(UpdatePositionOperatorInstructionAccounts {
             position: position.pubkey,

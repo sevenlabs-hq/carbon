@@ -15,10 +15,10 @@ pub struct InitializeMultisig2Accounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitializeMultisig2 {
     type ArrangedAccounts = InitializeMultisig2Accounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let account = accounts.get(0)?;
+        let account = accounts.first()?;
 
         Some(InitializeMultisig2Accounts {
             account: account.pubkey,

@@ -1,4 +1,5 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -17,12 +18,12 @@ pub struct SetRewardEmissionsV2InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SetRewardEmissionsV2 {
     type ArrangedAccounts = SetRewardEmissionsV2InstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let whirlpool = accounts.get(0)?;
-        let reward_authority = accounts.get(1)?;
-        let reward_vault = accounts.get(2)?;
+        let [whirlpool, reward_authority, reward_vault] = accounts else {
+            return None;
+        };
 
         Some(SetRewardEmissionsV2InstructionAccounts {
             whirlpool: whirlpool.pubkey,

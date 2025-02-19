@@ -1,8 +1,9 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x05")]
+#[carbon(discriminator = "0xcf62f35972aecd14")]
 pub struct MigrateToOpenBook {}
 
 pub struct MigrateToOpenBookInstructionAccounts {
@@ -32,30 +33,14 @@ pub struct MigrateToOpenBookInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for MigrateToOpenBook {
     type ArrangedAccounts = MigrateToOpenBookInstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let token_program = accounts.get(0)?;
-        let system_program = accounts.get(1)?;
-        let rent = accounts.get(2)?;
-        let amm = accounts.get(3)?;
-        let amm_authority = accounts.get(4)?;
-        let amm_open_orders = accounts.get(5)?;
-        let amm_token_coin = accounts.get(6)?;
-        let amm_token_pc = accounts.get(7)?;
-        let amm_target_orders = accounts.get(8)?;
-        let serum_program = accounts.get(9)?;
-        let serum_market = accounts.get(10)?;
-        let serum_bids = accounts.get(11)?;
-        let serum_asks = accounts.get(12)?;
-        let serum_event_queue = accounts.get(13)?;
-        let serum_coin_vault = accounts.get(14)?;
-        let serum_pc_vault = accounts.get(15)?;
-        let serum_vault_signer = accounts.get(16)?;
-        let new_amm_open_orders = accounts.get(17)?;
-        let new_serum_program = accounts.get(18)?;
-        let new_serum_market = accounts.get(19)?;
-        let admin = accounts.get(20)?;
+        let [token_program, system_program, rent, amm, amm_authority, amm_open_orders, amm_token_coin, amm_token_pc, amm_target_orders, serum_program, serum_market, serum_bids, serum_asks, serum_event_queue, serum_coin_vault, serum_pc_vault, serum_vault_signer, new_amm_open_orders, new_serum_program, new_serum_market, admin] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(MigrateToOpenBookInstructionAccounts {
             token_program: token_program.pubkey,

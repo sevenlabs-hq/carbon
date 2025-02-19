@@ -17,10 +17,11 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateProgramVersion {
     type ArrangedAccounts = UpdateProgramVersionInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let authority = accounts.get(0)?;
-        let program_version = accounts.get(1)?;
+        let [authority, program_version] = accounts else {
+            return None;
+        };
 
         Some(UpdateProgramVersionInstructionAccounts {
             authority: authority.pubkey,
