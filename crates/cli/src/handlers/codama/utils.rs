@@ -1,11 +1,13 @@
-use super::types::{
-    AccountNode, CountNode, InstructionArgumentNode, RootNode, StructTypeNode, TypeNode,
+use {
+    super::types::{
+        AccountNode, CountNode, InstructionArgumentNode, RootNode, StructTypeNode, TypeNode,
+    },
+    crate::handlers::codama::types::ValueNode,
+    anyhow::Result,
+    heck::ToUpperCamelCase,
+    sha2::{Digest, Sha256},
+    std::{collections::HashSet, fs::File},
 };
-use crate::handlers::codama::types::ValueNode;
-use anyhow::Result;
-use heck::ToUpperCamelCase;
-use sha2::{Digest, Sha256};
-use std::{collections::HashSet, fs::File};
 
 pub fn map_type(type_node: &TypeNode) -> (String, bool) {
     match type_node {
@@ -28,7 +30,7 @@ pub fn map_type(type_node: &TypeNode) -> (String, bool) {
             (rust_type, requires_import)
         }
 
-        TypeNode::NumberTypeNode { format, .. } => (format!("{}", format), false),
+        TypeNode::NumberTypeNode { format, .. } => (format.to_string(), false),
         TypeNode::PublicKeyTypeNode => ("solana_sdk::pubkey::Pubkey".to_string(), false),
         TypeNode::BooleanTypeNode { .. } => ("bool".to_string(), false),
         TypeNode::FixedSizeTypeNode { size, r#type } => {
@@ -44,11 +46,11 @@ pub fn map_type(type_node: &TypeNode) -> (String, bool) {
         TypeNode::StringTypeNode { .. } => ("String".to_string(), false),
         TypeNode::SolAmountTypeNode { number } => {
             let inner = map_type(number);
-            (format!("{}", inner.0), inner.1)
+            (inner.0.to_string(), inner.1)
         }
         TypeNode::SizePrefixTypeNode { r#type, .. } => {
             let inner = map_type(r#type);
-            (format!("{}", inner.0), inner.1)
+            (inner.0.to_string(), inner.1)
         }
         TypeNode::ArrayTypeNode { item, count } => {
             let (rust_type, requires_import) = map_type(item);
@@ -68,7 +70,7 @@ pub fn map_type(type_node: &TypeNode) -> (String, bool) {
         }
         TypeNode::HiddenPrefixTypeNode { r#type, .. } => {
             let (rust_type, requires_import) = map_type(r#type);
-            (format!("{}", rust_type), requires_import)
+            (rust_type.to_string(), requires_import)
         }
         TypeNode::PreOffsetTypeNode {
             offset,
@@ -127,7 +129,7 @@ pub fn get_instruction_discriminator(
     ix_arguments: &[InstructionArgumentNode],
     instruction_name: &str,
 ) -> String {
-    if let Some(first_argument) = ix_arguments.get(0) {
+    if let Some(first_argument) = ix_arguments.first() {
         if first_argument.name == "discriminator" {
             if let Some(default_value) = &first_argument.default_value {
                 match default_value {
@@ -162,7 +164,7 @@ pub fn get_instruction_discriminator(
 }
 
 pub fn get_account_discriminator(account_node: &AccountNode, account_name: &str) -> String {
-    if let Some(first_data_field) = account_node.data.fields.get(0) {
+    if let Some(first_data_field) = account_node.data.fields.first() {
         if first_data_field.name == "discriminator" {
             if let Some(default_value) = &first_data_field.default_value {
                 match default_value {

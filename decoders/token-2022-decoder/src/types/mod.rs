@@ -9,5 +9,4 @@ pub use extension::*;
 pub mod extension_type;
 pub use extension_type::*;
 pub mod token_metadata_field;
-pub use serde_big_array::BigArray;
-pub use token_metadata_field::*;
+pub use {serde_big_array::BigArray, token_metadata_field::*};

@@ -64,7 +64,7 @@ pub enum TokenProgramInstruction {
     UiAmountToAmount(ui_amount_to_amount::UiAmountToAmount),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for TokenProgramDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for TokenProgramDecoder {
     type InstructionType = TokenProgramInstruction;
 
     fn decode_instruction(

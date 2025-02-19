@@ -1,18 +1,20 @@
-use super::{
-    types::{EnumVariantTypeNode, ProgramNode, SignerType, TypeNode},
-    utils::{
-        get_account_discriminator, get_event_discriminator, get_instruction_discriminator,
-        map_type, resolve_struct_type,
+use {
+    super::{
+        types::{EnumVariantTypeNode, ProgramNode, SignerType, TypeNode},
+        utils::{
+            get_account_discriminator, get_event_discriminator, get_instruction_discriminator,
+            map_type, resolve_struct_type,
+        },
     },
+    crate::{
+        accounts::{AccountData, FieldData as AccountFieldData},
+        events::EventData,
+        instructions::{AccountMetaData, ArgumentData, InstructionData},
+        types::{EnumVariantData, EnumVariantFields, FieldData, TypeData, TypeKind},
+    },
+    heck::{ToSnakeCase, ToUpperCamelCase},
+    std::collections::HashSet,
 };
-use crate::{
-    accounts::{AccountData, FieldData as AccountFieldData},
-    events::EventData,
-    instructions::{AccountMetaData, ArgumentData, InstructionData},
-    types::{EnumVariantData, EnumVariantFields, FieldData, TypeData, TypeKind},
-};
-use heck::{ToSnakeCase, ToUpperCamelCase};
-use std::collections::HashSet;
 
 pub fn process_codama_accounts(program: &ProgramNode) -> Vec<AccountData> {
     let mut accounts_data = Vec::new();
@@ -35,7 +37,7 @@ pub fn process_codama_accounts(program: &ProgramNode) -> Vec<AccountData> {
             }
 
             fields.push(AccountFieldData {
-                name: field.name.to_snek_case(),
+                name: field.name.to_snake_case(),
                 rust_type: rust_type.0,
             });
         }
@@ -59,7 +61,7 @@ pub fn process_codama_instructions(program: &ProgramNode) -> Vec<InstructionData
         let mut requires_imports = false;
 
         let struct_name = instruction.name.to_upper_camel_case();
-        let module_name = instruction.name.to_snek_case();
+        let module_name = instruction.name.to_snake_case();
         let discriminator =
             get_instruction_discriminator(&instruction.arguments, &instruction.name);
 
@@ -73,7 +75,7 @@ pub fn process_codama_instructions(program: &ProgramNode) -> Vec<InstructionData
                 requires_imports = true;
             }
             args.push(ArgumentData {
-                name: arg.name.to_snek_case(),
+                name: arg.name.to_snake_case(),
                 rust_type: rust_type.0,
             });
         }
@@ -81,7 +83,7 @@ pub fn process_codama_instructions(program: &ProgramNode) -> Vec<InstructionData
         let mut accounts = Vec::new();
         for account in &instruction.accounts {
             accounts.push(AccountMetaData {
-                name: account.name.to_snek_case(),
+                name: account.name.to_snake_case(),
                 is_mut: account.is_writable,
                 is_signer: match account.is_signer {
                     SignerType::Boolean(is_signer) => is_signer,
@@ -128,7 +130,7 @@ pub fn process_codama_defined_types(
                     }
                     let is_pubkey = rust_type.0 == "Pubkey";
                     fields.push(FieldData {
-                        name: field.name.to_snek_case(),
+                        name: field.name.to_snake_case(),
                         rust_type: rust_type.0,
                         is_pubkey,
                         attributes: None,
@@ -161,7 +163,7 @@ pub fn process_codama_defined_types(
                                                 requires_imports = true;
                                             }
                                             FieldData {
-                                                name: field.name.to_snek_case(),
+                                                name: field.name.to_snake_case(),
                                                 rust_type: rust_type.0.clone(),
                                                 is_pubkey: rust_type.0 == "Pubkey",
                                                 attributes: None,
@@ -206,7 +208,7 @@ pub fn process_codama_defined_types(
             _ => continue, // Skip unsupported type nodes for now.
         }
 
-        let module_name = name.to_snek_case();
+        let module_name = name.to_snake_case();
         let struct_name = name.to_upper_camel_case();
 
         if event_hints.contains(&name) {

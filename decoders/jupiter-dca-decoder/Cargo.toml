@@ -2,8 +2,8 @@
 name = "carbon-jupiter-dca-decoder"
 version = "0.4.1"
 description = "Jupiter DCA Decoder"
-license = "MIT"
-edition = "2018"
+license = { workspace = true }
+edition = { workspace = true }
 
 [lib]
 crate-type = ["rlib"]
@@ -11,5 +11,5 @@ crate-type = ["rlib"]
 [dependencies]
 carbon-core = { workspace = true }
 
-solana-sdk = "2.0.10"
-serde = "1.0.136"
+serde = { workspace = true }
+solana-sdk = { workspace = true }

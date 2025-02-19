@@ -1,7 +1,7 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use super::Token2022Decoder;
+use {
+    super::Token2022Decoder,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod mint;
 pub mod multisig;
 pub mod token;
@@ -12,7 +12,7 @@ pub enum Token2022Account {
     Multisig(multisig::Multisig),
 }
 
-impl<'a> AccountDecoder<'a> for Token2022Decoder {
+impl AccountDecoder<'_> for Token2022Decoder {
     type AccountType = Token2022Account;
     fn decode_account(
         &self,

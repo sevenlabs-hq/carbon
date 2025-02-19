@@ -23,7 +23,7 @@ pub enum NameInstruction {
     Realloc(realloc::Realloc),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for NameDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for NameDecoder {
     type InstructionType = NameInstruction;
 
     fn decode_instruction(

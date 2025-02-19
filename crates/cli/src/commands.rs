@@ -1,5 +1,7 @@
-use clap::{Parser, Subcommand, ValueEnum};
-use std::str::FromStr;
+use {
+    clap::{Parser, Subcommand, ValueEnum},
+    std::str::FromStr,
+};
 
 #[derive(Parser)]
 #[command(name = "IDL Parser CLI")]

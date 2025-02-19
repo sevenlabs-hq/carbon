@@ -1,20 +1,22 @@
-use crate::{
-    accounts::{AccountsModTemplate, AccountsStructTemplate},
-    events::EventsStructTemplate,
-    handlers::codama::{
-        processors::{
-            process_codama_accounts, process_codama_defined_types, process_codama_instructions,
+use {
+    crate::{
+        accounts::{AccountsModTemplate, AccountsStructTemplate},
+        events::EventsStructTemplate,
+        handlers::codama::{
+            processors::{
+                process_codama_accounts, process_codama_defined_types, process_codama_instructions,
+            },
+            utils::{parse_event_hints, read_codama_idl},
         },
-        utils::{parse_event_hints, read_codama_idl},
+        instructions::{InstructionsModTemplate, InstructionsStructTemplate},
+        types::TypeStructTemplate,
+        util::is_big_array,
     },
-    instructions::{InstructionsModTemplate, InstructionsStructTemplate},
-    types::TypeStructTemplate,
-    util::is_big_array,
+    anyhow::{bail, Result},
+    askama::Template,
+    heck::{ToKebabCase, ToSnakeCase, ToSnekCase, ToUpperCamelCase},
+    std::fs::{self},
 };
-use anyhow::{bail, Result};
-use askama::Template;
-use heck::{ToKebabCase, ToSnakeCase, ToSnekCase, ToUpperCamelCase};
-use std::fs::{self};
 
 pub fn parse_codama(
     path: String,
@@ -57,12 +59,10 @@ pub fn parse_codama(
         } else {
             format!("{}{}_decoder", output, program_name.to_snek_case())
         }
+    } else if as_crate {
+        format!("{}/{}-decoder", output, decoder_name_kebab)
     } else {
-        if as_crate {
-            format!("{}/{}-decoder", output, decoder_name_kebab)
-        } else {
-            format!("{}/{}_decoder", output, program_name.to_snek_case())
-        }
+        format!("{}/{}_decoder", output, program_name.to_snek_case())
     };
 
     fs::create_dir_all(&crate_dir).expect("Failed to create decoder directory");
@@ -188,7 +188,7 @@ pub fn parse_codama(
             r#"[package]
 name = "{decoder_name_kebab}-decoder"
 version = "0.1.4"
-edition = "2018"
+edition = {{ workspace = true }}
 
 [lib]
 crate-type = ["rlib"]
@@ -197,13 +197,13 @@ crate-type = ["rlib"]
 carbon-core = {{ workspace = true }}
 carbon-proc-macros = {{ workspace = true }}
 carbon-macros = {{ workspace = true }}
-solana-sdk = "2.0.10"
-serde = "1.0.136"
+solana-sdk = {{ workspace = true }}
+serde = {{ workspace = true }}
 {big_array}
 "#,
             decoder_name_kebab = decoder_name_kebab,
             big_array = if needs_big_array {
-                "serde-big-array = \"0.5.1\""
+                "serde-big-array = { workspace = true }"
             } else {
                 ""
             }

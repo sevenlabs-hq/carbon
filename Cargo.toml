@@ -1,53 +1,102 @@
+[workspace.package]
+rust-version = "1.82"
+version = "0.4.1"
+edition = "2021"
+license = "MIT"
+publish = false
+
 [workspace]
 members = ["crates/*", "datasources/*", "decoders/*", "metrics/*", "examples/*"]
 resolver = "2"
 
 [workspace.dependencies]
+# bin
+carbon-cli = { path = "crates/cli", version = "0.4.1" }
 carbon-core = { path = "crates/core", version = "0.4.1" }
 carbon-macros = { path = "crates/macros", version = "0.4.1" }
 carbon-proc-macros = { path = "crates/proc-macros", version = "0.4.1" }
-carbon-cli = { path = "crates/cli", version = "0.4.1" }
 
-carbon-rpc-program-subscribe-datasource = { path = "datasources/rpc-program-subscribe-datasource", version = "0.4.1" }
-carbon-rpc-block-subscribe-datasource = { path = "datasources/rpc-block-subscribe-datasource", version = "0.4.1" }
+# datasources
 carbon-helius-atlas-ws-datasource = { path = "datasources/helius-atlas-ws-datasource", version = "0.4.1" }
+carbon-rpc-block-subscribe-datasource = { path = "datasources/rpc-block-subscribe-datasource", version = "0.4.1" }
+carbon-rpc-program-subscribe-datasource = { path = "datasources/rpc-program-subscribe-datasource", version = "0.4.1" }
 carbon-rpc-transaction-crawler-datasource = { path = "datasources/rpc-transaction-crawler-datasource", version = "0.4.1" }
 carbon-yellowstone-grpc-datasource = { path = "datasources/yellowstone-grpc-datasource", version = "0.4.1" }
 
+# metrics
 carbon-log-metrics = { path = "metrics/log-metrics", version = "0.4.1" }
 carbon-prometheus-metrics = { path = "metrics/prometheus-metrics", version = "0.4.1" }
 
+# decoders
 carbon-jupiter-dca-decoder = { path = "decoders/jupiter-dca-decoder", version = "0.4.1" }
 carbon-jupiter-limit-order-2-decoder = { path = "decoders/jupiter-limit-order-2-decoder", version = "0.4.1" }
 carbon-jupiter-limit-order-decoder = { path = "decoders/jupiter-limit-order-decoder", version = "0.4.1" }
 carbon-jupiter-swap-decoder = { path = "decoders/jupiter-swap-decoder", version = "0.4.1" }
-carbon-meteora-dlmm-decoder = { path = "decoders/meteora-dlmm-decoder", version = "0.4.1" }
-carbon-mpl-core-decoder = { path = "decoders/mpl-core-decoder", version = "0.4.1" }
-carbon-mpl-token-metadata-decoder = { path = "decoders/mpl-token-metadata-decoder", version = "0.4.1" }
-carbon-orca-whirlpool-decoder = { path = "decoders/orca-whirlpool-decoder", version = "0.4.1" }
-carbon-pumpfun-decoder = { path = "decoders/pumpfun-decoder", version = "0.4.1" }
-carbon-moonshot-decoder = { path = "decoders/moonshot-decoder", version = "0.4.1" }
-carbon-raydium-amm-v4-decoder = { path = "decoders/raydium-amm-v4-decoder", version = "0.4.1" }
-carbon-sharky-decoder = { path = "decoders/sharky-decoder", version = "0.4.1" }
-carbon-openbook-v2-decoder = { path = "decoders/openbook-v2-decoder", version = "0.4.1" }
-carbon-raydium-clmm-decoder = { path = "decoders/raydium-clmm-decoder", version = "0.4.1" }
-carbon-raydium-cpmm-decoder = { path = "decoders/raydium-cpmm-decoder", version = "0.4.1" }
-carbon-system-program-decoder = { path = "decoders/system-program-decoder", version = "0.4.1" }
-carbon-token-program-decoder = { path = "decoders/token-program-decoder", version = "0.4.1" }
-carbon-memo-program-decoder = { path = "decoders/memo-program-decoder", version = "0.4.1" }
 carbon-kamino-lending-decoder = { path = "decoders/kamino-lending-decoder", version = "0.4.1" }
 carbon-kamino-vault-decoder = { path = "decoders/kamino-vault-decoder", version = "0.4.1" }
+carbon-memo-program-decoder = { path = "decoders/memo-program-decoder", version = "0.4.1" }
+carbon-meteora-dlmm-decoder = { path = "decoders/meteora-dlmm-decoder", version = "0.4.1" }
+carbon-moonshot-decoder = { path = "decoders/moonshot-decoder", version = "0.4.1" }
+carbon-mpl-core-decoder = { path = "decoders/mpl-core-decoder", version = "0.4.1" }
+carbon-mpl-token-metadata-decoder = { path = "decoders/mpl-token-metadata-decoder", version = "0.4.1" }
+carbon-openbook-v2-decoder = { path = "decoders/openbook-v2-decoder", version = "0.4.1" }
+carbon-orca-whirlpool-decoder = { path = "decoders/orca-whirlpool-decoder", version = "0.4.1" }
+carbon-pumpfun-decoder = { path = "decoders/pumpfun-decoder", version = "0.4.1" }
+carbon-raydium-amm-v4-decoder = { path = "decoders/raydium-amm-v4-decoder", version = "0.4.1" }
+carbon-raydium-clmm-decoder = { path = "decoders/raydium-clmm-decoder", version = "0.4.1" }
+carbon-raydium-cpmm-decoder = { path = "decoders/raydium-cpmm-decoder", version = "0.4.1" }
+carbon-sharky-decoder = { path = "decoders/sharky-decoder", version = "0.4.1" }
+carbon-system-program-decoder = { path = "decoders/system-program-decoder", version = "0.4.1" }
+carbon-token-program-decoder = { path = "decoders/token-program-decoder", version = "0.4.1" }
 
+# solana
+solana-account-decoder = "2.1.4"
+solana-client = "2.1.4"
 solana-sdk = "2.1.4"
 solana-transaction-status = "2.1.4"
-solana-client = "2.1.4"
-solana-account-decoder = "2.1.4"
+spl-memo = "5.0.0"
+spl-token = "6.0.0"
 
+# other
+anyhow = "1.0.95"
+askama = "0.12.1"
+async-stream = "0.3.6"
 async-trait = { version = "0.1.86" }
-tokio = { version = "1.43.0" }
+bincode = "1.3.3"
+borsh = { version = "1.5.1" }
+borsh-derive-internal = "0.10.3"
+bs58 = "0.5.1"
+clap = { version = "4.5.30", features = ["derive"] }
+console = "0.15.8"
+dialoguer = { version = "0.11.0", default-features = false, features = ["editor"] }
+dotenv = "0.15.0"
+env_logger = "0.11.5"
+flate2 = "1.0.35"
+futures = "0.3.30"
+futures-util = "0.3.31"
+heck = "0.5.0"
 helius = { version = "0.2.4", git = "https://github.com/helius-labs/helius-rust-sdk.git" }
-yellowstone-grpc-proto = { version = "5.0.0" }
+hex = "0.4.3"
+indicatif = "0.17.8"
+log = "0.4.25"
+metrics = "0.24.1"
+metrics-exporter-prometheus = "0.16.0"
+paste = "1.0.15"
+proc-macro2 = "1"
+quote = "1.0"
+retry = "2.0.0"
+serde = { version = "1.0.208", features = ["derive"] }
+serde-big-array = "0.5.1"
+serde_json = "1.0.138"
+sha2 = "0.10.8"
+syn = { version = "1.0", features = ["full"] }
+thiserror = "1.0.63"
+tokio = { version = "1.43.0" }
+tokio-retry = "0.3.0"
+tokio-util = "0.7.13"
+unicode-xid = "0.2"
 yellowstone-grpc-client = { version = "5.0.0" }
+yellowstone-grpc-proto = { version = "5.0.0" }
 
 [patch.crates-io.curve25519-dalek]
 git = "https://github.com/anza-xyz/curve25519-dalek.git"

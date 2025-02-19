@@ -1,16 +1,18 @@
-use async_trait::async_trait;
-use carbon_core::{
-    error::CarbonResult,
-    instruction::{DecodedInstruction, InstructionMetadata, NestedInstruction},
-    metrics::MetricsCollection,
-    processor::Processor,
+use {
+    async_trait::async_trait,
+    carbon_core::{
+        error::CarbonResult,
+        instruction::{DecodedInstruction, InstructionMetadata, NestedInstruction},
+        metrics::MetricsCollection,
+        processor::Processor,
+    },
+    carbon_log_metrics::LogMetrics,
+    carbon_openbook_v2_decoder::{instructions::OpenbookV2Instruction, OpenbookV2Decoder},
+    carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
+    solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
+    solana_sdk::{pubkey, pubkey::Pubkey},
+    std::{env, sync::Arc},
 };
-use carbon_log_metrics::LogMetrics;
-use carbon_openbook_v2_decoder::{instructions::OpenbookV2Instruction, OpenbookV2Decoder};
-use carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe};
-use solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter};
-use solana_sdk::{pubkey, pubkey::Pubkey};
-use std::{env, sync::Arc};
 
 pub const OPENBOOK_V2_PROGRAM_ID: Pubkey = pubkey!("opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb");
 

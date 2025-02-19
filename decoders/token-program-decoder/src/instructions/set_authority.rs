@@ -1,5 +1,7 @@
-use crate::types::*;
-use carbon_core::{borsh, CarbonDeserialize};
+use {
+    crate::types::*,
+    carbon_core::{borsh, CarbonDeserialize},
+};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]

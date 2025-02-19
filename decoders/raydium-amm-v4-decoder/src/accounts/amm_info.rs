@@ -1,6 +1,7 @@
-use super::super::types::*;
-use super::fees::Fees;
-use carbon_core::{borsh, CarbonDeserialize};
+use {
+    super::{super::types::*, fees::Fees},
+    carbon_core::{borsh, CarbonDeserialize},
+};
 
 #[derive(CarbonDeserialize, Debug)]
 #[carbon(discriminator = "0x21d902cbb853eb5b")]
