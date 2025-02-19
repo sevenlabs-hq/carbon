@@ -34,7 +34,7 @@ impl carbon_core::deserialize::ArrangeAccounts for MintNewEditionFromMasterEditi
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [new_metadata, new_edition, master_edition, new_mint, edition_mark_pda, new_mint_authority, payer, token_account_owner, token_account, new_metadata_update_authority, metadata, token_program, system_program, rent] =
+        let [new_metadata, new_edition, master_edition, new_mint, edition_mark_pda, new_mint_authority, payer, token_account_owner, token_account, new_metadata_update_authority, metadata, token_program, system_program, rent, _remaining @ ..] =
             accounts
         else {
             return None;

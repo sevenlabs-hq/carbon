@@ -36,7 +36,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CancelAllAndPlaceOrders {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [signer, open_orders_account, open_orders_admin, user_quote_account, user_base_account, market, bids, asks, event_heap, market_quote_vault, market_base_vault, oracle_a, oracle_b, token_program] =
+        let [signer, open_orders_account, open_orders_admin, user_quote_account, user_base_account, market, bids, asks, event_heap, market_quote_vault, market_base_vault, oracle_a, oracle_b, token_program, _remaining @ ..] =
             accounts
         else {
             return None;

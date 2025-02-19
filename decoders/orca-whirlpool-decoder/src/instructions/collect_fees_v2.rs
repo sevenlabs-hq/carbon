@@ -32,7 +32,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CollectFeesV2 {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [whirlpool, position_authority, position, position_token_account, token_mint_a, token_mint_b, token_owner_account_a, token_vault_a, token_owner_account_b, token_vault_b, token_program_a, token_program_b, memo_program] =
+        let [whirlpool, position_authority, position, position_token_account, token_mint_a, token_mint_b, token_owner_account_a, token_vault_a, token_owner_account_b, token_vault_b, token_program_a, token_program_b, memo_program, _remaining @ ..] =
             accounts
         else {
             return None;

@@ -25,7 +25,7 @@ impl carbon_core::deserialize::ArrangeAccounts for BurnEditionNft {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [metadata, owner, print_edition_mint, master_edition_mint, print_edition_token_account, master_edition_token_account, master_edition_account, print_edition_account, edition_marker_account, spl_token_program] =
+        let [metadata, owner, print_edition_mint, master_edition_mint, print_edition_token_account, master_edition_token_account, master_edition_account, print_edition_account, edition_marker_account, spl_token_program, _remaining @ ..] =
             accounts
         else {
             return None;

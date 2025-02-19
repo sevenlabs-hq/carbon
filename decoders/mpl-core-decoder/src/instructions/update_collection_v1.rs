@@ -25,7 +25,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateCollectionV1 {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [collection, payer, authority, new_update_authority, system_program, log_wrapper] =
+        let [collection, payer, authority, new_update_authority, system_program, log_wrapper, _remaining @ ..] =
             accounts
         else {
             return None;

@@ -28,7 +28,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SettleFundsExpired {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [close_market_admin, owner, penalty_payer, open_orders_account, market, market_authority, market_base_vault, market_quote_vault, user_base_account, user_quote_account, referrer_account, token_program, system_program] =
+        let [close_market_admin, owner, penalty_payer, open_orders_account, market, market_authority, market_base_vault, market_quote_vault, user_base_account, user_quote_account, referrer_account, token_program, system_program, _remaining @ ..] =
             accounts
         else {
             return None;

@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SocializeLoss {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [risk_council, obligation, lending_market, reserve, instruction_sysvar_account] =
+        let [risk_council, obligation, lending_market, reserve, instruction_sysvar_account, _remaining @ ..] =
             accounts
         else {
             return None;

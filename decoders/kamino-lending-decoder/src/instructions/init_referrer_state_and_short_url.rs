@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitReferrerStateAndShortUrl 
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [referrer, referrer_state, referrer_short_url, referrer_user_metadata, rent, system_program] =
+        let [referrer, referrer_state, referrer_short_url, referrer_user_metadata, rent, system_program, _remaining @ ..] =
             accounts
         else {
             return None;

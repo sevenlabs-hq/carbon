@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DeprecatedCreateReservationLi
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [reservation_list, payer, update_authority, master_edition, resource, metadata, system_program, rent] =
+        let [reservation_list, payer, update_authority, master_edition, resource, metadata, system_program, rent, _remaining @ ..] =
             accounts
         else {
             return None;

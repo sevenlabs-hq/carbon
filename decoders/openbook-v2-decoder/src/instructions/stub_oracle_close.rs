@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for StubOracleClose {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [owner, oracle, sol_destination, token_program] = accounts else {
+        let [owner, oracle, sol_destination, token_program, _remaining @ ..] = accounts else {
             return None;
         };
 

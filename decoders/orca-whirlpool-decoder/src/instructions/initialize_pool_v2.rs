@@ -32,7 +32,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializePoolV2 {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [whirlpools_config, token_mint_a, token_mint_b, token_badge_a, token_badge_b, funder, whirlpool, token_vault_a, token_vault_b, fee_tier, token_program_a, token_program_b, system_program, rent] =
+        let [whirlpools_config, token_mint_a, token_mint_b, token_badge_a, token_badge_b, funder, whirlpool, token_vault_a, token_vault_b, fee_tier, token_program_a, token_program_b, system_program, rent, _remaining @ ..] =
             accounts
         else {
             return None;

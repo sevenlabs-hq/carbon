@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ConsumeGivenEvents {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [consume_events_admin, market, event_heap] = accounts else {
+        let [consume_events_admin, market, event_heap, _remaining @ ..] = accounts else {
             return None;
         };
 

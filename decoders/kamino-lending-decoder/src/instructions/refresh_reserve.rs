@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RefreshReserve {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [reserve, lending_market, pyth_oracle, switchboard_price_oracle, switchboard_twap_oracle, scope_prices] =
+        let [reserve, lending_market, pyth_oracle, switchboard_price_oracle, switchboard_twap_oracle, scope_prices, _remaining @ ..] =
             accounts
         else {
             return None;

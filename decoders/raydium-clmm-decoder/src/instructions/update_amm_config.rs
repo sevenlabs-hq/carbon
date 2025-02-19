@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateAmmConfig {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [owner, amm_config] = accounts else {
+        let [owner, amm_config, _remaining @ ..] = accounts else {
             return None;
         };
 

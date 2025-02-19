@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RepayAndWithdrawAndRedeem {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [repay_accounts, withdraw_accounts] = accounts else {
+        let [repay_accounts, withdraw_accounts, _remaining @ ..] = accounts else {
             return None;
         };
 

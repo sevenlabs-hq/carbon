@@ -28,7 +28,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ClaimReward {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [lb_pair, position, bin_array_lower, bin_array_upper, sender, reward_vault, reward_mint, user_token_account, token_program, event_authority, program] =
+        let [lb_pair, position, bin_array_lower, bin_array_upper, sender, reward_vault, reward_mint, user_token_account, token_program, event_authority, program, _remaining @ ..] =
             accounts
         else {
             return None;

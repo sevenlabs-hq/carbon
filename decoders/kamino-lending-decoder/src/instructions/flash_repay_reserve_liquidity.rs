@@ -30,7 +30,7 @@ impl carbon_core::deserialize::ArrangeAccounts for FlashRepayReserveLiquidity {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [user_transfer_authority, lending_market_authority, lending_market, reserve, reserve_liquidity_mint, reserve_destination_liquidity, user_source_liquidity, reserve_liquidity_fee_receiver, referrer_token_state, referrer_account, sysvar_info, token_program] =
+        let [user_transfer_authority, lending_market_authority, lending_market, reserve, reserve_liquidity_mint, reserve_destination_liquidity, user_source_liquidity, reserve_liquidity_fee_receiver, referrer_token_state, referrer_account, sysvar_info, token_program, _remaining @ ..] =
             accounts
         else {
             return None;

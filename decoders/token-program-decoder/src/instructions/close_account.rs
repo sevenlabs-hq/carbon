@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CloseAccount {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [account, destination, owner] = accounts else {
+        let [account, destination, owner, remaining_accounts @ ..] = accounts else {
             return None;
         };
 
@@ -26,7 +26,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CloseAccount {
             account: account.pubkey,
             destination: destination.pubkey,
             owner: owner.pubkey,
-            remaining_accounts: accounts.get(3..).unwrap_or_default().to_vec(),
+            remaining_accounts: remaining_accounts.to_vec(),
         })
     }
 }

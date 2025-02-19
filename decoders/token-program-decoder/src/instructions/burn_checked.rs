@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for BurnChecked {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [account, mint, owner] = accounts else {
+        let [account, mint, owner, remaining_accounts @ ..] = accounts else {
             return None;
         };
 
@@ -29,7 +29,7 @@ impl carbon_core::deserialize::ArrangeAccounts for BurnChecked {
             account: account.pubkey,
             mint: mint.pubkey,
             owner: owner.pubkey,
-            remaining_accounts: accounts.get(3..).unwrap_or_default().to_vec(),
+            remaining_accounts: remaining_accounts.to_vec(),
         })
     }
 }

@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ClosePresetParameter {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [preset_parameter, admin, rent_receiver] = accounts else {
+        let [preset_parameter, admin, rent_receiver, _remaining @ ..] = accounts else {
             return None;
         };
 

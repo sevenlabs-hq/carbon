@@ -26,7 +26,9 @@ impl carbon_core::deserialize::ArrangeAccounts for WriteCollectionExternalPlugin
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [collection, payer, authority, buffer, system_program, log_wrapper] = accounts else {
+        let [collection, payer, authority, buffer, system_program, log_wrapper, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
 

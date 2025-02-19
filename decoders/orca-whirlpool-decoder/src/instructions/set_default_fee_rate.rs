@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetDefaultFeeRate {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [whirlpools_config, fee_tier, fee_authority] = accounts else {
+        let [whirlpools_config, fee_tier, fee_authority, _remaining @ ..] = accounts else {
             return None;
         };
 

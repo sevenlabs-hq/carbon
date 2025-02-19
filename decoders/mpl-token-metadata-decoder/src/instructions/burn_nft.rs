@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for BurnNft {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [metadata, owner, mint, token_account, master_edition_account, spl_token_program, collection_metadata] =
+        let [metadata, owner, mint, token_account, master_edition_account, spl_token_program, collection_metadata, _remaining @ ..] =
             accounts
         else {
             return None;

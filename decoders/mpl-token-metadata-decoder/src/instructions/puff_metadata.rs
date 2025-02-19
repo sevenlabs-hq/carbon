@@ -16,7 +16,7 @@ impl carbon_core::deserialize::ArrangeAccounts for PuffMetadata {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [metadata] = accounts else {
+        let [metadata, _remaining @ ..] = accounts else {
             return None;
         };
 

@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RevokeCollectionAuthority {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [collection_authority_record, delegate_authority, revoke_authority, metadata, mint] =
+        let [collection_authority_record, delegate_authority, revoke_authority, metadata, mint, _remaining @ ..] =
             accounts
         else {
             return None;

@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateMetadataAccount {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [metadata, update_authority] = accounts else {
+        let [metadata, update_authority, _remaining @ ..] = accounts else {
             return None;
         };
 

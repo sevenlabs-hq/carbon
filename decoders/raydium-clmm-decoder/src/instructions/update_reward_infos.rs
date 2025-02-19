@@ -16,7 +16,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateRewardInfos {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [pool_state] = accounts else {
+        let [pool_state, _remaining @ ..] = accounts else {
             return None;
         };
 

@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetRewardAuthorityBySuperAuth
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [whirlpools_config, whirlpool, reward_emissions_super_authority, new_reward_authority] =
+        let [whirlpools_config, whirlpool, reward_emissions_super_authority, new_reward_authority, _remaining @ ..] =
             accounts
         else {
             return None;

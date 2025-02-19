@@ -32,7 +32,7 @@ impl carbon_core::deserialize::ArrangeAccounts for TransferOutOfEscrow {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [escrow, metadata, payer, attribute_mint, attribute_src, attribute_dst, escrow_mint, escrow_account, system_program, ata_program, token_program, sysvar_instructions, authority] =
+        let [escrow, metadata, payer, attribute_mint, attribute_src, attribute_dst, escrow_mint, escrow_account, system_program, ata_program, token_program, sysvar_instructions, authority, _remaining @ ..] =
             accounts
         else {
             return None;

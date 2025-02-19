@@ -36,7 +36,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Initialize {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [token_program, system_program, rent, amm, amm_authority, amm_open_orders, lp_mint_address, coin_mint_address, pc_mint_address, pool_coin_token_account, pool_pc_token_account, pool_withdraw_queue, pool_target_orders_account, user_lp_token_account, pool_temp_lp_token_account, serum_program, serum_market, user_wallet] =
+        let [token_program, system_program, rent, amm, amm_authority, amm_open_orders, lp_mint_address, coin_mint_address, pc_mint_address, pool_coin_token_account, pool_pc_token_account, pool_withdraw_queue, pool_target_orders_account, user_lp_token_account, pool_temp_lp_token_account, serum_program, serum_market, user_wallet, _remaining @ ..] =
             accounts
         else {
             return None;

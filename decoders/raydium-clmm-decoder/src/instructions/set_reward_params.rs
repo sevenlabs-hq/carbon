@@ -26,7 +26,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetRewardParams {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [authority, amm_config, pool_state, operation_state, token_program, token_program2022] =
+        let [authority, amm_config, pool_state, operation_state, token_program, token_program2022, _remaining @ ..] =
             accounts
         else {
             return None;

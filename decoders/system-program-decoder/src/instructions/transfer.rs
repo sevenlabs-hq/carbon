@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Transfer {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [funding_account, recipient_account] = accounts else {
+        let [funding_account, recipient_account, _remaining @ ..] = accounts else {
             return None;
         };
 

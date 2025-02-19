@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for GoToABin {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [lb_pair, bin_array_bitmap_extension, from_bin_array, to_bin_array, event_authority, program] =
+        let [lb_pair, bin_array_bitmap_extension, from_bin_array, to_bin_array, event_authority, program, _remaining @ ..] =
             accounts
         else {
             return None;

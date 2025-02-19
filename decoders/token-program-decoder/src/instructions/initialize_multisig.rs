@@ -19,14 +19,14 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeMultisig {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [account, rent] = accounts else {
+        let [account, rent, remaining_accounts @ ..] = accounts else {
             return None;
         };
 
         Some(InitializeMultisigAccounts {
             account: account.pubkey,
             rent: rent.pubkey,
-            remaining_accounts: accounts.get(2..).unwrap_or_default().to_vec(),
+            remaining_accounts: remaining_accounts.to_vec(),
         })
     }
 }

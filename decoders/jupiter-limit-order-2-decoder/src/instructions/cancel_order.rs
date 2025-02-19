@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CancelOrder {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [signer, maker, order, input_mint_reserve, maker_input_mint_account, input_mint, input_token_program, event_authority, program] =
+        let [signer, maker, order, input_mint_reserve, maker_input_mint_account, input_mint, input_token_program, event_authority, program, _remaining @ ..] =
             accounts
         else {
             return None;

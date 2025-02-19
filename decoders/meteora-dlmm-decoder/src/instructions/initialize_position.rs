@@ -26,7 +26,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializePosition {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [payer, position, lb_pair, owner, system_program, rent, event_authority, program] =
+        let [payer, position, lb_pair, owner, system_program, rent, event_authority, program, _remaining @ ..] =
             accounts
         else {
             return None;

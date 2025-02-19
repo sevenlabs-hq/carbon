@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetConfigExtensionAuthority {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [whirlpools_config, whirlpools_config_extension, config_extension_authority, new_config_extension_authority] =
+        let [whirlpools_config, whirlpools_config_extension, config_extension_authority, new_config_extension_authority, _remaining @ ..] =
             accounts
         else {
             return None;
