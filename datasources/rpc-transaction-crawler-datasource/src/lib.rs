@@ -146,6 +146,7 @@ impl Datasource for RpcTransactionCrawler {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn signature_fetcher(
     rpc_client: Arc<RpcClient>,
     account: Pubkey,
