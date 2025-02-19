@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdatePositionOperator {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [position, owner, event_authority, program] = accounts else {
+        let [position, owner, event_authority, program, _remaining @ ..] = accounts else {
             return None;
         };
 

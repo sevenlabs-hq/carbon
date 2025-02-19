@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitFee {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [keeper, fee_authority, system_program] = accounts else {
+        let [keeper, fee_authority, system_program, _remaining @ ..] = accounts else {
             return None;
         };
 

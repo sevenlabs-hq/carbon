@@ -26,7 +26,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Withdraw {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [global, last_withdraw, mint, bonding_curve, associated_bonding_curve, associated_user, user, system_program, token_program, rent, event_authority, program] =
+        let [global, last_withdraw, mint, bonding_curve, associated_bonding_curve, associated_user, user, system_program, token_program, rent, event_authority, program, _remaining @ ..] =
             accounts
         else {
             return None;

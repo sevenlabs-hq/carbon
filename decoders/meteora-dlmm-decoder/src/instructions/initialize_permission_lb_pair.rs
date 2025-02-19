@@ -33,7 +33,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializePermissionLbPair {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [base, lb_pair, bin_array_bitmap_extension, token_mint_x, token_mint_y, reserve_x, reserve_y, oracle, admin, token_program, system_program, rent, event_authority, program] =
+        let [base, lb_pair, bin_array_bitmap_extension, token_mint_x, token_mint_y, reserve_x, reserve_y, oracle, admin, token_program, system_program, rent, event_authority, program, _remaining @ ..] =
             accounts
         else {
             return None;

@@ -24,7 +24,8 @@ impl carbon_core::deserialize::ArrangeAccounts for Deposit {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [user, dca, in_ata, user_in_ata, token_program, event_authority, program] = accounts
+        let [user, dca, in_ata, user_in_ata, token_program, event_authority, program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

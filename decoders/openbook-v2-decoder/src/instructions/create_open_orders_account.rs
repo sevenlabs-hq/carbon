@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateOpenOrdersAccount {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [payer, owner, delegate_account, open_orders_indexer, open_orders_account, market, system_program] =
+        let [payer, owner, delegate_account, open_orders_indexer, open_orders_account, market, system_program, _remaining @ ..] =
             accounts
         else {
             return None;

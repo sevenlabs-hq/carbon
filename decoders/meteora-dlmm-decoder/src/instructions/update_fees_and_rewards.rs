@@ -20,7 +20,9 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateFeesAndRewards {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [position, lb_pair, bin_array_lower, bin_array_upper, owner] = accounts else {
+        let [position, lb_pair, bin_array_lower, bin_array_upper, owner, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
 

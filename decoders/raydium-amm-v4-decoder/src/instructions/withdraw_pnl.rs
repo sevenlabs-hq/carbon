@@ -32,7 +32,7 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawPnl {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [token_program, amm, amm_config, amm_authority, amm_open_orders, pool_coin_token_account, pool_pc_token_account, coin_pnl_token_account, pc_pnl_token_account, pnl_owner_account, amm_target_orders, serum_program, serum_market, serum_event_queue, serum_coin_vault_account, serum_pc_vault_account, serum_vault_signer] =
+        let [token_program, amm, amm_config, amm_authority, amm_open_orders, pool_coin_token_account, pool_pc_token_account, coin_pnl_token_account, pc_pnl_token_account, pnl_owner_account, amm_target_orders, serum_program, serum_market, serum_event_queue, serum_coin_vault_account, serum_pc_vault_account, serum_vault_signer, _remaining @ ..] =
             accounts
         else {
             return None;

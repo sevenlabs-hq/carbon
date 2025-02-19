@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CloseAccounts {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [metadata, edition, mint, authority, destination] = accounts else {
+        let [metadata, edition, mint, authority, destination, _remaining @ ..] = accounts else {
             return None;
         };
 

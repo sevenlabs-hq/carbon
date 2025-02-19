@@ -20,7 +20,8 @@ impl carbon_core::deserialize::ArrangeAccounts for DeleteReferrerStateAndShortUr
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [referrer, referrer_state, short_url, rent, system_program] = accounts else {
+        let [referrer, referrer_state, short_url, rent, system_program, _remaining @ ..] = accounts
+        else {
             return None;
         };
 

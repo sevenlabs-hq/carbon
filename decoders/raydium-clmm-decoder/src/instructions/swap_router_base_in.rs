@@ -16,6 +16,7 @@ pub struct SwapRouterBaseInInstructionAccounts {
     pub token_program: solana_sdk::pubkey::Pubkey,
     pub token_program2022: solana_sdk::pubkey::Pubkey,
     pub memo_program: solana_sdk::pubkey::Pubkey,
+    pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SwapRouterBaseIn {
@@ -24,7 +25,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SwapRouterBaseIn {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [payer, input_token_account, input_token_mint, token_program, token_program2022, memo_program] =
+        let [payer, input_token_account, input_token_mint, token_program, token_program2022, memo_program, remaining_accounts @ ..] =
             accounts
         else {
             return None;
@@ -37,6 +38,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SwapRouterBaseIn {
             token_program: token_program.pubkey,
             token_program2022: token_program2022.pubkey,
             memo_program: memo_program.pubkey,
+            remaining_accounts: remaining_accounts.to_vec(),
         })
     }
 }

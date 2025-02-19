@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CollectReward {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [whirlpool, position_authority, position, position_token_account, reward_owner_account, reward_vault, token_program] =
+        let [whirlpool, position_authority, position, position_token_account, reward_owner_account, reward_vault, token_program, _remaining @ ..] =
             accounts
         else {
             return None;
