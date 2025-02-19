@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ApproveConfidentialTransferAc
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [token, mint, authority] = accounts else {
+        let [token, mint, authority, _remaining @ ..] = accounts else {
             return None;
         };
 

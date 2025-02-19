@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x6c25ab8ff81e126e")]
-pub struct UpdateTokenGroupMaxSize{
+pub struct UpdateTokenGroupMaxSize {
     pub max_size: u64,
 }
 
@@ -17,14 +16,12 @@ pub struct UpdateTokenGroupMaxSizeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UpdateTokenGroupMaxSize {
     type ArrangedAccounts = UpdateTokenGroupMaxSizeInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            group,
-            update_authority,
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [group, update_authority, _remaining @ ..] = accounts else {
             return None;
         };
-       
 
         Some(UpdateTokenGroupMaxSizeInstructionAccounts {
             group: group.pubkey,

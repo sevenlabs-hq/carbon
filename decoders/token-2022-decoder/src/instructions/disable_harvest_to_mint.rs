@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DisableHarvestToMint {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [mint, authority] = accounts else {
+        let [mint, authority, _remaining @ ..] = accounts else {
             return None;
         };
 

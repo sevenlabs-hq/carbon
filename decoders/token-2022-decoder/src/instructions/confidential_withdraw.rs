@@ -30,7 +30,8 @@ impl carbon_core::deserialize::ArrangeAccounts for ConfidentialWithdraw {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [token, mint, instructions_sysvar, equality_record, range_record, authority] = accounts
+        let [token, mint, instructions_sysvar, equality_record, range_record, authority, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DisableMemoTransfers {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [token, owner] = accounts else {
+        let [token, owner, _remaining @ ..] = accounts else {
             return None;
         };
 

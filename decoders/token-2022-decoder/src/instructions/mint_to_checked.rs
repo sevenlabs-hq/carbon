@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for MintToChecked {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [mint, token, mint_authority] = accounts else {
+        let [mint, token, mint_authority, _remaining @ ..] = accounts else {
             return None;
         };
 

@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetTransferFee {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [mint, transfer_fee_config_authority] = accounts else {
+        let [mint, transfer_fee_config_authority, _remaining @ ..] = accounts else {
             return None;
         };
 

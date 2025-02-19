@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x1c")]
-pub struct UpdateDefaultAccountState{
+pub struct UpdateDefaultAccountState {
     pub default_account_state_discriminator: u8,
     pub state: AccountState,
 }
@@ -19,14 +19,12 @@ pub struct UpdateDefaultAccountStateInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UpdateDefaultAccountState {
     type ArrangedAccounts = UpdateDefaultAccountStateInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            mint,
-            freeze_authority,
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [mint, freeze_authority, _remaining @ ..] = accounts else {
             return None;
         };
-       
 
         Some(UpdateDefaultAccountStateInstructionAccounts {
             mint: mint.pubkey,

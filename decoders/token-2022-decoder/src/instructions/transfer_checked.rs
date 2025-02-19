@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for TransferChecked {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [source, mint, destination, authority] = accounts else {
+        let [source, mint, destination, authority, _remaining @ ..] = accounts else {
             return None;
         };
 

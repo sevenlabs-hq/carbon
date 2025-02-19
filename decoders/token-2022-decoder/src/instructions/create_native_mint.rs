@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateNativeMint {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [payer, native_mint, system_program] = accounts else {
+        let [payer, native_mint, system_program, _remaining @ ..] = accounts else {
             return None;
         };
 
