@@ -27,7 +27,7 @@ impl carbon_core::deserialize::ArrangeAccounts for {{ instruction.struct_name }}
             {%- for i in (0..instruction.accounts.len()) %}
             {{ instruction.accounts[i].name }},
             {%- endfor %}
-            remaining @ ..
+            _remaining @ ..
         ] = accounts else {
             return None;
         };
