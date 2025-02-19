@@ -26,10 +26,10 @@ Process specific updates:
 Collect and report on pipeline performance and operational data.
 
 Our premade metrics crates assist with common use cases:
-| Crate Name | Description | Ease of Setup |
-|------------|-------------|---------------|
-| `carbon-log-metrics` | Logs useful program info to the terminal | Easy |
-| `carbon-prometheus-metrics` | Provides a way of exporting default and custom metrics to a Prometheus server | Medium |
+| Crate Name                  | Description                                                                   | Ease of Setup |
+|-----------------------------|-------------------------------------------------------------------------------|---------------|
+| `carbon-log-metrics`        | Logs useful program info to the terminal                                      | Easy          |
+| `carbon-prometheus-metrics` | Provides a way of exporting default and custom metrics to a Prometheus server | Medium        |
 
 ## Usage
 
@@ -198,6 +198,7 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-pumpfun-decoder`               | Pumpfun Program Decoder               | 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P  |
 | `carbon-raydium-amm-v4-decoder`        | Raydium AMM V4 Program Decoder        | 675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8 |
 | `carbon-raydium-clmm-decoder`          | Raydium CLMM Program Decoder          | CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK |
+| `carbon-raydium-cpmm-decoder`          | Raydium CPMM Program Decoder          | CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C |
 | `carbon-system-program-decoder`        | System Program Decoder                | 11111111111111111111111111111111             |
 | `carbon-token-program-decoder`         | Token Program Decoder                 | TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA  |
 | `carbon-kamino-lending-decoder`        | Kamino Lend Decoder                   | KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD  |

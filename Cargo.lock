@@ -1110,6 +1110,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-raydium-cpmm-decoder"
+version = "0.4.1"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-rpc-block-subscribe-datasource"
 version = "0.4.1"
 dependencies = [
@@ -3902,6 +3913,24 @@ dependencies = [
  "carbon-core",
  "carbon-log-metrics",
  "carbon-raydium-clmm-decoder",
+ "carbon-rpc-block-subscribe-datasource",
+ "dotenv",
+ "env_logger",
+ "log",
+ "solana-client",
+ "solana-sdk",
+ "solana-transaction-status",
+ "tokio",
+]
+
+[[package]]
+name = "raydium-cpmm-alerts-carbon-example"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "carbon-log-metrics",
+ "carbon-raydium-cpmm-decoder",
  "carbon-rpc-block-subscribe-datasource",
  "dotenv",
  "env_logger",
