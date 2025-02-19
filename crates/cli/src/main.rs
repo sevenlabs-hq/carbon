@@ -1,6 +1,6 @@
 use anyhow::Context;
 use clap::Parser;
-use commands::{Cli, Commands, IdlSource};
+use commands::{Cli, Commands, IdlSource, IdlStandard};
 
 pub mod accounts;
 pub mod commands;
@@ -19,21 +19,22 @@ fn main() -> Result<()> {
 
     match cli.command {
         Commands::Parse(options) => match options.idl {
-            IdlSource::FilePath(path) => {
-                if options.codama {
+            IdlSource::FilePath(path) => match options.standard {
+                IdlStandard::Codama => {
                     handlers::parse_codama(
                         path,
                         options.output,
                         options.as_crate,
                         options.event_hints,
                     )?;
-                } else {
+                }
+                IdlStandard::Anchor => {
                     if options.event_hints.is_some() {
                         anyhow::bail!("The '--event-hints' option can only be used with --codama.");
                     }
                     handlers::parse(path, options.output, options.as_crate)?;
                 }
-            }
+            },
             IdlSource::ProgramAddress(program_address) => {
                 let url = options
                     .url
