@@ -20,7 +20,9 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeBinArrayBitmapExten
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [lb_pair, bin_array_bitmap_extension, funder, system_program, rent] = accounts else {
+        let [lb_pair, bin_array_bitmap_extension, funder, system_program, rent, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
 

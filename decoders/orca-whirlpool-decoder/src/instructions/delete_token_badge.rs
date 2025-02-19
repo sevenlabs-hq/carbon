@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DeleteTokenBadge {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [whirlpools_config, whirlpools_config_extension, token_badge_authority, token_mint, token_badge, receiver] =
+        let [whirlpools_config, whirlpools_config_extension, token_badge_authority, token_mint, token_badge, receiver, _remaining @ ..] =
             accounts
         else {
             return None;

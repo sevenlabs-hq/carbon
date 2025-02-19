@@ -19,7 +19,8 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateFeesAndRewards {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [whirlpool, position, tick_array_lower, tick_array_upper] = accounts else {
+        let [whirlpool, position, tick_array_lower, tick_array_upper, _remaining @ ..] = accounts
+        else {
             return None;
         };
 

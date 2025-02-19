@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitLendingMarket {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [lending_market_owner, lending_market, lending_market_authority, system_program, rent] =
+        let [lending_market_owner, lending_market, lending_market_authority, system_program, rent, _remaining @ ..] =
             accounts
         else {
             return None;

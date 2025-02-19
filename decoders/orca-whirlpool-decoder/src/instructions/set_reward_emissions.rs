@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetRewardEmissions {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [whirlpool, reward_authority, reward_vault] = accounts else {
+        let [whirlpool, reward_authority, reward_vault, _remaining @ ..] = accounts else {
             return None;
         };
 

@@ -34,7 +34,7 @@ impl carbon_core::deserialize::ArrangeAccounts for OpenPositionWithMetadata {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [funder, owner, position, position_mint, position_metadata_account, position_token_account, whirlpool, token_program, system_program, rent, associated_token_program, metadata_program, metadata_update_auth] =
+        let [funder, owner, position, position_mint, position_metadata_account, position_token_account, whirlpool, token_program, system_program, rent, associated_token_program, metadata_program, metadata_update_auth, _remaining @ ..] =
             accounts
         else {
             return None;

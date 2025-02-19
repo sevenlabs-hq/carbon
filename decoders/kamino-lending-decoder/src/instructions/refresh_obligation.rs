@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RefreshObligation {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [lending_market, obligation] = accounts else {
+        let [lending_market, obligation, _remaining @ ..] = accounts else {
             return None;
         };
 

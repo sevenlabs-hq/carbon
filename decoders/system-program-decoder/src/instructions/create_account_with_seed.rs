@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateAccountWithSeed {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [funding_account, created_account] = accounts else {
+        let [funding_account, created_account, _remaining @ ..] = accounts else {
             return None;
         };
 

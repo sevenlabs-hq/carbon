@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CloseMarket {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [close_market_admin, market, bids, asks, event_heap, sol_destination, token_program] =
+        let [close_market_admin, market, bids, asks, event_heap, sol_destination, token_program, _remaining @ ..] =
             accounts
         else {
             return None;

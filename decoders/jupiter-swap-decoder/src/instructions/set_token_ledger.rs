@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetTokenLedger {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [token_ledger, token_account] = accounts else {
+        let [token_ledger, token_account, _remaining @ ..] = accounts else {
             return None;
         };
 

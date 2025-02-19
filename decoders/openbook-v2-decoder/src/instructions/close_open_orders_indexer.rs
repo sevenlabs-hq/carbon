@@ -19,7 +19,9 @@ impl carbon_core::deserialize::ArrangeAccounts for CloseOpenOrdersIndexer {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [owner, open_orders_indexer, sol_destination, token_program] = accounts else {
+        let [owner, open_orders_indexer, sol_destination, token_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
 

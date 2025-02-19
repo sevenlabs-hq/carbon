@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetAndVerifyCollection {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [metadata, collection_authority, payer, update_authority, collection_mint, collection, collection_master_edition_account, collection_authority_record] =
+        let [metadata, collection_authority, payer, update_authority, collection_mint, collection, collection_master_edition_account, collection_authority_record, _remaining @ ..] =
             accounts
         else {
             return None;

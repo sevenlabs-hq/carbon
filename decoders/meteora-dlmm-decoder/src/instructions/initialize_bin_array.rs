@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeBinArray {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [lb_pair, bin_array, funder, system_program] = accounts else {
+        let [lb_pair, bin_array, funder, system_program, _remaining @ ..] = accounts else {
             return None;
         };
 

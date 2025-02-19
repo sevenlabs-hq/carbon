@@ -22,7 +22,9 @@ impl carbon_core::deserialize::ArrangeAccounts for Resize {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [metadata, edition, mint, payer, authority, token, system_program] = accounts else {
+        let [metadata, edition, mint, payer, authority, token, system_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
 

@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetDelegate {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [owner, open_orders_account, delegate_account] = accounts else {
+        let [owner, open_orders_account, delegate_account, _remaining @ ..] = accounts else {
             return None;
         };
 

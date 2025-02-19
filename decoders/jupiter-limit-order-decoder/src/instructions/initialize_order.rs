@@ -31,7 +31,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeOrder {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [base, maker, order, reserve, maker_input_account, input_mint, maker_output_account, referral, output_mint, system_program, token_program, rent] =
+        let [base, maker, order, reserve, maker_input_account, input_mint, maker_output_account, referral, output_mint, system_program, token_program, rent, _remaining @ ..] =
             accounts
         else {
             return None;

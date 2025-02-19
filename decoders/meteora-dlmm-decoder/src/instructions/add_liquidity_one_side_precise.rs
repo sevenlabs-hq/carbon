@@ -23,6 +23,7 @@ pub struct AddLiquidityOneSidePreciseInstructionAccounts {
     pub token_program: solana_sdk::pubkey::Pubkey,
     pub event_authority: solana_sdk::pubkey::Pubkey,
     pub program: solana_sdk::pubkey::Pubkey,
+    pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for AddLiquidityOneSidePrecise {
@@ -31,7 +32,7 @@ impl carbon_core::deserialize::ArrangeAccounts for AddLiquidityOneSidePrecise {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [position, lb_pair, bin_array_bitmap_extension, user_token, reserve, token_mint, bin_array_lower, bin_array_upper, sender, token_program, event_authority, program] =
+        let [position, lb_pair, bin_array_bitmap_extension, user_token, reserve, token_mint, bin_array_lower, bin_array_upper, sender, token_program, event_authority, program, remaining_accounts @ ..] =
             accounts
         else {
             return None;
@@ -50,6 +51,7 @@ impl carbon_core::deserialize::ArrangeAccounts for AddLiquidityOneSidePrecise {
             token_program: token_program.pubkey,
             event_authority: event_authority.pubkey,
             program: program.pubkey,
+            remaining_accounts: remaining_accounts.to_vec(),
         })
     }
 }
