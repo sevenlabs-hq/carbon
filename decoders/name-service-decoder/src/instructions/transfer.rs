@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Transfer {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [name_record, owner, parent_name_record] = accounts else {
+        let [name_record, owner, parent_name_record, _remaining @ ..] = accounts else {
             return None;
         };
 
