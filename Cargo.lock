@@ -1179,6 +1179,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-token-2022-decoder"
+version = "0.4.1"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "serde-big-array",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-token-program-decoder"
 version = "0.4.1"
 dependencies = [
@@ -6273,18 +6285,6 @@ name = "tinyvec_macros"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
-
-[[package]]
-name = "token-2022-decoder"
-version = "0.1.4"
-dependencies = [
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
- "serde",
- "serde-big-array",
- "solana-sdk",
-]
 
 [[package]]
 name = "tokio"

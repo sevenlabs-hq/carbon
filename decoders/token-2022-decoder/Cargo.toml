@@ -1,6 +1,6 @@
 [package]
-name = "token-2022-decoder"
-version = "0.1.4"
+name = "carbon-token-2022-decoder"
+version = "0.4.1"
 edition = "2018"
 
 [lib]
