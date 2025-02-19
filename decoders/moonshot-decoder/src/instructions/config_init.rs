@@ -20,11 +20,11 @@ impl carbon_core::deserialize::ArrangeAccounts for ConfigInit {
     type ArrangedAccounts = ConfigInitInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let config_authority = accounts.get(0)?;
-        let config_account = accounts.get(1)?;
-        let system_program = accounts.get(2)?;
+        let [config_authority, config_account, system_program] = accounts else {
+            return None;
+        };
 
         Some(ConfigInitInstructionAccounts {
             config_authority: config_authority.pubkey,

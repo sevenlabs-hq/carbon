@@ -25,20 +25,13 @@ impl carbon_core::deserialize::ArrangeAccounts for MigrateFunds {
     type ArrangedAccounts = MigrateFundsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let backend_authority = accounts.get(0)?;
-        let migration_authority = accounts.get(1)?;
-        let curve_account = accounts.get(2)?;
-        let curve_token_account = accounts.get(3)?;
-        let migration_authority_token_account = accounts.get(4)?;
-        let mint = accounts.get(5)?;
-        let dex_fee_account = accounts.get(6)?;
-        let helio_fee_account = accounts.get(7)?;
-        let config_account = accounts.get(8)?;
-        let system_program = accounts.get(9)?;
-        let token_program = accounts.get(10)?;
-        let associated_token_program = accounts.get(11)?;
+        let [backend_authority, migration_authority, curve_account, curve_token_account, migration_authority_token_account, mint, dex_fee_account, helio_fee_account, config_account, system_program, token_program, associated_token_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(MigrateFundsInstructionAccounts {
             backend_authority: backend_authority.pubkey,

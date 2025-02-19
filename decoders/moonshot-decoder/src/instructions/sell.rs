@@ -28,19 +28,13 @@ impl carbon_core::deserialize::ArrangeAccounts for Sell {
     type ArrangedAccounts = SellInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let sender = accounts.get(0)?;
-        let sender_token_account = accounts.get(1)?;
-        let curve_account = accounts.get(2)?;
-        let curve_token_account = accounts.get(3)?;
-        let dex_fee = accounts.get(4)?;
-        let helio_fee = accounts.get(5)?;
-        let mint = accounts.get(6)?;
-        let config_account = accounts.get(7)?;
-        let token_program = accounts.get(8)?;
-        let associated_token_program = accounts.get(9)?;
-        let system_program = accounts.get(10)?;
+        let [sender, sender_token_account, curve_account, curve_token_account, dex_fee, helio_fee, mint, config_account, token_program, associated_token_program, system_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(SellInstructionAccounts {
             sender: sender.pubkey,
