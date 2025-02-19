@@ -129,7 +129,7 @@ pub enum TokenMetadataInstruction {
     CloseAccounts(close_accounts::CloseAccounts),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for TokenMetadataDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for TokenMetadataDecoder {
     type InstructionType = TokenMetadataInstruction;
 
     fn decode_instruction(

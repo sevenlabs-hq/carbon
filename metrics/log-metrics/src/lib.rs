@@ -1,8 +1,9 @@
-use std::{collections::HashMap, time::Instant};
-
-use async_trait::async_trait;
-use carbon_core::{error::CarbonResult, metrics::Metrics};
-use tokio::sync::RwLock;
+use {
+    async_trait::async_trait,
+    carbon_core::{error::CarbonResult, metrics::Metrics},
+    std::{collections::HashMap, time::Instant},
+    tokio::sync::RwLock,
+};
 
 pub struct LogMetrics {
     pub updates_received: RwLock<u64>,

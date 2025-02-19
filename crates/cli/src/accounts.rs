@@ -1,9 +1,9 @@
-use crate::idl::Idl;
-use crate::{legacy_idl::LegacyIdl, util::idl_type_to_rust_type};
-use askama::Template;
-use heck::ToSnekCase;
-use heck::ToUpperCamelCase;
-use sha2::{Digest, Sha256};
+use {
+    crate::{idl::Idl, legacy_idl::LegacyIdl, util::idl_type_to_rust_type},
+    askama::Template,
+    heck::{ToSnekCase, ToUpperCamelCase},
+    sha2::{Digest, Sha256},
+};
 
 #[allow(dead_code)]
 #[derive(Debug)]

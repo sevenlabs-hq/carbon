@@ -1,10 +1,12 @@
-use crate::{
-    idl::Idl,
-    legacy_idl::{LegacyIdl, LegacyIdlEnumFields},
-    util::{idl_type_to_rust_type, is_big_array},
+use {
+    crate::{
+        idl::Idl,
+        legacy_idl::{LegacyIdl, LegacyIdlEnumFields},
+        util::{idl_type_to_rust_type, is_big_array},
+    },
+    askama::Template,
+    heck::ToSnakeCase,
 };
-use askama::Template;
-use heck::ToSnakeCase;
 
 #[allow(dead_code)]
 #[derive(Debug)]

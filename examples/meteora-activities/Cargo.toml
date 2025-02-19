@@ -1,21 +1,21 @@
 [package]
 name = "meteora-activities-carbon-example"
 version = "0.2.1"
-edition = "2021"
+edition = { workspace = true }
 
 [dependencies]
 carbon-core = { workspace = true }
+carbon-log-metrics = { workspace = true }
+carbon-meteora-dlmm-decoder = { workspace = true }
+carbon-pumpfun-decoder = { workspace = true }
+carbon-rpc-transaction-crawler-datasource = { workspace = true }
+solana-client = { workspace = true }
 solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
-solana-client = { workspace = true }
-carbon-log-metrics = { workspace = true }
-carbon-rpc-transaction-crawler-datasource = { workspace = true }
-carbon-pumpfun-decoder = { workspace = true }
-carbon-meteora-dlmm-decoder = { workspace = true }
 
+async-trait = { workspace = true }
+dotenv = { workspace = true }
+env_logger = { workspace = true }
+log = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
 yellowstone-grpc-proto = { workspace = true }
-tokio = { version = "1.40.0", features = ["full"] }
-async-trait = "0.1.83"
-log = "0.4.22"
-env_logger = "0.11.5"
-dotenv = "0.15.0"

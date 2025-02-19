@@ -80,7 +80,7 @@ pub enum OpenbookV2Instruction {
     OpenOrdersPositionLogEvent(open_orders_position_log_event::OpenOrdersPositionLogEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for OpenbookV2Decoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for OpenbookV2Decoder {
     type InstructionType = OpenbookV2Instruction;
 
     fn decode_instruction(

@@ -49,7 +49,7 @@ pub enum SharkyInstruction {
     UpdateProgramVersion(update_program_version::UpdateProgramVersion),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for SharkyDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for SharkyDecoder {
     type InstructionType = SharkyInstruction;
 
     fn decode_instruction(

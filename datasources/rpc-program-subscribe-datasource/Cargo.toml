@@ -1,9 +1,9 @@
 [package]
 name = "carbon-rpc-program-subscribe-datasource"
 description = "RPC Program Subscribe Datasource"
-license = "MIT"
+license = { workspace = true }
 version = "0.4.1"
-edition = "2021"
+edition = { workspace = true }
 
 [dependencies]
 solana-client = { workspace = true }
@@ -11,9 +11,9 @@ solana-sdk = { workspace = true }
 
 carbon-core = { workspace = true }
 
-tokio = { version = "1.37.0", features = ["full"] }
-tokio-util = "0.7.12"
-async-trait = "0.1.83"
-log = "0.4.22"
-env_logger = "0.11.5"
-futures = "0.3.30"
+async-trait = { workspace = true }
+env_logger = { workspace = true }
+futures = { workspace = true }
+log = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tokio-util = { workspace = true }

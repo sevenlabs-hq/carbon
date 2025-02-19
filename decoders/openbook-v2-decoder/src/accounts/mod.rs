@@ -1,7 +1,7 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use super::OpenbookV2Decoder;
+use {
+    super::OpenbookV2Decoder,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod book_side;
 pub mod event_heap;
 pub mod market;
@@ -18,7 +18,7 @@ pub enum OpenbookV2Account {
     EventHeap(event_heap::EventHeap),
 }
 
-impl<'a> AccountDecoder<'a> for OpenbookV2Decoder {
+impl AccountDecoder<'_> for OpenbookV2Decoder {
     type AccountType = OpenbookV2Account;
     fn decode_account(
         &self,

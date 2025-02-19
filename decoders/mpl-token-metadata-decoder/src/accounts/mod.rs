@@ -1,7 +1,7 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use super::TokenMetadataDecoder;
+use {
+    super::TokenMetadataDecoder,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod collection_authority_record;
 pub mod edition;
 pub mod edition_marker;
@@ -34,7 +34,7 @@ pub enum TokenMetadataAccount {
     UseAuthorityRecord(use_authority_record::UseAuthorityRecord),
 }
 
-impl<'a> AccountDecoder<'a> for TokenMetadataDecoder {
+impl AccountDecoder<'_> for TokenMetadataDecoder {
     type AccountType = TokenMetadataAccount;
     fn decode_account(
         &self,

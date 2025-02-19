@@ -1,8 +1,8 @@
-use std::hash::{Hash, Hasher};
-
-use super::*;
-
-use carbon_core::{borsh, CarbonDeserialize};
+use {
+    super::*,
+    carbon_core::{borsh, CarbonDeserialize},
+    std::hash::{Hash, Hasher},
+};
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone)]
 pub struct Payload {

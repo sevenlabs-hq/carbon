@@ -1,5 +1,4 @@
-use crate::MemoProgramDecoder;
-use carbon_core::instruction::DecodedInstruction;
+use {crate::MemoProgramDecoder, carbon_core::instruction::DecodedInstruction};
 
 #[derive(
     carbon_core::InstructionType,
@@ -15,7 +14,7 @@ pub enum MemoProgramInstruction {
     Memo(Vec<u8>),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for MemoProgramDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for MemoProgramDecoder {
     type InstructionType = MemoProgramInstruction;
 
     fn decode_instruction(

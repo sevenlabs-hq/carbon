@@ -1,19 +1,21 @@
-use crate::{
-    accounts::{
-        legacy_process_accounts, process_accounts, AccountsModTemplate, AccountsStructTemplate,
+use {
+    crate::{
+        accounts::{
+            legacy_process_accounts, process_accounts, AccountsModTemplate, AccountsStructTemplate,
+        },
+        events::{legacy_process_events, process_events, EventsStructTemplate},
+        instructions::{
+            legacy_process_instructions, process_instructions, InstructionsModTemplate,
+            InstructionsStructTemplate,
+        },
+        types::{legacy_process_types, process_types, TypeStructTemplate},
+        util::{is_big_array, legacy_read_idl, read_idl},
     },
-    events::{legacy_process_events, process_events, EventsStructTemplate},
-    instructions::{
-        legacy_process_instructions, process_instructions, InstructionsModTemplate,
-        InstructionsStructTemplate,
-    },
-    types::{legacy_process_types, process_types, TypeStructTemplate},
-    util::{is_big_array, legacy_read_idl, read_idl},
+    anyhow::{bail, Result},
+    askama::Template,
+    heck::{ToKebabCase, ToSnakeCase, ToSnekCase, ToUpperCamelCase},
+    std::fs::{self},
 };
-use anyhow::{bail, Result};
-use askama::Template;
-use heck::{ToKebabCase, ToSnakeCase, ToSnekCase, ToUpperCamelCase};
-use std::fs::{self};
 
 pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
     let (accounts_data, instructions_data, types_data, events_data, program_name) =
@@ -66,12 +68,10 @@ pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
         } else {
             format!("{}{}_decoder", output, program_name.to_snek_case())
         }
+    } else if as_crate {
+        format!("{}/{}-decoder", output, decoder_name_kebab)
     } else {
-        if as_crate {
-            format!("{}/{}-decoder", output, decoder_name_kebab)
-        } else {
-            format!("{}/{}_decoder", output, program_name.to_snek_case())
-        }
+        format!("{}/{}_decoder", output, program_name.to_snek_case())
     };
 
     fs::create_dir_all(&crate_dir).expect("Failed to create decoder directory");
@@ -197,7 +197,7 @@ pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
             r#"[package]
 name = "{decoder_name_kebab}-decoder"
 version = "0.1.4"
-edition = "2018"
+edition = {{ workspace = true }}
 
 [lib]
 crate-type = ["rlib"]
@@ -206,13 +206,13 @@ crate-type = ["rlib"]
 carbon-core = {{ workspace = true }}
 carbon-proc-macros = {{ workspace = true }}
 carbon-macros = {{ workspace = true }}
-solana-sdk = "2.0.10"
-serde = "1.0.136"
+solana-sdk = {{ workspace = true }}
+serde = {{ workspace = true }}
 {big_array}
 "#,
             decoder_name_kebab = decoder_name_kebab,
             big_array = if needs_big_array {
-                "serde-big-array = \"0.5.1\""
+                "serde-big-array = { workspace = true }"
             } else {
                 ""
             }

@@ -1,21 +1,21 @@
 [package]
 name = "sharky-offers-carbon-example"
 version = "0.2.1"
-edition = "2018"
+edition = { workspace = true }
 
 [dependencies]
 carbon-core = { workspace = true }
-carbon-rpc-program-subscribe-datasource = { workspace = true }
 carbon-log-metrics = { workspace = true }
+carbon-rpc-program-subscribe-datasource = { workspace = true }
 carbon-sharky-decoder = { workspace = true }
+solana-account-decoder.workspace = true
 solana-client.workspace = true
 solana-sdk.workspace = true
-solana-account-decoder.workspace = true
 
+anyhow = { workspace = true }
 async-trait = { workspace = true }
-anyhow = "1.0.89"
-serde = { version = "1.0.210", features = ["derive"] }
+dotenv = { workspace = true }
+env_logger = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
 tokio = { workspace = true, features = ["full"] }
-tokio-util = "0.7.12"
-dotenv = "0.15.0"
-env_logger = "0.11.5"
+tokio-util = { workspace = true }

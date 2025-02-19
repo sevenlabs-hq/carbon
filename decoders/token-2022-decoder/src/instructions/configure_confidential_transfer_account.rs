@@ -1,5 +1,7 @@
-use carbon_core::{borsh, CarbonDeserialize};
-use serde_big_array::BigArray;
+use {
+    carbon_core::{borsh, CarbonDeserialize},
+    serde_big_array::BigArray,
+};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,

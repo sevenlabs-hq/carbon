@@ -177,7 +177,7 @@ pub enum Token2022Instruction {
     InitializeTokenGroupMember(initialize_token_group_member::InitializeTokenGroupMember),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for Token2022Decoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
     type InstructionType = Token2022Instruction;
 
     fn decode_instruction(

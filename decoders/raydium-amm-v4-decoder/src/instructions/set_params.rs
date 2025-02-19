@@ -1,6 +1,8 @@
-use super::super::types::*;
-use crate::accounts::fees::Fees;
-use carbon_core::{borsh, CarbonDeserialize};
+use {
+    super::super::types::*,
+    crate::accounts::fees::Fees,
+    carbon_core::{borsh, CarbonDeserialize},
+};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,

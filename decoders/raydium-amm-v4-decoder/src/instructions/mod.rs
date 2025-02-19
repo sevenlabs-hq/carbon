@@ -45,7 +45,7 @@ pub enum RaydiumAmmV4Instruction {
     UpdateConfigAccount(update_config_account::UpdateConfigAccount),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for RaydiumAmmV4Decoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumAmmV4Decoder {
     type InstructionType = RaydiumAmmV4Instruction;
 
     fn decode_instruction(

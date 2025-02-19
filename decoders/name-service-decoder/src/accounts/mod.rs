@@ -1,14 +1,14 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use super::NameDecoder;
+use {
+    super::NameDecoder,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod name_record_header;
 
 pub enum NameAccount {
     NameRecordHeader(name_record_header::NameRecordHeader),
 }
 
-impl<'a> AccountDecoder<'a> for NameDecoder {
+impl AccountDecoder<'_> for NameDecoder {
     type AccountType = NameAccount;
     fn decode_account(
         &self,

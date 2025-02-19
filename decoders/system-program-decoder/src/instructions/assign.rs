@@ -14,7 +14,7 @@ pub struct AssignAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Assign {
     type ArrangedAccounts = AssignAccounts;
 
-fn arrange_accounts(
+    fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let assigned_account = accounts.first()?;

@@ -1,7 +1,8 @@
-use carbon_core::account::{AccountDecoder, DecodedAccount};
-use solana_sdk::{account::ReadableAccount, program_pack::Pack};
-
-use crate::TokenProgramDecoder;
+use {
+    crate::TokenProgramDecoder,
+    carbon_core::account::{AccountDecoder, DecodedAccount},
+    solana_sdk::{account::ReadableAccount, program_pack::Pack},
+};
 
 pub enum TokenProgramAccount {
     Account(spl_token::state::Account),
@@ -9,7 +10,7 @@ pub enum TokenProgramAccount {
     Multisig(spl_token::state::Multisig),
 }
 
-impl<'a> AccountDecoder<'a> for TokenProgramDecoder {
+impl AccountDecoder<'_> for TokenProgramDecoder {
     type AccountType = TokenProgramAccount;
 
     fn decode_account(
@@ -20,7 +21,7 @@ impl<'a> AccountDecoder<'a> for TokenProgramDecoder {
             return None;
         }
 
-        if let Some(data) = spl_token::state::Account::unpack(account.data()).ok() {
+        if let Ok(data) = spl_token::state::Account::unpack(account.data()) {
             return Some(DecodedAccount {
                 data: TokenProgramAccount::Account(data),
                 lamports: account.lamports,
@@ -29,7 +30,7 @@ impl<'a> AccountDecoder<'a> for TokenProgramDecoder {
                 rent_epoch: account.rent_epoch,
             });
         };
-        if let Some(data) = spl_token::state::Mint::unpack(account.data()).ok() {
+        if let Ok(data) = spl_token::state::Mint::unpack(account.data()) {
             return Some(DecodedAccount {
                 data: TokenProgramAccount::Mint(data),
                 lamports: account.lamports,
@@ -38,7 +39,7 @@ impl<'a> AccountDecoder<'a> for TokenProgramDecoder {
                 rent_epoch: account.rent_epoch,
             });
         };
-        if let Some(data) = spl_token::state::Multisig::unpack(account.data()).ok() {
+        if let Ok(data) = spl_token::state::Multisig::unpack(account.data()) {
             return Some(DecodedAccount {
                 data: TokenProgramAccount::Multisig(data),
                 lamports: account.lamports,
