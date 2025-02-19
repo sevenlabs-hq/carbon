@@ -35,6 +35,7 @@ pub struct TwoHopSwapInstructionAccounts {
     pub tick_array_two2: solana_sdk::pubkey::Pubkey,
     pub oracle_one: solana_sdk::pubkey::Pubkey,
     pub oracle_two: solana_sdk::pubkey::Pubkey,
+    pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for TwoHopSwap {
@@ -43,7 +44,7 @@ impl carbon_core::deserialize::ArrangeAccounts for TwoHopSwap {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [token_program, token_authority, whirlpool_one, whirlpool_two, token_owner_account_one_a, token_vault_one_a, token_owner_account_one_b, token_vault_one_b, token_owner_account_two_a, token_vault_two_a, token_owner_account_two_b, token_vault_two_b, tick_array_one0, tick_array_one1, tick_array_one2, tick_array_two0, tick_array_two1, tick_array_two2, oracle_one, oracle_two] =
+        let [token_program, token_authority, whirlpool_one, whirlpool_two, token_owner_account_one_a, token_vault_one_a, token_owner_account_one_b, token_vault_one_b, token_owner_account_two_a, token_vault_two_a, token_owner_account_two_b, token_vault_two_b, tick_array_one0, tick_array_one1, tick_array_one2, tick_array_two0, tick_array_two1, tick_array_two2, oracle_one, oracle_two, remaining_accounts @ ..] =
             accounts
         else {
             return None;
@@ -70,6 +71,7 @@ impl carbon_core::deserialize::ArrangeAccounts for TwoHopSwap {
             tick_array_two2: tick_array_two2.pubkey,
             oracle_one: oracle_one.pubkey,
             oracle_two: oracle_two.pubkey,
+            remaining_accounts: remaining_accounts.to_vec(),
         })
     }
 }

@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateProgramVersion {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [authority, program_version, system_program, rent] = accounts else {
+        let [authority, program_version, system_program, rent, _remaining @ ..] = accounts else {
             return None;
         };
 

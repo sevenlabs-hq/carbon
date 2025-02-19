@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdatePrimarySaleHappenedViaT
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [metadata, owner, token] = accounts else {
+        let [metadata, owner, token, _remaining @ ..] = accounts else {
             return None;
         };
 

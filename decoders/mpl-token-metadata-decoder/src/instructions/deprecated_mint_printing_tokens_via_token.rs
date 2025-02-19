@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DeprecatedMintPrintingTokensV
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [destination, token, one_time_printing_authorization_mint, printing_mint, burn_authority, metadata, master_edition, token_program, rent] =
+        let [destination, token, one_time_printing_authorization_mint, printing_mint, burn_authority, metadata, master_edition, token_program, rent, _remaining @ ..] =
             accounts
         else {
             return None;

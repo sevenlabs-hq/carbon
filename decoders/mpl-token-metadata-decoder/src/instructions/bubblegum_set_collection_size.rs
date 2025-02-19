@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for BubblegumSetCollectionSize {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [collection_metadata, collection_authority, collection_mint, bubblegum_signer, collection_authority_record] =
+        let [collection_metadata, collection_authority, collection_mint, bubblegum_signer, collection_authority_record, _remaining @ ..] =
             accounts
         else {
             return None;

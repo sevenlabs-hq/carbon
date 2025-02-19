@@ -17,14 +17,14 @@ impl carbon_core::deserialize::ArrangeAccounts for Revoke {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [source, owner] = accounts else {
+        let [source, owner, remaining_accounts @ ..] = accounts else {
             return None;
         };
 
         Some(RevokeAccounts {
             source: source.pubkey,
             owner: owner.pubkey,
-            remaining_accounts: accounts.get(2..).unwrap_or_default().to_vec(),
+            remaining_accounts: remaining_accounts.to_vec(),
         })
     }
 }

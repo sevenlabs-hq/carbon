@@ -30,7 +30,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ApproveUseAuthority {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [use_authority_record, owner, payer, user, owner_token_account, metadata, mint, burner, token_program, system_program, rent] =
+        let [use_authority_record, owner, payer, user, owner_token_account, metadata, mint, burner, token_program, system_program, rent, _remaining @ ..] =
             accounts
         else {
             return None;

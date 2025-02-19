@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Collect {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [authority, recipient] = accounts else {
+        let [authority, recipient, _remaining @ ..] = accounts else {
             return None;
         };
 

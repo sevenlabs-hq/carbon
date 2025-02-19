@@ -22,7 +22,9 @@ impl carbon_core::deserialize::ArrangeAccounts for PruneOrders {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [close_market_admin, open_orders_account, market, bids, asks] = accounts else {
+        let [close_market_admin, open_orders_account, market, bids, asks, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
 

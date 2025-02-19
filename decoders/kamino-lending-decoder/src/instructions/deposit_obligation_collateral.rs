@@ -25,7 +25,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DepositObligationCollateral {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [owner, obligation, lending_market, deposit_reserve, reserve_destination_collateral, user_source_collateral, token_program, instruction_sysvar_account] =
+        let [owner, obligation, lending_market, deposit_reserve, reserve_destination_collateral, user_source_collateral, token_program, instruction_sysvar_account, _remaining @ ..] =
             accounts
         else {
             return None;

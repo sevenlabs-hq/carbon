@@ -38,7 +38,7 @@ impl carbon_core::deserialize::ArrangeAccounts for MonitorStep {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [token_program, rent, clock, amm, amm_authority, amm_open_orders, amm_target_orders, pool_coin_token_account, pool_pc_token_account, pool_withdraw_queue, serum_program, serum_market, serum_coin_vault_account, serum_pc_vault_account, serum_vault_signer, serum_req_q, serum_event_q, serum_bids, serum_asks] =
+        let [token_program, rent, clock, amm, amm_authority, amm_open_orders, amm_target_orders, pool_coin_token_account, pool_pc_token_account, pool_withdraw_queue, serum_program, serum_market, serum_coin_vault_account, serum_pc_vault_account, serum_vault_signer, serum_req_q, serum_event_q, serum_bids, serum_asks, _remaining @ ..] =
             accounts
         else {
             return None;

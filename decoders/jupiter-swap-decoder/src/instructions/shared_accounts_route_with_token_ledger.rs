@@ -37,7 +37,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SharedAccountsRouteWithTokenL
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [token_program, program_authority, user_transfer_authority, source_token_account, program_source_token_account, program_destination_token_account, destination_token_account, source_mint, destination_mint, platform_fee_account, token_2022_program, token_ledger, event_authority, program] =
+        let [token_program, program_authority, user_transfer_authority, source_token_account, program_source_token_account, program_destination_token_account, destination_token_account, source_mint, destination_mint, platform_fee_account, token_2022_program, token_ledger, event_authority, program, _remaining @ ..] =
             accounts
         else {
             return None;
