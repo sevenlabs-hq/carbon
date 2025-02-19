@@ -1,7 +1,8 @@
 use super::{
     types::{EnumVariantTypeNode, ProgramNode, SignerType, TypeNode},
     utils::{
-        get_account_discriminator, get_event_discriminator, get_instruction_discriminator, map_type,
+        get_account_discriminator, get_event_discriminator, get_instruction_discriminator,
+        map_type, resolve_struct_type,
     },
 };
 use crate::{
@@ -134,7 +135,7 @@ pub fn process_codama_defined_types(
                     });
                 }
             }
-            TypeNode::EnumTypeNode { variants } => {
+            TypeNode::EnumTypeNode { variants, .. } => {
                 kind = TypeKind::Enum(
                     variants
                         .iter()
@@ -147,24 +148,35 @@ pub fn process_codama_defined_types(
                             }
                             EnumVariantTypeNode::EnumStructVariantTypeNode {
                                 name,
-                                struct_type,
+                                struct_field,
                             } => {
-                                let named_fields = struct_type
-                                    .fields
-                                    .iter()
-                                    .map(|field| {
-                                        let rust_type = map_type(&field.field_type);
-                                        if rust_type.1 {
-                                            requires_imports = true;
-                                        }
-                                        FieldData {
-                                            name: field.name.to_upper_camel_case(),
-                                            rust_type: rust_type.0.clone(),
-                                            is_pubkey: rust_type.0 == "Pubkey",
-                                            attributes: None,
-                                        }
-                                    })
-                                    .collect();
+                                let resolved_struct = resolve_struct_type(struct_field);
+                                let named_fields = match resolved_struct {
+                                    Some(struct_node) => struct_node
+                                        .fields
+                                        .iter()
+                                        .map(|field| {
+                                            let rust_type = map_type(&field.field_type);
+                                            if rust_type.1 {
+                                                requires_imports = true;
+                                            }
+                                            FieldData {
+                                                name: field.name.to_upper_camel_case(),
+                                                rust_type: rust_type.0.clone(),
+                                                is_pubkey: rust_type.0 == "Pubkey",
+                                                attributes: None,
+                                            }
+                                        })
+                                        .collect(),
+                                    None => {
+                                        println!(
+                                            "Warning: Failed to resolve struct fields for enum variant `{}`",
+                                            name
+                                        );
+                                        Vec::new()
+                                    }
+                                };
+
                                 EnumVariantData {
                                     name: name.to_upper_camel_case().clone(),
                                     fields: Some(EnumVariantFields::Named(named_fields)),

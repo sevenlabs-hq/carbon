@@ -44,7 +44,7 @@ pub struct StructTypeNode {
     pub fields: Vec<StructFieldTypeNode>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct StructFieldTypeNode {
     pub name: String,
@@ -53,9 +53,14 @@ pub struct StructFieldTypeNode {
     pub default_value: Option<ValueNode>,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(rename_all = "camelCase", tag = "kind")]
 pub enum TypeNode {
+    AmountTypeNode {
+        decimals: usize,
+        unit: Option<String>,
+        number: Box<TypeNode>,
+    },
     NumberTypeNode {
         format: String,
         endian: String,
@@ -88,25 +93,64 @@ pub enum TypeNode {
     },
     EnumTypeNode {
         variants: Vec<EnumVariantTypeNode>,
+        size: NumberTypeNode,
     },
     SolAmountTypeNode {
         number: Box<TypeNode>,
     },
     ArrayTypeNode {
         item: Box<TypeNode>,
-        count: FixedCountNode,
+        count: CountNode,
+    },
+    RemainderOptionTypeNode {
+        item: Box<TypeNode>,
+    },
+    HiddenPrefixTypeNode {
+        r#type: Box<TypeNode>,
+        prefix: Vec<ConstantValueNode>,
+    },
+    PreOffsetTypeNode {
+        offset: usize,
+        strategy: String,
+        #[serde(rename = "type")]
+        inner_type: Box<TypeNode>,
+    },
+    PostOffsetTypeNode {
+        offset: usize,
+        strategy: String,
+        #[serde(rename = "type")]
+        inner_type: Box<TypeNode>,
+    },
+    ZeroableOptionTypeNode {
+        item: Box<TypeNode>,
+        zero_value: Option<ConstantValueNode>,
+    },
+    MapTypeNode {
+        key: Box<TypeNode>,
+        value: Box<TypeNode>,
+        count: CountNode,
     },
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
+#[serde(rename_all = "camelCase", tag = "kind")]
+pub enum CountNode {
+    FixedCountNode { value: usize },
+    PrefixedCountNode { prefix: Box<TypeNode> },
+    RemainderCountNode,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(rename_all = "camelCase", tag = "kind")]
 pub enum ValueNode {
     BytesValueNode { data: String, encoding: String },
     NumberValueNode { number: u64 },
     NoneValueNode,
+    IdentityValueNode,
+    BooleanValueNode { boolean: bool },
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(rename_all = "camelCase", tag = "kind")]
 pub enum EnumVariantTypeNode {
     EnumEmptyVariantTypeNode {
@@ -115,7 +159,7 @@ pub enum EnumVariantTypeNode {
     EnumStructVariantTypeNode {
         name: String,
         #[serde(rename = "struct")]
-        struct_type: StructTypeNode,
+        struct_field: Box<TypeNode>,
     },
     EnumTupleVariantTypeNode {
         name: String,
@@ -123,14 +167,21 @@ pub enum EnumVariantTypeNode {
     },
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct NumberTypeNode {
     pub format: String,
     pub endian: String,
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ConstantValueNode {
+    pub r#type: Box<TypeNode>,
+    pub value: ValueNode,
+}
+
+#[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TupleTypeNode {
     pub items: Vec<TypeNode>,

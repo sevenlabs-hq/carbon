@@ -1,4 +1,6 @@
-use super::types::{AccountNode, InstructionArgumentNode, RootNode, TypeNode};
+use super::types::{
+    AccountNode, CountNode, InstructionArgumentNode, RootNode, StructTypeNode, TypeNode,
+};
 use crate::handlers::codama::types::ValueNode;
 use anyhow::Result;
 use heck::ToUpperCamelCase;
@@ -7,6 +9,25 @@ use std::{collections::HashSet, fs::File};
 
 pub fn map_type(type_node: &TypeNode) -> (String, bool) {
     match type_node {
+        TypeNode::AmountTypeNode {
+            decimals,
+            unit,
+            number,
+        } => {
+            let (rust_type, requires_import) = map_type(number);
+            let unit_info = match unit {
+                Some(u) => format!(" (unit: {})", u),
+                None => "".to_string(),
+            };
+
+            println!(
+                "Info: Mapping `AmountTypeNode` with {} decimals{} -> {}",
+                decimals, unit_info, rust_type
+            );
+
+            (rust_type, requires_import)
+        }
+
         TypeNode::NumberTypeNode { format, .. } => (format!("{}", format), false),
         TypeNode::PublicKeyTypeNode => ("solana_sdk::pubkey::Pubkey".to_string(), false),
         TypeNode::BooleanTypeNode { .. } => ("bool".to_string(), false),
@@ -31,7 +52,72 @@ pub fn map_type(type_node: &TypeNode) -> (String, bool) {
         }
         TypeNode::ArrayTypeNode { item, count } => {
             let (rust_type, requires_import) = map_type(item);
-            (format!("[{}; {}]", rust_type, count.value), requires_import)
+
+            match count {
+                CountNode::FixedCountNode { value } => {
+                    (format!("[{}; {}]", rust_type, value), requires_import)
+                }
+                CountNode::PrefixedCountNode { .. } | CountNode::RemainderCountNode => {
+                    (format!("Vec<{}>", rust_type), requires_import)
+                }
+            }
+        }
+        TypeNode::RemainderOptionTypeNode { item } => {
+            let (rust_type, requires_import) = map_type(item);
+            (format!("Option<Vec<{}>>", rust_type), requires_import)
+        }
+        TypeNode::HiddenPrefixTypeNode { r#type, .. } => {
+            let (rust_type, requires_import) = map_type(r#type);
+            (format!("{}", rust_type), requires_import)
+        }
+        TypeNode::PreOffsetTypeNode {
+            offset,
+            strategy,
+            inner_type,
+        } => {
+            let (rust_type, requires_import) = map_type(inner_type);
+            println!(
+                "Warning: PreOffsetTypeNode detected (offset: {}, strategy: {}). Inner type: {}",
+                offset, strategy, rust_type
+            );
+            (rust_type, requires_import)
+        }
+        TypeNode::PostOffsetTypeNode {
+            offset,
+            strategy,
+            inner_type,
+        } => {
+            let (rust_type, requires_import) = map_type(inner_type);
+            println!(
+                "Warning: PostOffsetTypeNode detected (offset: {}, strategy: {}). Inner type: {}",
+                offset, strategy, rust_type
+            );
+            (rust_type, requires_import)
+        }
+        TypeNode::ZeroableOptionTypeNode { item, zero_value } => {
+            let (rust_type, requires_import) = map_type(item);
+            if zero_value.is_some() {
+                println!(
+                    "Warning: `ZeroableOptionTypeNode` with `zero_value` detected. Custom deserialization logic may be required."
+                );
+            }
+            (format!("Option<{}>", rust_type), requires_import)
+        }
+        TypeNode::MapTypeNode { key, value, count } => {
+            let (key_type, key_requires_import) = map_type(key);
+            let (value_type, value_requires_import) = map_type(value);
+            let requires_import = key_requires_import || value_requires_import;
+
+            let rust_type = match count {
+                CountNode::FixedCountNode { value } => {
+                    format!("[({}, {}); {}]", key_type, value_type, value)
+                }
+                CountNode::PrefixedCountNode { .. } | CountNode::RemainderCountNode => {
+                    format!("Vec<({}, {})>", key_type, value_type)
+                }
+            };
+
+            (rust_type, requires_import)
         }
         _ => ("UnsupportedType".to_string(), false),
     }
@@ -139,4 +225,17 @@ pub fn parse_event_hints(hints: Option<String>) -> HashSet<String> {
         .map(|s| s.trim().to_string().to_upper_camel_case())
         .filter(|s| !s.is_empty())
         .collect()
+}
+
+pub fn resolve_struct_type(type_node: &TypeNode) -> Option<StructTypeNode> {
+    match type_node {
+        TypeNode::StructTypeNode { fields } => Some(StructTypeNode {
+            fields: fields.clone(),
+        }),
+        TypeNode::SizePrefixTypeNode { r#type, .. } => resolve_struct_type(r#type),
+        TypeNode::FixedSizeTypeNode { r#type, .. } => resolve_struct_type(r#type),
+        TypeNode::PreOffsetTypeNode { inner_type, .. } => resolve_struct_type(inner_type),
+        TypeNode::PostOffsetTypeNode { inner_type, .. } => resolve_struct_type(inner_type),
+        _ => None,
+    }
 }
