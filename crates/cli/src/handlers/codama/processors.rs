@@ -11,7 +11,7 @@ use crate::{
     instructions::{AccountMetaData, ArgumentData, InstructionData},
     types::{EnumVariantData, EnumVariantFields, FieldData, TypeData, TypeKind},
 };
-use heck::{ToSnekCase, ToUpperCamelCase};
+use heck::{ToSnakeCase, ToUpperCamelCase};
 use std::collections::HashSet;
 
 pub fn process_codama_accounts(program: &ProgramNode) -> Vec<AccountData> {
@@ -21,7 +21,7 @@ pub fn process_codama_accounts(program: &ProgramNode) -> Vec<AccountData> {
         let mut requires_imports = false;
 
         let struct_name = account.name.to_upper_camel_case();
-        let module_name = account.name.to_snek_case();
+        let module_name = account.name.to_snake_case();
         let discriminator = get_account_discriminator(account, &account.name);
 
         let mut fields = Vec::new();
