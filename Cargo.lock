@@ -1190,6 +1190,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-token-2022-decoder"
+version = "0.4.1"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "serde-big-array",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-token-program-decoder"
 version = "0.4.1"
 dependencies = [
