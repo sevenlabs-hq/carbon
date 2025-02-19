@@ -1,6 +1,5 @@
+use clap::{Parser, Subcommand, ValueEnum};
 use std::str::FromStr;
-
-use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[command(name = "IDL Parser CLI")]
@@ -33,9 +32,9 @@ pub struct ParseOptions {
     #[arg(help = "Generate a directory or a crate.")]
     pub as_crate: bool,
 
-    #[arg(long = "codama", default_value_t = false)]
-    #[arg(help = "The IDL json file to parse is a Codama IDL.")]
-    pub codama: bool,
+    #[arg(short, long = "standard", default_value = "anchor")]
+    #[arg(help = "Specify the IDL standard to parse.")]
+    pub standard: IdlStandard,
 
     #[arg(short, long)]
     #[arg(help = "Comma-separated names of defined types to parse as CPI Events.")]
@@ -84,6 +83,24 @@ impl FromStr for Url {
             _ => {
                 Err("Invalid network: Must be 'mainnet', 'devnet', or a valid RPC URL.".to_string())
             }
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub enum IdlStandard {
+    Anchor,
+    Codama,
+}
+
+impl std::str::FromStr for IdlStandard {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "anchor" => Ok(IdlStandard::Anchor),
+            "codama" => Ok(IdlStandard::Codama),
+            _ => Err("Invalid Idl Standard: Must be 'anchor' or 'codama'.".to_string()),
         }
     }
 }

@@ -113,21 +113,21 @@ $ carbon-cli parse [OPTIONS] --idl <IDL> --output <OUTPUT>
 
 - `-i, --idl <IDL>`: Path to an IDL json file or a Solana program address.
 - `-o, --output <OUTPUT>`: Path to the desired output directory.
-- `-C, --as-crate`: Generate a directory or a crate.
-- `--codama`: The IDL json file to parse is a Codama IDL.
-- `-e, --event-hints`: Comma-separated names of defined types to parse as CPI Events (for '--codama' option only).
+- `-c, --as-crate`: Generate a directory or a crate.
+- `-s, --standard`: Specify the IDL standard to parse. Default: 'anchor' if not specified..
+- `-e, --event-hints`: Comma-separated names of defined types to parse as CPI Events (for '--standard codama' option only).
 - `-u, --url`: Network URL to fetch the IDL from. Required if input is a program address.
 - `-h, --help`: Print help information.
 
 #### Examples
 
-1. To generate a decoder from an IDL file:
+1. To generate a decoder from an Anchor IDL file:
 
 ```sh
 $ carbon-cli parse --idl my_program.json --output ./src/decoders
 ```
 
-This will parse the my_program.json IDL file and generate the corresponding decoder code in the ./src/decoders directory.
+This will parse the my_program.json Anchor IDL file and generate the corresponding decoder code in the ./src/decoders directory.
 
 2. To generate a decoder from an Anchor PDA IDL, specify a program address (Meteora DLMM program in this case):
 
@@ -140,7 +140,7 @@ This will fetch Meteora DLMM program's IDL from chain and generate the correspon
 3. To generate a decoder from a Codama IDL:
 
 ```sh
-$ carbon-cli parse --idl my_program_codama.json --output ./src/decoders --codama
+$ carbon-cli parse --idl my_program_codama.json --output ./src/decoders --standard codama
 ```
 
 This will parse the my_program_codama.json Codama IDL file and generate the corresponding decoder code in the ./src/decoders directory.
@@ -148,7 +148,7 @@ This will parse the my_program_codama.json Codama IDL file and generate the corr
 **Note**: in order to parse CPI Events for a provided Codama IDL, add `--event-hints` option with comma-separated names of corresponding defined Codama types:
 
 ```sh
-$ carbon-cli parse --idl my_program_codama.json --output ./src/decoders --codama --event-hints event1,event2,event3
+$ carbon-cli parse --idl my_program_codama.json --output ./src/decoders --standard codama --event-hints event1,event2,event3
 ```
 
 ### Implementing Processors
