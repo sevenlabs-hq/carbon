@@ -28,7 +28,7 @@ pub async fn main() -> CarbonResult<()> {
     );
 
     let rpc_ws_url =
-        env::var("RPC_WS_URL").unwrap_or("wss://api.mainnet-beta.solana.com/".to_string());
+        env::var("RPC_WS_URL").unwrap_or("ws://localhost:8900/".to_string());
 
     log::info!("Starting with RPC: {}", rpc_ws_url);
     let block_subscribe = RpcBlockSubscribe::new(rpc_ws_url, filters);
@@ -142,6 +142,9 @@ impl Processor for RaydiumClmmInstructionProcessor {
                 log::info!("Swap: signature: {signature}, swap: {swap:?}");
             }
             RaydiumClmmInstruction::SwapV2(swap_v2) => {
+                for (idx, account) in instruction.accounts.iter().enumerate() {
+                    log::info!("[{idx}] {account:?}");
+                }
                 log::info!("SwapV2: signature: {signature}, swap_v2: {swap_v2:?}");
             }
             RaydiumClmmInstruction::SwapRouterBaseIn(swap_base_in) => {

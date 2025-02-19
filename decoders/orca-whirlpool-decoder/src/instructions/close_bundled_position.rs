@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CloseBundledPosition {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [bundled_position, position_bundle, position_bundle_token_account, position_bundle_authority, receiver] =
+        let [bundled_position, position_bundle, position_bundle_token_account, position_bundle_authority, receiver, _remaining @ ..] =
             accounts
         else {
             return None;

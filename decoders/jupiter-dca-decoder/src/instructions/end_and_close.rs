@@ -30,7 +30,7 @@ impl carbon_core::deserialize::ArrangeAccounts for EndAndClose {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [keeper, dca, input_mint, output_mint, in_ata, out_ata, user, user_out_ata, init_user_out_ata, intermediate_account, system_program, token_program, associated_token_program, event_authority, program] =
+        let [keeper, dca, input_mint, output_mint, in_ata, out_ata, user, user_out_ata, init_user_out_ata, intermediate_account, system_program, token_program, associated_token_program, event_authority, program, _remaining @ ..] =
             accounts
         else {
             return None;

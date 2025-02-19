@@ -23,7 +23,8 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateRewardDuration {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [lb_pair, admin, bin_array, event_authority, program] = accounts else {
+        let [lb_pair, admin, bin_array, event_authority, program, _remaining @ ..] = accounts
+        else {
             return None;
         };
 

@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Approve {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [source, delegate, owner] = accounts else {
+        let [source, delegate, owner, remaining_accounts @ ..] = accounts else {
             return None;
         };
 
@@ -28,7 +28,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Approve {
             source: source.pubkey,
             delegate: delegate.pubkey,
             owner: owner.pubkey,
-            remaining_accounts: accounts.get(3..).unwrap_or_default().to_vec(),
+            remaining_accounts: remaining_accounts.to_vec(),
         })
     }
 }

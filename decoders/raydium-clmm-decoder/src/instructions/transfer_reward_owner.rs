@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for TransferRewardOwner {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [authority, pool_state] = accounts else {
+        let [authority, pool_state, _remaining @ ..] = accounts else {
             return None;
         };
 

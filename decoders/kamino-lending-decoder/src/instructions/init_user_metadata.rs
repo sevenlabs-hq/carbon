@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitUserMetadata {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [owner, fee_payer, user_metadata, referrer_user_metadata, rent, system_program] =
+        let [owner, fee_payer, user_metadata, referrer_user_metadata, rent, system_program, _remaining @ ..] =
             accounts
         else {
             return None;

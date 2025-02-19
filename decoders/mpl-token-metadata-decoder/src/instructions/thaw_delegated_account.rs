@@ -20,7 +20,8 @@ impl carbon_core::deserialize::ArrangeAccounts for ThawDelegatedAccount {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [delegate, token_account, edition, mint, token_program] = accounts else {
+        let [delegate, token_account, edition, mint, token_program, _remaining @ ..] = accounts
+        else {
             return None;
         };
 

@@ -38,7 +38,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SwapBaseIn {
     ) -> Option<Self::ArrangedAccounts> {
         match accounts.len() {
             17 => {
-                let [token_program, amm, amm_authority, amm_open_orders, pool_coin_token_account, pool_pc_token_account, serum_program, serum_market, serum_bids, serum_asks, serum_event_queue, serum_coin_vault_account, serum_pc_vault_account, serum_vault_signer, uer_source_token_account, uer_destination_token_account, user_source_owner] =
+                let [token_program, amm, amm_authority, amm_open_orders, pool_coin_token_account, pool_pc_token_account, serum_program, serum_market, serum_bids, serum_asks, serum_event_queue, serum_coin_vault_account, serum_pc_vault_account, serum_vault_signer, uer_source_token_account, uer_destination_token_account, user_source_owner, _remaining @ ..] =
                     accounts
                 else {
                     return None;
@@ -66,7 +66,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SwapBaseIn {
                 })
             }
             18 => {
-                let [token_program, amm, amm_authority, amm_open_orders, amm_target_orders, pool_coin_token_account, pool_pc_token_account, serum_program, serum_market, serum_bids, serum_asks, serum_event_queue, serum_coin_vault_account, serum_pc_vault_account, serum_vault_signer, uer_source_token_account, uer_destination_token_account, user_source_owner] =
+                let [token_program, amm, amm_authority, amm_open_orders, amm_target_orders, pool_coin_token_account, pool_pc_token_account, serum_program, serum_market, serum_bids, serum_asks, serum_event_queue, serum_coin_vault_account, serum_pc_vault_account, serum_vault_signer, uer_source_token_account, uer_destination_token_account, user_source_owner, _remaining @ ..] =
                     accounts
                 else {
                     return None;

@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitReferrerTokenState {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [payer, lending_market, reserve, referrer, referrer_token_state, rent, system_program] =
+        let [payer, lending_market, reserve, referrer, referrer_token_state, rent, system_program, _remaining @ ..] =
             accounts
         else {
             return None;

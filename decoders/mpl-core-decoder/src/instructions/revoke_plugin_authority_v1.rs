@@ -25,7 +25,9 @@ impl carbon_core::deserialize::ArrangeAccounts for RevokePluginAuthorityV1 {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [asset, collection, payer, authority, system_program, log_wrapper] = accounts else {
+        let [asset, collection, payer, authority, system_program, log_wrapper, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
 

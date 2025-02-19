@@ -29,7 +29,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Sell {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [global, fee_recipient, mint, bonding_curve, associated_bonding_curve, associated_user, user, system_program, associated_token_program, token_program, event_authority, program] =
+        let [global, fee_recipient, mint, bonding_curve, associated_bonding_curve, associated_user, user, system_program, associated_token_program, token_program, event_authority, program, _remaining @ ..] =
             accounts
         else {
             return None;

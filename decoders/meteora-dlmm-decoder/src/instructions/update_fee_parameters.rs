@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateFeeParameters {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [lb_pair, admin, event_authority, program] = accounts else {
+        let [lb_pair, admin, event_authority, program, _remaining @ ..] = accounts else {
             return None;
         };
 

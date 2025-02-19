@@ -27,7 +27,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Verify {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [authority, delegate_record, metadata, collection_mint, collection_metadata, collection_master_edition, system_program, sysvar_instructions] =
+        let [authority, delegate_record, metadata, collection_mint, collection_metadata, collection_master_edition, system_program, sysvar_instructions, _remaining @ ..] =
             accounts
         else {
             return None;

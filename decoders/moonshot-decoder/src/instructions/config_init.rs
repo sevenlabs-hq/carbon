@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ConfigInit {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [config_authority, config_account, system_program] = accounts else {
+        let [config_authority, config_account, system_program, _remaining @ ..] = accounts else {
             return None;
         };
 

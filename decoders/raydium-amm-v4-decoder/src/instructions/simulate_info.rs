@@ -29,7 +29,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SimulateInfo {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [amm, amm_authority, amm_open_orders, pool_coin_token_account, pool_pc_token_account, lp_mint_address, serum_market, serum_event_queue] =
+        let [amm, amm_authority, amm_open_orders, pool_coin_token_account, pool_pc_token_account, lp_mint_address, serum_market, serum_event_queue, _remaining @ ..] =
             accounts
         else {
             return None;

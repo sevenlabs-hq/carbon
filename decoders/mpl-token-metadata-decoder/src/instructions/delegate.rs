@@ -33,7 +33,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Delegate {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [delegate_record, delegate, metadata, master_edition, token_record, mint, token, authority, payer, system_program, sysvar_instructions, spl_token_program, authorization_rules_program, authorization_rules] =
+        let [delegate_record, delegate, metadata, master_edition, token_record, mint, token, authority, payer, system_program, sysvar_instructions, spl_token_program, authorization_rules_program, authorization_rules, _remaining @ ..] =
             accounts
         else {
             return None;

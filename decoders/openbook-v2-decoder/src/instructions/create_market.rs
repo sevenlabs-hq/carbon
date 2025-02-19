@@ -44,7 +44,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateMarket {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [market, market_authority, bids, asks, event_heap, payer, market_base_vault, market_quote_vault, base_mint, quote_mint, system_program, token_program, associated_token_program, oracle_a, oracle_b, collect_fee_admin, open_orders_admin, consume_events_admin, close_market_admin, event_authority, program] =
+        let [market, market_authority, bids, asks, event_heap, payer, market_base_vault, market_quote_vault, base_mint, quote_mint, system_program, token_program, associated_token_program, oracle_a, oracle_b, collect_fee_admin, open_orders_admin, consume_events_admin, close_market_admin, event_authority, program, _remaining @ ..] =
             accounts
         else {
             return None;
