@@ -19,12 +19,11 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeBinArray {
     type ArrangedAccounts = InitializeBinArrayInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let lb_pair = accounts.get(0)?;
-        let bin_array = accounts.get(1)?;
-        let funder = accounts.get(2)?;
-        let system_program = accounts.get(3)?;
+        let [lb_pair, bin_array, funder, system_program] = accounts else {
+            return None;
+        };
 
         Some(InitializeBinArrayInstructionAccounts {
             lb_pair: lb_pair.pubkey,

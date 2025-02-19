@@ -23,14 +23,11 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateExternalPluginAdapterV1
     type ArrangedAccounts = UpdateExternalPluginAdapterV1InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let asset = accounts.get(0)?;
-        let collection = accounts.get(1)?;
-        let payer = accounts.get(2)?;
-        let authority = accounts.get(3)?;
-        let system_program = accounts.get(4)?;
-        let log_wrapper = accounts.get(5)?;
+        let [asset, collection, payer, authority, system_program, log_wrapper] = accounts else {
+            return None;
+        };
 
         Some(UpdateExternalPluginAdapterV1InstructionAccounts {
             asset: asset.pubkey,

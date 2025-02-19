@@ -1,4 +1,5 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -26,20 +27,14 @@ pub struct DecreaseLiquidityInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for DecreaseLiquidity {
     type ArrangedAccounts = DecreaseLiquidityInstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let whirlpool = accounts.get(0)?;
-        let token_program = accounts.get(1)?;
-        let position_authority = accounts.get(2)?;
-        let position = accounts.get(3)?;
-        let position_token_account = accounts.get(4)?;
-        let token_owner_account_a = accounts.get(5)?;
-        let token_owner_account_b = accounts.get(6)?;
-        let token_vault_a = accounts.get(7)?;
-        let token_vault_b = accounts.get(8)?;
-        let tick_array_lower = accounts.get(9)?;
-        let tick_array_upper = accounts.get(10)?;
+        let [whirlpool, token_program, position_authority, position, position_token_account, token_owner_account_a, token_owner_account_b, token_vault_a, token_vault_b, tick_array_lower, tick_array_upper] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(DecreaseLiquidityInstructionAccounts {
             whirlpool: whirlpool.pubkey,

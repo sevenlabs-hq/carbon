@@ -147,8 +147,7 @@ fn legacy_compute_instruction_discriminator(
     option_discriminant: Option<&LegacyIdlInstructionDiscriminant>,
 ) -> String {
     if let Some(discriminant) = option_discriminant {
-        let disc = format!("0x{}", hex::encode(discriminant.value.to_be_bytes()));
-        return disc;
+        format!("0x{}", hex::encode(discriminant.value.to_be_bytes()))
     } else {
         let mut hasher = Sha256::new();
         let discriminator_input = format!("global:{}", instruction_name);

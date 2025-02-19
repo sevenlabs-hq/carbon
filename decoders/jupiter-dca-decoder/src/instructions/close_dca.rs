@@ -25,22 +25,14 @@ pub struct CloseDcaInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CloseDca {
     type ArrangedAccounts = CloseDcaInstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let user = accounts.get(0)?;
-        let dca = accounts.get(1)?;
-        let input_mint = accounts.get(2)?;
-        let output_mint = accounts.get(3)?;
-        let in_ata = accounts.get(4)?;
-        let out_ata = accounts.get(5)?;
-        let user_in_ata = accounts.get(6)?;
-        let user_out_ata = accounts.get(7)?;
-        let system_program = accounts.get(8)?;
-        let token_program = accounts.get(9)?;
-        let associated_token_program = accounts.get(10)?;
-        let event_authority = accounts.get(11)?;
-        let program = accounts.get(12)?;
+        let [user, dca, input_mint, output_mint, in_ata, out_ata, user_in_ata, user_out_ata, system_program, token_program, associated_token_program, event_authority, program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(CloseDcaInstructionAccounts {
             user: user.pubkey,

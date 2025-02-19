@@ -33,22 +33,14 @@ pub struct OpenDcaV2InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for OpenDcaV2 {
     type ArrangedAccounts = OpenDcaV2InstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let dca = accounts.get(0)?;
-        let user = accounts.get(1)?;
-        let payer = accounts.get(2)?;
-        let input_mint = accounts.get(3)?;
-        let output_mint = accounts.get(4)?;
-        let user_ata = accounts.get(5)?;
-        let in_ata = accounts.get(6)?;
-        let out_ata = accounts.get(7)?;
-        let system_program = accounts.get(8)?;
-        let token_program = accounts.get(9)?;
-        let associated_token_program = accounts.get(10)?;
-        let event_authority = accounts.get(11)?;
-        let program = accounts.get(12)?;
+        let [dca, user, payer, input_mint, output_mint, user_ata, in_ata, out_ata, system_program, token_program, associated_token_program, event_authority, program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(OpenDcaV2InstructionAccounts {
             dca: dca.pubkey,

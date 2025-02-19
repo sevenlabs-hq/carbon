@@ -1,4 +1,5 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -20,18 +21,14 @@ pub struct InitializePositionBundleInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitializePositionBundle {
     type ArrangedAccounts = InitializePositionBundleInstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let position_bundle = accounts.get(0)?;
-        let position_bundle_mint = accounts.get(1)?;
-        let position_bundle_token_account = accounts.get(2)?;
-        let position_bundle_owner = accounts.get(3)?;
-        let funder = accounts.get(4)?;
-        let token_program = accounts.get(5)?;
-        let system_program = accounts.get(6)?;
-        let rent = accounts.get(7)?;
-        let associated_token_program = accounts.get(8)?;
+        let [position_bundle, position_bundle_mint, position_bundle_token_account, position_bundle_owner, funder, token_program, system_program, rent, associated_token_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(InitializePositionBundleInstructionAccounts {
             position_bundle: position_bundle.pubkey,

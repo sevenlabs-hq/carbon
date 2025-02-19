@@ -1,8 +1,9 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x07")]
+#[carbon(discriminator = "0x56249e9e5cf1fb5e")]
 pub struct WithdrawPnl {}
 
 pub struct WithdrawPnlInstructionAccounts {
@@ -23,33 +24,19 @@ pub struct WithdrawPnlInstructionAccounts {
     pub serum_coin_vault_account: solana_sdk::pubkey::Pubkey,
     pub serum_pc_vault_account: solana_sdk::pubkey::Pubkey,
     pub serum_vault_signer: solana_sdk::pubkey::Pubkey,
-    pub referrer_pc_account: solana_sdk::pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawPnl {
     type ArrangedAccounts = WithdrawPnlInstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let token_program = accounts.get(0)?;
-        let amm = accounts.get(1)?;
-        let amm_config = accounts.get(2)?;
-        let amm_authority = accounts.get(3)?;
-        let amm_open_orders = accounts.get(4)?;
-        let pool_coin_token_account = accounts.get(5)?;
-        let pool_pc_token_account = accounts.get(6)?;
-        let coin_pnl_token_account = accounts.get(7)?;
-        let pc_pnl_token_account = accounts.get(8)?;
-        let pnl_owner_account = accounts.get(9)?;
-        let amm_target_orders = accounts.get(10)?;
-        let serum_program = accounts.get(11)?;
-        let serum_market = accounts.get(12)?;
-        let serum_event_queue = accounts.get(13)?;
-        let serum_coin_vault_account = accounts.get(14)?;
-        let serum_pc_vault_account = accounts.get(15)?;
-        let serum_vault_signer = accounts.get(16)?;
-        let referrer_pc_account = accounts.get(17)?;
+        let [token_program, amm, amm_config, amm_authority, amm_open_orders, pool_coin_token_account, pool_pc_token_account, coin_pnl_token_account, pc_pnl_token_account, pnl_owner_account, amm_target_orders, serum_program, serum_market, serum_event_queue, serum_coin_vault_account, serum_pc_vault_account, serum_vault_signer] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(WithdrawPnlInstructionAccounts {
             token_program: token_program.pubkey,
@@ -69,7 +56,6 @@ fn arrange_accounts(
             serum_coin_vault_account: serum_coin_vault_account.pubkey,
             serum_pc_vault_account: serum_pc_vault_account.pubkey,
             serum_vault_signer: serum_vault_signer.pubkey,
-            referrer_pc_account: referrer_pc_account.pubkey,
         })
     }
 }

@@ -17,12 +17,11 @@ impl carbon_core::deserialize::ArrangeAccounts for StubOracleClose {
     type ArrangedAccounts = StubOracleCloseInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let owner = accounts.get(0)?;
-        let oracle = accounts.get(1)?;
-        let sol_destination = accounts.get(2)?;
-        let token_program = accounts.get(3)?;
+        let [owner, oracle, sol_destination, token_program] = accounts else {
+            return None;
+        };
 
         Some(StubOracleCloseInstructionAccounts {
             owner: owner.pubkey,

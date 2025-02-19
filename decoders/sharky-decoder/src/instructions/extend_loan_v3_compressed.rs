@@ -38,26 +38,13 @@ impl carbon_core::deserialize::ArrangeAccounts for ExtendLoanV3Compressed {
     type ArrangedAccounts = ExtendLoanV3CompressedInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let loan = accounts.get(0)?;
-        let new_loan = accounts.get(1)?;
-        let borrower = accounts.get(2)?;
-        let lender = accounts.get(3)?;
-        let new_lender = accounts.get(4)?;
-        let escrow = accounts.get(5)?;
-        let new_escrow = accounts.get(6)?;
-        let value_mint = accounts.get(7)?;
-        let order_book = accounts.get(8)?;
-        let fee_authority = accounts.get(9)?;
-        let tree_authority = accounts.get(10)?;
-        let log_wrapper = accounts.get(11)?;
-        let merkle_tree = accounts.get(12)?;
-        let system_program = accounts.get(13)?;
-        let token_program = accounts.get(14)?;
-        let mpl_bubblegum_program = accounts.get(15)?;
-        let compression_program = accounts.get(16)?;
-        let rent = accounts.get(17)?;
+        let [loan, new_loan, borrower, lender, new_lender, escrow, new_escrow, value_mint, order_book, fee_authority, tree_authority, log_wrapper, merkle_tree, system_program, token_program, mpl_bubblegum_program, compression_program, rent] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(ExtendLoanV3CompressedInstructionAccounts {
             loan: loan.pubkey,

@@ -30,7 +30,6 @@
 /// - Implementing this trait enables custom deserialization logic for types, which is useful
 ///   for processing raw blockchain data.
 /// - Ensure the data slice passed to `deserialize` is valid and of appropriate length to avoid errors.
-
 pub trait CarbonDeserialize
 where
     Self: Sized + crate::borsh::BorshDeserialize,
@@ -55,7 +54,7 @@ where
 /// Returns an `Option` containing a tuple of slices:
 /// - The first slice is the discriminator of the specified length.
 /// - The second slice is the remaining data following the discriminator.
-/// Returns `None` if the `data` slice is shorter than the specified `length`.
+///   Returns `None` if the `data` slice is shorter than the specified `length`.
 ///
 /// # Notes
 ///
@@ -89,6 +88,6 @@ pub trait ArrangeAccounts {
     type ArrangedAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts>;
 }

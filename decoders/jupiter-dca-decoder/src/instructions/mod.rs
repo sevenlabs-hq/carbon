@@ -1,19 +1,21 @@
 use super::JupiterDcaDecoder;
 pub mod close_dca;
-pub mod closed;
-pub mod collected_fee;
+pub mod closed_event;
+pub mod collected_fee_event;
 pub mod deposit;
+pub mod deposit_event;
 pub mod end_and_close;
-pub mod filled;
+pub mod filled_event;
 pub mod fulfill_dlmm_fill;
 pub mod fulfill_flash_fill;
 pub mod initiate_dlmm_fill;
 pub mod initiate_flash_fill;
 pub mod open_dca;
 pub mod open_dca_v2;
-pub mod opened;
+pub mod opened_event;
 pub mod transfer;
 pub mod withdraw;
+pub mod withdraw_event;
 pub mod withdraw_fees;
 
 #[derive(
@@ -39,10 +41,12 @@ pub enum JupiterDcaInstruction {
     FulfillDlmmFill(fulfill_dlmm_fill::FulfillDlmmFill),
     Transfer(transfer::Transfer),
     EndAndClose(end_and_close::EndAndClose),
-    CollectedFee(collected_fee::CollectedFee),
-    Filled(filled::Filled),
-    Opened(opened::Opened),
-    Closed(closed::Closed),
+    CollectedFeeEvent(collected_fee_event::CollectedFeeEvent),
+    FilledEvent(filled_event::FilledEvent),
+    OpenedEvent(opened_event::OpenedEvent),
+    ClosedEvent(closed_event::ClosedEvent),
+    WithdrawEvent(withdraw_event::WithdrawEvent),
+    DepositEvent(deposit_event::DepositEvent),
 }
 
 impl<'a> carbon_core::instruction::InstructionDecoder<'a> for JupiterDcaDecoder {
@@ -65,10 +69,12 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for JupiterDcaDecoder 
             JupiterDcaInstruction::FulfillDlmmFill => fulfill_dlmm_fill::FulfillDlmmFill,
             JupiterDcaInstruction::Transfer => transfer::Transfer,
             JupiterDcaInstruction::EndAndClose => end_and_close::EndAndClose,
-            JupiterDcaInstruction::CollectedFee => collected_fee::CollectedFee,
-            JupiterDcaInstruction::Filled => filled::Filled,
-            JupiterDcaInstruction::Opened => opened::Opened,
-            JupiterDcaInstruction::Closed => closed::Closed,
+            JupiterDcaInstruction::CollectedFeeEvent => collected_fee_event::CollectedFeeEvent,
+            JupiterDcaInstruction::FilledEvent => filled_event::FilledEvent,
+            JupiterDcaInstruction::OpenedEvent => opened_event::OpenedEvent,
+            JupiterDcaInstruction::ClosedEvent => closed_event::ClosedEvent,
+            JupiterDcaInstruction::WithdrawEvent => withdraw_event::WithdrawEvent,
+            JupiterDcaInstruction::DepositEvent => deposit_event::DepositEvent,
         )
     }
 }

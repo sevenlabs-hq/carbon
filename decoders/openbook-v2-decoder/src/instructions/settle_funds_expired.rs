@@ -26,21 +26,13 @@ impl carbon_core::deserialize::ArrangeAccounts for SettleFundsExpired {
     type ArrangedAccounts = SettleFundsExpiredInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let close_market_admin = accounts.get(0)?;
-        let owner = accounts.get(1)?;
-        let penalty_payer = accounts.get(2)?;
-        let open_orders_account = accounts.get(3)?;
-        let market = accounts.get(4)?;
-        let market_authority = accounts.get(5)?;
-        let market_base_vault = accounts.get(6)?;
-        let market_quote_vault = accounts.get(7)?;
-        let user_base_account = accounts.get(8)?;
-        let user_quote_account = accounts.get(9)?;
-        let referrer_account = accounts.get(10)?;
-        let token_program = accounts.get(11)?;
-        let system_program = accounts.get(12)?;
+        let [close_market_admin, owner, penalty_payer, open_orders_account, market, market_authority, market_base_vault, market_quote_vault, user_base_account, user_quote_account, referrer_account, token_program, system_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(SettleFundsExpiredInstructionAccounts {
             close_market_admin: close_market_admin.pubkey,

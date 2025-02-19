@@ -1,18 +1,12 @@
-
 use super::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 pub enum CollectionToggle {
     None,
     Clear,
-    Set
-                (
-                    Collection,
-                )
-    ,
+    Set(Collection),
 }
-
-

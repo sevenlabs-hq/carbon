@@ -108,6 +108,8 @@ pub mod create_collection_v2_args;
 pub use create_collection_v2_args::*;
 pub mod decompress_v1_args;
 pub use decompress_v1_args::*;
+pub mod execute_v1_args;
+pub use execute_v1_args::*;
 pub mod remove_external_plugin_adapter_v1_args;
 pub use remove_external_plugin_adapter_v1_args::*;
 pub mod remove_collection_external_plugin_adapter_v1_args;

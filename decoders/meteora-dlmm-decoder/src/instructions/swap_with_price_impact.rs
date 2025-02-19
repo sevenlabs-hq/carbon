@@ -32,23 +32,13 @@ impl carbon_core::deserialize::ArrangeAccounts for SwapWithPriceImpact {
     type ArrangedAccounts = SwapWithPriceImpactInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let lb_pair = accounts.get(0)?;
-        let bin_array_bitmap_extension = accounts.get(1)?;
-        let reserve_x = accounts.get(2)?;
-        let reserve_y = accounts.get(3)?;
-        let user_token_in = accounts.get(4)?;
-        let user_token_out = accounts.get(5)?;
-        let token_x_mint = accounts.get(6)?;
-        let token_y_mint = accounts.get(7)?;
-        let oracle = accounts.get(8)?;
-        let host_fee_in = accounts.get(9)?;
-        let user = accounts.get(10)?;
-        let token_x_program = accounts.get(11)?;
-        let token_y_program = accounts.get(12)?;
-        let event_authority = accounts.get(13)?;
-        let program = accounts.get(14)?;
+        let [lb_pair, bin_array_bitmap_extension, reserve_x, reserve_y, user_token_in, user_token_out, token_x_mint, token_y_mint, oracle, host_fee_in, user, token_x_program, token_y_program, event_authority, program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(SwapWithPriceImpactInstructionAccounts {
             lb_pair: lb_pair.pubkey,

@@ -21,6 +21,7 @@ pub mod liquidity_calculate_event;
 pub mod liquidity_change_event;
 pub mod open_position;
 pub mod open_position_v2;
+pub mod open_position_with_token22_nft;
 pub mod pool_created_event;
 pub mod set_reward_params;
 pub mod swap;
@@ -60,6 +61,7 @@ pub enum RaydiumClmmInstruction {
     CollectFundFee(collect_fund_fee::CollectFundFee),
     OpenPosition(open_position::OpenPosition),
     OpenPositionV2(open_position_v2::OpenPositionV2),
+    OpenPositionWithToken22Nft(open_position_with_token22_nft::OpenPositionWithToken22Nft),
     ClosePosition(close_position::ClosePosition),
     IncreaseLiquidity(increase_liquidity::IncreaseLiquidity),
     IncreaseLiquidityV2(increase_liquidity_v2::IncreaseLiquidityV2),
@@ -104,6 +106,7 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for RaydiumClmmDecoder
             RaydiumClmmInstruction::CollectFundFee => collect_fund_fee::CollectFundFee,
             RaydiumClmmInstruction::OpenPosition => open_position::OpenPosition,
             RaydiumClmmInstruction::OpenPositionV2 => open_position_v2::OpenPositionV2,
+            RaydiumClmmInstruction::OpenPositionWithToken22Nft => open_position_with_token22_nft::OpenPositionWithToken22Nft,
             RaydiumClmmInstruction::ClosePosition => close_position::ClosePosition,
             RaydiumClmmInstruction::IncreaseLiquidity => increase_liquidity::IncreaseLiquidity,
             RaydiumClmmInstruction::IncreaseLiquidityV2 => increase_liquidity_v2::IncreaseLiquidityV2,

@@ -15,5 +15,5 @@ pub use need_take::*;
 pub mod swap_instruction_base_in;
 pub use swap_instruction_base_in::*;
 pub mod swap_instruction_base_out;
-pub use swap_instruction_base_out::*;
 use serde_big_array::BigArray;
+pub use swap_instruction_base_out::*;

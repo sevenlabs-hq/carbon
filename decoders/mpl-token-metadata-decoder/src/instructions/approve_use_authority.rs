@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x14")]
-pub struct ApproveUseAuthority{
+pub struct ApproveUseAuthority {
     pub approve_use_authority_args: ApproveUseAuthorityArgs,
 }
 
@@ -27,18 +27,14 @@ pub struct ApproveUseAuthorityInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for ApproveUseAuthority {
     type ArrangedAccounts = ApproveUseAuthorityInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
-        let use_authority_record = accounts.get(0)?;
-        let owner = accounts.get(1)?;
-        let payer = accounts.get(2)?;
-        let user = accounts.get(3)?;
-        let owner_token_account = accounts.get(4)?;
-        let metadata = accounts.get(5)?;
-        let mint = accounts.get(6)?;
-        let burner = accounts.get(7)?;
-        let token_program = accounts.get(8)?;
-        let system_program = accounts.get(9)?;
-        let rent = accounts.get(10)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [use_authority_record, owner, payer, user, owner_token_account, metadata, mint, burner, token_program, system_program, rent] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(ApproveUseAuthorityInstructionAccounts {
             use_authority_record: use_authority_record.pubkey,

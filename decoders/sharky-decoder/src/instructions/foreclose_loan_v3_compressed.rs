@@ -31,20 +31,13 @@ impl carbon_core::deserialize::ArrangeAccounts for ForecloseLoanV3Compressed {
     type ArrangedAccounts = ForecloseLoanV3CompressedInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let loan = accounts.get(0)?;
-        let escrow = accounts.get(1)?;
-        let borrower = accounts.get(2)?;
-        let lender = accounts.get(3)?;
-        let tree_authority = accounts.get(4)?;
-        let log_wrapper = accounts.get(5)?;
-        let merkle_tree = accounts.get(6)?;
-        let system_program = accounts.get(7)?;
-        let token_program = accounts.get(8)?;
-        let mpl_bubblegum_program = accounts.get(9)?;
-        let compression_program = accounts.get(10)?;
-        let rent = accounts.get(11)?;
+        let [loan, escrow, borrower, lender, tree_authority, log_wrapper, merkle_tree, system_program, token_program, mpl_bubblegum_program, compression_program, rent] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(ForecloseLoanV3CompressedInstructionAccounts {
             loan: loan.pubkey,

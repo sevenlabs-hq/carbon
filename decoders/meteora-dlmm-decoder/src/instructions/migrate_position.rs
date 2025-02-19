@@ -23,18 +23,13 @@ impl carbon_core::deserialize::ArrangeAccounts for MigratePosition {
     type ArrangedAccounts = MigratePositionInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let position_v2 = accounts.get(0)?;
-        let position_v1 = accounts.get(1)?;
-        let lb_pair = accounts.get(2)?;
-        let bin_array_lower = accounts.get(3)?;
-        let bin_array_upper = accounts.get(4)?;
-        let owner = accounts.get(5)?;
-        let system_program = accounts.get(6)?;
-        let rent_receiver = accounts.get(7)?;
-        let event_authority = accounts.get(8)?;
-        let program = accounts.get(9)?;
+        let [position_v2, position_v1, lb_pair, bin_array_lower, bin_array_upper, owner, system_program, rent_receiver, event_authority, program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(MigratePositionInstructionAccounts {
             position_v2: position_v2.pubkey,

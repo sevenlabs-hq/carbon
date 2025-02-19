@@ -17,10 +17,11 @@ impl carbon_core::deserialize::ArrangeAccounts for TransferRewardOwner {
     type ArrangedAccounts = TransferRewardOwnerInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let authority = accounts.get(0)?;
-        let pool_state = accounts.get(1)?;
+        let [authority, pool_state] = accounts else {
+            return None;
+        };
 
         Some(TransferRewardOwnerInstructionAccounts {
             authority: authority.pubkey,

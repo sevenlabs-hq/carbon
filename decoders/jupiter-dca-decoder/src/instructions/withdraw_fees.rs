@@ -22,17 +22,14 @@ pub struct WithdrawFeesInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawFees {
     type ArrangedAccounts = WithdrawFeesInstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let admin = accounts.get(0)?;
-        let mint = accounts.get(1)?;
-        let fee_authority = accounts.get(2)?;
-        let program_fee_ata = accounts.get(3)?;
-        let admin_fee_ata = accounts.get(4)?;
-        let system_program = accounts.get(5)?;
-        let token_program = accounts.get(6)?;
-        let associated_token_program = accounts.get(7)?;
+        let [admin, mint, fee_authority, program_fee_ata, admin_fee_ata, system_program, token_program, associated_token_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(WithdrawFeesInstructionAccounts {
             admin: admin.pubkey,

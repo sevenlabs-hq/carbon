@@ -394,13 +394,13 @@ fn task_processor(
                         continue;
                     };
 
-                    let update = Update::Transaction(TransactionUpdate {
+                    let update = Update::Transaction(Box::new(TransactionUpdate {
                         signature,
                         transaction: decoded_transaction.clone(),
                         meta: meta_needed,
                         is_vote: false,
                         slot: fetched_transaction.slot,
-                    });
+                    }));
 
 
                     metrics

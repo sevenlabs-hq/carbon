@@ -14,6 +14,7 @@ pub mod create_collection_v2;
 pub mod create_v1;
 pub mod create_v2;
 pub mod decompress_v1;
+pub mod execute_v1;
 pub mod remove_collection_external_plugin_adapter_v1;
 pub mod remove_collection_plugin_v1;
 pub mod remove_external_plugin_adapter_v1;
@@ -73,6 +74,7 @@ pub enum MplCoreProgramInstruction {
     WriteExternalPluginAdapterDataV1(write_external_plugin_adapter_data_v1::WriteExternalPluginAdapterDataV1),
     WriteCollectionExternalPluginAdapterDataV1(write_collection_external_plugin_adapter_data_v1::WriteCollectionExternalPluginAdapterDataV1),
     UpdateV2(update_v2::UpdateV2),
+    ExecuteV1(execute_v1::ExecuteV1),
 }
 
 impl<'a> carbon_core::instruction::InstructionDecoder<'a> for MplCoreProgramDecoder {
@@ -114,6 +116,7 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for MplCoreProgramDeco
             MplCoreProgramInstruction::WriteExternalPluginAdapterDataV1 => write_external_plugin_adapter_data_v1::WriteExternalPluginAdapterDataV1,
             MplCoreProgramInstruction::WriteCollectionExternalPluginAdapterDataV1 => write_collection_external_plugin_adapter_data_v1::WriteCollectionExternalPluginAdapterDataV1,
             MplCoreProgramInstruction::UpdateV2 => update_v2::UpdateV2,
+            MplCoreProgramInstruction::ExecuteV1 => execute_v1::ExecuteV1,
         )
     }
 }

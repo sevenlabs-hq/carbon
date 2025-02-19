@@ -1,4 +1,5 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -23,17 +24,14 @@ pub struct OpenBundledPositionInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for OpenBundledPosition {
     type ArrangedAccounts = OpenBundledPositionInstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let bundled_position = accounts.get(0)?;
-        let position_bundle = accounts.get(1)?;
-        let position_bundle_token_account = accounts.get(2)?;
-        let position_bundle_authority = accounts.get(3)?;
-        let whirlpool = accounts.get(4)?;
-        let funder = accounts.get(5)?;
-        let system_program = accounts.get(6)?;
-        let rent = accounts.get(7)?;
+        let [bundled_position, position_bundle, position_bundle_token_account, position_bundle_authority, whirlpool, funder, system_program, rent] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(OpenBundledPositionInstructionAccounts {
             bundled_position: bundled_position.pubkey,

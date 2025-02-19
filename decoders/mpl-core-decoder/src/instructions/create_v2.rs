@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x14")]
-pub struct CreateV2{
+pub struct CreateV2 {
     pub create_v2_args: CreateV2Args,
 }
 
@@ -24,15 +24,14 @@ pub struct CreateV2InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CreateV2 {
     type ArrangedAccounts = CreateV2InstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
-        let asset = accounts.get(0)?;
-        let collection = accounts.get(1)?;
-        let authority = accounts.get(2)?;
-        let payer = accounts.get(3)?;
-        let owner = accounts.get(4)?;
-        let update_authority = accounts.get(5)?;
-        let system_program = accounts.get(6)?;
-        let log_wrapper = accounts.get(7)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [asset, collection, authority, payer, owner, update_authority, system_program, log_wrapper] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(CreateV2InstructionAccounts {
             asset: asset.pubkey,

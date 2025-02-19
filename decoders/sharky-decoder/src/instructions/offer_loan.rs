@@ -30,19 +30,13 @@ impl carbon_core::deserialize::ArrangeAccounts for OfferLoan {
     type ArrangedAccounts = OfferLoanInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let lender = accounts.get(0)?;
-        let lender_value_token_account = accounts.get(1)?;
-        let value_mint = accounts.get(2)?;
-        let loan = accounts.get(3)?;
-        let escrow = accounts.get(4)?;
-        let escrow_token_account = accounts.get(5)?;
-        let order_book = accounts.get(6)?;
-        let system_program = accounts.get(7)?;
-        let token_program = accounts.get(8)?;
-        let associated_token_program = accounts.get(9)?;
-        let rent = accounts.get(10)?;
+        let [lender, lender_value_token_account, value_mint, loan, escrow, escrow_token_account, order_book, system_program, token_program, associated_token_program, rent] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(OfferLoanInstructionAccounts {
             lender: lender.pubkey,

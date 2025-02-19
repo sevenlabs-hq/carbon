@@ -29,20 +29,13 @@ impl carbon_core::deserialize::ArrangeAccounts for PlaceOrderPegged {
     type ArrangedAccounts = PlaceOrderPeggedInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let signer = accounts.get(0)?;
-        let open_orders_account = accounts.get(1)?;
-        let open_orders_admin = accounts.get(2)?;
-        let user_token_account = accounts.get(3)?;
-        let market = accounts.get(4)?;
-        let bids = accounts.get(5)?;
-        let asks = accounts.get(6)?;
-        let event_heap = accounts.get(7)?;
-        let market_vault = accounts.get(8)?;
-        let oracle_a = accounts.get(9)?;
-        let oracle_b = accounts.get(10)?;
-        let token_program = accounts.get(11)?;
+        let [signer, open_orders_account, open_orders_admin, user_token_account, market, bids, asks, event_heap, market_vault, oracle_a, oracle_b, token_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(PlaceOrderPeggedInstructionAccounts {
             signer: signer.pubkey,

@@ -13,9 +13,13 @@ pub struct RefreshReservesBatchInstructionAccounts {}
 impl carbon_core::deserialize::ArrangeAccounts for RefreshReservesBatch {
     type ArrangedAccounts = RefreshReservesBatchInstructionAccounts;
 
-fn arrange_accounts(
-        _accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
+        let [] = accounts else {
+            return None;
+        };
+
         Some(RefreshReservesBatchInstructionAccounts {})
     }
 }

@@ -29,20 +29,13 @@ impl carbon_core::deserialize::ArrangeAccounts for IncreaseLiquidity {
     type ArrangedAccounts = IncreaseLiquidityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let nft_owner = accounts.get(0)?;
-        let nft_account = accounts.get(1)?;
-        let pool_state = accounts.get(2)?;
-        let protocol_position = accounts.get(3)?;
-        let personal_position = accounts.get(4)?;
-        let tick_array_lower = accounts.get(5)?;
-        let tick_array_upper = accounts.get(6)?;
-        let token_account0 = accounts.get(7)?;
-        let token_account1 = accounts.get(8)?;
-        let token_vault0 = accounts.get(9)?;
-        let token_vault1 = accounts.get(10)?;
-        let token_program = accounts.get(11)?;
+        let [nft_owner, nft_account, pool_state, protocol_position, personal_position, tick_array_lower, tick_array_upper, token_account0, token_account1, token_vault0, token_vault1, token_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(IncreaseLiquidityInstructionAccounts {
             nft_owner: nft_owner.pubkey,

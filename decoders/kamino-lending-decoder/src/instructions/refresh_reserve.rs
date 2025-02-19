@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x02da8aeb4fc91966")]
-pub struct RefreshReserve{
-}
+pub struct RefreshReserve {}
 
 pub struct RefreshReserveInstructionAccounts {
     pub reserve: solana_sdk::pubkey::Pubkey,
@@ -20,13 +18,14 @@ pub struct RefreshReserveInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for RefreshReserve {
     type ArrangedAccounts = RefreshReserveInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
-        let reserve = accounts.get(0)?;
-        let lending_market = accounts.get(1)?;
-        let pyth_oracle = accounts.get(2)?;
-        let switchboard_price_oracle = accounts.get(3)?;
-        let switchboard_twap_oracle = accounts.get(4)?;
-        let scope_prices = accounts.get(5)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [reserve, lending_market, pyth_oracle, switchboard_price_oracle, switchboard_twap_oracle, scope_prices] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(RefreshReserveInstructionAccounts {
             reserve: reserve.pubkey,

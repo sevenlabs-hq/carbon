@@ -36,29 +36,13 @@ impl carbon_core::deserialize::ArrangeAccounts for ExtendLoanV3 {
     type ArrangedAccounts = ExtendLoanV3InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let loan = accounts.get(0)?;
-        let new_loan = accounts.get(1)?;
-        let borrower = accounts.get(2)?;
-        let borrower_collateral_token_account = accounts.get(3)?;
-        let lender = accounts.get(4)?;
-        let new_lender = accounts.get(5)?;
-        let escrow = accounts.get(6)?;
-        let escrow_collateral_token_account = accounts.get(7)?;
-        let new_escrow = accounts.get(8)?;
-        let new_escrow_collateral_token_account = accounts.get(9)?;
-        let value_mint = accounts.get(10)?;
-        let collateral_mint = accounts.get(11)?;
-        let order_book = accounts.get(12)?;
-        let fee_authority = accounts.get(13)?;
-        let metadata = accounts.get(14)?;
-        let edition = accounts.get(15)?;
-        let system_program = accounts.get(16)?;
-        let token_program = accounts.get(17)?;
-        let associated_token_program = accounts.get(18)?;
-        let rent = accounts.get(19)?;
-        let mpl_token_metadata_program = accounts.get(20)?;
+        let [loan, new_loan, borrower, borrower_collateral_token_account, lender, new_lender, escrow, escrow_collateral_token_account, new_escrow, new_escrow_collateral_token_account, value_mint, collateral_mint, order_book, fee_authority, metadata, edition, system_program, token_program, associated_token_program, rent, mpl_token_metadata_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(ExtendLoanV3InstructionAccounts {
             loan: loan.pubkey,

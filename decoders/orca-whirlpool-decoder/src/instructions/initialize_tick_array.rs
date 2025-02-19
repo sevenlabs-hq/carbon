@@ -1,4 +1,5 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -17,13 +18,12 @@ pub struct InitializeTickArrayInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitializeTickArray {
     type ArrangedAccounts = InitializeTickArrayInstructionAccounts;
 
-fn arrange_accounts(
-        accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let whirlpool = accounts.get(0)?;
-        let funder = accounts.get(1)?;
-        let tick_array = accounts.get(2)?;
-        let system_program = accounts.get(3)?;
+        let [whirlpool, funder, tick_array, system_program] = accounts else {
+            return None;
+        };
 
         Some(InitializeTickArrayInstructionAccounts {
             whirlpool: whirlpool.pubkey,

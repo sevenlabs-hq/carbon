@@ -1,11 +1,12 @@
-
-use carbon_core::{borsh, CarbonDeserialize};
 use super::super::types::*;
 
+use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x87802f4d0f98f031")]
-pub struct OpenPosition{
+pub struct OpenPosition {
     pub bumps: OpenPositionBumps,
     pub tick_lower_index: i32,
     pub tick_upper_index: i32,
@@ -27,17 +28,14 @@ pub struct OpenPositionInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for OpenPosition {
     type ArrangedAccounts = OpenPositionInstructionAccounts;
 
-    fn arrange_accounts(accounts: Vec<solana_sdk::instruction::AccountMeta>) -> Option<Self::ArrangedAccounts> {
-        let funder = accounts.get(0)?;
-        let owner = accounts.get(1)?;
-        let position = accounts.get(2)?;
-        let position_mint = accounts.get(3)?;
-        let position_token_account = accounts.get(4)?;
-        let whirlpool = accounts.get(5)?;
-        let token_program = accounts.get(6)?;
-        let system_program = accounts.get(7)?;
-        let rent = accounts.get(8)?;
-        let associated_token_program = accounts.get(9)?;
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [funder, owner, position, position_mint, position_token_account, whirlpool, token_program, system_program, rent, associated_token_program] =
+            accounts
+        else {
+            return None;
+        };
 
         Some(OpenPositionInstructionAccounts {
             funder: funder.pubkey,
