@@ -1,6 +1,6 @@
 [package]
 name = "carbon-openbook-v2-decoder"
-version = "0.4.1"
+version = { workspace = true }
 description = "Openbook V2 Decoder"
 license = { workspace = true }
 edition = { workspace = true }

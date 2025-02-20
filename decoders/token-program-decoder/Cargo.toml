@@ -1,6 +1,6 @@
 [package]
 name = "carbon-token-program-decoder"
-version = "0.4.1"
+version = { workspace = true }
 description = "Token Program Decoder"
 license = { workspace = true }
 edition = { workspace = true }

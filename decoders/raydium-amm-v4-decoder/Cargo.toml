@@ -1,6 +1,6 @@
 [package]
 name = "carbon-raydium-amm-v4-decoder"
-version = "0.4.1"
+version = { workspace = true }
 description = "Raydium AMM V4 Decoder"
 license = { workspace = true }
 edition = { workspace = true }
