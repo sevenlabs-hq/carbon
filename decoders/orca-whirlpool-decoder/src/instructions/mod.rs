@@ -113,7 +113,7 @@ pub enum OrcaWhirlpoolInstruction {
     DeleteTokenBadge(delete_token_badge::DeleteTokenBadge),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for OrcaWhirlpoolDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for OrcaWhirlpoolDecoder {
     type InstructionType = OrcaWhirlpoolInstruction;
 
     fn decode_instruction(

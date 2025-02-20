@@ -1,14 +1,14 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use super::JupiterDcaDecoder;
+use {
+    super::JupiterDcaDecoder,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod dca;
 
 pub enum JupiterDcaAccount {
     Dca(dca::Dca),
 }
 
-impl<'a> AccountDecoder<'a> for JupiterDcaDecoder {
+impl AccountDecoder<'_> for JupiterDcaDecoder {
     type AccountType = JupiterDcaAccount;
     fn decode_account(
         &self,

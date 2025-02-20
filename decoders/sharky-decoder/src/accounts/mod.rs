@@ -1,7 +1,7 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use super::SharkyDecoder;
+use {
+    super::SharkyDecoder,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod escrow_pda;
 pub mod loan;
 pub mod nft_list;
@@ -16,7 +16,7 @@ pub enum SharkyAccount {
     ProgramVersion(program_version::ProgramVersion),
 }
 
-impl<'a> AccountDecoder<'a> for SharkyDecoder {
+impl AccountDecoder<'_> for SharkyDecoder {
     type AccountType = SharkyAccount;
     fn decode_account(
         &self,

@@ -1,6 +1,7 @@
-use serde::{Deserialize, Serialize};
-
-use crate::legacy_idl::{LegacyIdlEnumFields, LegacyIdlType};
+use {
+    crate::legacy_idl::{LegacyIdlEnumFields, LegacyIdlType},
+    serde::{Deserialize, Serialize},
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Idl {

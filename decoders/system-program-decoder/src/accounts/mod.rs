@@ -1,12 +1,13 @@
-use carbon_core::account::{AccountDecoder, DecodedAccount};
-use solana_sdk::account::ReadableAccount;
-
-use crate::SystemProgramDecoder;
+use {
+    crate::SystemProgramDecoder,
+    carbon_core::account::{AccountDecoder, DecodedAccount},
+    solana_sdk::account::ReadableAccount,
+};
 pub enum SystemProgramAccount {
     Account(Vec<u8>),
 }
 
-impl<'a> AccountDecoder<'a> for SystemProgramDecoder {
+impl AccountDecoder<'_> for SystemProgramDecoder {
     type AccountType = SystemProgramAccount;
 
     fn decode_account(

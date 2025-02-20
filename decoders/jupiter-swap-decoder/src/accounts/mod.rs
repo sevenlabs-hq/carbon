@@ -1,14 +1,14 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use super::JupiterSwapDecoder;
+use {
+    super::JupiterSwapDecoder,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod token_ledger;
 
 pub enum JupiterSwapAccount {
     TokenLedger(token_ledger::TokenLedger),
 }
 
-impl<'a> AccountDecoder<'a> for JupiterSwapDecoder {
+impl AccountDecoder<'_> for JupiterSwapDecoder {
     type AccountType = JupiterSwapAccount;
     fn decode_account(
         &self,

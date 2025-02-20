@@ -37,7 +37,7 @@ pub enum KaminoVaultInstruction {
     WithdrawFromAvailable(withdraw_from_available::WithdrawFromAvailable),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for KaminoVaultDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for KaminoVaultDecoder {
     type InstructionType = KaminoVaultInstruction;
 
     fn decode_instruction(

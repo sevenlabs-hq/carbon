@@ -2,15 +2,15 @@
 name = "carbon-memo-program-decoder"
 version = "0.4.1"
 description = "Memo Program Decoder"
-license = "MIT"
-edition = "2018"
+license = { workspace = true }
+edition = { workspace = true }
 
 [lib]
 crate-type = ["rlib"]
 
 [dependencies]
 carbon-core = { workspace = true }
-solana-sdk = "2.0.10"
-serde = "1.0.136"
-spl-token = "6.0.0"
-spl-memo = "5.0.0"
+serde = { workspace = true }
+solana-sdk = { workspace = true }
+spl-memo = { workspace = true }
+spl-token = { workspace = true }

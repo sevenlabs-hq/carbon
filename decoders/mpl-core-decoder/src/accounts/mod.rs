@@ -1,7 +1,7 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use super::MplCoreProgramDecoder;
+use {
+    super::MplCoreProgramDecoder,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod asset_v1;
 pub mod collection_v1;
 pub mod hashed_asset_v1;
@@ -16,7 +16,7 @@ pub enum MplCoreProgramAccount {
     HashedAssetV1(hashed_asset_v1::HashedAssetV1),
 }
 
-impl<'a> AccountDecoder<'a> for MplCoreProgramDecoder {
+impl AccountDecoder<'_> for MplCoreProgramDecoder {
     type AccountType = MplCoreProgramAccount;
     fn decode_account(
         &self,

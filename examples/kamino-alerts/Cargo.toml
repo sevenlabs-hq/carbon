@@ -1,19 +1,20 @@
 [package]
 name = "kamino-alerts-carbon-example"
 version = "0.2.1"
-edition = "2021"
+edition = { workspace = true }
+license = { workspace = true }
 
 [dependencies]
 carbon-core = { workspace = true }
+carbon-kamino-lending-decoder = { workspace = true }
+carbon-yellowstone-grpc-datasource = { workspace = true }
+solana-client = { workspace = true }
 solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
-solana-client = { workspace = true }
-carbon-yellowstone-grpc-datasource = { workspace = true }
-carbon-kamino-lending-decoder = { workspace = true }
 
-yellowstone-grpc-proto = { workspace = true }
+async-trait = { workspace = true }
+dotenv = { workspace = true }
+env_logger = { workspace = true }
+log = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
-async-trait ={ workspace = true }
-log = "0.4.22"
-env_logger = "0.11.5"
-dotenv = "0.15.0"
+yellowstone-grpc-proto = { workspace = true }

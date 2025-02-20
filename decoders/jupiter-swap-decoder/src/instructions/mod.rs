@@ -43,7 +43,7 @@ pub enum JupiterSwapInstruction {
     SwapEvent(swap_event::SwapEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for JupiterSwapDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for JupiterSwapDecoder {
     type InstructionType = JupiterSwapInstruction;
 
     fn decode_instruction(

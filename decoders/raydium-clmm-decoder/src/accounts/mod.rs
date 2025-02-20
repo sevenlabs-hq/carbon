@@ -1,7 +1,7 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use super::RaydiumClmmDecoder;
+use {
+    super::RaydiumClmmDecoder,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod amm_config;
 pub mod observation_state;
 pub mod operation_state;
@@ -23,7 +23,7 @@ pub enum RaydiumClmmAccount {
     TickArrayBitmapExtension(tick_array_bitmap_extension::TickArrayBitmapExtension),
 }
 
-impl<'a> AccountDecoder<'a> for RaydiumClmmDecoder {
+impl AccountDecoder<'_> for RaydiumClmmDecoder {
     type AccountType = RaydiumClmmAccount;
     fn decode_account(
         &self,

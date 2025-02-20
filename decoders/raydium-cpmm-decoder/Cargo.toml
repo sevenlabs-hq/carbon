@@ -2,16 +2,17 @@
 name = "carbon-raydium-cpmm-decoder"
 version = "0.4.1"
 description = "Raydium CPMM Decoder"
-edition = "2018"
-license = "MIT"
+edition = { workspace = true }
+license = { workspace = true }
 
 [lib]
 crate-type = ["rlib"]
 
 [dependencies]
 carbon-core = { workspace = true }
-carbon-proc-macros = { workspace = true }
 carbon-macros = { workspace = true }
-solana-sdk = "2.0.10"
-serde = "1.0.136"
+carbon-proc-macros = { workspace = true }
 
+solana-sdk = { workspace = true }
+
+serde = { workspace = true }

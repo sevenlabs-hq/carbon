@@ -1,7 +1,7 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use super::OrcaWhirlpoolDecoder;
+use {
+    super::OrcaWhirlpoolDecoder,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod fee_tier;
 pub mod position;
 pub mod position_bundle;
@@ -22,7 +22,7 @@ pub enum OrcaWhirlpoolAccount {
     Whirlpool(whirlpool::Whirlpool),
 }
 
-impl<'a> AccountDecoder<'a> for OrcaWhirlpoolDecoder {
+impl AccountDecoder<'_> for OrcaWhirlpoolDecoder {
     type AccountType = OrcaWhirlpoolAccount;
     fn decode_account(
         &self,

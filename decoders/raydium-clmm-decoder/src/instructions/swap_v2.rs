@@ -11,6 +11,7 @@ pub struct SwapV2 {
     pub is_base_input: bool,
 }
 
+#[derive(Debug)]
 pub struct SwapV2InstructionAccounts {
     pub payer: solana_sdk::pubkey::Pubkey,
     pub amm_config: solana_sdk::pubkey::Pubkey,

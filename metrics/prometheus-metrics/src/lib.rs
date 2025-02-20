@@ -1,12 +1,14 @@
-use async_trait::async_trait;
-use carbon_core::error::{CarbonResult, Error};
-use carbon_core::metrics::Metrics;
-use metrics::{counter, gauge, histogram};
-use metrics_exporter_prometheus::PrometheusBuilder;
-use std::collections::HashMap;
-use std::net::SocketAddrV4;
-use std::sync::Once;
-use tokio::sync::RwLock;
+use {
+    async_trait::async_trait,
+    carbon_core::{
+        error::{CarbonResult, Error},
+        metrics::Metrics,
+    },
+    metrics::{counter, gauge, histogram},
+    metrics_exporter_prometheus::PrometheusBuilder,
+    std::{collections::HashMap, net::SocketAddrV4, sync::Once},
+    tokio::sync::RwLock,
+};
 
 pub struct PrometheusMetrics {
     pub counters: RwLock<HashMap<String, metrics::Counter>>,

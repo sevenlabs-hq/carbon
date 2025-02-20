@@ -29,7 +29,7 @@ pub enum MoonshotInstruction {
     MigrationEvent(migration_event::MigrationEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for MoonshotDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for MoonshotDecoder {
     type InstructionType = MoonshotInstruction;
 
     fn decode_instruction(

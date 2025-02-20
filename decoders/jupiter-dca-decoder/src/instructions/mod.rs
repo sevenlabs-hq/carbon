@@ -49,7 +49,7 @@ pub enum JupiterDcaInstruction {
     DepositEvent(deposit_event::DepositEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for JupiterDcaDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for JupiterDcaDecoder {
     type InstructionType = JupiterDcaInstruction;
 
     fn decode_instruction(

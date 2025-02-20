@@ -1,7 +1,7 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use super::KaminoLendingDecoder;
+use {
+    super::KaminoLendingDecoder,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod lending_market;
 pub mod obligation;
 pub mod referrer_state;
@@ -22,7 +22,7 @@ pub enum KaminoLendingAccount {
     Reserve(reserve::Reserve),
 }
 
-impl<'a> AccountDecoder<'a> for KaminoLendingDecoder {
+impl AccountDecoder<'_> for KaminoLendingDecoder {
     type AccountType = KaminoLendingAccount;
     fn decode_account(
         &self,

@@ -39,7 +39,7 @@ pub enum SystemProgramInstruction {
     UpgradeNonceAccount(upgrade_nonce_account::UpgradeNonceAccount),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for SystemProgramDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for SystemProgramDecoder {
     type InstructionType = SystemProgramInstruction;
 
     fn decode_instruction(

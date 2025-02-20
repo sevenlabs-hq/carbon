@@ -83,7 +83,7 @@ pub enum KaminoLendingInstruction {
     IdlMissingTypes(idl_missing_types::IdlMissingTypes),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for KaminoLendingDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for KaminoLendingDecoder {
     type InstructionType = KaminoLendingInstruction;
 
     fn decode_instruction(

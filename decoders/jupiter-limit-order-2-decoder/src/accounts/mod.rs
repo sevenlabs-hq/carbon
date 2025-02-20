@@ -1,7 +1,7 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use super::JupiterLimitOrder2Decoder;
+use {
+    super::JupiterLimitOrder2Decoder,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod fee;
 pub mod order;
 
@@ -10,7 +10,7 @@ pub enum JupiterLimitOrder2Account {
     Fee(fee::Fee),
 }
 
-impl<'a> AccountDecoder<'a> for JupiterLimitOrder2Decoder {
+impl AccountDecoder<'_> for JupiterLimitOrder2Decoder {
     type AccountType = JupiterLimitOrder2Account;
     fn decode_account(
         &self,

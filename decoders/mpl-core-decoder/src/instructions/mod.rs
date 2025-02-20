@@ -77,7 +77,7 @@ pub enum MplCoreProgramInstruction {
     ExecuteV1(execute_v1::ExecuteV1),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for MplCoreProgramDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for MplCoreProgramDecoder {
     type InstructionType = MplCoreProgramInstruction;
 
     fn decode_instruction(

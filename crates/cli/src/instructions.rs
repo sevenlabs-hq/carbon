@@ -1,12 +1,14 @@
-use crate::{
-    events::EventData,
-    idl::Idl,
-    legacy_idl::{LegacyIdl, LegacyIdlInstructionDiscriminant},
-    util::idl_type_to_rust_type,
+use {
+    crate::{
+        events::EventData,
+        idl::Idl,
+        legacy_idl::{LegacyIdl, LegacyIdlInstructionDiscriminant},
+        util::idl_type_to_rust_type,
+    },
+    askama::Template,
+    heck::{ToSnekCase, ToUpperCamelCase},
+    sha2::{Digest, Sha256},
 };
-use askama::Template;
-use heck::{ToSnekCase, ToUpperCamelCase};
-use sha2::{Digest, Sha256};
 
 #[allow(dead_code)]
 #[derive(Debug)]
