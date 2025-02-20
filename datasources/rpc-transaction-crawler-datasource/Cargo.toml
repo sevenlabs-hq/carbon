@@ -2,7 +2,7 @@
 name = "carbon-rpc-transaction-crawler-datasource"
 description = "RPC Transaction Crawler Datasource"
 license = { workspace = true }
-version = "0.4.1"
+version = { workspace = true }
 edition = { workspace = true }
 
 [lib]

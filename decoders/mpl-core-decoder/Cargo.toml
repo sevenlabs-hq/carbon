@@ -1,6 +1,6 @@
 [package]
 name = "carbon-mpl-core-decoder"
-version = "0.4.1"
+version = { workspace = true }
 description = "MPL Core Decoder"
 license = { workspace = true }
 edition = { workspace = true }

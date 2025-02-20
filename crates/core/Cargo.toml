@@ -1,6 +1,6 @@
 [package]
 name = "carbon-core"
-version = "0.4.1"
+version = { workspace = true }
 edition = { workspace = true }
 description = "Core library for Carbon"
 license = { workspace = true }

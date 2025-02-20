@@ -2,7 +2,7 @@
 name = "carbon-yellowstone-grpc-datasource"
 description = "Yellowstone gRPC Datasource"
 license = { workspace = true }
-version = "0.4.1"
+version = { workspace = true }
 edition = { workspace = true }
 
 [lib]
