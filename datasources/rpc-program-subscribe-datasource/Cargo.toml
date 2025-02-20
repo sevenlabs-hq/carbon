@@ -2,7 +2,7 @@
 name = "carbon-rpc-program-subscribe-datasource"
 description = "RPC Program Subscribe Datasource"
 license = { workspace = true }
-version = "0.4.1"
+version = { workspace = true }
 edition = { workspace = true }
 
 [dependencies]

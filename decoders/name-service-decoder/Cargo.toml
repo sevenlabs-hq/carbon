@@ -1,6 +1,6 @@
 [package]
 name = "carbon-name-service-decoder"
-version = "0.4.1"
+version = { workspace = true }
 edition = { workspace = true }
 license = { workspace = true }
 
