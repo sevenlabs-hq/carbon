@@ -1,6 +1,6 @@
 [package]
 name = "carbon-kamino-lending-decoder"
-version = { workspace = true }
+version = "0.5.0"
 description = "Kamino Lending Decoder"
 license = { workspace = true }
 edition = { workspace = true }

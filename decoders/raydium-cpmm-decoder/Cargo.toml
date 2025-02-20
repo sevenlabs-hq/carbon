@@ -1,6 +1,6 @@
 [package]
 name = "carbon-raydium-cpmm-decoder"
-version = { workspace = true }
+version = "0.5.0"
 description = "Raydium CPMM Decoder"
 edition = { workspace = true }
 license = { workspace = true }

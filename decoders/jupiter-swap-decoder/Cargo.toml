@@ -1,6 +1,6 @@
 [package]
 name = "carbon-jupiter-swap-decoder"
-version = { workspace = true }
+version = "0.5.0"
 description = "Jupiter Swap Decoder"
 license = { workspace = true }
 edition = { workspace = true }

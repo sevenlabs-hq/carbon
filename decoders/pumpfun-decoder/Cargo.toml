@@ -1,6 +1,6 @@
 [package]
 name = "carbon-pumpfun-decoder"
-version = { workspace = true }
+version = "0.5.0"
 description = "Pumpfun Decoder"
 license = { workspace = true }
 edition = { workspace = true }
