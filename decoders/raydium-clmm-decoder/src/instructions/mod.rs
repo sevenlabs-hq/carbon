@@ -83,7 +83,7 @@ pub enum RaydiumClmmInstruction {
     LiquidityChangeEvent(liquidity_change_event::LiquidityChangeEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for RaydiumClmmDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumClmmDecoder {
     type InstructionType = RaydiumClmmInstruction;
 
     fn decode_instruction(

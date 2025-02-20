@@ -1,11 +1,12 @@
-use super::super::types::*;
-
-use carbon_core::{borsh, CarbonDeserialize};
+use {
+    super::super::types::*,
+    carbon_core::{borsh, CarbonDeserialize},
+};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0xc34b6848fdb0b7a0")]
+#[carbon(discriminator = "0x0c")]
 pub struct SimulateInfo {
     pub param: u8,
     pub swap_base_in_value: Option<SwapInstructionBaseIn>,

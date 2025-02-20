@@ -1,7 +1,7 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use super::KaminoVaultDecoder;
+use {
+    super::KaminoVaultDecoder,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod reserve;
 pub mod vault_state;
 
@@ -10,7 +10,7 @@ pub enum KaminoVaultAccount {
     VaultState(vault_state::VaultState),
 }
 
-impl<'a> AccountDecoder<'a> for KaminoVaultDecoder {
+impl AccountDecoder<'_> for KaminoVaultDecoder {
     type AccountType = KaminoVaultAccount;
     fn decode_account(
         &self,

@@ -1,26 +1,26 @@
 [package]
 name = "carbon-rpc-transaction-crawler-datasource"
 description = "RPC Transaction Crawler Datasource"
-license = "MIT"
+license = { workspace = true }
 version = "0.4.1"
-edition = "2018"
+edition = { workspace = true }
 
 [lib]
 crate-type = ["rlib"]
 
 [dependencies]
-solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
 solana-sdk = { workspace = true }
+solana-transaction-status = { workspace = true }
 
 carbon-core = { workspace = true }
 
-tokio = { version = "1.40.0", features = ["full"] }
-tokio-util = "0.7.12"
-async-trait = "0.1.83"
-log = "0.4.22"
-env_logger = "0.11.5"
-async-stream = "0.3.6"
-retry = "2.0.0"
-futures = "0.3.30"
-tokio-retry = "0.3.0"
+async-stream = { workspace = true }
+async-trait = { workspace = true }
+env_logger = { workspace = true }
+futures = { workspace = true }
+log = { workspace = true }
+retry = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tokio-retry = { workspace = true }
+tokio-util = { workspace = true }

@@ -1,10 +1,12 @@
-use crate::{commands::Url, handlers};
-use anyhow::{Context, Result};
-use borsh::BorshDeserialize;
-use flate2::read::ZlibDecoder;
-use solana_client::rpc_client::RpcClient;
-use solana_sdk::{commitment_config::CommitmentConfig, pubkey::Pubkey};
-use std::{fs, io::prelude::*, path::Path, str::FromStr};
+use {
+    crate::{commands::Url, handlers},
+    anyhow::{Context, Result},
+    borsh::BorshDeserialize,
+    flate2::read::ZlibDecoder,
+    solana_client::rpc_client::RpcClient,
+    solana_sdk::{commitment_config::CommitmentConfig, pubkey::Pubkey},
+    std::{fs, io::prelude::*, path::Path, str::FromStr},
+};
 
 pub fn process_pda_idl(
     program_address: String,

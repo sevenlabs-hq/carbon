@@ -1,11 +1,13 @@
-use super::super::types::*;
-use crate::accounts::fees::Fees;
-use carbon_core::{borsh, CarbonDeserialize};
+use {
+    super::super::types::*,
+    crate::accounts::fees::Fees,
+    carbon_core::{borsh, CarbonDeserialize},
+};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x1beab2349302bb8d")]
+#[carbon(discriminator = "0x06")]
 pub struct SetParams {
     pub param: u8,
     pub value: Option<u64>,

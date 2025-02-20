@@ -1,16 +1,22 @@
-use async_trait::async_trait;
-use carbon_core::{
-    error::CarbonResult,
-    instruction::{DecodedInstruction, InstructionMetadata, NestedInstruction},
-    metrics::MetricsCollection,
-    processor::Processor,
+use {
+    async_trait::async_trait,
+    carbon_core::{
+        deserialize::ArrangeAccounts,
+        error::CarbonResult,
+        instruction::{DecodedInstruction, InstructionMetadata, NestedInstruction},
+        metrics::MetricsCollection,
+        processor::Processor,
+    },
+    carbon_log_metrics::LogMetrics,
+    carbon_raydium_clmm_decoder::{
+        instructions::{swap_v2::SwapV2, RaydiumClmmInstruction},
+        RaydiumClmmDecoder,
+    },
+    carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
+    solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
+    solana_sdk::{pubkey, pubkey::Pubkey},
+    std::{env, sync::Arc},
 };
-use carbon_log_metrics::LogMetrics;
-use carbon_raydium_clmm_decoder::{instructions::RaydiumClmmInstruction, RaydiumClmmDecoder};
-use carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe};
-use solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter};
-use solana_sdk::{pubkey, pubkey::Pubkey};
-use std::{env, sync::Arc};
 
 pub const RAYDIUM_CLMM_PROGRAM_ID: Pubkey = pubkey!("CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK");
 
@@ -27,8 +33,7 @@ pub async fn main() -> CarbonResult<()> {
         }),
     );
 
-    let rpc_ws_url =
-        env::var("RPC_WS_URL").unwrap_or("wss://api.mainnet-beta.solana.com/".to_string());
+    let rpc_ws_url = env::var("RPC_WS_URL").unwrap_or("wss://api.mainnet-beta.solana.com/".to_string());
 
     log::info!("Starting with RPC: {}", rpc_ws_url);
     let block_subscribe = RpcBlockSubscribe::new(rpc_ws_url, filters);
@@ -62,6 +67,7 @@ impl Processor for RaydiumClmmInstructionProcessor {
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let signature = metadata.transaction_metadata.signature;
+        let accounts = instruction.accounts;
 
         match instruction.data {
             RaydiumClmmInstruction::CreateAmmConfig(create_amm_cfg) => {
@@ -141,9 +147,14 @@ impl Processor for RaydiumClmmInstructionProcessor {
             RaydiumClmmInstruction::Swap(swap) => {
                 log::info!("Swap: signature: {signature}, swap: {swap:?}");
             }
-            RaydiumClmmInstruction::SwapV2(swap_v2) => {
-                log::info!("SwapV2: signature: {signature}, swap_v2: {swap_v2:?}");
-            }
+            RaydiumClmmInstruction::SwapV2(swap_v2) => match SwapV2::arrange_accounts(&accounts) {
+                Some(accounts) => {
+                    log::info!(
+                            "SwapV2: signature: {signature}, swap_v2: {swap_v2:?}, accounts: {accounts:?}",
+                        );
+                }
+                None => log::error!("Failed to arrange accounts for SwapV2 {}", accounts.len()),
+            },
             RaydiumClmmInstruction::SwapRouterBaseIn(swap_base_in) => {
                 log::info!(
                     "SwapRouterBaseIn: signature: {signature}, swap_base_in: {swap_base_in:?}"

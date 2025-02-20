@@ -143,7 +143,7 @@ pub enum MeteoraDlmmInstruction {
     GoToABinEvent(go_to_a_bin_event::GoToABinEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for MeteoraDlmmDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDlmmDecoder {
     type InstructionType = MeteoraDlmmInstruction;
 
     fn decode_instruction(

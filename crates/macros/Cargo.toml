@@ -1,17 +1,17 @@
 [package]
 name = "carbon-macros"
 version = "0.4.1"
-edition = "2018"
+edition = { workspace = true }
 description = "Macros for Carbon"
-license = "MIT"
+license = { workspace = true }
 
 [dependencies]
-solana-transaction-status = { workspace = true }
 solana-client = { workspace = true }
 solana-sdk = { workspace = true }
+solana-transaction-status = { workspace = true }
 
-hex = "0.4.3"
-paste = "1.0.15"
+hex = { workspace = true }
+paste = { workspace = true }
 
 [lib]
 crate-type = ["rlib"]

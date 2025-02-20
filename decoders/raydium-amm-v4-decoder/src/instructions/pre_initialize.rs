@@ -3,7 +3,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0xff5c572dc6acec02")]
+#[carbon(discriminator = "0x0a")]
 pub struct PreInitialize {
     pub nonce: u8,
 }

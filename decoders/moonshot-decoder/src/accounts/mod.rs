@@ -1,7 +1,7 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use super::MoonshotDecoder;
+use {
+    super::MoonshotDecoder,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod config_account;
 pub mod curve_account;
 
@@ -10,7 +10,7 @@ pub enum MoonshotAccount {
     CurveAccount(curve_account::CurveAccount),
 }
 
-impl<'a> AccountDecoder<'a> for MoonshotDecoder {
+impl AccountDecoder<'_> for MoonshotDecoder {
     type AccountType = MoonshotAccount;
     fn decode_account(
         &self,

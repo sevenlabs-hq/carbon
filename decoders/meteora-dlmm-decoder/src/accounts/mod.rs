@@ -1,7 +1,7 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use super::MeteoraDlmmDecoder;
+use {
+    super::MeteoraDlmmDecoder,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod bin_array;
 pub mod bin_array_bitmap_extension;
 pub mod lb_pair;
@@ -20,7 +20,7 @@ pub enum MeteoraDlmmAccount {
     PresetParameter(preset_parameter::PresetParameter),
 }
 
-impl<'a> AccountDecoder<'a> for MeteoraDlmmDecoder {
+impl AccountDecoder<'_> for MeteoraDlmmDecoder {
     type AccountType = MeteoraDlmmAccount;
     fn decode_account(
         &self,

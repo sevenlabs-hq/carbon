@@ -3,7 +3,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0xfcdb123057b71a9a")]
+#[carbon(discriminator = "0x02")]
 pub struct MonitorStep {
     pub plan_order_limit: u16,
     pub place_order_limit: u16,

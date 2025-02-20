@@ -1,9 +1,9 @@
 [package]
 name = "carbon-cli"
 version = "0.4.1"
-edition = "2018"
+edition = { workspace = true }
 description = "CLI for Carbon"
-license = "MIT"
+license = { workspace = true }
 
 [[bin]]
 name = "carbon-cli"
@@ -11,22 +11,20 @@ path = "src/main.rs"
 
 [dependencies]
 carbon-core = { workspace = true }
+solana-client = { workspace = true }
 solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
-solana-client = { workspace = true }
 
-anyhow = "1.0.86"
-serde_json = "1.0.125"
-serde = { version = "1.0.208", features = ["derive"] }
-borsh = { version = "1.5.1", features = ["derive"] }
-console = "0.15.8"
-dialoguer = { version = "0.11.0", default-features = false, features = [
-    "editor",
-] }
-indicatif = "0.17.8"
-clap = { version = "4.5.4", features = ["derive"] }
-askama = "0.12.1"
-hex = "0.4.3"
-sha2 = "0.10.8"
-heck = "0.5.0"
-flate2 = "1.0.35"
+anyhow = { workspace = true }
+askama = { workspace = true }
+borsh = { workspace = true, features = ["derive"] }
+clap = { workspace = true, features = ["derive"] }
+console = { workspace = true }
+dialoguer = { workspace = true, default-features = false, features = ["editor"] }
+flate2 = { workspace = true }
+heck = { workspace = true }
+hex = { workspace = true }
+indicatif = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sha2 = { workspace = true }

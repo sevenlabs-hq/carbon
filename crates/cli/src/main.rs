@@ -1,6 +1,8 @@
-use anyhow::Context;
-use clap::Parser;
-use commands::{Cli, Commands, IdlSource, IdlStandard};
+use {
+    anyhow::Context,
+    clap::Parser,
+    commands::{Cli, Commands, IdlSource, IdlStandard},
+};
 
 pub mod accounts;
 pub mod commands;

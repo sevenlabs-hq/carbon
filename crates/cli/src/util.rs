@@ -1,9 +1,11 @@
-use crate::{
-    idl::Idl,
-    legacy_idl::{LegacyIdl, LegacyIdlType},
+use {
+    crate::{
+        idl::Idl,
+        legacy_idl::{LegacyIdl, LegacyIdlType},
+    },
+    anyhow::Result,
+    std::fs::File,
 };
-use anyhow::Result;
-use std::fs::File;
 
 pub fn legacy_read_idl(idl_path: &str) -> Result<LegacyIdl> {
     let file = File::open(idl_path).unwrap();
@@ -60,10 +62,7 @@ pub fn idl_type_to_rust_type(idl_type: &LegacyIdlType) -> (String, bool) {
             (format!("Vec<{}>", rust_type.0), rust_type.1)
         }
         LegacyIdlType::Tuple { tuple } => {
-            let rust_types = tuple
-                .iter()
-                .map(|t| idl_type_to_rust_type(t))
-                .collect::<Vec<_>>();
+            let rust_types = tuple.iter().map(idl_type_to_rust_type).collect::<Vec<_>>();
             (
                 format!(
                     "({})",
@@ -121,10 +120,9 @@ pub fn idl_type_to_rust_type(idl_type: &LegacyIdlType) -> (String, bool) {
 pub fn is_big_array(rust_type: &str) -> bool {
     if rust_type.starts_with("[") && rust_type.ends_with("]") {
         if let Some(semicolon_index) = rust_type.find(';') {
-            if let Some(size_str) = rust_type[semicolon_index + 1..rust_type.len() - 1]
+            if let Ok(size_str) = rust_type[semicolon_index + 1..rust_type.len() - 1]
                 .trim()
                 .parse::<usize>()
-                .ok()
             {
                 return size_str > 32;
             }

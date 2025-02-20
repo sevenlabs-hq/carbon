@@ -1,7 +1,7 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use super::RaydiumAmmV4Decoder;
+use {
+    super::RaydiumAmmV4Decoder,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod amm_info;
 pub mod fees;
 pub mod target_orders;
@@ -12,7 +12,7 @@ pub enum RaydiumAmmV4Account {
     AmmInfo(amm_info::AmmInfo),
 }
 
-impl<'a> AccountDecoder<'a> for RaydiumAmmV4Decoder {
+impl AccountDecoder<'_> for RaydiumAmmV4Decoder {
     type AccountType = RaydiumAmmV4Account;
     fn decode_account(
         &self,

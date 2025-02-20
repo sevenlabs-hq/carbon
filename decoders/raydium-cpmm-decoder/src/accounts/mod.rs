@@ -1,7 +1,7 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use super::RaydiumCpmmDecoder;
+use {
+    super::RaydiumCpmmDecoder,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod amm_config;
 pub mod observation_state;
 pub mod pool_state;

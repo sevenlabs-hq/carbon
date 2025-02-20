@@ -31,7 +31,7 @@ pub enum JupiterLimitOrder2Instruction {
     CreateOrderEvent(create_order_event::CreateOrderEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for JupiterLimitOrder2Decoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for JupiterLimitOrder2Decoder {
     type InstructionType = JupiterLimitOrder2Instruction;
 
     fn decode_instruction(

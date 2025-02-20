@@ -2,17 +2,17 @@
 name = "carbon-prometheus-metrics"
 version = "0.4.1"
 description = "Prometheus Metrics"
-license = "MIT"
-edition = "2021"
+license = { workspace = true }
+edition = { workspace = true }
 
 [dependencies]
 carbon-core = { workspace = true }
 
-tokio = { version = "1.17.0", features = ["full"] }
-async-trait = "0.1.82"
-log = "0.4.22"
-metrics = "0.24.0"
-metrics-exporter-prometheus = "0.16.0"
+async-trait = { workspace = true }
+log = { workspace = true }
+metrics = { workspace = true }
+metrics-exporter-prometheus = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
 
 [lib]
 crate-type = ["rlib"]

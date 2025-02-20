@@ -1,26 +1,26 @@
 [package]
 name = "carbon-yellowstone-grpc-datasource"
 description = "Yellowstone gRPC Datasource"
-license = "MIT"
+license = { workspace = true }
 version = "0.4.1"
-edition = "2021"
+edition = { workspace = true }
 
 [lib]
 crate-type = ["rlib"]
 
 [dependencies]
+solana-client = { workspace = true }
 solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
-solana-client = { workspace = true }
 
 carbon-core = { workspace = true }
 
-yellowstone-grpc-proto = { workspace = true }
+async-trait = { workspace = true }
+env_logger = { workspace = true }
+futures = { workspace = true }
+futures-util = { workspace = true }
+log = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tokio-util = { workspace = true }
 yellowstone-grpc-client = { workspace = true }
-futures = "0.3.30"
-futures-util = "0.3.30"
-tokio = { version = "1.40.0", features = ["full"] }
-async-trait = "0.1.83"
-log = "0.4.22"
-env_logger = "0.11.5"
-tokio-util = "0.7.12"
+yellowstone-grpc-proto = { workspace = true }
