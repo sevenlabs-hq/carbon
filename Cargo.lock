@@ -888,6 +888,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-drift-v2-decoder"
+version = "0.4.1"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-helius-atlas-ws-datasource"
 version = "0.4.1"
 dependencies = [

@@ -22,7 +22,7 @@
 //! # Example
 //!
 //! ```rust
-//! 
+//!
 //! struct MyAccountDecoder;
 //!
 //! impl<'a> AccountDecoder<'a> for MyAccountDecoder {
