@@ -934,6 +934,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-jupiter-perpetuals-decoder"
+version = "0.4.1"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-jupiter-swap-decoder"
 version = "0.4.1"
 dependencies = [
