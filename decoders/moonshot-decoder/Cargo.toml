@@ -1,6 +1,6 @@
 [package]
 name = "carbon-moonshot-decoder"
-version = { workspace = true }
+version = "0.5.0"
 description = "Moonshot Decoder"
 license = { workspace = true }
 edition = { workspace = true }
