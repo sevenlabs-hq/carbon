@@ -899,6 +899,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-fluxbeam-decoder"
+version = "0.4.1"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-helius-atlas-ws-datasource"
 version = "0.4.1"
 dependencies = [
@@ -940,6 +951,17 @@ name = "carbon-jupiter-limit-order-decoder"
 version = "0.4.1"
 dependencies = [
  "carbon-core",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
+name = "carbon-jupiter-perpetuals-decoder"
+version = "0.4.1"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
  "serde",
  "solana-sdk",
 ]
