@@ -7,58 +7,57 @@ rust-version = "1.82"
 version = "0.5.0"
 edition = "2021"
 license = "MIT"
-publish = false
 
 [workspace.dependencies]
-# bin
-carbon-cli = { path = "crates/cli" }
-carbon-core = { path = "crates/core" }
-carbon-macros = { path = "crates/macros" }
-carbon-proc-macros = { path = "crates/proc-macros" }
+# main
+carbon-cli = { path = "crates/cli", version = "0.5.0" }
+carbon-core = { path = "crates/core", version = "0.5.0" }
+carbon-macros = { path = "crates/macros", version = "0.5.0" }
+carbon-proc-macros = { path = "crates/proc-macros", version = "0.5.0" }
 
 # datasources
-carbon-helius-atlas-ws-datasource = { path = "datasources/helius-atlas-ws-datasource" }
-carbon-rpc-block-subscribe-datasource = { path = "datasources/rpc-block-subscribe-datasource" }
-carbon-rpc-program-subscribe-datasource = { path = "datasources/rpc-program-subscribe-datasource" }
-carbon-rpc-transaction-crawler-datasource = { path = "datasources/rpc-transaction-crawler-datasource" }
-carbon-yellowstone-grpc-datasource = { path = "datasources/yellowstone-grpc-datasource" }
+carbon-helius-atlas-ws-datasource = { path = "datasources/helius-atlas-ws-datasource", version = "0.5.0" }
+carbon-rpc-block-subscribe-datasource = { path = "datasources/rpc-block-subscribe-datasource", version = "0.5.0" }
+carbon-rpc-program-subscribe-datasource = { path = "datasources/rpc-program-subscribe-datasource", version = "0.5.0" }
+carbon-rpc-transaction-crawler-datasource = { path = "datasources/rpc-transaction-crawler-datasource", version = "0.5.0" }
+carbon-yellowstone-grpc-datasource = { path = "datasources/yellowstone-grpc-datasource", version = "0.5.0" }
 
 # metrics
-carbon-log-metrics = { path = "metrics/log-metrics" }
-carbon-prometheus-metrics = { path = "metrics/prometheus-metrics" }
+carbon-log-metrics = { path = "metrics/log-metrics", version = "0.5.0" }
+carbon-prometheus-metrics = { path = "metrics/prometheus-metrics", version = "0.5.0" }
 
 # decoders
-carbon-jupiter-dca-decoder = { path = "decoders/jupiter-dca-decoder" }
-carbon-jupiter-limit-order-2-decoder = { path = "decoders/jupiter-limit-order-2-decoder" }
-carbon-jupiter-limit-order-decoder = { path = "decoders/jupiter-limit-order-decoder" }
-carbon-jupiter-swap-decoder = { path = "decoders/jupiter-swap-decoder" }
-carbon-kamino-lending-decoder = { path = "decoders/kamino-lending-decoder" }
-carbon-kamino-vault-decoder = { path = "decoders/kamino-vault-decoder" }
-carbon-memo-program-decoder = { path = "decoders/memo-program-decoder" }
-carbon-meteora-dlmm-decoder = { path = "decoders/meteora-dlmm-decoder" }
-carbon-moonshot-decoder = { path = "decoders/moonshot-decoder" }
-carbon-mpl-core-decoder = { path = "decoders/mpl-core-decoder" }
-carbon-mpl-token-metadata-decoder = { path = "decoders/mpl-token-metadata-decoder" }
-carbon-openbook-v2-decoder = { path = "decoders/openbook-v2-decoder" }
-carbon-orca-whirlpool-decoder = { path = "decoders/orca-whirlpool-decoder" }
-carbon-pumpfun-decoder = { path = "decoders/pumpfun-decoder" }
-carbon-raydium-amm-v4-decoder = { path = "decoders/raydium-amm-v4-decoder" }
-carbon-raydium-clmm-decoder = { path = "decoders/raydium-clmm-decoder" }
-carbon-raydium-cpmm-decoder = { path = "decoders/raydium-cpmm-decoder" }
-carbon-sharky-decoder = { path = "decoders/sharky-decoder" }
-carbon-system-program-decoder = { path = "decoders/system-program-decoder" }
-carbon-token-program-decoder = { path = "decoders/token-program-decoder" }
+carbon-jupiter-dca-decoder = { path = "decoders/jupiter-dca-decoder", version = "0.5.0" }
+carbon-jupiter-limit-order-2-decoder = { path = "decoders/jupiter-limit-order-2-decoder", version = "0.5.0" }
+carbon-jupiter-limit-order-decoder = { path = "decoders/jupiter-limit-order-decoder", version = "0.5.0" }
+carbon-jupiter-swap-decoder = { path = "decoders/jupiter-swap-decoder", version = "0.5.0" }
+carbon-kamino-lending-decoder = { path = "decoders/kamino-lending-decoder", version = "0.5.0" }
+carbon-kamino-vault-decoder = { path = "decoders/kamino-vault-decoder", version = "0.5.0" }
+carbon-memo-program-decoder = { path = "decoders/memo-program-decoder", version = "0.5.0" }
+carbon-meteora-dlmm-decoder = { path = "decoders/meteora-dlmm-decoder", version = "0.5.0" }
+carbon-moonshot-decoder = { path = "decoders/moonshot-decoder", version = "0.5.0" }
+carbon-mpl-core-decoder = { path = "decoders/mpl-core-decoder", version = "0.5.0" }
+carbon-mpl-token-metadata-decoder = { path = "decoders/mpl-token-metadata-decoder", version = "0.5.0" }
+carbon-openbook-v2-decoder = { path = "decoders/openbook-v2-decoder", version = "0.5.0" }
+carbon-orca-whirlpool-decoder = { path = "decoders/orca-whirlpool-decoder", version = "0.5.0" }
+carbon-pumpfun-decoder = { path = "decoders/pumpfun-decoder", version = "0.5.0" }
+carbon-raydium-amm-v4-decoder = { path = "decoders/raydium-amm-v4-decoder", version = "0.5.0" }
+carbon-raydium-clmm-decoder = { path = "decoders/raydium-clmm-decoder", version = "0.5.0" }
+carbon-raydium-cpmm-decoder = { path = "decoders/raydium-cpmm-decoder", version = "0.5.0" }
+carbon-sharky-decoder = { path = "decoders/sharky-decoder", version = "0.5.0" }
+carbon-system-program-decoder = { path = "decoders/system-program-decoder", version = "0.5.0" }
+carbon-token-program-decoder = { path = "decoders/token-program-decoder", version = "0.5.0" }
 
 # solana
-solana-account-decoder = "2.1.4"
-solana-client = "2.1.4"
-solana-sdk = "2.1.4"
-solana-transaction-status = "2.1.4"
+solana-account-decoder = "=2.1.14"
+solana-client = "=2.1.14"
+solana-sdk = "=2.1.14"
+solana-transaction-status = "=2.1.14"
 spl-memo = "5.0.0"
 spl-token = "6.0.0"
 
 # other
-anyhow = "1.0.95"
+anyhow = "1.0.96"
 askama = "0.12.1"
 async-stream = "0.3.6"
 async-trait = { version = "0.1.86" }

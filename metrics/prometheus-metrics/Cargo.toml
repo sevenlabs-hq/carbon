@@ -1,6 +1,6 @@
 [package]
 name = "carbon-prometheus-metrics"
-version = { workspace = true }
+version = "0.5.0"
 description = "Prometheus Metrics"
 license = { workspace = true }
 edition = { workspace = true }
