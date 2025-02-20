@@ -1,6 +1,6 @@
 [package]
 name = "carbon-jupiter-limit-order-decoder"
-version = "0.4.1"
+version = { workspace = true }
 description = "Jupiter Limit Order Decoder"
 license = { workspace = true }
 edition = { workspace = true }

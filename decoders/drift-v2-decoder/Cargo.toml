@@ -1,8 +1,9 @@
 [package]
 name = "carbon-drift-v2-decoder"
-version = "0.4.1"
+version = { workspace = true }
 description = "Drift v2 Decoder"
 edition = { workspace = true }
+license = { workspace = true }
 
 [lib]
 crate-type = ["rlib"]
