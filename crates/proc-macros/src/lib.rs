@@ -174,7 +174,7 @@ pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream
 /// # Example
 ///
 /// ```rust
-/// 
+///
 /// #[derive(CarbonDeserialize)]
 /// #[carbon(discriminator = "0x1234")]
 /// struct MyStruct {
@@ -339,7 +339,7 @@ fn get_discriminator(attrs: &[syn::Attribute]) -> Option<quote::__private::Token
 /// # Example
 ///
 /// ```rust
-/// 
+///
 /// let instructions_enum_name: Ident = parse_quote!(InstructionsEnum);
 /// let instruction_types_enum_name: Ident = parse_quote!(InstructionTypesEnum);
 /// let programs_enum_name: Ident = parse_quote!(ProgramsEnum);
@@ -402,7 +402,7 @@ struct InstructionMacroInput {
 /// # Example
 ///
 /// ```rust
-/// 
+///
 /// let program_variant: Ident = parse_quote!(MyProgram);
 /// let decoder_expr: Expr = parse_quote!(MyDecoder);
 /// let instruction_type: TypePath = parse_quote!(MyInstructionType);
@@ -472,7 +472,7 @@ struct InstructionEntry {
 /// # Example
 ///
 /// ```rust
-/// 
+///
 /// let input = parse_quote! {
 ///     MyInstructionsEnum, MyInstructionTypesEnum, MyProgramsEnum,
 ///     MyProgram => my_decoder => MyInstruction,

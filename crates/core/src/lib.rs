@@ -71,7 +71,7 @@
 //! a basic example demonstrating how to set up a pipeline:
 //!
 //! ```rust
-//! 
+//!
 //! carbon_core::pipeline::Pipeline::builder()
 //! .datasource(transaction_crawler)
 //! .metrics(Arc::new(LogMetrics::new()))
