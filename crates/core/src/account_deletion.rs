@@ -36,7 +36,7 @@ use {
 /// # Example
 ///
 /// ```rust
-/// 
+///
 /// struct MyAccountDeletionProcessor;
 ///
 /// #[async_trait]
@@ -90,7 +90,7 @@ pub struct AccountDeletionPipe {
 /// # Example
 ///
 /// ```rust
-/// 
+///
 /// struct MyAccountDeletionPipe;
 ///
 /// #[async_trait]

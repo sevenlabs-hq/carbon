@@ -58,7 +58,7 @@ pub enum Error {
 /// # Example
 ///
 /// ```rust
-/// 
+///
 /// fn example_function(success: bool) -> CarbonResult<()> {
 ///     if success {
 ///         Ok(())

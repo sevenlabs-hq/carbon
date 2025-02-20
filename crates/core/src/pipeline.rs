@@ -160,7 +160,7 @@ pub enum ShutdownStrategy {
 /// ## Example
 ///
 /// ```rust
-/// 
+///
 /// carbon_core::pipeline::Pipeline::builder()
 /// .datasource(transaction_crawler)
 /// .metrics(Arc::new(LogMetrics::new()))

@@ -98,7 +98,7 @@
 /// # Example
 ///
 /// ```rust
-/// 
+///
 /// let transaction_schema = schema![
 ///     any
 ///     [
