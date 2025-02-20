@@ -1,0 +1,14 @@
+[package]
+name = "carbon-fluxbeam-decoder"
+version = "0.4.1"
+edition = { workspace = true }
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+carbon-core = { workspace = true }
+carbon-macros = { workspace = true }
+carbon-proc-macros = { workspace = true }
+serde = { workspace = true }
+solana-sdk = { workspace = true }
