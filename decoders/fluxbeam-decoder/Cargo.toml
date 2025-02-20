@@ -1,6 +1,7 @@
 [package]
 name = "carbon-fluxbeam-decoder"
 version = "0.4.1"
+description = "Fluxbeam Decoder"
 edition = { workspace = true }
 
 [lib]
