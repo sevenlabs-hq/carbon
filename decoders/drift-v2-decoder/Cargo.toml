@@ -1,6 +1,6 @@
 [package]
 name = "carbon-drift-v2-decoder"
-version = { workspace = true }
+version = "0.5.0"
 description = "Drift v2 Decoder"
 edition = { workspace = true }
 license = { workspace = true }
