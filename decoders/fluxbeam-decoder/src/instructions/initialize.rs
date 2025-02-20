@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xafaf6d1f0d989bed")]
-pub struct Initialize{
+pub struct Initialize {
     pub fees: Fees,
     pub swap_curve: SwapCurve,
 }
@@ -25,21 +25,14 @@ pub struct InitializeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Initialize {
     type ArrangedAccounts = InitializeInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            swap,
-            authority,
-            token_a,
-            token_b,
-            pool,
-            fee,
-            destination,
-            token_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [swap, authority, token_a, token_b, pool, fee, destination, token_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(InitializeInstructionAccounts {
             swap: swap.pubkey,
