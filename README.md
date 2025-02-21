@@ -232,6 +232,7 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-sharky-decoder` | SharkyFi Decoder | SHARKobtfF1bHhxD2eqftjHBdVSCbKo9JtgK71FhELP |
 | `carbon-moonshot-decoder` | Moonshot Decoder | MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG |
 | `carbon-raydium-liquidity-locking-decoder` | Raydium Liquidity Locking Decoder | MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG |
+| `carbon-raydium-liquidity-locking-decoder` | Raydium Liquidity Locking Decoder | MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG |
 
 ## License
 
