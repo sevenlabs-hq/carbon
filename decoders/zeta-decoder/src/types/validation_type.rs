@@ -3,6 +3,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-pub struct SetTestTimeParams {
-    pub time: i64,
+pub enum ValidationType {
+    Place,
+    Cancel,
+    OpenOrders,
+    Liquidate,
 }
