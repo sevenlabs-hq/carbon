@@ -11,6 +11,7 @@ pub struct TokenMint {
     pub mint_params: TokenMintParams,
 }
 
+#[derive(Debug)]
 pub struct TokenMintInstructionAccounts {
     pub sender: solana_sdk::pubkey::Pubkey,
     pub backend_authority: solana_sdk::pubkey::Pubkey,

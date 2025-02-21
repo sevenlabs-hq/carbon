@@ -72,6 +72,7 @@ anyhow = "1.0.96"
 askama = "0.12.1"
 async-stream = "0.3.6"
 async-trait = { version = "0.1.86" }
+base64 = "0.22.1"
 bincode = "1.3.3"
 borsh = { version = "1.5.1" }
 borsh-derive-internal = "0.10.3"
