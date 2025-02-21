@@ -46,9 +46,9 @@ carbon-pumpfun-decoder = { path = "decoders/pumpfun-decoder", version = "0.5.0" 
 carbon-raydium-amm-v4-decoder = { path = "decoders/raydium-amm-v4-decoder", version = "0.5.0" }
 carbon-raydium-clmm-decoder = { path = "decoders/raydium-clmm-decoder", version = "0.5.0" }
 carbon-raydium-cpmm-decoder = { path = "decoders/raydium-cpmm-decoder", version = "0.5.0" }
-carbon-raydium-liquidity-locking-decoder = { path = "decoders/carbon-raydium-liquidity-locking-decoder", version = "0.5.0" }
 carbon-sharky-decoder = { path = "decoders/sharky-decoder", version = "0.5.0" }
 carbon-stabble-stable-swap-decoder = { path = "decoders/carbon-stabble-stable-swap-decoder", version = "0.5.0" }
+carbon-stabble-weighted-swap-decoder = { path = "decoders/carbon-stabble-weighted-swap-decoder", version = "0.5.0" }
 carbon-system-program-decoder = { path = "decoders/system-program-decoder", version = "0.5.0" }
 carbon-token-program-decoder = { path = "decoders/token-program-decoder", version = "0.5.0" }
 carbon-zeta-decoder = { path = "decoders/zeta-decoder", version = "0.5.0" }
