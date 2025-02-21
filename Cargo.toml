@@ -33,6 +33,7 @@ carbon-jupiter-limit-order-decoder = { path = "decoders/jupiter-limit-order-deco
 carbon-jupiter-swap-decoder = { path = "decoders/jupiter-swap-decoder", version = "0.5.0" }
 carbon-kamino-lending-decoder = { path = "decoders/kamino-lending-decoder", version = "0.5.0" }
 carbon-kamino-vault-decoder = { path = "decoders/kamino-vault-decoder", version = "0.5.0" }
+carbon-lifinity-amm-v2-decoder = { path = "decoders/lifinity-amm-v2-decoder", version = "0.5.0" }
 carbon-memo-program-decoder = { path = "decoders/memo-program-decoder", version = "0.5.0" }
 carbon-meteora-dlmm-decoder = { path = "decoders/meteora-dlmm-decoder", version = "0.5.0" }
 carbon-moonshot-decoder = { path = "decoders/moonshot-decoder", version = "0.5.0" }
