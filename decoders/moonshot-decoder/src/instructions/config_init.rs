@@ -11,6 +11,7 @@ pub struct ConfigInit {
     pub data: ConfigParams,
 }
 
+#[derive(Debug)]
 pub struct ConfigInitInstructionAccounts {
     pub config_authority: solana_sdk::pubkey::Pubkey,
     pub config_account: solana_sdk::pubkey::Pubkey,
