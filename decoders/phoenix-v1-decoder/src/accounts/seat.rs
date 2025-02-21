@@ -1,8 +1,7 @@
 use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+#[derive(CarbonDeserialize, Debug)]
+#[carbon(discriminator = "0x5ae4165aa256ad1a")]
 pub struct Seat {
     pub discriminant: u64,
     pub market: solana_sdk::pubkey::Pubkey,
