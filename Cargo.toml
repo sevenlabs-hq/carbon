@@ -33,6 +33,7 @@ carbon-jupiter-limit-order-decoder = { path = "decoders/jupiter-limit-order-deco
 carbon-jupiter-swap-decoder = { path = "decoders/jupiter-swap-decoder", version = "0.5.0" }
 carbon-kamino-lending-decoder = { path = "decoders/kamino-lending-decoder", version = "0.5.0" }
 carbon-kamino-vault-decoder = { path = "decoders/kamino-vault-decoder", version = "0.5.0" }
+carbon-lifinity-amm-v2-decoder = { path = "decoders/lifinity-amm-v2-decoder", version = "0.5.0" }
 carbon-memo-program-decoder = { path = "decoders/memo-program-decoder", version = "0.5.0" }
 carbon-meteora-dlmm-decoder = { path = "decoders/meteora-dlmm-decoder", version = "0.5.0" }
 carbon-moonshot-decoder = { path = "decoders/moonshot-decoder", version = "0.5.0" }
@@ -40,14 +41,17 @@ carbon-mpl-core-decoder = { path = "decoders/mpl-core-decoder", version = "0.5.0
 carbon-mpl-token-metadata-decoder = { path = "decoders/mpl-token-metadata-decoder", version = "0.5.0" }
 carbon-openbook-v2-decoder = { path = "decoders/openbook-v2-decoder", version = "0.5.0" }
 carbon-orca-whirlpool-decoder = { path = "decoders/orca-whirlpool-decoder", version = "0.5.0" }
+carbon-phoenix-v1-decoder = { path = "decoders/phoenix-v1-decoder", version = "0.5.0" }
 carbon-pumpfun-decoder = { path = "decoders/pumpfun-decoder", version = "0.5.0" }
 carbon-raydium-amm-v4-decoder = { path = "decoders/raydium-amm-v4-decoder", version = "0.5.0" }
 carbon-raydium-clmm-decoder = { path = "decoders/raydium-clmm-decoder", version = "0.5.0" }
 carbon-raydium-cpmm-decoder = { path = "decoders/raydium-cpmm-decoder", version = "0.5.0" }
 carbon-sharky-decoder = { path = "decoders/sharky-decoder", version = "0.5.0" }
+carbon-stabble-stable-swap-decoder = { path = "decoders/carbon-stabble-stable-swap-decoder", version = "0.5.0" }
 carbon-stabble-weighted-swap-decoder = { path = "decoders/carbon-stabble-weighted-swap-decoder", version = "0.5.0" }
 carbon-system-program-decoder = { path = "decoders/system-program-decoder", version = "0.5.0" }
 carbon-token-program-decoder = { path = "decoders/token-program-decoder", version = "0.5.0" }
+carbon-zeta-decoder = { path = "decoders/zeta-decoder", version = "0.5.0" }
 
 # solana
 solana-account-decoder = "=2.1.14"
