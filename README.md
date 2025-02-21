@@ -231,7 +231,7 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-openbook-v2-decoder`           | Openbook V2 Decoder                   | opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb  |
 | `carbon-sharky-decoder`                | SharkyFi Decoder                      | SHARKobtfF1bHhxD2eqftjHBdVSCbKo9JtgK71FhELP  |
 | `carbon-moonshot-decoder`              | Moonshot Decoder                      | MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG  |
-| `carbon-lifinity-amm-v2-decoder`           | Lifinity V2 Decoder                   | 2wT8Yq49kHgDzXuPxZSaeLaH1qbmGXtEyPy64bL7aD3c  |
+| `carbon-lifinity-amm-v2-decoder`       | Lifinity V2 Decoder                   | 2wT8Yq49kHgDzXuPxZSaeLaH1qbmGXtEyPy64bL7aD3c |
 
 ## License
 
