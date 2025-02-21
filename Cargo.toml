@@ -15,6 +15,7 @@ carbon-cli = { path = "crates/cli" }
 carbon-core = { path = "crates/core" }
 carbon-macros = { path = "crates/macros" }
 carbon-proc-macros = { path = "crates/proc-macros" }
+carbon-test-utils = { path = "crates/test-utils" }
 
 # datasources
 carbon-helius-atlas-ws-datasource = { path = "datasources/helius-atlas-ws-datasource" }
@@ -28,17 +29,24 @@ carbon-log-metrics = { path = "metrics/log-metrics" }
 carbon-prometheus-metrics = { path = "metrics/prometheus-metrics" }
 
 # decoders
+carbon-memo-program-decoder = { path = "decoders/memo-program-decoder" }
+carbon-system-program-decoder = { path = "decoders/system-program-decoder" }
+carbon-token-2022-program-decoder = { path = "decoders/token-2022-program-decoder" }
+carbon-token-program-decoder = { path = "decoders/token-program-decoder" }
+
+carbon-fluxbeam-decoder = { path = "decoders/fluxbeam-decoder" }
 carbon-jupiter-dca-decoder = { path = "decoders/jupiter-dca-decoder" }
 carbon-jupiter-limit-order-2-decoder = { path = "decoders/jupiter-limit-order-2-decoder" }
 carbon-jupiter-limit-order-decoder = { path = "decoders/jupiter-limit-order-decoder" }
+carbon-jupiter-perpetuals-decoder = { path = "decoders/jupiter-perpetuals-decoder" }
 carbon-jupiter-swap-decoder = { path = "decoders/jupiter-swap-decoder" }
 carbon-kamino-lending-decoder = { path = "decoders/kamino-lending-decoder" }
 carbon-kamino-vault-decoder = { path = "decoders/kamino-vault-decoder" }
-carbon-memo-program-decoder = { path = "decoders/memo-program-decoder" }
 carbon-meteora-dlmm-decoder = { path = "decoders/meteora-dlmm-decoder" }
 carbon-moonshot-decoder = { path = "decoders/moonshot-decoder" }
 carbon-mpl-core-decoder = { path = "decoders/mpl-core-decoder" }
 carbon-mpl-token-metadata-decoder = { path = "decoders/mpl-token-metadata-decoder" }
+carbon-name-service-decoder = { path = "decoders/name-service-decoder" }
 carbon-openbook-v2-decoder = { path = "decoders/openbook-v2-decoder" }
 carbon-orca-whirlpool-decoder = { path = "decoders/orca-whirlpool-decoder" }
 carbon-pumpfun-decoder = { path = "decoders/pumpfun-decoder" }
@@ -46,8 +54,6 @@ carbon-raydium-amm-v4-decoder = { path = "decoders/raydium-amm-v4-decoder" }
 carbon-raydium-clmm-decoder = { path = "decoders/raydium-clmm-decoder" }
 carbon-raydium-cpmm-decoder = { path = "decoders/raydium-cpmm-decoder" }
 carbon-sharky-decoder = { path = "decoders/sharky-decoder" }
-carbon-system-program-decoder = { path = "decoders/system-program-decoder" }
-carbon-token-program-decoder = { path = "decoders/token-program-decoder" }
 
 # solana
 solana-account-decoder = "2.1.4"
@@ -62,6 +68,7 @@ anyhow = "1.0.95"
 askama = "0.12.1"
 async-stream = "0.3.6"
 async-trait = { version = "0.1.86" }
+base64 = "0.22.1"
 bincode = "1.3.3"
 borsh = { version = "1.5.1" }
 borsh-derive-internal = "0.10.3"
