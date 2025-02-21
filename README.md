@@ -233,6 +233,7 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-moonshot-decoder` | Moonshot Decoder | MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG |
 | `carbon-raydium-liquidity-locking-decoder` | Raydium Liquidity Locking Decoder | MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG |
 | `carbon-stabble-stable-swap-decoder` | Stabble Stable Swap Decoder | swapNyd8XiQwJ6ianp9snpu4brUqFxadzvHebnAXjJZ |
+| `carbon-lifinity-amm-v2-decoder` | Lifinity V2 Decoder | 2wT8Yq49kHgDzXuPxZSaeLaH1qbmGXtEyPy64bL7aD3c |
 
 ## License
 
