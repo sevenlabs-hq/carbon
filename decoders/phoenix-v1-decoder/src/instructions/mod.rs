@@ -1,4 +1,4 @@
-use super::PhoenixV1Decoder;
+use super::PhoenixDecoder;
 pub mod cancel_all_orders;
 pub mod cancel_all_orders_with_free_funds;
 pub mod cancel_multiple_orders_by_id;
@@ -38,7 +38,7 @@ pub mod withdraw_funds;
     Clone,
     Hash,
 )]
-pub enum PhoenixV1Instruction {
+pub enum PhoenixInstruction {
     Swap(swap::Swap),
     SwapWithFreeFunds(swap_with_free_funds::SwapWithFreeFunds),
     PlaceLimitOrder(place_limit_order::PlaceLimitOrder),
@@ -73,42 +73,42 @@ pub enum PhoenixV1Instruction {
     ChangeFeeRecipient(change_fee_recipient::ChangeFeeRecipient),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for PhoenixV1Decoder {
-    type InstructionType = PhoenixV1Instruction;
+impl<'a> carbon_core::instruction::InstructionDecoder<'a> for PhoenixDecoder {
+    type InstructionType = PhoenixInstruction;
 
     fn decode_instruction(
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         carbon_core::try_decode_instructions!(instruction,
-            PhoenixV1Instruction::Swap => swap::Swap,
-            PhoenixV1Instruction::SwapWithFreeFunds => swap_with_free_funds::SwapWithFreeFunds,
-            PhoenixV1Instruction::PlaceLimitOrder => place_limit_order::PlaceLimitOrder,
-            PhoenixV1Instruction::PlaceLimitOrderWithFreeFunds => place_limit_order_with_free_funds::PlaceLimitOrderWithFreeFunds,
-            PhoenixV1Instruction::ReduceOrder => reduce_order::ReduceOrder,
-            PhoenixV1Instruction::ReduceOrderWithFreeFunds => reduce_order_with_free_funds::ReduceOrderWithFreeFunds,
-            PhoenixV1Instruction::CancelAllOrders => cancel_all_orders::CancelAllOrders,
-            PhoenixV1Instruction::CancelAllOrdersWithFreeFunds => cancel_all_orders_with_free_funds::CancelAllOrdersWithFreeFunds,
-            PhoenixV1Instruction::CancelUpTo => cancel_up_to::CancelUpTo,
-            PhoenixV1Instruction::CancelUpToWithFreeFunds => cancel_up_to_with_free_funds::CancelUpToWithFreeFunds,
-            PhoenixV1Instruction::CancelMultipleOrdersById => cancel_multiple_orders_by_id::CancelMultipleOrdersById,
-            PhoenixV1Instruction::CancelMultipleOrdersByIdWithFreeFunds => cancel_multiple_orders_by_id_with_free_funds::CancelMultipleOrdersByIdWithFreeFunds,
-            PhoenixV1Instruction::WithdrawFunds => withdraw_funds::WithdrawFunds,
-            PhoenixV1Instruction::DepositFunds => deposit_funds::DepositFunds,
-            PhoenixV1Instruction::RequestSeat => request_seat::RequestSeat,
-            PhoenixV1Instruction::Log => log::Log,
-            PhoenixV1Instruction::PlaceMultiplePostOnlyOrders => place_multiple_post_only_orders::PlaceMultiplePostOnlyOrders,
-            PhoenixV1Instruction::PlaceMultiplePostOnlyOrdersWithFreeFunds => place_multiple_post_only_orders_with_free_funds::PlaceMultiplePostOnlyOrdersWithFreeFunds,
-            PhoenixV1Instruction::InitializeMarket => initialize_market::InitializeMarket,
-            PhoenixV1Instruction::ClaimAuthority => claim_authority::ClaimAuthority,
-            PhoenixV1Instruction::NameSuccessor => name_successor::NameSuccessor,
-            PhoenixV1Instruction::ChangeMarketStatus => change_market_status::ChangeMarketStatus,
-            PhoenixV1Instruction::ChangeSeatStatus => change_seat_status::ChangeSeatStatus,
-            PhoenixV1Instruction::RequestSeatAuthorized => request_seat_authorized::RequestSeatAuthorized,
-            PhoenixV1Instruction::EvictSeat => evict_seat::EvictSeat,
-            PhoenixV1Instruction::ForceCancelOrders => force_cancel_orders::ForceCancelOrders,
-            PhoenixV1Instruction::CollectFees => collect_fees::CollectFees,
-            PhoenixV1Instruction::ChangeFeeRecipient => change_fee_recipient::ChangeFeeRecipient,
+            PhoenixInstruction::Swap => swap::Swap,
+            PhoenixInstruction::SwapWithFreeFunds => swap_with_free_funds::SwapWithFreeFunds,
+            PhoenixInstruction::PlaceLimitOrder => place_limit_order::PlaceLimitOrder,
+            PhoenixInstruction::PlaceLimitOrderWithFreeFunds => place_limit_order_with_free_funds::PlaceLimitOrderWithFreeFunds,
+            PhoenixInstruction::ReduceOrder => reduce_order::ReduceOrder,
+            PhoenixInstruction::ReduceOrderWithFreeFunds => reduce_order_with_free_funds::ReduceOrderWithFreeFunds,
+            PhoenixInstruction::CancelAllOrders => cancel_all_orders::CancelAllOrders,
+            PhoenixInstruction::CancelAllOrdersWithFreeFunds => cancel_all_orders_with_free_funds::CancelAllOrdersWithFreeFunds,
+            PhoenixInstruction::CancelUpTo => cancel_up_to::CancelUpTo,
+            PhoenixInstruction::CancelUpToWithFreeFunds => cancel_up_to_with_free_funds::CancelUpToWithFreeFunds,
+            PhoenixInstruction::CancelMultipleOrdersById => cancel_multiple_orders_by_id::CancelMultipleOrdersById,
+            PhoenixInstruction::CancelMultipleOrdersByIdWithFreeFunds => cancel_multiple_orders_by_id_with_free_funds::CancelMultipleOrdersByIdWithFreeFunds,
+            PhoenixInstruction::WithdrawFunds => withdraw_funds::WithdrawFunds,
+            PhoenixInstruction::DepositFunds => deposit_funds::DepositFunds,
+            PhoenixInstruction::RequestSeat => request_seat::RequestSeat,
+            PhoenixInstruction::Log => log::Log,
+            PhoenixInstruction::PlaceMultiplePostOnlyOrders => place_multiple_post_only_orders::PlaceMultiplePostOnlyOrders,
+            PhoenixInstruction::PlaceMultiplePostOnlyOrdersWithFreeFunds => place_multiple_post_only_orders_with_free_funds::PlaceMultiplePostOnlyOrdersWithFreeFunds,
+            PhoenixInstruction::InitializeMarket => initialize_market::InitializeMarket,
+            PhoenixInstruction::ClaimAuthority => claim_authority::ClaimAuthority,
+            PhoenixInstruction::NameSuccessor => name_successor::NameSuccessor,
+            PhoenixInstruction::ChangeMarketStatus => change_market_status::ChangeMarketStatus,
+            PhoenixInstruction::ChangeSeatStatus => change_seat_status::ChangeSeatStatus,
+            PhoenixInstruction::RequestSeatAuthorized => request_seat_authorized::RequestSeatAuthorized,
+            PhoenixInstruction::EvictSeat => evict_seat::EvictSeat,
+            PhoenixInstruction::ForceCancelOrders => force_cancel_orders::ForceCancelOrders,
+            PhoenixInstruction::CollectFees => collect_fees::CollectFees,
+            PhoenixInstruction::ChangeFeeRecipient => change_fee_recipient::ChangeFeeRecipient,
         )
     }
 }

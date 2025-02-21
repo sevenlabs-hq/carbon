@@ -1,5 +1,4 @@
 use super::super::types::*;
-
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
