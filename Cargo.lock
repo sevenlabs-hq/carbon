@@ -1224,6 +1224,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-stabble-stable-swap-decoder"
+version = "0.5.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-system-program-decoder"
 version = "0.5.0"
 dependencies = [
