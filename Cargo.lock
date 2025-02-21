@@ -996,6 +996,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-lifinity-amm-v2-decoder"
+version = "0.5.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-log-metrics"
 version = "0.5.0"
 dependencies = [
@@ -1095,6 +1106,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-phoenix-v1-decoder"
+version = "0.5.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-proc-macros"
 version = "0.5.0"
 dependencies = [
@@ -1165,6 +1187,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-raydium-liquidity-locking-decoder"
+version = "0.5.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-rpc-block-subscribe-datasource"
 version = "0.5.0"
 dependencies = [
@@ -1221,6 +1254,17 @@ dependencies = [
  "serde",
  "solana-sdk",
  "spl-token",
+]
+
+[[package]]
+name = "carbon-stabble-stable-swap-decoder"
+version = "0.5.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
 ]
 
 [[package]]
