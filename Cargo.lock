@@ -1095,6 +1095,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-phoenix-v1-decoder"
+version = "0.5.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-proc-macros"
 version = "0.5.0"
 dependencies = [
