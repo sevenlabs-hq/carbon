@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::OrcaWhirlpoolDecoder;
 pub mod close_bundled_position;
 pub mod close_position;
@@ -120,6 +122,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OrcaWhirlpoolDecoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             OrcaWhirlpoolInstruction::InitializeConfig => initialize_config::InitializeConfig,
             OrcaWhirlpoolInstruction::InitializePool => initialize_pool::InitializePool,

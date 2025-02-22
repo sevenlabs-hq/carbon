@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::OpenbookV2Decoder;
 pub mod cancel_all_and_place_orders;
 pub mod cancel_all_orders;
@@ -87,6 +89,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OpenbookV2Decoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             OpenbookV2Instruction::CreateMarket => create_market::CreateMarket,
             OpenbookV2Instruction::CloseMarket => close_market::CloseMarket,

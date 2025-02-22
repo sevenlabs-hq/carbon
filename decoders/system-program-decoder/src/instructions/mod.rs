@@ -1,4 +1,4 @@
-use crate::SystemProgramDecoder;
+use crate::{SystemProgramDecoder, PROGRAM_ID};
 pub mod advance_nonce_account;
 pub mod allocate;
 pub mod allocate_with_seed;
@@ -46,6 +46,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SystemProgramDecoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             SystemProgramInstruction::CreateAccount => create_account::CreateAccount,
             SystemProgramInstruction::Assign => assign::Assign,
