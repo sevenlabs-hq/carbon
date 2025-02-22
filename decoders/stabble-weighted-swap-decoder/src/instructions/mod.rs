@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::WeightedSwapDecoder;
 pub mod accept_owner;
 pub mod change_max_supply;
@@ -50,6 +52,10 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for WeightedSwapDecode
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             WeightedSwapInstruction::AcceptOwner => accept_owner::AcceptOwner,
             WeightedSwapInstruction::ChangeMaxSupply => change_max_supply::ChangeMaxSupply,

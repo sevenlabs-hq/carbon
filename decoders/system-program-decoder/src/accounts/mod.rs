@@ -1,7 +1,6 @@
 use {
     crate::SystemProgramDecoder,
     carbon_core::account::{AccountDecoder, DecodedAccount},
-    solana_sdk::account::ReadableAccount,
 };
 pub enum SystemProgramAccount {
     Account(Vec<u8>),
@@ -14,7 +13,7 @@ impl AccountDecoder<'_> for SystemProgramDecoder {
         &self,
         account: &solana_sdk::account::Account,
     ) -> Option<DecodedAccount<Self::AccountType>> {
-        if account.owner() != &solana_sdk::system_program::id() {
+        if !account.owner.eq(&solana_sdk::system_program::id()) {
             return None;
         }
 

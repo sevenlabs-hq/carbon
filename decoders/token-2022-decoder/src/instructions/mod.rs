@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::Token2022Decoder;
 pub mod amount_to_ui_amount;
 pub mod apply_confidential_pending_balance;
@@ -184,6 +186,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             Token2022Instruction::InitializeMint => initialize_mint::InitializeMint,
             Token2022Instruction::InitializeAccount => initialize_account::InitializeAccount,

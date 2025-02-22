@@ -1,5 +1,6 @@
 use {
     super::OrcaWhirlpoolDecoder,
+    crate::PROGRAM_ID,
     carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
 };
 pub mod fee_tier;
@@ -28,6 +29,10 @@ impl AccountDecoder<'_> for OrcaWhirlpoolDecoder {
         &self,
         account: &solana_sdk::account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
+        if !account.owner.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         if let Some(decoded_account) =
             whirlpools_config_extension::WhirlpoolsConfigExtension::deserialize(
                 account.data.as_slice(),

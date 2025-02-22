@@ -17,7 +17,7 @@ impl AccountDecoder<'_> for TokenProgramDecoder {
         &self,
         account: &solana_sdk::account::Account,
     ) -> Option<DecodedAccount<Self::AccountType>> {
-        if account.owner() != &spl_token::id() {
+        if !account.owner.eq(&spl_token::id()) {
             return None;
         }
 

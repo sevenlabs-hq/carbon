@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::FluxbeamDecoder;
 pub mod deposit_all_token_types;
 pub mod deposit_single_token_type_exact_amount_in;
@@ -36,6 +38,10 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for FluxbeamDecoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             FluxbeamInstruction::Initialize => initialize::Initialize,
             FluxbeamInstruction::Swap => swap::Swap,

@@ -1,5 +1,6 @@
 use {
     super::MplCoreProgramDecoder,
+    crate::PROGRAM_ID,
     carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
 };
 pub mod asset_v1;
@@ -22,6 +23,10 @@ impl AccountDecoder<'_> for MplCoreProgramDecoder {
         &self,
         account: &solana_sdk::account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
+        if !account.owner.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         if let Some(decoded_account) =
             plugin_header_v1::PluginHeaderV1::deserialize(account.data.as_slice())
         {
