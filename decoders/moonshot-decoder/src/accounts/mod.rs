@@ -1,5 +1,6 @@
 use {
     super::MoonshotDecoder,
+    crate::PROGRAM_ID,
     carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
 };
 pub mod config_account;
@@ -16,6 +17,10 @@ impl AccountDecoder<'_> for MoonshotDecoder {
         &self,
         account: &solana_sdk::account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
+        if !account.owner.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         if let Some(decoded_account) =
             config_account::ConfigAccount::deserialize(account.data.as_slice())
         {

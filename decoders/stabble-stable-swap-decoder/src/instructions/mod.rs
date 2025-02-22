@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::StableSwapDecoder;
 pub mod accept_owner;
 pub mod approve_strategy;
@@ -58,6 +60,10 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for StableSwapDecoder 
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             StableSwapInstruction::AcceptOwner => accept_owner::AcceptOwner,
             StableSwapInstruction::ApproveStrategy => approve_strategy::ApproveStrategy,

@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::DriftDecoder;
 pub mod add_insurance_fund_stake;
 pub mod add_perp_lp_shares;
@@ -450,6 +452,10 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for DriftDecoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             DriftInstruction::InitializeUser => initialize_user::InitializeUser,
             DriftInstruction::InitializeUserStats => initialize_user_stats::InitializeUserStats,

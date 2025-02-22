@@ -1,6 +1,5 @@
 use {
-    super::JupiterSwapDecoder,
-    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+    super::JupiterSwapDecoder, crate::PROGRAM_ID, carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize}
 };
 pub mod token_ledger;
 
@@ -14,6 +13,10 @@ impl AccountDecoder<'_> for JupiterSwapDecoder {
         &self,
         account: &solana_sdk::account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
+        if !account.owner.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         if let Some(decoded_account) =
             token_ledger::TokenLedger::deserialize(account.data.as_slice())
         {

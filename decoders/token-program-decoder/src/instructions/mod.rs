@@ -1,4 +1,4 @@
-use crate::{TokenProgramDecoder, PROGRAM_ID};
+use crate::TokenProgramDecoder;
 
 pub mod amount_to_ui_amount;
 pub mod approve;
@@ -71,7 +71,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for TokenProgramDecoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
-        if !instruction.program_id.eq(&PROGRAM_ID) {
+        if !instruction.program_id.eq(&spl_token::id()) {
             return None;
         }
 

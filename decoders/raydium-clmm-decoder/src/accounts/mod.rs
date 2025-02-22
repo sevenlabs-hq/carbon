@@ -1,5 +1,6 @@
 use {
     super::RaydiumClmmDecoder,
+    crate::PROGRAM_ID,
     carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
 };
 pub mod amm_config;
@@ -29,6 +30,10 @@ impl AccountDecoder<'_> for RaydiumClmmDecoder {
         &self,
         account: &solana_sdk::account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
+        if !account.owner.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         if let Some(decoded_account) = amm_config::AmmConfig::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,

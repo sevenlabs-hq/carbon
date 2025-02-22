@@ -1,5 +1,6 @@
 use {
     super::RaydiumAmmV4Decoder,
+    crate::PROGRAM_ID,
     carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
 };
 pub mod amm_info;
@@ -19,6 +20,10 @@ impl AccountDecoder<'_> for RaydiumAmmV4Decoder {
         &self,
         account: &solana_sdk::account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
+        if !account.owner.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         let data_size = account.data.len();
 
         match data_size {

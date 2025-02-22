@@ -1,6 +1,8 @@
 use carbon_core::account::AccountDecoder;
 use carbon_core::deserialize::CarbonDeserialize;
 
+use crate::PROGRAM_ID;
+
 use super::LifinityAmmV2Decoder;
 pub mod amm;
 
@@ -14,6 +16,10 @@ impl<'a> AccountDecoder<'a> for LifinityAmmV2Decoder {
         &self,
         account: &solana_sdk::account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
+        if !account.owner.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         if let Some(decoded_account) = amm::Amm::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,

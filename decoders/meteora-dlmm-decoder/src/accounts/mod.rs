@@ -1,5 +1,6 @@
 use {
     super::MeteoraDlmmDecoder,
+    crate::PROGRAM_ID,
     carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
 };
 pub mod bin_array;
@@ -26,6 +27,10 @@ impl AccountDecoder<'_> for MeteoraDlmmDecoder {
         &self,
         account: &solana_sdk::account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
+        if !account.owner.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         if let Some(decoded_account) =
             bin_array_bitmap_extension::BinArrayBitmapExtension::deserialize(
                 account.data.as_slice(),

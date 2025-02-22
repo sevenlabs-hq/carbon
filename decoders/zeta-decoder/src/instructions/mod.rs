@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::ZetaDecoder;
 pub mod add_market_indexes;
 pub mod add_perp_market_index;
@@ -354,6 +356,10 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for ZetaDecoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             ZetaInstruction::InitializeZetaPricing => initialize_zeta_pricing::InitializeZetaPricing,
             ZetaInstruction::UpdateZetaPricingPubkeys => update_zeta_pricing_pubkeys::UpdateZetaPricingPubkeys,

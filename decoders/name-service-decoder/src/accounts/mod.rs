@@ -1,5 +1,6 @@
 use {
     super::NameDecoder,
+    crate::PROGRAM_ID,
     carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
 };
 pub mod name_record_header;
@@ -14,6 +15,10 @@ impl AccountDecoder<'_> for NameDecoder {
         &self,
         account: &solana_sdk::account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
+        if !account.owner.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         if let Some(decoded_account) =
             name_record_header::NameRecordHeader::deserialize(account.data.as_slice())
         {

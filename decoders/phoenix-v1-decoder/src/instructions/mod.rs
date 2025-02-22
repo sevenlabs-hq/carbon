@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::PhoenixDecoder;
 pub mod cancel_all_orders;
 pub mod cancel_all_orders_with_free_funds;
@@ -80,6 +82,10 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for PhoenixDecoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             PhoenixInstruction::Swap => swap::Swap,
             PhoenixInstruction::SwapWithFreeFunds => swap_with_free_funds::SwapWithFreeFunds,
