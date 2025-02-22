@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::NameDecoder;
 pub mod create;
 pub mod delete;
@@ -30,6 +32,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for NameDecoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             NameInstruction::Create => create::Create,
             NameInstruction::Update => update::Update,

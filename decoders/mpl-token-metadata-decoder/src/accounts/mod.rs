@@ -1,5 +1,6 @@
 use {
     super::TokenMetadataDecoder,
+    crate::PROGRAM_ID,
     carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
 };
 pub mod collection_authority_record;
@@ -40,6 +41,10 @@ impl AccountDecoder<'_> for TokenMetadataDecoder {
         &self,
         account: &solana_sdk::account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
+        if !account.owner.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         if let Some(decoded_account) =
             collection_authority_record::CollectionAuthorityRecord::deserialize(
                 account.data.as_slice(),

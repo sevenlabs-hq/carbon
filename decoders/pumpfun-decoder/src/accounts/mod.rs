@@ -1,5 +1,6 @@
 use {
     super::PumpfunDecoder,
+    crate::PROGRAM_ID,
     carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
 };
 pub mod bonding_curve;
@@ -18,6 +19,10 @@ impl AccountDecoder<'_> for PumpfunDecoder {
         &self,
         account: &solana_sdk::account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
+        if !account.owner.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         if let Some(decoded_account) = global::Global::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
