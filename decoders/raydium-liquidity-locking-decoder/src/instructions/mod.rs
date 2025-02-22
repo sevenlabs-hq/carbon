@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::RaydiumLiquidityLockingDecoder;
 pub mod collect_clmm_fees_and_rewards;
 pub mod collect_cp_fees;
@@ -30,6 +32,10 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for RaydiumLiquidityLo
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             RaydiumLiquidityLockingInstruction::LockClmmPosition => lock_clmm_position::LockClmmPosition,
             RaydiumLiquidityLockingInstruction::CollectClmmFeesAndRewards => collect_clmm_fees_and_rewards::CollectClmmFeesAndRewards,

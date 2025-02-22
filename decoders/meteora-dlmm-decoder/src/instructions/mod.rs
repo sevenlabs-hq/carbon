@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::MeteoraDlmmDecoder;
 pub mod add_liquidity;
 pub mod add_liquidity_by_strategy;
@@ -150,6 +152,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDlmmDecoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             MeteoraDlmmInstruction::InitializeLbPair => initialize_lb_pair::InitializeLbPair,
             MeteoraDlmmInstruction::InitializePermissionLbPair => initialize_permission_lb_pair::InitializePermissionLbPair,

@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::KaminoLendingDecoder;
 pub mod borrow_obligation_liquidity;
 pub mod delete_referrer_state_and_short_url;
@@ -90,6 +92,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for KaminoLendingDecoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             KaminoLendingInstruction::InitLendingMarket => init_lending_market::InitLendingMarket,
             KaminoLendingInstruction::UpdateLendingMarket => update_lending_market::UpdateLendingMarket,

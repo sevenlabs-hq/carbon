@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::PumpfunDecoder;
 pub mod buy;
 pub mod complete_event;
@@ -40,6 +42,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpfunDecoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             PumpfunInstruction::Initialize => initialize::Initialize,
             PumpfunInstruction::SetParams => set_params::SetParams,

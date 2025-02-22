@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::TokenMetadataDecoder;
 pub mod _use;
 pub mod approve_collection_authority;
@@ -136,6 +138,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for TokenMetadataDecoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             TokenMetadataInstruction::CreateMetadataAccount => create_metadata_account::CreateMetadataAccount,
             TokenMetadataInstruction::UpdateMetadataAccount => update_metadata_account::UpdateMetadataAccount,
