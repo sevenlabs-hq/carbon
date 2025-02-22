@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::RaydiumAmmV4Decoder;
 pub mod admin_cancel_orders;
 pub mod create_config_account;
@@ -52,6 +54,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumAmmV4Decoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             RaydiumAmmV4Instruction::Initialize => initialize::Initialize,
             RaydiumAmmV4Instruction::Initialize2 => initialize2::Initialize2,

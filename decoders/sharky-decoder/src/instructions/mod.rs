@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::SharkyDecoder;
 pub mod close_nft_list;
 pub mod close_order_book;
@@ -56,6 +58,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SharkyDecoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             SharkyInstruction::CreateOrderBook => create_order_book::CreateOrderBook,
             SharkyInstruction::UpdateOrderBook => update_order_book::UpdateOrderBook,

@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::KaminoVaultDecoder;
 pub mod deposit;
 pub mod give_up_pending_fees;
@@ -44,6 +46,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for KaminoVaultDecoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             KaminoVaultInstruction::InitVault => init_vault::InitVault,
             KaminoVaultInstruction::UpdateReserveAllocation => update_reserve_allocation::UpdateReserveAllocation,
