@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::RaydiumClmmDecoder;
 pub mod close_position;
 pub mod collect_fund_fee;
@@ -90,6 +92,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumClmmDecoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             RaydiumClmmInstruction::CreateAmmConfig => create_amm_config::CreateAmmConfig,
             RaydiumClmmInstruction::UpdateAmmConfig => update_amm_config::UpdateAmmConfig,

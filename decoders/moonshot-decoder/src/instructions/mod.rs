@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::MoonshotDecoder;
 pub mod buy;
 pub mod config_init;
@@ -36,6 +38,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MoonshotDecoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             MoonshotInstruction::TokenMint => token_mint::TokenMint,
             MoonshotInstruction::Buy => buy::Buy,

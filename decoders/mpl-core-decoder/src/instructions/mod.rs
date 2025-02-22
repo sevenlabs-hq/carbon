@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::MplCoreProgramDecoder;
 pub mod add_collection_external_plugin_adapter_v1;
 pub mod add_collection_plugin_v1;
@@ -84,6 +86,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MplCoreProgramDecoder 
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             MplCoreProgramInstruction::CreateV1 => create_v1::CreateV1,
             MplCoreProgramInstruction::CreateCollectionV1 => create_collection_v1::CreateCollectionV1,

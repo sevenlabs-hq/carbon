@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::JupiterLimitOrderDecoder;
 pub mod cancel_expired_order;
 pub mod cancel_order;
@@ -44,6 +46,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterLimitOrderDecod
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             JupiterLimitOrderInstruction::InitializeOrder => initialize_order::InitializeOrder,
             JupiterLimitOrderInstruction::FillOrder => fill_order::FillOrder,
