@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::PerpetualsDecoder;
 pub mod add_custody;
 pub mod add_liquidity2;
@@ -144,6 +146,10 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for PerpetualsDecoder 
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             PerpetualsInstruction::Init => init::Init,
             PerpetualsInstruction::AddPool => add_pool::AddPool,

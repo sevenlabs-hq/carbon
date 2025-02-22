@@ -1,6 +1,8 @@
 use carbon_core::account::AccountDecoder;
 use carbon_core::deserialize::CarbonDeserialize;
 
+use crate::PROGRAM_ID;
+
 use super::FluxbeamDecoder;
 pub mod swap_v1;
 
@@ -14,6 +16,10 @@ impl<'a> AccountDecoder<'a> for FluxbeamDecoder {
         &self,
         account: &solana_sdk::account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
+        if !account.owner.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         if let Some(decoded_account) = swap_v1::SwapV1::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
