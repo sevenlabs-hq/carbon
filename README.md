@@ -216,7 +216,7 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-fluxbeam-decoder` | Fluxbeam Program Decoder | FLUXubRmkEi2q6K3Y9kBPg9248ggaZVsoSFhtJHSrm1X |
 | `carbon-jupiter-dca-decoder` | Jupiter DCA Program Decoder | DCA265Vj8a9CEuX1eb1LWRnDT7uK6q1xMipnNyatn23M |
 | `carbon-jupiter-limit-order-decoder` | Jupiter Limit Order Program Decoder | jupoNjAxXgZ4rjzxzPMP4oxduvQsQtZzyknqvzYNrNu |
-| `carbon-jupiter-limit-order-2-decoder` | Jupiter Limit Order 2 Program Decoder | j1o2qRpjcyUwEvwtcfhE-Qefh773ZgjxcVRry7LDqg5X |
+| `carbon-jupiter-limit-order-2-decoder` | Jupiter Limit Order 2 Program Decoder | j1o2qRpjcyUwEvwtcfhEQefh773ZgjxcVRry7LDqg5X |
 | `carbon-jupiter-perpetuals-decoder` | Jupiter Perpetuals Program Decoder | PERPHjGBqRHArX4DySjwM6UJHiR3sWAatqfdBS2qQJu |
 | `carbon-jupiter-swap-decoder` | Jupiter Swap Program Decoder | JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4 |
 | `carbon-kamino-lending-decoder` | Kamino Lend Decoder | KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD |
