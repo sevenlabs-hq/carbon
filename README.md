@@ -243,6 +243,7 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-token-2022-decoder` | Token 2022 Program Decoder | TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb |
 | `carbon-token-program-decoder` | Token Program Decoder | TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA |
 | `carbon-zeta-decoder` | Zeta Program Decoder | ZETAxsqBRek56DhiGXrn75yj2NHU3aYUnxvHXpkf3aD |
+| `carbon-spl-associated-token-account-decoder` | Associated Token Account Decoder | ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL |
 
 ## License
 

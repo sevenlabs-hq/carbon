@@ -1257,6 +1257,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-spl-associated-token-account-decoder"
+version = "0.5.1"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-stabble-stable-swap-decoder"
 version = "0.5.1"
 dependencies = [
