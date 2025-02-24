@@ -5,7 +5,7 @@ use solana_sdk::{
 };
 use std::{fs, path::Path};
 
-mod base64_deserialize;
+mod hex_deserialize;
 mod field_as_string;
 
 #[derive(Debug, Deserialize)]
@@ -31,7 +31,7 @@ pub struct TestInstruction {
     #[serde(with = "field_as_string")]
     pub program_id: Pubkey,
     pub accounts: Vec<TestAccountMeta>,
-    #[serde(with = "base64_deserialize")]
+    #[serde(with = "hex_deserialize")]
     pub data: Vec<u8>,
 }
 

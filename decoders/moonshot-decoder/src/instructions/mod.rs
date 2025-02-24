@@ -68,10 +68,9 @@ mod tests {
         let decoder = MoonshotDecoder;
         let instruction =
             carbon_test_utils::read_instruction("../../tests/fixtures/moonshot/token_mint.json")
-                .unwrap();
+                .expect("read fixture");
         let decoded = decoder.decode_instruction(&instruction);
 
-        println!("decoded: {:?}", decoded.clone().unwrap());
         let expected = MoonshotInstruction::TokenMint(token_mint::TokenMint {
             mint_params: TokenMintParams {
                 name: "Gamestop".to_string(),
@@ -85,7 +84,7 @@ mod tests {
                 migration_target: 0,
             },
         });
-        println!("expected: {:?}", expected);
+
         assert!(matches!(decoded, Some(expected)));
     }
 
@@ -93,9 +92,9 @@ mod tests {
     fn test_decode_buy() {
         let decoder = MoonshotDecoder;
         let instruction =
-            carbon_test_utils::read_instruction("../../tests/fixtures/moonshot/buy.json").unwrap();
+            carbon_test_utils::read_instruction("../../tests/fixtures/moonshot/buy.json")
+                .expect("read fixture");
         let decoded = decoder.decode_instruction(&instruction);
-        println!("decoded: {:?}", decoded.clone().unwrap());
 
         let expected = MoonshotInstruction::Buy(buy::Buy {
             data: TradeParams {
@@ -105,7 +104,7 @@ mod tests {
                 slippage_bps: 9999,
             },
         });
-        println!("expected: {:?}", expected);
+
         assert!(matches!(decoded, Some(expected)));
     }
 
@@ -113,9 +112,9 @@ mod tests {
     fn test_decode_sell() {
         let decoder = MoonshotDecoder;
         let instruction =
-            carbon_test_utils::read_instruction("../../tests/fixtures/moonshot/sell.json").unwrap();
+            carbon_test_utils::read_instruction("../../tests/fixtures/moonshot/sell.json")
+                .expect("read fixture");
         let decoded = decoder.decode_instruction(&instruction);
-        println!("decoded: {:?}", decoded.clone().unwrap());
 
         let expected = MoonshotInstruction::Sell(sell::Sell {
             data: TradeParams {
@@ -125,7 +124,7 @@ mod tests {
                 slippage_bps: 100,
             },
         });
-        println!("expected: {:?}", expected);
+
         assert!(matches!(decoded, Some(expected)));
     }
 
