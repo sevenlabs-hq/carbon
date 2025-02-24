@@ -1,4 +1,3 @@
-use base64::{engine::general_purpose::STANDARD, Engine};
 use serde::{de, Deserializer};
 
 use super::*;
@@ -8,7 +7,5 @@ where
     D: Deserializer<'de>,
 {
     let field_string = String::deserialize(deserializer)?;
-    STANDARD
-        .decode(field_string)
-        .map_err(|e| de::Error::custom(format!("base64 decoding error: {:?}", e)))
+    hex::decode(field_string).map_err(|e| de::Error::custom(format!("hex decoding error: {:?}", e)))
 }

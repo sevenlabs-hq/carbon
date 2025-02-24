@@ -14,6 +14,7 @@ carbon-cli = { path = "crates/cli", version = "0.5.1" }
 carbon-core = { path = "crates/core", version = "0.5.1" }
 carbon-macros = { path = "crates/macros", version = "0.5.1" }
 carbon-proc-macros = { path = "crates/proc-macros", version = "0.5.1" }
+carbon-test-utils = { path = "crates/test-utils", version = "0.5.1" }
 
 # datasources
 carbon-helius-atlas-ws-datasource = { path = "datasources/helius-atlas-ws-datasource", version = "0.5.1" }
@@ -72,7 +73,6 @@ anyhow = "1.0.96"
 askama = "0.12.1"
 async-stream = "0.3.6"
 async-trait = { version = "0.1.86" }
-base64 = "0.22.1"
 bincode = "1.3.3"
 borsh = { version = "1.5.1" }
 borsh-derive-internal = "0.10.3"
