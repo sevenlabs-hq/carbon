@@ -57,7 +57,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MoonshotDecoder {
 
 #[cfg(test)]
 mod tests {
-    use carbon_core::instruction::InstructionDecoder;
+    use carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder};
     use solana_sdk::{instruction::AccountMeta, pubkey};
 
     use crate::types::{TokenMintParams, TradeParams};
@@ -93,14 +93,7 @@ mod tests {
 
     #[test]
     fn test_decode_buy() {
-        let decoder = MoonshotDecoder;
-        let instruction =
-            carbon_test_utils::read_instruction("../../tests/fixtures/moonshot/buy.json")
-                .expect("read fixture");
-        let decoded = decoder
-            .decode_instruction(&instruction)
-            .expect("decode instruction");
-
+        // Arrange
         let expected_ix = MoonshotInstruction::Buy(buy::Buy {
             data: TradeParams {
                 token_amount: 5430576418647,
@@ -152,22 +145,41 @@ mod tests {
             ),
             AccountMeta::new_readonly(pubkey!("11111111111111111111111111111111"), false),
         ];
+        let expected_arranged_accounts = buy::BuyInstructionAccounts {
+            sender: pubkey!("Ezug1uk7oTEULvBcXCngdZuJDmZ8Ed2TKY4oov4GmLLm"),
+            sender_token_account: pubkey!("6FqNPPA4W1nuvL1BHGhusSHjdNa4qJBoXyRKggAh9pb9"),
+            curve_account: pubkey!("4CYhuDhT4c9ATZpJceoQG8Du4vCjf5ZKvxsyXpJoVub4"),
+            curve_token_account: pubkey!("5Zg9kJdzYFKwS4hLzF1QvvNBYyUNpn9YWxYp6HVMknJt"),
+            dex_fee: pubkey!("3udvfL24waJcLhskRAsStNMoNUvtyXdxrWQz4hgi953N"),
+            helio_fee: pubkey!("5K5RtTWzzLp4P8Npi84ocf7F1vBsAu29N1irG4iiUnzt"),
+            mint: pubkey!("3cBFsM1wosTJi9yun6kcHhYHyJcut1MNQY28zjC4moon"),
+            config_account: pubkey!("36Eru7v11oU5Pfrojyn5oY3nETA1a1iqsw2WUu6afkM9"),
+            token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            associated_token_program: pubkey!("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
+            system_program: pubkey!("11111111111111111111111111111111"),
+        };
 
-        assert_eq!(decoded.data, expected_ix);
-        assert_eq!(decoded.accounts, expected_accounts);
-        assert_eq!(decoded.program_id, PROGRAM_ID);
-    }
-
-    #[test]
-    fn test_decode_sell() {
+        // Act
         let decoder = MoonshotDecoder;
         let instruction =
-            carbon_test_utils::read_instruction("../../tests/fixtures/moonshot/sell.json")
+            carbon_test_utils::read_instruction("../../tests/fixtures/moonshot/buy.json")
                 .expect("read fixture");
         let decoded = decoder
             .decode_instruction(&instruction)
             .expect("decode instruction");
+        let decoded_arranged_accounts =
+            buy::Buy::arrange_accounts(&instruction.accounts).expect("aranage accounts");
 
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_sell() {
+        // Arrange
         let expected_ix = MoonshotInstruction::Sell(sell::Sell {
             data: TradeParams {
                 token_amount: 157227000000000,
@@ -219,10 +231,36 @@ mod tests {
             ),
             AccountMeta::new_readonly(pubkey!("11111111111111111111111111111111"), false),
         ];
+        let expected_arranged_accounts = sell::SellInstructionAccounts {
+            sender: pubkey!("93fdoNBQF6t7aBPuPv3SGGpXyWmJVfvWPpPsBXrGqEK7"),
+            sender_token_account: pubkey!("H4QJQ3mm865pMW7Ufvq6BiSXn2P8xUCv2xFd1sWYpmmK"),
+            curve_account: pubkey!("DnTTm5JdDoZS9pY5JxxJJ9LUQx5L3MmcR5DdvHyEDruQ"),
+            curve_token_account: pubkey!("FNkJw68x21iyHrbA7yyUYyzFMmtdsNzxHWy7WwnaorEd"),
+            dex_fee: pubkey!("3udvfL24waJcLhskRAsStNMoNUvtyXdxrWQz4hgi953N"),
+            helio_fee: pubkey!("5K5RtTWzzLp4P8Npi84ocf7F1vBsAu29N1irG4iiUnzt"),
+            mint: pubkey!("3hrY3mte6rpea8UDSm4Be6D1sUJyLyLpGxFfRBvVmoon"),
+            config_account: pubkey!("36Eru7v11oU5Pfrojyn5oY3nETA1a1iqsw2WUu6afkM9"),
+            token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            associated_token_program: pubkey!("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
+            system_program: pubkey!("11111111111111111111111111111111"),
+        };
 
+        // Act
+        let decoder = MoonshotDecoder;
+        let instruction =
+            carbon_test_utils::read_instruction("../../tests/fixtures/moonshot/sell.json")
+                .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            sell::Sell::arrange_accounts(&instruction.accounts).expect("aranage accounts");
+
+        // Assert
         assert_eq!(decoded.data, expected_ix);
         assert_eq!(decoded.accounts, expected_accounts);
         assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
     }
 
     // #[test]
