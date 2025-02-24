@@ -1,0 +1,16 @@
+[package]
+name = "carbon-spl-associated-token-account-decoder"
+version = "0.5.1"
+description = "SPL Associated Token Account program decoder"
+edition = { workspace = true }
+license = { workspace = true }
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+carbon-core = { workspace = true }
+carbon-macros = { workspace = true }
+carbon-proc-macros = { workspace = true }
+serde = { workspace = true }
+solana-sdk = { workspace = true }
