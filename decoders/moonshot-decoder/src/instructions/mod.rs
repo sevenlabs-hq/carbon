@@ -58,6 +58,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MoonshotDecoder {
 #[cfg(test)]
 mod tests {
     use carbon_core::instruction::InstructionDecoder;
+    use solana_sdk::{instruction::AccountMeta, pubkey};
 
     use crate::types::{TokenMintParams, TradeParams};
 
@@ -69,7 +70,9 @@ mod tests {
         let instruction =
             carbon_test_utils::read_instruction("../../tests/fixtures/moonshot/token_mint.json")
                 .expect("read fixture");
-        let decoded = decoder.decode_instruction(&instruction);
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
 
         let expected = MoonshotInstruction::TokenMint(token_mint::TokenMint {
             mint_params: TokenMintParams {
@@ -85,7 +88,7 @@ mod tests {
             },
         });
 
-        assert!(matches!(decoded, Some(expected)));
+        assert!(matches!(decoded, expected));
     }
 
     #[test]
@@ -94,9 +97,11 @@ mod tests {
         let instruction =
             carbon_test_utils::read_instruction("../../tests/fixtures/moonshot/buy.json")
                 .expect("read fixture");
-        let decoded = decoder.decode_instruction(&instruction);
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
 
-        let expected = MoonshotInstruction::Buy(buy::Buy {
+        let expected_ix = MoonshotInstruction::Buy(buy::Buy {
             data: TradeParams {
                 token_amount: 5430576418647,
                 collateral_amount: 1640000,
@@ -104,8 +109,53 @@ mod tests {
                 slippage_bps: 9999,
             },
         });
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("Ezug1uk7oTEULvBcXCngdZuJDmZ8Ed2TKY4oov4GmLLm"),
+                true,
+            ),
+            AccountMeta::new(
+                pubkey!("6FqNPPA4W1nuvL1BHGhusSHjdNa4qJBoXyRKggAh9pb9"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("4CYhuDhT4c9ATZpJceoQG8Du4vCjf5ZKvxsyXpJoVub4"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("5Zg9kJdzYFKwS4hLzF1QvvNBYyUNpn9YWxYp6HVMknJt"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("3udvfL24waJcLhskRAsStNMoNUvtyXdxrWQz4hgi953N"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("5K5RtTWzzLp4P8Npi84ocf7F1vBsAu29N1irG4iiUnzt"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("3cBFsM1wosTJi9yun6kcHhYHyJcut1MNQY28zjC4moon"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("36Eru7v11oU5Pfrojyn5oY3nETA1a1iqsw2WUu6afkM9"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
+                false,
+            ),
+            AccountMeta::new_readonly(pubkey!("11111111111111111111111111111111"), false),
+        ];
 
-        assert!(matches!(decoded, Some(expected)));
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
     }
 
     #[test]
@@ -114,9 +164,11 @@ mod tests {
         let instruction =
             carbon_test_utils::read_instruction("../../tests/fixtures/moonshot/sell.json")
                 .expect("read fixture");
-        let decoded = decoder.decode_instruction(&instruction);
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
 
-        let expected = MoonshotInstruction::Sell(sell::Sell {
+        let expected_ix = MoonshotInstruction::Sell(sell::Sell {
             data: TradeParams {
                 token_amount: 157227000000000,
                 collateral_amount: 20990579,
@@ -124,8 +176,53 @@ mod tests {
                 slippage_bps: 100,
             },
         });
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("93fdoNBQF6t7aBPuPv3SGGpXyWmJVfvWPpPsBXrGqEK7"),
+                true,
+            ),
+            AccountMeta::new(
+                pubkey!("H4QJQ3mm865pMW7Ufvq6BiSXn2P8xUCv2xFd1sWYpmmK"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("DnTTm5JdDoZS9pY5JxxJJ9LUQx5L3MmcR5DdvHyEDruQ"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("FNkJw68x21iyHrbA7yyUYyzFMmtdsNzxHWy7WwnaorEd"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("3udvfL24waJcLhskRAsStNMoNUvtyXdxrWQz4hgi953N"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("5K5RtTWzzLp4P8Npi84ocf7F1vBsAu29N1irG4iiUnzt"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("3hrY3mte6rpea8UDSm4Be6D1sUJyLyLpGxFfRBvVmoon"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("36Eru7v11oU5Pfrojyn5oY3nETA1a1iqsw2WUu6afkM9"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
+                false,
+            ),
+            AccountMeta::new_readonly(pubkey!("11111111111111111111111111111111"), false),
+        ];
 
-        assert!(matches!(decoded, Some(expected)));
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
     }
 
     // #[test]
