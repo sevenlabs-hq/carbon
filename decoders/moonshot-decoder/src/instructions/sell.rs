@@ -11,7 +11,7 @@ pub struct Sell {
     pub data: TradeParams,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct SellInstructionAccounts {
     pub sender: solana_sdk::pubkey::Pubkey,
     pub sender_token_account: solana_sdk::pubkey::Pubkey,
