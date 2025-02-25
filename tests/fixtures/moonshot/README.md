@@ -10,3 +10,8 @@
 - [ConfigUpdate]()
 - [TradeEvent]()
 - [MigrationEvent]()
+
+## Accounts
+
+- [ConfigAccount](https://solscan.io/account/36Eru7v11oU5Pfrojyn5oY3nETA1a1iqsw2WUu6afkM9)
+- [CurveAccount](https://solscan.io/account/4CYhuDhT4c9ATZpJceoQG8Du4vCjf5ZKvxsyXpJoVub4)

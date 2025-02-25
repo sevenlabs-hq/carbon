@@ -3,7 +3,7 @@ use {
     carbon_core::{borsh, CarbonDeserialize},
 };
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(CarbonDeserialize, Debug, PartialEq, Default)]
 #[carbon(discriminator = "0xbdff6146babd1866")]
 pub struct ConfigAccount {
     pub migration_authority: solana_sdk::pubkey::Pubkey,
@@ -22,4 +22,10 @@ pub struct ConfigAccount {
     pub max_supported_token_supply: u64,
     pub bump: u8,
     pub coef_b: u32,
+    pub _reserved1: [u8; 32],
+    pub _reserved2: [u8; 32],
+    pub _reserved3: [u8; 32],
+    pub _reserved4: [u8; 32],
+    pub _reserved5: [u8; 32],
+    pub _reserved6: [u8; 32],
 }

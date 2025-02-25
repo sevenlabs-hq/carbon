@@ -1,10 +1,12 @@
 use serde::Deserialize;
 use solana_sdk::{
+    account::Account,
     instruction::{AccountMeta, Instruction},
     pubkey::Pubkey,
 };
 use std::{fs, path::Path};
 
+mod base64_deserialize;
 mod field_as_string;
 mod hex_deserialize;
 
@@ -45,6 +47,29 @@ impl From<TestInstruction> for Instruction {
     }
 }
 
+#[derive(Debug, Deserialize)]
+pub struct TestAccount {
+    #[serde(with = "base64_deserialize")]
+    pub data: Vec<u8>,
+    pub executable: bool,
+    pub lamports: u64,
+    #[serde(with = "field_as_string")]
+    pub owner: Pubkey,
+    pub rent_epoch: u64,
+}
+
+impl From<TestAccount> for Account {
+    fn from(val: TestAccount) -> Self {
+        Account {
+            data: val.data,
+            lamports: val.lamports,
+            owner: val.owner,
+            executable: val.executable,
+            rent_epoch: val.rent_epoch,
+        }
+    }
+}
+
 pub fn read_instruction<P: AsRef<Path>>(ix_path: P) -> anyhow::Result<Instruction> {
     let data = fs::read(ix_path).map_err(|e| anyhow::anyhow!("Couldn't read fixture: {e}"))?;
 
@@ -52,4 +77,13 @@ pub fn read_instruction<P: AsRef<Path>>(ix_path: P) -> anyhow::Result<Instructio
         .map_err(|e| anyhow::anyhow!("Couldn't deserialize fixture: {e}"))?;
 
     Ok(ix.into())
+}
+
+pub fn read_account<P: AsRef<Path>>(acc_path: P) -> anyhow::Result<Account> {
+    let data = fs::read(acc_path).map_err(|e| anyhow::anyhow!("Couldn't read fixture: {e}"))?;
+
+    let acc = serde_json::from_slice::<TestAccount>(&data)
+        .map_err(|e| anyhow::anyhow!("Couldn't deserialize fixture: {e}"))?;
+
+    Ok(acc.into())
 }

@@ -1294,6 +1294,7 @@ name = "carbon-test-utils"
 version = "0.5.1"
 dependencies = [
  "anyhow",
+ "base64 0.22.1",
  "hex",
  "serde",
  "serde_json",
