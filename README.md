@@ -244,6 +244,13 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-token-program-decoder` | Token Program Decoder | TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA |
 | `carbon-zeta-decoder` | Zeta Program Decoder | ZETAxsqBRek56DhiGXrn75yj2NHU3aYUnxvHXpkf3aD |
 
+## Test
+
+TODO: use `cargo test` instead, after fixing doc tests
+```sh
+cargo test -p carbon-moonshot-decoder
+```
+
 ## License
 
 We are under the [MIT license](https://github.com/sevenlabs-hq/carbon/tree/main/LICENSE.md).

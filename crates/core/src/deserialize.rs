@@ -26,6 +26,10 @@
 //! - Implement `ArrangeAccounts` when you need to access account metadata for
 //!   Solana instructions.
 
+use std::{
+    io::{Error, ErrorKind, Read, Result},
+    ops::Deref,
+};
 /// A trait for custom deserialization of types from byte slices.
 ///
 /// The `CarbonDeserialize` trait provides a method for deserializing instances
@@ -102,4 +106,51 @@ pub trait ArrangeAccounts {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts>;
+}
+
+/// A wrapper type for strings that are prefixed with their length.
+#[derive(serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone)]
+pub struct PrefixString(pub String);
+
+impl Default for PrefixString {
+    fn default() -> Self {
+        Self(String::default())
+    }
+}
+
+impl Deref for PrefixString {
+    type Target = String;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl From<PrefixString> for String {
+    fn from(val: PrefixString) -> Self {
+        val.0
+    }
+}
+
+impl std::fmt::Debug for PrefixString {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!("{:?}", self.0))
+    }
+}
+
+/// Implements the `CarbonDeserialize` trait for `PrefixString`.
+impl crate::borsh::BorshDeserialize for PrefixString {
+    #[inline]
+    fn deserialize_reader<R: Read>(reader: &mut R) -> Result<Self> {
+        // read the length of the String
+        let mut buffer = vec![0u8; 4];
+        reader.read_exact(&mut buffer)?;
+        let length = u32::deserialize(&mut buffer.as_slice())?;
+        let mut buffer = vec![0u8; length as usize];
+        reader.read_exact(&mut buffer)?;
+
+        Ok(Self(String::from_utf8(buffer).map_err(|_| {
+            Error::new(ErrorKind::InvalidData, "invalid utf8")
+        })?))
+    }
 }
