@@ -3,7 +3,7 @@ use {
     carbon_core::{borsh, CarbonDeserialize},
 };
 
-#[derive(CarbonDeserialize, Debug, PartialEq, Default)]
+#[derive(CarbonDeserialize, Debug, PartialEq)]
 #[carbon(discriminator = "0x085b531c84d8f816")]
 pub struct CurveAccount {
     pub total_supply: u64,
@@ -18,15 +18,25 @@ pub struct CurveAccount {
     pub coef_b: u32,
     pub bump: u8,
     pub migration_target: MigrationTarget,
-    pub _reserved1: [u8; 32],
-    pub _reserved2: [u8; 32],
-    pub _reserved3: [u8; 32],
-    pub _reserved4: [u8; 32],
-    pub _reserved5: [u8; 32],
-    pub _reserved6: [u8; 32],
-    pub _reserved7: [u8; 32],
-    pub _reserved8: [u8; 32],
-    pub _reserved9: [u8; 32],
-    pub _reserved10: [u8; 32],
-    pub _reserved11: [u8; 7],
+    pub _reserved: [u8; 327],
+}
+
+impl Default for CurveAccount {
+    fn default() -> Self {
+        Self {
+            total_supply: 0,
+            curve_amount: 0,
+            mint: solana_sdk::pubkey::Pubkey::default(),
+            decimals: 0,
+            collateral_currency: Currency::default(),
+            curve_type: CurveType::default(),
+            marketcap_threshold: 0,
+            marketcap_currency: Currency::default(),
+            migration_fee: 0,
+            coef_b: 0,
+            bump: 0,
+            migration_target: MigrationTarget::default(),
+            _reserved: [0; 327],
+        }
+    }
 }
