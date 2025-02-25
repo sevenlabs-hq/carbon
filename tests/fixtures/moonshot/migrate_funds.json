@@ -1,0 +1,66 @@
+{
+    "accounts": [
+        {
+            "pubkey": "Cb8Fnhp95f9dLxB3sYkNCbN3Mjxuc3v2uQZ7uVeqvNGB",
+            "is_signer": true,
+            "is_writable": false
+        },
+        {
+            "pubkey": "CGsqR7CTqTwbmAUTPnfg9Bj9GLJgkrUD9rhjh3vHEYvh",
+            "is_signer": true,
+            "is_writable": true
+        },
+        {
+            "pubkey": "AwxvCNVa16VfZZdxtSZ2DJ8VDQ17J27FYMMJc9KoWkZt",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "5JKuvPWQuYXAvvkCs7cvBFgmUdhPbaTW3ii7zGPknnHW",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "HzxySmjxfbV8nthWw7qogXZ9qH4LFUxSZVpU91n48xFf",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "5JZUMLtHBzG4PaQ6UAhVWnh2pZ1BMMKRWWpCbMxxe148",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "3udvfL24waJcLhskRAsStNMoNUvtyXdxrWQz4hgi953N",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "5K5RtTWzzLp4P8Npi84ocf7F1vBsAu29N1irG4iiUnzt",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "36Eru7v11oU5Pfrojyn5oY3nETA1a1iqsw2WUu6afkM9",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "11111111111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+            "is_signer": false,
+            "is_writable": false
+        }
+    ],
+    "data": "2ae50ae7bd3ec1ae",
+    "program_id": "MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG"
+}
