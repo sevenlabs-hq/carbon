@@ -5,8 +5,8 @@ use solana_sdk::{
 };
 use std::{fs, path::Path};
 
-mod hex_deserialize;
 mod field_as_string;
+mod hex_deserialize;
 
 #[derive(Debug, Deserialize)]
 pub struct TestAccountMeta {
@@ -44,6 +44,7 @@ impl From<TestInstruction> for Instruction {
         }
     }
 }
+
 pub fn read_instruction<P: AsRef<Path>>(ix_path: P) -> anyhow::Result<Instruction> {
     let data = fs::read(ix_path).map_err(|e| anyhow::anyhow!("Couldn't read fixture: {e}"))?;
 

@@ -3,15 +3,13 @@ use {
     carbon_core::{borsh, CarbonDeserialize},
 };
 
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone)]
 #[carbon(discriminator = "0x032ca4b87b0df5b3")]
 pub struct TokenMint {
     pub mint_params: TokenMintParams,
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct TokenMintInstructionAccounts {
     pub sender: solana_sdk::pubkey::Pubkey,
     pub backend_authority: solana_sdk::pubkey::Pubkey,
