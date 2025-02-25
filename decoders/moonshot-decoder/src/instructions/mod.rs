@@ -327,67 +327,90 @@ mod tests {
         assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
     }
 
-    // #[test]
-    // fn test_decode_migrate_funds() {
-    //     let decoder = MoonshotDecoder;
-    //     let instruction_data = vec![/* appropriate data for MigrateFunds */];
-    //     let instruction = create_instruction(instruction_data);
-    //     let decoded = decoder.decode_instruction(&instruction);
-    //     assert!(matches!(
-    //         decoded,
-    //         Some(carbon_core::instruction::DecodedInstruction::MigrateFunds(
-    //             _
-    //         ))
-    //     ));
-    // }
+    #[test]
+    fn test_decode_migrate_funds() {
+        // Arrange
+        let expected_ix = MoonshotInstruction::MigrateFunds(migrate_funds::MigrateFunds {});
+        let expected_accounts = vec![
+            AccountMeta::new_readonly(
+                pubkey!("Cb8Fnhp95f9dLxB3sYkNCbN3Mjxuc3v2uQZ7uVeqvNGB"),
+                true,
+            ),
+            AccountMeta::new(
+                pubkey!("CGsqR7CTqTwbmAUTPnfg9Bj9GLJgkrUD9rhjh3vHEYvh"),
+                true,
+            ),
+            AccountMeta::new(
+                pubkey!("AwxvCNVa16VfZZdxtSZ2DJ8VDQ17J27FYMMJc9KoWkZt"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("5JKuvPWQuYXAvvkCs7cvBFgmUdhPbaTW3ii7zGPknnHW"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("HzxySmjxfbV8nthWw7qogXZ9qH4LFUxSZVpU91n48xFf"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("5JZUMLtHBzG4PaQ6UAhVWnh2pZ1BMMKRWWpCbMxxe148"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("3udvfL24waJcLhskRAsStNMoNUvtyXdxrWQz4hgi953N"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("5K5RtTWzzLp4P8Npi84ocf7F1vBsAu29N1irG4iiUnzt"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("36Eru7v11oU5Pfrojyn5oY3nETA1a1iqsw2WUu6afkM9"),
+                false,
+            ),
+            AccountMeta::new_readonly(pubkey!("11111111111111111111111111111111"), false),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
+                false,
+            ),
+        ];
+        let expected_arranged_accounts = migrate_funds::MigrateFundsInstructionAccounts {
+            backend_authority: pubkey!("Cb8Fnhp95f9dLxB3sYkNCbN3Mjxuc3v2uQZ7uVeqvNGB"),
+            migration_authority: pubkey!("CGsqR7CTqTwbmAUTPnfg9Bj9GLJgkrUD9rhjh3vHEYvh"),
+            curve_account: pubkey!("AwxvCNVa16VfZZdxtSZ2DJ8VDQ17J27FYMMJc9KoWkZt"),
+            curve_token_account: pubkey!("5JKuvPWQuYXAvvkCs7cvBFgmUdhPbaTW3ii7zGPknnHW"),
+            migration_authority_token_account: pubkey!(
+                "HzxySmjxfbV8nthWw7qogXZ9qH4LFUxSZVpU91n48xFf"
+            ),
+            mint: pubkey!("5JZUMLtHBzG4PaQ6UAhVWnh2pZ1BMMKRWWpCbMxxe148"),
+            dex_fee_account: pubkey!("3udvfL24waJcLhskRAsStNMoNUvtyXdxrWQz4hgi953N"),
+            helio_fee_account: pubkey!("5K5RtTWzzLp4P8Npi84ocf7F1vBsAu29N1irG4iiUnzt"),
+            config_account: pubkey!("36Eru7v11oU5Pfrojyn5oY3nETA1a1iqsw2WUu6afkM9"),
+            system_program: pubkey!("11111111111111111111111111111111"),
+            token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            associated_token_program: pubkey!("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
+        };
 
-    // #[test]
-    // fn test_decode_config_init() {
-    //     let decoder = MoonshotDecoder;
-    //     let instruction_data = vec![/* appropriate data for ConfigInit */];
-    //     let instruction = create_instruction(instruction_data);
-    //     let decoded = decoder.decode_instruction(&instruction);
-    //     assert!(matches!(
-    //         decoded,
-    //         Some(carbon_core::instruction::DecodedInstruction::ConfigInit(_))
-    //     ));
-    // }
+        // Act
+        let decoder = MoonshotDecoder;
+        let instruction =
+            carbon_test_utils::read_instruction("../../tests/fixtures/moonshot/migrate_funds.json")
+                .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            migrate_funds::MigrateFunds::arrange_accounts(&instruction.accounts)
+                .expect("aranage accounts");
 
-    // #[test]
-    // fn test_decode_config_update() {
-    //     let decoder = MoonshotDecoder;
-    //     let instruction_data = vec![/* appropriate data for ConfigUpdate */];
-    //     let instruction = create_instruction(instruction_data);
-    //     let decoded = decoder.decode_instruction(&instruction);
-    //     assert!(matches!(
-    //         decoded,
-    //         Some(carbon_core::instruction::DecodedInstruction::ConfigUpdate(
-    //             _
-    //         ))
-    //     ));
-    // }
-
-    // #[test]
-    // fn test_decode_trade_event() {
-    //     let decoder = MoonshotDecoder;
-    //     let instruction_data = vec![/* appropriate data for TradeEvent */];
-    //     let instruction = create_instruction(instruction_data);
-    //     let decoded = decoder.decode_instruction(&instruction);
-    //     assert!(matches!(
-    //         decoded,
-    //         Some(carbon_core::instruction::DecodedInstruction::TradeEvent(_))
-    //     ));
-    // }
-
-    // #[test]
-    // fn test_decode_migration_event() {
-    //     let decoder = MoonshotDecoder;
-    //     let instruction_data = vec![/* appropriate data for MigrationEvent */];
-    //     let instruction = create_instruction(instruction_data);
-    //     let decoded = decoder.decode_instruction(&instruction);
-    //     assert!(matches!(
-    //         decoded,
-    //         Some(carbon_core::instruction::DecodedInstruction::MigrationEvent(_))
-    //     ));
-    // }
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
 }
