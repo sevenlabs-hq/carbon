@@ -1,0 +1,61 @@
+{
+    "accounts": [
+        {
+            "pubkey": "Ezug1uk7oTEULvBcXCngdZuJDmZ8Ed2TKY4oov4GmLLm",
+            "is_signer": true,
+            "is_writable": true
+        },
+        {
+            "pubkey": "6FqNPPA4W1nuvL1BHGhusSHjdNa4qJBoXyRKggAh9pb9",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "4CYhuDhT4c9ATZpJceoQG8Du4vCjf5ZKvxsyXpJoVub4",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "5Zg9kJdzYFKwS4hLzF1QvvNBYyUNpn9YWxYp6HVMknJt",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "3udvfL24waJcLhskRAsStNMoNUvtyXdxrWQz4hgi953N",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "5K5RtTWzzLp4P8Npi84ocf7F1vBsAu29N1irG4iiUnzt",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "3cBFsM1wosTJi9yun6kcHhYHyJcut1MNQY28zjC4moon",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "36Eru7v11oU5Pfrojyn5oY3nETA1a1iqsw2WUu6afkM9",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "11111111111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false
+        }
+    ],
+    "data": "66063d1201daebea570f9467f00400004006190000000000010f27000000000000",
+    "program_id": "MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG"
+}

@@ -1053,6 +1053,7 @@ name = "carbon-moonshot-decoder"
 version = "0.5.1"
 dependencies = [
  "carbon-core",
+ "carbon-test-utils",
  "serde",
  "solana-sdk",
 ]
@@ -1297,6 +1298,18 @@ dependencies = [
  "serde",
  "solana-sdk",
  "spl-token",
+]
+
+[[package]]
+name = "carbon-test-utils"
+version = "0.5.1"
+dependencies = [
+ "anyhow",
+ "base64 0.22.1",
+ "hex",
+ "serde",
+ "serde_json",
+ "solana-sdk",
 ]
 
 [[package]]
