@@ -228,6 +228,7 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-mpl-core-decoder`                     | MPL Core Program Decoder                  | CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d |
 | `carbon-mpl-token-metadata-decoder`           | MPL Token Metadata Program Decoder        | metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s  |
 | `carbon-name-service-decoder`                 | SPL Name Service Program Decoder          | namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX  |
+| `carbon-okx-dex-decoder`                      | OKX DEX Decoder                           | 6m2CDdhRgxpH4WjvdzxAYbGxwdGUz5MziiL5jek2kBma |
 | `carbon-openbook-v2-decoder`                  | Openbook V2 Program Decoder               | opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb  |
 | `carbon-orca-whirlpool-decoder`               | Orca Whirlpool Program Decoder            | whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc  |
 | `carbon-phoenix-v1-decoder`                   | Phoenix V1 Program Decoder                | PhoeNiXZ8ByJGLkxNfZRnkUfjvmuYqLR89jjFHGqdXY  |
@@ -250,7 +251,7 @@ Decoders for most popular Solana programs are published and maintained:
 TODO: use `cargo test` instead, after fixing doc tests
 ```sh
 cargo test -p carbon-moonshot-decoder
-
+```
 
 ## License
 
