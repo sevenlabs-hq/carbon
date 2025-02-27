@@ -45,6 +45,7 @@ carbon-moonshot-decoder = { path = "decoders/moonshot-decoder", version = "0.5.1
 carbon-mpl-core-decoder = { path = "decoders/mpl-core-decoder", version = "0.5.1" }
 carbon-mpl-token-metadata-decoder = { path = "decoders/mpl-token-metadata-decoder", version = "0.5.1" }
 carbon-name-service-decoder = { path = "decoders/name-service-decoder", version = "0.5.1" }
+carbon-okx-dex-decoder = { path = "decoders/okx-dex-decoder", version = "0.5.1" }
 carbon-openbook-v2-decoder = { path = "decoders/openbook-v2-decoder", version = "0.5.1" }
 carbon-orca-whirlpool-decoder = { path = "decoders/orca-whirlpool-decoder", version = "0.5.1" }
 carbon-phoenix-v1-decoder = { path = "decoders/phoenix-v1-decoder", version = "0.5.1" }
