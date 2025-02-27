@@ -1,0 +1,61 @@
+{
+    "accounts": [
+        {
+            "pubkey": "AiG8HZSRociZpmHGmFnHQ3eQvFxVq4HUwxXcZKZJaEr1",
+            "is_signer": true,
+            "is_writable": true
+        },
+        {
+            "pubkey": "Cb8Fnhp95f9dLxB3sYkNCbN3Mjxuc3v2uQZ7uVeqvNGB",
+            "is_signer": true,
+            "is_writable": false
+        },
+        {
+            "pubkey": "ALPoEBuBD9GMWRQrMmWd81By5GCH8X9i9HiPWBf68n8C",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "HkzfucJHWykNPSpKpduLVg2j45zafYhA1G51xPLumoon",
+            "is_signer": true,
+            "is_writable": true
+        },
+        {
+            "pubkey": "Do7VSKZ6yz1eJMg5N8GpZ5Me12jfXVTTaWTi6tgo3vFr",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "6oGTJKhWPZQ1ixiguEDvbHQJLizqUmbyL9isRvNUEGR",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "36Eru7v11oU5Pfrojyn5oY3nETA1a1iqsw2WUu6afkM9",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "11111111111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false
+        }
+    ],
+    "data": "032ca4b87b0df5b30800000047616d6573746f700400000024474d454400000068747470733a2f2f63646e2e64657873637265656e65722e636f6d2f636d732f746f6b656e732f6d657461646174612f55676e4e766179684175384b3937616f543342380900000064a7b3b6e00d010000000000000000000000",
+    "program_id": "MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG"
+}
