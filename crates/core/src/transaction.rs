@@ -54,6 +54,7 @@ pub struct TransactionMetadata {
     pub fee_payer: Pubkey,
     pub meta: solana_transaction_status::TransactionStatusMeta,
     pub message: solana_sdk::message::VersionedMessage,
+    pub block_time: Option<i64>,
 }
 
 /// Tries convert transaction update into the metadata.
@@ -91,6 +92,7 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
                 .ok_or(crate::error::Error::MissingFeePayer)?,
             meta: value.meta.clone(),
             message: value.transaction.message.clone(),
+            block_time: value.block_time,
         })
     }
 }

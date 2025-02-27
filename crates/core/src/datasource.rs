@@ -177,4 +177,5 @@ pub struct TransactionUpdate {
     pub meta: solana_transaction_status::TransactionStatusMeta,
     pub is_vote: bool,
     pub slot: u64,
+    pub block_time: Option<i64>,
 }

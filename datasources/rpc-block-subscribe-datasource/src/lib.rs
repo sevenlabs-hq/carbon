@@ -151,6 +151,7 @@ impl Datasource for RpcBlockSubscribe {
                                                 meta: meta_needed,
                                                 is_vote: false,
                                                 slot,
+                                                block_time: block.block_time,
                                             }));
 
                                             metrics
