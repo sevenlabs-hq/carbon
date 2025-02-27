@@ -4,6 +4,8 @@ version = "0.5.1"
 description = "Jupiter Perpetuals Decoder"
 edition = { workspace = true }
 license = { workspace = true }
+readme = "./README.md"
+repository = { workspace = true }
 
 [lib]
 crate-type = ["rlib"]
