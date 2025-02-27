@@ -229,6 +229,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                         meta: meta_original,
                                                         is_vote: transaction_info.is_vote,
                                                         slot: transaction_update.slot,
+                                                        block_time: None,
                                                     }));
                                                     if let Err(e) = sender.send(update) {
                                                         log::error!("Failed to send transaction update with signature {:?} at slot {}: {:?}", signature, transaction_update.slot, e);
