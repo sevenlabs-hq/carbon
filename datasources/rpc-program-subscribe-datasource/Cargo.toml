@@ -4,6 +4,8 @@ description = "RPC Program Subscribe Datasource"
 license = { workspace = true }
 version = "0.5.1"
 edition = { workspace = true }
+readme = "./README.md"
+repository = { workspace = true }
 
 [dependencies]
 solana-client = { workspace = true }

@@ -4,6 +4,8 @@ version = "0.5.1"
 edition = { workspace = true }
 description = "Core library for Carbon"
 license = { workspace = true }
+readme = "./README.md"
+repository = { workspace = true }
 
 [features]
 default = ["macros"]
