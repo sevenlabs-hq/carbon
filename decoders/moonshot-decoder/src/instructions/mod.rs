@@ -139,7 +139,7 @@ mod tests {
         // Act
         let decoder = MoonshotDecoder;
         let instruction =
-            carbon_test_utils::read_instruction("../../tests/fixtures/moonshot/token_mint_ix.json")
+            carbon_test_utils::read_instruction("tests/fixtures/token_mint_ix.json")
                 .expect("read fixture");
         let decoded = decoder
             .decode_instruction(&instruction)
@@ -226,7 +226,7 @@ mod tests {
         // Act
         let decoder = MoonshotDecoder;
         let instruction =
-            carbon_test_utils::read_instruction("../../tests/fixtures/moonshot/buy_ix.json")
+            carbon_test_utils::read_instruction("tests/fixtures/buy_ix.json")
                 .expect("read fixture");
         let decoded = decoder
             .decode_instruction(&instruction)
@@ -312,7 +312,7 @@ mod tests {
         // Act
         let decoder = MoonshotDecoder;
         let instruction =
-            carbon_test_utils::read_instruction("../../tests/fixtures/moonshot/sell_ix.json")
+            carbon_test_utils::read_instruction("tests/fixtures/sell_ix.json")
                 .expect("read fixture");
         let decoded = decoder
             .decode_instruction(&instruction)
@@ -398,7 +398,7 @@ mod tests {
         // Act
         let decoder = MoonshotDecoder;
         let instruction =
-            carbon_test_utils::read_instruction("../../tests/fixtures/moonshot/migrate_funds_ix.json")
+            carbon_test_utils::read_instruction("tests/fixtures/migrate_funds_ix.json")
                 .expect("read fixture");
         let decoded = decoder
             .decode_instruction(&instruction)
