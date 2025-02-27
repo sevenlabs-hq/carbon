@@ -4,6 +4,8 @@ version = "0.5.1"
 edition = { workspace = true }
 description = "CLI for Carbon"
 license = { workspace = true }
+readme = "./README.md"
+repository = { workspace = true }
 
 [[bin]]
 name = "carbon-cli"
