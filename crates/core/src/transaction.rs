@@ -45,8 +45,18 @@ use {
     std::{convert::TryFrom, sync::Arc},
 };
 /// Contains metadata about a transaction, including its slot, signature, fee
-/// payer, transaction status metadata and the version transaction message.
-
+/// payer, transaction status metadata, the version transaction message and its
+/// block time.
+///
+/// # Fields
+/// - `slot`: The slot number in which this transaction was processed
+/// - `signature`: The unique signature of this transaction
+/// - `fee_payer`: The public key of the fee payer account that paid for this transaction
+/// - `meta`: Transaction status metadata containing execution status, fees, balances, and other metadata
+/// - `message`: The versioned message containing the transaction instructions and account keys
+/// - `block_time`: The Unix timestamp of when the transaction was processed.
+///
+/// Note: The `block_time` field may not be returned in all scenarios.
 #[derive(Debug, Clone)]
 pub struct TransactionMetadata {
     pub slot: u64,

@@ -156,7 +156,7 @@ pub struct AccountDeletion {
 }
 
 /// Represents a transaction update in the Solana network, including transaction
-/// metadata, status, and slot information.
+/// metadata, status, slot information and block time.
 ///
 /// The `TransactionUpdate` struct provides detailed information about a
 /// transaction, including its `signature`, `transaction` data, `meta` status,
@@ -170,6 +170,9 @@ pub struct AccountDeletion {
 ///   and logs.
 /// - `is_vote`: A boolean indicating whether the transaction is a vote.
 /// - `slot`: The slot number in which the transaction was recorded.
+/// - `block_time`: The Unix timestamp of when the transaction was processed.
+///
+/// Note: The `block_time` field may not be returned in all scenarios.
 #[derive(Debug, Clone)]
 pub struct TransactionUpdate {
     pub signature: Signature,
