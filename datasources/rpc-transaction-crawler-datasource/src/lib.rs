@@ -403,6 +403,7 @@ fn task_processor(
                         meta: meta_needed,
                         is_vote: false,
                         slot: fetched_transaction.slot,
+                        block_time: fetched_transaction.block_time,
                     }));
 
 
