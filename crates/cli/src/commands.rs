@@ -89,12 +89,12 @@ impl FromStr for Url {
     }
 }
 
-impl ToString for Url {
-    fn to_string(&self) -> String {
+impl fmt::Display for Url {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Url::Mainnet => "mainnet-beta".to_string(),
-            Url::Devnet => "devnet".to_string(),
-            Url::CustomRpc(ref url) => url.clone(),
+            Url::Mainnet => write!(f, "mainnet-beta"),
+            Url::Devnet => write!(f, "devnet"),
+            Url::CustomRpc(ref url) => write!(f, "{url}"),
         }
     }
 }

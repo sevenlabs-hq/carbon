@@ -16,7 +16,6 @@ pub mod util;
 use commands::Url;
 use inquire::{error::InquireResult, required, Confirm, CustomType, InquireError, Select, Text};
 
-// carbon-cli parse --idl my_program.json --output ./src/decoders
 fn main() -> InquireResult<()> {
     match Cli::try_parse() {
         Ok(cli) => process_cli_params(cli),
