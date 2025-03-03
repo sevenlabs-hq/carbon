@@ -89,6 +89,16 @@ impl FromStr for Url {
     }
 }
 
+impl ToString for Url {
+    fn to_string(&self) -> String {
+        match *self {
+            Url::Mainnet => "mainnet-beta".to_string(),
+            Url::Devnet => "devnet".to_string(),
+            Url::CustomRpc(ref url) => url.clone(),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 pub enum IdlStandard {
     Anchor,
