@@ -4,8 +4,10 @@ description = "RPC Transaction Crawler Datasource"
 license = { workspace = true }
 version = "0.6.0"
 edition = { workspace = true }
-readme = "./README.md"
+readme = "README.md"
 repository = { workspace = true }
+keywords = ["solana", "indexer", "transaction", "datasource"]
+categories = ["encoding"]
 
 [lib]
 crate-type = ["rlib"]

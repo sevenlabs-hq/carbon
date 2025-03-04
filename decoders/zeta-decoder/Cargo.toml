@@ -4,8 +4,10 @@ version = "0.6.0"
 description = "Zeta Program Decoder"
 edition = { workspace = true }
 license = { workspace = true }
-readme = "./README.md"
+readme = "README.md"
 repository = { workspace = true }
+keywords = ["solana", "decoder", "zeta"]
+categories = ["encoding"]
 
 [lib]
 crate-type = ["rlib"]
