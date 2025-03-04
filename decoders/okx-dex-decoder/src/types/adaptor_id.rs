@@ -1,9 +1,8 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 pub enum AdaptorID {
     Bridge0,
     Bridge1,
@@ -41,5 +40,3 @@ pub enum AdaptorID {
     Bridge33,
     Debridgedln,
 }
-
-
