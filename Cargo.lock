@@ -1300,6 +1300,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-stake-program-decoder"
+version = "0.5.1"
+dependencies = [
+ "carbon-core",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-system-program-decoder"
 version = "0.5.1"
 dependencies = [
