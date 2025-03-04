@@ -4,8 +4,10 @@ version = "0.6.0"
 description = "Prometheus Metrics"
 license = { workspace = true }
 edition = { workspace = true }
-readme = "./README.md"
+readme = "README.md"
 repository = { workspace = true }
+keywords = ["solana", "prometheus", "metrics"]
+categories = ["encoding"]
 
 [dependencies]
 carbon-core = { workspace = true }

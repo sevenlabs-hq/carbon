@@ -4,8 +4,10 @@ description = "RPC Block Subscribe Datasource"
 license = { workspace = true }
 version = "0.6.0"
 edition = { workspace = true }
-readme = "./README.md"
+readme = "README.md"
 repository = { workspace = true }
+keywords = ["solana", "indexer", "block", "datasource"]
+categories = ["encoding"]
 
 [dependencies]
 solana-client = { workspace = true }
