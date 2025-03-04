@@ -4,8 +4,10 @@ version = "0.6.0"
 description = "Name Service Decoder"
 edition = { workspace = true }
 license = { workspace = true }
-readme = "./README.md"
+readme = "README.md"
 repository = { workspace = true }
+keywords = ["solana", "decoder", "name"]
+categories = ["encoding"]
 
 [lib]
 crate-type = ["rlib"]

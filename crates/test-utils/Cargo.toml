@@ -4,6 +4,8 @@ version = { workspace = true }
 edition = { workspace = true }
 description = "Testing utilities for Carbon"
 license = { workspace = true }
+keywords = ["solana", "indexer", "testing"]
+categories = ["encoding"]
 
 [dependencies]
 anyhow = { workspace = true }
