@@ -4,8 +4,10 @@ version = "0.6.0"
 description = "Sharky Decoder"
 license = { workspace = true }
 edition = { workspace = true }
-readme = "./README.md"
+readme = "README.md"
 repository = { workspace = true }
+keywords = ["solana", "decoder", "sharky"]
+categories = ["encoding"]
 
 [lib]
 crate-type = ["rlib"]
