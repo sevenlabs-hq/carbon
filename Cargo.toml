@@ -58,6 +58,7 @@ carbon-sharky-decoder = { path = "decoders/sharky-decoder", version = "0.5.1" }
 carbon-spl-associated-token-account-decoder = { path = "decoders/spl-associated-token-account-decoder", version = "0.5.1" }
 carbon-stabble-stable-swap-decoder = { path = "decoders/carbon-stabble-stable-swap-decoder", version = "0.5.1" }
 carbon-stabble-weighted-swap-decoder = { path = "decoders/carbon-stabble-weighted-swap-decoder", version = "0.5.1" }
+carbon-stake-program-decoder = { path = "decoders/carbon-stake-program-decoder", version = "0.5.1" }
 carbon-system-program-decoder = { path = "decoders/system-program-decoder", version = "0.5.1" }
 carbon-token-2022-decoder = { path = "decoders/token-2022-decoder", version = "0.5.1" }
 carbon-token-program-decoder = { path = "decoders/token-program-decoder", version = "0.5.1" }
