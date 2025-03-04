@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x85ba0f691f4c1f70")]
-pub struct FromSwapLog{
+pub struct FromSwapLog {
     pub args: SwapArgs,
     pub bridge_to_args: BridgeToArgs,
     pub offset: u8,
@@ -29,23 +29,14 @@ pub struct FromSwapLogInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for FromSwapLog {
     type ArrangedAccounts = FromSwapLogInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            payer,
-            source_token_account,
-            destination_token_account,
-            source_mint,
-            destination_mint,
-            bridge_program,
-            associated_token_program,
-            token_program,
-            token_2022_program,
-            system_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [payer, source_token_account, destination_token_account, source_mint, destination_mint, bridge_program, associated_token_program, token_program, token_2022_program, system_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(FromSwapLogInstructionAccounts {
             payer: payer.pubkey,
