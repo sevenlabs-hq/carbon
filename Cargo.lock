@@ -933,6 +933,7 @@ name = "carbon-jupiter-dca-decoder"
 version = "0.5.1"
 dependencies = [
  "carbon-core",
+ "carbon-test-utils",
  "serde",
  "solana-sdk",
 ]

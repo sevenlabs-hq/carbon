@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x8fcd03bfa2d7f531")]
 pub struct InitiateFlashFill {}
 
+#[derive(Debug, PartialEq)]
 pub struct InitiateFlashFillInstructionAccounts {
     pub keeper: solana_sdk::pubkey::Pubkey,
     pub dca: solana_sdk::pubkey::Pubkey,

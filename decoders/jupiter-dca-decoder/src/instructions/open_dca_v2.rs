@@ -14,6 +14,7 @@ pub struct OpenDcaV2 {
     pub start_at: Option<i64>,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct OpenDcaV2InstructionAccounts {
     pub dca: solana_sdk::pubkey::Pubkey,
     pub user: solana_sdk::pubkey::Pubkey,
