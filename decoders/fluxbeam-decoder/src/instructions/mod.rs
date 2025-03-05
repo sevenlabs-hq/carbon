@@ -143,4 +143,108 @@ mod tests {
         assert_eq!(decoded.program_id, PROGRAM_ID);
         assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
     }
+
+    #[test]
+    fn test_decode_swap() {
+        // Arrange
+        let expected_ix = FluxbeamInstruction::Swap(swap::Swap {
+            amount_in: 800000000,
+            minimum_amount_out: 0,
+        });
+        let expected_accounts = vec![
+            AccountMeta::new_readonly(
+                pubkey!("6bJUX2XqmGp6nZGrnEoZh3mAt8M73G1AZbgUhT4hooAC"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("2CQ6cW8RzowMEcdEiRRgEWzaYjpLWaHv1WoVyWfF8nsY"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("AB1daTZcHAySAexN1SpacinrwRixNP7nLd31TVnNXMLx"),
+                true,
+            ),
+            AccountMeta::new(
+                pubkey!("DX1mX7WN7jQJXzaiiQR6W1G69xHg3kXjDtrEyYXxgZAm"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("jM5cFHP9iPj9en1fJFJLfRpLt68Y81UdWfXHv9an3HK"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("8a4WD4hbfuPyiistrVU8qcpwMcJmf3RBuw1s1tvVYJ1Q"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("Ew1Aj2Mm82KCN9dtMNnhVXZDjUfiiu18CNj9Qx6Vystk"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("7XeJQykinTiK1EveXb9y4zodFtdtu1YwkygBmWbz1pC3"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("396TeW1MeyQvFGgxjaxJxRFkuiir4Ye4imuxVDcqfE88"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("So11111111111111111111111111111111111111112"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("3YkBR2w1ttpWKzdP5XQtzXqsGFS9i1mGg9pDrqn4e9j6"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("396TeW1MeyQvFGgxjaxJxRFkuiir4Ye4imuxVDcqfE88"),
+                false,
+            ),
+        ];
+        let expected_arranged_accounts = swap::SwapInstructionAccounts {
+            swap: pubkey!("6bJUX2XqmGp6nZGrnEoZh3mAt8M73G1AZbgUhT4hooAC"),
+            authority: pubkey!("2CQ6cW8RzowMEcdEiRRgEWzaYjpLWaHv1WoVyWfF8nsY"),
+            user_transfer_authority: pubkey!("AB1daTZcHAySAexN1SpacinrwRixNP7nLd31TVnNXMLx"),
+            source: pubkey!("DX1mX7WN7jQJXzaiiQR6W1G69xHg3kXjDtrEyYXxgZAm"),
+            swap_source: pubkey!("jM5cFHP9iPj9en1fJFJLfRpLt68Y81UdWfXHv9an3HK"),
+            swap_destination: pubkey!("8a4WD4hbfuPyiistrVU8qcpwMcJmf3RBuw1s1tvVYJ1Q"),
+            destination: pubkey!("Ew1Aj2Mm82KCN9dtMNnhVXZDjUfiiu18CNj9Qx6Vystk"),
+            pool_mint: pubkey!("7XeJQykinTiK1EveXb9y4zodFtdtu1YwkygBmWbz1pC3"),
+            pool_fee: pubkey!("396TeW1MeyQvFGgxjaxJxRFkuiir4Ye4imuxVDcqfE88"),
+            source_mint: pubkey!("So11111111111111111111111111111111111111112"),
+            destination_mint: pubkey!("3YkBR2w1ttpWKzdP5XQtzXqsGFS9i1mGg9pDrqn4e9j6"),
+            source_token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            destination_token_program: pubkey!("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
+            pool_token_program: pubkey!("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
+            swap_program: pubkey!("396TeW1MeyQvFGgxjaxJxRFkuiir4Ye4imuxVDcqfE88"),
+        };
+
+        // Act
+        let decoder = FluxbeamDecoder;
+        let instruction = carbon_test_utils::read_instruction("tests/fixtures/swap_ix.json")
+            .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            swap::Swap::arrange_accounts(&instruction.accounts).expect("aranage accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
 }
