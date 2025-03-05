@@ -11,6 +11,7 @@ pub struct Initialize {
     pub swap_curve: SwapCurve,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct InitializeInstructionAccounts {
     pub swap: solana_sdk::pubkey::Pubkey,
     pub authority: solana_sdk::pubkey::Pubkey,

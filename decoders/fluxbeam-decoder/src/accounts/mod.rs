@@ -108,7 +108,6 @@ mod tests {
                 assert_eq!(expected_swap_account.fees, swap_account.fees);
                 assert_eq!(expected_swap_account.swap_curve, swap_account.swap_curve);
             }
-            _ => panic!("Expected SwapV1"),
         }
     }
 }
