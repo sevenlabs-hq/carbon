@@ -9,6 +9,7 @@ pub struct Swap {
     pub minimum_amount_out: u64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct SwapInstructionAccounts {
     pub authority: solana_sdk::pubkey::Pubkey,
     pub amm: solana_sdk::pubkey::Pubkey,
