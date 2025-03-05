@@ -15,6 +15,7 @@ pub struct OpenDca {
     pub close_wsol_in_ata: Option<bool>,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct OpenDcaInstructionAccounts {
     pub dca: solana_sdk::pubkey::Pubkey,
     pub user: solana_sdk::pubkey::Pubkey,
