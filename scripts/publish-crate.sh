@@ -6,6 +6,7 @@ workspace_crates=(
     carbon-macros
     carbon-proc-macros
     carbon-core
+    carbon-test-utils
 
     carbon-helius-atlas-ws-datasource
     carbon-rpc-block-subscribe-datasource
@@ -55,5 +56,5 @@ workspace_crates=(
 for crate in "${workspace_crates[@]}"; do
    echo "--- $crate"
    cargo package -p $crate
-   cargo publish $crate
+   cargo publish -p $crate
 done
