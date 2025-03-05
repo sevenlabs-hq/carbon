@@ -80,9 +80,8 @@ mod tests {
 
         // Act
         let decoder = MoonshotDecoder;
-        let account =
-            carbon_test_utils::read_account("tests/fixtures/config_account.json")
-                .expect("read fixture");
+        let account = carbon_test_utils::read_account("tests/fixtures/config_account.json")
+            .expect("read fixture");
         let decoded_account = decoder.decode_account(&account).expect("decode fixture");
 
         // Assert
@@ -163,9 +162,8 @@ mod tests {
 
         // Act
         let decoder = MoonshotDecoder;
-        let account =
-            carbon_test_utils::read_account("tests/fixtures/curve_account.json")
-                .expect("read fixture");
+        let account = carbon_test_utils::read_account("tests/fixtures/curve_account.json")
+            .expect("read fixture");
         let decoded_account = decoder.decode_account(&account).expect("decode fixture");
 
         // Assert

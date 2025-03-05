@@ -1,0 +1,18 @@
+[package]
+name = "carbon-stake-program-decoder"
+version = "0.6.0"
+description = "Stake Program Decoder"
+license = { workspace = true }
+edition = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "decoder", "stake"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+carbon-core = { workspace = true }
+serde = { workspace = true }
+solana-sdk = { workspace = true }

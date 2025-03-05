@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xeb47d3c472c78f5c")]
-pub struct CommissionSplSwap{
+pub struct CommissionSplSwap {
     pub data: CommissionSwapArgs,
 }
 
@@ -23,20 +23,14 @@ pub struct CommissionSplSwapInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CommissionSplSwap {
     type ArrangedAccounts = CommissionSplSwapInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            payer,
-            source_token_account,
-            destination_token_account,
-            source_mint,
-            destination_mint,
-            commission_token_account,
-            token_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [payer, source_token_account, destination_token_account, source_mint, destination_mint, commission_token_account, token_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(CommissionSplSwapInstructionAccounts {
             payer: payer.pubkey,

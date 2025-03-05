@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x813b450a844c2314")]
-pub struct CommissionSolFromSwap{
+pub struct CommissionSolFromSwap {
     pub args: SwapArgs,
     pub commission_rate: u16,
     pub bridge_to_args: BridgeToArgs,
@@ -31,24 +31,14 @@ pub struct CommissionSolFromSwapInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CommissionSolFromSwap {
     type ArrangedAccounts = CommissionSolFromSwapInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            payer,
-            source_token_account,
-            destination_token_account,
-            source_mint,
-            destination_mint,
-            bridge_program,
-            associated_token_program,
-            token_program,
-            token_2022_program,
-            system_program,
-            commission_account,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [payer, source_token_account, destination_token_account, source_mint, destination_mint, bridge_program, associated_token_program, token_program, token_2022_program, system_program, commission_account, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(CommissionSolFromSwapInstructionAccounts {
             payer: payer.pubkey,

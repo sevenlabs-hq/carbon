@@ -1,11 +1,13 @@
 [package]
 name = "carbon-fluxbeam-decoder"
-version = "0.5.1"
+version = "0.6.0"
 description = "Fluxbeam Decoder"
 edition = { workspace = true }
 license = { workspace = true }
-readme = "./README.md"
+readme = "README.md"
 repository = { workspace = true }
+keywords = ["solana", "decoder", "fluxbeam"]
+categories = ["encoding"]
 
 [lib]
 crate-type = ["rlib"]
