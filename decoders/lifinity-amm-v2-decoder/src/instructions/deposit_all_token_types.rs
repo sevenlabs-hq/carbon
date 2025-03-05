@@ -10,6 +10,7 @@ pub struct DepositAllTokenTypes {
     pub maximum_token_b_amount: u64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct DepositAllTokenTypesInstructionAccounts {
     pub amm: solana_sdk::pubkey::Pubkey,
     pub authority: solana_sdk::pubkey::Pubkey,
