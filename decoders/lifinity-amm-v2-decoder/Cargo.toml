@@ -16,3 +16,6 @@ carbon-macros = { workspace = true }
 carbon-proc-macros = { workspace = true }
 serde = { workspace = true }
 solana-sdk = { workspace = true }
+
+[dev-dependencies]
+carbon-test-utils = { workspace = true }
