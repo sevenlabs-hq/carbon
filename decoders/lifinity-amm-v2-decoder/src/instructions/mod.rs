@@ -141,11 +141,13 @@ mod tests {
 
     #[test]
     fn test_decode_deposit_all_token_types() {
-        let expected_ix = LifinityAmmV2Instruction::DepositAllTokenTypes(deposit_all_token_types::DepositAllTokenTypes {
-            pool_token_amount: 2457402,
-            maximum_token_a_amount: 1000000,
-            maximum_token_b_amount: 64575,
-        });
+        let expected_ix = LifinityAmmV2Instruction::DepositAllTokenTypes(
+            deposit_all_token_types::DepositAllTokenTypes {
+                pool_token_amount: 2457402,
+                maximum_token_a_amount: 1000000,
+                maximum_token_b_amount: 64575,
+            },
+        );
 
         let expected_accounts = vec![
             AccountMeta::new(
@@ -190,27 +192,32 @@ mod tests {
             ),
         ];
 
-        let expected_arranged_accounts = deposit_all_token_types::DepositAllTokenTypesInstructionAccounts {
-            amm: pubkey!("4ruXyJT6rgHERQeVmMCc5pJDC5wgLujuMjTQgY562sdh"),
-            authority: pubkey!("2p4AA6xU2gxVvCVMVMAwpmyF49zBfp9MD4Ef8JeGVeMY"),
-            user_transfer_authority_info: pubkey!("CbYf9QNrkVgNRCMTDiVdvzMqSzXh8AAgnrKAoTfEACdh"),
-            source_a_info: pubkey!("oVzCGsiinVTxPNmWFzi4QvGJ1iyhzUHj148Jc7SPuyj"),
-            source_b_info: pubkey!("74NpLshFLkuVyFKq2L3yBU2V8mcExSGy5E8tjCpMfVvU"),
-            token_a: pubkey!("7GawBqVSriYXQYCTr5XygeRNTeHamRWeHmVFiuf6wLfK"),
-            token_b: pubkey!("7oWW46LfAzrzWaZxV8CURBKpWwR8cc3ZpaXMFi6CH8sC"),
-            pool_mint: pubkey!("Dt1EBunetoSDPSEj2EB5m5bc93bt75ZB8Yy9vmaJ2ng"),
-            destination: pubkey!("3hmRWv4Qik4rEzut8kqjxChN3n7Ms1MLKFKLqcoWkbGg"),
-            token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-        };
+        let expected_arranged_accounts =
+            deposit_all_token_types::DepositAllTokenTypesInstructionAccounts {
+                amm: pubkey!("4ruXyJT6rgHERQeVmMCc5pJDC5wgLujuMjTQgY562sdh"),
+                authority: pubkey!("2p4AA6xU2gxVvCVMVMAwpmyF49zBfp9MD4Ef8JeGVeMY"),
+                user_transfer_authority_info: pubkey!(
+                    "CbYf9QNrkVgNRCMTDiVdvzMqSzXh8AAgnrKAoTfEACdh"
+                ),
+                source_a_info: pubkey!("oVzCGsiinVTxPNmWFzi4QvGJ1iyhzUHj148Jc7SPuyj"),
+                source_b_info: pubkey!("74NpLshFLkuVyFKq2L3yBU2V8mcExSGy5E8tjCpMfVvU"),
+                token_a: pubkey!("7GawBqVSriYXQYCTr5XygeRNTeHamRWeHmVFiuf6wLfK"),
+                token_b: pubkey!("7oWW46LfAzrzWaZxV8CURBKpWwR8cc3ZpaXMFi6CH8sC"),
+                pool_mint: pubkey!("Dt1EBunetoSDPSEj2EB5m5bc93bt75ZB8Yy9vmaJ2ng"),
+                destination: pubkey!("3hmRWv4Qik4rEzut8kqjxChN3n7Ms1MLKFKLqcoWkbGg"),
+                token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            };
 
         let decoder = LifinityAmmV2Decoder;
-        let instruction = carbon_test_utils::read_instruction("tests/fixtures/deposit_all_token_types_ix.json")
-            .expect("read fixture");
+        let instruction =
+            carbon_test_utils::read_instruction("tests/fixtures/deposit_all_token_types_ix.json")
+                .expect("read fixture");
         let decoded = decoder
             .decode_instruction(&instruction)
             .expect("decode instruction");
         let decoded_arranged_accounts =
-            deposit_all_token_types::DepositAllTokenTypes::arrange_accounts(&instruction.accounts).expect("arrange accounts");
+            deposit_all_token_types::DepositAllTokenTypes::arrange_accounts(&instruction.accounts)
+                .expect("arrange accounts");
 
         assert_eq!(decoded.data, expected_ix);
         assert_eq!(decoded.program_id, PROGRAM_ID);
@@ -220,11 +227,13 @@ mod tests {
 
     #[test]
     fn test_decode_withdraw_all_token_types() {
-        let expected_ix = LifinityAmmV2Instruction::WithdrawAllTokenTypes(withdraw_all_token_types::WithdrawAllTokenTypes {
-            pool_token_amount: 2000655039581,
-            minimum_token_a_amount: 1076172871830,
-            minimum_token_b_amount: 752578501683,
-        });
+        let expected_ix = LifinityAmmV2Instruction::WithdrawAllTokenTypes(
+            withdraw_all_token_types::WithdrawAllTokenTypes {
+                pool_token_amount: 2000655039581,
+                minimum_token_a_amount: 1076172871830,
+                minimum_token_b_amount: 752578501683,
+            },
+        );
 
         let expected_accounts = vec![
             AccountMeta::new(
@@ -269,27 +278,34 @@ mod tests {
             ),
         ];
 
-        let expected_arranged_accounts = withdraw_all_token_types::WithdrawAllTokenTypesInstructionAccounts {
-            amm: pubkey!("DrRd8gYMJu9XGxLhwTCPdHNLXCKHsxJtMpbn62YqmwQe"),
-            authority: pubkey!("7GmDCbu7bYiWJvFaNUyPNiM8PjvvBcmyBcZY1qSsAGi2"),
-            user_transfer_authority_info: pubkey!("71hhezkHQ2dhmPySsHVCCkLggfWzPFEBdfEjbn4NCXMG"),
-            source_info: pubkey!("A9x5SwN9vbg3YDxZySDWaHuVoQQ8YSJDrmjFZ3yMksqW"),
-            token_a: pubkey!("EVGW4q1iFjDmtxtHr3NoPi5iVKAxwEjohsusMrinDxr6"),
-            token_b: pubkey!("53EkU98Vbv2TQPwGG6t2asCynzFjCX5AnvaabbXafaed"),
-            pool_mint: pubkey!("FGYgFJSxZTGzaLwzUL9YZqK2yUZ8seofCwGq8BPEw4o8"),
-            dest_token_a_info: pubkey!("Gf5ucgWGfJ8NLvVaKJVen9CYsPFRK4eAsZWT8zDjARkA"),
-            dest_token_b_info: pubkey!("8vPGw7d6a4rmejVg2uXMs8kvEnVy7WgN1oNk9mRpdfGP"),
-            token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-        };
+        let expected_arranged_accounts =
+            withdraw_all_token_types::WithdrawAllTokenTypesInstructionAccounts {
+                amm: pubkey!("DrRd8gYMJu9XGxLhwTCPdHNLXCKHsxJtMpbn62YqmwQe"),
+                authority: pubkey!("7GmDCbu7bYiWJvFaNUyPNiM8PjvvBcmyBcZY1qSsAGi2"),
+                user_transfer_authority_info: pubkey!(
+                    "71hhezkHQ2dhmPySsHVCCkLggfWzPFEBdfEjbn4NCXMG"
+                ),
+                source_info: pubkey!("A9x5SwN9vbg3YDxZySDWaHuVoQQ8YSJDrmjFZ3yMksqW"),
+                token_a: pubkey!("EVGW4q1iFjDmtxtHr3NoPi5iVKAxwEjohsusMrinDxr6"),
+                token_b: pubkey!("53EkU98Vbv2TQPwGG6t2asCynzFjCX5AnvaabbXafaed"),
+                pool_mint: pubkey!("FGYgFJSxZTGzaLwzUL9YZqK2yUZ8seofCwGq8BPEw4o8"),
+                dest_token_a_info: pubkey!("Gf5ucgWGfJ8NLvVaKJVen9CYsPFRK4eAsZWT8zDjARkA"),
+                dest_token_b_info: pubkey!("8vPGw7d6a4rmejVg2uXMs8kvEnVy7WgN1oNk9mRpdfGP"),
+                token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            };
 
         let decoder = LifinityAmmV2Decoder;
-        let instruction = carbon_test_utils::read_instruction("tests/fixtures/withdraw_all_token_types_ix.json")
-            .expect("read fixture");
+        let instruction =
+            carbon_test_utils::read_instruction("tests/fixtures/withdraw_all_token_types_ix.json")
+                .expect("read fixture");
         let decoded = decoder
             .decode_instruction(&instruction)
             .expect("decode instruction");
         let decoded_arranged_accounts =
-            withdraw_all_token_types::WithdrawAllTokenTypes::arrange_accounts(&instruction.accounts).expect("arrange accounts");
+            withdraw_all_token_types::WithdrawAllTokenTypes::arrange_accounts(
+                &instruction.accounts,
+            )
+            .expect("arrange accounts");
 
         assert_eq!(decoded.data, expected_ix);
         assert_eq!(decoded.program_id, PROGRAM_ID);
