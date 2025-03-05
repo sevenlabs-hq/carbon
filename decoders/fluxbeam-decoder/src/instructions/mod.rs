@@ -247,4 +247,116 @@ mod tests {
         assert_eq!(decoded.program_id, PROGRAM_ID);
         assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
     }
+
+    #[test]
+    fn test_decode_withdraw_all_token_types() {
+        // Arrange
+        let expected_ix = FluxbeamInstruction::WithdrawAllTokenTypes(
+            withdraw_all_token_types::WithdrawAllTokenTypes {
+                pool_token_amount: 1149106633,
+                minimum_token_a_amount: 0,
+                minimum_token_b_amount: 0,
+            },
+        );
+        let expected_accounts = vec![
+            AccountMeta::new_readonly(
+                pubkey!("6bJUX2XqmGp6nZGrnEoZh3mAt8M73G1AZbgUhT4hooAC"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("2CQ6cW8RzowMEcdEiRRgEWzaYjpLWaHv1WoVyWfF8nsY"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("3oYDvLGyqdTsZ5mU8gKPxjjkKsZiE6y9qUE2Ed4qR6iG"),
+                true,
+            ),
+            AccountMeta::new(
+                pubkey!("7XeJQykinTiK1EveXb9y4zodFtdtu1YwkygBmWbz1pC3"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("396TeW1MeyQvFGgxjaxJxRFkuiir4Ye4imuxVDcqfE88"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("jM5cFHP9iPj9en1fJFJLfRpLt68Y81UdWfXHv9an3HK"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("8a4WD4hbfuPyiistrVU8qcpwMcJmf3RBuw1s1tvVYJ1Q"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("D86hML8ecnD7kPLpjKDPzRCToPKyJ6xfQUoJ39wLTxYZ"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("7xUofx3SxTGYgsVbdnYd6qMuxzaBGbHFoiAfD2q5d1aA"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("396TeW1MeyQvFGgxjaxJxRFkuiir4Ye4imuxVDcqfE88"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("So11111111111111111111111111111111111111112"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("3YkBR2w1ttpWKzdP5XQtzXqsGFS9i1mGg9pDrqn4e9j6"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
+                false,
+            ),
+        ];
+        let expected_arranged_accounts =
+            withdraw_all_token_types::WithdrawAllTokenTypesInstructionAccounts {
+                swap: pubkey!("6bJUX2XqmGp6nZGrnEoZh3mAt8M73G1AZbgUhT4hooAC"),
+                authority: pubkey!("2CQ6cW8RzowMEcdEiRRgEWzaYjpLWaHv1WoVyWfF8nsY"),
+                user_transfer_authority: pubkey!("3oYDvLGyqdTsZ5mU8gKPxjjkKsZiE6y9qUE2Ed4qR6iG"),
+                pool_mint: pubkey!("7XeJQykinTiK1EveXb9y4zodFtdtu1YwkygBmWbz1pC3"),
+                source: pubkey!("396TeW1MeyQvFGgxjaxJxRFkuiir4Ye4imuxVDcqfE88"),
+                swap_token_a: pubkey!("jM5cFHP9iPj9en1fJFJLfRpLt68Y81UdWfXHv9an3HK"),
+                swap_token_b: pubkey!("8a4WD4hbfuPyiistrVU8qcpwMcJmf3RBuw1s1tvVYJ1Q"),
+                destination_token_a: pubkey!("D86hML8ecnD7kPLpjKDPzRCToPKyJ6xfQUoJ39wLTxYZ"),
+                destination_token_b: pubkey!("7xUofx3SxTGYgsVbdnYd6qMuxzaBGbHFoiAfD2q5d1aA"),
+                fee_account: pubkey!("396TeW1MeyQvFGgxjaxJxRFkuiir4Ye4imuxVDcqfE88"),
+                token_a_mint: pubkey!("So11111111111111111111111111111111111111112"),
+                token_b_mint: pubkey!("3YkBR2w1ttpWKzdP5XQtzXqsGFS9i1mGg9pDrqn4e9j6"),
+                pool_token_program: pubkey!("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
+                token_a_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                token_b_program: pubkey!("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
+            };
+
+        // Act
+        let decoder = FluxbeamDecoder;
+        let instruction =
+            carbon_test_utils::read_instruction("tests/fixtures/withdraw_all_token_types_ix.json")
+                .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            withdraw_all_token_types::WithdrawAllTokenTypes::arrange_accounts(
+                &instruction.accounts,
+            )
+            .expect("aranage accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
 }
