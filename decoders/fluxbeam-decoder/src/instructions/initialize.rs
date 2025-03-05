@@ -5,7 +5,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0xafaf6d1f0d989bed")]
+#[carbon(discriminator = "0x00")]
 pub struct Initialize {
     pub fees: Fees,
     pub swap_curve: SwapCurve,
