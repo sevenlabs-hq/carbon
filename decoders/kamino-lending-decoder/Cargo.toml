@@ -1,11 +1,13 @@
 [package]
 name = "carbon-kamino-lending-decoder"
-version = "0.5.1"
+version = "0.6.0"
 description = "Kamino Lending Decoder"
 license = { workspace = true }
 edition = { workspace = true }
-readme = "./README.md"
+readme = "README.md"
 repository = { workspace = true }
+keywords = ["solana", "decoder", "kamino"]
+categories = ["encoding"]
 
 [lib]
 crate-type = ["rlib"]

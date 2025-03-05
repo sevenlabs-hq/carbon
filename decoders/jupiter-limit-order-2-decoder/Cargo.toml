@@ -1,11 +1,13 @@
 [package]
 name = "carbon-jupiter-limit-order-2-decoder"
-version = "0.5.1"
+version = "0.6.0"
 description = "Jupiter Limit Order 2 Decoder"
 license = { workspace = true }
 edition = { workspace = true }
-readme = "./README.md"
+readme = "README.md"
 repository = { workspace = true }
+keywords = ["solana", "decoder", "jupiter", "limit-order"]
+categories = ["encoding"]
 
 [lib]
 crate-type = ["rlib"]

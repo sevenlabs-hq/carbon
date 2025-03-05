@@ -1,11 +1,13 @@
 [package]
 name = "carbon-core"
-version = "0.5.1"
+version = "0.6.0"
 edition = { workspace = true }
 description = "Core library for Carbon"
 license = { workspace = true }
-readme = "./README.md"
+readme = "README.md"
 repository = { workspace = true }
+keywords = ["solana", "indexer"]
+categories = ["encoding"]
 
 [features]
 default = ["macros"]

@@ -2,10 +2,12 @@
 name = "carbon-rpc-program-subscribe-datasource"
 description = "RPC Program Subscribe Datasource"
 license = { workspace = true }
-version = "0.5.1"
+version = "0.6.0"
 edition = { workspace = true }
-readme = "./README.md"
+readme = "README.md"
 repository = { workspace = true }
+keywords = ["solana", "indexer", "program", "datasource"]
+categories = ["encoding"]
 
 [dependencies]
 solana-client = { workspace = true }

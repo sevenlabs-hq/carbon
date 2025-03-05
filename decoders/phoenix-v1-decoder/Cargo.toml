@@ -1,11 +1,13 @@
 [package]
 name = "carbon-phoenix-v1-decoder"
-version = "0.5.1"
+version = "0.6.0"
 description = "Phoenix V1 Decoder"
 edition = { workspace = true }
 license = { workspace = true }
-readme = "./README.md"
+readme = "README.md"
 repository = { workspace = true }
+keywords = ["solana", "decoder", "phoenix"]
+categories = ["encoding"]
 
 [lib]
 crate-type = ["rlib"]
