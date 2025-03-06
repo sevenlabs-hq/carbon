@@ -8,6 +8,7 @@ pub struct FulfillFlashFill {
     pub repay_amount: u64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct FulfillFlashFillInstructionAccounts {
     pub keeper: solana_sdk::pubkey::Pubkey,
     pub dca: solana_sdk::pubkey::Pubkey,
