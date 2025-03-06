@@ -1,6 +1,6 @@
 use {
     clap::{Parser, Subcommand, ValueEnum},
-    std::str::FromStr,
+    std::{fmt, str::FromStr},
 };
 
 #[derive(Parser)]
@@ -89,10 +89,29 @@ impl FromStr for Url {
     }
 }
 
+impl fmt::Display for Url {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Url::Mainnet => write!(f, "mainnet-beta"),
+            Url::Devnet => write!(f, "devnet"),
+            Url::CustomRpc(ref url) => write!(f, "{url}"),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 pub enum IdlStandard {
     Anchor,
     Codama,
+}
+
+impl fmt::Display for IdlStandard {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            IdlStandard::Anchor => write!(f, "anchor"),
+            IdlStandard::Codama => write!(f, "codama"),
+        }
+    }
 }
 
 impl std::str::FromStr for IdlStandard {
