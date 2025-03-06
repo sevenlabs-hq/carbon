@@ -104,7 +104,6 @@ mod tests {
             start_at: Some(0),
             close_wsol_in_ata: Some(false),
         });
-
         let expected_accounts = vec![
             AccountMeta::new(
                 pubkey!("CfBLHEJkCUqn5LrST6ptAG96UrkjB5pfZFc98LUQUY3g"),
@@ -152,7 +151,6 @@ mod tests {
                 false,
             ),
         ];
-
         let expected_arranged_accounts = open_dca::OpenDcaInstructionAccounts {
             dca: pubkey!("CfBLHEJkCUqn5LrST6ptAG96UrkjB5pfZFc98LUQUY3g"),
             user: pubkey!("ByBxpqTdJUQt5NpnJJp9GzovBmnT3hmMx1CqhtRAKaK1"),
@@ -174,12 +172,12 @@ mod tests {
         let decoded = decoder
             .decode_instruction(&instruction)
             .expect("decode instruction");
+        let decoded_arranged_accounts =
+            open_dca::OpenDca::arrange_accounts(&instruction.accounts).expect("arrange accounts");
 
         assert_eq!(decoded.data, expected_ix);
         assert_eq!(decoded.program_id, PROGRAM_ID);
         assert_eq!(decoded.accounts, expected_accounts);
-        let decoded_arranged_accounts =
-            open_dca::OpenDca::arrange_accounts(&instruction.accounts).expect("arrange accounts");
         assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
     }
 
@@ -194,7 +192,6 @@ mod tests {
             max_out_amount: Some(131578),
             start_at: Some(0),
         });
-
         let expected_accounts = vec![
             AccountMeta::new(
                 pubkey!("4nsDuDcB47yRPBxtuhSNDxUynTXEqGWHG3tmY7H2tGVW"),
@@ -246,7 +243,6 @@ mod tests {
                 false,
             ),
         ];
-
         let expected_arranged_accounts = open_dca_v2::OpenDcaV2InstructionAccounts {
             dca: pubkey!("4nsDuDcB47yRPBxtuhSNDxUynTXEqGWHG3tmY7H2tGVW"),
             user: pubkey!("DdNbmJSE6EJsbXcHkZhfsyqhbLzGYaRpKa3nxufeURuu"),
@@ -269,20 +265,19 @@ mod tests {
         let decoded = decoder
             .decode_instruction(&instruction)
             .expect("decode instruction");
+        let decoded_arranged_accounts =
+            open_dca_v2::OpenDcaV2::arrange_accounts(&instruction.accounts)
+                .expect("arrange accounts");
 
         assert_eq!(decoded.data, expected_ix);
         assert_eq!(decoded.program_id, PROGRAM_ID);
         assert_eq!(decoded.accounts, expected_accounts);
-        let decoded_arranged_accounts =
-            open_dca_v2::OpenDcaV2::arrange_accounts(&instruction.accounts)
-                .expect("arrange accounts");
         assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
     }
 
     #[test]
     fn test_decode_close_dca() {
         let expected_ix = JupiterDcaInstruction::CloseDca(close_dca::CloseDca {});
-
         let expected_accounts = vec![
             AccountMeta::new(
                 pubkey!("AT8gbypqBtxnDFN8SQJSCiJQMQeygvrLCSbFCz7xn8p3"),
@@ -334,7 +329,6 @@ mod tests {
                 false,
             ),
         ];
-
         let expected_arranged_accounts = close_dca::CloseDcaInstructionAccounts {
             user: pubkey!("AT8gbypqBtxnDFN8SQJSCiJQMQeygvrLCSbFCz7xn8p3"),
             dca: pubkey!("CswSqhPMvArgMWJgGiFLJXjYRUTxdcA8VSmSKEdbSx2f"),
@@ -357,12 +351,12 @@ mod tests {
         let decoded = decoder
             .decode_instruction(&instruction)
             .expect("decode instruction");
+        let decoded_arranged_accounts =
+            close_dca::CloseDca::arrange_accounts(&instruction.accounts).expect("arrange accounts");
 
         assert_eq!(decoded.data, expected_ix);
         assert_eq!(decoded.program_id, PROGRAM_ID);
         assert_eq!(decoded.accounts, expected_accounts);
-        let decoded_arranged_accounts =
-            close_dca::CloseDca::arrange_accounts(&instruction.accounts).expect("arrange accounts");
         assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
     }
 
@@ -370,7 +364,6 @@ mod tests {
     fn test_decode_withdraw_fees() {
         let expected_ix =
             JupiterDcaInstruction::WithdrawFees(withdraw_fees::WithdrawFees { amount: 1193884104 });
-
         let expected_accounts = vec![
             AccountMeta::new(pubkey!("JTFeFAf1EKzA74pe2v5pZ6FaJ8kfLuvtt6Frxfyx8QY"), true),
             AccountMeta::new_readonly(
@@ -399,7 +392,6 @@ mod tests {
                 false,
             ),
         ];
-
         let expected_arranged_accounts = withdraw_fees::WithdrawFeesInstructionAccounts {
             admin: pubkey!("JTFeFAf1EKzA74pe2v5pZ6FaJ8kfLuvtt6Frxfyx8QY"),
             mint: pubkey!("METAewgxyPbgwsseH8T16a39CQ5VyVxZi9zXiDPY18m"),
@@ -418,13 +410,13 @@ mod tests {
         let decoded = decoder
             .decode_instruction(&instruction)
             .expect("decode instruction");
+        let decoded_arranged_accounts =
+            withdraw_fees::WithdrawFees::arrange_accounts(&instruction.accounts)
+                .expect("arrange accounts");
 
         assert_eq!(decoded.data, expected_ix);
         assert_eq!(decoded.program_id, PROGRAM_ID);
         assert_eq!(decoded.accounts, expected_accounts);
-        let decoded_arranged_accounts =
-            withdraw_fees::WithdrawFees::arrange_accounts(&instruction.accounts)
-                .expect("arrange accounts");
         assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
     }
 
@@ -432,7 +424,6 @@ mod tests {
     fn test_decode_initiate_flash_fill() {
         let expected_ix =
             JupiterDcaInstruction::InitiateFlashFill(initiate_flash_fill::InitiateFlashFill {});
-
         let expected_accounts = vec![
             AccountMeta::new(
                 pubkey!("JD25qVdtd65FoiXNmR89JjmoJdYk9sjYQeSTZAALFiMy"),
@@ -472,7 +463,6 @@ mod tests {
                 false,
             ),
         ];
-
         let expected_arranged_accounts =
             initiate_flash_fill::InitiateFlashFillInstructionAccounts {
                 keeper: pubkey!("JD25qVdtd65FoiXNmR89JjmoJdYk9sjYQeSTZAALFiMy"),
@@ -494,13 +484,13 @@ mod tests {
         let decoded = decoder
             .decode_instruction(&instruction)
             .expect("decode instruction");
+        let decoded_arranged_accounts =
+            initiate_flash_fill::InitiateFlashFill::arrange_accounts(&instruction.accounts)
+                .expect("arrange accounts");
 
         assert_eq!(decoded.data, expected_ix);
         assert_eq!(decoded.program_id, PROGRAM_ID);
         assert_eq!(decoded.accounts, expected_accounts);
-        let decoded_arranged_accounts =
-            initiate_flash_fill::InitiateFlashFill::arrange_accounts(&instruction.accounts)
-                .expect("arrange accounts");
         assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
     }
 
@@ -510,7 +500,6 @@ mod tests {
             JupiterDcaInstruction::FulfillFlashFill(fulfill_flash_fill::FulfillFlashFill {
                 repay_amount: 459532541,
             });
-
         let expected_accounts = vec![
             AccountMeta::new(
                 pubkey!("JD25qVdtd65FoiXNmR89JjmoJdYk9sjYQeSTZAALFiMy"),
@@ -570,7 +559,6 @@ mod tests {
                 false,
             ),
         ];
-
         let expected_arranged_accounts = fulfill_flash_fill::FulfillFlashFillInstructionAccounts {
             keeper: pubkey!("JD25qVdtd65FoiXNmR89JjmoJdYk9sjYQeSTZAALFiMy"),
             dca: pubkey!("ArmGhb7enKa3kq11qUi7bPVpX8r2ZQfsPTiZWqZfGosH"),
@@ -596,20 +584,19 @@ mod tests {
         let decoded = decoder
             .decode_instruction(&instruction)
             .expect("decode instruction");
+        let decoded_arranged_accounts =
+            fulfill_flash_fill::FulfillFlashFill::arrange_accounts(&instruction.accounts)
+                .expect("arrange accounts");
 
         assert_eq!(decoded.data, expected_ix);
         assert_eq!(decoded.program_id, PROGRAM_ID);
         assert_eq!(decoded.accounts, expected_accounts);
-        let decoded_arranged_accounts =
-            fulfill_flash_fill::FulfillFlashFill::arrange_accounts(&instruction.accounts)
-                .expect("arrange accounts");
         assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
     }
 
     #[test]
     fn test_decode_end_and_close() {
         let expected_ix = JupiterDcaInstruction::EndAndClose(end_and_close::EndAndClose {});
-
         let expected_accounts = vec![
             AccountMeta::new(
                 pubkey!("JD38n7ynKYcgPpF7k1BhXEeREu1KqptU93fVGy3S624k"),
@@ -669,7 +656,6 @@ mod tests {
                 false,
             ),
         ];
-
         let expected_arranged_accounts = end_and_close::EndAndCloseInstructionAccounts {
             keeper: pubkey!("JD38n7ynKYcgPpF7k1BhXEeREu1KqptU93fVGy3S624k"),
             dca: pubkey!("8NpPrybBTBZfK8MMQohm3Xc7kbT7drzgmWXvMecXW9Qz"),
@@ -695,13 +681,13 @@ mod tests {
         let decoded = decoder
             .decode_instruction(&instruction)
             .expect("decode instruction");
+        let decoded_arranged_accounts =
+            end_and_close::EndAndClose::arrange_accounts(&instruction.accounts)
+                .expect("arrange accounts");
 
         assert_eq!(decoded.data, expected_ix);
         assert_eq!(decoded.program_id, PROGRAM_ID);
         assert_eq!(decoded.accounts, expected_accounts);
-        let decoded_arranged_accounts =
-            end_and_close::EndAndClose::arrange_accounts(&instruction.accounts)
-                .expect("arrange accounts");
         assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
     }
 }

@@ -53,7 +53,6 @@ mod tests {
             amount_in: 99140,
             minimum_amount_out: 0,
         });
-
         let expected_accounts = vec![
             AccountMeta::new_readonly(
                 pubkey!("Hc3DCcYyN7m2Wasf4Zhe8FMQ9qf9PiBiMJ9vqwSqB42h"),
@@ -148,7 +147,6 @@ mod tests {
                 maximum_token_b_amount: 64575,
             },
         );
-
         let expected_accounts = vec![
             AccountMeta::new(
                 pubkey!("4ruXyJT6rgHERQeVmMCc5pJDC5wgLujuMjTQgY562sdh"),
@@ -191,7 +189,6 @@ mod tests {
                 false,
             ),
         ];
-
         let expected_arranged_accounts =
             deposit_all_token_types::DepositAllTokenTypesInstructionAccounts {
                 amm: pubkey!("4ruXyJT6rgHERQeVmMCc5pJDC5wgLujuMjTQgY562sdh"),
@@ -234,7 +231,6 @@ mod tests {
                 minimum_token_b_amount: 752578501683,
             },
         );
-
         let expected_accounts = vec![
             AccountMeta::new(
                 pubkey!("DrRd8gYMJu9XGxLhwTCPdHNLXCKHsxJtMpbn62YqmwQe"),
@@ -277,7 +273,6 @@ mod tests {
                 false,
             ),
         ];
-
         let expected_arranged_accounts =
             withdraw_all_token_types::WithdrawAllTokenTypesInstructionAccounts {
                 amm: pubkey!("DrRd8gYMJu9XGxLhwTCPdHNLXCKHsxJtMpbn62YqmwQe"),
