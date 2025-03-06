@@ -94,6 +94,7 @@ heck = "0.5.0"
 helius = { version = "0.2.4", git = "https://github.com/helius-labs/helius-rust-sdk.git" }
 hex = "0.4.3"
 indicatif = "0.17.8"
+inquire = "0.7.5"
 log = "0.4.25"
 metrics = "0.24.1"
 metrics-exporter-prometheus = "0.16.0"
