@@ -127,6 +127,10 @@ $ carbon-cli parse [OPTIONS] --idl <IDL> --output <OUTPUT>
 $ carbon-cli parse --idl my_program.json --output ./src/decoders
 ```
 
+or with interactive mode:
+
+![Animated GIF making a demonstration of an anchor program parsing](./assets/parse_anchor.gif)
+
 This will parse the my_program.json Anchor IDL file and generate the corresponding decoder code in the ./src/decoders directory.
 
 2. To generate a decoder from an Anchor PDA IDL, specify a program address (Meteora DLMM program in this case):

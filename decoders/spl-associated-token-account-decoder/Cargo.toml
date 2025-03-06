@@ -5,7 +5,7 @@ description = "SPL Associated Token Account program decoder"
 edition = { workspace = true }
 license = { workspace = true }
 readme = "README.md"
-keywords = ["solana", "decoder", "associated-token-account-program", "ata"]
+keywords = ["solana", "decoder", "associated-token", "ata"]
 categories = ["encoding"]
 
 [lib]
