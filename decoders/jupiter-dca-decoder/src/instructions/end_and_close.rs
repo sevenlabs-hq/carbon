@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x537da645f7fc6785")]
 pub struct EndAndClose {}
 
+#[derive(Debug, PartialEq)]
 pub struct EndAndCloseInstructionAccounts {
     pub keeper: solana_sdk::pubkey::Pubkey,
     pub dca: solana_sdk::pubkey::Pubkey,

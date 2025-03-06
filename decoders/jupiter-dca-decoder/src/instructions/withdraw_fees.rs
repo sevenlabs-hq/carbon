@@ -8,6 +8,7 @@ pub struct WithdrawFees {
     pub amount: u64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct WithdrawFeesInstructionAccounts {
     pub admin: solana_sdk::pubkey::Pubkey,
     pub mint: solana_sdk::pubkey::Pubkey,
