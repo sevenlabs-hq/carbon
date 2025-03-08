@@ -1,4 +1,5 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(CarbonDeserialize, Debug)]
 #[carbon(discriminator = "0xa7e8e8b1c86c727f")]
 pub struct Global {
