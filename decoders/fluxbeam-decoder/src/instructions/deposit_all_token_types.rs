@@ -3,7 +3,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x205f453c4b4fcdee")]
+#[carbon(discriminator = "0x02")]
 pub struct DepositAllTokenTypes {
     pub pool_token_amount: u64,
     pub maximum_token_a_amount: u64,

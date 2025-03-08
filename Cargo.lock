@@ -903,6 +903,7 @@ dependencies = [
  "carbon-core",
  "carbon-macros",
  "carbon-proc-macros",
+ "carbon-test-utils",
  "serde",
  "solana-sdk",
 ]
