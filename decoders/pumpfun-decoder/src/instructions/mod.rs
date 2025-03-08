@@ -23,19 +23,19 @@ pub mod withdraw;
     Hash,
 )]
 pub enum PumpfunInstruction {
-    Initialize(initialize::Initialize),
-    SetParams(set_params::SetParams),
-    Create(create::Create),
     Buy(buy::Buy),
+    Create(create::Create),
+    Initialize(initialize::Initialize),
     Sell(sell::Sell),
+    SetParams(set_params::SetParams),
     Withdraw(withdraw::Withdraw),
-    CreateEvent(create_event::CreateEvent),
-    TradeEvent(trade_event::TradeEvent),
     CompleteEvent(complete_event::CompleteEvent),
+    CreateEvent(create_event::CreateEvent),
     SetParamsEvent(set_params_event::SetParamsEvent),
+    TradeEvent(trade_event::TradeEvent),
 }
 
-impl carbon_core::instruction::InstructionDecoder<'_> for PumpfunDecoder {
+impl<'a> carbon_core::instruction::InstructionDecoder<'a> for PumpfunDecoder {
     type InstructionType = PumpfunInstruction;
 
     fn decode_instruction(
@@ -47,16 +47,16 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpfunDecoder {
         }
 
         carbon_core::try_decode_instructions!(instruction,
-            PumpfunInstruction::Initialize => initialize::Initialize,
-            PumpfunInstruction::SetParams => set_params::SetParams,
-            PumpfunInstruction::Create => create::Create,
             PumpfunInstruction::Buy => buy::Buy,
+            PumpfunInstruction::Create => create::Create,
+            PumpfunInstruction::Initialize => initialize::Initialize,
             PumpfunInstruction::Sell => sell::Sell,
+            PumpfunInstruction::SetParams => set_params::SetParams,
             PumpfunInstruction::Withdraw => withdraw::Withdraw,
-            PumpfunInstruction::CreateEvent => create_event::CreateEvent,
-            PumpfunInstruction::TradeEvent => trade_event::TradeEvent,
             PumpfunInstruction::CompleteEvent => complete_event::CompleteEvent,
+            PumpfunInstruction::CreateEvent => create_event::CreateEvent,
             PumpfunInstruction::SetParamsEvent => set_params_event::SetParamsEvent,
+            PumpfunInstruction::TradeEvent => trade_event::TradeEvent,
         )
     }
 }
