@@ -3,7 +3,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0xf3c0468bd19c088b")]
+#[carbon(discriminator = "0x05")]
 pub struct WithdrawSingleTokenTypeExactAmountOut {
     pub destination_token_amount: u64,
     pub maximum_pool_token_amount: u64,

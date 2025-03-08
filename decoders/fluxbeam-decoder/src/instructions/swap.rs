@@ -3,12 +3,13 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0xf8c69e91e17587c8")]
+#[carbon(discriminator = "0x01")]
 pub struct Swap {
     pub amount_in: u64,
     pub minimum_amount_out: u64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct SwapInstructionAccounts {
     pub swap: solana_sdk::pubkey::Pubkey,
     pub authority: solana_sdk::pubkey::Pubkey,
@@ -24,6 +25,7 @@ pub struct SwapInstructionAccounts {
     pub source_token_program: solana_sdk::pubkey::Pubkey,
     pub destination_token_program: solana_sdk::pubkey::Pubkey,
     pub pool_token_program: solana_sdk::pubkey::Pubkey,
+    pub swap_program: solana_sdk::pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Swap {
@@ -32,7 +34,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Swap {
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [swap, authority, user_transfer_authority, source, swap_source, swap_destination, destination, pool_mint, pool_fee, source_mint, destination_mint, source_token_program, destination_token_program, pool_token_program, _remaining @ ..] =
+        let [swap, authority, user_transfer_authority, source, swap_source, swap_destination, destination, pool_mint, pool_fee, source_mint, destination_mint, source_token_program, destination_token_program, pool_token_program, swap_program, _remaining @ ..] =
             accounts
         else {
             return None;
@@ -53,6 +55,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Swap {
             source_token_program: source_token_program.pubkey,
             destination_token_program: destination_token_program.pubkey,
             pool_token_program: pool_token_program.pubkey,
+            swap_program: swap_program.pubkey,
         })
     }
 }

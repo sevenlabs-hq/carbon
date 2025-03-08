@@ -3,8 +3,8 @@ use super::super::types::*;
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(CarbonDeserialize, Debug)]
-#[carbon(discriminator = "0xf4feb86108bbf3b3")]
 pub struct SwapV1 {
+    pub _padding: u8,
     pub is_initialized: bool,
     pub bump_seed: u8,
     pub token_program_id: solana_sdk::pubkey::Pubkey,
