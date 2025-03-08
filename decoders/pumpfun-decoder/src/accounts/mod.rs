@@ -1,20 +1,21 @@
-use {
-    super::PumpfunDecoder,
-    crate::PROGRAM_ID,
-    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
-};
+use carbon_core::account::AccountDecoder;
+use carbon_core::deserialize::CarbonDeserialize;
+
+use crate::PROGRAM_ID;
+
+use super::PumpfunDecoder;
 pub mod bonding_curve;
 pub mod global;
 pub mod last_withdraw;
 
-pub enum PumpfunAccount {
+pub enum PumpAccount {
+    BondingCurve(bonding_curve::BondingCurve),
     Global(global::Global),
     LastWithdraw(last_withdraw::LastWithdraw),
-    BondingCurve(bonding_curve::BondingCurve),
 }
 
-impl AccountDecoder<'_> for PumpfunDecoder {
-    type AccountType = PumpfunAccount;
+impl<'a> AccountDecoder<'a> for PumpfunDecoder {
+    type AccountType = PumpAccount;
     fn decode_account(
         &self,
         account: &solana_sdk::account::Account,
@@ -23,10 +24,22 @@ impl AccountDecoder<'_> for PumpfunDecoder {
             return None;
         }
 
+        if let Some(decoded_account) =
+            bonding_curve::BondingCurve::deserialize(account.data.as_slice())
+        {
+            return Some(carbon_core::account::DecodedAccount {
+                lamports: account.lamports,
+                data: PumpAccount::BondingCurve(decoded_account),
+                owner: account.owner,
+                executable: account.executable,
+                rent_epoch: account.rent_epoch,
+            });
+        }
+
         if let Some(decoded_account) = global::Global::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: PumpfunAccount::Global(decoded_account),
+                data: PumpAccount::Global(decoded_account),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -38,19 +51,7 @@ impl AccountDecoder<'_> for PumpfunDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: PumpfunAccount::LastWithdraw(decoded_account),
-                owner: account.owner,
-                executable: account.executable,
-                rent_epoch: account.rent_epoch,
-            });
-        }
-
-        if let Some(decoded_account) =
-            bonding_curve::BondingCurve::deserialize(account.data.as_slice())
-        {
-            return Some(carbon_core::account::DecodedAccount {
-                lamports: account.lamports,
-                data: PumpfunAccount::BondingCurve(decoded_account),
+                data: PumpAccount::LastWithdraw(decoded_account),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
