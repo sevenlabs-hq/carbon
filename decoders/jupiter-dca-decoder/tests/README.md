@@ -1,4 +1,4 @@
-# Jupiter DCA Fixtures
+# Jupiter DCA Tests
 
 ## Instructions
 
