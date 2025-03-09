@@ -337,4 +337,87 @@ mod tests {
         assert_eq!(decoded.program_id, PROGRAM_ID);
         assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
     }
+
+    #[test]
+    fn test_decode_withdraw() {
+        // Arrange
+        let expected_ix = PumpfunInstruction::Withdraw(withdraw::Withdraw {});
+        let expected_accounts = vec![
+            AccountMeta::new_readonly(
+                pubkey!("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("EGqbBGXmDA9QYd1XJkf3GDFoerQYeFW3FrQZZXRza9JL"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("8f8inBUeF6GCPQvN2qxu95uZMTjidZfS2RbYBrFSpump"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("DfcyEVHECKF9U14EzYqxeovufnndbN8qrDurVdJbkUwY"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("EQtzJCRiCpbEmKqZndvCQgGAXCFuGtP2FAZ2HYpH8F6F"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("7ngNZs9Ax61KJ8MKmQKFao73LB4jRRgrg4SZU3YsAbfY"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg"),
+                true,
+            ),
+            AccountMeta::new_readonly(pubkey!("11111111111111111111111111111111"), false),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("SysvarRent111111111111111111111111111111111"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
+                false,
+            ),
+        ];
+        let expected_arranged_accounts = withdraw::WithdrawInstructionAccounts {
+            global: pubkey!("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
+            last_withdraw: pubkey!("EGqbBGXmDA9QYd1XJkf3GDFoerQYeFW3FrQZZXRza9JL"),
+            mint: pubkey!("8f8inBUeF6GCPQvN2qxu95uZMTjidZfS2RbYBrFSpump"),
+            bonding_curve: pubkey!("DfcyEVHECKF9U14EzYqxeovufnndbN8qrDurVdJbkUwY"),
+            associated_bonding_curve: pubkey!("EQtzJCRiCpbEmKqZndvCQgGAXCFuGtP2FAZ2HYpH8F6F"),
+            associated_user: pubkey!("7ngNZs9Ax61KJ8MKmQKFao73LB4jRRgrg4SZU3YsAbfY"),
+            user: pubkey!("39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg"),
+            system_program: pubkey!("11111111111111111111111111111111"),
+            token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            rent: pubkey!("SysvarRent111111111111111111111111111111111"),
+            event_authority: pubkey!("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
+            program: pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
+        };
+
+        // Act
+        let decoder = PumpfunDecoder;
+        let instruction = carbon_test_utils::read_instruction("tests/fixtures/withdraw_ix.json")
+            .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            withdraw::Withdraw::arrange_accounts(&instruction.accounts).expect("aranage accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
 }
