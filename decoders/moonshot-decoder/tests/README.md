@@ -1,4 +1,4 @@
-# Monshot Fixtures
+# Monshot Tests
 
 ## Instructions
 
