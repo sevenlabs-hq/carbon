@@ -1,4 +1,4 @@
-# Lifinity AMM V2 Fixtures
+# Lifinity AMM V2 Tests
 
 ## Instructions
 

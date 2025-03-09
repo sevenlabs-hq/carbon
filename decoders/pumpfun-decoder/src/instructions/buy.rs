@@ -1,4 +1,5 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -8,6 +9,7 @@ pub struct Buy {
     pub max_sol_cost: u64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct BuyInstructionAccounts {
     pub global: solana_sdk::pubkey::Pubkey,
     pub fee_recipient: solana_sdk::pubkey::Pubkey,

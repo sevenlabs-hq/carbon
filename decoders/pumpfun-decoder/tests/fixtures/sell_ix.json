@@ -1,0 +1,66 @@
+{
+    "accounts": [
+        {
+            "pubkey": "4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "HXfFC4G1aJJo17KW56jJ2iaDLFXq6T8XZjPbQfhspump",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "8f12Y6z6CkMmcBqduvThRG2V873CP3eu2iBydqKGDX6y",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "GkSscwZJBhcFeB6hpWrnfrE73e5SawPmMuT55U1W4uqz",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "Bi6H7WPrZoJmqSauP38NuBaEttGraZkceR4p17ekoTwh",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "3bApZNQrP3T6Q1GvK1n1nUPHHnpnsbrEmdGyQyYLEbkP",
+            "is_signer": true,
+            "is_writable": true
+        },
+        {
+            "pubkey": "11111111111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+            "is_signer": false,
+            "is_writable": false
+        }
+    ],
+    "data": "33e685a4017f83ad7cfac337060000002a0e0b0000000000",
+    "program_id": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"
+}

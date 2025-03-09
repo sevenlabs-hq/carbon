@@ -1,4 +1,5 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
@@ -7,8 +8,10 @@ pub struct Create {
     pub name: String,
     pub symbol: String,
     pub uri: String,
+    pub creator: solana_sdk::pubkey::Pubkey,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct CreateInstructionAccounts {
     pub mint: solana_sdk::pubkey::Pubkey,
     pub mint_authority: solana_sdk::pubkey::Pubkey,

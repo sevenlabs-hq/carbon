@@ -1,10 +1,12 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 #[carbon(discriminator = "0xb712469c946da122")]
 pub struct Withdraw {}
 
+#[derive(Debug, PartialEq)]
 pub struct WithdrawInstructionAccounts {
     pub global: solana_sdk::pubkey::Pubkey,
     pub last_withdraw: solana_sdk::pubkey::Pubkey,
