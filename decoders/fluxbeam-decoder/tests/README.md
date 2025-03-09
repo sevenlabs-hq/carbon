@@ -1,4 +1,4 @@
-# Monshot Fixtures
+# Fluxbeam PumpFun
 
 ## Instructions
 
