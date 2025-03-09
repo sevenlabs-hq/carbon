@@ -153,4 +153,90 @@ mod tests {
         assert_eq!(decoded.program_id, PROGRAM_ID);
         assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
     }
+
+    #[test]
+    fn test_decode_sell() {
+        // Arrange
+        let expected_ix = PumpfunInstruction::Sell(sell::Sell {
+            amount: 26705394300,
+            min_sol_output: 724522,
+        });
+        let expected_accounts = vec![
+            AccountMeta::new_readonly(
+                pubkey!("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("HXfFC4G1aJJo17KW56jJ2iaDLFXq6T8XZjPbQfhspump"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("8f12Y6z6CkMmcBqduvThRG2V873CP3eu2iBydqKGDX6y"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("GkSscwZJBhcFeB6hpWrnfrE73e5SawPmMuT55U1W4uqz"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("Bi6H7WPrZoJmqSauP38NuBaEttGraZkceR4p17ekoTwh"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("3bApZNQrP3T6Q1GvK1n1nUPHHnpnsbrEmdGyQyYLEbkP"),
+                true,
+            ),
+            AccountMeta::new_readonly(pubkey!("11111111111111111111111111111111"), false),
+            AccountMeta::new_readonly(
+                pubkey!("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
+                false,
+            ),
+        ];
+        let expected_arranged_accounts = sell::SellInstructionAccounts {
+            global: pubkey!("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
+            fee_recipient: pubkey!("62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV"),
+            mint: pubkey!("HXfFC4G1aJJo17KW56jJ2iaDLFXq6T8XZjPbQfhspump"),
+            bonding_curve: pubkey!("8f12Y6z6CkMmcBqduvThRG2V873CP3eu2iBydqKGDX6y"),
+            associated_bonding_curve: pubkey!("GkSscwZJBhcFeB6hpWrnfrE73e5SawPmMuT55U1W4uqz"),
+            associated_user: pubkey!("Bi6H7WPrZoJmqSauP38NuBaEttGraZkceR4p17ekoTwh"),
+            user: pubkey!("3bApZNQrP3T6Q1GvK1n1nUPHHnpnsbrEmdGyQyYLEbkP"),
+            system_program: pubkey!("11111111111111111111111111111111"),
+            associated_token_program: pubkey!("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
+            token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            event_authority: pubkey!("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
+            program: pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
+        };
+
+        // Act
+        let decoder = PumpfunDecoder;
+        let instruction = carbon_test_utils::read_instruction("tests/fixtures/sell_ix.json")
+            .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            sell::Sell::arrange_accounts(&instruction.accounts).expect("aranage accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
 }
