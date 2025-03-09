@@ -61,3 +61,55 @@ impl<'a> AccountDecoder<'a> for PumpfunDecoder {
         None
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_decode_bonding_curve_account() {
+        // Arrange
+        let expected_bonding_curve = bonding_curve::BondingCurve {
+            virtual_token_reserves: 1072906494066221,
+            virtual_sol_reserves: 30002615555,
+            real_token_reserves: 793006494066221,
+            real_sol_reserves: 2615555,
+            token_total_supply: 1000000000000000,
+            complete: false,
+        };
+
+        // Act
+        let decoder = PumpfunDecoder;
+        let account = carbon_test_utils::read_account("tests/fixtures/bonding_curve_account.json")
+            .expect("read fixture");
+        let decoded_account = decoder.decode_account(&account).expect("decode fixture");
+
+        // Assert
+        match decoded_account.data {
+            PumpAccount::BondingCurve(bonding_curve) => {
+                assert_eq!(
+                    expected_bonding_curve.virtual_token_reserves,
+                    bonding_curve.virtual_token_reserves
+                );
+                assert_eq!(
+                    expected_bonding_curve.virtual_sol_reserves,
+                    bonding_curve.virtual_sol_reserves
+                );
+                assert_eq!(
+                    expected_bonding_curve.real_token_reserves,
+                    bonding_curve.real_token_reserves
+                );
+                assert_eq!(
+                    expected_bonding_curve.real_sol_reserves,
+                    bonding_curve.real_sol_reserves
+                );
+                assert_eq!(
+                    expected_bonding_curve.token_total_supply,
+                    bonding_curve.token_total_supply
+                );
+                assert_eq!(expected_bonding_curve.complete, bonding_curve.complete);
+            }
+            _ => panic!("Expected BondingCurve"),
+        }
+    }
+}
