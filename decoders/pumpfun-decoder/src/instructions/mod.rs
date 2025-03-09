@@ -239,4 +239,102 @@ mod tests {
         assert_eq!(decoded.program_id, PROGRAM_ID);
         assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
     }
+
+    #[test]
+    fn test_decode_create() {
+        // Arrange
+        let expected_ix = PumpfunInstruction::Create(create::Create {
+            name: "Super Elon Bros ".to_owned(),
+            symbol: "SEB".to_owned(),
+            uri: "https://ipfs.io/ipfs/QmVnjMrWqhMBsmeFnaje87XVxMKY9y7BRL2DtFYJazTGM5".to_owned(),
+            creator: pubkey!("7a9xQF38YVW58TPeHavvXiVpqynCxY2GcohsZxdUZCX1"),
+        });
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("5PweXK19JD4PkafHm9BmpgiTaMoQgKq9EXVkDagwpump"),
+                true,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("Chau1rGA8w4L43rAMUAKXGwq8hpPfGjUoHsiZJEyziKz"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("7JxriSri8PukwVQ6VQZ6ErpJ3Km1x6eWMnQeJ2Cd2148"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("Dzp1H2K6sNR8VAqXE9Q6eSdZckp7uQSJKR1FKY9SzFoS"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("7a9xQF38YVW58TPeHavvXiVpqynCxY2GcohsZxdUZCX1"),
+                true,
+            ),
+            AccountMeta::new_readonly(pubkey!("11111111111111111111111111111111"), false),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("SysvarRent111111111111111111111111111111111"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
+                false,
+            ),
+        ];
+        let expected_arranged_accounts = create::CreateInstructionAccounts {
+            mint: pubkey!("5PweXK19JD4PkafHm9BmpgiTaMoQgKq9EXVkDagwpump"),
+            mint_authority: pubkey!("TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM"),
+            bonding_curve: pubkey!("Chau1rGA8w4L43rAMUAKXGwq8hpPfGjUoHsiZJEyziKz"),
+            associated_bonding_curve: pubkey!("7JxriSri8PukwVQ6VQZ6ErpJ3Km1x6eWMnQeJ2Cd2148"),
+            global: pubkey!("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
+            mpl_token_metadata: pubkey!("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+            metadata: pubkey!("Dzp1H2K6sNR8VAqXE9Q6eSdZckp7uQSJKR1FKY9SzFoS"),
+            user: pubkey!("7a9xQF38YVW58TPeHavvXiVpqynCxY2GcohsZxdUZCX1"),
+            system_program: pubkey!("11111111111111111111111111111111"),
+            token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            associated_token_program: pubkey!("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
+            rent: pubkey!("SysvarRent111111111111111111111111111111111"),
+            event_authority: pubkey!("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
+            program: pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
+        };
+
+        // Act
+        let decoder = PumpfunDecoder;
+        let instruction = carbon_test_utils::read_instruction("tests/fixtures/create_ix.json")
+            .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            create::Create::arrange_accounts(&instruction.accounts).expect("aranage accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
 }

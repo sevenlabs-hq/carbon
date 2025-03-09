@@ -11,6 +11,7 @@ pub struct Create {
     pub creator: solana_sdk::pubkey::Pubkey,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct CreateInstructionAccounts {
     pub mint: solana_sdk::pubkey::Pubkey,
     pub mint_authority: solana_sdk::pubkey::Pubkey,
