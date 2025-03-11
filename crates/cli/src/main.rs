@@ -24,52 +24,64 @@ fn main() -> InquireResult<()> {
 }
 
 fn process_prompts() -> InquireResult<()> {
-    let idl_source = Select::new("IDL source:", vec!["file", "program address"]).prompt()?;
+    let cmd = Select::new("Chose mode:", vec!["parse", "scaffold"]).prompt()?;
 
-    match idl_source {
-        "file" => {
-            let path = Text::new("Path to IDL file:")
-                .with_validator(required!("Please type a path to IDL"))
-                .prompt()?;
-            let standard = Select::new(
-                "Standard of program:",
-                vec![IdlStandard::Anchor, IdlStandard::Codama],
-            )
-            .prompt()?;
-            match standard {
-                IdlStandard::Anchor => {
+    match cmd {
+        "parse" => {
+            let idl_source =
+                Select::new("IDL source:", vec!["file", "program address"]).prompt()?;
+            match idl_source {
+                "file" => {
+                    let path = Text::new("Path to IDL file:")
+                        .with_validator(required!("Please type a path to IDL"))
+                        .prompt()?;
+                    let standard = Select::new(
+                        "Standard of program:",
+                        vec![IdlStandard::Anchor, IdlStandard::Codama],
+                    )
+                    .prompt()?;
+                    match standard {
+                        IdlStandard::Anchor => {
+                            let output_dir = Text::new("Output directory:")
+                                .with_validator(required!("Please type a path to output folder"))
+                                .prompt()?;
+                            let as_crate = Confirm::new("Generate as crate?").prompt()?;
+
+                            handlers::parse(path, output_dir, as_crate)
+                                .map_err(|e| InquireError::Custom(e.into()))?;
+                        }
+                        IdlStandard::Codama => {
+                            let event_hints = Text::new("Event hints:")
+                                .with_validator(required!(
+                                    "Please provide comma-separated event hints"
+                                ))
+                                .prompt()?;
+
+                            let output_dir = Text::new("Output directory:")
+                                .with_validator(required!("Please type a path to output folder"))
+                                .prompt()?;
+                            let as_crate = Confirm::new("Generate as crate?").prompt()?;
+                            handlers::parse_codama(path, output_dir, as_crate, Some(event_hints))
+                                .map_err(|e| InquireError::Custom(e.into()))?;
+                        }
+                    }
+                }
+                "program address" => {
+                    let program_address = Text::new("Program address:").prompt()?;
+                    let url = CustomType::<Url>::new("Network URL:").prompt()?;
                     let output_dir = Text::new("Output directory:")
                         .with_validator(required!("Please type a path to output folder"))
                         .prompt()?;
                     let as_crate = Confirm::new("Generate as crate?").prompt()?;
 
-                    handlers::parse(path, output_dir, as_crate)
+                    handlers::process_pda_idl(program_address, &url, output_dir, as_crate)
                         .map_err(|e| InquireError::Custom(e.into()))?;
                 }
-                IdlStandard::Codama => {
-                    let event_hints = Text::new("Event hints:")
-                        .with_validator(required!("Please provide comma-separated event hints"))
-                        .prompt()?;
-
-                    let output_dir = Text::new("Output directory:")
-                        .with_validator(required!("Please type a path to output folder"))
-                        .prompt()?;
-                    let as_crate = Confirm::new("Generate as crate?").prompt()?;
-                    handlers::parse_codama(path, output_dir, as_crate, Some(event_hints))
-                        .map_err(|e| InquireError::Custom(e.into()))?;
-                }
+                _ => unreachable!(),
             }
         }
-        "program address" => {
-            let program_address = Text::new("Program address:").prompt()?;
-            let url = CustomType::<Url>::new("Network URL:").prompt()?;
-            let output_dir = Text::new("Output directory:")
-                .with_validator(required!("Please type a path to output folder"))
-                .prompt()?;
-            let as_crate = Confirm::new("Generate as crate?").prompt()?;
-
-            handlers::process_pda_idl(program_address, &url, output_dir, as_crate)
-                .map_err(|e| InquireError::Custom(e.into()))?;
+        "scaffold" => {
+            //
         }
         _ => unreachable!(),
     }
@@ -114,6 +126,15 @@ fn process_cli_params(cli: Cli) -> InquireResult<()> {
                     .map_err(|e| InquireError::Custom(e.into()))?;
             }
         },
+        Commands::Scaffold(options) => {
+            handlers::scaffold(
+                options.output,
+                options.decoders,
+                options.data_source,
+                options.metrics,
+            )
+            .map_err(|e| InquireError::Custom(e.into()))?;
+        }
     };
 
     Ok(())

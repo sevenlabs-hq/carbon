@@ -233,3 +233,12 @@ serde = {{ workspace = true }}
 
     Ok(())
 }
+
+pub fn scaffold(
+    output: String,
+    decoders: String,
+    data_source: String,
+    metrics: String,
+) -> Result<()> {
+    Ok(())
+}
