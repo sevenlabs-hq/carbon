@@ -16,8 +16,10 @@ pub struct Cli {
 pub enum Commands {
     #[command(name = "parse")]
     #[command(about = "Generate code for Carbon around the submitted IDL.")]
-    #[command(aliases = &["create", "generate"])]
     Parse(ParseOptions),
+    #[command(name = "scaffold")]
+    #[command(about = "Generate skeleton of the project.")]
+    Scaffold(ScaffoldOptions),
 }
 
 #[derive(Parser)]
@@ -45,6 +47,25 @@ pub struct ParseOptions {
     #[arg(short, long, required_if_eq("idl", "ProgramAddress"))]
     #[arg(help = "Network URL to fetch the IDL from. Required if input is a program address.")]
     pub url: Option<Url>,
+}
+
+#[derive(Parser)]
+pub struct ScaffoldOptions {
+    #[arg(short, long, required = true)]
+    #[arg(help = "Path to the desired output directory.")]
+    pub output: String,
+
+    #[arg(short = 'd', long, required = true)]
+    #[arg(help = "Comma-separated names of decoders.")]
+    pub decoders: String,
+
+    #[arg(short = 's', long, required = true)]
+    #[arg(help = "Name of data source.")]
+    pub data_source: String,
+
+    #[arg(short = 'm', long, required = true)]
+    #[arg(help = "Metrics to use.")]
+    pub metrics: String,
 }
 
 #[derive(Clone, Debug)]
