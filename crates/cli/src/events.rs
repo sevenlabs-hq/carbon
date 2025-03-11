@@ -1,7 +1,7 @@
 use {
     crate::{idl::Idl, legacy_idl::LegacyIdl, util::idl_type_to_rust_type},
     askama::Template,
-    heck::{ToSnekCase, ToUpperCamelCase},
+    heck::{ToSnakeCase, ToSnekCase, ToUpperCamelCase},
     sha2::{Digest, Sha256},
 };
 
@@ -36,9 +36,9 @@ pub fn legacy_process_events(idl: &LegacyIdl) -> Vec<EventData> {
         let ends_with_event = event.name.ends_with("Event");
 
         let module_name = if ends_with_event {
-            event.name.to_snek_case()
+            event.name.to_snake_case()
         } else {
-            event.name.to_snek_case() + "_event"
+            event.name.to_snake_case() + "_event"
         };
         let struct_name = if ends_with_event {
             event.name.to_upper_camel_case()
@@ -54,7 +54,7 @@ pub fn legacy_process_events(idl: &LegacyIdl) -> Vec<EventData> {
                 requires_imports = true;
             }
             args.push(ArgumentData {
-                name: field.name.to_snek_case(),
+                name: field.name.to_snake_case(),
                 rust_type: rust_type.0,
             });
         }
@@ -80,9 +80,9 @@ pub fn process_events(idl: &Idl) -> Vec<EventData> {
         let ends_with_event = event.name.ends_with("Event");
 
         let module_name = if ends_with_event {
-            event.name.to_snek_case()
+            event.name.to_snake_case()
         } else {
-            event.name.to_snek_case() + "_event"
+            event.name.to_snake_case() + "_event"
         };
         let struct_name = if ends_with_event {
             event.name.to_upper_camel_case()
@@ -102,7 +102,7 @@ pub fn process_events(idl: &Idl) -> Vec<EventData> {
                             requires_imports = true;
                         }
                         args.push(ArgumentData {
-                            name: field.name.to_snek_case(),
+                            name: field.name.to_snake_case(),
                             rust_type: rust_type.0,
                         });
                     }
