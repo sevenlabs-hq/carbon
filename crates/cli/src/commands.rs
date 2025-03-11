@@ -52,6 +52,10 @@ pub struct ParseOptions {
 #[derive(Parser)]
 pub struct ScaffoldOptions {
     #[arg(short, long, required = true)]
+    #[arg(help = "Name of your program.")]
+    pub program_name: String,
+
+    #[arg(short, long, required = true)]
     #[arg(help = "Path to the desired output directory.")]
     pub output: String,
 

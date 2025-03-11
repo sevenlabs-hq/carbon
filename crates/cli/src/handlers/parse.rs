@@ -14,7 +14,10 @@ use {
     anyhow::{bail, Result},
     askama::Template,
     heck::{ToKebabCase, ToSnakeCase, ToUpperCamelCase},
-    std::fs::{self},
+    std::{
+        collections::HashSet,
+        fs::{self},
+    },
 };
 
 pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
@@ -235,10 +238,47 @@ serde = {{ workspace = true }}
 }
 
 pub fn scaffold(
+    program_name: String,
     output: String,
     decoders: String,
     data_source: String,
     metrics: String,
 ) -> Result<()> {
+    let project_dir = if output.ends_with("/") {
+        format!("{}-{}", output, program_name.to_snake_case())
+    } else {
+        format!("{}/{}", output, program_name.to_snake_case())
+    };
+
+    fs::create_dir_all(&project_dir).expect("Failed to create decoder directory");
+
+    let src_dir = format!("{}/src", project_dir);
+
+    fs::create_dir_all(&src_dir).expect("Failed to create src directory");
+
+    let decoders_set = parse_decoders(decoders);
+
+    let cargo_toml_filename = format!("{}/Cargo.toml", project_dir);
+    let cargo_toml_content = format!(
+        r#"[package]
+name = "{program_name}"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+carbon-core = 0.6.0
+solana-sdk = "2.1.15"
+"#
+    );
+    fs::write(&cargo_toml_filename, cargo_toml_content).expect("Failed to write Cargo.toml file");
+
     Ok(())
+}
+
+pub fn parse_decoders(decoders: String) -> HashSet<String> {
+    decoders
+        .split(',')
+        .map(|s| s.trim().to_string().to_upper_camel_case())
+        .filter(|s| !s.is_empty())
+        .collect()
 }

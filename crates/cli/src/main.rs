@@ -128,6 +128,7 @@ fn process_cli_params(cli: Cli) -> InquireResult<()> {
         },
         Commands::Scaffold(options) => {
             handlers::scaffold(
+                options.program_name,
                 options.output,
                 options.decoders,
                 options.data_source,
