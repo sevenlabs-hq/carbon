@@ -197,6 +197,7 @@ pub struct Pipeline {
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
     pub metrics: Arc<MetricsCollection>,
     pub metrics_flush_interval: Option<u64>,
+    pub datasource_cancellation_token: Option<CancellationToken>,
     pub shutdown_strategy: ShutdownStrategy,
 }
 
@@ -238,6 +239,7 @@ impl Pipeline {
             transaction_pipes: Vec::new(),
             metrics: MetricsCollection::default(),
             metrics_flush_interval: None,
+            datasource_cancellation_token: None,
             shutdown_strategy: ShutdownStrategy::default(),
         }
     }
@@ -314,7 +316,10 @@ impl Pipeline {
         self.metrics.initialize_metrics().await?;
         let (update_sender, mut update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
 
-        let datasource_cancellation_token = CancellationToken::new();
+        let datasource_cancellation_token = self
+            .datasource_cancellation_token
+            .clone()
+            .unwrap_or_default();
 
         for datasource in &self.datasources {
             let datasource_cancellation_token_clone = datasource_cancellation_token.clone();
@@ -591,6 +596,8 @@ impl Pipeline {
 ///   performance.
 /// - `metrics_flush_interval`: An optional interval (in seconds) for flushing
 ///   metrics data. If not set, a default flush interval will be used.
+/// - `datasource_cancellation_token`: An optional `CancellationToken` for
+///   canceling datasource. If not set, a default `CancellationToken` will be used.
 ///
 /// # Returns
 ///
@@ -613,6 +620,7 @@ pub struct PipelineBuilder {
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
     pub metrics: MetricsCollection,
     pub metrics_flush_interval: Option<u64>,
+    pub datasource_cancellation_token: Option<CancellationToken>,
     pub shutdown_strategy: ShutdownStrategy,
 }
 
@@ -872,6 +880,30 @@ impl PipelineBuilder {
         self
     }
 
+    /// Sets the cancellation token for cancelling datasource on demand.
+    ///
+    /// This value is used to cancel datasource on demand.
+    /// If not set, a default `CancellationToken` is used.
+    ///
+    /// # Parameters
+    ///
+    /// - `cancellation_token`: An instance of `CancellationToken`.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// let builder = PipelineBuilder::new()
+    ///     .datasource_cancellation_token(CancellationToken::new());
+    /// ```
+    pub fn datasource_cancellation_token(mut self, cancellation_token: CancellationToken) -> Self {
+        log::trace!(
+            "datasource_cancellation_token(self, cancellation_token: {:?})",
+            cancellation_token
+        );
+        self.datasource_cancellation_token = Some(cancellation_token);
+        self
+    }
+
     /// Builds and returns a `Pipeline` configured with the specified
     /// components.
     ///
@@ -914,6 +946,7 @@ impl PipelineBuilder {
             shutdown_strategy: self.shutdown_strategy,
             metrics: Arc::new(self.metrics),
             metrics_flush_interval: self.metrics_flush_interval,
+            datasource_cancellation_token: self.datasource_cancellation_token,
         })
     }
 }
