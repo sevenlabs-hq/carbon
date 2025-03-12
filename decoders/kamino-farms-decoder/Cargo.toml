@@ -1,0 +1,15 @@
+[package]
+name = "kamino-farms-decoder"
+version = "0.1.4"
+edition = { workspace = true }
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+carbon-core = { workspace = true }
+carbon-proc-macros = { workspace = true }
+carbon-macros = { workspace = true }
+solana-sdk = { workspace = true }
+serde = { workspace = true }
+
