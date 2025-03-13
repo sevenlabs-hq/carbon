@@ -214,6 +214,7 @@ impl Datasource for MyDataSource {
 ### Available Program Decoders
 
 Decoders for most popular Solana programs are published and maintained:
+
 | Crate Name                                    | Description                               | Program ID                                   |
 | --------------------------------------------- | ----------------------------------------- | -------------------------------------------- |
 | `carbon-drift-v2-decoder`                     | Drift V2 Program Decoder                  | dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH  |
@@ -223,9 +224,13 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-jupiter-limit-order-2-decoder`        | Jupiter Limit Order 2 Program Decoder     | j1o2qRpjcyUwEvwtcfhEQefh773ZgjxcVRry7LDqg5X  |
 | `carbon-jupiter-perpetuals-decoder`           | Jupiter Perpetuals Program Decoder        | PERPHjGBqRHArX4DySjwM6UJHiR3sWAatqfdBS2qQJu  |
 | `carbon-jupiter-swap-decoder`                 | Jupiter Swap Program Decoder              | JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4  |
+| `carbon-kamino-farms-decoder`                 | Kamino Farms Program Decoder              | FarmsPZpWu9i7Kky8tPN37rs2TpmMrAZrC7S7vJa91Hr |
 | `carbon-kamino-lending-decoder`               | Kamino Lend Decoder                       | KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD  |
+| `carbon-kamino-limit-order-decoder`           | Kamino Limit Order Program Decoder        | LiMoM9rMhrdYrfzUCxQppvxCSG1FcrUK9G8uLq4A1GF  |
 | `carbon-kamino-vault-decoder`                 | Kamino Vault Decoder                      | kvauTFR8qm1dhniz6pYuBZkuene3Hfrs1VQhVRgCNrr  |
 | `carbon-lifinity-amm-v2-decoder`              | Lifinity AMM V2 Program Decoder           | 2wT8Yq49kHgDzXuPxZSaeLaH1qbmGXtEyPy64bL7aD3c |
+| `carbon-marginfi-v2-decoder`                  | Marginfi V2 Program Decoder               | MFv2hWf31Z9kbCa1snEPYctwafyhdvnV7FZnsebVacA  |
+| `carbon-marinade-finance-decoder`             | Marinade Finance Program Decoder         | MarBmsSgKXdrN1egZf5sqe1TMai9K1rChYNDJgjq7aD  |
 | `carbon-memo-program-decoder`                 | SPL Memo Program Decoder                  | Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo  |
 | `carbon-meteora-dlmm-decoder`                 | Meteora DLMM Program Decoder              | LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo  |
 | `carbon-moonshot-decoder`                     | Moonshot Program Decoder                  | MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG  |
@@ -238,10 +243,11 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-phoenix-v1-decoder`                   | Phoenix V1 Program Decoder                | PhoeNiXZ8ByJGLkxNfZRnkUfjvmuYqLR89jjFHGqdXY  |
 | `carbon-pumpfun-decoder`                      | Pumpfun Program Decoder                   | 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P  |
 | `carbon-raydium-amm-v4-decoder`               | Raydium AMM V4 Program Decoder            | 675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8 |
-| `carbon-raydium-clmm-decoder`                 | Raydium CLMM Program Decoder              | CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK |
+| `carbon-raydium-clmm-decoder`                 | Raydium CLMM Program Decoder              | CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grKgrWqK |
 | `carbon-raydium-cpmm-decoder`                 | Raydium CPMM Program Decoder              | CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C |
 | `carbon-raydium-liquidity-locking-decoder`    | Raydium Liquidity Locking Program Decoder | LockrWmn6K5twhz3y9w1dQERbmgSaRkfnTeTKbpofwE  |
 | `carbon-sharky-decoder`                       | SharkyFi Decoder                          | SHARKobtfF1bHhxD2eqftjHBdVSCbKo9JtgK71FhELP  |
+| `carbon-solayer-pool-restaking-decoder`       | Solayer Pool Restaking Program Decoder    | sSo1iU21jBrU9VaJ8PJib1MtorefUV4fzC9GURa2KNn     |
 | `carbon-spl-associated-token-account-decoder` | Associated Token Account Decoder          | ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL |
 | `carbon-stabble-stable-swap-decoder`          | Stabble Stable Swap Decoder               | swapNyd8XiQwJ6ianp9snpu4brUqFxadzvHebnAXjJZ  |
 | `carbon-stabble-weighted-swap-decoder`        | Stabble Weighted Swap Decoder             | swapFpHZwjELNnjvThjajtiVmkz3yPQEHjLtka2fwHW  |
