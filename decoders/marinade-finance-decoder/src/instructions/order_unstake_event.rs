@@ -1,11 +1,10 @@
-
-
 use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xe445a52e51cb9a1de43f9bf984a08771")]
-pub struct OrderUnstakeEvent{
+pub struct OrderUnstakeEvent {
     pub state: solana_sdk::pubkey::Pubkey,
     pub ticket_epoch: u64,
     pub ticket: solana_sdk::pubkey::Pubkey,

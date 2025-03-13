@@ -1,12 +1,13 @@
+use {
+    super::super::types::*,
+    carbon_core::{borsh, CarbonDeserialize},
+};
 
-use super::super::types::*;
-
-use carbon_core::{borsh, CarbonDeserialize};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xe445a52e51cb9a1dfb12804bd050ae8c")]
-pub struct UpdateActiveEvent{
+pub struct UpdateActiveEvent {
     pub state: solana_sdk::pubkey::Pubkey,
     pub epoch: u64,
     pub stake_index: u32,

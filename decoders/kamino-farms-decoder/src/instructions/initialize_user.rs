@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x6f11b9fa3c7a26fe")]
-pub struct InitializeUser{
-}
+pub struct InitializeUser {}
 
 pub struct InitializeUserInstructionAccounts {
     pub authority: solana_sdk::pubkey::Pubkey,
@@ -22,21 +20,14 @@ pub struct InitializeUserInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitializeUser {
     type ArrangedAccounts = InitializeUserInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            authority,
-            payer,
-            owner,
-            delegatee,
-            user_state,
-            farm_state,
-            system_program,
-            rent,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [authority, payer, owner, delegatee, user_state, farm_state, system_program, rent, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(InitializeUserInstructionAccounts {
             authority: authority.pubkey,

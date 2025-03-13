@@ -1,11 +1,10 @@
-
-
 use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xe445a52e51cb9a1de7cb76604b7446e4")]
-pub struct DepositStakeAccountEvent{
+pub struct DepositStakeAccountEvent {
     pub state: solana_sdk::pubkey::Pubkey,
     pub stake: solana_sdk::pubkey::Pubkey,
     pub delegated: u64,

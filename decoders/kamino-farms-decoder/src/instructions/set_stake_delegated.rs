@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x49abb84b1e38c6df")]
-pub struct SetStakeDelegated{
+pub struct SetStakeDelegated {
     pub new_amount: u64,
 }
 
@@ -18,16 +17,12 @@ pub struct SetStakeDelegatedInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SetStakeDelegated {
     type ArrangedAccounts = SetStakeDelegatedInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            delegate_authority,
-            user_state,
-            farm_state,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [delegate_authority, user_state, farm_state, _remaining @ ..] = accounts else {
             return None;
         };
-       
 
         Some(SetStakeDelegatedInstructionAccounts {
             delegate_authority: delegate_authority.pubkey,

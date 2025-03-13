@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x83a6405e6cd572b7")]
-pub struct DepositToFarmVault{
+pub struct DepositToFarmVault {
     pub amount: u64,
 }
 
@@ -20,18 +19,14 @@ pub struct DepositToFarmVaultInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for DepositToFarmVault {
     type ArrangedAccounts = DepositToFarmVaultInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            depositor,
-            farm_state,
-            farm_vault,
-            depositor_ata,
-            token_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [depositor, farm_state, farm_vault, depositor_ata, token_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(DepositToFarmVaultInstructionAccounts {
             depositor: depositor.pubkey,

@@ -1,23 +1,28 @@
-
-
-
-
-use super::KaminoLimitOrderDecoder;
+use {super::KaminoLimitOrderDecoder, crate::PROGRAM_ID};
+pub mod close_order_and_claim_tip;
+pub mod create_order;
+pub mod flash_take_order_end;
+pub mod flash_take_order_start;
 pub mod initialize_global_config;
 pub mod initialize_vault;
-pub mod create_order;
-pub mod close_order_and_claim_tip;
-pub mod take_order;
-pub mod flash_take_order_start;
-pub mod flash_take_order_end;
-pub mod update_global_config;
-pub mod update_global_config_admin;
-pub mod withdraw_host_tip;
 pub mod log_user_swap_balances;
 pub mod order_display_event;
+pub mod take_order;
+pub mod update_global_config;
+pub mod update_global_config_admin;
 pub mod user_swap_balances_event;
+pub mod withdraw_host_tip;
 
-#[derive(carbon_core::InstructionType, serde::Serialize, serde::Deserialize, PartialEq, Eq, Debug, Clone, Hash)]
+#[derive(
+    carbon_core::InstructionType,
+    serde::Serialize,
+    serde::Deserialize,
+    PartialEq,
+    Eq,
+    Debug,
+    Clone,
+    Hash,
+)]
 pub enum KaminoLimitOrderInstruction {
     InitializeGlobalConfig(initialize_global_config::InitializeGlobalConfig),
     InitializeVault(initialize_vault::InitializeVault),
@@ -41,6 +46,9 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for KaminoLimitOrderDe
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
         carbon_core::try_decode_instructions!(instruction,
             KaminoLimitOrderInstruction::InitializeGlobalConfig => initialize_global_config::InitializeGlobalConfig,
             KaminoLimitOrderInstruction::InitializeVault => initialize_vault::InitializeVault,

@@ -1,10 +1,11 @@
+use {
+    super::*,
+    carbon_core::{borsh, CarbonDeserialize},
+};
 
-use super::*;
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 pub struct LiqPool {
     pub lp_mint: solana_sdk::pubkey::Pubkey,
     pub lp_mint_authority_bump_seed: u8,

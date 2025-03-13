@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x7b45a8c3b7d5c7d6")]
-pub struct EmergencyUnstake{
+pub struct EmergencyUnstake {
     pub stake_index: u32,
     pub validator_index: u32,
 }
@@ -24,21 +23,14 @@ pub struct EmergencyUnstakeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for EmergencyUnstake {
     type ArrangedAccounts = EmergencyUnstakeInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            state,
-            validator_manager_authority,
-            validator_list,
-            stake_list,
-            stake_account,
-            stake_deposit_authority,
-            clock,
-            stake_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [state, validator_manager_authority, validator_list, stake_list, stake_account, stake_deposit_authority, clock, stake_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(EmergencyUnstakeInstructionAccounts {
             state: state.pubkey,

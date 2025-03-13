@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x8cf669a550558f12")]
-pub struct WithdrawHostTip{
-}
+pub struct WithdrawHostTip {}
 
 pub struct WithdrawHostTipInstructionAccounts {
     pub admin_authority: solana_sdk::pubkey::Pubkey,
@@ -18,17 +16,14 @@ pub struct WithdrawHostTipInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawHostTip {
     type ArrangedAccounts = WithdrawHostTipInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            admin_authority,
-            global_config,
-            pda_authority,
-            system_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [admin_authority, global_config, pda_authority, system_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(WithdrawHostTipInstructionAccounts {
             admin_authority: admin_authority.pubkey,

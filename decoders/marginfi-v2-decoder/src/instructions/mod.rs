@@ -1,48 +1,53 @@
-
-
-
-
-use super::MarginfiV2Decoder;
-pub mod marginfi_group_initialize;
-pub mod marginfi_group_configure;
+use {super::MarginfiV2Decoder, crate::PROGRAM_ID};
+pub mod lending_account_borrow;
+pub mod lending_account_borrow_event;
+pub mod lending_account_close_balance;
+pub mod lending_account_deposit;
+pub mod lending_account_deposit_event;
+pub mod lending_account_end_flashloan;
+pub mod lending_account_liquidate;
+pub mod lending_account_liquidate_event;
+pub mod lending_account_repay;
+pub mod lending_account_repay_event;
+pub mod lending_account_settle_emissions;
+pub mod lending_account_start_flashloan;
+pub mod lending_account_withdraw;
+pub mod lending_account_withdraw_emissions;
+pub mod lending_account_withdraw_event;
+pub mod lending_pool_accrue_bank_interest;
 pub mod lending_pool_add_bank;
 pub mod lending_pool_add_bank_with_seed;
-pub mod lending_pool_configure_bank;
-pub mod lending_pool_setup_emissions;
-pub mod lending_pool_update_emissions_parameters;
-pub mod lending_pool_handle_bankruptcy;
-pub mod marginfi_account_initialize;
-pub mod lending_account_deposit;
-pub mod lending_account_repay;
-pub mod lending_account_withdraw;
-pub mod lending_account_borrow;
-pub mod lending_account_close_balance;
-pub mod lending_account_withdraw_emissions;
-pub mod lending_account_settle_emissions;
-pub mod lending_account_liquidate;
-pub mod lending_account_start_flashloan;
-pub mod lending_account_end_flashloan;
-pub mod lending_pool_accrue_bank_interest;
-pub mod lending_pool_collect_bank_fees;
-pub mod set_account_flag;
-pub mod unset_account_flag;
-pub mod set_new_account_authority;
-pub mod marginfi_group_create_event;
-pub mod marginfi_group_configure_event;
-pub mod lending_pool_bank_create_event;
-pub mod lending_pool_bank_configure_event;
 pub mod lending_pool_bank_accrue_interest_event;
 pub mod lending_pool_bank_collect_fees_event;
+pub mod lending_pool_bank_configure_event;
+pub mod lending_pool_bank_create_event;
 pub mod lending_pool_bank_handle_bankruptcy_event;
+pub mod lending_pool_collect_bank_fees;
+pub mod lending_pool_configure_bank;
+pub mod lending_pool_handle_bankruptcy;
+pub mod lending_pool_setup_emissions;
+pub mod lending_pool_update_emissions_parameters;
 pub mod marginfi_account_create_event;
-pub mod lending_account_deposit_event;
-pub mod lending_account_repay_event;
-pub mod lending_account_borrow_event;
-pub mod lending_account_withdraw_event;
-pub mod lending_account_liquidate_event;
+pub mod marginfi_account_initialize;
 pub mod marginfi_account_transfer_account_authority_event;
+pub mod marginfi_group_configure;
+pub mod marginfi_group_configure_event;
+pub mod marginfi_group_create_event;
+pub mod marginfi_group_initialize;
+pub mod set_account_flag;
+pub mod set_new_account_authority;
+pub mod unset_account_flag;
 
-#[derive(carbon_core::InstructionType, serde::Serialize, serde::Deserialize, PartialEq, Eq, Debug, Clone, Hash)]
+#[derive(
+    carbon_core::InstructionType,
+    serde::Serialize,
+    serde::Deserialize,
+    PartialEq,
+    Eq,
+    Debug,
+    Clone,
+    Hash,
+)]
 pub enum MarginfiV2Instruction {
     MarginfiGroupInitialize(marginfi_group_initialize::MarginfiGroupInitialize),
     MarginfiGroupConfigure(marginfi_group_configure::MarginfiGroupConfigure),
@@ -91,6 +96,9 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for MarginfiV2Decoder 
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
         carbon_core::try_decode_instructions!(instruction,
             MarginfiV2Instruction::MarginfiGroupInitialize => marginfi_group_initialize::MarginfiGroupInitialize,
             MarginfiV2Instruction::MarginfiGroupConfigure => marginfi_group_configure::MarginfiGroupConfigure,

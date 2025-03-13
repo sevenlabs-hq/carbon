@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x1e1e77f0bfe30c10")]
-pub struct LiquidUnstake{
+pub struct LiquidUnstake {
     pub msol_amount: u64,
 }
 
@@ -25,23 +24,14 @@ pub struct LiquidUnstakeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for LiquidUnstake {
     type ArrangedAccounts = LiquidUnstakeInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            state,
-            msol_mint,
-            liq_pool_sol_leg_pda,
-            liq_pool_msol_leg,
-            treasury_msol_account,
-            get_msol_from,
-            get_msol_from_authority,
-            transfer_sol_to,
-            system_program,
-            token_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [state, msol_mint, liq_pool_sol_leg_pda, liq_pool_msol_leg, treasury_msol_account, get_msol_from, get_msol_from_authority, transfer_sol_to, system_program, token_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(LiquidUnstakeInstructionAccounts {
             state: state.pubkey,

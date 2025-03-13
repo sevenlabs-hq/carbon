@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xb59d59438fb63448")]
-pub struct AddLiquidity{
+pub struct AddLiquidity {
     pub lamports: u64,
 }
 
@@ -24,22 +23,14 @@ pub struct AddLiquidityInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for AddLiquidity {
     type ArrangedAccounts = AddLiquidityInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            state,
-            lp_mint,
-            lp_mint_authority,
-            liq_pool_msol_leg,
-            liq_pool_sol_leg_pda,
-            transfer_from,
-            mint_to,
-            system_program,
-            token_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [state, lp_mint, lp_mint_authority, liq_pool_msol_leg, liq_pool_sol_leg_pda, transfer_from, mint_to, system_program, token_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(AddLiquidityInstructionAccounts {
             state: state.pubkey,

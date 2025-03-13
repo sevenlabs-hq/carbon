@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x283f7a9e90d85360")]
-pub struct WithdrawTreasury{
+pub struct WithdrawTreasury {
     pub amount: u64,
 }
 
@@ -22,20 +21,14 @@ pub struct WithdrawTreasuryInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawTreasury {
     type ArrangedAccounts = WithdrawTreasuryInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            global_admin,
-            global_config,
-            reward_mint,
-            reward_treasury_vault,
-            treasury_vault_authority,
-            withdraw_destination_token_account,
-            token_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [global_admin, global_config, reward_mint, reward_treasury_vault, treasury_vault_authority, withdraw_destination_token_account, token_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(WithdrawTreasuryInstructionAccounts {
             global_admin: global_admin.pubkey,

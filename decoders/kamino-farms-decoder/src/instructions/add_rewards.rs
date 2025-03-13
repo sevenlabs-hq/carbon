@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x58ba19e326895117")]
-pub struct AddRewards{
+pub struct AddRewards {
     pub amount: u64,
     pub reward_index: u64,
 }
@@ -24,21 +23,14 @@ pub struct AddRewardsInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for AddRewards {
     type ArrangedAccounts = AddRewardsInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            payer,
-            farm_state,
-            reward_mint,
-            reward_vault,
-            farm_vaults_authority,
-            payer_reward_token_ata,
-            scope_prices,
-            token_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [payer, farm_state, reward_mint, reward_vault, farm_vaults_authority, payer_reward_token_ata, scope_prices, token_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(AddRewardsInstructionAccounts {
             payer: payer.pubkey,

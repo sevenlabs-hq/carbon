@@ -1,12 +1,13 @@
+use {
+    super::super::types::*,
+    carbon_core::{borsh, CarbonDeserialize},
+};
 
-use super::super::types::*;
-
-use carbon_core::{borsh, CarbonDeserialize};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xe445a52e51cb9a1d9fa4f5725efd0309")]
-pub struct ConfigMarinadeEvent{
+pub struct ConfigMarinadeEvent {
     pub state: solana_sdk::pubkey::Pubkey,
     pub rewards_fee_change: Option<FeeValueChange>,
     pub slots_for_stake_delta_change: Option<U64ValueChange>,

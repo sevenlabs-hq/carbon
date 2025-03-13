@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xfa7135368d75d7b9")]
-pub struct AddValidator{
+pub struct AddValidator {
     pub score: u32,
 }
 
@@ -24,22 +23,14 @@ pub struct AddValidatorInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for AddValidator {
     type ArrangedAccounts = AddValidatorInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            state,
-            manager_authority,
-            validator_list,
-            validator_vote,
-            duplication_flag,
-            rent_payer,
-            clock,
-            rent,
-            system_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [state, manager_authority, validator_list, validator_vote, duplication_flag, rent_payer, clock, rent, system_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(AddValidatorInstructionAccounts {
             state: state.pubkey,

@@ -1,7 +1,13 @@
 [package]
 name = "marinade-finance-decoder"
 version = "0.1.4"
+description = "Marinade Finance Decoder"
 edition = { workspace = true }
+license = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "decoder", "marinade", "marinade-finance"]
+categories = ["encoding"]
 
 [lib]
 crate-type = ["rlib"]

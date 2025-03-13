@@ -1,35 +1,40 @@
-
-
-
-
-use super::KaminoFarmsDecoder;
-pub mod initialize_global_config;
-pub mod update_global_config;
+use {super::KaminoFarmsDecoder, crate::PROGRAM_ID};
+pub mod add_rewards;
+pub mod deposit_to_farm_vault;
+pub mod harvest_reward;
+pub mod idl_missing_types;
 pub mod initialize_farm;
 pub mod initialize_farm_delegated;
+pub mod initialize_global_config;
 pub mod initialize_reward;
-pub mod add_rewards;
-pub mod update_farm_config;
 pub mod initialize_user;
-pub mod transfer_ownership;
-pub mod reward_user_once;
 pub mod refresh_farm;
-pub mod stake;
-pub mod set_stake_delegated;
-pub mod harvest_reward;
-pub mod unstake;
 pub mod refresh_user_state;
-pub mod withdraw_unstaked_deposits;
-pub mod withdraw_treasury;
-pub mod deposit_to_farm_vault;
-pub mod withdraw_from_farm_vault;
-pub mod withdraw_slashed_amount;
+pub mod reward_user_once;
+pub mod set_stake_delegated;
+pub mod stake;
+pub mod transfer_ownership;
+pub mod unstake;
 pub mod update_farm_admin;
+pub mod update_farm_config;
+pub mod update_global_config;
 pub mod update_global_config_admin;
+pub mod withdraw_from_farm_vault;
 pub mod withdraw_reward;
-pub mod idl_missing_types;
+pub mod withdraw_slashed_amount;
+pub mod withdraw_treasury;
+pub mod withdraw_unstaked_deposits;
 
-#[derive(carbon_core::InstructionType, serde::Serialize, serde::Deserialize, PartialEq, Eq, Debug, Clone, Hash)]
+#[derive(
+    carbon_core::InstructionType,
+    serde::Serialize,
+    serde::Deserialize,
+    PartialEq,
+    Eq,
+    Debug,
+    Clone,
+    Hash,
+)]
 pub enum KaminoFarmsInstruction {
     InitializeGlobalConfig(initialize_global_config::InitializeGlobalConfig),
     UpdateGlobalConfig(update_global_config::UpdateGlobalConfig),
@@ -65,6 +70,9 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for KaminoFarmsDecoder
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
         carbon_core::try_decode_instructions!(instruction,
             KaminoFarmsInstruction::InitializeGlobalConfig => initialize_global_config::InitializeGlobalConfig,
             KaminoFarmsInstruction::UpdateGlobalConfig => update_global_config::UpdateGlobalConfig,

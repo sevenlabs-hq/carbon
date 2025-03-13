@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xafaf6d1f0d989bed")]
-pub struct Initialize{
-}
+pub struct Initialize {}
 
 pub struct InitializeInstructionAccounts {
     pub signer: solana_sdk::pubkey::Pubkey,
@@ -23,22 +21,14 @@ pub struct InitializeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Initialize {
     type ArrangedAccounts = InitializeInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            signer,
-            solayer_admin,
-            lst_mint,
-            lst_vault,
-            rst_mint,
-            pool,
-            associated_token_program,
-            token_program,
-            system_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [signer, solayer_admin, lst_mint, lst_vault, rst_mint, pool, associated_token_program, token_program, system_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(InitializeInstructionAccounts {
             signer: signer.pubkey,

@@ -1,63 +1,68 @@
-
-
-
-
-use super::MarinadeFinanceDecoder;
-pub mod initialize;
-pub mod change_authority;
-pub mod add_validator;
-pub mod remove_validator;
-pub mod set_validator_score;
-pub mod config_validator_system;
-pub mod deposit;
-pub mod deposit_stake_account;
-pub mod liquid_unstake;
+use {super::MarinadeFinanceDecoder, crate::PROGRAM_ID};
 pub mod add_liquidity;
-pub mod remove_liquidity;
-pub mod config_lp;
-pub mod config_marinade;
-pub mod order_unstake;
-pub mod claim;
-pub mod stake_reserve;
-pub mod update_active;
-pub mod update_deactivated;
-pub mod deactivate_stake;
-pub mod emergency_unstake;
-pub mod partial_unstake;
-pub mod merge_stakes;
-pub mod redelegate;
-pub mod pause;
-pub mod resume;
-pub mod withdraw_stake_account;
-pub mod realloc_validator_list;
-pub mod realloc_stake_list;
-pub mod change_authority_event;
-pub mod config_lp_event;
-pub mod config_marinade_event;
-pub mod initialize_event;
-pub mod emergency_pause_event;
-pub mod resume_event;
-pub mod realloc_validator_list_event;
-pub mod realloc_stake_list_event;
-pub mod deactivate_stake_event;
-pub mod merge_stakes_event;
-pub mod redelegate_event;
-pub mod stake_reserve_event;
-pub mod update_active_event;
-pub mod update_deactivated_event;
-pub mod claim_event;
-pub mod order_unstake_event;
 pub mod add_liquidity_event;
-pub mod liquid_unstake_event;
-pub mod remove_liquidity_event;
+pub mod add_validator;
 pub mod add_validator_event;
-pub mod remove_validator_event;
-pub mod set_validator_score_event;
-pub mod deposit_stake_account_event;
+pub mod change_authority;
+pub mod change_authority_event;
+pub mod claim;
+pub mod claim_event;
+pub mod config_lp;
+pub mod config_lp_event;
+pub mod config_marinade;
+pub mod config_marinade_event;
+pub mod config_validator_system;
+pub mod deactivate_stake;
+pub mod deactivate_stake_event;
+pub mod deposit;
 pub mod deposit_event;
+pub mod deposit_stake_account;
+pub mod deposit_stake_account_event;
+pub mod emergency_pause_event;
+pub mod emergency_unstake;
+pub mod initialize;
+pub mod initialize_event;
+pub mod liquid_unstake;
+pub mod liquid_unstake_event;
+pub mod merge_stakes;
+pub mod merge_stakes_event;
+pub mod order_unstake;
+pub mod order_unstake_event;
+pub mod partial_unstake;
+pub mod pause;
+pub mod realloc_stake_list;
+pub mod realloc_stake_list_event;
+pub mod realloc_validator_list;
+pub mod realloc_validator_list_event;
+pub mod redelegate;
+pub mod redelegate_event;
+pub mod remove_liquidity;
+pub mod remove_liquidity_event;
+pub mod remove_validator;
+pub mod remove_validator_event;
+pub mod resume;
+pub mod resume_event;
+pub mod set_validator_score;
+pub mod set_validator_score_event;
+pub mod stake_reserve;
+pub mod stake_reserve_event;
+pub mod update_active;
+pub mod update_active_event;
+pub mod update_deactivated;
+pub mod update_deactivated_event;
+pub mod withdraw_stake_account;
 pub mod withdraw_stake_account_event;
 
-#[derive(carbon_core::InstructionType, serde::Serialize, serde::Deserialize, PartialEq, Eq, Debug, Clone, Hash)]
+#[derive(
+    carbon_core::InstructionType,
+    serde::Serialize,
+    serde::Deserialize,
+    PartialEq,
+    Eq,
+    Debug,
+    Clone,
+    Hash,
+)]
 pub enum MarinadeFinanceInstruction {
     Initialize(initialize::Initialize),
     ChangeAuthority(change_authority::ChangeAuthority),
@@ -121,6 +126,9 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for MarinadeFinanceDec
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
         carbon_core::try_decode_instructions!(instruction,
             MarinadeFinanceInstruction::Initialize => initialize::Initialize,
             MarinadeFinanceInstruction::ChangeAuthority => change_authority::ChangeAuthority,

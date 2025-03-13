@@ -2,7 +2,12 @@
 name = "kamino-farms-decoder"
 version = "0.1.4"
 edition = { workspace = true }
-
+description = "Kamino Farms Decoder"
+license = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "decoder", "kamino", "farms", "kamino-farms"]
+categories = ["encoding"]
 [lib]
 crate-type = ["rlib"]
 

@@ -1,11 +1,10 @@
-
-
 use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xe445a52e51cb9a1d499c45e9200e9641")]
-pub struct MergeStakesEvent{
+pub struct MergeStakesEvent {
     pub state: solana_sdk::pubkey::Pubkey,
     pub epoch: u64,
     pub destination_stake_index: u32,

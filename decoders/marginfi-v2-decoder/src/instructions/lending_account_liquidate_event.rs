@@ -1,12 +1,13 @@
+use {
+    super::super::types::*,
+    carbon_core::{borsh, CarbonDeserialize},
+};
 
-use super::super::types::*;
-
-use carbon_core::{borsh, CarbonDeserialize};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xe445a52e51cb9a1da6a0f99ab72717f2")]
-pub struct LendingAccountLiquidateEvent{
+pub struct LendingAccountLiquidateEvent {
     pub header: AccountEventHeader,
     pub liquidatee_marginfi_account: solana_sdk::pubkey::Pubkey,
     pub liquidatee_marginfi_account_authority: solana_sdk::pubkey::Pubkey,

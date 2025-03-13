@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xceb0ca12c8d1b36c")]
-pub struct Stake{
+pub struct Stake {
     pub amount: u64,
 }
 
@@ -23,21 +22,14 @@ pub struct StakeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Stake {
     type ArrangedAccounts = StakeInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            owner,
-            user_state,
-            farm_state,
-            farm_vault,
-            user_ata,
-            token_mint,
-            scope_prices,
-            token_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [owner, user_state, farm_state, farm_vault, user_ata, token_mint, scope_prices, token_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(StakeInstructionAccounts {
             owner: owner.pubkey,

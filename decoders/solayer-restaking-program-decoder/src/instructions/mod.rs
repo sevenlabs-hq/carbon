@@ -1,14 +1,19 @@
-
-
-
-
-use super::SolayerRestakingProgramDecoder;
+use {super::SolayerRestakingProgramDecoder, crate::PROGRAM_ID};
+pub mod batch_thaw_lst_accounts;
 pub mod initialize;
 pub mod restake;
 pub mod unrestake;
-pub mod batch_thaw_lst_accounts;
 
-#[derive(carbon_core::InstructionType, serde::Serialize, serde::Deserialize, PartialEq, Eq, Debug, Clone, Hash)]
+#[derive(
+    carbon_core::InstructionType,
+    serde::Serialize,
+    serde::Deserialize,
+    PartialEq,
+    Eq,
+    Debug,
+    Clone,
+    Hash,
+)]
 pub enum SolayerRestakingProgramInstruction {
     Initialize(initialize::Initialize),
     Restake(restake::Restake),
@@ -23,6 +28,9 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for SolayerRestakingPr
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
         carbon_core::try_decode_instructions!(instruction,
             SolayerRestakingProgramInstruction::Initialize => initialize::Initialize,
             SolayerRestakingProgramInstruction::Restake => restake::Restake,

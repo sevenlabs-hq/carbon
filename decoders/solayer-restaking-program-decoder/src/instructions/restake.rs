@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x61a1f1a70620d535")]
-pub struct Restake{
+pub struct Restake {
     pub amount: u64,
 }
 
@@ -25,23 +24,14 @@ pub struct RestakeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Restake {
     type ArrangedAccounts = RestakeInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            signer,
-            lst_mint,
-            lst_ata,
-            rst_ata,
-            rst_mint,
-            vault,
-            pool,
-            associated_token_program,
-            token_program,
-            system_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [signer, lst_mint, lst_ata, rst_ata, rst_mint, vault, pool, associated_token_program, token_program, system_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(RestakeInstructionAccounts {
             signer: signer.pubkey,

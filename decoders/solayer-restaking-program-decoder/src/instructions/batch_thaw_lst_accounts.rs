@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xb7ae4d28b686cad5")]
-pub struct BatchThawLstAccounts{
-}
+pub struct BatchThawLstAccounts {}
 
 pub struct BatchThawLstAccountsInstructionAccounts {
     pub signer: solana_sdk::pubkey::Pubkey,
@@ -22,21 +20,14 @@ pub struct BatchThawLstAccountsInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for BatchThawLstAccounts {
     type ArrangedAccounts = BatchThawLstAccountsInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            signer,
-            solayer_admin,
-            lst_mint,
-            rst_mint,
-            pool,
-            associated_token_program,
-            token_program,
-            system_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [signer, solayer_admin, lst_mint, rst_mint, pool, associated_token_program, token_program, system_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(BatchThawLstAccountsInstructionAccounts {
             signer: signer.pubkey,

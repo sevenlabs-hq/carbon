@@ -1,10 +1,11 @@
+use {
+    super::*,
+    carbon_core::{borsh, CarbonDeserialize},
+};
 
-use super::*;
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 pub struct StakeSystem {
     pub stake_list: List,
     pub delayed_unstake_cooling_down: u64,

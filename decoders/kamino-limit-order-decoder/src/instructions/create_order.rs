@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x8d3625cfedd2fad7")]
-pub struct CreateOrder{
+pub struct CreateOrder {
     pub input_amount: u64,
     pub output_amount: u64,
     pub order_type: u8,
@@ -29,25 +28,14 @@ pub struct CreateOrderInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CreateOrder {
     type ArrangedAccounts = CreateOrderInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            maker,
-            global_config,
-            pda_authority,
-            order,
-            input_mint,
-            output_mint,
-            maker_ata,
-            input_vault,
-            input_token_program,
-            output_token_program,
-            event_authority,
-            program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [maker, global_config, pda_authority, order, input_mint, output_mint, maker_ata, input_vault, input_token_program, output_token_program, event_authority, program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(CreateOrderInstructionAccounts {
             maker: maker.pubkey,

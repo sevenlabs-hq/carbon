@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xf41b0ce22df7e62b")]
-pub struct CloseOrderAndClaimTip{
-}
+pub struct CloseOrderAndClaimTip {}
 
 pub struct CloseOrderAndClaimTipInstructionAccounts {
     pub maker: solana_sdk::pubkey::Pubkey,
@@ -26,25 +24,14 @@ pub struct CloseOrderAndClaimTipInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CloseOrderAndClaimTip {
     type ArrangedAccounts = CloseOrderAndClaimTipInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            maker,
-            order,
-            global_config,
-            pda_authority,
-            input_mint,
-            output_mint,
-            maker_input_ata,
-            input_vault,
-            input_token_program,
-            system_program,
-            event_authority,
-            program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [maker, order, global_config, pda_authority, input_mint, output_mint, maker_input_ata, input_vault, input_token_program, system_program, event_authority, program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(CloseOrderAndClaimTipInstructionAccounts {
             maker: maker.pubkey,

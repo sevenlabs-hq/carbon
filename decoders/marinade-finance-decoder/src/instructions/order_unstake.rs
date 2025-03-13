@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x61a7906b75be8024")]
-pub struct OrderUnstake{
+pub struct OrderUnstake {
     pub msol_amount: u64,
 }
 
@@ -23,21 +22,14 @@ pub struct OrderUnstakeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for OrderUnstake {
     type ArrangedAccounts = OrderUnstakeInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            state,
-            msol_mint,
-            burn_msol_from,
-            burn_msol_authority,
-            new_ticket_account,
-            clock,
-            rent,
-            token_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [state, msol_mint, burn_msol_from, burn_msol_authority, new_ticket_account, clock, rent, token_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(OrderUnstakeInstructionAccounts {
             state: state.pubkey,

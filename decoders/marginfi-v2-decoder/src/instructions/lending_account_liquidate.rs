@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xd6a997d5fba756db")]
-pub struct LendingAccountLiquidate{
+pub struct LendingAccountLiquidate {
     pub asset_amount: u64,
 }
 
@@ -25,23 +24,14 @@ pub struct LendingAccountLiquidateInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for LendingAccountLiquidate {
     type ArrangedAccounts = LendingAccountLiquidateInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            marginfi_group,
-            asset_bank,
-            liab_bank,
-            liquidator_marginfi_account,
-            signer,
-            liquidatee_marginfi_account,
-            bank_liquidity_vault_authority,
-            bank_liquidity_vault,
-            bank_insurance_vault,
-            token_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [marginfi_group, asset_bank, liab_bank, liquidator_marginfi_account, signer, liquidatee_marginfi_account, bank_liquidity_vault_authority, bank_liquidity_vault, bank_insurance_vault, token_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(LendingAccountLiquidateInstructionAccounts {
             marginfi_group: marginfi_group.pubkey,

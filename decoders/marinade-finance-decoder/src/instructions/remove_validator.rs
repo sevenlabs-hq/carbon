@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x1960d39ba10ea8bc")]
-pub struct RemoveValidator{
+pub struct RemoveValidator {
     pub index: u32,
     pub validator_vote: solana_sdk::pubkey::Pubkey,
 }
@@ -21,18 +20,14 @@ pub struct RemoveValidatorInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for RemoveValidator {
     type ArrangedAccounts = RemoveValidatorInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            state,
-            manager_authority,
-            validator_list,
-            duplication_flag,
-            operational_sol_account,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [state, manager_authority, validator_list, duplication_flag, operational_sol_account, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(RemoveValidatorInstructionAccounts {
             state: state.pubkey,

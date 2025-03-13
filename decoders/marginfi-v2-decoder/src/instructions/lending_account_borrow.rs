@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x047e74353005d41f")]
-pub struct LendingAccountBorrow{
+pub struct LendingAccountBorrow {
     pub amount: u64,
 }
 
@@ -23,21 +22,14 @@ pub struct LendingAccountBorrowInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for LendingAccountBorrow {
     type ArrangedAccounts = LendingAccountBorrowInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            marginfi_group,
-            marginfi_account,
-            signer,
-            bank,
-            destination_token_account,
-            bank_liquidity_vault_authority,
-            bank_liquidity_vault,
-            token_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [marginfi_group, marginfi_account, signer, bank, destination_token_account, bank_liquidity_vault_authority, bank_liquidity_vault, token_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(LendingAccountBorrowInstructionAccounts {
             marginfi_group: marginfi_group.pubkey,

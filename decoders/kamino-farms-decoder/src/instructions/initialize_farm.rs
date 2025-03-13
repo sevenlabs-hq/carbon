@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xfc1cb9acf44a75a5")]
-pub struct InitializeFarm{
-}
+pub struct InitializeFarm {}
 
 pub struct InitializeFarmInstructionAccounts {
     pub farm_admin: solana_sdk::pubkey::Pubkey,
@@ -23,22 +21,14 @@ pub struct InitializeFarmInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitializeFarm {
     type ArrangedAccounts = InitializeFarmInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            farm_admin,
-            farm_state,
-            global_config,
-            farm_vault,
-            farm_vaults_authority,
-            token_mint,
-            token_program,
-            system_program,
-            rent,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [farm_admin, farm_state, global_config, farm_vault, farm_vaults_authority, token_mint, token_program, system_program, rent, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(InitializeFarmInstructionAccounts {
             farm_admin: farm_admin.pubkey,

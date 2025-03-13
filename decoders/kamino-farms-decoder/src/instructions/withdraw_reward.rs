@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xbfbbb0890919bbf4")]
-pub struct WithdrawReward{
+pub struct WithdrawReward {
     pub amount: u64,
     pub reward_index: u64,
 }
@@ -24,21 +23,14 @@ pub struct WithdrawRewardInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawReward {
     type ArrangedAccounts = WithdrawRewardInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            farm_admin,
-            farm_state,
-            reward_mint,
-            reward_vault,
-            farm_vaults_authority,
-            admin_reward_token_ata,
-            scope_prices,
-            token_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [farm_admin, farm_state, reward_mint, reward_vault, farm_vaults_authority, admin_reward_token_ata, scope_prices, token_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(WithdrawRewardInstructionAccounts {
             farm_admin: farm_admin.pubkey,

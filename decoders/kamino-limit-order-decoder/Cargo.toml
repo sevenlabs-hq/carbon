@@ -1,7 +1,13 @@
 [package]
 name = "kamino-limit-order-decoder"
 version = "0.1.4"
+description = "Kamino Limit Order Decoder"
 edition = { workspace = true }
+license = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "decoder", "kamino", "limit-order"]
+categories = ["encoding"]
 
 [lib]
 crate-type = ["rlib"]

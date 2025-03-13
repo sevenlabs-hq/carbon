@@ -1,11 +1,10 @@
-
-
 use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xe445a52e51cb9a1d707595b94d77be6a")]
-pub struct StakeReserveEvent{
+pub struct StakeReserveEvent {
     pub state: solana_sdk::pubkey::Pubkey,
     pub epoch: u64,
     pub stake_index: u32,

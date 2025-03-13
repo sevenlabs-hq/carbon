@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x0c247c1b806055c7")]
-pub struct ReallocStakeList{
+pub struct ReallocStakeList {
     pub capacity: u32,
 }
 
@@ -20,18 +19,14 @@ pub struct ReallocStakeListInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for ReallocStakeList {
     type ArrangedAccounts = ReallocStakeListInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            state,
-            admin_authority,
-            stake_list,
-            rent_funds,
-            system_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [state, admin_authority, stake_list, rent_funds, system_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(ReallocStakeListInstructionAccounts {
             state: state.pubkey,

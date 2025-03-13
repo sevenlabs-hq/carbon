@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x2466bb31dc248443")]
-pub struct WithdrawUnstakedDeposits{
-}
+pub struct WithdrawUnstakedDeposits {}
 
 pub struct WithdrawUnstakedDepositsInstructionAccounts {
     pub owner: solana_sdk::pubkey::Pubkey,
@@ -21,20 +19,14 @@ pub struct WithdrawUnstakedDepositsInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawUnstakedDeposits {
     type ArrangedAccounts = WithdrawUnstakedDepositsInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            owner,
-            user_state,
-            farm_state,
-            user_ata,
-            farm_vault,
-            farm_vaults_authority,
-            token_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [owner, user_state, farm_state, user_ata, farm_vault, farm_vaults_authority, token_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(WithdrawUnstakedDepositsInstructionAccounts {
             owner: owner.pubkey,

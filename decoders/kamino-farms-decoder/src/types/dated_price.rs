@@ -1,10 +1,11 @@
+use {
+    super::*,
+    carbon_core::{borsh, CarbonDeserialize},
+};
 
-use super::*;
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 pub struct DatedPrice {
     pub price: Price,
     pub last_updated_slot: u64,

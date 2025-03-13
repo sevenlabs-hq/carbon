@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x7e35b00f276761f3")]
-pub struct FlashTakeOrderStart{
+pub struct FlashTakeOrderStart {
     pub input_amount: u64,
     pub min_output_amount: u64,
     pub tip_amount_permissionless_taking: u64,
@@ -40,36 +39,14 @@ pub struct FlashTakeOrderStartInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for FlashTakeOrderStart {
     type ArrangedAccounts = FlashTakeOrderStartInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            taker,
-            maker,
-            global_config,
-            pda_authority,
-            order,
-            input_mint,
-            output_mint,
-            input_vault,
-            taker_input_ata,
-            taker_output_ata,
-            intermediary_output_token_account,
-            maker_output_ata,
-            express_relay,
-            express_relay_metadata,
-            sysvar_instructions,
-            permission,
-            config_router,
-            input_token_program,
-            output_token_program,
-            system_program,
-            rent,
-            event_authority,
-            program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [taker, maker, global_config, pda_authority, order, input_mint, output_mint, input_vault, taker_input_ata, taker_output_ata, intermediary_output_token_account, maker_output_ata, express_relay, express_relay_metadata, sysvar_instructions, permission, config_router, input_token_program, output_token_program, system_program, rent, event_authority, program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(FlashTakeOrderStartInstructionAccounts {
             taker: taker.pubkey,

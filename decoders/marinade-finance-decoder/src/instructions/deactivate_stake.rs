@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xa59ee561a8dcbbe1")]
-pub struct DeactivateStake{
+pub struct DeactivateStake {
     pub stake_index: u32,
     pub validator_index: u32,
 }
@@ -30,27 +29,14 @@ pub struct DeactivateStakeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for DeactivateStake {
     type ArrangedAccounts = DeactivateStakeInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            state,
-            reserve_pda,
-            validator_list,
-            stake_list,
-            stake_account,
-            stake_deposit_authority,
-            split_stake_account,
-            split_stake_rent_payer,
-            clock,
-            rent,
-            epoch_schedule,
-            stake_history,
-            system_program,
-            stake_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [state, reserve_pda, validator_list, stake_list, stake_account, stake_deposit_authority, split_stake_account, split_stake_rent_payer, clock, rent, epoch_schedule, stake_history, system_program, stake_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(DeactivateStakeInstructionAccounts {
             state: state.pubkey,

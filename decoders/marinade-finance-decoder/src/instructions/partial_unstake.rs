@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x37f1cddd2d72cda3")]
-pub struct PartialUnstake{
+pub struct PartialUnstake {
     pub stake_index: u32,
     pub validator_index: u32,
     pub desired_unstake_amount: u64,
@@ -31,27 +30,14 @@ pub struct PartialUnstakeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for PartialUnstake {
     type ArrangedAccounts = PartialUnstakeInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            state,
-            validator_manager_authority,
-            validator_list,
-            stake_list,
-            stake_account,
-            stake_deposit_authority,
-            reserve_pda,
-            split_stake_account,
-            split_stake_rent_payer,
-            clock,
-            rent,
-            stake_history,
-            system_program,
-            stake_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_sdk::instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [state, validator_manager_authority, validator_list, stake_list, stake_account, stake_deposit_authority, reserve_pda, split_stake_account, split_stake_rent_payer, clock, rent, stake_history, system_program, stake_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(PartialUnstakeInstructionAccounts {
             state: state.pubkey,
