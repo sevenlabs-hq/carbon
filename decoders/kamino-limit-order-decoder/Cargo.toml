@@ -1,0 +1,21 @@
+[package]
+name = "kamino-limit-order-decoder"
+version = "0.6.0"
+description = "Kamino Limit Order Decoder"
+edition = { workspace = true }
+license = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "decoder", "kamino", "limit-order"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+carbon-core = { workspace = true }
+carbon-proc-macros = { workspace = true }
+carbon-macros = { workspace = true }
+solana-sdk = { workspace = true }
+serde = { workspace = true }
+

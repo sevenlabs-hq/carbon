@@ -1,0 +1,21 @@
+[package]
+name = "solayer-restaking-program-decoder"
+version = "0.6.0"
+edition = { workspace = true }
+description = "Solayer Restaking Decoder"
+license = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "decoder", "solayer", "restaking", "solayer-restaking"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+carbon-core = { workspace = true }
+carbon-proc-macros = { workspace = true }
+carbon-macros = { workspace = true }
+solana-sdk = { workspace = true }
+serde = { workspace = true }
+
