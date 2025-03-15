@@ -238,39 +238,48 @@ serde = {{ workspace = true }}
 }
 
 pub fn scaffold(
-    program_name: String,
+    name: String,
     output: String,
     decoders: String,
     data_source: String,
     metrics: String,
 ) -> Result<()> {
+    let decoders_set = parse_decoders(decoders);
+
     let project_dir = if output.ends_with("/") {
-        format!("{}-{}", output, program_name.to_snake_case())
+        format!("{}-{}", output, name.to_kebab_case())
     } else {
-        format!("{}/{}", output, program_name.to_snake_case())
+        format!("{}/{}", output, name.to_kebab_case())
     };
 
+    // Generate project directories
     fs::create_dir_all(&project_dir).expect("Failed to create decoder directory");
 
     let src_dir = format!("{}/src", project_dir);
 
     fs::create_dir_all(&src_dir).expect("Failed to create src directory");
 
-    let decoders_set = parse_decoders(decoders);
+    // Generate Cargo.toml
+    let (carbon_deps_version, sol_deps_version) = ("0.6.0", "2.1.15");
 
     let cargo_toml_filename = format!("{}/Cargo.toml", project_dir);
     let cargo_toml_content = format!(
         r#"[package]
-name = "{program_name}"
+name = "{name}"
 version = "0.0.1"
 edition = "2021"
 
 [dependencies]
-carbon-core = 0.6.0
-solana-sdk = "2.1.15"
+carbon-core = "{carbon_deps_version}"
+solana-sdk = "{sol_deps_version}"
 "#
     );
     fs::write(&cargo_toml_filename, cargo_toml_content).expect("Failed to write Cargo.toml file");
+
+    // Generate main.rs
+    let main_rs_filename = format!("{}/main.rs", src_dir);
+
+    fs::write(&main_rs_filename, main_rs_content).expect("Failed to write Cargo.toml file");
 
     Ok(())
 }

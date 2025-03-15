@@ -52,8 +52,8 @@ pub struct ParseOptions {
 #[derive(Parser)]
 pub struct ScaffoldOptions {
     #[arg(short, long, required = true)]
-    #[arg(help = "Name of your program.")]
-    pub program_name: String,
+    #[arg(help = "Name of your project.")]
+    pub name: String,
 
     #[arg(short, long, required = true)]
     #[arg(help = "Path to the desired output directory.")]
@@ -67,7 +67,7 @@ pub struct ScaffoldOptions {
     #[arg(help = "Name of data source.")]
     pub data_source: String,
 
-    #[arg(short = 'm', long, required = true)]
+    #[arg(short = 'm', long, default_value = "log")]
     #[arg(help = "Metrics to use.")]
     pub metrics: String,
 }
