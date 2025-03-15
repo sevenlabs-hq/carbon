@@ -13,8 +13,10 @@ pub mod legacy_idl;
 pub mod types;
 pub mod util;
 
-use commands::Url;
-use inquire::{error::InquireResult, required, Confirm, CustomType, InquireError, Select, Text};
+use commands::{Datasource, Decoder, Url};
+use inquire::{
+    error::InquireResult, required, Confirm, CustomType, InquireError, MultiSelect, Select, Text,
+};
 
 fn main() -> InquireResult<()> {
     match Cli::try_parse() {
@@ -81,7 +83,58 @@ fn process_prompts() -> InquireResult<()> {
             }
         }
         "scaffold" => {
-            //
+            let available_decoders = vec![
+                Decoder::Drift,
+                Decoder::Fluxbeam,
+                Decoder::JupiterDCA,
+                Decoder::JupiterLimitOrder,
+                Decoder::JupiterLimitOrder2,
+                Decoder::JupiterPerpetuals,
+                Decoder::JupiterSwap,
+                Decoder::KaminoLending,
+                Decoder::KaminoVault,
+                Decoder::LifinityAMM,
+                Decoder::MemoProgram,
+                Decoder::MeteoraDLMM,
+                Decoder::Moonshot,
+                Decoder::MPLCore,
+                Decoder::MPLTokenMetadata,
+                Decoder::NameService,
+                Decoder::OKXDEX,
+                Decoder::Openbook,
+                Decoder::OrcaWhirlpool,
+                Decoder::Phoenix,
+                Decoder::Pumpfun,
+                Decoder::RaydiumAMM,
+                Decoder::RaydiumCLMM,
+                Decoder::RaydiumCPMM,
+                Decoder::RaydiumLiquidityLocking,
+                Decoder::Sharky,
+                Decoder::SPLAssociatedTokenAccount,
+                Decoder::StabbleStableSwap,
+                Decoder::StabbleWeightedSwap,
+                Decoder::StakeProgram,
+                Decoder::SystemProgram,
+                Decoder::TokenProgram,
+                Decoder::Token2022Program,
+                Decoder::Zeta,
+            ];
+
+            let datasource = Select::new(
+                "Standard of program:",
+                vec![
+                    Datasource::HeliusAtlasWs,
+                    Datasource::RpcBlockSubscribe,
+                    Datasource::RpcProgramSubscribe,
+                    Datasource::RpcTransactionCrawler,
+                    Datasource::YellowstoneGrpc,
+                ],
+            )
+            .prompt()?;
+
+            let decoders =
+                MultiSelect::new("Select the decoders for your app:", available_decoders)
+                    .prompt()?;
         }
         _ => unreachable!(),
     }
