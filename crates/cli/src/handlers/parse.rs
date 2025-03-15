@@ -13,8 +13,11 @@ use {
     },
     anyhow::{bail, Result},
     askama::Template,
-    heck::{ToKebabCase, ToSnakeCase, ToSnekCase, ToUpperCamelCase},
-    std::fs::{self},
+    heck::{ToKebabCase, ToSnakeCase, ToUpperCamelCase},
+    std::{
+        collections::HashSet,
+        fs::{self},
+    },
 };
 
 pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
@@ -66,12 +69,12 @@ pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
         if as_crate {
             format!("{}{}-decoder", output, decoder_name_kebab)
         } else {
-            format!("{}{}_decoder", output, program_name.to_snek_case())
+            format!("{}{}_decoder", output, program_name.to_snake_case())
         }
     } else if as_crate {
         format!("{}/{}-decoder", output, decoder_name_kebab)
     } else {
-        format!("{}/{}_decoder", output, program_name.to_snek_case())
+        format!("{}/{}_decoder", output, program_name.to_snake_case())
     };
 
     fs::create_dir_all(&crate_dir).expect("Failed to create decoder directory");
@@ -232,4 +235,59 @@ serde = {{ workspace = true }}
     }
 
     Ok(())
+}
+
+pub fn scaffold(
+    name: String,
+    output: String,
+    decoders: String,
+    data_source: String,
+    metrics: String,
+) -> Result<()> {
+    let decoders_set = parse_decoders(decoders);
+
+    let project_dir = if output.ends_with("/") {
+        format!("{}-{}", output, name.to_kebab_case())
+    } else {
+        format!("{}/{}", output, name.to_kebab_case())
+    };
+
+    // Generate project directories
+    fs::create_dir_all(&project_dir).expect("Failed to create decoder directory");
+
+    let src_dir = format!("{}/src", project_dir);
+
+    fs::create_dir_all(&src_dir).expect("Failed to create src directory");
+
+    // Generate Cargo.toml
+    let (carbon_deps_version, sol_deps_version) = ("0.6.0", "2.1.15");
+
+    let cargo_toml_filename = format!("{}/Cargo.toml", project_dir);
+    let cargo_toml_content = format!(
+        r#"[package]
+name = "{name}"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+carbon-core = "{carbon_deps_version}"
+solana-sdk = "{sol_deps_version}"
+"#
+    );
+    fs::write(&cargo_toml_filename, cargo_toml_content).expect("Failed to write Cargo.toml file");
+
+    // Generate main.rs
+    let main_rs_filename = format!("{}/main.rs", src_dir);
+
+    fs::write(&main_rs_filename, main_rs_content).expect("Failed to write Cargo.toml file");
+
+    Ok(())
+}
+
+pub fn parse_decoders(decoders: String) -> HashSet<String> {
+    decoders
+        .split(',')
+        .map(|s| s.trim().to_string().to_upper_camel_case())
+        .filter(|s| !s.is_empty())
+        .collect()
 }
