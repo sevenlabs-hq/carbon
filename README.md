@@ -121,6 +121,8 @@ $ carbon-cli parse [OPTIONS] --idl <IDL> --output <OUTPUT>
 
 #### Examples
 
+##### Generate Decoder
+
 1. To generate a decoder from an Anchor IDL file:
 
 ```sh
@@ -154,6 +156,13 @@ This will parse the my_program_codama.json Codama IDL file and generate the corr
 ```sh
 $ carbon-cli parse --idl my_program_codama.json --output ./src/decoders --standard codama --event-hints event1,event2,event3
 ```
+
+##### Scaffold Project
+
+```sh
+$ carbon-cli scaffold --name degen-paradize --output ./desired-folder --decoders pumpfun,moonshot,raydium-amm-v4 --data-source yellowstone-grpc
+```
+
 
 ### Implementing Processors
 
