@@ -13,15 +13,12 @@ use {
             buy::Buy, config_init::ConfigInit, config_update::ConfigUpdate,
             migrate_funds::MigrateFunds, sell::Sell, token_mint::TokenMint, MoonshotInstruction,
         },
-        MoonshotDecoder,
+        MoonshotDecoder, PROGRAM_ID as MOONSHOT_PROGRAM_ID,
     },
     carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
     solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
-    solana_sdk::{pubkey, pubkey::Pubkey},
     std::{env, sync::Arc},
 };
-
-pub const MOONSHOT_PROGRAM_ID: Pubkey = pubkey!("MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG");
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {

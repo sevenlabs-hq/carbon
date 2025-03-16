@@ -10,15 +10,12 @@ use {
     carbon_log_metrics::LogMetrics,
     carbon_raydium_clmm_decoder::{
         instructions::{swap_v2::SwapV2, RaydiumClmmInstruction},
-        RaydiumClmmDecoder,
+        RaydiumClmmDecoder, PROGRAM_ID as RAYDIUM_CLMM_PROGRAM_ID,
     },
     carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
     solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
-    solana_sdk::{pubkey, pubkey::Pubkey},
     std::{env, sync::Arc},
 };
-
-pub const RAYDIUM_CLMM_PROGRAM_ID: Pubkey = pubkey!("CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK");
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {

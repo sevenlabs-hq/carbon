@@ -4,17 +4,17 @@ use {
         error::CarbonResult, instruction::InstructionProcessorInputType,
         metrics::MetricsCollection, processor::Processor,
     },
-    carbon_pumpfun_decoder::{instructions::PumpfunInstruction, PumpfunDecoder},
+    carbon_pumpfun_decoder::{
+        instructions::PumpfunInstruction, PumpfunDecoder, PROGRAM_ID as PUMPFUN_PROGRAM_ID,
+    },
     helius::types::{
         Cluster, RpcTransactionsConfig, TransactionCommitment, TransactionDetails,
         TransactionSubscribeFilter, TransactionSubscribeOptions, UiEnhancedTransactionEncoding,
     },
-    solana_sdk::{native_token::LAMPORTS_PER_SOL, pubkey, pubkey::Pubkey},
+    solana_sdk::native_token::LAMPORTS_PER_SOL,
     std::{collections::HashSet, sync::Arc},
     tokio::sync::RwLock,
 };
-
-pub const PUMPFUN_PROGRAM_ID: Pubkey = pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P");
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {

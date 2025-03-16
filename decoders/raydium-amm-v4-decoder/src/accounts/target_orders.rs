@@ -3,7 +3,7 @@ use {
     carbon_core::{borsh, CarbonDeserialize},
 };
 
-pub(crate) const TARGET_ORDERS_SIZE: usize = std::mem::size_of::<TargetOrders>();
+pub const TARGET_ORDERS_SIZE: usize = std::mem::size_of::<TargetOrders>();
 
 #[derive(CarbonDeserialize, Debug)]
 pub struct TargetOrders {
