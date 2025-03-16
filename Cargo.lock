@@ -3153,6 +3153,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "kamino-farms-decoder"
+version = "0.6.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
+name = "kamino-limit-order-decoder"
+version = "0.6.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "serde-big-array",
+ "solana-sdk",
+]
+
+[[package]]
 name = "keccak"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3270,6 +3293,28 @@ name = "log"
 version = "0.4.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "30bde2b3dc3671ae49d8e2e9f044c7c005836e7a023ee57cffa25ab82764bb9e"
+
+[[package]]
+name = "marginfi-v2-decoder"
+version = "0.6.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
+name = "marinade-finance-decoder"
+version = "0.6.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
 
 [[package]]
 name = "matchit"
@@ -6297,6 +6342,17 @@ dependencies = [
  "scroll",
  "thiserror 1.0.69",
  "winapi",
+]
+
+[[package]]
+name = "solayer-restaking-program-decoder"
+version = "0.6.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
 ]
 
 [[package]]

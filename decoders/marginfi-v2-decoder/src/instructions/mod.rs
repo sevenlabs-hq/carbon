@@ -39,14 +39,7 @@ pub mod set_new_account_authority;
 pub mod unset_account_flag;
 
 #[derive(
-    carbon_core::InstructionType,
-    serde::Serialize,
-    serde::Deserialize,
-    PartialEq,
-    Eq,
-    Debug,
-    Clone,
-    Hash,
+    carbon_core::InstructionType, serde::Serialize, serde::Deserialize, PartialEq, Debug, Clone,
 )]
 pub enum MarginfiV2Instruction {
     MarginfiGroupInitialize(marginfi_group_initialize::MarginfiGroupInitialize),

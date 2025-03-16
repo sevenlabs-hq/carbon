@@ -1,4 +1,5 @@
 use carbon_core::{borsh, CarbonDeserialize};
+use serde_big_array::BigArray;
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -6,6 +7,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0xa45482bd6f3afac8")]
 pub struct UpdateGlobalConfig {
     pub mode: u16,
+    #[serde(with = "BigArray")]
     pub value: [u8; 128],
 }
 

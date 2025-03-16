@@ -36,12 +36,12 @@ carbon-jupiter-limit-order-2-decoder = { path = "decoders/jupiter-limit-order-2-
 carbon-jupiter-limit-order-decoder = { path = "decoders/jupiter-limit-order-decoder", version = "0.6.0" }
 carbon-jupiter-perpetuals-decoder = { path = "decoders/jupiter-perpetuals-decoder", version = "0.6.0" }
 carbon-jupiter-swap-decoder = { path = "decoders/jupiter-swap-decoder", version = "0.6.0" }
+carbon-kamino-farms-decoder = { path = "decoders/kamino-farms-decoder", version = "0.1.4" }
 carbon-kamino-lending-decoder = { path = "decoders/kamino-lending-decoder", version = "0.6.0" }
-carbon-kamino-farms-decoder = { path = "decoders/kamino-farms-decoder", version = "0.1.4"}
 carbon-kamino-vault-decoder = { path = "decoders/kamino-vault-decoder", version = "0.6.0" }
 carbon-lifinity-amm-v2-decoder = { path = "decoders/lifinity-amm-v2-decoder", version = "0.6.0" }
-carbon-marinade-finance-decoder = { path = "decoders/marinade-finance-decoder", version = "0.1.4"}
-carbon-marginfi-v2-decoder = { path = "decoders/marginfi-v2-decoder", version = "0.1.4"}
+carbon-marginfi-v2-decoder = { path = "decoders/marginfi-v2-decoder", version = "0.1.4" }
+carbon-marinade-finance-decoder = { path = "decoders/marinade-finance-decoder", version = "0.1.4" }
 carbon-memo-program-decoder = { path = "decoders/memo-program-decoder", version = "0.6.0" }
 carbon-meteora-dlmm-decoder = { path = "decoders/meteora-dlmm-decoder", version = "0.6.0" }
 carbon-moonshot-decoder = { path = "decoders/moonshot-decoder", version = "0.6.0" }
