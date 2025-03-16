@@ -7,13 +7,13 @@ use {
         processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
-    carbon_meteora_dlmm_decoder::{instructions::MeteoraDlmmInstruction, MeteoraDlmmDecoder},
+    carbon_meteora_dlmm_decoder::{
+        instructions::MeteoraDlmmInstruction, MeteoraDlmmDecoder, PROGRAM_ID as METEORA_PROGRAM_ID,
+    },
     carbon_rpc_transaction_crawler_datasource::{Filters, RpcTransactionCrawler},
-    solana_sdk::{commitment_config::CommitmentConfig, pubkey, pubkey::Pubkey},
+    solana_sdk::commitment_config::CommitmentConfig,
     std::{env, sync::Arc, time::Duration},
 };
-
-pub const METEORA_PROGRAM_ID: Pubkey = pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo");
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
