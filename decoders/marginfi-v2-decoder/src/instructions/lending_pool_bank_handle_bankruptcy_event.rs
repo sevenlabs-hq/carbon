@@ -3,9 +3,7 @@ use {
     carbon_core::{borsh, CarbonDeserialize},
 };
 
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Clone)]
 #[carbon(discriminator = "0xe445a52e51cb9a1da64d298c245e0a39")]
 pub struct LendingPoolBankHandleBankruptcyEvent {
     pub header: AccountEventHeader,
