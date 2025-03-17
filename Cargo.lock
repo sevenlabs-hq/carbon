@@ -974,6 +974,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-kamino-farms-decoder"
+version = "0.6.1"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-kamino-lending-decoder"
 version = "0.6.1"
 dependencies = [
@@ -3166,17 +3177,6 @@ dependencies = [
  "solana-transaction-status",
  "tokio",
  "yellowstone-grpc-proto",
-]
-
-[[package]]
-name = "kamino-farms-decoder"
-version = "0.6.1"
-dependencies = [
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
- "serde",
- "solana-sdk",
 ]
 
 [[package]]
