@@ -9,10 +9,9 @@ use {
     },
     carbon_kamino_lending_decoder::{
         accounts::KaminoLendingAccount, instructions::KaminoLendingInstruction,
-        KaminoLendingDecoder,
+        KaminoLendingDecoder, PROGRAM_ID as KAMINO_LENDING_PROGRAM_ID,
     },
     carbon_yellowstone_grpc_datasource::YellowstoneGrpcGeyserClient,
-    solana_sdk::{pubkey, pubkey::Pubkey},
     std::{
         collections::{HashMap, HashSet},
         env,
@@ -23,9 +22,6 @@ use {
         CommitmentLevel, SubscribeRequestFilterAccounts, SubscribeRequestFilterTransactions,
     },
 };
-
-pub const KAMINO_LENDING_PROGRAM_ID: Pubkey =
-    pubkey!("KLend2g3cP87fffoy8q1mQqGKjrxjC8boSyAYavgmjD");
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {

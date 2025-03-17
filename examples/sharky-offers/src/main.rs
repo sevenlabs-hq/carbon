@@ -15,20 +15,18 @@ use {
     carbon_sharky_decoder::{
         accounts::SharkyAccount,
         instructions::{SharkyInstruction, SharkyInstructionType},
-        SharkyDecoder,
+        SharkyDecoder, PROGRAM_ID as SHARKY_PROGRAM_ID,
     },
     solana_account_decoder::UiAccountEncoding,
     solana_client::{
         nonblocking::rpc_client::RpcClient,
         rpc_config::{RpcAccountInfoConfig, RpcProgramAccountsConfig},
     },
-    solana_sdk::{pubkey, pubkey::Pubkey},
+    solana_sdk::pubkey::Pubkey,
     std::{env, sync::Arc},
     tokio::sync::mpsc::UnboundedSender,
     tokio_util::sync::CancellationToken,
 };
-
-pub const SHARKY_PROGRAM_ID: Pubkey = pubkey!("SHARKobtfF1bHhxD2eqftjHBdVSCbKo9JtgK71FhELP");
 
 pub struct GpaBackfillDatasource {
     pub rpc_url: String,

@@ -3,7 +3,7 @@ use {
     carbon_core::{borsh, CarbonDeserialize},
 };
 
-pub(crate) const AMM_INFO_SIZE: usize = std::mem::size_of::<AmmInfo>();
+pub const AMM_INFO_SIZE: usize = std::mem::size_of::<AmmInfo>();
 
 #[derive(CarbonDeserialize, Debug)]
 pub struct AmmInfo {

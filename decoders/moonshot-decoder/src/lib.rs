@@ -5,4 +5,4 @@ pub mod accounts;
 pub mod instructions;
 pub mod types;
 
-pub(crate) const PROGRAM_ID: Pubkey = pubkey!("MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG");
+pub const PROGRAM_ID: Pubkey = pubkey!("MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG");

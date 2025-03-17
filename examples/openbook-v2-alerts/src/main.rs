@@ -7,14 +7,14 @@ use {
         processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
-    carbon_openbook_v2_decoder::{instructions::OpenbookV2Instruction, OpenbookV2Decoder},
+    carbon_openbook_v2_decoder::{
+        instructions::OpenbookV2Instruction, OpenbookV2Decoder,
+        PROGRAM_ID as OPENBOOK_V2_PROGRAM_ID,
+    },
     carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
     solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
-    solana_sdk::{pubkey, pubkey::Pubkey},
     std::{env, sync::Arc},
 };
-
-pub const OPENBOOK_V2_PROGRAM_ID: Pubkey = pubkey!("opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb");
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {

@@ -13,10 +13,9 @@ use {
         instructions::{
             swap_base_in::SwapBaseIn, swap_base_out::SwapBaseOut, RaydiumAmmV4Instruction,
         },
-        RaydiumAmmV4Decoder,
+        RaydiumAmmV4Decoder, PROGRAM_ID as RAYDIUM_AMM_V4_PROGRAM_ID,
     },
     carbon_yellowstone_grpc_datasource::YellowstoneGrpcGeyserClient,
-    solana_sdk::{pubkey, pubkey::Pubkey},
     std::{
         collections::{HashMap, HashSet},
         env,
@@ -27,9 +26,6 @@ use {
         CommitmentLevel, SubscribeRequestFilterAccounts, SubscribeRequestFilterTransactions,
     },
 };
-
-pub const RAYDIUM_AMM_V4_PROGRAM_ID: Pubkey =
-    pubkey!("675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8");
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
