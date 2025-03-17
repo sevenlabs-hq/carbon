@@ -1300,6 +1300,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-solayer-restaking-program-decoder"
+version = "0.6.1"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-spl-associated-token-account-decoder"
 version = "0.6.1"
 dependencies = [
@@ -6386,17 +6397,6 @@ dependencies = [
  "scroll",
  "thiserror 1.0.69",
  "winapi",
-]
-
-[[package]]
-name = "solayer-restaking-program-decoder"
-version = "0.6.1"
-dependencies = [
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
- "serde",
- "solana-sdk",
 ]
 
 [[package]]
