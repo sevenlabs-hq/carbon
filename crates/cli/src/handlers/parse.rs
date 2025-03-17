@@ -196,7 +196,7 @@ pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
         let cargo_toml_content = format!(
             r#"[package]
 name = "{decoder_name_kebab}-decoder"
-version = "0.1.4"
+version = "0.6.0"
 edition = {{ workspace = true }}
 
 [lib]
