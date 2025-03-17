@@ -24,9 +24,12 @@ workspace_crates=(
     carbon-jupiter-limit-order-decoder
     carbon-jupiter-perpetuals-decoder
     carbon-jupiter-swap-decoder
+    carbon-kamino-farms-decoder
     carbon-kamino-lending-decoder
     carbon-kamino-vault-decoder
     carbon-lifinity-amm-v2-decoder
+    carbon-marginfi-v2-decoder
+    carbon-marinade-finance-decoder
     carbon-memo-program-decoder
     carbon-meteora-dlmm-decoder
     carbon-moonshot-decoder
@@ -43,6 +46,7 @@ workspace_crates=(
     carbon-raydium-cpmm-decoder
     carbon-raydium-liquidity-locking-decoder
     carbon-sharky-decoder
+    carbon-solayer-restaking-program-decoder
     carbon-spl-associated-token-account-decoder
     carbon-stabble-stable-swap-decoder
     carbon-stabble-weighted-swap-decoder
