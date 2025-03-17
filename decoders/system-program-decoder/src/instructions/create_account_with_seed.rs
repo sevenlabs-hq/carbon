@@ -1,11 +1,10 @@
-use carbon_core::{borsh, CarbonDeserialize};
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+use carbon_core::{borsh, deserialize::PrefixString, CarbonDeserialize};
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone)]
 #[carbon(discriminator = "0x03")]
 pub struct CreateAccountWithSeed {
     pub base: solana_sdk::pubkey::Pubkey,
-    pub seed: String, // TODO: This should be decoded/encoded as  instruction_data[36..40].copy_from_slice(&u32::to_le_bytes(self.seed.len() as u32)); example of tx - 63tXnEFv6pEs8Lxc2KvZJ5gvmMLJ2inQ5jQzuRXCq3TpQVw2gHZet2NNN8nUwvpMsaZmfSN3q4yiwKbcuBJHspik
+    pub seed: PrefixString, // TODO: This should be decoded/encoded as  instruction_data[36..40].copy_from_slice(&u32::to_le_bytes(self.seed.len() as u32)); example of tx - 63tXnEFv6pEs8Lxc2KvZJ5gvmMLJ2inQ5jQzuRXCq3TpQVw2gHZet2NNN8nUwvpMsaZmfSN3q4yiwKbcuBJHspik
     pub lamports: u64,
     pub space: u64,
     pub owner: solana_sdk::pubkey::Pubkey,
