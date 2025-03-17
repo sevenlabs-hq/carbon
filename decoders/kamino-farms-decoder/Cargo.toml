@@ -13,8 +13,7 @@ crate-type = ["rlib"]
 
 [dependencies]
 carbon-core = { workspace = true }
-carbon-proc-macros = { workspace = true }
 carbon-macros = { workspace = true }
-solana-sdk = { workspace = true }
+carbon-proc-macros = { workspace = true }
 serde = { workspace = true }
-
+solana-sdk = { workspace = true }
