@@ -1049,6 +1049,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-marinade-finance-decoder"
+version = "0.6.1"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-memo-program-decoder"
 version = "0.6.1"
 dependencies = [
@@ -3326,17 +3337,6 @@ name = "log"
 version = "0.4.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "30bde2b3dc3671ae49d8e2e9f044c7c005836e7a023ee57cffa25ab82764bb9e"
-
-[[package]]
-name = "marinade-finance-decoder"
-version = "0.6.1"
-dependencies = [
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
- "serde",
- "solana-sdk",
-]
 
 [[package]]
 name = "matchit"
