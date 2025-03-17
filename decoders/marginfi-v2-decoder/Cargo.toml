@@ -1,5 +1,5 @@
 [package]
-name = "marginfi-v2-decoder"
+name = "carbon-marginfi-v2-decoder"
 version = "0.6.1"
 description = "MarginfiV2 Decoder"
 edition = { workspace = true }
