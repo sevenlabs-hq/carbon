@@ -3,6 +3,31 @@
 set -ex
 
 workspace_crates=(
+    carbon-macros
+    carbon-proc-macros
+    carbon-core
+    carbon-test-utils
+
+    carbon-helius-atlas-ws-datasource
+    carbon-rpc-block-subscribe-datasource
+    carbon-rpc-program-subscribe-datasource
+    carbon-rpc-transaction-crawler-datasource
+    carbon-yellowstone-grpc-datasource
+
+    carbon-log-metrics
+    carbon-prometheus-metrics
+
+    carbon-drift-v2-decoder
+    carbon-fluxbeam-decoder
+    carbon-jupiter-dca-decoder
+    carbon-jupiter-limit-order-2-decoder
+    carbon-jupiter-limit-order-decoder
+    carbon-jupiter-perpetuals-decoder
+    carbon-jupiter-swap-decoder
+    carbon-kamino-farms-decoder
+    carbon-kamino-lending-decoder
+    carbon-kamino-vault-decoder
+    carbon-lifinity-amm-v2-decoder
     carbon-marginfi-v2-decoder
     carbon-marinade-finance-decoder
     carbon-memo-program-decoder
@@ -34,5 +59,6 @@ workspace_crates=(
 
 for crate in "${workspace_crates[@]}"; do
    echo "--- $crate"
+   cargo package -p $crate
    cargo publish -p $crate
 done
