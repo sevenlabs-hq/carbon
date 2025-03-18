@@ -14,7 +14,7 @@ use {
     },
     anyhow::{bail, Result},
     askama::Template,
-    heck::{ToKebabCase, ToSnakeCase, ToSnekCase, ToUpperCamelCase},
+    heck::{ToKebabCase, ToSnakeCase, ToUpperCamelCase},
     std::fs::{self},
 };
 

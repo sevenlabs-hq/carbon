@@ -6,7 +6,7 @@ use {
         util::idl_type_to_rust_type,
     },
     askama::Template,
-    heck::{ToSnakeCase, ToSnekCase, ToUpperCamelCase},
+    heck::{ToSnakeCase, ToUpperCamelCase},
     sha2::{Digest, Sha256},
 };
 
