@@ -7,21 +7,16 @@ use {
         metrics::MetricsCollection,
         processor::Processor,
     },
-    carbon_log_metrics::LogMetrics,
-    carbon_moonshot_decoder::{
-        instructions::{
-            buy::Buy, config_init::ConfigInit, config_update::ConfigUpdate,
-            migrate_funds::MigrateFunds, sell::Sell, token_mint::TokenMint, MoonshotInstruction,
-        },
-        MoonshotDecoder,
-    },
+    carbon_{{ metrics.module_name }}_metrics,
+    carbon_{{ data_source.module_name }}_datasource,
+    {%- for decoder in decoders %} 
+    carbon_{{ decoder.module_name }}_decoder, 
+    {%- endfor %} 
     carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
     solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
     solana_sdk::{pubkey, pubkey::Pubkey},
     std::{env, sync::Arc},
 };
-
-pub const MOONSHOT_PROGRAM_ID: Pubkey = pubkey!("MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG");
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {

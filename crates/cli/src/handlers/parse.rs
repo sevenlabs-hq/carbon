@@ -8,7 +8,7 @@ use {
             legacy_process_instructions, process_instructions, InstructionsModTemplate,
             InstructionsStructTemplate,
         },
-        project::{DataSourceData, DecoderData, ProjectTemplate},
+        project::{DataSourceData, DecoderData, MetricsData, ProjectTemplate},
         types::{legacy_process_types, process_types, TypeStructTemplate},
         util::{is_big_array, legacy_read_idl, read_idl},
     },
@@ -303,7 +303,10 @@ solana-sdk = "{sol_deps_version}"
     let main_rs_filename = format!("{}/main.rs", src_dir);
     let main_rs_template = ProjectTemplate {
         data_source: &DataSourceData {
-            module_name: data_source,
+            module_name: data_source.to_kebab_case(),
+        },
+        metrics: &MetricsData {
+            module_name: metrics.to_kebab_case(),
         },
         decoders: &decoders_set
             .iter()
