@@ -8,6 +8,7 @@ use {
             legacy_process_instructions, process_instructions, InstructionsModTemplate,
             InstructionsStructTemplate,
         },
+        project::{DataSourceData, DecoderData, ProjectTemplate},
         types::{legacy_process_types, process_types, TypeStructTemplate},
         util::{is_big_array, legacy_read_idl, read_idl},
     },
@@ -260,7 +261,17 @@ pub fn scaffold(
     fs::create_dir_all(&src_dir).expect("Failed to create src directory");
 
     // Generate Cargo.toml
-    let (carbon_deps_version, sol_deps_version) = ("0.6.0", "2.1.15");
+    let (carbon_deps_version, sol_deps_version) = ("0.6.1", "=2.1.16");
+    let datasource_dep = format!(
+        "carbon-{}-datasource = \"{}\"",
+        data_source.to_kebab_case(),
+        carbon_deps_version
+    );
+    let metrics_dep = format!(
+        "carbon-{}-metrics = \"{}\"",
+        metrics.to_kebab_case(),
+        carbon_deps_version
+    );
 
     let cargo_toml_filename = format!("{}/Cargo.toml", project_dir);
     let cargo_toml_content = format!(
@@ -271,13 +282,37 @@ edition = "2021"
 
 [dependencies]
 carbon-core = "{carbon_deps_version}"
+{decoder_deps}
+{datasource_dep}
+{metrics_dep}
 solana-sdk = "{sol_deps_version}"
-"#
+"#,
+        decoder_deps = decoders_set
+            .iter()
+            .map(|decoder| format!(
+                "carbon-{}-decoder = \"{}\"",
+                decoder.to_kebab_case(),
+                carbon_deps_version
+            ))
+            .collect::<Vec<_>>()
+            .join("\n"),
     );
     fs::write(&cargo_toml_filename, cargo_toml_content).expect("Failed to write Cargo.toml file");
 
     // Generate main.rs
     let main_rs_filename = format!("{}/main.rs", src_dir);
+    let main_rs_template = ProjectTemplate {
+        data_source: &DataSourceData {
+            module_name: data_source,
+        },
+        decoders: &decoders_set
+            .iter()
+            .map(|decoder| DecoderData {
+                module_name: decoder.to_snake_case(),
+            })
+            .collect::<Vec<_>>(),
+    };
+    let main_rs_content = main_rs_template.render().unwrap();
 
     fs::write(&main_rs_filename, main_rs_content).expect("Failed to write Cargo.toml file");
 
