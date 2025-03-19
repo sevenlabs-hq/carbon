@@ -7,11 +7,13 @@ pub struct DataSourceData {
 
 #[derive(Debug)]
 pub struct DecoderData {
+    pub name: String,
     pub module_name: String,
 }
 
 #[derive(Debug)]
 pub struct MetricsData {
+    pub name: String,
     pub module_name: String,
 }
 

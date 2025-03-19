@@ -261,7 +261,7 @@ pub fn scaffold(
     fs::create_dir_all(&src_dir).expect("Failed to create src directory");
 
     // Generate Cargo.toml
-    let (carbon_deps_version, sol_deps_version) = ("0.6.1", "=2.1.16");
+    let (carbon_deps_version, sol_deps_version) = ("0.6.1", "=2.1.15");
     let datasource_dep = format!(
         "carbon-{}-datasource = \"{}\"",
         data_source.to_kebab_case(),
@@ -281,11 +281,18 @@ version = "0.0.1"
 edition = "2021"
 
 [dependencies]
+async-trait = "0.1.86"
 carbon-core = "{carbon_deps_version}"
 {decoder_deps}
 {datasource_dep}
 {metrics_dep}
 solana-sdk = "{sol_deps_version}"
+solana-client = "{sol_deps_version}"
+tokio = "1.43.0"
+dotenv = "0.15.0"
+env_logger = "0.11.5"
+log = "0.4.25"
+{grpc_deps}
 "#,
         decoder_deps = decoders_set
             .iter()
@@ -296,21 +303,63 @@ solana-sdk = "{sol_deps_version}"
             ))
             .collect::<Vec<_>>()
             .join("\n"),
+        grpc_deps = if data_source == "yellowstone-grpc" {
+            r#"yellowstone-grpc-client = { version = "5.0.0" }
+yellowstone-grpc-proto = { version = "5.0.0" }
+            "#
+            } else {
+                ""
+            },
     );
     fs::write(&cargo_toml_filename, cargo_toml_content).expect("Failed to write Cargo.toml file");
+
+    // Generate .gitignore
+    let gitignore_filename = format!("{}/.gitignore", project_dir);
+    let gitignore_content = r"
+debug/
+target/
+
+.env
+.DS_Store
+";
+
+    fs::write(&gitignore_filename, gitignore_content).expect("Failed to write .gitignore file");
+
+    // Generate .env
+    let env_filename = format!("{}/.env", project_dir);
+
+    let env_content = match data_source.to_snake_case().as_str() {
+        "helius_atlas_ws" => "HELIUS_API_KEY=your-atlas-ws-url-here",
+        "rpc_block_subscribe" => "RPC_WS_URL=your-rpc-ws-url-here",
+        "rpc_transaction_crawler" => "RPC_URL=your-rpc-url-here",
+        "yellowstone_grpc" => r"
+GEYSER_URL=your-rpc-url-here
+X_TOKEN=your-x-token-here
+",
+        _ => "",
+    };
+
+    fs::write(&env_filename, env_content).expect("Failed to write .env file");
 
     // Generate main.rs
     let main_rs_filename = format!("{}/main.rs", src_dir);
     let main_rs_template = ProjectTemplate {
         data_source: &DataSourceData {
-            module_name: data_source.to_kebab_case(),
+            module_name: data_source.to_snake_case(),
         },
         metrics: &MetricsData {
-            module_name: metrics.to_kebab_case(),
+            name: metrics.to_upper_camel_case(),
+            module_name: metrics.to_snake_case(),
         },
         decoders: &decoders_set
             .iter()
             .map(|decoder| DecoderData {
+                name: decoder
+                    .split("-")
+                    .collect::<Vec<_>>()
+                    .first()
+                    .unwrap()
+                    .to_string(),
                 module_name: decoder.to_snake_case(),
             })
             .collect::<Vec<_>>(),
