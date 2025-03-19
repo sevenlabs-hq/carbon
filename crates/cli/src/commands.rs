@@ -188,6 +188,33 @@ impl std::str::FromStr for Datasource {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
+pub enum Metrics {
+    Log,
+    Prometheus,
+}
+
+impl fmt::Display for Metrics {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Metrics::Log => write!(f, "log"),
+            Metrics::Prometheus => write!(f, "prometheus"),
+        }
+    }
+}
+
+impl std::str::FromStr for Metrics {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "log" => Ok(Metrics::Log),
+            "prometheus" => Ok(Metrics::Prometheus),
+            _ => Err("Invalid Metrics".to_string()),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 pub enum Decoder {
     Drift,
     Fluxbeam,
@@ -222,7 +249,7 @@ pub enum Decoder {
     SystemProgram,
     TokenProgram,
     Token2022Program,
-    Zeta
+    Zeta,
 }
 
 impl fmt::Display for Decoder {

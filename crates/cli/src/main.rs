@@ -14,7 +14,7 @@ pub mod project;
 pub mod types;
 pub mod util;
 
-use commands::{Datasource, Decoder, Url};
+use commands::{Datasource, Decoder, Metrics, Url};
 use inquire::{
     error::InquireResult, required, Confirm, CustomType, InquireError, MultiSelect, Select, Text,
 };
@@ -84,6 +84,14 @@ fn process_prompts() -> InquireResult<()> {
             }
         }
         "scaffold" => {
+            let name = Text::new("project name:")
+                .with_validator(required!("Please type a project name"))
+                .prompt()?;
+
+            let output_dir = Text::new("Output directory:")
+                .with_validator(required!("Please type a path to output folder"))
+                .prompt()?;
+
             let available_decoders = vec![
                 Decoder::Drift,
                 Decoder::Fluxbeam,
@@ -122,7 +130,7 @@ fn process_prompts() -> InquireResult<()> {
             ];
 
             let datasource = Select::new(
-                "Standard of program:",
+                "select a datasource:",
                 vec![
                     Datasource::HeliusAtlasWs,
                     Datasource::RpcBlockSubscribe,
@@ -136,6 +144,21 @@ fn process_prompts() -> InquireResult<()> {
             let decoders =
                 MultiSelect::new("Select the decoders for your app:", available_decoders)
                     .prompt()?;
+
+            let metrics =
+                Select::new("Select metrics:", vec![Metrics::Log, Metrics::Prometheus]).prompt()?;
+            handlers::scaffold(
+                name,
+                output_dir,
+                decoders
+                    .into_iter()
+                    .map(|d| d.to_string())
+                    .collect::<Vec<_>>()
+                    .join(","),
+                datasource.to_string(),
+                metrics.to_string(),
+            )
+            .map_err(|e| InquireError::Custom(e.into()))?;
         }
         _ => unreachable!(),
     }
