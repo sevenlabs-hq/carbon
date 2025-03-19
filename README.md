@@ -163,6 +163,9 @@ $ carbon-cli parse --idl my_program_codama.json --output ./src/decoders --standa
 $ carbon-cli scaffold --name degen-paradize --output ./desired-folder --decoders pumpfun,moonshot,raydium-amm-v4 --data-source yellowstone-grpc
 ```
 
+or with interactive mode:
+
+![Animated GIF making a demonstration of an scaffolding the project](./assets/scaffold.gif)
 
 ### Implementing Processors
 
