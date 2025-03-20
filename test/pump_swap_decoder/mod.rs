@@ -1,4 +1,0 @@
-pub struct PumpSwapDecoder;
-pub mod accounts;
-pub mod instructions;
-pub mod types;
