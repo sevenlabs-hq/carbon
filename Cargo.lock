@@ -1188,6 +1188,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-pump-swap-decoder"
+version = "0.6.1"
+dependencies = [
+ "carbon-core",
+ "carbon-test-utils",
+ "serde",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-pumpfun-decoder"
 version = "0.6.1"
 dependencies = [
