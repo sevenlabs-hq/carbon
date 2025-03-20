@@ -1,6 +1,8 @@
 use carbon_core::account::AccountDecoder;
 use carbon_core::deserialize::CarbonDeserialize;
 
+use crate::PROGRAM_ID;
+
 use super::PumpSwapDecoder;
 pub mod global_config;
 pub mod pool;
@@ -16,6 +18,10 @@ impl<'a> AccountDecoder<'a> for PumpSwapDecoder {
         &self,
         account: &solana_sdk::account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
+        if !account.owner.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         if let Some(decoded_account) =
             global_config::GlobalConfig::deserialize(account.data.as_slice())
         {

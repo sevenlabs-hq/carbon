@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::PumpSwapDecoder;
 pub mod buy;
 pub mod buy_event;
@@ -60,6 +62,10 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for PumpSwapDecoder {
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             PumpSwapInstruction::Buy => buy::Buy,
             PumpSwapInstruction::CreateConfig => create_config::CreateConfig,

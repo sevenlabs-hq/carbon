@@ -1,7 +1,8 @@
 use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug)]
-#[carbon(discriminator = "0x95089ccaa0fcb0d9")]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 pub struct GlobalConfig {
     pub admin: solana_sdk::pubkey::Pubkey,
     pub lp_fee_basis_points: u64,

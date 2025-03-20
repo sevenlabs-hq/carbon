@@ -1,7 +1,8 @@
 use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug)]
-#[carbon(discriminator = "0xf19a6d0411b16dbc")]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 pub struct Pool {
     pub pool_bump: u8,
     pub index: u16,
