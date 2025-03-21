@@ -200,7 +200,7 @@ pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
         let cargo_toml_content = format!(
             r#"[package]
 name = "{decoder_name_kebab}-decoder"
-version = "0.6.1"
+version = "0.6.2"
 edition = {{ workspace = true }}
 
 [lib]
@@ -261,7 +261,7 @@ pub fn scaffold(
     fs::create_dir_all(&src_dir).expect("Failed to create src directory");
 
     // Generate Cargo.toml
-    let (carbon_deps_version, sol_deps_version) = ("0.6.1", "=2.1.15");
+    let (carbon_deps_version, sol_deps_version) = ("0.6.2", "=2.1.15");
     let datasource_dep = format!(
         "carbon-{}-datasource = \"{}\"",
         data_source.to_kebab_case(),

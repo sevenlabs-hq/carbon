@@ -1,6 +1,6 @@
 [package]
 name = "carbon-spl-associated-token-account-decoder"
-version = "0.6.1"
+version = "0.6.2"
 description = "SPL Associated Token Account program decoder"
 edition = { workspace = true }
 license = { workspace = true }
