@@ -1,11 +1,10 @@
-use carbon_core::{borsh, CarbonDeserialize};
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+use carbon_core::{borsh, deserialize::PrefixString, CarbonDeserialize};
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone)]
 #[carbon(discriminator = "0x08")]
 pub struct AllocateWithSeed {
     pub base: solana_sdk::pubkey::Pubkey,
-    pub seed: String,
+    pub seed: PrefixString,
     pub space: u64,
     pub owner: solana_sdk::pubkey::Pubkey,
 }

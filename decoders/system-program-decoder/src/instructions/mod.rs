@@ -14,14 +14,7 @@ pub mod upgrade_nonce_account;
 pub mod withdraw_nonce_account;
 
 #[derive(
-    carbon_core::InstructionType,
-    serde::Serialize,
-    serde::Deserialize,
-    PartialEq,
-    Eq,
-    Debug,
-    Clone,
-    Hash,
+    carbon_core::InstructionType, serde::Serialize, serde::Deserialize, PartialEq, Eq, Debug, Clone,
 )]
 pub enum SystemProgramInstruction {
     CreateAccount(create_account::CreateAccount),

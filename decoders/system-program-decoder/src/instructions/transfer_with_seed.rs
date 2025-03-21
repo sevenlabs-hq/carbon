@@ -1,11 +1,10 @@
-use carbon_core::{borsh, CarbonDeserialize};
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+use carbon_core::{borsh, deserialize::PrefixString, CarbonDeserialize};
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone)]
 #[carbon(discriminator = "0x0B")]
 pub struct TransferWithSeed {
     pub lamports: u64,
-    pub from_seed: String,
+    pub from_seed: PrefixString,
     pub from_owner: solana_sdk::pubkey::Pubkey,
 }
 
