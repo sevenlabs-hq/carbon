@@ -6,7 +6,7 @@ use {
         util::idl_type_to_rust_type,
     },
     askama::Template,
-    heck::{ToSnekCase, ToUpperCamelCase},
+    heck::{ToSnakeCase, ToUpperCamelCase},
     sha2::{Digest, Sha256},
 };
 
@@ -57,10 +57,10 @@ pub fn legacy_process_instructions(idl: &LegacyIdl) -> Vec<InstructionData> {
 
     for instruction in &idl.instructions {
         let mut requires_imports = false;
-        let module_name = instruction.name.to_snek_case();
+        let module_name = instruction.name.to_snake_case();
         let struct_name = instruction.name.to_upper_camel_case();
         let discriminator = legacy_compute_instruction_discriminator(
-            &instruction.name.to_snek_case(),
+            &instruction.name.to_snake_case(),
             instruction.discriminant.as_ref(),
         );
 
@@ -71,7 +71,7 @@ pub fn legacy_process_instructions(idl: &LegacyIdl) -> Vec<InstructionData> {
                 requires_imports = true;
             }
             args.push(ArgumentData {
-                name: arg.name.to_snek_case(),
+                name: arg.name.to_snake_case(),
                 rust_type: rust_type.0,
             });
         }
@@ -79,7 +79,7 @@ pub fn legacy_process_instructions(idl: &LegacyIdl) -> Vec<InstructionData> {
         let mut accounts = Vec::new();
         for account in &instruction.accounts {
             accounts.push(AccountMetaData {
-                name: account.name.to_snek_case(),
+                name: account.name.to_snake_case(),
                 is_mut: account.is_mut,
                 is_signer: account.is_signer,
                 is_optional: account.is_optional.unwrap_or(false),
@@ -104,7 +104,7 @@ pub fn process_instructions(idl: &Idl) -> Vec<InstructionData> {
 
     for instruction in &idl.instructions {
         let mut requires_imports = false;
-        let module_name = instruction.name.to_snek_case();
+        let module_name = instruction.name.to_snake_case();
         let struct_name = instruction.name.to_upper_camel_case();
         let discriminator = compute_instruction_discriminator(&instruction.discriminator);
 
@@ -115,7 +115,7 @@ pub fn process_instructions(idl: &Idl) -> Vec<InstructionData> {
                 requires_imports = true;
             }
             args.push(ArgumentData {
-                name: arg.name.to_snek_case(),
+                name: arg.name.to_snake_case(),
                 rust_type: rust_type.0,
             });
         }
@@ -123,7 +123,7 @@ pub fn process_instructions(idl: &Idl) -> Vec<InstructionData> {
         let mut accounts = Vec::new();
         for account in &instruction.accounts {
             accounts.push(AccountMetaData {
-                name: account.name.to_snek_case(),
+                name: account.name.to_snake_case(),
                 is_mut: account.writable.unwrap_or(false),
                 is_signer: account.signer.unwrap_or(false),
                 // TODO: Check
