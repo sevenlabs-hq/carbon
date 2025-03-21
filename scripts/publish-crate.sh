@@ -41,6 +41,7 @@ workspace_crates=(
     carbon-orca-whirlpool-decoder
     carbon-phoenix-v1-decoder
     carbon-pumpfun-decoder
+    carbon-pump-swap-decoder
     carbon-raydium-amm-v4-decoder
     carbon-raydium-clmm-decoder
     carbon-raydium-cpmm-decoder
