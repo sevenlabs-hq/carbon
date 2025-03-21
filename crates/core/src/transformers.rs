@@ -110,6 +110,7 @@ pub fn extract_instructions_with_metadata(
                     InstructionMetadata {
                         transaction_metadata: transaction_metadata.clone(),
                         stack_height: 1,
+                        index: i as u32 + 1,
                     },
                     solana_sdk::instruction::Instruction {
                         program_id,
@@ -121,7 +122,9 @@ pub fn extract_instructions_with_metadata(
                 if let Some(inner_instructions) = &meta.inner_instructions {
                     for inner_instructions_per_tx in inner_instructions {
                         if inner_instructions_per_tx.index == i as u8 {
-                            for inner_instruction in inner_instructions_per_tx.instructions.iter() {
+                            for (inner_ix_idx, inner_instruction) in
+                                inner_instructions_per_tx.instructions.iter().enumerate()
+                            {
                                 let program_id = *legacy
                                     .account_keys
                                     .get(inner_instruction.instruction.program_id_index as usize)
@@ -148,6 +151,7 @@ pub fn extract_instructions_with_metadata(
                                     InstructionMetadata {
                                         transaction_metadata: transaction_metadata.clone(),
                                         stack_height: inner_instruction.stack_height.unwrap_or(1),
+                                        index: inner_ix_idx as u32 + 1,
                                     },
                                     solana_sdk::instruction::Instruction {
                                         program_id,
@@ -198,6 +202,7 @@ pub fn extract_instructions_with_metadata(
                     InstructionMetadata {
                         transaction_metadata: transaction_metadata.clone(),
                         stack_height: 1,
+                        index: i as u32 + 1,
                     },
                     solana_sdk::instruction::Instruction {
                         program_id,
@@ -209,7 +214,9 @@ pub fn extract_instructions_with_metadata(
                 if let Some(inner_instructions) = &meta.inner_instructions {
                     for inner_instructions_per_tx in inner_instructions {
                         if inner_instructions_per_tx.index == i as u8 {
-                            for inner_instruction in inner_instructions_per_tx.instructions.iter() {
+                            for (inner_ix_idx, inner_instruction) in
+                                inner_instructions_per_tx.instructions.iter().enumerate()
+                            {
                                 let program_id = *loaded_message
                                     .account_keys()
                                     .get(inner_instruction.instruction.program_id_index as usize)
@@ -240,6 +247,7 @@ pub fn extract_instructions_with_metadata(
                                     InstructionMetadata {
                                         transaction_metadata: transaction_metadata.clone(),
                                         stack_height: inner_instruction.stack_height.unwrap_or(1),
+                                        index: inner_ix_idx as u32 + 1,
                                     },
                                     solana_sdk::instruction::Instruction {
                                         program_id,
@@ -346,11 +354,12 @@ pub fn unnest_parsed_instructions<T: InstructionDecoderCollection>(
 
     let mut result = Vec::new();
 
-    for parsed_instruction in instructions.into_iter() {
+    for (ix_idx, parsed_instruction) in instructions.into_iter().enumerate() {
         result.push((
             InstructionMetadata {
                 transaction_metadata: transaction_metadata.clone(),
                 stack_height,
+                index: ix_idx as u32 + 1,
             },
             parsed_instruction.instruction,
         ));
