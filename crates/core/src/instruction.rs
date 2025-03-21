@@ -43,11 +43,14 @@ use {
 ///   transaction.
 /// - `stack_height`: Represents the instruction’s depth within the stack, where
 ///   0 is the root level.
+/// - `index`: The index of the instruction in the transaction. The index is
+///   relative within stack height and is 1-based.
 
 #[derive(Debug, Clone)]
 pub struct InstructionMetadata {
     pub transaction_metadata: TransactionMetadata,
     pub stack_height: u32,
+    pub index: u32,
 }
 
 pub type InstructionsWithMetadata =
