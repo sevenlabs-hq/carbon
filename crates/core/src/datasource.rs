@@ -87,7 +87,7 @@ use {
 pub trait Datasource: Send + Sync {
     async fn consume(
         &self,
-        sender: &tokio::sync::mpsc::UnboundedSender<Update>,
+        sender: &tokio::sync::mpsc::Sender<Update>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;

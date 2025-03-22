@@ -24,7 +24,7 @@ use {
     },
     solana_sdk::pubkey::Pubkey,
     std::{env, sync::Arc},
-    tokio::sync::mpsc::UnboundedSender,
+    tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
 
@@ -52,7 +52,7 @@ impl GpaBackfillDatasource {
 impl Datasource for GpaBackfillDatasource {
     async fn consume(
         &self,
-        sender: &UnboundedSender<Update>,
+        sender: &Sender<Update>,
         _cancellation_token: CancellationToken,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -80,7 +80,7 @@ impl Datasource for GpaBackfillDatasource {
         };
 
         for (pubkey, account) in program_accounts {
-            if let Err(e) = sender.send(Update::Account(AccountUpdate {
+            if let Err(e) = sender.try_send(Update::Account(AccountUpdate {
                 pubkey,
                 account,
                 slot,
