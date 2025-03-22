@@ -106,6 +106,15 @@ pub enum ShutdownStrategy {
     ProcessPending,
 }
 
+/// The default size of the channel buffer for the pipeline.
+///
+/// This constant defines the default number of updates that can be queued in
+/// the pipeline's channel buffer. It is used as a fallback value if the
+/// `channel_buffer_size` is not explicitly set during pipeline construction.
+///
+/// The default size is 10,000 updates, which provides a reasonable balance
+pub const DEFAULT_CHANNEL_BUFFER_SIZE: usize = 10_000;
+
 /// Represents the primary data processing pipeline in the `carbon-core`
 /// framework.
 ///
@@ -156,6 +165,8 @@ pub enum ShutdownStrategy {
 /// - `metrics_flush_interval`: An optional interval, in seconds, defining how
 ///   frequently metrics should be flushed. If `None`, the default interval is
 ///   used.
+/// - `channel_buffer_size`: The size of the channel buffer for the pipeline.
+///   If not set, a default size of 10_000 will be used.
 ///
 /// ## Example
 ///
@@ -175,6 +186,7 @@ pub enum ShutdownStrategy {
 /// )
 /// .transaction(TEST_SCHEMA.clone(), TestProgramTransactionProcessor)
 /// .account_deletions(TestProgramAccountDeletionProcessor)
+/// .channel_buffer_size(1000)
 /// .build()?
 /// .run()
 /// .await?;
@@ -199,6 +211,7 @@ pub struct Pipeline {
     pub metrics_flush_interval: Option<u64>,
     pub datasource_cancellation_token: Option<CancellationToken>,
     pub shutdown_strategy: ShutdownStrategy,
+    pub channel_buffer_size: usize,
 }
 
 impl Pipeline {
@@ -241,6 +254,7 @@ impl Pipeline {
             metrics_flush_interval: None,
             datasource_cancellation_token: None,
             shutdown_strategy: ShutdownStrategy::default(),
+            channel_buffer_size: DEFAULT_CHANNEL_BUFFER_SIZE,
         }
     }
 
@@ -314,7 +328,8 @@ impl Pipeline {
         log::trace!("run(self)");
 
         self.metrics.initialize_metrics().await?;
-        let (update_sender, mut update_receiver) = tokio::sync::mpsc::unbounded_channel::<Update>();
+        let (update_sender, mut update_receiver) =
+            tokio::sync::mpsc::channel::<Update>(self.channel_buffer_size);
 
         let datasource_cancellation_token = self
             .datasource_cancellation_token
@@ -598,6 +613,8 @@ impl Pipeline {
 ///   metrics data. If not set, a default flush interval will be used.
 /// - `datasource_cancellation_token`: An optional `CancellationToken` for
 ///   canceling datasource. If not set, a default `CancellationToken` will be used.
+/// - `channel_buffer_size`: The size of the channel buffer for the pipeline.
+///   If not set, a default size of 10_000 will be used.
 ///
 /// # Returns
 ///
@@ -622,6 +639,7 @@ pub struct PipelineBuilder {
     pub metrics_flush_interval: Option<u64>,
     pub datasource_cancellation_token: Option<CancellationToken>,
     pub shutdown_strategy: ShutdownStrategy,
+    pub channel_buffer_size: usize,
 }
 
 impl PipelineBuilder {
@@ -904,6 +922,28 @@ impl PipelineBuilder {
         self
     }
 
+    /// Sets the size of the channel buffer for the pipeline.
+    ///
+    /// This value defines the maximum number of updates that can be queued in
+    /// the pipeline's channel buffer. If not set, a default size of 10_000
+    /// will be used.
+    ///
+    /// # Parameters
+    ///
+    /// - `size`: The size of the channel buffer for the pipeline.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// let builder = PipelineBuilder::new()
+    ///     .channel_buffer_size(1000);
+    /// ```
+    pub fn channel_buffer_size(mut self, size: usize) -> Self {
+        log::trace!("channel_buffer_size(self, size: {:?})", size);
+        self.channel_buffer_size = size;
+        self
+    }
+
     /// Builds and returns a `Pipeline` configured with the specified
     /// components.
     ///
@@ -933,6 +973,7 @@ impl PipelineBuilder {
     /// )
     /// .transaction(TEST_SCHEMA.clone(), TestProgramTransactionProcessor)
     /// .account_deletions(TestProgramAccountDeletionProcessor)
+    /// .channel_buffer_size(1000)
     /// .build()?
     /// ```
     pub fn build(self) -> CarbonResult<Pipeline> {
@@ -947,6 +988,7 @@ impl PipelineBuilder {
             metrics: Arc::new(self.metrics),
             metrics_flush_interval: self.metrics_flush_interval,
             datasource_cancellation_token: self.datasource_cancellation_token,
+            channel_buffer_size: self.channel_buffer_size,
         })
     }
 }
