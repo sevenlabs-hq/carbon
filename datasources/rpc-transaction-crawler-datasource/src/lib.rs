@@ -81,7 +81,7 @@ impl RpcTransactionCrawler {
 impl Datasource for RpcTransactionCrawler {
     async fn consume(
         &self,
-        sender: &mpsc::UnboundedSender<Update>,
+        sender: &Sender<Update>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -318,7 +318,7 @@ fn transaction_fetcher(
 
 fn task_processor(
     transaction_receiver: Receiver<(Signature, EncodedConfirmedTransactionWithStatusMeta)>,
-    sender: mpsc::UnboundedSender<Update>,
+    sender: Sender<Update>,
     filters: Filters,
     cancellation_token: CancellationToken,
     metrics: Arc<MetricsCollection>,
@@ -416,7 +416,7 @@ fn task_processor(
                             .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
 
-                    if let Err(e) = sender.send(update) {
+                    if let Err(e) = sender.try_send(update) {
                         log::error!("Failed to send update: {:?}", e);
                         continue;
                     }
