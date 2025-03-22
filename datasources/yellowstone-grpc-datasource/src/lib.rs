@@ -15,7 +15,7 @@ use {
         sync::Arc,
         time::Duration,
     },
-    tokio::sync::{mpsc::UnboundedSender, RwLock},
+    tokio::sync::{mpsc::Sender, RwLock},
     tokio_util::sync::CancellationToken,
     yellowstone_grpc_client::GeyserGrpcClient,
     yellowstone_grpc_proto::{
@@ -63,7 +63,7 @@ impl YellowstoneGrpcGeyserClient {
 impl Datasource for YellowstoneGrpcGeyserClient {
     async fn consume(
         &self,
-        sender: &UnboundedSender<Update>,
+        sender: &Sender<Update>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -153,7 +153,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                                 pubkey: account_pubkey,
                                                                 slot: account_update.slot,
                                                             };
-                                                            if let Err(e) = sender.send(
+                                                            if let Err(e) = sender.try_send(
                                                                 Update::AccountDeletion(account_deletion),
                                                             ) {
                                                                 log::error!("Failed to send account deletion update for pubkey {:?} at slot {}: {:?}", account_pubkey, account_update.slot, e);
@@ -166,7 +166,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                             slot: account_update.slot,
                                                         });
 
-                                                        if let Err(e) = sender.send(update) {
+                                                        if let Err(e) = sender.try_send(update) {
                                                             log::error!("Failed to send account update for pubkey {:?} at slot {}: {:?}", account_pubkey, account_update.slot, e);
                                                         }
                                                     }
@@ -231,7 +231,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                         slot: transaction_update.slot,
                                                         block_time: None,
                                                     }));
-                                                    if let Err(e) = sender.send(update) {
+                                                    if let Err(e) = sender.try_send(update) {
                                                         log::error!("Failed to send transaction update with signature {:?} at slot {}: {:?}", signature, transaction_update.slot, e);
                                                         continue;
                                                     }

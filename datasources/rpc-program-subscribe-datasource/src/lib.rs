@@ -11,7 +11,7 @@ use {
     },
     solana_sdk::{account::Account, pubkey::Pubkey},
     std::{str::FromStr, sync::Arc, time::Duration},
-    tokio::sync::mpsc::UnboundedSender,
+    tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
 
@@ -51,7 +51,7 @@ impl RpcProgramSubscribe {
 impl Datasource for RpcProgramSubscribe {
     async fn consume(
         &self,
-        sender: &UnboundedSender<Update>,
+        sender: &Sender<Update>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -144,7 +144,7 @@ impl Datasource for RpcProgramSubscribe {
                                     .await
                                     .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
-                                if let Err(err) = sender_clone.send(update) {
+                                if let Err(err) = sender_clone.try_send(update) {
                                     log::error!("Error sending account update: {:?}", err);
                                     break;
                                 }
