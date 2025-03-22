@@ -113,7 +113,7 @@ pub enum ShutdownStrategy {
 /// `channel_buffer_size` is not explicitly set during pipeline construction.
 ///
 /// The default size is 10,000 updates, which provides a reasonable balance
-pub const DEFAULT_CHANNEL_BUFFER_SIZE: usize = 10_000;
+pub const DEFAULT_CHANNEL_BUFFER_SIZE: usize = 1_000;
 
 /// Represents the primary data processing pipeline in the `carbon-core`
 /// framework.
