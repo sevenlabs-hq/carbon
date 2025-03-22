@@ -10,11 +10,14 @@ pub mod handlers;
 pub mod idl;
 pub mod instructions;
 pub mod legacy_idl;
+pub mod project;
 pub mod types;
 pub mod util;
 
-use commands::Url;
-use inquire::{error::InquireResult, required, Confirm, CustomType, InquireError, Select, Text};
+use commands::{Datasource, Decoder, Metrics, Url};
+use inquire::{
+    error::InquireResult, required, Confirm, CustomType, InquireError, MultiSelect, Select, Text,
+};
 
 fn main() -> InquireResult<()> {
     match Cli::try_parse() {
@@ -24,52 +27,138 @@ fn main() -> InquireResult<()> {
 }
 
 fn process_prompts() -> InquireResult<()> {
-    let idl_source = Select::new("IDL source:", vec!["file", "program address"]).prompt()?;
+    let cmd = Select::new("Chose mode:", vec!["parse", "scaffold"]).prompt()?;
 
-    match idl_source {
-        "file" => {
-            let path = Text::new("Path to IDL file:")
-                .with_validator(required!("Please type a path to IDL"))
-                .prompt()?;
-            let standard = Select::new(
-                "Standard of program:",
-                vec![IdlStandard::Anchor, IdlStandard::Codama],
-            )
-            .prompt()?;
-            match standard {
-                IdlStandard::Anchor => {
+    match cmd {
+        "parse" => {
+            let idl_source =
+                Select::new("IDL source:", vec!["file", "program address"]).prompt()?;
+            match idl_source {
+                "file" => {
+                    let path = Text::new("Path to IDL file:")
+                        .with_validator(required!("Please type a path to IDL"))
+                        .prompt()?;
+                    let standard = Select::new(
+                        "Standard of program:",
+                        vec![IdlStandard::Anchor, IdlStandard::Codama],
+                    )
+                    .prompt()?;
+                    match standard {
+                        IdlStandard::Anchor => {
+                            let output_dir = Text::new("Output directory:")
+                                .with_validator(required!("Please type a path to output folder"))
+                                .prompt()?;
+                            let as_crate = Confirm::new("Generate as crate?").prompt()?;
+
+                            handlers::parse(path, output_dir, as_crate)
+                                .map_err(|e| InquireError::Custom(e.into()))?;
+                        }
+                        IdlStandard::Codama => {
+                            let event_hints = Text::new("Event hints:")
+                                .with_validator(required!(
+                                    "Please provide comma-separated event hints"
+                                ))
+                                .prompt()?;
+
+                            let output_dir = Text::new("Output directory:")
+                                .with_validator(required!("Please type a path to output folder"))
+                                .prompt()?;
+                            let as_crate = Confirm::new("Generate as crate?").prompt()?;
+                            handlers::parse_codama(path, output_dir, as_crate, Some(event_hints))
+                                .map_err(|e| InquireError::Custom(e.into()))?;
+                        }
+                    }
+                }
+                "program address" => {
+                    let program_address = Text::new("Program address:").prompt()?;
+                    let url = CustomType::<Url>::new("Network URL:").prompt()?;
                     let output_dir = Text::new("Output directory:")
                         .with_validator(required!("Please type a path to output folder"))
                         .prompt()?;
                     let as_crate = Confirm::new("Generate as crate?").prompt()?;
 
-                    handlers::parse(path, output_dir, as_crate)
+                    handlers::process_pda_idl(program_address, &url, output_dir, as_crate)
                         .map_err(|e| InquireError::Custom(e.into()))?;
                 }
-                IdlStandard::Codama => {
-                    let event_hints = Text::new("Event hints:")
-                        .with_validator(required!("Please provide comma-separated event hints"))
-                        .prompt()?;
-
-                    let output_dir = Text::new("Output directory:")
-                        .with_validator(required!("Please type a path to output folder"))
-                        .prompt()?;
-                    let as_crate = Confirm::new("Generate as crate?").prompt()?;
-                    handlers::parse_codama(path, output_dir, as_crate, Some(event_hints))
-                        .map_err(|e| InquireError::Custom(e.into()))?;
-                }
+                _ => unreachable!(),
             }
         }
-        "program address" => {
-            let program_address = Text::new("Program address:").prompt()?;
-            let url = CustomType::<Url>::new("Network URL:").prompt()?;
+        "scaffold" => {
+            let name = Text::new("project name:")
+                .with_validator(required!("Please type a project name"))
+                .prompt()?;
+
             let output_dir = Text::new("Output directory:")
                 .with_validator(required!("Please type a path to output folder"))
                 .prompt()?;
-            let as_crate = Confirm::new("Generate as crate?").prompt()?;
 
-            handlers::process_pda_idl(program_address, &url, output_dir, as_crate)
-                .map_err(|e| InquireError::Custom(e.into()))?;
+            let available_decoders = vec![
+                Decoder::Drift,
+                Decoder::Fluxbeam,
+                Decoder::JupiterDCA,
+                Decoder::JupiterLimitOrder,
+                Decoder::JupiterLimitOrder2,
+                Decoder::JupiterPerpetuals,
+                Decoder::JupiterSwap,
+                Decoder::KaminoLending,
+                Decoder::KaminoVault,
+                Decoder::LifinityAMM,
+                Decoder::MemoProgram,
+                Decoder::MeteoraDLMM,
+                Decoder::Moonshot,
+                Decoder::MPLCore,
+                Decoder::MPLTokenMetadata,
+                Decoder::NameService,
+                Decoder::OKXDEX,
+                Decoder::Openbook,
+                Decoder::OrcaWhirlpool,
+                Decoder::Phoenix,
+                Decoder::Pumpfun,
+                Decoder::RaydiumAMM,
+                Decoder::RaydiumCLMM,
+                Decoder::RaydiumCPMM,
+                Decoder::RaydiumLiquidityLocking,
+                Decoder::Sharky,
+                Decoder::SPLAssociatedTokenAccount,
+                Decoder::StabbleStableSwap,
+                Decoder::StabbleWeightedSwap,
+                Decoder::StakeProgram,
+                Decoder::SystemProgram,
+                Decoder::TokenProgram,
+                Decoder::Token2022Program,
+                Decoder::Zeta,
+            ];
+
+            let datasource = Select::new(
+                "select a datasource:",
+                vec![
+                    Datasource::HeliusAtlasWs,
+                    Datasource::RpcBlockSubscribe,
+                    Datasource::RpcProgramSubscribe,
+                    Datasource::RpcTransactionCrawler,
+                    Datasource::YellowstoneGrpc,
+                ],
+            )
+            .prompt()?;
+
+            let decoders =
+                MultiSelect::new("Select the decoders for your app:", available_decoders)
+                    .prompt()?;
+
+            let metrics =
+                Select::new("Select metrics:", vec![Metrics::Log, Metrics::Prometheus]).prompt()?;
+            handlers::scaffold(
+                name,
+                output_dir,
+                decoders
+                    .into_iter()
+                    .map(|d| d.to_string())
+                    .collect::<Vec<_>>()
+                    .join(","),
+                datasource.to_string(),
+                metrics.to_string(),
+            )
+            .map_err(|e| InquireError::Custom(e.into()))?;
         }
         _ => unreachable!(),
     }
@@ -114,6 +203,16 @@ fn process_cli_params(cli: Cli) -> InquireResult<()> {
                     .map_err(|e| InquireError::Custom(e.into()))?;
             }
         },
+        Commands::Scaffold(options) => {
+            handlers::scaffold(
+                options.name,
+                options.output,
+                options.decoders,
+                options.data_source,
+                options.metrics,
+            )
+            .map_err(|e| InquireError::Custom(e.into()))?;
+        }
     };
 
     Ok(())
