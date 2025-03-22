@@ -121,6 +121,8 @@ $ carbon-cli parse [OPTIONS] --idl <IDL> --output <OUTPUT>
 
 #### Examples
 
+##### Generate Decoder
+
 1. To generate a decoder from an Anchor IDL file:
 
 ```sh
@@ -154,6 +156,16 @@ This will parse the my_program_codama.json Codama IDL file and generate the corr
 ```sh
 $ carbon-cli parse --idl my_program_codama.json --output ./src/decoders --standard codama --event-hints event1,event2,event3
 ```
+
+##### Scaffold Project
+
+```sh
+$ carbon-cli scaffold --name degen-paradize --output ./desired-folder --decoders pumpfun,moonshot,raydium-amm-v4 --data-source yellowstone-grpc
+```
+
+or with interactive mode:
+
+![Animated GIF making a demonstration of an scaffolding the project](./assets/scaffold.gif)
 
 ### Implementing Processors
 
@@ -242,6 +254,7 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-orca-whirlpool-decoder`               | Orca Whirlpool Program Decoder            | whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc  |
 | `carbon-phoenix-v1-decoder`                   | Phoenix V1 Program Decoder                | PhoeNiXZ8ByJGLkxNfZRnkUfjvmuYqLR89jjFHGqdXY  |
 | `carbon-pumpfun-decoder`                      | Pumpfun Program Decoder                   | 6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P  |
+| `carbon-pump-swap-decoder`                    | PumpSwap Program Decoder                  | pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA  |
 | `carbon-raydium-amm-v4-decoder`               | Raydium AMM V4 Program Decoder            | 675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8 |
 | `carbon-raydium-clmm-decoder`                 | Raydium CLMM Program Decoder              | CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK |
 | `carbon-raydium-cpmm-decoder`                 | Raydium CPMM Program Decoder              | CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C |

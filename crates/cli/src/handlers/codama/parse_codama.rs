@@ -14,7 +14,7 @@ use {
     },
     anyhow::{bail, Result},
     askama::Template,
-    heck::{ToKebabCase, ToSnakeCase, ToSnekCase, ToUpperCamelCase},
+    heck::{ToKebabCase, ToSnakeCase, ToUpperCamelCase},
     std::fs::{self},
 };
 
@@ -57,12 +57,12 @@ pub fn parse_codama(
         if as_crate {
             format!("{}{}-decoder", output, decoder_name_kebab)
         } else {
-            format!("{}{}_decoder", output, program_name.to_snek_case())
+            format!("{}{}_decoder", output, program_name.to_snake_case())
         }
     } else if as_crate {
         format!("{}/{}-decoder", output, decoder_name_kebab)
     } else {
-        format!("{}/{}_decoder", output, program_name.to_snek_case())
+        format!("{}/{}_decoder", output, program_name.to_snake_case())
     };
 
     fs::create_dir_all(&crate_dir).expect("Failed to create decoder directory");
@@ -187,7 +187,7 @@ pub fn parse_codama(
         let cargo_toml_content = format!(
             r#"[package]
 name = "{decoder_name_kebab}-decoder"
-version = "0.6.1"
+version = "0.6.2"
 edition = {{ workspace = true }}
 
 [lib]
