@@ -1,0 +1,16 @@
+{
+    "accounts": [
+        {
+            "pubkey": "6bBmDxYqXeFbXN8SmtjTpiA3SrEDKsxK8RG6yhPGpa9G",
+            "is_signer": true,
+            "is_writable": true
+        },
+        {
+            "pubkey": "3MoeLKJVQHNUtTAXEurLAQtCSXpLGAvairYEHpkqW6CC",
+            "is_signer": false,
+            "is_writable": true
+        }
+    ],
+    "data": "03000000530c59ef3ee2fc83844bd8712082a00150455aa150c6584e07f5a95581a3698b20000000000000004346396e52474a634668483537786763507861616d42733570487848657850394b21814c00000000a50000000000000006ddf6e1d765a193d9cbe146ceeb79ac1cb485ed5f5b37913a8cf5857eff00a9",
+    "program_id": "11111111111111111111111111111111"
+}

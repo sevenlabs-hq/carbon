@@ -10,6 +10,7 @@ pub struct CreateAccountWithSeed {
     pub owner: solana_sdk::pubkey::Pubkey,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct CreateAccountWithSeedAccounts {
     pub funding_account: solana_sdk::pubkey::Pubkey,
     pub created_account: solana_sdk::pubkey::Pubkey,
