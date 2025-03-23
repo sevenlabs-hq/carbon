@@ -4,7 +4,7 @@ use super::StakeProgramDecoder;
 
 pub enum StakeProgramAccount {}
 
-impl<'a> AccountDecoder<'a> for StakeProgramDecoder {
+impl AccountDecoder<'_> for StakeProgramDecoder {
     type AccountType = StakeProgramAccount;
     fn decode_account(
         &self,

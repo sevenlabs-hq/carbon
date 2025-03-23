@@ -140,7 +140,6 @@ pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream
                 if data.len() < discriminator.len() {
                     return None;
                 }
-    println!(" discriminator: {:?}", discriminator.len());
 
 
                 let (disc, rest) = data.split_at(discriminator.len());
@@ -148,7 +147,7 @@ pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream
                     return None;
                 }
 
-                carbon_core::borsh::BorshDeserialize::try_from_slice(rest).ok()
+                 carbon_core::borsh::BorshDeserialize::try_from_slice(rest).ok()
             }
         }
     };

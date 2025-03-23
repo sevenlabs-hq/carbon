@@ -42,8 +42,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SystemProgramDecoder {
         if !instruction.program_id.eq(&solana_sdk::system_program::id()) {
             return None;
         }
-        println!("Decoding system program instruction: {:?}", instruction);
-        println!("data len: {:?}", instruction.data.len());
 
         carbon_core::try_decode_instructions!(instruction,
             SystemProgramInstruction::CreateAccount => create_account::CreateAccount,
@@ -66,7 +64,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SystemProgramDecoder {
 #[cfg(test)]
 mod tests {
     use carbon_core::{
-        deserialize::{ArrangeAccounts, PrefixString},
+        deserialize::{ArrangeAccounts, U64PrefixString},
         instruction::InstructionDecoder,
     };
     use solana_sdk::{instruction::AccountMeta, pubkey};
@@ -79,7 +77,7 @@ mod tests {
         let expected_ix = SystemProgramInstruction::CreateAccountWithSeed(
             create_account_with_seed::CreateAccountWithSeed {
                 base: pubkey!("6bBmDxYqXeFbXN8SmtjTpiA3SrEDKsxK8RG6yhPGpa9G"),
-                seed: PrefixString("CF9nRGJcFhH57xgcPxaamBs5pHxHexP9".to_string()),
+                seed: U64PrefixString("CF9nRGJcFhH57xgcPxaamBs5pHxHexP9".to_string()),
                 space: 165,
                 amount: 1283531083,
                 program_address: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
