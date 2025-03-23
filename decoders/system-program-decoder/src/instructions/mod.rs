@@ -1,4 +1,4 @@
-use crate::SystemProgramDecoder;
+use super::SystemProgramDecoder;
 pub mod advance_nonce_account;
 pub mod allocate;
 pub mod allocate_with_seed;
@@ -8,18 +8,18 @@ pub mod authorize_nonce_account;
 pub mod create_account;
 pub mod create_account_with_seed;
 pub mod initialize_nonce_account;
-pub mod transfer;
-pub mod transfer_with_seed;
+pub mod transfer_sol;
+pub mod transfer_sol_with_seed;
 pub mod upgrade_nonce_account;
 pub mod withdraw_nonce_account;
 
 #[derive(
-    carbon_core::InstructionType, serde::Serialize, serde::Deserialize, PartialEq, Eq, Debug, Clone,
+    carbon_core::InstructionType, serde::Serialize, serde::Deserialize, PartialEq, Debug, Clone,
 )]
 pub enum SystemProgramInstruction {
     CreateAccount(create_account::CreateAccount),
     Assign(assign::Assign),
-    Transfer(transfer::Transfer),
+    TransferSol(transfer_sol::TransferSol),
     CreateAccountWithSeed(create_account_with_seed::CreateAccountWithSeed),
     AdvanceNonceAccount(advance_nonce_account::AdvanceNonceAccount),
     WithdrawNonceAccount(withdraw_nonce_account::WithdrawNonceAccount),
@@ -28,7 +28,7 @@ pub enum SystemProgramInstruction {
     Allocate(allocate::Allocate),
     AllocateWithSeed(allocate_with_seed::AllocateWithSeed),
     AssignWithSeed(assign_with_seed::AssignWithSeed),
-    TransferWithSeed(transfer_with_seed::TransferWithSeed),
+    TransferSolWithSeed(transfer_sol_with_seed::TransferSolWithSeed),
     UpgradeNonceAccount(upgrade_nonce_account::UpgradeNonceAccount),
 }
 
@@ -42,11 +42,13 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SystemProgramDecoder {
         if !instruction.program_id.eq(&solana_sdk::system_program::id()) {
             return None;
         }
+        println!("Decoding system program instruction: {:?}", instruction);
+        println!("data len: {:?}", instruction.data.len());
 
         carbon_core::try_decode_instructions!(instruction,
             SystemProgramInstruction::CreateAccount => create_account::CreateAccount,
             SystemProgramInstruction::Assign => assign::Assign,
-            SystemProgramInstruction::Transfer => transfer::Transfer,
+            SystemProgramInstruction::TransferSol => transfer_sol::TransferSol,
             SystemProgramInstruction::CreateAccountWithSeed => create_account_with_seed::CreateAccountWithSeed,
             SystemProgramInstruction::AdvanceNonceAccount => advance_nonce_account::AdvanceNonceAccount,
             SystemProgramInstruction::WithdrawNonceAccount => withdraw_nonce_account::WithdrawNonceAccount,
@@ -55,7 +57,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SystemProgramDecoder {
             SystemProgramInstruction::Allocate => allocate::Allocate,
             SystemProgramInstruction::AllocateWithSeed => allocate_with_seed::AllocateWithSeed,
             SystemProgramInstruction::AssignWithSeed => assign_with_seed::AssignWithSeed,
-            SystemProgramInstruction::TransferWithSeed => transfer_with_seed::TransferWithSeed,
+            SystemProgramInstruction::TransferSolWithSeed => transfer_sol_with_seed::TransferSolWithSeed,
             SystemProgramInstruction::UpgradeNonceAccount => upgrade_nonce_account::UpgradeNonceAccount,
         )
     }
@@ -78,9 +80,9 @@ mod tests {
             create_account_with_seed::CreateAccountWithSeed {
                 base: pubkey!("6bBmDxYqXeFbXN8SmtjTpiA3SrEDKsxK8RG6yhPGpa9G"),
                 seed: PrefixString("CF9nRGJcFhH57xgcPxaamBs5pHxHexP9".to_string()),
-                lamports: 1283531083,
                 space: 165,
-                owner: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                amount: 1283531083,
+                program_address: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
             },
         );
         let expected_accounts = vec![
@@ -93,11 +95,12 @@ mod tests {
                 false,
             ),
         ];
-        let expected_arranged_accounts = create_account_with_seed::CreateAccountWithSeedAccounts {
-            funding_account: pubkey!("6bBmDxYqXeFbXN8SmtjTpiA3SrEDKsxK8RG6yhPGpa9G"),
-            created_account: pubkey!("3MoeLKJVQHNUtTAXEurLAQtCSXpLGAvairYEHpkqW6CC"),
-            base_account: Some(pubkey!("6bBmDxYqXeFbXN8SmtjTpiA3SrEDKsxK8RG6yhPGpa9G")),
-        };
+        let expected_arranged_accounts =
+            create_account_with_seed::CreateAccountWithSeedInstructionAccounts {
+                payer: pubkey!("6bBmDxYqXeFbXN8SmtjTpiA3SrEDKsxK8RG6yhPGpa9G"),
+                new_account: pubkey!("3MoeLKJVQHNUtTAXEurLAQtCSXpLGAvairYEHpkqW6CC"),
+                base_account: pubkey!("6bBmDxYqXeFbXN8SmtjTpiA3SrEDKsxK8RG6yhPGpa9G"),
+            };
 
         // Act
         let decoder = SystemProgramDecoder;

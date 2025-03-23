@@ -1,17 +1,20 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x07")]
-pub struct AuthorizeNonceAccount(solana_sdk::pubkey::Pubkey);
+#[carbon(discriminator = "0x07000000")]
+pub struct AuthorizeNonceAccount {
+    pub new_nonce_authority: solana_sdk::pubkey::Pubkey,
+}
 
-pub struct AuthorizeNonceAccountAccounts {
+pub struct AuthorizeNonceAccountInstructionAccounts {
     pub nonce_account: solana_sdk::pubkey::Pubkey,
     pub nonce_authority: solana_sdk::pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for AuthorizeNonceAccount {
-    type ArrangedAccounts = AuthorizeNonceAccountAccounts;
+    type ArrangedAccounts = AuthorizeNonceAccountInstructionAccounts;
 
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
@@ -20,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for AuthorizeNonceAccount {
             return None;
         };
 
-        Some(AuthorizeNonceAccountAccounts {
+        Some(AuthorizeNonceAccountInstructionAccounts {
             nonce_account: nonce_account.pubkey,
             nonce_authority: nonce_authority.pubkey,
         })

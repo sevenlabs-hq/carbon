@@ -128,7 +128,6 @@ pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream
     let name = &input.ident;
 
     let discriminator = get_discriminator(&input.attrs).unwrap_or(quote! { &[] });
-
     let deser = gen_borsh_deserialize(input_token_stream);
 
     let expanded = quote! {
@@ -141,6 +140,8 @@ pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream
                 if data.len() < discriminator.len() {
                     return None;
                 }
+    println!(" discriminator: {:?}", discriminator.len());
+
 
                 let (disc, rest) = data.split_at(discriminator.len());
                 if disc != discriminator {
