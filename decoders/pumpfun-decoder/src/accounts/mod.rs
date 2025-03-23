@@ -15,7 +15,7 @@ pub enum PumpAccount {
     LastWithdraw(last_withdraw::LastWithdraw),
 }
 
-impl<'a> AccountDecoder<'a> for PumpfunDecoder {
+impl AccountDecoder<'_> for PumpfunDecoder {
     type AccountType = PumpAccount;
     fn decode_account(
         &self,

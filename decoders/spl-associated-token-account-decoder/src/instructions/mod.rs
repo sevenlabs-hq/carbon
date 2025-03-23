@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::SplAssociatedTokenAccountDecoder;
 pub mod create;
 pub mod create_idempotent;
@@ -19,13 +21,17 @@ pub enum SplAssociatedTokenAccountInstruction {
     RecoverNested(recover_nested::RecoverNested),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for SplAssociatedTokenAccountDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for SplAssociatedTokenAccountDecoder {
     type InstructionType = SplAssociatedTokenAccountInstruction;
 
     fn decode_instruction(
         &self,
         instruction: &solana_sdk::instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             SplAssociatedTokenAccountInstruction::Create => create::Create,
             SplAssociatedTokenAccountInstruction::CreateIdempotent => create_idempotent::CreateIdempotent,
