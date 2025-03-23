@@ -1,31 +1,32 @@
 use carbon_core::{borsh, CarbonDeserialize};
+
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x00")]
+#[carbon(discriminator = "0x00000000")]
 pub struct CreateAccount {
     pub lamports: u64,
     pub space: u64,
-    pub onwer: solana_sdk::pubkey::Pubkey,
+    pub program_address: solana_sdk::pubkey::Pubkey,
 }
 
-pub struct CreateAccountAccounts {
-    pub funding_account: solana_sdk::pubkey::Pubkey,
+pub struct CreateAccountInstructionAccounts {
+    pub payer: solana_sdk::pubkey::Pubkey,
     pub new_account: solana_sdk::pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CreateAccount {
-    type ArrangedAccounts = CreateAccountAccounts;
+    type ArrangedAccounts = CreateAccountInstructionAccounts;
 
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [funding_account, new_account, _remaining @ ..] = accounts else {
+        let [payer, new_account, _remaining @ ..] = accounts else {
             return None;
         };
 
-        Some(CreateAccountAccounts {
-            funding_account: funding_account.pubkey,
+        Some(CreateAccountInstructionAccounts {
+            payer: payer.pubkey,
             new_account: new_account.pubkey,
         })
     }

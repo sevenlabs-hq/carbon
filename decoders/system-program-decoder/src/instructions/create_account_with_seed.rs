@@ -1,36 +1,36 @@
 use carbon_core::{borsh, deserialize::PrefixString, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone)]
-#[carbon(discriminator = "0x03")]
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Clone)]
+#[carbon(discriminator = "0x03000000")]
 pub struct CreateAccountWithSeed {
     pub base: solana_sdk::pubkey::Pubkey,
-    pub seed: PrefixString, // TODO: This should be decoded/encoded as  instruction_data[36..40].copy_from_slice(&u32::to_le_bytes(self.seed.len() as u32)); example of tx - 63tXnEFv6pEs8Lxc2KvZJ5gvmMLJ2inQ5jQzuRXCq3TpQVw2gHZet2NNN8nUwvpMsaZmfSN3q4yiwKbcuBJHspik
-    pub lamports: u64,
+    pub seed: PrefixString,
+    pub amount: u64,
     pub space: u64,
-    pub owner: solana_sdk::pubkey::Pubkey,
+    pub program_address: solana_sdk::pubkey::Pubkey,
 }
 
 #[derive(Debug, PartialEq)]
-pub struct CreateAccountWithSeedAccounts {
-    pub funding_account: solana_sdk::pubkey::Pubkey,
-    pub created_account: solana_sdk::pubkey::Pubkey,
-    pub base_account: Option<solana_sdk::pubkey::Pubkey>,
+pub struct CreateAccountWithSeedInstructionAccounts {
+    pub payer: solana_sdk::pubkey::Pubkey,
+    pub new_account: solana_sdk::pubkey::Pubkey,
+    pub base_account: solana_sdk::pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CreateAccountWithSeed {
-    type ArrangedAccounts = CreateAccountWithSeedAccounts;
+    type ArrangedAccounts = CreateAccountWithSeedInstructionAccounts;
 
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [funding_account, created_account, _remaining @ ..] = accounts else {
+        let [payer, new_account, base_account, _remaining @ ..] = accounts else {
             return None;
         };
 
-        Some(CreateAccountWithSeedAccounts {
-            funding_account: funding_account.pubkey,
-            created_account: created_account.pubkey,
-            base_account: accounts.get(2).cloned().map(|acc| acc.pubkey),
+        Some(CreateAccountWithSeedInstructionAccounts {
+            payer: payer.pubkey,
+            new_account: new_account.pubkey,
+            base_account: base_account.pubkey,
         })
     }
 }
