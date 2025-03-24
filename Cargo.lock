@@ -872,6 +872,7 @@ dependencies = [
  "bs58",
  "carbon-macros",
  "carbon-proc-macros",
+ "carbon-test-utils",
  "futures",
  "log",
  "serde",
