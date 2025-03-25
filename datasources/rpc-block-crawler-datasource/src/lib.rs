@@ -1,3 +1,4 @@
+pub use solana_client::rpc_config::RpcBlockConfig;
 use {
     async_trait::async_trait,
     carbon_core::{
@@ -7,10 +8,7 @@ use {
         transformers::transaction_metadata_from_original_meta,
     },
     futures::StreamExt,
-    solana_client::{
-        nonblocking::rpc_client::RpcClient, rpc_client::SerializableTransaction,
-        rpc_config::RpcBlockConfig,
-    },
+    solana_client::{nonblocking::rpc_client::RpcClient, rpc_client::SerializableTransaction},
     solana_sdk::commitment_config::CommitmentConfig,
     solana_transaction_status::UiConfirmedBlock,
     std::{
@@ -150,12 +148,14 @@ fn block_fetcher(
                                 }
                             }
                         }
-                        log::debug!(
-                            "Current slot {} is behind latest slot {} by {}",
-                            current_slot,
-                            latest_slot,
-                            latest_slot - current_slot
-                        );
+                        if latest_slot - current_slot > 100 {
+                            log::debug!(
+                                "Current slot {} is behind latest slot {} by {}",
+                                current_slot,
+                                latest_slot,
+                                latest_slot - current_slot
+                            );
+                        }
                     }
                     yield current_slot;
                     current_slot += 1;
@@ -193,7 +193,24 @@ fn block_fetcher(
                                 Some((slot, block))
                             }
                             Err(e) => {
-                                log::error!("Error fetching block at slot {}: {:?}", slot, e);
+                                // https://support.quicknode.com/hc/en-us/articles/16459608696721-Solana-RPC-Error-Code-Reference
+                                // solana skippable errors
+                                // -32004, // Block not available for slot x
+                                // -32007, // Slot {} was skipped, or missing due to ledger jump to recent snapshot
+                                // -32009, // Slot {} was skipped, or missing in long-term storage
+                                if e.to_string().contains("-32009")
+                                    || e.to_string().contains("-32004")
+                                    || e.to_string().contains("-32007")
+                                {
+                                    metrics
+                                        .increment_counter("block_crawler_blocks_skipped", 1)
+                                        .await
+                                        .unwrap_or_else(|value| {
+                                            log::error!("Error recording metric: {}", value)
+                                        });
+                                } else {
+                                    log::error!("Error fetching block at slot {}: {:?}", slot, e);
+                                }
                                 None
                             }
                         }
@@ -237,6 +254,12 @@ fn task_processor(
                     break;
                 }
                 Some((slot, block)) = block_receiver.recv() => {
+                    metrics
+                        .increment_counter("block_crawler_blocks_received", 1)
+                        .await
+                        .unwrap_or_else(|value| {
+                            log::error!("Error recording metric: {}", value)
+                        });
                     let block_start_time = Instant::now();
                     if let Some(transactions) = block.transactions {
                         for encoded_transaction_with_status_meta in transactions {
@@ -297,7 +320,7 @@ fn task_processor(
                         .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
                     metrics
-                        .increment_counter("block_crawler_blocks_received", 1)
+                        .increment_counter("block_crawler_blocks_processed", 1)
                         .await
                         .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
                 }
