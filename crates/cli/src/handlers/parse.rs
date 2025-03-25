@@ -307,9 +307,9 @@ log = "0.4.25"
             r#"yellowstone-grpc-client = { version = "5.0.0" }
 yellowstone-grpc-proto = { version = "5.0.0" }
             "#
-            } else {
-                ""
-            },
+        } else {
+            ""
+        },
     );
     fs::write(&cargo_toml_filename, cargo_toml_content).expect("Failed to write Cargo.toml file");
 
@@ -332,10 +332,12 @@ target/
         "helius_atlas_ws" => "HELIUS_API_KEY=your-atlas-ws-url-here",
         "rpc_block_subscribe" => "RPC_WS_URL=your-rpc-ws-url-here",
         "rpc_transaction_crawler" => "RPC_URL=your-rpc-url-here",
-        "yellowstone_grpc" => r"
+        "yellowstone_grpc" => {
+            r"
 GEYSER_URL=your-rpc-url-here
 X_TOKEN=your-x-token-here
-",
+"
+        }
         _ => "",
     };
 
