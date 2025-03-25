@@ -544,3 +544,196 @@ pub fn transaction_metadata_from_original_meta(
             .or(None),
     })
 }
+
+#[cfg(test)]
+mod tests {
+    use carbon_test_utils::base58_deserialize;
+    use solana_account_decoder_client_types::token::UiTokenAmount;
+
+    use super::*;
+
+    #[test]
+    fn test_transaction_metadata_from_original_meta_simple() {
+        // Arrange
+        let expected_tx_meta = TransactionStatusMeta {
+            status: Ok(()),
+            fee: 9000,
+            pre_balances: vec![
+                323078186,
+                2039280,
+                3320301592555,
+                68596164896,
+                446975391774,
+                1019603,
+                2039280,
+                1,
+                1141440,
+                1,
+                731913600,
+                934087680,
+                3695760,
+                1461600
+            ],
+            post_balances: vec![
+                321402879,
+                2039280,
+                3320301602394,
+                68597804804,
+                446975398334,
+                1029603,
+                2039280,
+                1,
+                1141440,
+                1,
+                731913600,
+                934087680,
+                3695760,
+                1461600,
+            ],
+            inner_instructions: Some(vec![
+                InnerInstructions{ 
+                    index: 1,
+                    instructions: vec![
+                        InnerInstruction{ 
+                            instruction: CompiledInstruction{ 
+                                program_id_index: 11, 
+                                accounts: vec![
+                                    1,
+                                    13,
+                                    6,
+                                    3
+                                ], 
+                                data: base58_deserialize::ix_data("hDDqy4KAEGx3J") 
+                            }, 
+                            stack_height: Some(2),
+                        },
+                        InnerInstruction{ 
+                            instruction: CompiledInstruction{ 
+                                program_id_index: 7, 
+                                accounts: vec![
+                                    0,
+                                    3
+                                ], 
+                                data: base58_deserialize::ix_data("3Bxs4ezjpW22kuoV") 
+                            }, 
+                            stack_height: Some(2),
+                        },
+                        InnerInstruction{ 
+                            instruction: CompiledInstruction{ 
+                                program_id_index: 7, 
+                                accounts: vec![
+                                    0,
+                                    2
+                                ], 
+                                data: base58_deserialize::ix_data("3Bxs4KSwSHEiNiN3") 
+                            }, 
+                            stack_height: Some(2),
+                        },
+                        InnerInstruction{ 
+                            instruction: CompiledInstruction{ 
+                                program_id_index: 7, 
+                                accounts: vec![
+                                    0,
+                                    4
+                                ], 
+                                data: base58_deserialize::ix_data("3Bxs4TdopiUbobUj") 
+                            }, 
+                            stack_height: Some(2),
+                        },
+                    ],
+            }
+            ]),
+            log_messages: Some(vec![
+                "Program ComputeBudget111111111111111111111111111111 invoke [1]",
+                "Program ComputeBudget111111111111111111111111111111 success",
+                "Program MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG invoke [1]",
+                "Program log: Instruction: Buy",
+                "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]",
+                "Program log: Instruction: TransferChecked",
+                "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 6147 of 370747 compute units",
+                "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
+                "Program 11111111111111111111111111111111 invoke [2]",
+                "Program 11111111111111111111111111111111 success",
+                "Program 11111111111111111111111111111111 invoke [2]",
+                "Program 11111111111111111111111111111111 success",
+                "Program 11111111111111111111111111111111 invoke [2]",
+                "Program 11111111111111111111111111111111 success",
+                "Program log: Transfering collateral from buyer to curve account: 1639908, Helio fee: 6560, Dex fee: 9839",
+                "Program data: vdt/007mYe5XD5Rn8AQAAOQFGQAAAAAAbyYAAAAAAACgGQAAAAAAAAAGZYutIlwKL4hMgKVUfMrwNkmY1Lx+bGF8yTqY+mFm7CM5km+SaKcGm4hX/quBhPtof2NGGMA12sQ53BrrO1WYoPAAAAAAAc/9l+YGhwgMeWNsZs3HFBi8RjvPXd5tjX5Jv9YfHhgWAAUAAAB0cmFkZQ==",
+                "Program MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG consumed 44550 of 399850 compute units",
+                "Program MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG success",
+                "Program 11111111111111111111111111111111 invoke [1]",
+                "Program 11111111111111111111111111111111 success"
+            ].into_iter().map(|s| s.to_string()).collect()),
+            pre_token_balances: Some(vec![
+                TransactionTokenBalance {
+                    account_index:1, 
+                    mint:"3cBFsM1wosTJi9yun6kcHhYHyJcut1MNQY28zjC4moon".to_owned(),
+                    ui_token_amount: UiTokenAmount { 
+                        ui_amount: Some(253495663.57641867),
+                        decimals: 9,
+                        amount: "253495663576418647".to_owned(),
+                        ui_amount_string: "253495663.576418647".to_owned(),
+                    }, 
+                    owner: "4CYhuDhT4c9ATZpJceoQG8Du4vCjf5ZKvxsyXpJoVub4".to_owned(),
+                    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_owned(),
+                },
+                TransactionTokenBalance {
+                    account_index:6, 
+                    mint:"3cBFsM1wosTJi9yun6kcHhYHyJcut1MNQY28zjC4moon".to_owned(),
+                    ui_token_amount: UiTokenAmount { 
+                        ui_amount: Some(2266244.543486133),
+                        decimals: 9,
+                        amount: "2266244543486133".to_owned(),
+                        ui_amount_string: "2266244.543486133".to_owned(),
+                    }, 
+                    owner: "Ezug1uk7oTEULvBcXCngdZuJDmZ8Ed2TKY4oov4GmLLm".to_owned(),
+                    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_owned(),
+                },
+            ]),
+            post_token_balances: Some(vec![
+                TransactionTokenBalance {
+                    account_index:1, 
+                    mint:"3cBFsM1wosTJi9yun6kcHhYHyJcut1MNQY28zjC4moon".to_owned(),
+                    ui_token_amount: UiTokenAmount { 
+                        ui_amount: Some(253490233.0),
+                        decimals: 9,
+                        amount: "253490233000000000".to_owned(),
+                        ui_amount_string: "253490233".to_owned(),
+                    }, 
+                    owner: "4CYhuDhT4c9ATZpJceoQG8Du4vCjf5ZKvxsyXpJoVub4".to_owned(),
+                    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_owned(),
+                },
+                TransactionTokenBalance {
+                    account_index:6,
+                    mint:"3cBFsM1wosTJi9yun6kcHhYHyJcut1MNQY28zjC4moon".to_owned(),
+                    ui_token_amount: UiTokenAmount { 
+                        ui_amount: Some(2271675.11990478),
+                        decimals: 9,
+                        amount: "2271675119904780".to_owned(),
+                        ui_amount_string: "2271675.11990478".to_owned(),
+                    },
+                    owner: "Ezug1uk7oTEULvBcXCngdZuJDmZ8Ed2TKY4oov4GmLLm".to_owned(),
+                    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_owned(),
+                },
+            ]),
+            rewards: Some(vec![]),
+            loaded_addresses: LoadedAddresses {
+                writable: vec![],
+                readonly: vec![],
+            },
+            return_data: None,
+            compute_units_consumed: Some(44850),
+        };
+        // Act
+        let tx_meta_status =
+            carbon_test_utils::read_transaction_meta("tests/fixtures/simple_tx.json")
+                .expect("read fixture");
+
+        let original_tx_meta = transaction_metadata_from_original_meta(tx_meta_status)
+            .expect("transaction_metadata_from_original_meta");
+
+        // Assert
+        assert_eq!(original_tx_meta, expected_tx_meta);
+    }
+}

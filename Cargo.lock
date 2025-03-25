@@ -891,6 +891,7 @@ dependencies = [
  "serde",
  "serde_json",
  "solana-account",
+ "solana-account-decoder-client-types",
  "solana-client",
  "solana-instruction",
  "solana-program",
@@ -1501,12 +1502,14 @@ version = "0.7.0"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
+ "bs58",
  "hex",
  "serde",
  "serde_json",
  "solana-account",
  "solana-instruction",
  "solana-pubkey",
+ "solana-transaction-status",
 ]
 
 [[package]]
