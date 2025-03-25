@@ -69,6 +69,20 @@ pub struct TransactionMetadata {
     pub block_time: Option<i64>,
 }
 
+impl Default for TransactionMetadata {
+    fn default() -> Self {
+        Self {
+            slot: 0,
+            signature: Signature::new_unique(),
+            fee_payer: Pubkey::new_unique(),
+            meta: solana_transaction_status::TransactionStatusMeta::default(),
+            message: solana_sdk::message::VersionedMessage::Legacy(
+                solana_sdk::message::Message::default(),
+            ),
+            block_time: None,
+        }
+    }
+}
 /// Tries convert transaction update into the metadata.
 ///
 /// This function retrieves core metadata such as the transaction's slot,
