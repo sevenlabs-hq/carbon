@@ -22,6 +22,12 @@ use {
     tokio_util::sync::CancellationToken,
 };
 
+const CHANNEL_BUFFER_SIZE: usize = 1000;
+const MAX_CONCURRENT_REQUESTS: usize = 10;
+const BLOCK_INTERVAL: Duration = Duration::from_millis(100);
+
+/// RpcBlockCrawler is a datasource that crawls the Solana blockchain for blocks and sends them to the sender.
+/// It uses a channel to send blocks to the task processor.
 pub struct RpcBlockCrawler {
     pub rpc_url: String,
     pub start_slot: u64,
@@ -29,6 +35,7 @@ pub struct RpcBlockCrawler {
     pub block_interval: Duration,
     pub block_config: RpcBlockConfig,
     pub max_concurrent_requests: usize,
+    pub channel_buffer_size: usize,
 }
 
 impl RpcBlockCrawler {
@@ -38,15 +45,17 @@ impl RpcBlockCrawler {
         end_slot: Option<u64>,
         block_interval: Option<Duration>,
         block_config: RpcBlockConfig,
-        max_concurrent_requests: usize,
+        max_concurrent_requests: Option<usize>,
+        channel_buffer_size: Option<usize>,
     ) -> Self {
         Self {
             rpc_url,
             start_slot,
             end_slot,
-            block_interval: block_interval.unwrap_or(Duration::from_millis(100)),
             block_config,
-            max_concurrent_requests,
+            block_interval: block_interval.unwrap_or(BLOCK_INTERVAL),
+            max_concurrent_requests: max_concurrent_requests.unwrap_or(MAX_CONCURRENT_REQUESTS),
+            channel_buffer_size: channel_buffer_size.unwrap_or(CHANNEL_BUFFER_SIZE),
         }
     }
 }
@@ -67,7 +76,7 @@ impl Datasource for RpcBlockCrawler {
         ));
         let block_config = self.block_config.clone();
         let sender = sender.clone();
-        let (block_sender, block_receiver) = mpsc::channel(1000);
+        let (block_sender, block_receiver) = mpsc::channel(self.channel_buffer_size);
 
         let block_fetcher = block_fetcher(
             rpc_client,
@@ -341,7 +350,7 @@ mod tests {
         ));
         let block_interval = Duration::from_millis(100);
         let cancellation_token = CancellationToken::new();
-        let (block_sender, mut block_receiver) = mpsc::channel(1000);
+        let (block_sender, mut block_receiver) = mpsc::channel(1);
 
         let mut block_config = RpcBlockConfig::default();
         block_config.max_supported_transaction_version = Some(0);
@@ -384,7 +393,6 @@ mod tests {
                 println!("Received {} blocks", received_blocks.len());
 
                 for (slot, block) in received_blocks {
-                    println!("Block at slot {}: {:?}", slot, block.transactions);
                     println!("Block at slot {}: {} transactions",
                         slot,
                         block.transactions.map(|t| t.len()).unwrap_or(0)
@@ -421,7 +429,7 @@ mod tests {
 
         let block_interval = Duration::from_millis(100);
         let cancellation_token = CancellationToken::new();
-        let (block_sender, mut block_receiver) = mpsc::channel(1000);
+        let (block_sender, mut block_receiver) = mpsc::channel(1);
 
         let mut block_config = RpcBlockConfig::default();
         block_config.max_supported_transaction_version = Some(0);
