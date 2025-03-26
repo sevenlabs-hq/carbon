@@ -72,6 +72,7 @@ carbon-zeta-decoder = { path = "decoders/zeta-decoder", version = "0.6.2" }
 
 # solana
 solana-account-decoder = "2.1.16"
+solana-account-decoder-client-types = "2.1.16"
 solana-client = "2.1.16"
 solana-sdk = "2.1.16"
 solana-transaction-status = "2.1.16"

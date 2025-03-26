@@ -871,10 +871,12 @@ dependencies = [
  "bs58",
  "carbon-macros",
  "carbon-proc-macros",
+ "carbon-test-utils",
  "futures",
  "log",
  "serde",
  "serde_json",
+ "solana-account-decoder-client-types",
  "solana-client",
  "solana-sdk",
  "solana-transaction-status",
@@ -1397,10 +1399,12 @@ version = "0.6.2"
 dependencies = [
  "anyhow",
  "base64 0.22.1",
+ "bs58",
  "hex",
  "serde",
  "serde_json",
  "solana-sdk",
+ "solana-transaction-status",
 ]
 
 [[package]]
