@@ -15,11 +15,11 @@ pub enum PumpAccount {
     LastWithdraw(last_withdraw::LastWithdraw),
 }
 
-impl<'a> AccountDecoder<'a> for PumpfunDecoder {
+impl AccountDecoder<'_> for PumpfunDecoder {
     type AccountType = PumpAccount;
     fn decode_account(
         &self,
-        account: &solana_sdk::account::Account,
+        account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;
@@ -65,7 +65,7 @@ impl<'a> AccountDecoder<'a> for PumpfunDecoder {
 
 #[cfg(test)]
 mod tests {
-    use solana_sdk::pubkey;
+    use solana_pubkey::Pubkey;
 
     use super::*;
 
@@ -121,8 +121,8 @@ mod tests {
         // Arrange
         let expected_global_account = global::Global {
             initialized: true,
-            authority: pubkey!("DCpJReAfonSrgohiQbTmKKbjbqVofspFRHz9yQikzooP"),
-            fee_recipient: pubkey!("62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV"),
+            authority: Pubkey::from_str_const("DCpJReAfonSrgohiQbTmKKbjbqVofspFRHz9yQikzooP"),
+            fee_recipient: Pubkey::from_str_const("62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV"),
             initial_virtual_token_reserves: 1073000000000000,
             initial_virtual_sol_reserves: 30000000000,
             initial_real_token_reserves: 793100000000000,

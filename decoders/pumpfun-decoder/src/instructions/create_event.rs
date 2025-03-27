@@ -8,7 +8,7 @@ pub struct CreateEvent {
     pub name: String,
     pub symbol: String,
     pub uri: String,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub bonding_curve: solana_sdk::pubkey::Pubkey,
-    pub user: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub bonding_curve: solana_pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
 }

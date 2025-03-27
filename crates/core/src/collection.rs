@@ -67,7 +67,7 @@ use {crate::instruction::DecodedInstruction, serde::Serialize};
 /// pipeline according to application-specific logic.
 ///
 /// - **Parameters**:
-///   - `instruction`: A reference to a `solana_sdk::instruction::Instruction`,
+///   - `instruction`: A reference to a `solana_instruction::Instruction`,
 ///     representing the raw instruction to be decoded.
 /// - **Returns**: An `Option<DecodedInstruction<Self>>` containing the decoded
 ///   instruction if successful, or `None` if parsing fails or the instruction
@@ -97,7 +97,7 @@ pub trait InstructionDecoderCollection:
     type InstructionType: Clone + std::fmt::Debug + PartialEq + Eq + Send + Sync + 'static;
 
     fn parse_instruction(
-        instruction: &solana_sdk::instruction::Instruction,
+        instruction: &solana_instruction::Instruction,
     ) -> Option<DecodedInstruction<Self>>;
     fn get_type(&self) -> Self::InstructionType;
 }

@@ -4,8 +4,8 @@ use carbon_core::{borsh, CarbonDeserialize};
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub struct CompleteEvent {
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub bonding_curve: solana_sdk::pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub bonding_curve: solana_pubkey::Pubkey,
     pub timestamp: i64,
 }
