@@ -32,6 +32,7 @@ workspace_crates=(
     carbon-marinade-finance-decoder
     carbon-memo-program-decoder
     carbon-meteora-dlmm-decoder
+    carbon-meteora-pools-decoder
     carbon-moonshot-decoder
     carbon-mpl-core-decoder
     carbon-mpl-token-metadata-decoder

@@ -245,6 +245,7 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-marinade-finance-decoder`             | Marinade Finance Program Decoder          | MarBmsSgKXdrN1egZf5sqe1TMai9K1rChYNDJgjq7aD  |
 | `carbon-memo-program-decoder`                 | SPL Memo Program Decoder                  | Memo1UhkJRfHyvLMcVucJwxXeuD728EqVDDwQDxFMNo  |
 | `carbon-meteora-dlmm-decoder`                 | Meteora DLMM Program Decoder              | LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo  |
+| `carbon-meteora-pools-decoder`                | Meteora Pools Program Decoder              | Eo7WjKq67rjJQSZxS6z3YkapzY3eMj6Xy8X5EQVn5UaB  |
 | `carbon-moonshot-decoder`                     | Moonshot Program Decoder                  | MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG  |
 | `carbon-mpl-core-decoder`                     | MPL Core Program Decoder                  | CoREENxT6tW1HoK8ypY1SxRMZTcVPm7R94rH4PZNhX7d |
 | `carbon-mpl-token-metadata-decoder`           | MPL Token Metadata Program Decoder        | metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s  |
