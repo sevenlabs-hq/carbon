@@ -1426,6 +1426,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-virtuals-decoder"
+version = "0.6.2"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "serde-big-array",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-yellowstone-grpc-datasource"
 version = "0.6.2"
 dependencies = [
