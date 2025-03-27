@@ -29,15 +29,18 @@ use {
         schema::ParsedInstruction,
         transaction::TransactionMetadata,
     },
-    solana_sdk::{
-        instruction::{AccountMeta, CompiledInstruction},
+    solana_instruction::AccountMeta,
+    solana_program::{
+        instruction::CompiledInstruction,
         message::{
             v0::{LoadedAddresses, LoadedMessage},
             VersionedMessage,
         },
-        pubkey::Pubkey,
+    },
+    solana_pubkey::Pubkey,
+    solana_sdk::{
         reserved_account_keys::ReservedAccountKeys,
-        transaction_context::TransactionReturnData,
+        transaction_context::TransactionReturnData, // TODO: replace with solana_transaction_context after release of 2.2.0
     },
     solana_transaction_status::{
         option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
@@ -63,7 +66,7 @@ use {
 /// # Returns
 ///
 /// A `CarbonResult<Vec<(InstructionMetadata,
-/// solana_sdk::instruction::Instruction)>>` containing instructions along with
+/// solana_instruction::Instruction)>>` containing instructions along with
 /// their associated metadata.
 ///
 /// # Errors
@@ -73,7 +76,7 @@ use {
 pub fn extract_instructions_with_metadata(
     transaction_metadata: &TransactionMetadata,
     transaction_update: &TransactionUpdate,
-) -> CarbonResult<Vec<(InstructionMetadata, solana_sdk::instruction::Instruction)>> {
+) -> CarbonResult<Vec<(InstructionMetadata, solana_instruction::Instruction)>> {
     log::trace!(
         "extract_instructions_with_metadata(transaction_metadata: {:?}, transaction_update: {:?})",
         transaction_metadata,
@@ -83,7 +86,7 @@ pub fn extract_instructions_with_metadata(
     let meta = transaction_update.meta.clone();
 
     let mut instructions_with_metadata =
-        Vec::<(InstructionMetadata, solana_sdk::instruction::Instruction)>::new();
+        Vec::<(InstructionMetadata, solana_instruction::Instruction)>::new();
 
     match message {
         VersionedMessage::Legacy(legacy) => {
@@ -112,7 +115,7 @@ pub fn extract_instructions_with_metadata(
                         stack_height: 1,
                         index: i as u32 + 1,
                     },
-                    solana_sdk::instruction::Instruction {
+                    solana_instruction::Instruction {
                         program_id,
                         accounts,
                         data: compiled_instruction.data.clone(),
@@ -153,7 +156,7 @@ pub fn extract_instructions_with_metadata(
                                         stack_height: inner_instruction.stack_height.unwrap_or(1),
                                         index: inner_ix_idx as u32 + 1,
                                     },
-                                    solana_sdk::instruction::Instruction {
+                                    solana_instruction::Instruction {
                                         program_id,
                                         accounts,
                                         data: inner_instruction.instruction.data.clone(),
@@ -204,7 +207,7 @@ pub fn extract_instructions_with_metadata(
                         stack_height: 1,
                         index: i as u32 + 1,
                     },
-                    solana_sdk::instruction::Instruction {
+                    solana_instruction::Instruction {
                         program_id,
                         accounts,
                         data: compiled_instruction.data.clone(),
@@ -249,7 +252,7 @@ pub fn extract_instructions_with_metadata(
                                         stack_height: inner_instruction.stack_height.unwrap_or(1),
                                         index: inner_ix_idx as u32 + 1,
                                     },
-                                    solana_sdk::instruction::Instruction {
+                                    solana_instruction::Instruction {
                                         program_id,
                                         accounts,
                                         data: inner_instruction.instruction.data.clone(),
@@ -280,7 +283,7 @@ pub fn extract_instructions_with_metadata(
 ///
 /// # Returns
 ///
-/// A `CarbonResult<&[solana_sdk::instruction::AccountMeta]>` containing
+/// A `CarbonResult<&[AccountMeta]>` containing
 /// metadata for each account involved in the instruction.
 ///
 /// # Errors
@@ -288,20 +291,18 @@ pub fn extract_instructions_with_metadata(
 /// Returns an error if any referenced account key is missing from the
 /// transaction.
 pub fn extract_account_metas(
-    compiled_instruction: &solana_sdk::instruction::CompiledInstruction,
-    message: &solana_sdk::message::VersionedMessage,
-) -> CarbonResult<Vec<solana_sdk::instruction::AccountMeta>> {
+    compiled_instruction: &CompiledInstruction,
+    message: &VersionedMessage,
+) -> CarbonResult<Vec<AccountMeta>> {
     log::trace!(
         "extract_account_metas(compiled_instruction: {:?}, message: {:?})",
         compiled_instruction,
         message
     );
-    let mut accounts = Vec::<solana_sdk::instruction::AccountMeta>::with_capacity(
-        compiled_instruction.accounts.len(),
-    );
+    let mut accounts = Vec::<AccountMeta>::with_capacity(compiled_instruction.accounts.len());
 
     for account_index in compiled_instruction.accounts.iter() {
-        accounts.push(solana_sdk::instruction::AccountMeta {
+        accounts.push(AccountMeta {
             pubkey: *message
                 .static_account_keys()
                 .get(*account_index as usize)

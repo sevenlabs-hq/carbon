@@ -104,7 +104,7 @@ pub trait ArrangeAccounts {
     type ArrangedAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts>;
 }
 

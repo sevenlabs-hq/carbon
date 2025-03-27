@@ -4,11 +4,11 @@ use carbon_core::{borsh, CarbonDeserialize};
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub struct TradeEvent {
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
     pub sol_amount: u64,
     pub token_amount: u64,
     pub is_buy: bool,
-    pub user: solana_sdk::pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
     pub timestamp: i64,
     pub virtual_sol_reserves: u64,
     pub virtual_token_reserves: u64,

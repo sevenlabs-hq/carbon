@@ -14,8 +14,13 @@ default = ["macros"]
 macros = ["carbon-macros", "carbon-proc-macros"]
 
 [dependencies]
+solana-account = { workspace = true }
 solana-client = { workspace = true }
+solana-instruction = { workspace = true }
+solana-program = { workspace = true }
+solana-pubkey = { workspace = true }
 solana-sdk = { workspace = true }
+solana-signature = { workspace = true }
 solana-transaction-status = { workspace = true }
 
 async-trait = { workspace = true }

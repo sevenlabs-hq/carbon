@@ -5,8 +5,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 pub struct Global {
     pub initialized: bool,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub fee_recipient: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub fee_recipient: solana_pubkey::Pubkey,
     pub initial_virtual_token_reserves: u64,
     pub initial_virtual_sol_reserves: u64,
     pub initial_real_token_reserves: u64,
