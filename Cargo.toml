@@ -68,6 +68,7 @@ carbon-stake-program-decoder = { path = "decoders/carbon-stake-program-decoder",
 carbon-system-program-decoder = { path = "decoders/system-program-decoder", version = "0.6.2" }
 carbon-token-2022-decoder = { path = "decoders/token-2022-decoder", version = "0.6.2" }
 carbon-token-program-decoder = { path = "decoders/token-program-decoder", version = "0.6.2" }
+carbon-virtuals-decoder = { path = "decoders/virtuals-decoder", version = "0.6.2" }
 carbon-zeta-decoder = { path = "decoders/zeta-decoder", version = "0.6.2" }
 
 # solana
