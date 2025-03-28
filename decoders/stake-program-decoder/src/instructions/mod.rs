@@ -45,7 +45,7 @@ pub enum StakeProgramInstruction {
     DeactivateDelinquent(deactivate_delinquent::DeactivateDelinquent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for StakeProgramDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for StakeProgramDecoder {
     type InstructionType = StakeProgramInstruction;
 
     fn decode_instruction(

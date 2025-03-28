@@ -154,3 +154,50 @@ impl crate::borsh::BorshDeserialize for PrefixString {
         })?))
     }
 }
+
+/// A wrapper type for strings that are prefixed with their length.
+#[derive(serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone)]
+pub struct U64PrefixString(pub String);
+
+impl Default for U64PrefixString {
+    fn default() -> Self {
+        Self(String::default())
+    }
+}
+
+impl Deref for U64PrefixString {
+    type Target = String;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl From<U64PrefixString> for String {
+    fn from(val: U64PrefixString) -> Self {
+        val.0
+    }
+}
+
+impl std::fmt::Debug for U64PrefixString {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_fmt(format_args!("{:?}", self.0))
+    }
+}
+
+/// Implements the `CarbonDeserialize` trait for `U64PrefixString`.
+impl crate::borsh::BorshDeserialize for U64PrefixString {
+    #[inline]
+    fn deserialize_reader<R: Read>(reader: &mut R) -> Result<Self> {
+        // read the length of the String
+        let mut buffer = vec![0u8; 8];
+        reader.read_exact(&mut buffer)?;
+        let length = u64::deserialize(&mut buffer.as_slice())?;
+        let mut buffer = vec![0u8; length as usize];
+        reader.read_exact(&mut buffer)?;
+
+        Ok(Self(String::from_utf8(buffer).map_err(|_| {
+            Error::new(ErrorKind::InvalidData, "invalid utf8")
+        })?))
+    }
+}
