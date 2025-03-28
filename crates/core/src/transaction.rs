@@ -41,7 +41,8 @@ use {
     },
     async_trait::async_trait,
     serde::de::DeserializeOwned,
-    solana_sdk::{pubkey::Pubkey, signature::Signature},
+    solana_pubkey::Pubkey,
+    solana_signature::Signature,
     std::{convert::TryFrom, sync::Arc},
 };
 /// Contains metadata about a transaction, including its slot, signature, fee
@@ -63,7 +64,7 @@ pub struct TransactionMetadata {
     pub signature: Signature,
     pub fee_payer: Pubkey,
     pub meta: solana_transaction_status::TransactionStatusMeta,
-    pub message: solana_sdk::message::VersionedMessage,
+    pub message: solana_program::message::VersionedMessage,
     pub block_time: Option<i64>,
 }
 

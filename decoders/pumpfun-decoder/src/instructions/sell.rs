@@ -11,25 +11,25 @@ pub struct Sell {
 
 #[derive(Debug, PartialEq)]
 pub struct SellInstructionAccounts {
-    pub global: solana_sdk::pubkey::Pubkey,
-    pub fee_recipient: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub bonding_curve: solana_sdk::pubkey::Pubkey,
-    pub associated_bonding_curve: solana_sdk::pubkey::Pubkey,
-    pub associated_user: solana_sdk::pubkey::Pubkey,
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub global: solana_pubkey::Pubkey,
+    pub fee_recipient: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub bonding_curve: solana_pubkey::Pubkey,
+    pub associated_bonding_curve: solana_pubkey::Pubkey,
+    pub associated_user: solana_pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Sell {
     type ArrangedAccounts = SellInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [global, fee_recipient, mint, bonding_curve, associated_bonding_curve, associated_user, user, system_program, associated_token_program, token_program, event_authority, program, _remaining @ ..] =
             accounts

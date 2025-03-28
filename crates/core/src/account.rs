@@ -30,7 +30,7 @@
 //!
 //!     fn decode_account(
 //!         &self,
-//!         account: &'a solana_sdk::account::Account,
+//!         account: &'a solana_account::Account,
 //!     ) -> Option<DecodedAccount<Self::AccountType>> {
 //!         // Custom decoding logic here
 //!         Some(DecodedAccount {
@@ -54,7 +54,7 @@
 use {
     crate::{error::CarbonResult, metrics::MetricsCollection, processor::Processor},
     async_trait::async_trait,
-    solana_sdk::pubkey::Pubkey,
+    solana_pubkey::Pubkey,
     std::sync::Arc,
 };
 
@@ -119,7 +119,7 @@ pub trait AccountDecoder<'a> {
 
     fn decode_account(
         &self,
-        account: &'a solana_sdk::account::Account,
+        account: &'a solana_account::Account,
     ) -> Option<DecodedAccount<Self::AccountType>>;
 }
 
@@ -164,7 +164,7 @@ pub struct AccountPipe<T: Send> {
 /// impl AccountPipes for MyAccountPipe {
 ///     async fn run(
 ///         &mut self,
-///         account_with_metadata: (AccountMetadata, solana_sdk::account::Account),
+///         account_with_metadata: (AccountMetadata, solana_account::Account),
 ///         metrics: Arc<MetricsCollection>,
 ///     ) -> CarbonResult<()> {
 ///         // Custom processing logic here
@@ -182,7 +182,7 @@ pub struct AccountPipe<T: Send> {
 pub trait AccountPipes: Send + Sync {
     async fn run(
         &mut self,
-        account_with_metadata: (AccountMetadata, solana_sdk::account::Account),
+        account_with_metadata: (AccountMetadata, solana_account::Account),
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
 }
@@ -191,7 +191,7 @@ pub trait AccountPipes: Send + Sync {
 impl<T: Send> AccountPipes for AccountPipe<T> {
     async fn run(
         &mut self,
-        account_with_metadata: (AccountMetadata, solana_sdk::account::Account),
+        account_with_metadata: (AccountMetadata, solana_account::Account),
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         log::trace!(

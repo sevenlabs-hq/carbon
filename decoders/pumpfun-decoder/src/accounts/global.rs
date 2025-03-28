@@ -4,8 +4,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct Global {
     pub _padding: [u8; 8],
     pub initialized: bool,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub fee_recipient: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub fee_recipient: solana_pubkey::Pubkey,
     pub initial_virtual_token_reserves: u64,
     pub initial_virtual_sol_reserves: u64,
     pub initial_real_token_reserves: u64,
@@ -19,8 +19,8 @@ impl Default for Global {
         Self {
             _padding: [0; 8],
             initialized: false,
-            authority: solana_sdk::pubkey::Pubkey::default(),
-            fee_recipient: solana_sdk::pubkey::Pubkey::default(),
+            authority: solana_pubkey::Pubkey::default(),
+            fee_recipient: solana_pubkey::Pubkey::default(),
             initial_virtual_token_reserves: 0,
             initial_virtual_sol_reserves: 0,
             initial_real_token_reserves: 0,
