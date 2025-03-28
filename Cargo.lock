@@ -1081,6 +1081,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-meteora-pools-decoder"
+version = "0.6.2"
+dependencies = [
+ "carbon-core",
+ "carbon-test-utils",
+ "serde",
+ "serde-big-array",
+ "solana-sdk",
+]
+
+[[package]]
 name = "carbon-moonshot-decoder"
 version = "0.6.2"
 dependencies = [
