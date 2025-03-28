@@ -1404,6 +1404,7 @@ name = "carbon-system-program-decoder"
 version = "0.6.2"
 dependencies = [
  "carbon-core",
+ "carbon-test-utils",
  "serde",
  "solana-sdk",
  "spl-token",

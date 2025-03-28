@@ -1,32 +1,31 @@
-use carbon_core::{borsh, CarbonDeserialize};
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
-#[carbon(discriminator = "0x08")]
+use carbon_core::{borsh, deserialize::U64PrefixString, CarbonDeserialize};
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone)]
+#[carbon(discriminator = "0x09000000")]
 pub struct AllocateWithSeed {
     pub base: solana_sdk::pubkey::Pubkey,
-    pub seed: String,
+    pub seed: U64PrefixString,
     pub space: u64,
-    pub owner: solana_sdk::pubkey::Pubkey,
+    pub program_address: solana_sdk::pubkey::Pubkey,
 }
 
-pub struct AllocateWithSeedAccounts {
-    pub allocated_account: solana_sdk::pubkey::Pubkey,
+pub struct AllocateWithSeedInstructionAccounts {
+    pub new_account: solana_sdk::pubkey::Pubkey,
     pub base_account: solana_sdk::pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for AllocateWithSeed {
-    type ArrangedAccounts = AllocateWithSeedAccounts;
+    type ArrangedAccounts = AllocateWithSeedInstructionAccounts;
 
     fn arrange_accounts(
         accounts: &[solana_sdk::instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [allocated_account, base_account, _remaining @ ..] = accounts else {
+        let [new_account, base_account, _remaining @ ..] = accounts else {
             return None;
         };
 
-        Some(AllocateWithSeedAccounts {
-            allocated_account: allocated_account.pubkey,
+        Some(AllocateWithSeedInstructionAccounts {
+            new_account: new_account.pubkey,
             base_account: base_account.pubkey,
         })
     }

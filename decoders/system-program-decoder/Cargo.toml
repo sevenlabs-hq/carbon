@@ -17,3 +17,6 @@ carbon-core = { workspace = true }
 serde = { workspace = true }
 solana-sdk = { workspace = true }
 spl-token = { workspace = true }
+
+[dev-dependencies]
+carbon-test-utils = { workspace = true }

@@ -3,7 +3,7 @@ use carbon_core::account::AccountDecoder;
 
 pub enum SplAssociatedTokenAccountAccount {}
 
-impl<'a> AccountDecoder<'a> for SplAssociatedTokenAccountDecoder {
+impl AccountDecoder<'_> for SplAssociatedTokenAccountDecoder {
     type AccountType = SplAssociatedTokenAccountAccount;
     fn decode_account(
         &self,
