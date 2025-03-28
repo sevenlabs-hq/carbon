@@ -1,6 +1,6 @@
 [package]
 name = "carbon-solayer-restaking-program-decoder"
-version = "0.6.2"
+version = "0.7.0"
 edition = { workspace = true }
 description = "Solayer Restaking Decoder"
 license = { workspace = true }

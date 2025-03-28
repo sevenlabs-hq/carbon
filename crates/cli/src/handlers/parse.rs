@@ -200,7 +200,7 @@ pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
         let cargo_toml_content = format!(
             r#"[package]
 name = "{decoder_name_kebab}-decoder"
-version = "0.6.2"
+version = "0.7.0"
 edition = {{ workspace = true }}
 
 [lib]
@@ -261,7 +261,7 @@ pub fn scaffold(
     fs::create_dir_all(&src_dir).expect("Failed to create src directory");
 
     // Generate Cargo.toml
-    let (carbon_deps_version, sol_deps_version) = ("0.6.2", "=2.1.15");
+    let (carbon_deps_version, sol_deps_version) = ("0.7.0", "=2.1.15");
     let datasource_dep = format!(
         "carbon-{}-datasource = \"{}\"",
         data_source.to_kebab_case(),
@@ -307,9 +307,9 @@ log = "0.4.25"
             r#"yellowstone-grpc-client = { version = "5.0.0" }
 yellowstone-grpc-proto = { version = "5.0.0" }
             "#
-            } else {
-                ""
-            },
+        } else {
+            ""
+        },
     );
     fs::write(&cargo_toml_filename, cargo_toml_content).expect("Failed to write Cargo.toml file");
 
@@ -332,10 +332,12 @@ target/
         "helius_atlas_ws" => "HELIUS_API_KEY=your-atlas-ws-url-here",
         "rpc_block_subscribe" => "RPC_WS_URL=your-rpc-ws-url-here",
         "rpc_transaction_crawler" => "RPC_URL=your-rpc-url-here",
-        "yellowstone_grpc" => r"
+        "yellowstone_grpc" => {
+            r"
 GEYSER_URL=your-rpc-url-here
 X_TOKEN=your-x-token-here
-",
+"
+        }
         _ => "",
     };
 

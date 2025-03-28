@@ -9,6 +9,7 @@ workspace_crates=(
     carbon-test-utils
 
     carbon-helius-atlas-ws-datasource
+    carbon-rpc-block-crawler-datasource
     carbon-rpc-block-subscribe-datasource
     carbon-rpc-program-subscribe-datasource
     carbon-rpc-transaction-crawler-datasource
