@@ -56,6 +56,7 @@ workspace_crates=(
     carbon-system-program-decoder
     carbon-token-2022-decoder
     carbon-token-program-decoder
+    carbon-virtuals-decoder
     carbon-zeta-decoder
 )
 
