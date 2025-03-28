@@ -35,12 +35,12 @@ pub enum PumpfunInstruction {
     TradeEvent(trade_event::TradeEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for PumpfunDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for PumpfunDecoder {
     type InstructionType = PumpfunInstruction;
 
     fn decode_instruction(
         &self,
-        instruction: &solana_sdk::instruction::Instruction,
+        instruction: &solana_instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         if !instruction.program_id.eq(&PROGRAM_ID) {
             return None;
@@ -64,7 +64,8 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for PumpfunDecoder {
 #[cfg(test)]
 mod tests {
     use carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder};
-    use solana_sdk::{instruction::AccountMeta, pubkey};
+    use solana_instruction::AccountMeta;
+    use solana_pubkey::Pubkey;
 
     use super::*;
 
@@ -77,64 +78,69 @@ mod tests {
         });
         let expected_accounts = vec![
             AccountMeta::new_readonly(
-                pubkey!("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
+                Pubkey::from_str_const("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV"),
+                Pubkey::from_str_const("62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("9p1PMtto471A7GvnRJVmDcuqUz3xDd1Lhu8vzrmpump"),
+                Pubkey::from_str_const("9p1PMtto471A7GvnRJVmDcuqUz3xDd1Lhu8vzrmpump"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("HWxwYxr4AV5ytUyT8pvjCEiUrXhwpbx365VpvQ6Bd6MZ"),
+                Pubkey::from_str_const("HWxwYxr4AV5ytUyT8pvjCEiUrXhwpbx365VpvQ6Bd6MZ"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("AUfg9aTAix7YarkHXSBMUyQPCTq55Gg1Z2NTe6utwwzG"),
+                Pubkey::from_str_const("AUfg9aTAix7YarkHXSBMUyQPCTq55Gg1Z2NTe6utwwzG"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("4FLYmjhLuUb5ofNBo1PA9enF7HrPUSYUA1t55tUSFYa5"),
+                Pubkey::from_str_const("4FLYmjhLuUb5ofNBo1PA9enF7HrPUSYUA1t55tUSFYa5"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("5ztadiszGPmBeGVcvmtPyqiHRA8SpU8mqNzPV1WeV88F"),
+                Pubkey::from_str_const("5ztadiszGPmBeGVcvmtPyqiHRA8SpU8mqNzPV1WeV88F"),
                 true,
             ),
-            AccountMeta::new_readonly(pubkey!("11111111111111111111111111111111"), false),
             AccountMeta::new_readonly(
-                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                Pubkey::from_str_const("11111111111111111111111111111111"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("SysvarRent111111111111111111111111111111111"),
+                Pubkey::from_str_const("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
+                Pubkey::from_str_const("SysvarRent111111111111111111111111111111111"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
+                Pubkey::from_str_const("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                Pubkey::from_str_const("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
                 false,
             ),
         ];
         let expected_arranged_accounts = buy::BuyInstructionAccounts {
-            global: pubkey!("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
-            fee_recipient: pubkey!("62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV"),
-            mint: pubkey!("9p1PMtto471A7GvnRJVmDcuqUz3xDd1Lhu8vzrmpump"),
-            bonding_curve: pubkey!("HWxwYxr4AV5ytUyT8pvjCEiUrXhwpbx365VpvQ6Bd6MZ"),
-            associated_bonding_curve: pubkey!("AUfg9aTAix7YarkHXSBMUyQPCTq55Gg1Z2NTe6utwwzG"),
-            associated_user: pubkey!("4FLYmjhLuUb5ofNBo1PA9enF7HrPUSYUA1t55tUSFYa5"),
-            user: pubkey!("5ztadiszGPmBeGVcvmtPyqiHRA8SpU8mqNzPV1WeV88F"),
-            system_program: pubkey!("11111111111111111111111111111111"),
-            token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-            rent: pubkey!("SysvarRent111111111111111111111111111111111"),
-            event_authority: pubkey!("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
-            program: pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
+            global: Pubkey::from_str_const("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
+            fee_recipient: Pubkey::from_str_const("62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV"),
+            mint: Pubkey::from_str_const("9p1PMtto471A7GvnRJVmDcuqUz3xDd1Lhu8vzrmpump"),
+            bonding_curve: Pubkey::from_str_const("HWxwYxr4AV5ytUyT8pvjCEiUrXhwpbx365VpvQ6Bd6MZ"),
+            associated_bonding_curve: Pubkey::from_str_const(
+                "AUfg9aTAix7YarkHXSBMUyQPCTq55Gg1Z2NTe6utwwzG",
+            ),
+            associated_user: Pubkey::from_str_const("4FLYmjhLuUb5ofNBo1PA9enF7HrPUSYUA1t55tUSFYa5"),
+            user: Pubkey::from_str_const("5ztadiszGPmBeGVcvmtPyqiHRA8SpU8mqNzPV1WeV88F"),
+            system_program: Pubkey::from_str_const("11111111111111111111111111111111"),
+            token_program: Pubkey::from_str_const("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            rent: Pubkey::from_str_const("SysvarRent111111111111111111111111111111111"),
+            event_authority: Pubkey::from_str_const("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
+            program: Pubkey::from_str_const("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
         };
 
         // Act
@@ -163,64 +169,71 @@ mod tests {
         });
         let expected_accounts = vec![
             AccountMeta::new_readonly(
-                pubkey!("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
+                Pubkey::from_str_const("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV"),
+                Pubkey::from_str_const("62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("HXfFC4G1aJJo17KW56jJ2iaDLFXq6T8XZjPbQfhspump"),
+                Pubkey::from_str_const("HXfFC4G1aJJo17KW56jJ2iaDLFXq6T8XZjPbQfhspump"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("8f12Y6z6CkMmcBqduvThRG2V873CP3eu2iBydqKGDX6y"),
+                Pubkey::from_str_const("8f12Y6z6CkMmcBqduvThRG2V873CP3eu2iBydqKGDX6y"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("GkSscwZJBhcFeB6hpWrnfrE73e5SawPmMuT55U1W4uqz"),
+                Pubkey::from_str_const("GkSscwZJBhcFeB6hpWrnfrE73e5SawPmMuT55U1W4uqz"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("Bi6H7WPrZoJmqSauP38NuBaEttGraZkceR4p17ekoTwh"),
+                Pubkey::from_str_const("Bi6H7WPrZoJmqSauP38NuBaEttGraZkceR4p17ekoTwh"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("3bApZNQrP3T6Q1GvK1n1nUPHHnpnsbrEmdGyQyYLEbkP"),
+                Pubkey::from_str_const("3bApZNQrP3T6Q1GvK1n1nUPHHnpnsbrEmdGyQyYLEbkP"),
                 true,
             ),
-            AccountMeta::new_readonly(pubkey!("11111111111111111111111111111111"), false),
             AccountMeta::new_readonly(
-                pubkey!("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
+                Pubkey::from_str_const("11111111111111111111111111111111"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                Pubkey::from_str_const("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
+                Pubkey::from_str_const("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
+                Pubkey::from_str_const("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                Pubkey::from_str_const("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
                 false,
             ),
         ];
         let expected_arranged_accounts = sell::SellInstructionAccounts {
-            global: pubkey!("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
-            fee_recipient: pubkey!("62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV"),
-            mint: pubkey!("HXfFC4G1aJJo17KW56jJ2iaDLFXq6T8XZjPbQfhspump"),
-            bonding_curve: pubkey!("8f12Y6z6CkMmcBqduvThRG2V873CP3eu2iBydqKGDX6y"),
-            associated_bonding_curve: pubkey!("GkSscwZJBhcFeB6hpWrnfrE73e5SawPmMuT55U1W4uqz"),
-            associated_user: pubkey!("Bi6H7WPrZoJmqSauP38NuBaEttGraZkceR4p17ekoTwh"),
-            user: pubkey!("3bApZNQrP3T6Q1GvK1n1nUPHHnpnsbrEmdGyQyYLEbkP"),
-            system_program: pubkey!("11111111111111111111111111111111"),
-            associated_token_program: pubkey!("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
-            token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-            event_authority: pubkey!("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
-            program: pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
+            global: Pubkey::from_str_const("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
+            fee_recipient: Pubkey::from_str_const("62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV"),
+            mint: Pubkey::from_str_const("HXfFC4G1aJJo17KW56jJ2iaDLFXq6T8XZjPbQfhspump"),
+            bonding_curve: Pubkey::from_str_const("8f12Y6z6CkMmcBqduvThRG2V873CP3eu2iBydqKGDX6y"),
+            associated_bonding_curve: Pubkey::from_str_const(
+                "GkSscwZJBhcFeB6hpWrnfrE73e5SawPmMuT55U1W4uqz",
+            ),
+            associated_user: Pubkey::from_str_const("Bi6H7WPrZoJmqSauP38NuBaEttGraZkceR4p17ekoTwh"),
+            user: Pubkey::from_str_const("3bApZNQrP3T6Q1GvK1n1nUPHHnpnsbrEmdGyQyYLEbkP"),
+            system_program: Pubkey::from_str_const("11111111111111111111111111111111"),
+            associated_token_program: Pubkey::from_str_const(
+                "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+            ),
+            token_program: Pubkey::from_str_const("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            event_authority: Pubkey::from_str_const("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
+            program: Pubkey::from_str_const("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
         };
 
         // Act
@@ -247,78 +260,87 @@ mod tests {
             name: "Super Elon Bros ".to_owned(),
             symbol: "SEB".to_owned(),
             uri: "https://ipfs.io/ipfs/QmVnjMrWqhMBsmeFnaje87XVxMKY9y7BRL2DtFYJazTGM5".to_owned(),
-            creator: pubkey!("7a9xQF38YVW58TPeHavvXiVpqynCxY2GcohsZxdUZCX1"),
+            creator: Pubkey::from_str_const("7a9xQF38YVW58TPeHavvXiVpqynCxY2GcohsZxdUZCX1"),
         });
         let expected_accounts = vec![
             AccountMeta::new(
-                pubkey!("5PweXK19JD4PkafHm9BmpgiTaMoQgKq9EXVkDagwpump"),
+                Pubkey::from_str_const("5PweXK19JD4PkafHm9BmpgiTaMoQgKq9EXVkDagwpump"),
                 true,
             ),
             AccountMeta::new_readonly(
-                pubkey!("TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM"),
+                Pubkey::from_str_const("TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("Chau1rGA8w4L43rAMUAKXGwq8hpPfGjUoHsiZJEyziKz"),
+                Pubkey::from_str_const("Chau1rGA8w4L43rAMUAKXGwq8hpPfGjUoHsiZJEyziKz"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("7JxriSri8PukwVQ6VQZ6ErpJ3Km1x6eWMnQeJ2Cd2148"),
+                Pubkey::from_str_const("7JxriSri8PukwVQ6VQZ6ErpJ3Km1x6eWMnQeJ2Cd2148"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
+                Pubkey::from_str_const("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
+                Pubkey::from_str_const("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("Dzp1H2K6sNR8VAqXE9Q6eSdZckp7uQSJKR1FKY9SzFoS"),
+                Pubkey::from_str_const("Dzp1H2K6sNR8VAqXE9Q6eSdZckp7uQSJKR1FKY9SzFoS"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("7a9xQF38YVW58TPeHavvXiVpqynCxY2GcohsZxdUZCX1"),
+                Pubkey::from_str_const("7a9xQF38YVW58TPeHavvXiVpqynCxY2GcohsZxdUZCX1"),
                 true,
             ),
-            AccountMeta::new_readonly(pubkey!("11111111111111111111111111111111"), false),
             AccountMeta::new_readonly(
-                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                Pubkey::from_str_const("11111111111111111111111111111111"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
+                Pubkey::from_str_const("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("SysvarRent111111111111111111111111111111111"),
+                Pubkey::from_str_const("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
+                Pubkey::from_str_const("SysvarRent111111111111111111111111111111111"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
+                Pubkey::from_str_const("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                Pubkey::from_str_const("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
                 false,
             ),
         ];
         let expected_arranged_accounts = create::CreateInstructionAccounts {
-            mint: pubkey!("5PweXK19JD4PkafHm9BmpgiTaMoQgKq9EXVkDagwpump"),
-            mint_authority: pubkey!("TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM"),
-            bonding_curve: pubkey!("Chau1rGA8w4L43rAMUAKXGwq8hpPfGjUoHsiZJEyziKz"),
-            associated_bonding_curve: pubkey!("7JxriSri8PukwVQ6VQZ6ErpJ3Km1x6eWMnQeJ2Cd2148"),
-            global: pubkey!("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
-            mpl_token_metadata: pubkey!("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"),
-            metadata: pubkey!("Dzp1H2K6sNR8VAqXE9Q6eSdZckp7uQSJKR1FKY9SzFoS"),
-            user: pubkey!("7a9xQF38YVW58TPeHavvXiVpqynCxY2GcohsZxdUZCX1"),
-            system_program: pubkey!("11111111111111111111111111111111"),
-            token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-            associated_token_program: pubkey!("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
-            rent: pubkey!("SysvarRent111111111111111111111111111111111"),
-            event_authority: pubkey!("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
-            program: pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
+            mint: Pubkey::from_str_const("5PweXK19JD4PkafHm9BmpgiTaMoQgKq9EXVkDagwpump"),
+            mint_authority: Pubkey::from_str_const("TSLvdd1pWpHVjahSpsvCXUbgwsL3JAcvokwaKt1eokM"),
+            bonding_curve: Pubkey::from_str_const("Chau1rGA8w4L43rAMUAKXGwq8hpPfGjUoHsiZJEyziKz"),
+            associated_bonding_curve: Pubkey::from_str_const(
+                "7JxriSri8PukwVQ6VQZ6ErpJ3Km1x6eWMnQeJ2Cd2148",
+            ),
+            global: Pubkey::from_str_const("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
+            mpl_token_metadata: Pubkey::from_str_const(
+                "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
+            ),
+            metadata: Pubkey::from_str_const("Dzp1H2K6sNR8VAqXE9Q6eSdZckp7uQSJKR1FKY9SzFoS"),
+            user: Pubkey::from_str_const("7a9xQF38YVW58TPeHavvXiVpqynCxY2GcohsZxdUZCX1"),
+            system_program: Pubkey::from_str_const("11111111111111111111111111111111"),
+            token_program: Pubkey::from_str_const("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            associated_token_program: Pubkey::from_str_const(
+                "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+            ),
+            rent: Pubkey::from_str_const("SysvarRent111111111111111111111111111111111"),
+            event_authority: Pubkey::from_str_const("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
+            program: Pubkey::from_str_const("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
         };
 
         // Act
@@ -344,64 +366,69 @@ mod tests {
         let expected_ix = PumpfunInstruction::Withdraw(withdraw::Withdraw {});
         let expected_accounts = vec![
             AccountMeta::new_readonly(
-                pubkey!("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
+                Pubkey::from_str_const("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("EGqbBGXmDA9QYd1XJkf3GDFoerQYeFW3FrQZZXRza9JL"),
+                Pubkey::from_str_const("EGqbBGXmDA9QYd1XJkf3GDFoerQYeFW3FrQZZXRza9JL"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("8f8inBUeF6GCPQvN2qxu95uZMTjidZfS2RbYBrFSpump"),
+                Pubkey::from_str_const("8f8inBUeF6GCPQvN2qxu95uZMTjidZfS2RbYBrFSpump"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("DfcyEVHECKF9U14EzYqxeovufnndbN8qrDurVdJbkUwY"),
+                Pubkey::from_str_const("DfcyEVHECKF9U14EzYqxeovufnndbN8qrDurVdJbkUwY"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("EQtzJCRiCpbEmKqZndvCQgGAXCFuGtP2FAZ2HYpH8F6F"),
+                Pubkey::from_str_const("EQtzJCRiCpbEmKqZndvCQgGAXCFuGtP2FAZ2HYpH8F6F"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("7ngNZs9Ax61KJ8MKmQKFao73LB4jRRgrg4SZU3YsAbfY"),
+                Pubkey::from_str_const("7ngNZs9Ax61KJ8MKmQKFao73LB4jRRgrg4SZU3YsAbfY"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg"),
+                Pubkey::from_str_const("39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg"),
                 true,
             ),
-            AccountMeta::new_readonly(pubkey!("11111111111111111111111111111111"), false),
             AccountMeta::new_readonly(
-                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                Pubkey::from_str_const("11111111111111111111111111111111"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("SysvarRent111111111111111111111111111111111"),
+                Pubkey::from_str_const("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
+                Pubkey::from_str_const("SysvarRent111111111111111111111111111111111"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
+                Pubkey::from_str_const("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                Pubkey::from_str_const("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
                 false,
             ),
         ];
         let expected_arranged_accounts = withdraw::WithdrawInstructionAccounts {
-            global: pubkey!("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
-            last_withdraw: pubkey!("EGqbBGXmDA9QYd1XJkf3GDFoerQYeFW3FrQZZXRza9JL"),
-            mint: pubkey!("8f8inBUeF6GCPQvN2qxu95uZMTjidZfS2RbYBrFSpump"),
-            bonding_curve: pubkey!("DfcyEVHECKF9U14EzYqxeovufnndbN8qrDurVdJbkUwY"),
-            associated_bonding_curve: pubkey!("EQtzJCRiCpbEmKqZndvCQgGAXCFuGtP2FAZ2HYpH8F6F"),
-            associated_user: pubkey!("7ngNZs9Ax61KJ8MKmQKFao73LB4jRRgrg4SZU3YsAbfY"),
-            user: pubkey!("39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg"),
-            system_program: pubkey!("11111111111111111111111111111111"),
-            token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-            rent: pubkey!("SysvarRent111111111111111111111111111111111"),
-            event_authority: pubkey!("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
-            program: pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
+            global: Pubkey::from_str_const("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
+            last_withdraw: Pubkey::from_str_const("EGqbBGXmDA9QYd1XJkf3GDFoerQYeFW3FrQZZXRza9JL"),
+            mint: Pubkey::from_str_const("8f8inBUeF6GCPQvN2qxu95uZMTjidZfS2RbYBrFSpump"),
+            bonding_curve: Pubkey::from_str_const("DfcyEVHECKF9U14EzYqxeovufnndbN8qrDurVdJbkUwY"),
+            associated_bonding_curve: Pubkey::from_str_const(
+                "EQtzJCRiCpbEmKqZndvCQgGAXCFuGtP2FAZ2HYpH8F6F",
+            ),
+            associated_user: Pubkey::from_str_const("7ngNZs9Ax61KJ8MKmQKFao73LB4jRRgrg4SZU3YsAbfY"),
+            user: Pubkey::from_str_const("39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg"),
+            system_program: Pubkey::from_str_const("11111111111111111111111111111111"),
+            token_program: Pubkey::from_str_const("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            rent: Pubkey::from_str_const("SysvarRent111111111111111111111111111111111"),
+            event_authority: Pubkey::from_str_const("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
+            program: Pubkey::from_str_const("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
         };
 
         // Act

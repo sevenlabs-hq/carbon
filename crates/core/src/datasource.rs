@@ -36,7 +36,11 @@
 use {
     crate::{error::CarbonResult, metrics::MetricsCollection},
     async_trait::async_trait,
-    solana_sdk::{pubkey::Pubkey, signature::Signature},
+    solana_account::Account,
+    solana_pubkey::Pubkey,
+    solana_sdk::transaction::VersionedTransaction,
+    solana_signature::Signature,
+    solana_transaction_status::TransactionStatusMeta,
     std::sync::Arc,
     tokio_util::sync::CancellationToken,
 };
@@ -136,7 +140,7 @@ pub enum UpdateType {
 #[derive(Debug, Clone)]
 pub struct AccountUpdate {
     pub pubkey: Pubkey,
-    pub account: solana_sdk::account::Account,
+    pub account: Account,
     pub slot: u64,
 }
 
@@ -176,8 +180,8 @@ pub struct AccountDeletion {
 #[derive(Debug, Clone)]
 pub struct TransactionUpdate {
     pub signature: Signature,
-    pub transaction: solana_sdk::transaction::VersionedTransaction,
-    pub meta: solana_transaction_status::TransactionStatusMeta,
+    pub transaction: VersionedTransaction, // TODO: replace with solana_transaction crate after 2.2.0 release
+    pub meta: TransactionStatusMeta,
     pub is_vote: bool,
     pub slot: u64,
     pub block_time: Option<i64>,

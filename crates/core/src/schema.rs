@@ -41,7 +41,8 @@
 use {
     crate::{collection::InstructionDecoderCollection, instruction::DecodedInstruction},
     serde::de::DeserializeOwned,
-    solana_sdk::{instruction::AccountMeta, pubkey::Pubkey},
+    solana_instruction::AccountMeta,
+    solana_pubkey::Pubkey,
     std::collections::HashMap,
 };
 

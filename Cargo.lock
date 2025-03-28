@@ -875,8 +875,13 @@ dependencies = [
  "log",
  "serde",
  "serde_json",
+ "solana-account",
  "solana-client",
+ "solana-instruction",
+ "solana-program",
+ "solana-pubkey",
  "solana-sdk",
+ "solana-signature",
  "solana-transaction-status",
  "thiserror 1.0.69",
  "tokio",
@@ -1215,7 +1220,9 @@ dependencies = [
  "carbon-core",
  "carbon-test-utils",
  "serde",
- "solana-sdk",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey",
 ]
 
 [[package]]

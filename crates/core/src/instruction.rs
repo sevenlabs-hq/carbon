@@ -26,7 +26,8 @@ use {
     },
     async_trait::async_trait,
     serde::Deserialize,
-    solana_sdk::{instruction::AccountMeta, pubkey::Pubkey},
+    solana_instruction::AccountMeta,
+    solana_pubkey::Pubkey,
     std::{ops::Deref, sync::Arc},
 };
 
@@ -55,8 +56,7 @@ pub struct InstructionMetadata {
     pub index: u32,
 }
 
-pub type InstructionsWithMetadata =
-    Vec<(InstructionMetadata, solana_sdk::instruction::Instruction)>;
+pub type InstructionsWithMetadata = Vec<(InstructionMetadata, solana_instruction::Instruction)>;
 
 /// A decoded instruction containing program ID, data, and associated accounts.
 ///
@@ -102,7 +102,7 @@ pub trait InstructionDecoder<'a> {
 
     fn decode_instruction(
         &self,
-        instruction: &'a solana_sdk::instruction::Instruction,
+        instruction: &'a solana_instruction::Instruction,
     ) -> Option<DecodedInstruction<Self::InstructionType>>;
 }
 
@@ -207,7 +207,7 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
 #[derive(Debug, Clone)]
 pub struct NestedInstruction {
     pub metadata: InstructionMetadata,
-    pub instruction: solana_sdk::instruction::Instruction,
+    pub instruction: solana_instruction::Instruction,
     pub inner_instructions: Vec<NestedInstruction>,
 }
 
