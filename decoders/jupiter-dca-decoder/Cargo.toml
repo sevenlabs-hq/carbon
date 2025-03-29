@@ -1,6 +1,6 @@
 [package]
 name = "carbon-jupiter-dca-decoder"
-version = "0.6.2"
+version = "0.7.0"
 description = "Jupiter DCA Decoder"
 license = { workspace = true }
 edition = { workspace = true }

@@ -74,7 +74,6 @@ impl Datasource for RpcBlockCrawler {
                 .commitment
                 .unwrap_or(CommitmentConfig::confirmed()),
         ));
-        let block_config = self.block_config.clone();
         let sender = sender.clone();
         let (block_sender, block_receiver) = mpsc::channel(self.channel_buffer_size);
 
@@ -83,7 +82,7 @@ impl Datasource for RpcBlockCrawler {
             self.start_slot,
             self.end_slot,
             self.block_interval,
-            block_config,
+            self.block_config,
             block_sender,
             self.max_concurrent_requests,
             cancellation_token.clone(),
@@ -174,7 +173,6 @@ fn block_fetcher(
             fetch_stream
                 .map(|slot| {
                     let rpc_client = Arc::clone(&rpc_client);
-                    let block_config = block_config.clone();
                     let metrics = metrics.clone();
 
                     async move {
@@ -352,8 +350,10 @@ mod tests {
         let cancellation_token = CancellationToken::new();
         let (block_sender, mut block_receiver) = mpsc::channel(1);
 
-        let mut block_config = RpcBlockConfig::default();
-        block_config.max_supported_transaction_version = Some(0);
+        let block_config = RpcBlockConfig {
+            max_supported_transaction_version: Some(0),
+            ..Default::default()
+        };
 
         // Start block_fetcher
         let block_fetcher = block_fetcher(
@@ -431,8 +431,10 @@ mod tests {
         let cancellation_token = CancellationToken::new();
         let (block_sender, mut block_receiver) = mpsc::channel(1);
 
-        let mut block_config = RpcBlockConfig::default();
-        block_config.max_supported_transaction_version = Some(0);
+        let block_config = RpcBlockConfig {
+            max_supported_transaction_version: Some(0),
+            ..Default::default()
+        };
 
         // Start block_fetcher
         let block_fetcher = block_fetcher(

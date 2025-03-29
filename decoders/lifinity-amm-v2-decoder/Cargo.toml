@@ -1,6 +1,6 @@
 [package]
 name = "carbon-lifinity-amm-v2-decoder"
-version = "0.6.2"
+version = "0.7.0"
 description = "Lifinity AMM V2 Decoder"
 edition = { workspace = true }
 license = { workspace = true }
