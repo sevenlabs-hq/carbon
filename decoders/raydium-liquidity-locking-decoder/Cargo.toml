@@ -1,6 +1,6 @@
 [package]
 name = "carbon-raydium-liquidity-locking-decoder"
-version = "0.6.2"
+version = "0.7.0"
 description = "Raydium Liquidity Locking Decoder"
 edition = { workspace = true }
 license = { workspace = true }

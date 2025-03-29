@@ -1,6 +1,6 @@
 [package]
 name = "carbon-test-utils"
-version = { workspace = true }
+version = "0.7.0"
 edition = { workspace = true }
 description = "Testing utilities for Carbon"
 license = { workspace = true }
