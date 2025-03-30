@@ -12,8 +12,15 @@ categories = ["encoding"]
 [lib]
 crate-type = ["rlib"]
 
+[features]
+default = []
+postgres = ["dep:postgres", "dep:postgres-types", "dep:chrono"]
+
 [dependencies]
 carbon-core = { workspace = true }
+chrono = { workspace = true, optional = true }
+postgres = { workspace = true, optional = true }
+postgres-types = { workspace = true, optional = true }
 serde = { workspace = true }
 solana-account = { workspace = true }
 solana-instruction = { workspace = true, default-features = false }
