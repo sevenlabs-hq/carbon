@@ -167,7 +167,7 @@ pub fn process_types(idl: &Idl) -> Vec<TypeData> {
                         }
                         let is_pubkey = rust_type.0.contains("Pubkey");
                         let attributes = if is_big_array(&rust_type.0) {
-                            Some("#[serde(with = \"BigArray\")]".to_string())
+                            Some("#[serde(with = \"serde_big_array::BigArray\")]".to_string())
                         } else {
                             None
                         };

@@ -108,7 +108,7 @@ pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
         println!("Generated {}", filename);
     }
 
-    let mut types_mod_content = types_data
+    let types_mod_content = types_data
         .iter()
         .map(|type_data| {
             format!(
@@ -119,10 +119,6 @@ pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
         })
         .collect::<Vec<_>>()
         .join("\n");
-
-    if needs_big_array {
-        types_mod_content.push_str("\nuse serde_big_array::BigArray;\n");
-    }
 
     let types_mod_filename = format!("{}/mod.rs", types_dir);
     fs::write(&types_mod_filename, types_mod_content).expect("Failed to write types mod file");
