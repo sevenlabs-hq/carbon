@@ -547,8 +547,14 @@ pub fn transaction_metadata_from_original_meta(
 
 #[cfg(test)]
 mod tests {
+    use std::vec;
+
     use carbon_test_utils::base58_deserialize;
     use solana_account_decoder_client_types::token::UiTokenAmount;
+    use solana_sdk::{hash::Hash, message::{legacy,  MessageHeader}, transaction::VersionedTransaction};
+    use solana_signature::Signature;
+
+    use crate::instruction::{InstructionsWithMetadata, NestedInstructions};
 
     use super::*;
 
@@ -731,9 +737,65 @@ mod tests {
                 .expect("read fixture");
 
         let original_tx_meta = transaction_metadata_from_original_meta(tx_meta_status)
-            .expect("transaction_metadata_from_original_meta");
+            .expect("transaction metadata from original meta");
+        let transaction_update = TransactionUpdate { 
+            signature: Signature::default(), 
+            transaction: VersionedTransaction {
+                signatures: vec![Signature::default()],
+                message: VersionedMessage::Legacy(
+                    legacy::Message {
+                        header: MessageHeader::default(),
+                        account_keys: vec![
+                            Pubkey::from_str_const("Ezug1uk7oTEULvBcXCngdZuJDmZ8Ed2TKY4oov4GmLLm"),
+                            Pubkey::from_str_const("5Zg9kJdzYFKwS4hLzF1QvvNBYyUNpn9YWxYp6HVMknJt"),
+                            Pubkey::from_str_const("3udvfL24waJcLhskRAsStNMoNUvtyXdxrWQz4hgi953N"),
+                            Pubkey::from_str_const("4CYhuDhT4c9ATZpJceoQG8Du4vCjf5ZKvxsyXpJoVub4"),
+                            Pubkey::from_str_const("5K5RtTWzzLp4P8Npi84ocf7F1vBsAu29N1irG4iiUnzt"),
+                            Pubkey::from_str_const("ADaUMid9yfUytqMBgopwjb2DTLSokTSzL1zt6iGPaS49"),
+                            Pubkey::from_str_const("6FqNPPA4W1nuvL1BHGhusSHjdNa4qJBoXyRKggAh9pb9"),
+                            Pubkey::from_str_const("11111111111111111111111111111111"),
+                            Pubkey::from_str_const("MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG"),
+                            Pubkey::from_str_const("ComputeBudget111111111111111111111111111111"),
+                            Pubkey::from_str_const("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
+                            Pubkey::from_str_const("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                            Pubkey::from_str_const("36Eru7v11oU5Pfrojyn5oY3nETA1a1iqsw2WUu6afkM9"),
+                            Pubkey::from_str_const("3cBFsM1wosTJi9yun6kcHhYHyJcut1MNQY28zjC4moon"),
+                        ],
+                        recent_blockhash: Hash::default(),
+                        instructions: vec![
+                            CompiledInstruction { program_id_index: 9, accounts: vec![],  data: base58_deserialize::ix_data("3GAG5eogvTjV")  },
+                            CompiledInstruction { program_id_index: 8, accounts: vec![0, 6, 3, 1, 2, 4,5, 12, 11, 10, 7],  data: base58_deserialize::ix_data("XJqfG9ATWCDptdf7vx8UxGEDKxSPzetbnXg1wZsUpasa7")  },
+                            CompiledInstruction { program_id_index: 7, accounts: vec![],  data: base58_deserialize::ix_data("3GAG5eogvTjV")  },
+                        ],
+                    },
+                ),
+            },
+            meta: original_tx_meta.clone(), 
+            is_vote: false,
+            slot: 123,
+            block_time: Some(123),
+         };
+        let transaction_metadata = transaction_update.clone().try_into().expect("transaction metadata");
+        let instructions_with_metadata: InstructionsWithMetadata =
+        extract_instructions_with_metadata(
+            &transaction_metadata,
+            &transaction_update,
+        ).expect("extract instructions with metadata");
 
+    let nested_instructions: NestedInstructions = instructions_with_metadata.into();
+    
         // Assert
         assert_eq!(original_tx_meta, expected_tx_meta);
+        assert_eq!(nested_instructions.len(), 3);
+        assert_eq!(nested_instructions[0].inner_instructions.len(), 0);
+        assert_eq!(nested_instructions[1].inner_instructions.len(), 4);
+        assert_eq!(nested_instructions[2].inner_instructions.len(), 0);
+    }
+
+    #[test]
+    fn test_transaction_metadata_from_original_meta_cpi() {
+        // Arrange
+        // Act
+        // Assert
     }
 }
