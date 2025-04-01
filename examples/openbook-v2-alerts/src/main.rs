@@ -55,7 +55,7 @@ impl Processor for OpenbookV2InstructionProcessor {
     type InputType = (
         InstructionMetadata,
         DecodedInstruction<OpenbookV2Instruction>,
-        Vec<NestedInstruction>,
+        NestedInstructions,
     );
 
     async fn process(

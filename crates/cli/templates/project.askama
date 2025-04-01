@@ -158,7 +158,7 @@ impl Processor for {{ decoder.name }}InstructionProcessor {
     type InputType = (
         InstructionMetadata,
         DecodedInstruction<{{ decoder.name }}Instruction>,
-        Vec<NestedInstruction>,
+        NestedInstructions,
     );
 
     async fn process(

@@ -59,7 +59,7 @@ impl Processor for MoonshotInstructionProcessor {
     type InputType = (
         InstructionMetadata,
         DecodedInstruction<MoonshotInstruction>,
-        Vec<NestedInstruction>,
+        NestedInstructions,
     );
 
     async fn process(

@@ -81,7 +81,7 @@ impl Processor for KaminoLendingInstructionProcessor {
     type InputType = (
         InstructionMetadata,
         DecodedInstruction<KaminoLendingInstruction>,
-        Vec<NestedInstruction>,
+        NestedInstructions,
     );
 
     async fn process(
