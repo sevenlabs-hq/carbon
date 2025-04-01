@@ -94,7 +94,8 @@ pub fn process_events(idl: &Idl) -> Vec<EventData> {
         let mut args = Vec::new();
 
         for ty in &idl.types {
-            if ty.name == struct_name {
+            // type name doesnt have Event suffix, but the struct_name has
+            if ty.name == event.name.to_upper_camel_case() {
                 if let Some(fields) = &ty.type_.fields {
                     for field in fields {
                         let rust_type = idl_type_to_rust_type(&field.type_);
