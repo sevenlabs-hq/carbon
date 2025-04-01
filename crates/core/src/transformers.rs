@@ -553,7 +553,11 @@ mod tests {
     use solana_account_decoder_client_types::token::UiTokenAmount;
     use solana_sdk::{
         hash::Hash,
-        message::{legacy, MessageHeader},
+        message::{
+            legacy::Message,
+            v0::{self, MessageAddressTableLookup},
+            MessageHeader,
+        },
         transaction::VersionedTransaction,
     };
     use solana_signature::Signature;
@@ -746,7 +750,7 @@ mod tests {
             signature: Signature::default(),
             transaction: VersionedTransaction {
                 signatures: vec![Signature::default()],
-                message: VersionedMessage::Legacy(legacy::Message {
+                message: VersionedMessage::Legacy(Message {
                     header: MessageHeader::default(),
                     account_keys: vec![
                         Pubkey::from_str_const("Ezug1uk7oTEULvBcXCngdZuJDmZ8Ed2TKY4oov4GmLLm"),
@@ -1139,7 +1143,98 @@ mod tests {
             .expect("read fixture");
         let original_tx_meta = transaction_metadata_from_original_meta(tx_meta_status)
             .expect("transaction metadata from original meta");
+        let transaction_update = TransactionUpdate {
+            signature: Signature::default(),
+            transaction: VersionedTransaction {
+                signatures: vec![Signature::default()],
+                message: VersionedMessage::V0(v0::Message {
+                    header: MessageHeader::default(),
+                    account_keys: vec![
+                        Pubkey::from_str_const("7Z2QzVa3q7r7m84nuez9eRn2u3oCUeg9D1bzdRvNFdxN"),
+                        Pubkey::from_str_const("6VRWsRGxnJFg7y4ck3NBsBPQ5SLkCtkH3tTioJkEby3b"),
+                        Pubkey::from_str_const("AADrz4o64xxynMr8tochpqAYevmySvsEhjAgKEXNcjnd"),
+                        Pubkey::from_str_const("EuGVLjHv1K1YVxmcukLYMBjGB7YXy5hxbJ2z4LeDLUfQ"),
+                        Pubkey::from_str_const("FDxb6WnUHrSsz9zwKqneC5JXVmrRgPySBjf6WfNfFyrM"),
+                        Pubkey::from_str_const("ComputeBudget111111111111111111111111111111"),
+                        Pubkey::from_str_const("6m2CDdhRgxpH4WjvdzxAYbGxwdGUz5MziiL5jek2kBma"),
+                        Pubkey::from_str_const("7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx"),
+                        Pubkey::from_str_const("AFbX8oGjGpmVFywbVouvhQSRmiW2aR1mohfahi4Y2AdB"),
+                        Pubkey::from_str_const("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
+                        Pubkey::from_str_const("12QvTU4Z7XdxT16mSYU8rE2n9CpXpvunHiZrfySaf7h8"),
+                        Pubkey::from_str_const("76TaSYC4LuopNGf5apJUXMG2MDfcQMHiw6SMX93VYQGp"),
+                        Pubkey::from_str_const("7q4JPakWqK7UrjRsTNoYXMNeBYKP3WKawNcHYzidTaav"),
+                        Pubkey::from_str_const("BMCheVSdKZ6rxsoJ1MChA5HQRtk5pz4QkCLs7MXFkvZJ"),
+                        Pubkey::from_str_const("GqXFYwijuNaKRQgtrVrJkDGXorPcZwX7Vyd4jDsuxW9J"),
+                        Pubkey::from_str_const("JBbKXBC4yBco9BfChDaf5GHd8hyLbjASeLxFCwGCH99a"),
+                        Pubkey::from_str_const("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                        Pubkey::from_str_const("11111111111111111111111111111111"),
+                        Pubkey::from_str_const("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                        Pubkey::from_str_const("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+                    ],
+                    recent_blockhash: Hash::default(),
+                    instructions: vec![
+                        CompiledInstruction {
+                            program_id_index: 5,
+                            accounts: vec![],
+                            data: base58_deserialize::ix_data("3GAG5eogvTjV"),
+                        },
+                        CompiledInstruction {
+                            program_id_index: 5,
+                            accounts: vec![],
+                            data: base58_deserialize::ix_data("3GAG5eogvTjV"),
+                        },
+                        CompiledInstruction {
+                            program_id_index: 9,
+                            accounts: vec![],
+                            data: base58_deserialize::ix_data("3GAG5eogvTjV"),
+                        },
+                        CompiledInstruction {
+                            program_id_index: 8,
+                            accounts: vec![],
+                            data: base58_deserialize::ix_data(
+                                "XJqfG9ATWCDptdf7vx8UxGEDKxSPzetbnXg1wZsUpasa7",
+                            ),
+                        },
+                    ],
+                    address_table_lookups: vec![
+                        MessageAddressTableLookup {
+                            account_key: Pubkey::from_str_const(
+                                "FfMiwAdZeeSZyuApu5fsCuPzvyAyKdEbNcmEVEEhgJAW",
+                            ),
+                            writable_indexes: vec![0, 1, 2, 3, 4, 5],
+                            readonly_indexes: vec![],
+                        },
+                        MessageAddressTableLookup {
+                            account_key: Pubkey::from_str_const(
+                                "EDDSpjZHrsFKYTMJDcBqXAjkLcu9EKdvrQR4XnqsXErH",
+                            ),
+                            writable_indexes: vec![0],
+                            readonly_indexes: vec![3, 4, 5],
+                        },
+                    ],
+                }),
+            },
+            meta: original_tx_meta.clone(),
+            is_vote: false,
+            slot: 123,
+            block_time: Some(123),
+        };
+        let transaction_metadata = transaction_update
+            .clone()
+            .try_into()
+            .expect("transaction metadata");
+        let instructions_with_metadata: InstructionsWithMetadata =
+            extract_instructions_with_metadata(&transaction_metadata, &transaction_update)
+                .expect("extract instructions with metadata");
+        let nested_instructions: NestedInstructions = instructions_with_metadata.into();
+
+        // println!("\n\nnested_instructions: {:#?}\n\n", nested_instructions[3].inner_instructions);
         // Assert
         assert_eq!(original_tx_meta, expected_tx_meta);
+        assert_eq!(nested_instructions.len(), 4);
+        assert_eq!(nested_instructions[0].inner_instructions.len(), 0);
+        assert_eq!(nested_instructions[1].inner_instructions.len(), 0);
+        assert_eq!(nested_instructions[2].inner_instructions.len(), 0);
+        assert_eq!(nested_instructions[3].inner_instructions.len(), 5);
     }
 }
