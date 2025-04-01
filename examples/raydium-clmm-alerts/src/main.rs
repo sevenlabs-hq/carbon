@@ -56,7 +56,7 @@ impl Processor for RaydiumClmmInstructionProcessor {
     type InputType = (
         InstructionMetadata,
         DecodedInstruction<RaydiumClmmInstruction>,
-        Vec<NestedInstruction>,
+        NestedInstructions,
     );
 
     async fn process(
