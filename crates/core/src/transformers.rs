@@ -96,7 +96,7 @@ pub fn extract_instructions_with_metadata(
                     .get(compiled_instruction.program_id_index as usize)
                     .unwrap_or(&Pubkey::default());
 
-                let accounts: Vec<_> = compiled_instruction
+                let accounts = compiled_instruction
                     .accounts
                     .iter()
                     .filter_map(|account_index| {
@@ -107,7 +107,7 @@ pub fn extract_instructions_with_metadata(
                             is_signer: legacy.is_signer(*account_index as usize),
                         })
                     })
-                    .collect();
+                    .collect::<Vec<_>>();
 
                 instructions_with_metadata.push((
                     InstructionMetadata {
@@ -125,9 +125,7 @@ pub fn extract_instructions_with_metadata(
                 if let Some(inner_instructions) = &meta.inner_instructions {
                     for inner_instructions_per_tx in inner_instructions {
                         if inner_instructions_per_tx.index == i as u8 {
-                            for (inner_ix_idx, inner_instruction) in
-                                inner_instructions_per_tx.instructions.iter().enumerate()
-                            {
+                            for inner_instruction in inner_instructions_per_tx.instructions.iter() {
                                 let program_id = *legacy
                                     .account_keys
                                     .get(inner_instruction.instruction.program_id_index as usize)
@@ -154,7 +152,7 @@ pub fn extract_instructions_with_metadata(
                                     InstructionMetadata {
                                         transaction_metadata: transaction_metadata.clone(),
                                         stack_height: inner_instruction.stack_height.unwrap_or(1),
-                                        index: inner_ix_idx as u32 + 1,
+                                        index: inner_instructions_per_tx.index as u32,
                                     },
                                     solana_instruction::Instruction {
                                         program_id,
@@ -186,7 +184,7 @@ pub fn extract_instructions_with_metadata(
                     .get(compiled_instruction.program_id_index as usize)
                     .unwrap_or(&Pubkey::default());
 
-                let accounts: Vec<AccountMeta> = compiled_instruction
+                let accounts = compiled_instruction
                     .accounts
                     .iter()
                     .map(|account_index| {
@@ -199,7 +197,7 @@ pub fn extract_instructions_with_metadata(
                             is_signer: loaded_message.is_signer(*account_index as usize),
                         }
                     })
-                    .collect();
+                    .collect::<Vec<_>>();
 
                 instructions_with_metadata.push((
                     InstructionMetadata {
@@ -217,15 +215,13 @@ pub fn extract_instructions_with_metadata(
                 if let Some(inner_instructions) = &meta.inner_instructions {
                     for inner_instructions_per_tx in inner_instructions {
                         if inner_instructions_per_tx.index == i as u8 {
-                            for (inner_ix_idx, inner_instruction) in
-                                inner_instructions_per_tx.instructions.iter().enumerate()
-                            {
+                            for inner_instruction in inner_instructions_per_tx.instructions.iter() {
                                 let program_id = *loaded_message
                                     .account_keys()
                                     .get(inner_instruction.instruction.program_id_index as usize)
                                     .unwrap_or(&Pubkey::default());
 
-                                let accounts: Vec<AccountMeta> = inner_instruction
+                                let accounts = inner_instruction
                                     .instruction
                                     .accounts
                                     .iter()
@@ -244,13 +240,13 @@ pub fn extract_instructions_with_metadata(
                                                 .is_signer(*account_index as usize),
                                         }
                                     })
-                                    .collect();
+                                    .collect::<Vec<_>>();
 
                                 instructions_with_metadata.push((
                                     InstructionMetadata {
                                         transaction_metadata: transaction_metadata.clone(),
                                         stack_height: inner_instruction.stack_height.unwrap_or(1),
-                                        index: inner_ix_idx as u32 + 1,
+                                        index: inner_instructions_per_tx.index as u32,
                                     },
                                     solana_instruction::Instruction {
                                         program_id,
@@ -1228,7 +1224,6 @@ mod tests {
                 .expect("extract instructions with metadata");
         let nested_instructions: NestedInstructions = instructions_with_metadata.into();
 
-        // println!("\n\nnested_instructions: {:#?}\n\n", nested_instructions[3].inner_instructions);
         // Assert
         assert_eq!(original_tx_meta, expected_tx_meta);
         assert_eq!(nested_instructions.len(), 4);
