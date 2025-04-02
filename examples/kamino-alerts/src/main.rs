@@ -3,7 +3,7 @@ use {
     carbon_core::{
         account::{AccountMetadata, DecodedAccount},
         error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstruction},
+        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
         metrics::MetricsCollection,
         processor::Processor,
     },

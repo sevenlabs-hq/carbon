@@ -29,6 +29,7 @@ use {
     solana_instruction::AccountMeta,
     solana_pubkey::Pubkey,
     std::{
+        collections::HashMap,
         ops::{Deref, DerefMut},
         sync::Arc,
     },
@@ -46,7 +47,7 @@ use {
 /// - `transaction_metadata`: Metadata providing details of the entire
 ///   transaction.
 /// - `stack_height`: Represents the instruction’s depth within the stack, where
-///   0 is the root level.
+///   1 is the root level.
 /// - `index`: The index of the instruction in the transaction. The index is
 ///   relative within stack height and is 1-based. Note that the inner instruction indexes are grouped into one vector,
 ///   so different inner instructions that have different stack heights may have continuous indexes.
@@ -266,7 +267,6 @@ impl From<InstructionsWithMetadata> for NestedInstructions {
     fn from(instructions: InstructionsWithMetadata) -> Self {
         log::trace!("from(instructions: {:?})", instructions);
         let mut nested_ixs = NestedInstructions::default();
-        let mut stack = Vec::<(Vec<usize>, usize)>::new();
 
         for (metadata, instruction) in instructions {
             let nested_instruction = NestedInstruction {
@@ -275,28 +275,14 @@ impl From<InstructionsWithMetadata> for NestedInstructions {
                 inner_instructions: NestedInstructions::default(),
             };
 
-            println!("stack: {:#?}", stack);
-            while let Some((_, parent_stack_height)) = stack.last() {
-                if metadata.stack_height as usize > *parent_stack_height {
-                    break;
-                }
-                stack.pop();
-            }
-
-            if let Some((path_to_parent, _)) = stack.last() {
-                let mut current_instructions = &mut nested_ixs;
-                for &index in path_to_parent {
-                    current_instructions = &mut current_instructions[index].inner_instructions;
-                }
-                current_instructions.push(nested_instruction);
-                let mut new_path = path_to_parent.clone();
-                new_path.push(current_instructions.len() - 1);
-                stack.push((new_path, metadata.stack_height as usize));
-            } else {
+            // compose root level of ixs
+            if metadata.stack_height == 1 {
                 nested_ixs.push(nested_instruction);
-                let new_path = vec![nested_ixs.len() - 1];
-                stack.push((new_path, metadata.stack_height as usize));
+                continue;
             }
+            nested_ixs[metadata.index as usize]
+                .inner_instructions
+                .push(nested_instruction);
         }
 
         nested_ixs
