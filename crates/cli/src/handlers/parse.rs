@@ -207,6 +207,7 @@ carbon-core = {{ workspace = true }}
 carbon-proc-macros = {{ workspace = true }}
 carbon-macros = {{ workspace = true }}
 solana-sdk = {{ workspace = true }}
+solana-pubkey = {{ workspace = true }}
 serde = {{ workspace = true }}
 {big_array}
 "#,
@@ -283,6 +284,7 @@ carbon-core = "{carbon_deps_version}"
 {datasource_dep}
 {metrics_dep}
 solana-sdk = "{sol_deps_version}"
+solana-pubkey = "{sol_deps_version}"
 solana-client = "{sol_deps_version}"
 tokio = "1.43.0"
 dotenv = "0.15.0"

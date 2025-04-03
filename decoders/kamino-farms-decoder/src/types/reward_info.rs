@@ -8,7 +8,7 @@ use {
 )]
 pub struct RewardInfo {
     pub token: TokenInfo,
-    pub rewards_vault: solana_sdk::pubkey::Pubkey,
+    pub rewards_vault: solana_pubkey::Pubkey,
     pub rewards_available: u64,
     pub reward_schedule_curve: RewardScheduleCurve,
     pub min_claim_duration_seconds: u64,

@@ -7,8 +7,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct CloseOrderBook {}
 
 pub struct CloseOrderBookInstructionAccounts {
-    pub order_book: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
+    pub order_book: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CloseOrderBook {

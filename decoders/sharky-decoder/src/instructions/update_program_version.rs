@@ -9,8 +9,8 @@ pub struct UpdateProgramVersion {
 }
 
 pub struct UpdateProgramVersionInstructionAccounts {
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub program_version: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub program_version: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateProgramVersion {

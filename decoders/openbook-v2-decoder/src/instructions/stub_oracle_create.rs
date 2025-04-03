@@ -7,11 +7,11 @@ pub struct StubOracleCreate {
 }
 
 pub struct StubOracleCreateInstructionAccounts {
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for StubOracleCreate {

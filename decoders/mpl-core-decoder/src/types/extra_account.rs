@@ -29,12 +29,12 @@ pub enum ExtraAccount {
     },
     CustomPda {
         seeds: Vec<Seed>,
-        custom_program_id: Option<solana_sdk::pubkey::Pubkey>,
+        custom_program_id: Option<solana_pubkey::Pubkey>,
         is_signer: bool,
         is_writable: bool,
     },
     Address {
-        address: solana_sdk::pubkey::Pubkey,
+        address: solana_pubkey::Pubkey,
         is_signer: bool,
         is_writable: bool,
     },

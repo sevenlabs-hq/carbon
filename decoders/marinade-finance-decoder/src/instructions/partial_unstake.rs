@@ -11,20 +11,20 @@ pub struct PartialUnstake {
 }
 
 pub struct PartialUnstakeInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub validator_manager_authority: solana_sdk::pubkey::Pubkey,
-    pub validator_list: solana_sdk::pubkey::Pubkey,
-    pub stake_list: solana_sdk::pubkey::Pubkey,
-    pub stake_account: solana_sdk::pubkey::Pubkey,
-    pub stake_deposit_authority: solana_sdk::pubkey::Pubkey,
-    pub reserve_pda: solana_sdk::pubkey::Pubkey,
-    pub split_stake_account: solana_sdk::pubkey::Pubkey,
-    pub split_stake_rent_payer: solana_sdk::pubkey::Pubkey,
-    pub clock: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub stake_history: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub stake_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub validator_manager_authority: solana_pubkey::Pubkey,
+    pub validator_list: solana_pubkey::Pubkey,
+    pub stake_list: solana_pubkey::Pubkey,
+    pub stake_account: solana_pubkey::Pubkey,
+    pub stake_deposit_authority: solana_pubkey::Pubkey,
+    pub reserve_pda: solana_pubkey::Pubkey,
+    pub split_stake_account: solana_pubkey::Pubkey,
+    pub split_stake_rent_payer: solana_pubkey::Pubkey,
+    pub clock: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub stake_history: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub stake_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for PartialUnstake {

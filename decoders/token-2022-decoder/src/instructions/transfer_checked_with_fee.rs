@@ -12,10 +12,10 @@ pub struct TransferCheckedWithFee {
 }
 
 pub struct TransferCheckedWithFeeInstructionAccounts {
-    pub source: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub destination: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub source: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub destination: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for TransferCheckedWithFee {

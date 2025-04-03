@@ -12,8 +12,8 @@ pub struct UpdateNftList {
 }
 
 pub struct UpdateNftListInstructionAccounts {
-    pub nft_list: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
+    pub nft_list: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateNftList {

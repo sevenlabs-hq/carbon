@@ -9,8 +9,8 @@ pub struct EnableMemoTransfers {
 }
 
 pub struct EnableMemoTransfersInstructionAccounts {
-    pub token: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
+    pub token: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for EnableMemoTransfers {

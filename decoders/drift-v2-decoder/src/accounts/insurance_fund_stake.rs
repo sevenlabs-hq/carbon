@@ -3,7 +3,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(CarbonDeserialize, Debug)]
 #[carbon(discriminator = "0x6eca0e2a5f495a5f")]
 pub struct InsuranceFundStake {
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
     pub if_shares: u128,
     pub last_withdraw_request_shares: u128,
     pub if_base: u128,

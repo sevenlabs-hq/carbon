@@ -13,17 +13,17 @@ pub struct Swap {
 }
 
 pub struct SwapInstructionAccounts {
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub token_authority: solana_sdk::pubkey::Pubkey,
-    pub whirlpool: solana_sdk::pubkey::Pubkey,
-    pub token_owner_account_a: solana_sdk::pubkey::Pubkey,
-    pub token_vault_a: solana_sdk::pubkey::Pubkey,
-    pub token_owner_account_b: solana_sdk::pubkey::Pubkey,
-    pub token_vault_b: solana_sdk::pubkey::Pubkey,
-    pub tick_array0: solana_sdk::pubkey::Pubkey,
-    pub tick_array1: solana_sdk::pubkey::Pubkey,
-    pub tick_array2: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub token_authority: solana_pubkey::Pubkey,
+    pub whirlpool: solana_pubkey::Pubkey,
+    pub token_owner_account_a: solana_pubkey::Pubkey,
+    pub token_vault_a: solana_pubkey::Pubkey,
+    pub token_owner_account_b: solana_pubkey::Pubkey,
+    pub token_vault_b: solana_pubkey::Pubkey,
+    pub tick_array0: solana_pubkey::Pubkey,
+    pub tick_array1: solana_pubkey::Pubkey,
+    pub tick_array2: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
     pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 

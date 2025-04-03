@@ -7,11 +7,11 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct UpdateFeesAndRewards {}
 
 pub struct UpdateFeesAndRewardsInstructionAccounts {
-    pub position: solana_sdk::pubkey::Pubkey,
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
-    pub bin_array_lower: solana_sdk::pubkey::Pubkey,
-    pub bin_array_upper: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
+    pub position: solana_pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
+    pub bin_array_lower: solana_pubkey::Pubkey,
+    pub bin_array_upper: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateFeesAndRewards {

@@ -7,13 +7,13 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct InitializeVault {}
 
 pub struct InitializeVaultInstructionAccounts {
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub global_config: solana_sdk::pubkey::Pubkey,
-    pub pda_authority: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub vault: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub global_config: solana_pubkey::Pubkey,
+    pub pda_authority: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub vault: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeVault {

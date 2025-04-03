@@ -11,8 +11,8 @@ pub struct AddPerpMarketIndex {
 }
 
 pub struct AddPerpMarketIndexInstructionAccounts {
-    pub market_indexes: solana_sdk::pubkey::Pubkey,
-    pub pricing: solana_sdk::pubkey::Pubkey,
+    pub market_indexes: solana_pubkey::Pubkey,
+    pub pricing: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for AddPerpMarketIndex {

@@ -11,5 +11,5 @@ pub struct OrderBook {
     pub apy: APY,
     pub loan_terms: BookLoanTerms,
     pub fee_permillicentage: u16,
-    pub fee_authority: solana_sdk::pubkey::Pubkey,
+    pub fee_authority: solana_pubkey::Pubkey,
 }

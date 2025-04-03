@@ -7,10 +7,10 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct ForceCancelOrders {}
 
 pub struct ForceCancelOrdersInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub filler: solana_sdk::pubkey::Pubkey,
-    pub user: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub filler: solana_pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ForceCancelOrders {

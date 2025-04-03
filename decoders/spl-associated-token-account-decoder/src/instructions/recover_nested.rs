@@ -7,13 +7,13 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct RecoverNested {}
 
 pub struct RecoverNestedInstructionAccounts {
-    pub nested_associated_account_address: solana_sdk::pubkey::Pubkey,
-    pub nested_token_mint_address: solana_sdk::pubkey::Pubkey,
-    pub destination_associated_account_address: solana_sdk::pubkey::Pubkey,
-    pub owner_associated_account_address: solana_sdk::pubkey::Pubkey,
-    pub owner_token_mint_address: solana_sdk::pubkey::Pubkey,
-    pub wallet_address: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub nested_associated_account_address: solana_pubkey::Pubkey,
+    pub nested_token_mint_address: solana_pubkey::Pubkey,
+    pub destination_associated_account_address: solana_pubkey::Pubkey,
+    pub owner_associated_account_address: solana_pubkey::Pubkey,
+    pub owner_token_mint_address: solana_pubkey::Pubkey,
+    pub wallet_address: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RecoverNested {

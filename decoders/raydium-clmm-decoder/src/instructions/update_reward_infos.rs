@@ -7,7 +7,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct UpdateRewardInfos {}
 
 pub struct UpdateRewardInfosInstructionAccounts {
-    pub pool_state: solana_sdk::pubkey::Pubkey,
+    pub pool_state: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateRewardInfos {

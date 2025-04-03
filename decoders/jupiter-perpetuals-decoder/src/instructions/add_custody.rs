@@ -11,16 +11,16 @@ pub struct AddCustody {
 }
 
 pub struct AddCustodyInstructionAccounts {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub transfer_authority: solana_sdk::pubkey::Pubkey,
-    pub perpetuals: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub custody: solana_sdk::pubkey::Pubkey,
-    pub custody_token_account: solana_sdk::pubkey::Pubkey,
-    pub custody_token_mint: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub transfer_authority: solana_pubkey::Pubkey,
+    pub perpetuals: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub custody: solana_pubkey::Pubkey,
+    pub custody_token_account: solana_pubkey::Pubkey,
+    pub custody_token_mint: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for AddCustody {

@@ -12,8 +12,8 @@ pub struct Initialize {
 }
 
 pub struct InitializeInstructionAccounts {
-    pub stake: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub stake: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Initialize {

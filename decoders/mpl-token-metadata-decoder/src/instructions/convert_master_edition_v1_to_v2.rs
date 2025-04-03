@@ -7,9 +7,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct ConvertMasterEditionV1ToV2 {}
 
 pub struct ConvertMasterEditionV1ToV2InstructionAccounts {
-    pub master_edition: solana_sdk::pubkey::Pubkey,
-    pub one_time_auth: solana_sdk::pubkey::Pubkey,
-    pub printing_mint: solana_sdk::pubkey::Pubkey,
+    pub master_edition: solana_pubkey::Pubkey,
+    pub one_time_auth: solana_pubkey::Pubkey,
+    pub printing_mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ConvertMasterEditionV1ToV2 {

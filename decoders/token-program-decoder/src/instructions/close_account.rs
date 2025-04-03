@@ -6,9 +6,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct CloseAccount {}
 
 pub struct CloseAccountAccounts {
-    pub account: solana_sdk::pubkey::Pubkey,
-    pub destination: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
+    pub account: solana_pubkey::Pubkey,
+    pub destination: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
     pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 

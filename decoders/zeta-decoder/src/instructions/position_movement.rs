@@ -12,15 +12,15 @@ pub struct PositionMovement {
 }
 
 pub struct PositionMovementInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub zeta_group: solana_sdk::pubkey::Pubkey,
-    pub margin_account: solana_sdk::pubkey::Pubkey,
-    pub spread_account: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub greeks: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_feed: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub zeta_group: solana_pubkey::Pubkey,
+    pub margin_account: solana_pubkey::Pubkey,
+    pub spread_account: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub greeks: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub oracle_backup_feed: solana_pubkey::Pubkey,
+    pub oracle_backup_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for PositionMovement {

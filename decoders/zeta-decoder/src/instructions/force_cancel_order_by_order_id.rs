@@ -13,12 +13,12 @@ pub struct ForceCancelOrderByOrderId {
 }
 
 pub struct ForceCancelOrderByOrderIdInstructionAccounts {
-    pub zeta_group: solana_sdk::pubkey::Pubkey,
-    pub greeks: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_feed: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_program: solana_sdk::pubkey::Pubkey,
-    pub cancel_accounts: solana_sdk::pubkey::Pubkey,
+    pub zeta_group: solana_pubkey::Pubkey,
+    pub greeks: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub oracle_backup_feed: solana_pubkey::Pubkey,
+    pub oracle_backup_program: solana_pubkey::Pubkey,
+    pub cancel_accounts: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ForceCancelOrderByOrderId {

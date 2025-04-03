@@ -7,8 +7,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct UpdateAdmin {}
 
 pub struct UpdateAdminInstructionAccounts {
-    pub pending_admin: solana_sdk::pubkey::Pubkey,
-    pub vault_state: solana_sdk::pubkey::Pubkey,
+    pub pending_admin: solana_pubkey::Pubkey,
+    pub vault_state: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateAdmin {

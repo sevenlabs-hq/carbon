@@ -10,8 +10,8 @@ pub struct UpdateActive {
 }
 
 pub struct UpdateActiveInstructionAccounts {
-    pub common: solana_sdk::pubkey::Pubkey,
-    pub validator_list: solana_sdk::pubkey::Pubkey,
+    pub common: solana_pubkey::Pubkey,
+    pub validator_list: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateActive {

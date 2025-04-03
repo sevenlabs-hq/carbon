@@ -7,8 +7,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct Shutdown {}
 
 pub struct ShutdownInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Shutdown {

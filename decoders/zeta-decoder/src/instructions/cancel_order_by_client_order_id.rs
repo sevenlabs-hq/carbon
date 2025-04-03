@@ -12,8 +12,8 @@ pub struct CancelOrderByClientOrderId {
 }
 
 pub struct CancelOrderByClientOrderIdInstructionAccounts {
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub cancel_accounts: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub cancel_accounts: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CancelOrderByClientOrderId {

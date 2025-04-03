@@ -10,10 +10,10 @@ pub struct PostPythPullOracleUpdateAtomic {
 }
 
 pub struct PostPythPullOracleUpdateAtomicInstructionAccounts {
-    pub keeper: solana_sdk::pubkey::Pubkey,
-    pub pyth_solana_receiver: solana_sdk::pubkey::Pubkey,
-    pub guardian_set: solana_sdk::pubkey::Pubkey,
-    pub price_feed: solana_sdk::pubkey::Pubkey,
+    pub keeper: solana_pubkey::Pubkey,
+    pub pyth_solana_receiver: solana_pubkey::Pubkey,
+    pub guardian_set: solana_pubkey::Pubkey,
+    pub price_feed: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for PostPythPullOracleUpdateAtomic {

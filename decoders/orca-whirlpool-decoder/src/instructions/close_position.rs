@@ -7,12 +7,12 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct ClosePosition {}
 
 pub struct ClosePositionInstructionAccounts {
-    pub position_authority: solana_sdk::pubkey::Pubkey,
-    pub receiver: solana_sdk::pubkey::Pubkey,
-    pub position: solana_sdk::pubkey::Pubkey,
-    pub position_mint: solana_sdk::pubkey::Pubkey,
-    pub position_token_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub position_authority: solana_pubkey::Pubkey,
+    pub receiver: solana_pubkey::Pubkey,
+    pub position: solana_pubkey::Pubkey,
+    pub position_mint: solana_pubkey::Pubkey,
+    pub position_token_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ClosePosition {

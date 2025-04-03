@@ -9,14 +9,14 @@ pub struct InitializeInsuranceFundStake {
 }
 
 pub struct InitializeInsuranceFundStakeInstructionAccounts {
-    pub spot_market: solana_sdk::pubkey::Pubkey,
-    pub insurance_fund_stake: solana_sdk::pubkey::Pubkey,
-    pub user_stats: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub spot_market: solana_pubkey::Pubkey,
+    pub insurance_fund_stake: solana_pubkey::Pubkey,
+    pub user_stats: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeInsuranceFundStake {

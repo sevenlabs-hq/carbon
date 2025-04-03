@@ -8,7 +8,7 @@ pub struct InitializeMultisig2 {
 }
 
 pub struct InitializeMultisig2Accounts {
-    pub account: solana_sdk::pubkey::Pubkey,
+    pub account: solana_pubkey::Pubkey,
     pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 

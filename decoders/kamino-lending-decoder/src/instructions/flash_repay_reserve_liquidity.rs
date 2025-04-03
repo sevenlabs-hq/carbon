@@ -10,18 +10,18 @@ pub struct FlashRepayReserveLiquidity {
 }
 
 pub struct FlashRepayReserveLiquidityInstructionAccounts {
-    pub user_transfer_authority: solana_sdk::pubkey::Pubkey,
-    pub lending_market_authority: solana_sdk::pubkey::Pubkey,
-    pub lending_market: solana_sdk::pubkey::Pubkey,
-    pub reserve: solana_sdk::pubkey::Pubkey,
-    pub reserve_liquidity_mint: solana_sdk::pubkey::Pubkey,
-    pub reserve_destination_liquidity: solana_sdk::pubkey::Pubkey,
-    pub user_source_liquidity: solana_sdk::pubkey::Pubkey,
-    pub reserve_liquidity_fee_receiver: solana_sdk::pubkey::Pubkey,
-    pub referrer_token_state: solana_sdk::pubkey::Pubkey,
-    pub referrer_account: solana_sdk::pubkey::Pubkey,
-    pub sysvar_info: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub user_transfer_authority: solana_pubkey::Pubkey,
+    pub lending_market_authority: solana_pubkey::Pubkey,
+    pub lending_market: solana_pubkey::Pubkey,
+    pub reserve: solana_pubkey::Pubkey,
+    pub reserve_liquidity_mint: solana_pubkey::Pubkey,
+    pub reserve_destination_liquidity: solana_pubkey::Pubkey,
+    pub user_source_liquidity: solana_pubkey::Pubkey,
+    pub reserve_liquidity_fee_receiver: solana_pubkey::Pubkey,
+    pub referrer_token_state: solana_pubkey::Pubkey,
+    pub referrer_account: solana_pubkey::Pubkey,
+    pub sysvar_info: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for FlashRepayReserveLiquidity {

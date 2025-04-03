@@ -11,12 +11,12 @@ pub struct Initialize {
 }
 
 pub struct InitializeInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub pool_authority: solana_sdk::pubkey::Pubkey,
-    pub withdraw_authority: solana_sdk::pubkey::Pubkey,
-    pub vault: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub pool_authority: solana_pubkey::Pubkey,
+    pub withdraw_authority: solana_pubkey::Pubkey,
+    pub vault: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Initialize {

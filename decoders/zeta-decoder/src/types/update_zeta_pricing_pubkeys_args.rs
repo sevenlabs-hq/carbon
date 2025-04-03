@@ -7,9 +7,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 pub struct UpdateZetaPricingPubkeysArgs {
     pub asset: Asset,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub perp_sync_queue: solana_sdk::pubkey::Pubkey,
-    pub zeta_group_key: solana_sdk::pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub perp_sync_queue: solana_pubkey::Pubkey,
+    pub zeta_group_key: solana_pubkey::Pubkey,
     pub reset_oracle: bool,
 }

@@ -11,9 +11,9 @@ pub struct SetPoolConfig {
 }
 
 pub struct SetPoolConfigInstructionAccounts {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub perpetuals: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub perpetuals: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetPoolConfig {

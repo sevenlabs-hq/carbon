@@ -6,12 +6,12 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x14")]
 pub struct InitializeMint2 {
     pub decimals: u8,
-    pub mint_authority: solana_sdk::pubkey::Pubkey,
-    pub freeze_authority: Option<solana_sdk::pubkey::Pubkey>,
+    pub mint_authority: solana_pubkey::Pubkey,
+    pub freeze_authority: Option<solana_pubkey::Pubkey>,
 }
 
 pub struct InitializeMint2InstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeMint2 {

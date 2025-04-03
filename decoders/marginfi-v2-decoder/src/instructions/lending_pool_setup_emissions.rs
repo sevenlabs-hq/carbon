@@ -11,15 +11,15 @@ pub struct LendingPoolSetupEmissions {
 }
 
 pub struct LendingPoolSetupEmissionsInstructionAccounts {
-    pub marginfi_group: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub bank: solana_sdk::pubkey::Pubkey,
-    pub emissions_mint: solana_sdk::pubkey::Pubkey,
-    pub emissions_auth: solana_sdk::pubkey::Pubkey,
-    pub emissions_token_account: solana_sdk::pubkey::Pubkey,
-    pub emissions_funding_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub marginfi_group: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub bank: solana_pubkey::Pubkey,
+    pub emissions_mint: solana_pubkey::Pubkey,
+    pub emissions_auth: solana_pubkey::Pubkey,
+    pub emissions_token_account: solana_pubkey::Pubkey,
+    pub emissions_funding_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for LendingPoolSetupEmissions {

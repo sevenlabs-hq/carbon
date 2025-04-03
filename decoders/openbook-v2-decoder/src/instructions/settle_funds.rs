@@ -7,18 +7,18 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct SettleFunds {}
 
 pub struct SettleFundsInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub penalty_payer: solana_sdk::pubkey::Pubkey,
-    pub open_orders_account: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub market_authority: solana_sdk::pubkey::Pubkey,
-    pub market_base_vault: solana_sdk::pubkey::Pubkey,
-    pub market_quote_vault: solana_sdk::pubkey::Pubkey,
-    pub user_base_account: solana_sdk::pubkey::Pubkey,
-    pub user_quote_account: solana_sdk::pubkey::Pubkey,
-    pub referrer_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub penalty_payer: solana_pubkey::Pubkey,
+    pub open_orders_account: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub market_authority: solana_pubkey::Pubkey,
+    pub market_base_vault: solana_pubkey::Pubkey,
+    pub market_quote_vault: solana_pubkey::Pubkey,
+    pub user_base_account: solana_pubkey::Pubkey,
+    pub user_quote_account: solana_pubkey::Pubkey,
+    pub referrer_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SettleFunds {

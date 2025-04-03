@@ -9,7 +9,7 @@ pub struct LeafNode {
     pub time_in_force: u16,
     pub padding: [u8; 4],
     pub key: u128,
-    pub owner: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
     pub quantity: i64,
     pub timestamp: u64,
     pub peg_limit: i64,

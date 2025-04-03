@@ -7,12 +7,12 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct UpdateConfidentialTransferMint {
     pub confidential_transfer_discriminator: u8,
     pub auto_approve_new_accounts: bool,
-    pub auditor_elgamal_pubkey: Option<solana_sdk::pubkey::Pubkey>,
+    pub auditor_elgamal_pubkey: Option<solana_pubkey::Pubkey>,
 }
 
 pub struct UpdateConfidentialTransferMintInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateConfidentialTransferMint {

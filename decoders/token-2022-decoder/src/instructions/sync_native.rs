@@ -7,7 +7,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct SyncNative {}
 
 pub struct SyncNativeInstructionAccounts {
-    pub account: solana_sdk::pubkey::Pubkey,
+    pub account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SyncNative {

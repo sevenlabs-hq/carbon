@@ -10,11 +10,11 @@ pub struct InitializeFeeTier {
 }
 
 pub struct InitializeFeeTierInstructionAccounts {
-    pub config: solana_sdk::pubkey::Pubkey,
-    pub fee_tier: solana_sdk::pubkey::Pubkey,
-    pub funder: solana_sdk::pubkey::Pubkey,
-    pub fee_authority: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub config: solana_pubkey::Pubkey,
+    pub fee_tier: solana_pubkey::Pubkey,
+    pub funder: solana_pubkey::Pubkey,
+    pub fee_authority: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeFeeTier {

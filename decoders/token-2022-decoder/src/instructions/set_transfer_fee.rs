@@ -11,8 +11,8 @@ pub struct SetTransferFee {
 }
 
 pub struct SetTransferFeeInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub transfer_fee_config_authority: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub transfer_fee_config_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetTransferFee {

@@ -5,11 +5,11 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0x19")]
 pub struct InitializeMintCloseAuthority {
-    pub close_authority: Option<solana_sdk::pubkey::Pubkey>,
+    pub close_authority: Option<solana_pubkey::Pubkey>,
 }
 
 pub struct InitializeMintCloseAuthorityInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeMintCloseAuthority {

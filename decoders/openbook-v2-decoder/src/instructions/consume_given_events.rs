@@ -9,9 +9,9 @@ pub struct ConsumeGivenEvents {
 }
 
 pub struct ConsumeGivenEventsInstructionAccounts {
-    pub consume_events_admin: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub event_heap: solana_sdk::pubkey::Pubkey,
+    pub consume_events_admin: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub event_heap: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ConsumeGivenEvents {

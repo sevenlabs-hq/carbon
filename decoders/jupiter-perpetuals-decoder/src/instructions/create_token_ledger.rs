@@ -7,9 +7,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct CreateTokenLedger {}
 
 pub struct CreateTokenLedgerInstructionAccounts {
-    pub token_ledger: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub token_ledger: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CreateTokenLedger {

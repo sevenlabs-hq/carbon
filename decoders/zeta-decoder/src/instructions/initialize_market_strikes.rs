@@ -7,11 +7,11 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct InitializeMarketStrikes {}
 
 pub struct InitializeMarketStrikesInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub zeta_group: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_feed: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub zeta_group: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub oracle_backup_feed: solana_pubkey::Pubkey,
+    pub oracle_backup_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeMarketStrikes {

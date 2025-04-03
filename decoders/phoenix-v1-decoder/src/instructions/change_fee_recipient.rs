@@ -7,11 +7,11 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct ChangeFeeRecipient {}
 
 pub struct ChangeFeeRecipientInstructionAccounts {
-    pub phoenix_program: solana_sdk::pubkey::Pubkey,
-    pub log_authority: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub market_authority: solana_sdk::pubkey::Pubkey,
-    pub new_fee_recipient: solana_sdk::pubkey::Pubkey,
+    pub phoenix_program: solana_pubkey::Pubkey,
+    pub log_authority: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub market_authority: solana_pubkey::Pubkey,
+    pub new_fee_recipient: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ChangeFeeRecipient {

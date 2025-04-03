@@ -4,7 +4,7 @@ use carbon_core::{borsh, CarbonDeserialize};
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub struct GraduationEvent {
-    pub vpool: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub vpool: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
     pub balance: u64,
 }

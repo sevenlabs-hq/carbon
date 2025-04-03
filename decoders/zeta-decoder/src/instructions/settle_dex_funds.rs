@@ -7,17 +7,17 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct SettleDexFunds {}
 
 pub struct SettleDexFundsInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub zeta_base_vault: solana_sdk::pubkey::Pubkey,
-    pub zeta_quote_vault: solana_sdk::pubkey::Pubkey,
-    pub dex_base_vault: solana_sdk::pubkey::Pubkey,
-    pub dex_quote_vault: solana_sdk::pubkey::Pubkey,
-    pub vault_owner: solana_sdk::pubkey::Pubkey,
-    pub mint_authority: solana_sdk::pubkey::Pubkey,
-    pub serum_authority: solana_sdk::pubkey::Pubkey,
-    pub dex_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub zeta_base_vault: solana_pubkey::Pubkey,
+    pub zeta_quote_vault: solana_pubkey::Pubkey,
+    pub dex_base_vault: solana_pubkey::Pubkey,
+    pub dex_quote_vault: solana_pubkey::Pubkey,
+    pub vault_owner: solana_pubkey::Pubkey,
+    pub mint_authority: solana_pubkey::Pubkey,
+    pub serum_authority: solana_pubkey::Pubkey,
+    pub dex_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SettleDexFunds {

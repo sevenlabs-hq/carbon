@@ -10,12 +10,12 @@ pub struct SwapRouterBaseIn {
 }
 
 pub struct SwapRouterBaseInInstructionAccounts {
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub input_token_account: solana_sdk::pubkey::Pubkey,
-    pub input_token_mint: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub token_program2022: solana_sdk::pubkey::Pubkey,
-    pub memo_program: solana_sdk::pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub input_token_account: solana_pubkey::Pubkey,
+    pub input_token_mint: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub token_program2022: solana_pubkey::Pubkey,
+    pub memo_program: solana_pubkey::Pubkey,
     pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 

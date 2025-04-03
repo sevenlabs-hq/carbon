@@ -7,18 +7,18 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct CloseOrderAndClaimTip {}
 
 pub struct CloseOrderAndClaimTipInstructionAccounts {
-    pub maker: solana_sdk::pubkey::Pubkey,
-    pub order: solana_sdk::pubkey::Pubkey,
-    pub global_config: solana_sdk::pubkey::Pubkey,
-    pub pda_authority: solana_sdk::pubkey::Pubkey,
-    pub input_mint: solana_sdk::pubkey::Pubkey,
-    pub output_mint: solana_sdk::pubkey::Pubkey,
-    pub maker_input_ata: solana_sdk::pubkey::Pubkey,
-    pub input_vault: solana_sdk::pubkey::Pubkey,
-    pub input_token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub maker: solana_pubkey::Pubkey,
+    pub order: solana_pubkey::Pubkey,
+    pub global_config: solana_pubkey::Pubkey,
+    pub pda_authority: solana_pubkey::Pubkey,
+    pub input_mint: solana_pubkey::Pubkey,
+    pub output_mint: solana_pubkey::Pubkey,
+    pub maker_input_ata: solana_pubkey::Pubkey,
+    pub input_vault: solana_pubkey::Pubkey,
+    pub input_token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CloseOrderAndClaimTip {

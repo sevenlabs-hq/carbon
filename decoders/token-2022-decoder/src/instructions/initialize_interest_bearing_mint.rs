@@ -6,12 +6,12 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x21")]
 pub struct InitializeInterestBearingMint {
     pub interest_bearing_mint_discriminator: u8,
-    pub rate_authority: Option<solana_sdk::pubkey::Pubkey>,
+    pub rate_authority: Option<solana_pubkey::Pubkey>,
     pub rate: i16,
 }
 
 pub struct InitializeInterestBearingMintInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeInterestBearingMint {

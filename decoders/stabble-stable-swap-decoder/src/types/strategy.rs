@@ -4,7 +4,7 @@ use carbon_core::{borsh, CarbonDeserialize};
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub struct Strategy {
-    pub pool: solana_sdk::pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
     pub is_active: bool,
     pub amp_min_factor: u16,
     pub amp_max_factor: u16,

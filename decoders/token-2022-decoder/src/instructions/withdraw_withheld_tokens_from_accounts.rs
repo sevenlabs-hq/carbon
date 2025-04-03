@@ -10,9 +10,9 @@ pub struct WithdrawWithheldTokensFromAccounts {
 }
 
 pub struct WithdrawWithheldTokensFromAccountsInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub fee_receiver: solana_sdk::pubkey::Pubkey,
-    pub withdraw_withheld_authority: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub fee_receiver: solana_pubkey::Pubkey,
+    pub withdraw_withheld_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawWithheldTokensFromAccounts {

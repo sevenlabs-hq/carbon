@@ -5,11 +5,11 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0x23")]
 pub struct InitializePermanentDelegate {
-    pub delegate: solana_sdk::pubkey::Pubkey,
+    pub delegate: solana_pubkey::Pubkey,
 }
 
 pub struct InitializePermanentDelegateInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializePermanentDelegate {

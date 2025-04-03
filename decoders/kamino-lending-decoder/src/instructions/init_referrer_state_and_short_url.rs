@@ -9,12 +9,12 @@ pub struct InitReferrerStateAndShortUrl {
 }
 
 pub struct InitReferrerStateAndShortUrlInstructionAccounts {
-    pub referrer: solana_sdk::pubkey::Pubkey,
-    pub referrer_state: solana_sdk::pubkey::Pubkey,
-    pub referrer_short_url: solana_sdk::pubkey::Pubkey,
-    pub referrer_user_metadata: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub referrer: solana_pubkey::Pubkey,
+    pub referrer_state: solana_pubkey::Pubkey,
+    pub referrer_short_url: solana_pubkey::Pubkey,
+    pub referrer_user_metadata: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitReferrerStateAndShortUrl {

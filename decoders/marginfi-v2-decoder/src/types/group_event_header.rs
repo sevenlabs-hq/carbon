@@ -4,6 +4,6 @@ use carbon_core::{borsh, CarbonDeserialize};
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub struct GroupEventHeader {
-    pub signer: Option<solana_sdk::pubkey::Pubkey>,
-    pub marginfi_group: solana_sdk::pubkey::Pubkey,
+    pub signer: Option<solana_pubkey::Pubkey>,
+    pub marginfi_group: solana_pubkey::Pubkey,
 }

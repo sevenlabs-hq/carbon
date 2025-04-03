@@ -14,8 +14,8 @@ pub struct CreateStrategy {
 }
 
 pub struct CreateStrategyInstructionAccounts {
-    pub owner_only: solana_sdk::pubkey::Pubkey,
-    pub strategy: solana_sdk::pubkey::Pubkey,
+    pub owner_only: solana_pubkey::Pubkey,
+    pub strategy: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CreateStrategy {

@@ -12,20 +12,20 @@ pub struct Burn {
 }
 
 pub struct BurnInstructionAccounts {
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub collection_metadata: solana_sdk::pubkey::Pubkey,
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub edition: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub token: solana_sdk::pubkey::Pubkey,
-    pub master_edition: solana_sdk::pubkey::Pubkey,
-    pub master_edition_mint: solana_sdk::pubkey::Pubkey,
-    pub master_edition_token: solana_sdk::pubkey::Pubkey,
-    pub edition_marker: solana_sdk::pubkey::Pubkey,
-    pub token_record: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub sysvar_instructions: solana_sdk::pubkey::Pubkey,
-    pub spl_token_program: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub collection_metadata: solana_pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub edition: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub token: solana_pubkey::Pubkey,
+    pub master_edition: solana_pubkey::Pubkey,
+    pub master_edition_mint: solana_pubkey::Pubkey,
+    pub master_edition_token: solana_pubkey::Pubkey,
+    pub edition_marker: solana_pubkey::Pubkey,
+    pub token_record: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub sysvar_instructions: solana_pubkey::Pubkey,
+    pub spl_token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Burn {

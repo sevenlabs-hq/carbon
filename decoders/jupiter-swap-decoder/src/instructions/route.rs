@@ -16,15 +16,15 @@ pub struct Route {
 }
 
 pub struct RouteInstructionAccounts {
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub user_transfer_authority: solana_sdk::pubkey::Pubkey,
-    pub user_source_token_account: solana_sdk::pubkey::Pubkey,
-    pub user_destination_token_account: solana_sdk::pubkey::Pubkey,
-    pub destination_token_account: solana_sdk::pubkey::Pubkey,
-    pub destination_mint: solana_sdk::pubkey::Pubkey,
-    pub platform_fee_account: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub user_transfer_authority: solana_pubkey::Pubkey,
+    pub user_source_token_account: solana_pubkey::Pubkey,
+    pub user_destination_token_account: solana_pubkey::Pubkey,
+    pub destination_token_account: solana_pubkey::Pubkey,
+    pub destination_mint: solana_pubkey::Pubkey,
+    pub platform_fee_account: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Route {

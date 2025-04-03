@@ -14,6 +14,7 @@ crate-type = ["rlib"]
 
 [dependencies]
 solana-client = { workspace = true }
+solana-pubkey = { workspace = true }
 solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 

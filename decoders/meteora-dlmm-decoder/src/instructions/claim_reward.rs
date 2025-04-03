@@ -9,17 +9,17 @@ pub struct ClaimReward {
 }
 
 pub struct ClaimRewardInstructionAccounts {
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
-    pub position: solana_sdk::pubkey::Pubkey,
-    pub bin_array_lower: solana_sdk::pubkey::Pubkey,
-    pub bin_array_upper: solana_sdk::pubkey::Pubkey,
-    pub sender: solana_sdk::pubkey::Pubkey,
-    pub reward_vault: solana_sdk::pubkey::Pubkey,
-    pub reward_mint: solana_sdk::pubkey::Pubkey,
-    pub user_token_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
+    pub position: solana_pubkey::Pubkey,
+    pub bin_array_lower: solana_pubkey::Pubkey,
+    pub bin_array_upper: solana_pubkey::Pubkey,
+    pub sender: solana_pubkey::Pubkey,
+    pub reward_vault: solana_pubkey::Pubkey,
+    pub reward_mint: solana_pubkey::Pubkey,
+    pub user_token_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ClaimReward {

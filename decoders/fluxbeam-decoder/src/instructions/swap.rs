@@ -11,21 +11,21 @@ pub struct Swap {
 
 #[derive(Debug, PartialEq)]
 pub struct SwapInstructionAccounts {
-    pub swap: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub user_transfer_authority: solana_sdk::pubkey::Pubkey,
-    pub source: solana_sdk::pubkey::Pubkey,
-    pub swap_source: solana_sdk::pubkey::Pubkey,
-    pub swap_destination: solana_sdk::pubkey::Pubkey,
-    pub destination: solana_sdk::pubkey::Pubkey,
-    pub pool_mint: solana_sdk::pubkey::Pubkey,
-    pub pool_fee: solana_sdk::pubkey::Pubkey,
-    pub source_mint: solana_sdk::pubkey::Pubkey,
-    pub destination_mint: solana_sdk::pubkey::Pubkey,
-    pub source_token_program: solana_sdk::pubkey::Pubkey,
-    pub destination_token_program: solana_sdk::pubkey::Pubkey,
-    pub pool_token_program: solana_sdk::pubkey::Pubkey,
-    pub swap_program: solana_sdk::pubkey::Pubkey,
+    pub swap: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub user_transfer_authority: solana_pubkey::Pubkey,
+    pub source: solana_pubkey::Pubkey,
+    pub swap_source: solana_pubkey::Pubkey,
+    pub swap_destination: solana_pubkey::Pubkey,
+    pub destination: solana_pubkey::Pubkey,
+    pub pool_mint: solana_pubkey::Pubkey,
+    pub pool_fee: solana_pubkey::Pubkey,
+    pub source_mint: solana_pubkey::Pubkey,
+    pub destination_mint: solana_pubkey::Pubkey,
+    pub source_token_program: solana_pubkey::Pubkey,
+    pub destination_token_program: solana_pubkey::Pubkey,
+    pub pool_token_program: solana_pubkey::Pubkey,
+    pub swap_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Swap {

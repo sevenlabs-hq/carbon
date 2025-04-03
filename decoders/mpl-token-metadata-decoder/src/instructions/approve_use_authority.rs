@@ -12,17 +12,17 @@ pub struct ApproveUseAuthority {
 }
 
 pub struct ApproveUseAuthorityInstructionAccounts {
-    pub use_authority_record: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub owner_token_account: solana_sdk::pubkey::Pubkey,
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub burner: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub use_authority_record: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub owner_token_account: solana_pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub burner: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ApproveUseAuthority {

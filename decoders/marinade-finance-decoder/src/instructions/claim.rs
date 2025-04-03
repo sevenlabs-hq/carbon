@@ -7,12 +7,12 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct Claim {}
 
 pub struct ClaimInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub reserve_pda: solana_sdk::pubkey::Pubkey,
-    pub ticket_account: solana_sdk::pubkey::Pubkey,
-    pub transfer_sol_to: solana_sdk::pubkey::Pubkey,
-    pub clock: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub reserve_pda: solana_pubkey::Pubkey,
+    pub ticket_account: solana_pubkey::Pubkey,
+    pub transfer_sol_to: solana_pubkey::Pubkey,
+    pub clock: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Claim {

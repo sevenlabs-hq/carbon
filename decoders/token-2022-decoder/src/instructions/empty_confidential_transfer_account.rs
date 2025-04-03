@@ -10,10 +10,10 @@ pub struct EmptyConfidentialTransferAccount {
 }
 
 pub struct EmptyConfidentialTransferAccountInstructionAccounts {
-    pub token: solana_sdk::pubkey::Pubkey,
-    pub instructions_sysvar_or_context_state: solana_sdk::pubkey::Pubkey,
-    pub record: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub token: solana_pubkey::Pubkey,
+    pub instructions_sysvar_or_context_state: solana_pubkey::Pubkey,
+    pub record: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for EmptyConfidentialTransferAccount {

@@ -7,17 +7,17 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct InitializeReward {}
 
 pub struct InitializeRewardInstructionAccounts {
-    pub farm_admin: solana_sdk::pubkey::Pubkey,
-    pub farm_state: solana_sdk::pubkey::Pubkey,
-    pub global_config: solana_sdk::pubkey::Pubkey,
-    pub reward_mint: solana_sdk::pubkey::Pubkey,
-    pub reward_vault: solana_sdk::pubkey::Pubkey,
-    pub reward_treasury_vault: solana_sdk::pubkey::Pubkey,
-    pub farm_vaults_authority: solana_sdk::pubkey::Pubkey,
-    pub treasury_vaults_authority: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub farm_admin: solana_pubkey::Pubkey,
+    pub farm_state: solana_pubkey::Pubkey,
+    pub global_config: solana_pubkey::Pubkey,
+    pub reward_mint: solana_pubkey::Pubkey,
+    pub reward_vault: solana_pubkey::Pubkey,
+    pub reward_treasury_vault: solana_pubkey::Pubkey,
+    pub farm_vaults_authority: solana_pubkey::Pubkey,
+    pub treasury_vaults_authority: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeReward {

@@ -5,13 +5,13 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0x06000000")]
 pub struct InitializeNonceAccount {
-    pub nonce_authority: solana_sdk::pubkey::Pubkey,
+    pub nonce_authority: solana_pubkey::Pubkey,
 }
 
 pub struct InitializeNonceAccountInstructionAccounts {
-    pub nonce_account: solana_sdk::pubkey::Pubkey,
-    pub recent_blockhashes_sysvar: solana_sdk::pubkey::Pubkey,
-    pub rent_sysvar: solana_sdk::pubkey::Pubkey,
+    pub nonce_account: solana_pubkey::Pubkey,
+    pub recent_blockhashes_sysvar: solana_pubkey::Pubkey,
+    pub rent_sysvar: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeNonceAccount {

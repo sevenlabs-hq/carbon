@@ -8,7 +8,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0xe445a52e51cb9a1d3944691a77c6d559")]
 pub struct SettlePnlRecordEvent {
     pub ts: i64,
-    pub user: solana_sdk::pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
     pub market_index: u16,
     pub pnl: i128,
     pub base_asset_amount: i64,

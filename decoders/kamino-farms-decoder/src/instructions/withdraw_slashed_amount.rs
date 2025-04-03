@@ -7,12 +7,12 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct WithdrawSlashedAmount {}
 
 pub struct WithdrawSlashedAmountInstructionAccounts {
-    pub crank: solana_sdk::pubkey::Pubkey,
-    pub farm_state: solana_sdk::pubkey::Pubkey,
-    pub slashed_amount_spill_address: solana_sdk::pubkey::Pubkey,
-    pub farm_vault: solana_sdk::pubkey::Pubkey,
-    pub farm_vaults_authority: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub crank: solana_pubkey::Pubkey,
+    pub farm_state: solana_pubkey::Pubkey,
+    pub slashed_amount_spill_address: solana_pubkey::Pubkey,
+    pub farm_vault: solana_pubkey::Pubkey,
+    pub farm_vaults_authority: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawSlashedAmount {

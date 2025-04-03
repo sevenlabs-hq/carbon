@@ -5,12 +5,12 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0x0c945e2a373953f7")]
 pub struct SetWhitelistedVault {
-    pub whitelisted_vault: solana_sdk::pubkey::Pubkey,
+    pub whitelisted_vault: solana_pubkey::Pubkey,
 }
 
 pub struct SetWhitelistedVaultInstructionAccounts {
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetWhitelistedVault {

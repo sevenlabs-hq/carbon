@@ -14,16 +14,16 @@ pub struct TransferPools {
 }
 
 pub struct TransferPoolsInstructionAccounts {
-    pub from_user: solana_sdk::pubkey::Pubkey,
-    pub to_user: solana_sdk::pubkey::Pubkey,
-    pub user_stats: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub deposit_from_spot_market_vault: solana_sdk::pubkey::Pubkey,
-    pub deposit_to_spot_market_vault: solana_sdk::pubkey::Pubkey,
-    pub borrow_from_spot_market_vault: solana_sdk::pubkey::Pubkey,
-    pub borrow_to_spot_market_vault: solana_sdk::pubkey::Pubkey,
-    pub drift_signer: solana_sdk::pubkey::Pubkey,
+    pub from_user: solana_pubkey::Pubkey,
+    pub to_user: solana_pubkey::Pubkey,
+    pub user_stats: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub deposit_from_spot_market_vault: solana_pubkey::Pubkey,
+    pub deposit_to_spot_market_vault: solana_pubkey::Pubkey,
+    pub borrow_from_spot_market_vault: solana_pubkey::Pubkey,
+    pub borrow_to_spot_market_vault: solana_pubkey::Pubkey,
+    pub drift_signer: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for TransferPools {

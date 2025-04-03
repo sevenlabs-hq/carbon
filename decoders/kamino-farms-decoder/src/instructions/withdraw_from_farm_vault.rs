@@ -9,12 +9,12 @@ pub struct WithdrawFromFarmVault {
 }
 
 pub struct WithdrawFromFarmVaultInstructionAccounts {
-    pub withdraw_authority: solana_sdk::pubkey::Pubkey,
-    pub farm_state: solana_sdk::pubkey::Pubkey,
-    pub withdrawer_token_account: solana_sdk::pubkey::Pubkey,
-    pub farm_vault: solana_sdk::pubkey::Pubkey,
-    pub farm_vaults_authority: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub withdraw_authority: solana_pubkey::Pubkey,
+    pub farm_state: solana_pubkey::Pubkey,
+    pub withdrawer_token_account: solana_pubkey::Pubkey,
+    pub farm_vault: solana_pubkey::Pubkey,
+    pub farm_vaults_authority: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawFromFarmVault {

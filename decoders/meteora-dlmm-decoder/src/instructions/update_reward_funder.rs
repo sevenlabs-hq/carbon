@@ -6,14 +6,14 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0xd31c3020d7a02317")]
 pub struct UpdateRewardFunder {
     pub reward_index: u64,
-    pub new_funder: solana_sdk::pubkey::Pubkey,
+    pub new_funder: solana_pubkey::Pubkey,
 }
 
 pub struct UpdateRewardFunderInstructionAccounts {
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateRewardFunder {

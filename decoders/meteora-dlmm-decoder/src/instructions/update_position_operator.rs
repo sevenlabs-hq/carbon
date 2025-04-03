@@ -5,14 +5,14 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0xcab8678fb4bf74d9")]
 pub struct UpdatePositionOperator {
-    pub operator: solana_sdk::pubkey::Pubkey,
+    pub operator: solana_pubkey::Pubkey,
 }
 
 pub struct UpdatePositionOperatorInstructionAccounts {
-    pub position: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub position: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdatePositionOperator {

@@ -9,9 +9,9 @@ pub struct MarkObligationForDeleveraging {
 }
 
 pub struct MarkObligationForDeleveragingInstructionAccounts {
-    pub risk_council: solana_sdk::pubkey::Pubkey,
-    pub obligation: solana_sdk::pubkey::Pubkey,
-    pub lending_market: solana_sdk::pubkey::Pubkey,
+    pub risk_council: solana_pubkey::Pubkey,
+    pub obligation: solana_pubkey::Pubkey,
+    pub lending_market: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for MarkObligationForDeleveraging {

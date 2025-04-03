@@ -8,8 +8,8 @@ use {
 pub struct Loan {
     pub version: u8,
     pub principal_lamports: u64,
-    pub order_book: solana_sdk::pubkey::Pubkey,
-    pub value_token_mint: solana_sdk::pubkey::Pubkey,
+    pub order_book: solana_pubkey::Pubkey,
+    pub value_token_mint: solana_pubkey::Pubkey,
     pub escrow_bump_seed: u8,
     pub loan_state: LoanState,
 }

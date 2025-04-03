@@ -5,5 +5,5 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 pub enum EscrowAuthority {
     TokenOwner,
-    Creator(solana_sdk::pubkey::Pubkey),
+    Creator(solana_pubkey::Pubkey),
 }

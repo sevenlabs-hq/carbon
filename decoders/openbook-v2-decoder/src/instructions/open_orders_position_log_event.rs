@@ -5,9 +5,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0xe445a52e51cb9a1dc4f99421a8e44906")]
 pub struct OpenOrdersPositionLogEvent {
-    pub owner: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
     pub open_orders_account_num: u32,
-    pub market: solana_sdk::pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
     pub bids_base_lots: i64,
     pub bids_quote_lots: i64,
     pub asks_base_lots: i64,

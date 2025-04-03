@@ -10,8 +10,8 @@ pub struct SetLockupChecked {
 }
 
 pub struct SetLockupCheckedInstructionAccounts {
-    pub stake: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub stake: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetLockupChecked {

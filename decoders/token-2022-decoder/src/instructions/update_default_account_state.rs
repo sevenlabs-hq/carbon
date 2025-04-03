@@ -13,8 +13,8 @@ pub struct UpdateDefaultAccountState {
 }
 
 pub struct UpdateDefaultAccountStateInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub freeze_authority: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub freeze_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateDefaultAccountState {

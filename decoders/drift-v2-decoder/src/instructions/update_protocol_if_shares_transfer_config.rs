@@ -5,14 +5,14 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0x22872f5bdc18d435")]
 pub struct UpdateProtocolIfSharesTransferConfig {
-    pub whitelisted_signers: Option<[solana_sdk::pubkey::Pubkey; 4]>,
+    pub whitelisted_signers: Option<[solana_pubkey::Pubkey; 4]>,
     pub max_transfer_per_epoch: Option<u128>,
 }
 
 pub struct UpdateProtocolIfSharesTransferConfigInstructionAccounts {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub protocol_if_shares_transfer_config: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub protocol_if_shares_transfer_config: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateProtocolIfSharesTransferConfig {

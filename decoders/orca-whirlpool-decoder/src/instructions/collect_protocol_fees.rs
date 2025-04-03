@@ -7,14 +7,14 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct CollectProtocolFees {}
 
 pub struct CollectProtocolFeesInstructionAccounts {
-    pub whirlpools_config: solana_sdk::pubkey::Pubkey,
-    pub whirlpool: solana_sdk::pubkey::Pubkey,
-    pub collect_protocol_fees_authority: solana_sdk::pubkey::Pubkey,
-    pub token_vault_a: solana_sdk::pubkey::Pubkey,
-    pub token_vault_b: solana_sdk::pubkey::Pubkey,
-    pub token_destination_a: solana_sdk::pubkey::Pubkey,
-    pub token_destination_b: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub whirlpools_config: solana_pubkey::Pubkey,
+    pub whirlpool: solana_pubkey::Pubkey,
+    pub collect_protocol_fees_authority: solana_pubkey::Pubkey,
+    pub token_vault_a: solana_pubkey::Pubkey,
+    pub token_vault_b: solana_pubkey::Pubkey,
+    pub token_destination_a: solana_pubkey::Pubkey,
+    pub token_destination_b: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CollectProtocolFees {

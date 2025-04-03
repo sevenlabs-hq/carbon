@@ -11,21 +11,21 @@ pub struct Deposit {
 }
 
 pub struct DepositInstructionAccounts {
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub global_config: solana_sdk::pubkey::Pubkey,
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub base_mint: solana_sdk::pubkey::Pubkey,
-    pub quote_mint: solana_sdk::pubkey::Pubkey,
-    pub lp_mint: solana_sdk::pubkey::Pubkey,
-    pub user_base_token_account: solana_sdk::pubkey::Pubkey,
-    pub user_quote_token_account: solana_sdk::pubkey::Pubkey,
-    pub user_pool_token_account: solana_sdk::pubkey::Pubkey,
-    pub pool_base_token_account: solana_sdk::pubkey::Pubkey,
-    pub pool_quote_token_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub token_2022_program: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub global_config: solana_pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub base_mint: solana_pubkey::Pubkey,
+    pub quote_mint: solana_pubkey::Pubkey,
+    pub lp_mint: solana_pubkey::Pubkey,
+    pub user_base_token_account: solana_pubkey::Pubkey,
+    pub user_quote_token_account: solana_pubkey::Pubkey,
+    pub user_pool_token_account: solana_pubkey::Pubkey,
+    pub pool_base_token_account: solana_pubkey::Pubkey,
+    pub pool_quote_token_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub token_2022_program: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Deposit {

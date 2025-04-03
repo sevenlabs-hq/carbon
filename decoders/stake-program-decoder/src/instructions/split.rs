@@ -9,9 +9,9 @@ pub struct Split {
 }
 
 pub struct SplitInstructionAccounts {
-    pub from: solana_sdk::pubkey::Pubkey,
-    pub to: solana_sdk::pubkey::Pubkey,
-    pub stake_authority: solana_sdk::pubkey::Pubkey,
+    pub from: solana_pubkey::Pubkey,
+    pub to: solana_pubkey::Pubkey,
+    pub stake_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Split {

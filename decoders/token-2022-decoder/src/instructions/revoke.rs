@@ -7,8 +7,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct Revoke {}
 
 pub struct RevokeInstructionAccounts {
-    pub source: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
+    pub source: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Revoke {

@@ -7,7 +7,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct Log {}
 
 pub struct LogInstructionAccounts {
-    pub log_authority: solana_sdk::pubkey::Pubkey,
+    pub log_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Log {

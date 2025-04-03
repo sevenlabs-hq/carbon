@@ -9,7 +9,7 @@ pub struct UiAmountToAmount {
 }
 
 pub struct UiAmountToAmountAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UiAmountToAmount {

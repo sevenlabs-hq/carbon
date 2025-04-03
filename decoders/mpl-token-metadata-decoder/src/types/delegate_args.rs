@@ -34,7 +34,7 @@ pub enum DelegateArgs {
     },
     LockedTransferV1 {
         amount: u64,
-        locked_address: solana_sdk::pubkey::Pubkey,
+        locked_address: solana_pubkey::Pubkey,
         authorization_data: Option<AuthorizationData>,
     },
     ProgrammableConfigV1 {

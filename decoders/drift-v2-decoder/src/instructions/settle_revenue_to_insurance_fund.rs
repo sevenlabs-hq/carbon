@@ -9,12 +9,12 @@ pub struct SettleRevenueToInsuranceFund {
 }
 
 pub struct SettleRevenueToInsuranceFundInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub spot_market: solana_sdk::pubkey::Pubkey,
-    pub spot_market_vault: solana_sdk::pubkey::Pubkey,
-    pub drift_signer: solana_sdk::pubkey::Pubkey,
-    pub insurance_fund_vault: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub spot_market: solana_pubkey::Pubkey,
+    pub spot_market_vault: solana_pubkey::Pubkey,
+    pub drift_signer: solana_pubkey::Pubkey,
+    pub insurance_fund_vault: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SettleRevenueToInsuranceFund {

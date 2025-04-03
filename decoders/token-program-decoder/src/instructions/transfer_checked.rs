@@ -9,10 +9,10 @@ pub struct TransferChecked {
 }
 
 pub struct TransferCheckedAccounts {
-    pub source: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub destination: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub source: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub destination: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
     pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 

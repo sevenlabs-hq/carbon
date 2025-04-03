@@ -12,9 +12,9 @@ pub struct LendingPoolConfigureBank {
 }
 
 pub struct LendingPoolConfigureBankInstructionAccounts {
-    pub marginfi_group: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub bank: solana_sdk::pubkey::Pubkey,
+    pub marginfi_group: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub bank: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for LendingPoolConfigureBank {

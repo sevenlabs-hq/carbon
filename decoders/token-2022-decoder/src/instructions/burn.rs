@@ -9,9 +9,9 @@ pub struct Burn {
 }
 
 pub struct BurnInstructionAccounts {
-    pub account: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub account: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Burn {

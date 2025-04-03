@@ -9,17 +9,17 @@ pub struct Deposit {
 }
 
 pub struct DepositInstructionAccounts {
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub vault_state: solana_sdk::pubkey::Pubkey,
-    pub token_vault: solana_sdk::pubkey::Pubkey,
-    pub token_mint: solana_sdk::pubkey::Pubkey,
-    pub base_vault_authority: solana_sdk::pubkey::Pubkey,
-    pub shares_mint: solana_sdk::pubkey::Pubkey,
-    pub user_token_ata: solana_sdk::pubkey::Pubkey,
-    pub user_shares_ata: solana_sdk::pubkey::Pubkey,
-    pub klend_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub shares_token_program: solana_sdk::pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub vault_state: solana_pubkey::Pubkey,
+    pub token_vault: solana_pubkey::Pubkey,
+    pub token_mint: solana_pubkey::Pubkey,
+    pub base_vault_authority: solana_pubkey::Pubkey,
+    pub shares_mint: solana_pubkey::Pubkey,
+    pub user_token_ata: solana_pubkey::Pubkey,
+    pub user_shares_ata: solana_pubkey::Pubkey,
+    pub klend_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub shares_token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Deposit {

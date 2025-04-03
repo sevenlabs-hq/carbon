@@ -5,6 +5,6 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 pub enum RuleSet {
     None,
-    ProgramAllowList(Vec<solana_sdk::pubkey::Pubkey>),
-    ProgramDenyList(Vec<solana_sdk::pubkey::Pubkey>),
+    ProgramAllowList(Vec<solana_pubkey::Pubkey>),
+    ProgramDenyList(Vec<solana_pubkey::Pubkey>),
 }

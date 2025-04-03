@@ -9,9 +9,9 @@ pub struct Transfer {
 }
 
 pub struct TransferAccounts {
-    pub source: solana_sdk::pubkey::Pubkey,
-    pub destination: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub source: solana_pubkey::Pubkey,
+    pub destination: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
     pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 

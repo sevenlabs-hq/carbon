@@ -12,8 +12,8 @@ pub struct SetPoolFees {
 }
 
 pub struct SetPoolFeesInstructionAccounts {
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub fee_operator: solana_sdk::pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub fee_operator: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetPoolFees {

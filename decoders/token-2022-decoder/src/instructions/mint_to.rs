@@ -9,9 +9,9 @@ pub struct MintTo {
 }
 
 pub struct MintToInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub token: solana_sdk::pubkey::Pubkey,
-    pub mint_authority: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub token: solana_pubkey::Pubkey,
+    pub mint_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for MintTo {

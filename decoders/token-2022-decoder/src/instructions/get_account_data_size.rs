@@ -7,7 +7,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct GetAccountDataSize {}
 
 pub struct GetAccountDataSizeInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for GetAccountDataSize {

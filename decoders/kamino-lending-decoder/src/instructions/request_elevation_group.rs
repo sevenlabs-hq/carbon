@@ -9,9 +9,9 @@ pub struct RequestElevationGroup {
 }
 
 pub struct RequestElevationGroupInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub obligation: solana_sdk::pubkey::Pubkey,
-    pub lending_market: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub obligation: solana_pubkey::Pubkey,
+    pub lending_market: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RequestElevationGroup {

@@ -14,19 +14,19 @@ pub struct CommissionSolProxySwap {
 }
 
 pub struct CommissionSolProxySwapInstructionAccounts {
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub source_token_account: solana_sdk::pubkey::Pubkey,
-    pub destination_token_account: solana_sdk::pubkey::Pubkey,
-    pub source_mint: solana_sdk::pubkey::Pubkey,
-    pub destination_mint: solana_sdk::pubkey::Pubkey,
-    pub commission_account: solana_sdk::pubkey::Pubkey,
-    pub sa_authority: solana_sdk::pubkey::Pubkey,
-    pub source_token_sa: solana_sdk::pubkey::Pubkey,
-    pub destination_token_sa: solana_sdk::pubkey::Pubkey,
-    pub source_token_program: solana_sdk::pubkey::Pubkey,
-    pub destination_token_program: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub source_token_account: solana_pubkey::Pubkey,
+    pub destination_token_account: solana_pubkey::Pubkey,
+    pub source_mint: solana_pubkey::Pubkey,
+    pub destination_mint: solana_pubkey::Pubkey,
+    pub commission_account: solana_pubkey::Pubkey,
+    pub sa_authority: solana_pubkey::Pubkey,
+    pub source_token_sa: solana_pubkey::Pubkey,
+    pub destination_token_sa: solana_pubkey::Pubkey,
+    pub source_token_program: solana_pubkey::Pubkey,
+    pub destination_token_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CommissionSolProxySwap {

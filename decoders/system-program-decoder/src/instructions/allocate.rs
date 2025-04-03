@@ -9,7 +9,7 @@ pub struct Allocate {
 }
 
 pub struct AllocateInstructionAccounts {
-    pub new_account: solana_sdk::pubkey::Pubkey,
+    pub new_account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Allocate {

@@ -13,10 +13,10 @@ pub struct InitUserFuel {
 }
 
 pub struct InitUserFuelInstructionAccounts {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub user_stats: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub user_stats: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitUserFuel {

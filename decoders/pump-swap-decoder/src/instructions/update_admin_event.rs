@@ -6,6 +6,6 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0xe445a52e51cb9a1de198ab57f63f42ea")]
 pub struct UpdateAdminEvent {
     pub timestamp: i64,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub new_admin: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub new_admin: solana_pubkey::Pubkey,
 }

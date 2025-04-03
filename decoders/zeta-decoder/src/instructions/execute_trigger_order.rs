@@ -9,9 +9,9 @@ pub struct ExecuteTriggerOrder {
 }
 
 pub struct ExecuteTriggerOrderInstructionAccounts {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub trigger_order: solana_sdk::pubkey::Pubkey,
-    pub place_order_accounts: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub trigger_order: solana_pubkey::Pubkey,
+    pub place_order_accounts: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ExecuteTriggerOrder {

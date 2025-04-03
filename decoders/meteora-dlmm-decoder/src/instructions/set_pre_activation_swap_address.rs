@@ -5,12 +5,12 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0x398b2f7bd850df0a")]
 pub struct SetPreActivationSwapAddress {
-    pub pre_activation_swap_address: solana_sdk::pubkey::Pubkey,
+    pub pre_activation_swap_address: solana_pubkey::Pubkey,
 }
 
 pub struct SetPreActivationSwapAddressInstructionAccounts {
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
-    pub creator: solana_sdk::pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
+    pub creator: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetPreActivationSwapAddress {

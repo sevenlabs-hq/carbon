@@ -4,6 +4,6 @@ use carbon_core::{borsh, CarbonDeserialize};
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub struct AutographSignature {
-    pub address: solana_sdk::pubkey::Pubkey,
+    pub address: solana_pubkey::Pubkey,
     pub message: String,
 }

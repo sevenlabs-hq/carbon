@@ -6,14 +6,14 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x1a")]
 pub struct InitializeTransferFeeConfig {
     pub transfer_fee_discriminator: u8,
-    pub transfer_fee_config_authority: Option<solana_sdk::pubkey::Pubkey>,
-    pub withdraw_withheld_authority: Option<solana_sdk::pubkey::Pubkey>,
+    pub transfer_fee_config_authority: Option<solana_pubkey::Pubkey>,
+    pub withdraw_withheld_authority: Option<solana_pubkey::Pubkey>,
     pub transfer_fee_basis_points: u16,
     pub maximum_fee: u64,
 }
 
 pub struct InitializeTransferFeeConfigInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeTransferFeeConfig {

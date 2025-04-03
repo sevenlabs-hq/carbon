@@ -11,11 +11,11 @@ pub struct UpdateSharesMetadata {
 }
 
 pub struct UpdateSharesMetadataInstructionAccounts {
-    pub admin_authority: solana_sdk::pubkey::Pubkey,
-    pub vault_state: solana_sdk::pubkey::Pubkey,
-    pub base_vault_authority: solana_sdk::pubkey::Pubkey,
-    pub shares_metadata: solana_sdk::pubkey::Pubkey,
-    pub metadata_program: solana_sdk::pubkey::Pubkey,
+    pub admin_authority: solana_pubkey::Pubkey,
+    pub vault_state: solana_pubkey::Pubkey,
+    pub base_vault_authority: solana_pubkey::Pubkey,
+    pub shares_metadata: solana_pubkey::Pubkey,
+    pub metadata_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateSharesMetadata {

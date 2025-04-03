@@ -5,7 +5,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(CarbonDeserialize, Debug)]
 #[carbon(discriminator = "0x0adf0c2c6bf537f7")]
 pub struct PerpMarket {
-    pub pubkey: solana_sdk::pubkey::Pubkey,
+    pub pubkey: solana_pubkey::Pubkey,
     pub amm: AMM,
     pub pnl_pool: PoolBalance,
     pub name: [u8; 32],

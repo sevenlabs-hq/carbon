@@ -9,11 +9,11 @@ pub struct CloseBundledPosition {
 }
 
 pub struct CloseBundledPositionInstructionAccounts {
-    pub bundled_position: solana_sdk::pubkey::Pubkey,
-    pub position_bundle: solana_sdk::pubkey::Pubkey,
-    pub position_bundle_token_account: solana_sdk::pubkey::Pubkey,
-    pub position_bundle_authority: solana_sdk::pubkey::Pubkey,
-    pub receiver: solana_sdk::pubkey::Pubkey,
+    pub bundled_position: solana_pubkey::Pubkey,
+    pub position_bundle: solana_pubkey::Pubkey,
+    pub position_bundle_token_account: solana_pubkey::Pubkey,
+    pub position_bundle_authority: solana_pubkey::Pubkey,
+    pub receiver: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CloseBundledPosition {

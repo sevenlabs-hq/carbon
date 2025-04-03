@@ -7,8 +7,8 @@ pub struct StubOracleSet {
 }
 
 pub struct StubOracleSetInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for StubOracleSet {

@@ -9,18 +9,18 @@ pub struct RedeemReserveCollateral {
 }
 
 pub struct RedeemReserveCollateralInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub lending_market: solana_sdk::pubkey::Pubkey,
-    pub reserve: solana_sdk::pubkey::Pubkey,
-    pub lending_market_authority: solana_sdk::pubkey::Pubkey,
-    pub reserve_liquidity_mint: solana_sdk::pubkey::Pubkey,
-    pub reserve_collateral_mint: solana_sdk::pubkey::Pubkey,
-    pub reserve_liquidity_supply: solana_sdk::pubkey::Pubkey,
-    pub user_source_collateral: solana_sdk::pubkey::Pubkey,
-    pub user_destination_liquidity: solana_sdk::pubkey::Pubkey,
-    pub collateral_token_program: solana_sdk::pubkey::Pubkey,
-    pub liquidity_token_program: solana_sdk::pubkey::Pubkey,
-    pub instruction_sysvar_account: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub lending_market: solana_pubkey::Pubkey,
+    pub reserve: solana_pubkey::Pubkey,
+    pub lending_market_authority: solana_pubkey::Pubkey,
+    pub reserve_liquidity_mint: solana_pubkey::Pubkey,
+    pub reserve_collateral_mint: solana_pubkey::Pubkey,
+    pub reserve_liquidity_supply: solana_pubkey::Pubkey,
+    pub user_source_collateral: solana_pubkey::Pubkey,
+    pub user_destination_liquidity: solana_pubkey::Pubkey,
+    pub collateral_token_program: solana_pubkey::Pubkey,
+    pub liquidity_token_program: solana_pubkey::Pubkey,
+    pub instruction_sysvar_account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RedeemReserveCollateral {

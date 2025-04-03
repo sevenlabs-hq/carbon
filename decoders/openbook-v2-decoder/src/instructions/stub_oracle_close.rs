@@ -7,10 +7,10 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct StubOracleClose {}
 
 pub struct StubOracleCloseInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub sol_destination: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub sol_destination: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for StubOracleClose {

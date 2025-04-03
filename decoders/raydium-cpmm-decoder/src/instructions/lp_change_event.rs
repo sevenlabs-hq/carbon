@@ -5,7 +5,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0xe445a52e51cb9a1d79a3cdc939da753c")]
 pub struct LpChangeEvent {
-    pub pool_id: solana_sdk::pubkey::Pubkey,
+    pub pool_id: solana_pubkey::Pubkey,
     pub lp_amount_before: u64,
     pub token0_vault_before: u64,
     pub token1_vault_before: u64,

@@ -7,9 +7,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct SetFeeAuthority {}
 
 pub struct SetFeeAuthorityInstructionAccounts {
-    pub whirlpools_config: solana_sdk::pubkey::Pubkey,
-    pub fee_authority: solana_sdk::pubkey::Pubkey,
-    pub new_fee_authority: solana_sdk::pubkey::Pubkey,
+    pub whirlpools_config: solana_pubkey::Pubkey,
+    pub fee_authority: solana_pubkey::Pubkey,
+    pub new_fee_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetFeeAuthority {

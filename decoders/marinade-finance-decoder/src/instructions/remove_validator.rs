@@ -6,15 +6,15 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x1960d39ba10ea8bc")]
 pub struct RemoveValidator {
     pub index: u32,
-    pub validator_vote: solana_sdk::pubkey::Pubkey,
+    pub validator_vote: solana_pubkey::Pubkey,
 }
 
 pub struct RemoveValidatorInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub manager_authority: solana_sdk::pubkey::Pubkey,
-    pub validator_list: solana_sdk::pubkey::Pubkey,
-    pub duplication_flag: solana_sdk::pubkey::Pubkey,
-    pub operational_sol_account: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub manager_authority: solana_pubkey::Pubkey,
+    pub validator_list: solana_pubkey::Pubkey,
+    pub duplication_flag: solana_pubkey::Pubkey,
+    pub operational_sol_account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RemoveValidator {

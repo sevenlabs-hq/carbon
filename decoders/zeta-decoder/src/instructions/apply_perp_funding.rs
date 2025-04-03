@@ -11,8 +11,8 @@ pub struct ApplyPerpFunding {
 }
 
 pub struct ApplyPerpFundingInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub pricing: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub pricing: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ApplyPerpFunding {

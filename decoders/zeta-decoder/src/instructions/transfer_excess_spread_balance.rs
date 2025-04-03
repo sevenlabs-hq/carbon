@@ -7,10 +7,10 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct TransferExcessSpreadBalance {}
 
 pub struct TransferExcessSpreadBalanceInstructionAccounts {
-    pub zeta_group: solana_sdk::pubkey::Pubkey,
-    pub margin_account: solana_sdk::pubkey::Pubkey,
-    pub spread_account: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub zeta_group: solana_pubkey::Pubkey,
+    pub margin_account: solana_pubkey::Pubkey,
+    pub spread_account: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for TransferExcessSpreadBalance {

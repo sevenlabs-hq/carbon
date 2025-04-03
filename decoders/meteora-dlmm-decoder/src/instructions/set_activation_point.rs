@@ -9,8 +9,8 @@ pub struct SetActivationPoint {
 }
 
 pub struct SetActivationPointInstructionAccounts {
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetActivationPoint {

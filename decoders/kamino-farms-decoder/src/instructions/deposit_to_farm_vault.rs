@@ -9,11 +9,11 @@ pub struct DepositToFarmVault {
 }
 
 pub struct DepositToFarmVaultInstructionAccounts {
-    pub depositor: solana_sdk::pubkey::Pubkey,
-    pub farm_state: solana_sdk::pubkey::Pubkey,
-    pub farm_vault: solana_sdk::pubkey::Pubkey,
-    pub depositor_ata: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub depositor: solana_pubkey::Pubkey,
+    pub farm_state: solana_pubkey::Pubkey,
+    pub farm_vault: solana_pubkey::Pubkey,
+    pub depositor_ata: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DepositToFarmVault {

@@ -7,9 +7,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct UpdatePrimarySaleHappenedViaToken {}
 
 pub struct UpdatePrimarySaleHappenedViaTokenInstructionAccounts {
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub token: solana_sdk::pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub token: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdatePrimarySaleHappenedViaToken {

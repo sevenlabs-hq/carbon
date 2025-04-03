@@ -7,9 +7,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct Deactivate {}
 
 pub struct DeactivateInstructionAccounts {
-    pub stake: solana_sdk::pubkey::Pubkey,
-    pub clock: solana_sdk::pubkey::Pubkey,
-    pub stake_authority: solana_sdk::pubkey::Pubkey,
+    pub stake: solana_pubkey::Pubkey,
+    pub clock: solana_pubkey::Pubkey,
+    pub stake_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Deactivate {

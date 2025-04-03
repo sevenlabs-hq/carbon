@@ -7,11 +7,11 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct InitializeBinArrayBitmapExtension {}
 
 pub struct InitializeBinArrayBitmapExtensionInstructionAccounts {
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
-    pub bin_array_bitmap_extension: solana_sdk::pubkey::Pubkey,
-    pub funder: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
+    pub bin_array_bitmap_extension: solana_pubkey::Pubkey,
+    pub funder: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeBinArrayBitmapExtension {

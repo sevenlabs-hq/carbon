@@ -9,14 +9,14 @@ pub struct Stake {
 }
 
 pub struct StakeInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub user_state: solana_sdk::pubkey::Pubkey,
-    pub farm_state: solana_sdk::pubkey::Pubkey,
-    pub farm_vault: solana_sdk::pubkey::Pubkey,
-    pub user_ata: solana_sdk::pubkey::Pubkey,
-    pub token_mint: solana_sdk::pubkey::Pubkey,
-    pub scope_prices: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub user_state: solana_pubkey::Pubkey,
+    pub farm_state: solana_pubkey::Pubkey,
+    pub farm_vault: solana_pubkey::Pubkey,
+    pub user_ata: solana_pubkey::Pubkey,
+    pub token_mint: solana_pubkey::Pubkey,
+    pub scope_prices: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Stake {

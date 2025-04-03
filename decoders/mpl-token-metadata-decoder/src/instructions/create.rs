@@ -12,15 +12,15 @@ pub struct Create {
 }
 
 pub struct CreateInstructionAccounts {
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub master_edition: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub update_authority: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub sysvar_instructions: solana_sdk::pubkey::Pubkey,
-    pub spl_token_program: solana_sdk::pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub master_edition: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub update_authority: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub sysvar_instructions: solana_pubkey::Pubkey,
+    pub spl_token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Create {

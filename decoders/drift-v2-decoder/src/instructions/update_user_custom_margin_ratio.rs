@@ -10,8 +10,8 @@ pub struct UpdateUserCustomMarginRatio {
 }
 
 pub struct UpdateUserCustomMarginRatioInstructionAccounts {
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateUserCustomMarginRatio {

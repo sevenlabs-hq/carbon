@@ -5,7 +5,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 pub struct PartnerInfo {
     pub fee_numerator: u64,
-    pub partner_authority: solana_sdk::pubkey::Pubkey,
+    pub partner_authority: solana_pubkey::Pubkey,
     pub pending_fee_a: u64,
     pub pending_fee_b: u64,
 }

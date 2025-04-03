@@ -7,11 +7,11 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct InitializeTokenGroupMember {}
 
 pub struct InitializeTokenGroupMemberInstructionAccounts {
-    pub member: solana_sdk::pubkey::Pubkey,
-    pub member_mint: solana_sdk::pubkey::Pubkey,
-    pub member_mint_authority: solana_sdk::pubkey::Pubkey,
-    pub group: solana_sdk::pubkey::Pubkey,
-    pub group_update_authority: solana_sdk::pubkey::Pubkey,
+    pub member: solana_pubkey::Pubkey,
+    pub member_mint: solana_pubkey::Pubkey,
+    pub member_mint_authority: solana_pubkey::Pubkey,
+    pub group: solana_pubkey::Pubkey,
+    pub group_update_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeTokenGroupMember {

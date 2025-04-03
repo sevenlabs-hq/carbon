@@ -5,10 +5,10 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(CarbonDeserialize, Debug)]
 #[carbon(discriminator = "0x64b1086ba8414127")]
 pub struct SpotMarket {
-    pub pubkey: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub vault: solana_sdk::pubkey::Pubkey,
+    pub pubkey: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub vault: solana_pubkey::Pubkey,
     pub name: [u8; 32],
     pub historical_oracle_data: HistoricalOracleData,
     pub historical_index_data: HistoricalIndexData,

@@ -7,12 +7,12 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct DeleteTokenBadge {}
 
 pub struct DeleteTokenBadgeInstructionAccounts {
-    pub whirlpools_config: solana_sdk::pubkey::Pubkey,
-    pub whirlpools_config_extension: solana_sdk::pubkey::Pubkey,
-    pub token_badge_authority: solana_sdk::pubkey::Pubkey,
-    pub token_mint: solana_sdk::pubkey::Pubkey,
-    pub token_badge: solana_sdk::pubkey::Pubkey,
-    pub receiver: solana_sdk::pubkey::Pubkey,
+    pub whirlpools_config: solana_pubkey::Pubkey,
+    pub whirlpools_config_extension: solana_pubkey::Pubkey,
+    pub token_badge_authority: solana_pubkey::Pubkey,
+    pub token_mint: solana_pubkey::Pubkey,
+    pub token_badge: solana_pubkey::Pubkey,
+    pub receiver: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DeleteTokenBadge {

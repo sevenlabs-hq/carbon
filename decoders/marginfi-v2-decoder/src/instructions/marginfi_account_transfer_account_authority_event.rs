@@ -9,6 +9,6 @@ use {
 #[carbon(discriminator = "0xe445a52e51cb9a1d703d8c84fb5c5aca")]
 pub struct MarginfiAccountTransferAccountAuthorityEvent {
     pub header: AccountEventHeader,
-    pub old_account_authority: solana_sdk::pubkey::Pubkey,
-    pub new_account_authority: solana_sdk::pubkey::Pubkey,
+    pub old_account_authority: solana_pubkey::Pubkey,
+    pub new_account_authority: solana_pubkey::Pubkey,
 }

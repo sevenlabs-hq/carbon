@@ -13,9 +13,9 @@ pub struct TradeEvent {
     pub dex_fee: u64,
     pub helio_fee: u64,
     pub allocation: u64,
-    pub curve: solana_sdk::pubkey::Pubkey,
-    pub cost_token: solana_sdk::pubkey::Pubkey,
-    pub sender: solana_sdk::pubkey::Pubkey,
+    pub curve: solana_pubkey::Pubkey,
+    pub cost_token: solana_pubkey::Pubkey,
+    pub sender: solana_pubkey::Pubkey,
     pub trade_type: TradeType,
     pub label: String,
 }

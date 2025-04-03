@@ -11,16 +11,16 @@ pub struct InstantUpdateLimitOrder {
 }
 
 pub struct InstantUpdateLimitOrderInstructionAccounts {
-    pub keeper: solana_sdk::pubkey::Pubkey,
-    pub api_keeper: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub perpetuals: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub position: solana_sdk::pubkey::Pubkey,
-    pub position_request: solana_sdk::pubkey::Pubkey,
-    pub custody: solana_sdk::pubkey::Pubkey,
-    pub custody_doves_price_account: solana_sdk::pubkey::Pubkey,
-    pub custody_pythnet_price_account: solana_sdk::pubkey::Pubkey,
+    pub keeper: solana_pubkey::Pubkey,
+    pub api_keeper: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub perpetuals: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub position: solana_pubkey::Pubkey,
+    pub position_request: solana_pubkey::Pubkey,
+    pub custody: solana_pubkey::Pubkey,
+    pub custody_doves_price_account: solana_pubkey::Pubkey,
+    pub custody_pythnet_price_account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InstantUpdateLimitOrder {

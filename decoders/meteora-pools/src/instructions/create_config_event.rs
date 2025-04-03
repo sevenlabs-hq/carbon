@@ -7,5 +7,5 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct CreateConfigEvent {
     pub trade_fee_numerator: u64,
     pub protocol_trade_fee_numerator: u64,
-    pub config: solana_sdk::pubkey::Pubkey,
+    pub config: solana_pubkey::Pubkey,
 }

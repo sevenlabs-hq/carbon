@@ -7,9 +7,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct InitializeGlobalConfig {}
 
 pub struct InitializeGlobalConfigInstructionAccounts {
-    pub admin_authority: solana_sdk::pubkey::Pubkey,
-    pub pda_authority: solana_sdk::pubkey::Pubkey,
-    pub global_config: solana_sdk::pubkey::Pubkey,
+    pub admin_authority: solana_pubkey::Pubkey,
+    pub pda_authority: solana_pubkey::Pubkey,
+    pub global_config: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeGlobalConfig {
