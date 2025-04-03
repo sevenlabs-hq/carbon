@@ -16,6 +16,7 @@ pub struct SetParams {
     pub creator_fee: u64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct SetParamsInstructionAccounts {
     pub global: solana_pubkey::Pubkey,
     pub authority: solana_pubkey::Pubkey,

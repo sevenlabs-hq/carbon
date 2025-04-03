@@ -1,3 +1,4 @@
+use alloc::string::String;
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
@@ -11,6 +12,7 @@ pub struct Create {
     pub creator: solana_pubkey::Pubkey,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct CreateInstructionAccounts {
     pub mint: solana_pubkey::Pubkey,
     pub mint_authority: solana_pubkey::Pubkey,

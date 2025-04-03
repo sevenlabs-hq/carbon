@@ -9,6 +9,7 @@ pub struct Buy {
     pub max_sol_cost: u64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct BuyInstructionAccounts {
     pub global: solana_pubkey::Pubkey,
     pub fee_recipient: solana_pubkey::Pubkey,
