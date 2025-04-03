@@ -1,5 +1,6 @@
 use super::super::types::*;
 
+use alloc::string::String;
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(

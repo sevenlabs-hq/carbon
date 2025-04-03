@@ -15,8 +15,8 @@ pub struct Global {
     pub enable_migrate: bool,
     pub pool_migration_fee: u64,
     pub creator_fee: u64,
-    pub fee_recipients: [solana_pubkey::Pubkey; 7],
-    pub _reserved: [u8; 399],
+    pub fee_recipients: [solana_pubkey::Pubkey; 7], // 224
+    pub _reserved: [u8; 126],
 }
 
 impl Default for Global {
@@ -44,7 +44,7 @@ impl Default for Global {
                 solana_pubkey::Pubkey::default(),
                 solana_pubkey::Pubkey::default(),
             ],
-            _reserved: [0; 399],
+            _reserved: [0; 126],
         }
     }
 }

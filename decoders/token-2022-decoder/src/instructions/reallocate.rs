@@ -1,5 +1,6 @@
 use {
     super::super::types::*,
+    alloc::vec::Vec,
     carbon_core::{borsh, CarbonDeserialize},
 };
 

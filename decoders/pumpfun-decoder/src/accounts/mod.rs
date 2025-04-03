@@ -121,13 +121,27 @@ mod tests {
         // Arrange
         let expected_global_account = global::Global {
             initialized: true,
-            authority: Pubkey::from_str_const("DCpJReAfonSrgohiQbTmKKbjbqVofspFRHz9yQikzooP"),
+            authority: Pubkey::from_str_const("FFWtrEQ4B4PKQoVuHYzZq8FabGkVatYzDpEVHsK5rrhF"),
+            withdraw_authority: Pubkey::from_str_const(
+                "39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg",
+            ),
             fee_recipient: Pubkey::from_str_const("62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV"),
             initial_virtual_token_reserves: 1073000000000000,
             initial_virtual_sol_reserves: 30000000000,
             initial_real_token_reserves: 793100000000000,
             token_total_supply: 1000000000000000,
             fee_basis_points: 100,
+            pool_migration_fee: 15000001,
+            enable_migrate: true,
+            fee_recipients: [
+                Pubkey::from_str_const("7VtfL8fvgNfhz17qKRMjzQEXgbdpnHHHQRh54R9jP2RJ"),
+                Pubkey::from_str_const("7hTckgnGnLQR6sdH7YkqFTAA7VwTfYFaZ6EhEsU3saCX"),
+                Pubkey::from_str_const("9rPYyANsfQZw3DnDmKE3YCQF5E8oD89UXoHn9JFEhJUz"),
+                Pubkey::from_str_const("AVmoTthdrX6tKt4nDjco2D775W2YK3sDhxPcMmzUAmTY"),
+                Pubkey::from_str_const("CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM"),
+                Pubkey::from_str_const("FWsW1xNtWscwNmKv6wVsU1iTzRN6wmmk3MjxRP5tT7hz"),
+                Pubkey::from_str_const("G5UZAVbAf46s7cKWoyKu8kYTip9DGTpbLZ2qa9Aq69dP"),
+            ],
             ..Default::default()
         };
 

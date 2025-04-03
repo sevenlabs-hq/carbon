@@ -18,6 +18,7 @@ workspace_crates=(
     carbon-log-metrics
     carbon-prometheus-metrics
 
+    carbon-associated-token-account-decoder
     carbon-drift-v2-decoder
     carbon-fluxbeam-decoder
     carbon-jupiter-dca-decoder
@@ -50,7 +51,6 @@ workspace_crates=(
     carbon-raydium-liquidity-locking-decoder
     carbon-sharky-decoder
     carbon-solayer-restaking-program-decoder
-    carbon-spl-associated-token-account-decoder
     carbon-stabble-stable-swap-decoder
     carbon-stabble-weighted-swap-decoder
     carbon-stake-program-decoder
