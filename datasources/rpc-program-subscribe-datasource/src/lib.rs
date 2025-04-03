@@ -6,10 +6,11 @@ use {
         metrics::MetricsCollection,
     },
     futures::StreamExt,
+    solana_account::Account,
     solana_client::{
         nonblocking::pubsub_client::PubsubClient, rpc_config::RpcProgramAccountsConfig,
     },
-    solana_sdk::{account::Account, pubkey::Pubkey},
+    solana_pubkey::Pubkey,
     std::{str::FromStr, sync::Arc, time::Duration},
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
