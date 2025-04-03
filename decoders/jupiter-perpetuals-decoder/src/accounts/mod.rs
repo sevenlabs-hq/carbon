@@ -20,7 +20,7 @@ pub enum PerpetualsAccount {
     TokenLedger(token_ledger::TokenLedger),
 }
 
-impl<'a> AccountDecoder<'a> for PerpetualsDecoder {
+impl AccountDecoder<'_> for PerpetualsDecoder {
     type AccountType = PerpetualsAccount;
     fn decode_account(
         &self,

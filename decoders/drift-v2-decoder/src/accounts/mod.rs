@@ -44,7 +44,7 @@ pub enum DriftAccount {
     FuelOverflow(fuel_overflow::FuelOverflow),
 }
 
-impl<'a> AccountDecoder<'a> for DriftDecoder {
+impl AccountDecoder<'_> for DriftDecoder {
     type AccountType = DriftAccount;
     fn decode_account(
         &self,

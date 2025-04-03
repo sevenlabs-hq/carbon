@@ -12,7 +12,7 @@ pub enum WeightedSwapAccount {
     Vault(vault::Vault),
 }
 
-impl<'a> AccountDecoder<'a> for WeightedSwapDecoder {
+impl AccountDecoder<'_> for WeightedSwapDecoder {
     type AccountType = WeightedSwapAccount;
     fn decode_account(
         &self,

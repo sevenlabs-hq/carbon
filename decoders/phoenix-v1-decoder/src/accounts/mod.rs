@@ -12,7 +12,7 @@ pub enum PhoenixAccount {
     Seat(seat::Seat),
 }
 
-impl<'a> AccountDecoder<'a> for PhoenixDecoder {
+impl AccountDecoder<'_> for PhoenixDecoder {
     type AccountType = PhoenixAccount;
     fn decode_account(
         &self,

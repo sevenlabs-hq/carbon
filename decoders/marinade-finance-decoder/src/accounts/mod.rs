@@ -11,7 +11,7 @@ pub enum MarinadeFinanceAccount {
     State(state::State),
 }
 
-impl<'a> AccountDecoder<'a> for MarinadeFinanceDecoder {
+impl AccountDecoder<'_> for MarinadeFinanceDecoder {
     type AccountType = MarinadeFinanceAccount;
     fn decode_account(
         &self,

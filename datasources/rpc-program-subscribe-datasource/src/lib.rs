@@ -26,7 +26,7 @@ pub struct Filters {
 }
 
 impl Filters {
-    pub fn new(pubkey: Pubkey, program_subscribe_config: Option<RpcProgramAccountsConfig>) -> Self {
+    pub const fn new(pubkey: Pubkey, program_subscribe_config: Option<RpcProgramAccountsConfig>) -> Self {
         Filters {
             pubkey,
             program_subscribe_config,
@@ -40,7 +40,7 @@ pub struct RpcProgramSubscribe {
 }
 
 impl RpcProgramSubscribe {
-    pub fn new(rpc_ws_url: String, filters: Filters) -> Self {
+    pub const fn new(rpc_ws_url: String, filters: Filters) -> Self {
         Self {
             rpc_ws_url,
             filters,

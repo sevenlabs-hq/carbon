@@ -54,7 +54,7 @@ pub enum ZetaAccount {
     ReferrerPubkeyAccount(referrer_pubkey_account::ReferrerPubkeyAccount),
 }
 
-impl<'a> AccountDecoder<'a> for ZetaDecoder {
+impl AccountDecoder<'_> for ZetaDecoder {
     type AccountType = ZetaAccount;
     fn decode_account(
         &self,

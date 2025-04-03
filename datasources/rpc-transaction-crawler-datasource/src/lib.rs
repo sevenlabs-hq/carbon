@@ -34,7 +34,7 @@ pub struct Filters {
 }
 
 impl Filters {
-    pub fn new(
+    pub const fn new(
         accounts: Option<Vec<Pubkey>>,
         before_signature: Option<Signature>,
         until_signature: Option<Signature>,
@@ -58,7 +58,7 @@ pub struct RpcTransactionCrawler {
 }
 
 impl RpcTransactionCrawler {
-    pub fn new(
+    pub const fn new(
         rpc_url: String,
         account: Pubkey,
         batch_limit: usize,

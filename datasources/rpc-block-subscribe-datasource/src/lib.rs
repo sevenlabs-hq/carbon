@@ -27,7 +27,7 @@ pub struct Filters {
 }
 
 impl Filters {
-    pub fn new(
+    pub const fn new(
         block_filter: RpcBlockSubscribeFilter,
         block_subscribe_config: Option<RpcBlockSubscribeConfig>,
     ) -> Self {
@@ -44,7 +44,7 @@ pub struct RpcBlockSubscribe {
 }
 
 impl RpcBlockSubscribe {
-    pub fn new(rpc_ws_url: String, filters: Filters) -> Self {
+    pub const fn new(rpc_ws_url: String, filters: Filters) -> Self {
         Self {
             rpc_ws_url,
             filters,

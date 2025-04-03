@@ -12,7 +12,7 @@ pub enum RaydiumLiquidityLockingAccount {
     LockedClmmPositionState(locked_clmm_position_state::LockedClmmPositionState),
 }
 
-impl<'a> AccountDecoder<'a> for RaydiumLiquidityLockingDecoder {
+impl AccountDecoder<'_> for RaydiumLiquidityLockingDecoder {
     type AccountType = RaydiumLiquidityLockingAccount;
     fn decode_account(
         &self,

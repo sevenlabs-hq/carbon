@@ -55,7 +55,7 @@ pub enum PumpSwapInstruction {
     WithdrawEvent(withdraw_event::WithdrawEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for PumpSwapDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for PumpSwapDecoder {
     type InstructionType = PumpSwapInstruction;
 
     fn decode_instruction(

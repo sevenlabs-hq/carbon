@@ -25,7 +25,7 @@ pub enum RaydiumLiquidityLockingInstruction {
     SettleCpFeeEvent(settle_cp_fee_event::SettleCpFeeEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for RaydiumLiquidityLockingDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumLiquidityLockingDecoder {
     type InstructionType = RaydiumLiquidityLockingInstruction;
 
     fn decode_instruction(

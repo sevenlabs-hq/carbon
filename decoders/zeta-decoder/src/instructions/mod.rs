@@ -349,7 +349,7 @@ pub enum ZetaInstruction {
     PlaceMultiOrdersEvent(place_multi_orders_event::PlaceMultiOrdersEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for ZetaDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for ZetaDecoder {
     type InstructionType = ZetaInstruction;
 
     fn decode_instruction(
