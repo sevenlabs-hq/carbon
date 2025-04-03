@@ -7,20 +7,20 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct CloseMarket {}
 
 pub struct CloseMarketInstructionAccounts {
-    pub close_market_admin: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub bids: solana_sdk::pubkey::Pubkey,
-    pub asks: solana_sdk::pubkey::Pubkey,
-    pub event_heap: solana_sdk::pubkey::Pubkey,
-    pub sol_destination: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub close_market_admin: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub bids: solana_pubkey::Pubkey,
+    pub asks: solana_pubkey::Pubkey,
+    pub event_heap: solana_pubkey::Pubkey,
+    pub sol_destination: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CloseMarket {
     type ArrangedAccounts = CloseMarketInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [close_market_admin, market, bids, asks, event_heap, sol_destination, token_program, _remaining @ ..] =
             accounts

@@ -13,16 +13,16 @@ pub struct CreateAmmConfig {
 }
 
 pub struct CreateAmmConfigInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub amm_config: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub amm_config: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CreateAmmConfig {
     type ArrangedAccounts = CreateAmmConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, amm_config, system_program, _remaining @ ..] = accounts else {
             return None;

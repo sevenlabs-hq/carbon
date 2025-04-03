@@ -18,19 +18,19 @@ pub struct ConfidentialWithdraw {
 }
 
 pub struct ConfidentialWithdrawInstructionAccounts {
-    pub token: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub instructions_sysvar: solana_sdk::pubkey::Pubkey,
-    pub equality_record: solana_sdk::pubkey::Pubkey,
-    pub range_record: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub token: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub instructions_sysvar: solana_pubkey::Pubkey,
+    pub equality_record: solana_pubkey::Pubkey,
+    pub range_record: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ConfidentialWithdraw {
     type ArrangedAccounts = ConfidentialWithdrawInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [token, mint, instructions_sysvar, equality_record, range_record, authority, _remaining @ ..] =
             accounts

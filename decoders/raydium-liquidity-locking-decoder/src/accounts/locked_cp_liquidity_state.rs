@@ -9,9 +9,9 @@ pub struct LockedCpLiquidityState {
     pub last_lp: u64,
     pub last_k: u128,
     pub recent_epoch: u64,
-    pub pool_id: solana_sdk::pubkey::Pubkey,
-    pub fee_nft_mint: solana_sdk::pubkey::Pubkey,
-    pub locked_owner: solana_sdk::pubkey::Pubkey,
-    pub locked_lp_mint: solana_sdk::pubkey::Pubkey,
+    pub pool_id: solana_pubkey::Pubkey,
+    pub fee_nft_mint: solana_pubkey::Pubkey,
+    pub locked_owner: solana_pubkey::Pubkey,
+    pub locked_lp_mint: solana_pubkey::Pubkey,
     pub padding: [u64; 8],
 }

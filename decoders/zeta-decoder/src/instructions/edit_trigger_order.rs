@@ -18,15 +18,15 @@ pub struct EditTriggerOrder {
 }
 
 pub struct EditTriggerOrderInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub trigger_order: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub trigger_order: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for EditTriggerOrder {
     type ArrangedAccounts = EditTriggerOrderInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, trigger_order, _remaining @ ..] = accounts else {
             return None;

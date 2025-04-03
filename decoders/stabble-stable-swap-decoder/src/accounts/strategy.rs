@@ -3,7 +3,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(CarbonDeserialize, Debug)]
 #[carbon(discriminator = "0xae6e2777526aa966")]
 pub struct Strategy {
-    pub pool: solana_sdk::pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
     pub is_active: bool,
     pub amp_min_factor: u16,
     pub amp_max_factor: u16,

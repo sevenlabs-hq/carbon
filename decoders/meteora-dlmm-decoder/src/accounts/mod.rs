@@ -25,7 +25,7 @@ impl AccountDecoder<'_> for MeteoraDlmmDecoder {
     type AccountType = MeteoraDlmmAccount;
     fn decode_account(
         &self,
-        account: &solana_sdk::account::Account,
+        account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;

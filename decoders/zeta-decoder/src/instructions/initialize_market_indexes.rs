@@ -12,18 +12,18 @@ pub struct InitializeMarketIndexes {
 }
 
 pub struct InitializeMarketIndexesInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub market_indexes: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub pricing: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub market_indexes: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub pricing: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeMarketIndexes {
     type ArrangedAccounts = InitializeMarketIndexesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, market_indexes, admin, system_program, pricing, _remaining @ ..] = accounts
         else {

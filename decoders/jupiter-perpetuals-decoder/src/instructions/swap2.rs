@@ -11,30 +11,30 @@ pub struct Swap2 {
 }
 
 pub struct Swap2InstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub funding_account: solana_sdk::pubkey::Pubkey,
-    pub receiving_account: solana_sdk::pubkey::Pubkey,
-    pub transfer_authority: solana_sdk::pubkey::Pubkey,
-    pub perpetuals: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub receiving_custody: solana_sdk::pubkey::Pubkey,
-    pub receiving_custody_doves_price_account: solana_sdk::pubkey::Pubkey,
-    pub receiving_custody_pythnet_price_account: solana_sdk::pubkey::Pubkey,
-    pub receiving_custody_token_account: solana_sdk::pubkey::Pubkey,
-    pub dispensing_custody: solana_sdk::pubkey::Pubkey,
-    pub dispensing_custody_doves_price_account: solana_sdk::pubkey::Pubkey,
-    pub dispensing_custody_pythnet_price_account: solana_sdk::pubkey::Pubkey,
-    pub dispensing_custody_token_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub funding_account: solana_pubkey::Pubkey,
+    pub receiving_account: solana_pubkey::Pubkey,
+    pub transfer_authority: solana_pubkey::Pubkey,
+    pub perpetuals: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub receiving_custody: solana_pubkey::Pubkey,
+    pub receiving_custody_doves_price_account: solana_pubkey::Pubkey,
+    pub receiving_custody_pythnet_price_account: solana_pubkey::Pubkey,
+    pub receiving_custody_token_account: solana_pubkey::Pubkey,
+    pub dispensing_custody: solana_pubkey::Pubkey,
+    pub dispensing_custody_doves_price_account: solana_pubkey::Pubkey,
+    pub dispensing_custody_pythnet_price_account: solana_pubkey::Pubkey,
+    pub dispensing_custody_token_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Swap2 {
     type ArrangedAccounts = Swap2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, funding_account, receiving_account, transfer_authority, perpetuals, pool, receiving_custody, receiving_custody_doves_price_account, receiving_custody_pythnet_price_account, receiving_custody_token_account, dispensing_custody, dispensing_custody_doves_price_account, dispensing_custody_pythnet_price_account, dispensing_custody_token_account, token_program, event_authority, program, _remaining @ ..] =
             accounts

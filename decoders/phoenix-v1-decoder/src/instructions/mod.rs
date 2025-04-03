@@ -75,12 +75,12 @@ pub enum PhoenixInstruction {
     ChangeFeeRecipient(change_fee_recipient::ChangeFeeRecipient),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for PhoenixDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for PhoenixDecoder {
     type InstructionType = PhoenixInstruction;
 
     fn decode_instruction(
         &self,
-        instruction: &solana_sdk::instruction::Instruction,
+        instruction: &solana_instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         if !instruction.program_id.eq(&PROGRAM_ID) {
             return None;

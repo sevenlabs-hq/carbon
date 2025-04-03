@@ -6,13 +6,14 @@ use {
         metrics::MetricsCollection,
         transformers::transaction_metadata_from_original_meta,
     },
+    core::time::Duration,
     futures::StreamExt,
     solana_client::{
         nonblocking::pubsub_client::PubsubClient,
         rpc_client::SerializableTransaction,
         rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
     },
-    std::{sync::Arc, time::Duration},
+    std::sync::Arc,
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
@@ -27,7 +28,7 @@ pub struct Filters {
 }
 
 impl Filters {
-    pub fn new(
+    pub const fn new(
         block_filter: RpcBlockSubscribeFilter,
         block_subscribe_config: Option<RpcBlockSubscribeConfig>,
     ) -> Self {
@@ -44,7 +45,7 @@ pub struct RpcBlockSubscribe {
 }
 
 impl RpcBlockSubscribe {
-    pub fn new(rpc_ws_url: String, filters: Filters) -> Self {
+    pub const fn new(rpc_ws_url: String, filters: Filters) -> Self {
         Self {
             rpc_ws_url,
             filters,

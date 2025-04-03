@@ -6,5 +6,5 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub enum RuleSetToggle {
     None,
     Clear,
-    Set(solana_sdk::pubkey::Pubkey),
+    Set(solana_pubkey::Pubkey),
 }

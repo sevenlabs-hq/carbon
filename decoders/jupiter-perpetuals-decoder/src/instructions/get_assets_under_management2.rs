@@ -11,15 +11,15 @@ pub struct GetAssetsUnderManagement2 {
 }
 
 pub struct GetAssetsUnderManagement2InstructionAccounts {
-    pub perpetuals: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
+    pub perpetuals: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for GetAssetsUnderManagement2 {
     type ArrangedAccounts = GetAssetsUnderManagement2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [perpetuals, pool, _remaining @ ..] = accounts else {
             return None;

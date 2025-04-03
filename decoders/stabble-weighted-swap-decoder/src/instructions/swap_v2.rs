@@ -10,28 +10,28 @@ pub struct SwapV2 {
 }
 
 pub struct SwapV2InstructionAccounts {
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub mint_in: solana_sdk::pubkey::Pubkey,
-    pub mint_out: solana_sdk::pubkey::Pubkey,
-    pub user_token_in: solana_sdk::pubkey::Pubkey,
-    pub user_token_out: solana_sdk::pubkey::Pubkey,
-    pub vault_token_in: solana_sdk::pubkey::Pubkey,
-    pub vault_token_out: solana_sdk::pubkey::Pubkey,
-    pub beneficiary_token_out: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub withdraw_authority: solana_sdk::pubkey::Pubkey,
-    pub vault: solana_sdk::pubkey::Pubkey,
-    pub vault_authority: solana_sdk::pubkey::Pubkey,
-    pub vault_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub token_2022_program: solana_sdk::pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub mint_in: solana_pubkey::Pubkey,
+    pub mint_out: solana_pubkey::Pubkey,
+    pub user_token_in: solana_pubkey::Pubkey,
+    pub user_token_out: solana_pubkey::Pubkey,
+    pub vault_token_in: solana_pubkey::Pubkey,
+    pub vault_token_out: solana_pubkey::Pubkey,
+    pub beneficiary_token_out: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub withdraw_authority: solana_pubkey::Pubkey,
+    pub vault: solana_pubkey::Pubkey,
+    pub vault_authority: solana_pubkey::Pubkey,
+    pub vault_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub token_2022_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SwapV2 {
     type ArrangedAccounts = SwapV2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [user, mint_in, mint_out, user_token_in, user_token_out, vault_token_in, vault_token_out, beneficiary_token_out, pool, withdraw_authority, vault, vault_authority, vault_program, token_program, token_2022_program, _remaining @ ..] =
             accounts

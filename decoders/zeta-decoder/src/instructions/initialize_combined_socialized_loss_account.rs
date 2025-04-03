@@ -9,19 +9,19 @@ pub struct InitializeCombinedSocializedLossAccount {
 }
 
 pub struct InitializeCombinedSocializedLossAccountInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub socialized_loss_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub usdc_mint: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub socialized_loss_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub usdc_mint: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeCombinedSocializedLossAccount {
     type ArrangedAccounts = InitializeCombinedSocializedLossAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, socialized_loss_account, token_program, usdc_mint, admin, system_program, _remaining @ ..] =
             accounts

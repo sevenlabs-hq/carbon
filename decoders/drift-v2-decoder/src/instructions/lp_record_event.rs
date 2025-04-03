@@ -8,7 +8,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0xe445a52e51cb9a1d65163626b20d8e6f")]
 pub struct LpRecordEvent {
     pub ts: i64,
-    pub user: solana_sdk::pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
     pub action: LPAction,
     pub n_shares: u64,
     pub market_index: u16,

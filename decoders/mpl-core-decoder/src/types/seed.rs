@@ -8,6 +8,6 @@ pub enum Seed {
     Owner,
     Recipient,
     Asset,
-    Address(solana_sdk::pubkey::Pubkey),
+    Address(solana_pubkey::Pubkey),
     Bytes(Vec<u8>),
 }

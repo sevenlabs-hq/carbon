@@ -8,25 +8,25 @@ pub struct MigrateFunds {}
 
 #[derive(Debug, PartialEq)]
 pub struct MigrateFundsInstructionAccounts {
-    pub backend_authority: solana_sdk::pubkey::Pubkey,
-    pub migration_authority: solana_sdk::pubkey::Pubkey,
-    pub curve_account: solana_sdk::pubkey::Pubkey,
-    pub curve_token_account: solana_sdk::pubkey::Pubkey,
-    pub migration_authority_token_account: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub dex_fee_account: solana_sdk::pubkey::Pubkey,
-    pub helio_fee_account: solana_sdk::pubkey::Pubkey,
-    pub config_account: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
+    pub backend_authority: solana_pubkey::Pubkey,
+    pub migration_authority: solana_pubkey::Pubkey,
+    pub curve_account: solana_pubkey::Pubkey,
+    pub curve_token_account: solana_pubkey::Pubkey,
+    pub migration_authority_token_account: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub dex_fee_account: solana_pubkey::Pubkey,
+    pub helio_fee_account: solana_pubkey::Pubkey,
+    pub config_account: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for MigrateFunds {
     type ArrangedAccounts = MigrateFundsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [backend_authority, migration_authority, curve_account, curve_token_account, migration_authority_token_account, mint, dex_fee_account, helio_fee_account, config_account, system_program, token_program, associated_token_program, _remaining @ ..] =
             accounts

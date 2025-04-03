@@ -9,15 +9,15 @@ pub struct DisableConfidentialCredits {
 }
 
 pub struct DisableConfidentialCreditsInstructionAccounts {
-    pub token: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub token: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DisableConfidentialCredits {
     type ArrangedAccounts = DisableConfidentialCreditsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [token, authority, _remaining @ ..] = accounts else {
             return None;

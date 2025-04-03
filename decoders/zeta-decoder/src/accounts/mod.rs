@@ -54,11 +54,11 @@ pub enum ZetaAccount {
     ReferrerPubkeyAccount(referrer_pubkey_account::ReferrerPubkeyAccount),
 }
 
-impl<'a> AccountDecoder<'a> for ZetaDecoder {
+impl AccountDecoder<'_> for ZetaDecoder {
     type AccountType = ZetaAccount;
     fn decode_account(
         &self,
-        account: &solana_sdk::account::Account,
+        account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;

@@ -7,7 +7,7 @@ impl AccountDecoder<'_> for SplAssociatedTokenAccountDecoder {
     type AccountType = SplAssociatedTokenAccountAccount;
     fn decode_account(
         &self,
-        _account: &solana_sdk::account::Account,
+        _account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         None
     }

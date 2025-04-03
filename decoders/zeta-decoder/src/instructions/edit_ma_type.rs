@@ -11,16 +11,16 @@ pub struct EditMaType {
 }
 
 pub struct EditMaTypeInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub margin_account: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub margin_account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for EditMaType {
     type ArrangedAccounts = EditMaTypeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, admin, margin_account, _remaining @ ..] = accounts else {
             return None;

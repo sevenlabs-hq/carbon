@@ -9,28 +9,28 @@ pub struct StakeReserve {
 }
 
 pub struct StakeReserveInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub validator_list: solana_sdk::pubkey::Pubkey,
-    pub stake_list: solana_sdk::pubkey::Pubkey,
-    pub validator_vote: solana_sdk::pubkey::Pubkey,
-    pub reserve_pda: solana_sdk::pubkey::Pubkey,
-    pub stake_account: solana_sdk::pubkey::Pubkey,
-    pub stake_deposit_authority: solana_sdk::pubkey::Pubkey,
-    pub rent_payer: solana_sdk::pubkey::Pubkey,
-    pub clock: solana_sdk::pubkey::Pubkey,
-    pub epoch_schedule: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub stake_history: solana_sdk::pubkey::Pubkey,
-    pub stake_config: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub stake_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub validator_list: solana_pubkey::Pubkey,
+    pub stake_list: solana_pubkey::Pubkey,
+    pub validator_vote: solana_pubkey::Pubkey,
+    pub reserve_pda: solana_pubkey::Pubkey,
+    pub stake_account: solana_pubkey::Pubkey,
+    pub stake_deposit_authority: solana_pubkey::Pubkey,
+    pub rent_payer: solana_pubkey::Pubkey,
+    pub clock: solana_pubkey::Pubkey,
+    pub epoch_schedule: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub stake_history: solana_pubkey::Pubkey,
+    pub stake_config: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub stake_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for StakeReserve {
     type ArrangedAccounts = StakeReserveInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, validator_list, stake_list, validator_vote, reserve_pda, stake_account, stake_deposit_authority, rent_payer, clock, epoch_schedule, rent, stake_history, stake_config, system_program, stake_program, _remaining @ ..] =
             accounts

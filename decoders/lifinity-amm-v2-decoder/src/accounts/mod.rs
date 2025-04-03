@@ -10,11 +10,11 @@ pub enum LifinityAmmV2Account {
     Amm(amm::Amm),
 }
 
-impl<'a> AccountDecoder<'a> for LifinityAmmV2Decoder {
+impl AccountDecoder<'_> for LifinityAmmV2Decoder {
     type AccountType = LifinityAmmV2Account;
     fn decode_account(
         &self,
-        account: &solana_sdk::account::Account,
+        account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;
@@ -36,7 +36,6 @@ impl<'a> AccountDecoder<'a> for LifinityAmmV2Decoder {
 
 #[cfg(test)]
 mod tests {
-    use solana_sdk::pubkey;
 
     use super::super::types::*;
     use super::*;
@@ -44,9 +43,15 @@ mod tests {
     #[test]
     fn test_decode_amm_account() {
         let expected_amm_account = amm::Amm {
-            initializer_key: pubkey!("11111111111111111111111111111111"),
-            initializer_deposit_token_account: pubkey!("11111111111111111111111111111111"),
-            initializer_receive_token_account: pubkey!("11111111111111111111111111111111"),
+            initializer_key: solana_pubkey::Pubkey::from_str_const(
+                "11111111111111111111111111111111",
+            ),
+            initializer_deposit_token_account: solana_pubkey::Pubkey::from_str_const(
+                "11111111111111111111111111111111",
+            ),
+            initializer_receive_token_account: solana_pubkey::Pubkey::from_str_const(
+                "11111111111111111111111111111111",
+            ),
             initializer_amount: 0,
             taker_amount: 0,
             is_initialized: true,
@@ -55,16 +60,36 @@ mod tests {
             freeze_deposit: 1,
             freeze_withdraw: 0,
             base_decimals: 11,
-            token_program_id: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-            token_a_account: pubkey!("9xNYopD8DTGm2M489XavdnMshBYA81RqJeEPoTUB6sNL"),
-            token_b_account: pubkey!("HzFLZptVPTGd3bj1fNQXeUbpUxVm6t8f9i1BsuLo41zj"),
-            pool_mint: pubkey!("FGPYaW5HRuMhw9y68UHSecA6mLdc3JbLfdvq11DZePRH"),
-            token_a_mint: pubkey!("7GCihgDB8fe6KNjn2MYtkzZcRjQy3t9GHdC8uHYmW2hr"),
-            token_b_mint: pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
-            fee_account: pubkey!("GbbjF9fnx6dRjqcbEbkuRPRd41r3CgSue8av4sad79rX"),
-            oracle_main_account: pubkey!("5A2LoA3rHP51WDfGVKbrmrDkeTLVBTiV4uvjJBDKHK2X"),
-            oracle_sub_account: pubkey!("5A2LoA3rHP51WDfGVKbrmrDkeTLVBTiV4uvjJBDKHK2X"),
-            oracle_pc_account: pubkey!("FVAouryrBKKtgSf4jBqU5UwuwwrT6TUniSwQC7TJXDTK"),
+            token_program_id: solana_pubkey::Pubkey::from_str_const(
+                "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            ),
+            token_a_account: solana_pubkey::Pubkey::from_str_const(
+                "9xNYopD8DTGm2M489XavdnMshBYA81RqJeEPoTUB6sNL",
+            ),
+            token_b_account: solana_pubkey::Pubkey::from_str_const(
+                "HzFLZptVPTGd3bj1fNQXeUbpUxVm6t8f9i1BsuLo41zj",
+            ),
+            pool_mint: solana_pubkey::Pubkey::from_str_const(
+                "FGPYaW5HRuMhw9y68UHSecA6mLdc3JbLfdvq11DZePRH",
+            ),
+            token_a_mint: solana_pubkey::Pubkey::from_str_const(
+                "7GCihgDB8fe6KNjn2MYtkzZcRjQy3t9GHdC8uHYmW2hr",
+            ),
+            token_b_mint: solana_pubkey::Pubkey::from_str_const(
+                "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            ),
+            fee_account: solana_pubkey::Pubkey::from_str_const(
+                "GbbjF9fnx6dRjqcbEbkuRPRd41r3CgSue8av4sad79rX",
+            ),
+            oracle_main_account: solana_pubkey::Pubkey::from_str_const(
+                "5A2LoA3rHP51WDfGVKbrmrDkeTLVBTiV4uvjJBDKHK2X",
+            ),
+            oracle_sub_account: solana_pubkey::Pubkey::from_str_const(
+                "5A2LoA3rHP51WDfGVKbrmrDkeTLVBTiV4uvjJBDKHK2X",
+            ),
+            oracle_pc_account: solana_pubkey::Pubkey::from_str_const(
+                "FVAouryrBKKtgSf4jBqU5UwuwwrT6TUniSwQC7TJXDTK",
+            ),
             fees: AmmFees {
                 trade_fee_numerator: 0,
                 trade_fee_denominator: 1_000_000,
@@ -110,11 +135,11 @@ mod tests {
                 config_temp7: 0,
                 config_temp8: 0,
             },
-            amm_p_temp1: pubkey!("11111111111111111111111111111111"),
-            amm_p_temp2: pubkey!("11111111111111111111111111111111"),
-            amm_p_temp3: pubkey!("11111111111111111111111111111111"),
-            amm_p_temp4: pubkey!("11111111111111111111111111111111"),
-            amm_p_temp5: pubkey!("11111111111111111111111111111111"),
+            amm_p_temp1: solana_pubkey::Pubkey::from_str_const("11111111111111111111111111111111"),
+            amm_p_temp2: solana_pubkey::Pubkey::from_str_const("11111111111111111111111111111111"),
+            amm_p_temp3: solana_pubkey::Pubkey::from_str_const("11111111111111111111111111111111"),
+            amm_p_temp4: solana_pubkey::Pubkey::from_str_const("11111111111111111111111111111111"),
+            amm_p_temp5: solana_pubkey::Pubkey::from_str_const("11111111111111111111111111111111"),
         };
 
         let decoder = LifinityAmmV2Decoder;

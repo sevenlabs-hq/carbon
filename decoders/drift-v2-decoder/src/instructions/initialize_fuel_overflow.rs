@@ -7,19 +7,19 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct InitializeFuelOverflow {}
 
 pub struct InitializeFuelOverflowInstructionAccounts {
-    pub fuel_overflow: solana_sdk::pubkey::Pubkey,
-    pub user_stats: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub fuel_overflow: solana_pubkey::Pubkey,
+    pub user_stats: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeFuelOverflow {
     type ArrangedAccounts = InitializeFuelOverflowInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [fuel_overflow, user_stats, authority, payer, rent, system_program, _remaining @ ..] =
             accounts

@@ -11,15 +11,15 @@ pub struct OperatorSetCustodyConfig {
 }
 
 pub struct OperatorSetCustodyConfigInstructionAccounts {
-    pub operator: solana_sdk::pubkey::Pubkey,
-    pub custody: solana_sdk::pubkey::Pubkey,
+    pub operator: solana_pubkey::Pubkey,
+    pub custody: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for OperatorSetCustodyConfig {
     type ArrangedAccounts = OperatorSetCustodyConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [operator, custody, _remaining @ ..] = accounts else {
             return None;

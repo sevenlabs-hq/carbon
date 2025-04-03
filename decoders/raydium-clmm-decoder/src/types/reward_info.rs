@@ -11,8 +11,8 @@ pub struct RewardInfo {
     pub emissions_per_second_x64: u128,
     pub reward_total_emissioned: u64,
     pub reward_claimed: u64,
-    pub token_mint: solana_sdk::pubkey::Pubkey,
-    pub token_vault: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub token_mint: solana_pubkey::Pubkey,
+    pub token_vault: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
     pub reward_growth_global_x64: u128,
 }

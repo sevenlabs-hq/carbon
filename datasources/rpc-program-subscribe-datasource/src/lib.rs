@@ -6,10 +6,11 @@ use {
         metrics::MetricsCollection,
     },
     futures::StreamExt,
+    solana_account::Account,
     solana_client::{
         nonblocking::pubsub_client::PubsubClient, rpc_config::RpcProgramAccountsConfig,
     },
-    solana_sdk::{account::Account, pubkey::Pubkey},
+    solana_pubkey::Pubkey,
     std::{str::FromStr, sync::Arc, time::Duration},
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
@@ -25,7 +26,7 @@ pub struct Filters {
 }
 
 impl Filters {
-    pub fn new(pubkey: Pubkey, program_subscribe_config: Option<RpcProgramAccountsConfig>) -> Self {
+    pub const fn new(pubkey: Pubkey, program_subscribe_config: Option<RpcProgramAccountsConfig>) -> Self {
         Filters {
             pubkey,
             program_subscribe_config,
@@ -39,7 +40,7 @@ pub struct RpcProgramSubscribe {
 }
 
 impl RpcProgramSubscribe {
-    pub fn new(rpc_ws_url: String, filters: Filters) -> Self {
+    pub const fn new(rpc_ws_url: String, filters: Filters) -> Self {
         Self {
             rpc_ws_url,
             filters,

@@ -7,19 +7,19 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct ClosePosition {}
 
 pub struct ClosePositionInstructionAccounts {
-    pub nft_owner: solana_sdk::pubkey::Pubkey,
-    pub position_nft_mint: solana_sdk::pubkey::Pubkey,
-    pub position_nft_account: solana_sdk::pubkey::Pubkey,
-    pub personal_position: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub nft_owner: solana_pubkey::Pubkey,
+    pub position_nft_mint: solana_pubkey::Pubkey,
+    pub position_nft_account: solana_pubkey::Pubkey,
+    pub personal_position: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ClosePosition {
     type ArrangedAccounts = ClosePositionInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [nft_owner, position_nft_mint, position_nft_account, personal_position, system_program, token_program, _remaining @ ..] =
             accounts

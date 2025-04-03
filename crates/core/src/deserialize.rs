@@ -110,13 +110,9 @@ pub trait ArrangeAccounts {
 
 /// A wrapper type for strings that are prefixed with their length.
 #[derive(serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone)]
+#[derive(Default)]
 pub struct PrefixString(pub String);
 
-impl Default for PrefixString {
-    fn default() -> Self {
-        Self(String::default())
-    }
-}
 
 impl Deref for PrefixString {
     type Target = String;
@@ -157,13 +153,9 @@ impl crate::borsh::BorshDeserialize for PrefixString {
 
 /// A wrapper type for strings that are prefixed with their length.
 #[derive(serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone)]
+#[derive(Default)]
 pub struct U64PrefixString(pub String);
 
-impl Default for U64PrefixString {
-    fn default() -> Self {
-        Self(String::default())
-    }
-}
 
 impl Deref for U64PrefixString {
     type Target = String;

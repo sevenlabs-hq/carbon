@@ -9,24 +9,24 @@ pub struct HarvestReward {
 }
 
 pub struct HarvestRewardInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub user_state: solana_sdk::pubkey::Pubkey,
-    pub farm_state: solana_sdk::pubkey::Pubkey,
-    pub global_config: solana_sdk::pubkey::Pubkey,
-    pub reward_mint: solana_sdk::pubkey::Pubkey,
-    pub user_reward_ata: solana_sdk::pubkey::Pubkey,
-    pub rewards_vault: solana_sdk::pubkey::Pubkey,
-    pub rewards_treasury_vault: solana_sdk::pubkey::Pubkey,
-    pub farm_vaults_authority: solana_sdk::pubkey::Pubkey,
-    pub scope_prices: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub user_state: solana_pubkey::Pubkey,
+    pub farm_state: solana_pubkey::Pubkey,
+    pub global_config: solana_pubkey::Pubkey,
+    pub reward_mint: solana_pubkey::Pubkey,
+    pub user_reward_ata: solana_pubkey::Pubkey,
+    pub rewards_vault: solana_pubkey::Pubkey,
+    pub rewards_treasury_vault: solana_pubkey::Pubkey,
+    pub farm_vaults_authority: solana_pubkey::Pubkey,
+    pub scope_prices: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for HarvestReward {
     type ArrangedAccounts = HarvestRewardInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, user_state, farm_state, global_config, reward_mint, user_reward_ata, rewards_vault, rewards_treasury_vault, farm_vaults_authority, scope_prices, token_program, _remaining @ ..] =
             accounts

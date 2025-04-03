@@ -9,17 +9,17 @@ pub struct InitializeReferrerAccounts {
 }
 
 pub struct InitializeReferrerAccountsInstructionAccounts {
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub referrer_id_account: solana_sdk::pubkey::Pubkey,
-    pub referrer_pubkey_account: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub referrer_id_account: solana_pubkey::Pubkey,
+    pub referrer_pubkey_account: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeReferrerAccounts {
     type ArrangedAccounts = InitializeReferrerAccountsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [authority, referrer_id_account, referrer_pubkey_account, system_program, _remaining @ ..] =
             accounts

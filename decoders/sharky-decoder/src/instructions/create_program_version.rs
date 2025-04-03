@@ -9,17 +9,17 @@ pub struct CreateProgramVersion {
 }
 
 pub struct CreateProgramVersionInstructionAccounts {
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub program_version: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub program_version: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CreateProgramVersion {
     type ArrangedAccounts = CreateProgramVersionInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [authority, program_version, system_program, rent, _remaining @ ..] = accounts else {
             return None;

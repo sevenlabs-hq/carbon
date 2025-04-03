@@ -7,26 +7,26 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct InitializeReward {
     pub reward_index: u64,
     pub reward_duration: u64,
-    pub funder: solana_sdk::pubkey::Pubkey,
+    pub funder: solana_pubkey::Pubkey,
 }
 
 pub struct InitializeRewardInstructionAccounts {
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
-    pub reward_vault: solana_sdk::pubkey::Pubkey,
-    pub reward_mint: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
+    pub reward_vault: solana_pubkey::Pubkey,
+    pub reward_mint: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeReward {
     type ArrangedAccounts = InitializeRewardInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [lb_pair, reward_vault, reward_mint, admin, token_program, system_program, rent, event_authority, program, _remaining @ ..] =
             accounts

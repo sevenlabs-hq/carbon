@@ -9,16 +9,16 @@ pub struct UpdateSpotMarketIfPausedOperations {
 }
 
 pub struct UpdateSpotMarketIfPausedOperationsInstructionAccounts {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub spot_market: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub spot_market: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateSpotMarketIfPausedOperations {
     type ArrangedAccounts = UpdateSpotMarketIfPausedOperationsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, state, spot_market, _remaining @ ..] = accounts else {
             return None;

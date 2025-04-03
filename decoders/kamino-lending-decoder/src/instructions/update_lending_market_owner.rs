@@ -7,15 +7,15 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct UpdateLendingMarketOwner {}
 
 pub struct UpdateLendingMarketOwnerInstructionAccounts {
-    pub lending_market_owner_cached: solana_sdk::pubkey::Pubkey,
-    pub lending_market: solana_sdk::pubkey::Pubkey,
+    pub lending_market_owner_cached: solana_pubkey::Pubkey,
+    pub lending_market: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateLendingMarketOwner {
     type ArrangedAccounts = UpdateLendingMarketOwnerInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [lending_market_owner_cached, lending_market, _remaining @ ..] = accounts else {
             return None;

@@ -349,12 +349,12 @@ pub enum ZetaInstruction {
     PlaceMultiOrdersEvent(place_multi_orders_event::PlaceMultiOrdersEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for ZetaDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for ZetaDecoder {
     type InstructionType = ZetaInstruction;
 
     fn decode_instruction(
         &self,
-        instruction: &solana_sdk::instruction::Instruction,
+        instruction: &solana_instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         if !instruction.program_id.eq(&PROGRAM_ID) {
             return None;

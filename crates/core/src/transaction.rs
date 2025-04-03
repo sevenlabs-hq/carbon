@@ -40,10 +40,11 @@ use {
         transformers,
     },
     async_trait::async_trait,
+    core::convert::TryFrom,
     serde::de::DeserializeOwned,
     solana_pubkey::Pubkey,
     solana_signature::Signature,
-    std::{convert::TryFrom, sync::Arc},
+    std::sync::Arc,
 };
 /// Contains metadata about a transaction, including its slot, signature, fee
 /// payer, transaction status metadata, the version transaction message and its

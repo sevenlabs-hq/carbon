@@ -9,15 +9,15 @@ pub struct SetPreActivationDuration {
 }
 
 pub struct SetPreActivationDurationInstructionAccounts {
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
-    pub creator: solana_sdk::pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
+    pub creator: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetPreActivationDuration {
     type ArrangedAccounts = SetPreActivationDurationInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [lb_pair, creator, _remaining @ ..] = accounts else {
             return None;

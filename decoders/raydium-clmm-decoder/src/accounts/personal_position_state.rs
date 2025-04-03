@@ -7,8 +7,8 @@ use {
 #[carbon(discriminator = "0x466f967ee60f1975")]
 pub struct PersonalPositionState {
     pub bump: u8,
-    pub nft_mint: solana_sdk::pubkey::Pubkey,
-    pub pool_id: solana_sdk::pubkey::Pubkey,
+    pub nft_mint: solana_pubkey::Pubkey,
+    pub pool_id: solana_pubkey::Pubkey,
     pub tick_lower_index: i32,
     pub tick_upper_index: i32,
     pub liquidity: u128,

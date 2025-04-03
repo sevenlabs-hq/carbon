@@ -13,7 +13,7 @@ pub enum UpdateLendingMarketConfigValue {
     U16(u16),
     U64(u64),
     U128(u128),
-    Pubkey(solana_sdk::pubkey::Pubkey),
+    Pubkey(solana_pubkey::Pubkey),
     ElevationGroup(ElevationGroup),
     Name([u8; 32]),
 }

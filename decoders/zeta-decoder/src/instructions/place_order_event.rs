@@ -12,7 +12,7 @@ pub struct PlaceOrderEvent {
     pub order_id: u128,
     pub expiry_ts: u64,
     pub asset: Asset,
-    pub margin_account: solana_sdk::pubkey::Pubkey,
+    pub margin_account: solana_pubkey::Pubkey,
     pub client_order_id: u64,
-    pub user: solana_sdk::pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
 }

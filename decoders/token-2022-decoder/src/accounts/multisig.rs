@@ -6,5 +6,5 @@ pub struct Multisig {
     pub m: u8,
     pub n: u8,
     pub is_initialized: bool,
-    pub signers: [solana_sdk::pubkey::Pubkey; 11],
+    pub signers: [solana_pubkey::Pubkey; 11],
 }

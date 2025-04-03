@@ -5,8 +5,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0xe445a52e51cb9a1d516ce3becdd00ac4")]
 pub struct SwapEvent {
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
-    pub from: solana_sdk::pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
+    pub from: solana_pubkey::Pubkey,
     pub start_bin_id: i32,
     pub end_bin_id: i32,
     pub amount_in: u64,

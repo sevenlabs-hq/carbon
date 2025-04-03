@@ -4,7 +4,7 @@ use carbon_core::{borsh, CarbonDeserialize};
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub struct ValidatorRecord {
-    pub validator_account: solana_sdk::pubkey::Pubkey,
+    pub validator_account: solana_pubkey::Pubkey,
     pub active_balance: u64,
     pub score: u32,
     pub last_stake_delta_epoch: u64,

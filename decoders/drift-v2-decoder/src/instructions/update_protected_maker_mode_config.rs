@@ -10,16 +10,16 @@ pub struct UpdateProtectedMakerModeConfig {
 }
 
 pub struct UpdateProtectedMakerModeConfigInstructionAccounts {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub protected_maker_mode_config: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub protected_maker_mode_config: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateProtectedMakerModeConfig {
     type ArrangedAccounts = UpdateProtectedMakerModeConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, protected_maker_mode_config, state, _remaining @ ..] = accounts else {
             return None;

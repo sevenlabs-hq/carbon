@@ -7,21 +7,21 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct SetAndVerifyCollection {}
 
 pub struct SetAndVerifyCollectionInstructionAccounts {
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub collection_authority: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub update_authority: solana_sdk::pubkey::Pubkey,
-    pub collection_mint: solana_sdk::pubkey::Pubkey,
-    pub collection: solana_sdk::pubkey::Pubkey,
-    pub collection_master_edition_account: solana_sdk::pubkey::Pubkey,
-    pub collection_authority_record: solana_sdk::pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub collection_authority: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub update_authority: solana_pubkey::Pubkey,
+    pub collection_mint: solana_pubkey::Pubkey,
+    pub collection: solana_pubkey::Pubkey,
+    pub collection_master_edition_account: solana_pubkey::Pubkey,
+    pub collection_authority_record: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetAndVerifyCollection {
     type ArrangedAccounts = SetAndVerifyCollectionInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [metadata, collection_authority, payer, update_authority, collection_mint, collection, collection_master_edition_account, collection_authority_record, _remaining @ ..] =
             accounts

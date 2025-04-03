@@ -11,36 +11,36 @@ pub struct FlashTakeOrderStart {
 }
 
 pub struct FlashTakeOrderStartInstructionAccounts {
-    pub taker: solana_sdk::pubkey::Pubkey,
-    pub maker: solana_sdk::pubkey::Pubkey,
-    pub global_config: solana_sdk::pubkey::Pubkey,
-    pub pda_authority: solana_sdk::pubkey::Pubkey,
-    pub order: solana_sdk::pubkey::Pubkey,
-    pub input_mint: solana_sdk::pubkey::Pubkey,
-    pub output_mint: solana_sdk::pubkey::Pubkey,
-    pub input_vault: solana_sdk::pubkey::Pubkey,
-    pub taker_input_ata: solana_sdk::pubkey::Pubkey,
-    pub taker_output_ata: solana_sdk::pubkey::Pubkey,
-    pub intermediary_output_token_account: solana_sdk::pubkey::Pubkey,
-    pub maker_output_ata: solana_sdk::pubkey::Pubkey,
-    pub express_relay: solana_sdk::pubkey::Pubkey,
-    pub express_relay_metadata: solana_sdk::pubkey::Pubkey,
-    pub sysvar_instructions: solana_sdk::pubkey::Pubkey,
-    pub permission: solana_sdk::pubkey::Pubkey,
-    pub config_router: solana_sdk::pubkey::Pubkey,
-    pub input_token_program: solana_sdk::pubkey::Pubkey,
-    pub output_token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub taker: solana_pubkey::Pubkey,
+    pub maker: solana_pubkey::Pubkey,
+    pub global_config: solana_pubkey::Pubkey,
+    pub pda_authority: solana_pubkey::Pubkey,
+    pub order: solana_pubkey::Pubkey,
+    pub input_mint: solana_pubkey::Pubkey,
+    pub output_mint: solana_pubkey::Pubkey,
+    pub input_vault: solana_pubkey::Pubkey,
+    pub taker_input_ata: solana_pubkey::Pubkey,
+    pub taker_output_ata: solana_pubkey::Pubkey,
+    pub intermediary_output_token_account: solana_pubkey::Pubkey,
+    pub maker_output_ata: solana_pubkey::Pubkey,
+    pub express_relay: solana_pubkey::Pubkey,
+    pub express_relay_metadata: solana_pubkey::Pubkey,
+    pub sysvar_instructions: solana_pubkey::Pubkey,
+    pub permission: solana_pubkey::Pubkey,
+    pub config_router: solana_pubkey::Pubkey,
+    pub input_token_program: solana_pubkey::Pubkey,
+    pub output_token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for FlashTakeOrderStart {
     type ArrangedAccounts = FlashTakeOrderStartInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [taker, maker, global_config, pda_authority, order, input_mint, output_mint, input_vault, taker_input_ata, taker_output_ata, intermediary_output_token_account, maker_output_ata, express_relay, express_relay_metadata, sysvar_instructions, permission, config_router, input_token_program, output_token_program, system_program, rent, event_authority, program, _remaining @ ..] =
             accounts

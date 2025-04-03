@@ -15,34 +15,34 @@ pub struct TwoHopSwap {
 }
 
 pub struct TwoHopSwapInstructionAccounts {
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub token_authority: solana_sdk::pubkey::Pubkey,
-    pub whirlpool_one: solana_sdk::pubkey::Pubkey,
-    pub whirlpool_two: solana_sdk::pubkey::Pubkey,
-    pub token_owner_account_one_a: solana_sdk::pubkey::Pubkey,
-    pub token_vault_one_a: solana_sdk::pubkey::Pubkey,
-    pub token_owner_account_one_b: solana_sdk::pubkey::Pubkey,
-    pub token_vault_one_b: solana_sdk::pubkey::Pubkey,
-    pub token_owner_account_two_a: solana_sdk::pubkey::Pubkey,
-    pub token_vault_two_a: solana_sdk::pubkey::Pubkey,
-    pub token_owner_account_two_b: solana_sdk::pubkey::Pubkey,
-    pub token_vault_two_b: solana_sdk::pubkey::Pubkey,
-    pub tick_array_one0: solana_sdk::pubkey::Pubkey,
-    pub tick_array_one1: solana_sdk::pubkey::Pubkey,
-    pub tick_array_one2: solana_sdk::pubkey::Pubkey,
-    pub tick_array_two0: solana_sdk::pubkey::Pubkey,
-    pub tick_array_two1: solana_sdk::pubkey::Pubkey,
-    pub tick_array_two2: solana_sdk::pubkey::Pubkey,
-    pub oracle_one: solana_sdk::pubkey::Pubkey,
-    pub oracle_two: solana_sdk::pubkey::Pubkey,
-    pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    pub token_program: solana_pubkey::Pubkey,
+    pub token_authority: solana_pubkey::Pubkey,
+    pub whirlpool_one: solana_pubkey::Pubkey,
+    pub whirlpool_two: solana_pubkey::Pubkey,
+    pub token_owner_account_one_a: solana_pubkey::Pubkey,
+    pub token_vault_one_a: solana_pubkey::Pubkey,
+    pub token_owner_account_one_b: solana_pubkey::Pubkey,
+    pub token_vault_one_b: solana_pubkey::Pubkey,
+    pub token_owner_account_two_a: solana_pubkey::Pubkey,
+    pub token_vault_two_a: solana_pubkey::Pubkey,
+    pub token_owner_account_two_b: solana_pubkey::Pubkey,
+    pub token_vault_two_b: solana_pubkey::Pubkey,
+    pub tick_array_one0: solana_pubkey::Pubkey,
+    pub tick_array_one1: solana_pubkey::Pubkey,
+    pub tick_array_one2: solana_pubkey::Pubkey,
+    pub tick_array_two0: solana_pubkey::Pubkey,
+    pub tick_array_two1: solana_pubkey::Pubkey,
+    pub tick_array_two2: solana_pubkey::Pubkey,
+    pub oracle_one: solana_pubkey::Pubkey,
+    pub oracle_two: solana_pubkey::Pubkey,
+    pub remaining_accounts: Vec<solana_instruction::AccountMeta>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for TwoHopSwap {
     type ArrangedAccounts = TwoHopSwapInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [token_program, token_authority, whirlpool_one, whirlpool_two, token_owner_account_one_a, token_vault_one_a, token_owner_account_one_b, token_vault_one_b, token_owner_account_two_a, token_vault_two_a, token_owner_account_two_b, token_vault_two_b, tick_array_one0, tick_array_one1, tick_array_one2, tick_array_two0, tick_array_two1, tick_array_two2, oracle_one, oracle_two, remaining_accounts @ ..] =
             accounts

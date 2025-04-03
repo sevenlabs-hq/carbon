@@ -9,19 +9,19 @@ pub struct InitializeUnderlying {
 }
 
 pub struct InitializeUnderlyingInstructionAccounts {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub zeta_program: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub underlying: solana_sdk::pubkey::Pubkey,
-    pub underlying_mint: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub zeta_program: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub underlying: solana_pubkey::Pubkey,
+    pub underlying_mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeUnderlying {
     type ArrangedAccounts = InitializeUnderlyingInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, zeta_program, state, system_program, underlying, underlying_mint, _remaining @ ..] =
             accounts

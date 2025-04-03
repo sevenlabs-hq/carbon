@@ -11,24 +11,24 @@ pub struct BeginSwap {
 }
 
 pub struct BeginSwapInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub user_stats: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub out_spot_market_vault: solana_sdk::pubkey::Pubkey,
-    pub in_spot_market_vault: solana_sdk::pubkey::Pubkey,
-    pub out_token_account: solana_sdk::pubkey::Pubkey,
-    pub in_token_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub drift_signer: solana_sdk::pubkey::Pubkey,
-    pub instructions: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub user_stats: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub out_spot_market_vault: solana_pubkey::Pubkey,
+    pub in_spot_market_vault: solana_pubkey::Pubkey,
+    pub out_token_account: solana_pubkey::Pubkey,
+    pub in_token_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub drift_signer: solana_pubkey::Pubkey,
+    pub instructions: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for BeginSwap {
     type ArrangedAccounts = BeginSwapInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, user, user_stats, authority, out_spot_market_vault, in_spot_market_vault, out_token_account, in_token_account, token_program, drift_signer, instructions, _remaining @ ..] =
             accounts

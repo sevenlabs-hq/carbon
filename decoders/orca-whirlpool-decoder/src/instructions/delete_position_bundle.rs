@@ -7,19 +7,19 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct DeletePositionBundle {}
 
 pub struct DeletePositionBundleInstructionAccounts {
-    pub position_bundle: solana_sdk::pubkey::Pubkey,
-    pub position_bundle_mint: solana_sdk::pubkey::Pubkey,
-    pub position_bundle_token_account: solana_sdk::pubkey::Pubkey,
-    pub position_bundle_owner: solana_sdk::pubkey::Pubkey,
-    pub receiver: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub position_bundle: solana_pubkey::Pubkey,
+    pub position_bundle_mint: solana_pubkey::Pubkey,
+    pub position_bundle_token_account: solana_pubkey::Pubkey,
+    pub position_bundle_owner: solana_pubkey::Pubkey,
+    pub receiver: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DeletePositionBundle {
     type ArrangedAccounts = DeletePositionBundleInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [position_bundle, position_bundle_mint, position_bundle_token_account, position_bundle_owner, receiver, token_program, _remaining @ ..] =
             accounts

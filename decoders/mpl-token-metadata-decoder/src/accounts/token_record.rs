@@ -9,7 +9,7 @@ pub struct TokenRecord {
     pub bump: u8,
     pub state: TokenState,
     pub rule_set_revision: Option<u64>,
-    pub delegate: Option<solana_sdk::pubkey::Pubkey>,
+    pub delegate: Option<solana_pubkey::Pubkey>,
     pub delegate_role: Option<TokenDelegateRole>,
-    pub locked_transfer: Option<solana_sdk::pubkey::Pubkey>,
+    pub locked_transfer: Option<solana_pubkey::Pubkey>,
 }

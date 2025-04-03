@@ -5,17 +5,17 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0xe445a52e51cb9a1dabad6a19efbe3a3b")]
 pub struct InstantDecreasePositionEvent {
-    pub position_key: solana_sdk::pubkey::Pubkey,
+    pub position_key: solana_pubkey::Pubkey,
     pub position_side: u8,
-    pub position_custody: solana_sdk::pubkey::Pubkey,
-    pub position_collateral_custody: solana_sdk::pubkey::Pubkey,
+    pub position_custody: solana_pubkey::Pubkey,
+    pub position_collateral_custody: solana_pubkey::Pubkey,
     pub position_size_usd: u64,
-    pub position_mint: solana_sdk::pubkey::Pubkey,
-    pub desired_mint: solana_sdk::pubkey::Pubkey,
+    pub position_mint: solana_pubkey::Pubkey,
+    pub desired_mint: solana_pubkey::Pubkey,
     pub has_profit: bool,
     pub pnl_delta: u64,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
     pub size_usd_delta: u64,
     pub transfer_amount_usd: u64,
     pub transfer_token: u64,
@@ -23,5 +23,5 @@ pub struct InstantDecreasePositionEvent {
     pub price_slippage: u64,
     pub fee_usd: u64,
     pub open_time: i64,
-    pub referral: Option<solana_sdk::pubkey::Pubkey>,
+    pub referral: Option<solana_pubkey::Pubkey>,
 }

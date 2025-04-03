@@ -31,7 +31,7 @@ pub fn map_type(type_node: &TypeNode) -> (String, bool) {
         }
 
         TypeNode::NumberTypeNode { format, .. } => (format.to_string(), false),
-        TypeNode::PublicKeyTypeNode => ("solana_sdk::pubkey::Pubkey".to_string(), false),
+        TypeNode::PublicKeyTypeNode => ("solana_pubkey::Pubkey".to_string(), false),
         TypeNode::BooleanTypeNode { .. } => ("bool".to_string(), false),
         TypeNode::FixedSizeTypeNode { size, r#type } => {
             let (rust_type, requres_import) = map_type(r#type);

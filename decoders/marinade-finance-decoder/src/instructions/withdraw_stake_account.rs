@@ -8,33 +8,33 @@ pub struct WithdrawStakeAccount {
     pub stake_index: u32,
     pub validator_index: u32,
     pub msol_amount: u64,
-    pub beneficiary: solana_sdk::pubkey::Pubkey,
+    pub beneficiary: solana_pubkey::Pubkey,
 }
 
 pub struct WithdrawStakeAccountInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub msol_mint: solana_sdk::pubkey::Pubkey,
-    pub burn_msol_from: solana_sdk::pubkey::Pubkey,
-    pub burn_msol_authority: solana_sdk::pubkey::Pubkey,
-    pub treasury_msol_account: solana_sdk::pubkey::Pubkey,
-    pub validator_list: solana_sdk::pubkey::Pubkey,
-    pub stake_list: solana_sdk::pubkey::Pubkey,
-    pub stake_withdraw_authority: solana_sdk::pubkey::Pubkey,
-    pub stake_deposit_authority: solana_sdk::pubkey::Pubkey,
-    pub stake_account: solana_sdk::pubkey::Pubkey,
-    pub split_stake_account: solana_sdk::pubkey::Pubkey,
-    pub split_stake_rent_payer: solana_sdk::pubkey::Pubkey,
-    pub clock: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub stake_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub msol_mint: solana_pubkey::Pubkey,
+    pub burn_msol_from: solana_pubkey::Pubkey,
+    pub burn_msol_authority: solana_pubkey::Pubkey,
+    pub treasury_msol_account: solana_pubkey::Pubkey,
+    pub validator_list: solana_pubkey::Pubkey,
+    pub stake_list: solana_pubkey::Pubkey,
+    pub stake_withdraw_authority: solana_pubkey::Pubkey,
+    pub stake_deposit_authority: solana_pubkey::Pubkey,
+    pub stake_account: solana_pubkey::Pubkey,
+    pub split_stake_account: solana_pubkey::Pubkey,
+    pub split_stake_rent_payer: solana_pubkey::Pubkey,
+    pub clock: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub stake_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawStakeAccount {
     type ArrangedAccounts = WithdrawStakeAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, msol_mint, burn_msol_from, burn_msol_authority, treasury_msol_account, validator_list, stake_list, stake_withdraw_authority, stake_deposit_authority, stake_account, split_stake_account, split_stake_rent_payer, clock, system_program, token_program, stake_program, _remaining @ ..] =
             accounts

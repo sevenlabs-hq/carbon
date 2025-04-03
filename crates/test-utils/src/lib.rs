@@ -1,9 +1,8 @@
 use serde::Deserialize;
-use solana_sdk::{
-    account::Account,
-    instruction::{AccountMeta, Instruction},
-    pubkey::Pubkey,
-};
+
+use solana_account::Account;
+use solana_instruction::{AccountMeta, Instruction};
+use solana_pubkey::Pubkey;
 use std::{fs, path::Path};
 
 mod base64_deserialize;

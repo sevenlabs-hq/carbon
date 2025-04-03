@@ -26,7 +26,7 @@ impl<'a> carbon_core::instruction::InstructionDecoder<'a> for {{ decoder_name }}
 
     fn decode_instruction(
         &self,
-        instruction: &solana_sdk::instruction::Instruction,
+        instruction: &solana_instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         carbon_core::try_decode_instructions!(instruction,
             {%- for instruction in instructions %}

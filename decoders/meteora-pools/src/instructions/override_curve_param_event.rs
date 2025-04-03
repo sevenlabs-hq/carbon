@@ -7,5 +7,5 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct OverrideCurveParamEvent {
     pub new_amp: u64,
     pub updated_timestamp: u64,
-    pub pool: solana_sdk::pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
 }

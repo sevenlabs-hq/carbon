@@ -7,17 +7,17 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct SetTokenBadgeAuthority {}
 
 pub struct SetTokenBadgeAuthorityInstructionAccounts {
-    pub whirlpools_config: solana_sdk::pubkey::Pubkey,
-    pub whirlpools_config_extension: solana_sdk::pubkey::Pubkey,
-    pub config_extension_authority: solana_sdk::pubkey::Pubkey,
-    pub new_token_badge_authority: solana_sdk::pubkey::Pubkey,
+    pub whirlpools_config: solana_pubkey::Pubkey,
+    pub whirlpools_config_extension: solana_pubkey::Pubkey,
+    pub config_extension_authority: solana_pubkey::Pubkey,
+    pub new_token_badge_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetTokenBadgeAuthority {
     type ArrangedAccounts = SetTokenBadgeAuthorityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [whirlpools_config, whirlpools_config_extension, config_extension_authority, new_token_badge_authority, _remaining @ ..] =
             accounts

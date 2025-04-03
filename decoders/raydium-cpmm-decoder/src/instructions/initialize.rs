@@ -11,33 +11,33 @@ pub struct Initialize {
 }
 
 pub struct InitializeInstructionAccounts {
-    pub creator: solana_sdk::pubkey::Pubkey,
-    pub amm_config: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub pool_state: solana_sdk::pubkey::Pubkey,
-    pub token0_mint: solana_sdk::pubkey::Pubkey,
-    pub token1_mint: solana_sdk::pubkey::Pubkey,
-    pub lp_mint: solana_sdk::pubkey::Pubkey,
-    pub creator_token0: solana_sdk::pubkey::Pubkey,
-    pub creator_token1: solana_sdk::pubkey::Pubkey,
-    pub creator_lp_token: solana_sdk::pubkey::Pubkey,
-    pub token0_vault: solana_sdk::pubkey::Pubkey,
-    pub token1_vault: solana_sdk::pubkey::Pubkey,
-    pub create_pool_fee: solana_sdk::pubkey::Pubkey,
-    pub observation_state: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub token0_program: solana_sdk::pubkey::Pubkey,
-    pub token1_program: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub creator: solana_pubkey::Pubkey,
+    pub amm_config: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub pool_state: solana_pubkey::Pubkey,
+    pub token0_mint: solana_pubkey::Pubkey,
+    pub token1_mint: solana_pubkey::Pubkey,
+    pub lp_mint: solana_pubkey::Pubkey,
+    pub creator_token0: solana_pubkey::Pubkey,
+    pub creator_token1: solana_pubkey::Pubkey,
+    pub creator_lp_token: solana_pubkey::Pubkey,
+    pub token0_vault: solana_pubkey::Pubkey,
+    pub token1_vault: solana_pubkey::Pubkey,
+    pub create_pool_fee: solana_pubkey::Pubkey,
+    pub observation_state: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub token0_program: solana_pubkey::Pubkey,
+    pub token1_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Initialize {
     type ArrangedAccounts = InitializeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [creator, amm_config, authority, pool_state, token0_mint, token1_mint, lp_mint, creator_token0, creator_token1, creator_lp_token, token0_vault, token1_vault, create_pool_fee, observation_state, token_program, token0_program, token1_program, associated_token_program, system_program, rent, _remaining @ ..] =
             accounts

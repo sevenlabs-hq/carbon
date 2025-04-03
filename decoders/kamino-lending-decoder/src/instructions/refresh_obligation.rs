@@ -7,15 +7,15 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct RefreshObligation {}
 
 pub struct RefreshObligationInstructionAccounts {
-    pub lending_market: solana_sdk::pubkey::Pubkey,
-    pub obligation: solana_sdk::pubkey::Pubkey,
+    pub lending_market: solana_pubkey::Pubkey,
+    pub obligation: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RefreshObligation {
     type ArrangedAccounts = RefreshObligationInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [lending_market, obligation, _remaining @ ..] = accounts else {
             return None;

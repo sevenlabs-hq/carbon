@@ -7,15 +7,15 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct Collect {}
 
 pub struct CollectInstructionAccounts {
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub recipient: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub recipient: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Collect {
     type ArrangedAccounts = CollectInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [authority, recipient, _remaining @ ..] = accounts else {
             return None;

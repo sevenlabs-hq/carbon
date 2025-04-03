@@ -9,17 +9,17 @@ pub struct SetRewardAuthorityBySuperAuthority {
 }
 
 pub struct SetRewardAuthorityBySuperAuthorityInstructionAccounts {
-    pub whirlpools_config: solana_sdk::pubkey::Pubkey,
-    pub whirlpool: solana_sdk::pubkey::Pubkey,
-    pub reward_emissions_super_authority: solana_sdk::pubkey::Pubkey,
-    pub new_reward_authority: solana_sdk::pubkey::Pubkey,
+    pub whirlpools_config: solana_pubkey::Pubkey,
+    pub whirlpool: solana_pubkey::Pubkey,
+    pub reward_emissions_super_authority: solana_pubkey::Pubkey,
+    pub new_reward_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetRewardAuthorityBySuperAuthority {
     type ArrangedAccounts = SetRewardAuthorityBySuperAuthorityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [whirlpools_config, whirlpool, reward_emissions_super_authority, new_reward_authority, _remaining @ ..] =
             accounts

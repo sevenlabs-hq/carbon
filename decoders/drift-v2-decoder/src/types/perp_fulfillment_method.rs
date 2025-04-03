@@ -5,5 +5,5 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 pub enum PerpFulfillmentMethod {
     AMM(Option<u64>),
-    Match(solana_sdk::pubkey::Pubkey, u16, u64),
+    Match(solana_pubkey::Pubkey, u16, u64),
 }

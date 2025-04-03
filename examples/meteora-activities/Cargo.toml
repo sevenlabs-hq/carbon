@@ -10,6 +10,7 @@ carbon-meteora-dlmm-decoder = { workspace = true }
 carbon-pumpfun-decoder = { workspace = true }
 carbon-rpc-transaction-crawler-datasource = { workspace = true }
 solana-client = { workspace = true }
+solana-pubkey = { workspace = true }
 solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 

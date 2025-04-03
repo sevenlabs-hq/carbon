@@ -9,31 +9,31 @@ pub struct LockClmmPosition {
 }
 
 pub struct LockClmmPositionInstructionAccounts {
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub position_nft_owner: solana_sdk::pubkey::Pubkey,
-    pub fee_nft_owner: solana_sdk::pubkey::Pubkey,
-    pub position_nft_account: solana_sdk::pubkey::Pubkey,
-    pub personal_position: solana_sdk::pubkey::Pubkey,
-    pub position_nft_mint: solana_sdk::pubkey::Pubkey,
-    pub locked_nft_account: solana_sdk::pubkey::Pubkey,
-    pub locked_position: solana_sdk::pubkey::Pubkey,
-    pub fee_nft_mint: solana_sdk::pubkey::Pubkey,
-    pub fee_nft_account: solana_sdk::pubkey::Pubkey,
-    pub metadata_account: solana_sdk::pubkey::Pubkey,
-    pub metadata_program: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub fee_nft_token_program: solana_sdk::pubkey::Pubkey,
-    pub locked_nft_token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub position_nft_owner: solana_pubkey::Pubkey,
+    pub fee_nft_owner: solana_pubkey::Pubkey,
+    pub position_nft_account: solana_pubkey::Pubkey,
+    pub personal_position: solana_pubkey::Pubkey,
+    pub position_nft_mint: solana_pubkey::Pubkey,
+    pub locked_nft_account: solana_pubkey::Pubkey,
+    pub locked_position: solana_pubkey::Pubkey,
+    pub fee_nft_mint: solana_pubkey::Pubkey,
+    pub fee_nft_account: solana_pubkey::Pubkey,
+    pub metadata_account: solana_pubkey::Pubkey,
+    pub metadata_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub fee_nft_token_program: solana_pubkey::Pubkey,
+    pub locked_nft_token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for LockClmmPosition {
     type ArrangedAccounts = LockClmmPositionInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [authority, payer, position_nft_owner, fee_nft_owner, position_nft_account, personal_position, position_nft_mint, locked_nft_account, locked_position, fee_nft_mint, fee_nft_account, metadata_account, metadata_program, associated_token_program, rent, fee_nft_token_program, locked_nft_token_program, system_program, _remaining @ ..] =
             accounts

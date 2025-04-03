@@ -12,19 +12,19 @@ pub struct TreasuryMovement {
 }
 
 pub struct TreasuryMovementInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub insurance_vault: solana_sdk::pubkey::Pubkey,
-    pub treasury_wallet: solana_sdk::pubkey::Pubkey,
-    pub referrals_rewards_wallet: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub insurance_vault: solana_pubkey::Pubkey,
+    pub treasury_wallet: solana_pubkey::Pubkey,
+    pub referrals_rewards_wallet: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for TreasuryMovement {
     type ArrangedAccounts = TreasuryMovementInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, insurance_vault, treasury_wallet, referrals_rewards_wallet, token_program, admin, _remaining @ ..] =
             accounts

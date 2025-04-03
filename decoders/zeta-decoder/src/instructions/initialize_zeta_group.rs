@@ -11,31 +11,31 @@ pub struct InitializeZetaGroup {
 }
 
 pub struct InitializeZetaGroupInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub underlying_mint: solana_sdk::pubkey::Pubkey,
-    pub zeta_program: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_feed: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_program: solana_sdk::pubkey::Pubkey,
-    pub zeta_group: solana_sdk::pubkey::Pubkey,
-    pub greeks: solana_sdk::pubkey::Pubkey,
-    pub perp_sync_queue: solana_sdk::pubkey::Pubkey,
-    pub underlying: solana_sdk::pubkey::Pubkey,
-    pub vault: solana_sdk::pubkey::Pubkey,
-    pub insurance_vault: solana_sdk::pubkey::Pubkey,
-    pub socialized_loss_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub usdc_mint: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub underlying_mint: solana_pubkey::Pubkey,
+    pub zeta_program: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub oracle_backup_feed: solana_pubkey::Pubkey,
+    pub oracle_backup_program: solana_pubkey::Pubkey,
+    pub zeta_group: solana_pubkey::Pubkey,
+    pub greeks: solana_pubkey::Pubkey,
+    pub perp_sync_queue: solana_pubkey::Pubkey,
+    pub underlying: solana_pubkey::Pubkey,
+    pub vault: solana_pubkey::Pubkey,
+    pub insurance_vault: solana_pubkey::Pubkey,
+    pub socialized_loss_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub usdc_mint: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeZetaGroup {
     type ArrangedAccounts = InitializeZetaGroupInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, admin, system_program, underlying_mint, zeta_program, oracle, oracle_backup_feed, oracle_backup_program, zeta_group, greeks, perp_sync_queue, underlying, vault, insurance_vault, socialized_loss_account, token_program, usdc_mint, rent, _remaining @ ..] =
             accounts
