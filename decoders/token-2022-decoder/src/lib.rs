@@ -1,5 +1,4 @@
 use solana_pubkey::Pubkey;
-
 pub struct Token2022Decoder;
 pub mod accounts;
 pub mod instructions;

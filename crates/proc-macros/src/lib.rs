@@ -42,7 +42,6 @@
 //! Contributions are welcome! If you have ideas for improving or expanding the
 //! functionality of `carbon_macros`, please consider submitting a pull request
 //! or opening an issue on the project’s GitHub repository.
-
 use {
     borsh_derive_internal::*,
     proc_macro::TokenStream,
