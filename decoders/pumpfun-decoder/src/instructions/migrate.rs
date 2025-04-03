@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x9beae792ec9ea21e")]
 pub struct Migrate {}
 
+#[derive(Debug, PartialEq)]
 pub struct MigrateInstructionAccounts {
     pub global: solana_pubkey::Pubkey,
     pub withdraw_authority: solana_pubkey::Pubkey,
