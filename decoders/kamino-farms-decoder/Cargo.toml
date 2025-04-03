@@ -17,5 +17,5 @@ carbon-macros = { workspace = true }
 carbon-proc-macros = { workspace = true }
 serde = { workspace = true }
 solana-account = { workspace = true }
-solana-instruction = { workspace = true }
+solana-instruction = { workspace = true, default-features = false }
 solana-pubkey = { workspace = true }
