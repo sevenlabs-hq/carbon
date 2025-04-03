@@ -11,22 +11,22 @@ pub struct CreateIncreasePositionMarketRequest {
 }
 
 pub struct CreateIncreasePositionMarketRequestInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub funding_account: solana_sdk::pubkey::Pubkey,
-    pub perpetuals: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub position: solana_sdk::pubkey::Pubkey,
-    pub position_request: solana_sdk::pubkey::Pubkey,
-    pub position_request_ata: solana_sdk::pubkey::Pubkey,
-    pub custody: solana_sdk::pubkey::Pubkey,
-    pub collateral_custody: solana_sdk::pubkey::Pubkey,
-    pub input_mint: solana_sdk::pubkey::Pubkey,
-    pub referral: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub funding_account: solana_pubkey::Pubkey,
+    pub perpetuals: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub position: solana_pubkey::Pubkey,
+    pub position_request: solana_pubkey::Pubkey,
+    pub position_request_ata: solana_pubkey::Pubkey,
+    pub custody: solana_pubkey::Pubkey,
+    pub collateral_custody: solana_pubkey::Pubkey,
+    pub input_mint: solana_pubkey::Pubkey,
+    pub referral: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CreateIncreasePositionMarketRequest {

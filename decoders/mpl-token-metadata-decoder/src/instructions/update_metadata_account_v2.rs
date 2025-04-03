@@ -12,8 +12,8 @@ pub struct UpdateMetadataAccountV2 {
 }
 
 pub struct UpdateMetadataAccountV2InstructionAccounts {
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub update_authority: solana_sdk::pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub update_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateMetadataAccountV2 {

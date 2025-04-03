@@ -7,13 +7,13 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct RedeemFees {}
 
 pub struct RedeemFeesInstructionAccounts {
-    pub reserve: solana_sdk::pubkey::Pubkey,
-    pub reserve_liquidity_mint: solana_sdk::pubkey::Pubkey,
-    pub reserve_liquidity_fee_receiver: solana_sdk::pubkey::Pubkey,
-    pub reserve_supply_liquidity: solana_sdk::pubkey::Pubkey,
-    pub lending_market: solana_sdk::pubkey::Pubkey,
-    pub lending_market_authority: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub reserve: solana_pubkey::Pubkey,
+    pub reserve_liquidity_mint: solana_pubkey::Pubkey,
+    pub reserve_liquidity_fee_receiver: solana_pubkey::Pubkey,
+    pub reserve_supply_liquidity: solana_pubkey::Pubkey,
+    pub lending_market: solana_pubkey::Pubkey,
+    pub lending_market_authority: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RedeemFees {

@@ -7,12 +7,12 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct CreateIdempotent {}
 
 pub struct CreateIdempotentInstructionAccounts {
-    pub funding_address: solana_sdk::pubkey::Pubkey,
-    pub associated_account_address: solana_sdk::pubkey::Pubkey,
-    pub wallet_address: solana_sdk::pubkey::Pubkey,
-    pub token_mint_address: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub funding_address: solana_pubkey::Pubkey,
+    pub associated_account_address: solana_pubkey::Pubkey,
+    pub wallet_address: solana_pubkey::Pubkey,
+    pub token_mint_address: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CreateIdempotent {

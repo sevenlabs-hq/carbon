@@ -7,13 +7,13 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct CollectFees {}
 
 pub struct CollectFeesInstructionAccounts {
-    pub phoenix_program: solana_sdk::pubkey::Pubkey,
-    pub log_authority: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub sweeper: solana_sdk::pubkey::Pubkey,
-    pub fee_recipient: solana_sdk::pubkey::Pubkey,
-    pub quote_vault: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub phoenix_program: solana_pubkey::Pubkey,
+    pub log_authority: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub sweeper: solana_pubkey::Pubkey,
+    pub fee_recipient: solana_pubkey::Pubkey,
+    pub quote_vault: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CollectFees {

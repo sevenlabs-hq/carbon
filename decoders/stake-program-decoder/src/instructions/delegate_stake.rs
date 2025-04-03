@@ -7,12 +7,12 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct DelegateStake {}
 
 pub struct DelegateStakeInstructionAccounts {
-    pub stake: solana_sdk::pubkey::Pubkey,
-    pub vote: solana_sdk::pubkey::Pubkey,
-    pub clock: solana_sdk::pubkey::Pubkey,
-    pub stake_history: solana_sdk::pubkey::Pubkey,
-    pub stake_config: solana_sdk::pubkey::Pubkey,
-    pub stake_authority: solana_sdk::pubkey::Pubkey,
+    pub stake: solana_pubkey::Pubkey,
+    pub vote: solana_pubkey::Pubkey,
+    pub clock: solana_pubkey::Pubkey,
+    pub stake_history: solana_pubkey::Pubkey,
+    pub stake_config: solana_pubkey::Pubkey,
+    pub stake_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DelegateStake {

@@ -9,11 +9,11 @@ pub struct IncreaseOracleLength {
 }
 
 pub struct IncreaseOracleLengthInstructionAccounts {
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub funder: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub funder: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for IncreaseOracleLength {

@@ -10,18 +10,18 @@ pub struct CollectProtocolFee {
 }
 
 pub struct CollectProtocolFeeInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub pool_state: solana_sdk::pubkey::Pubkey,
-    pub amm_config: solana_sdk::pubkey::Pubkey,
-    pub token0_vault: solana_sdk::pubkey::Pubkey,
-    pub token1_vault: solana_sdk::pubkey::Pubkey,
-    pub vault0_mint: solana_sdk::pubkey::Pubkey,
-    pub vault1_mint: solana_sdk::pubkey::Pubkey,
-    pub recipient_token0_account: solana_sdk::pubkey::Pubkey,
-    pub recipient_token1_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub token_program2022: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub pool_state: solana_pubkey::Pubkey,
+    pub amm_config: solana_pubkey::Pubkey,
+    pub token0_vault: solana_pubkey::Pubkey,
+    pub token1_vault: solana_pubkey::Pubkey,
+    pub vault0_mint: solana_pubkey::Pubkey,
+    pub vault1_mint: solana_pubkey::Pubkey,
+    pub recipient_token0_account: solana_pubkey::Pubkey,
+    pub recipient_token1_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub token_program2022: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CollectProtocolFee {

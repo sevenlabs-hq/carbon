@@ -6,12 +6,12 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x28")]
 pub struct UpdateGroupPointer {
     pub group_pointer_discriminator: u8,
-    pub group_address: Option<solana_sdk::pubkey::Pubkey>,
+    pub group_address: Option<solana_pubkey::Pubkey>,
 }
 
 pub struct UpdateGroupPointerInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub group_pointer_authority: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub group_pointer_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateGroupPointer {

@@ -9,12 +9,12 @@ pub struct WithdrawSrm {
 }
 
 pub struct WithdrawSrmInstructionAccounts {
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub amm: solana_sdk::pubkey::Pubkey,
-    pub amm_owner_account: solana_sdk::pubkey::Pubkey,
-    pub amm_authority: solana_sdk::pubkey::Pubkey,
-    pub srm_token: solana_sdk::pubkey::Pubkey,
-    pub dest_srm_token: solana_sdk::pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub amm: solana_pubkey::Pubkey,
+    pub amm_owner_account: solana_pubkey::Pubkey,
+    pub amm_authority: solana_pubkey::Pubkey,
+    pub srm_token: solana_pubkey::Pubkey,
+    pub dest_srm_token: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawSrm {

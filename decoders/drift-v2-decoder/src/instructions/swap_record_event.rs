@@ -6,7 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0xe445a52e51cb9a1da2bb7bc28a38faf1")]
 pub struct SwapRecordEvent {
     pub ts: i64,
-    pub user: solana_sdk::pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
     pub amount_out: u64,
     pub amount_in: u64,
     pub out_market_index: u16,

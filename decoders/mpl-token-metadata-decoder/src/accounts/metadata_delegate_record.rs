@@ -7,7 +7,7 @@ use {
 pub struct MetadataDelegateRecord {
     pub key: Key,
     pub bump: u8,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub delegate: solana_sdk::pubkey::Pubkey,
-    pub update_authority: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub delegate: solana_pubkey::Pubkey,
+    pub update_authority: solana_pubkey::Pubkey,
 }

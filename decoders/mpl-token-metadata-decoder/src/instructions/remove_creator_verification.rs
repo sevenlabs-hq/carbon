@@ -7,8 +7,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct RemoveCreatorVerification {}
 
 pub struct RemoveCreatorVerificationInstructionAccounts {
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub creator: solana_sdk::pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub creator: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RemoveCreatorVerification {

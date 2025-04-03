@@ -9,12 +9,12 @@ pub struct GoToABin {
 }
 
 pub struct GoToABinInstructionAccounts {
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
-    pub bin_array_bitmap_extension: solana_sdk::pubkey::Pubkey,
-    pub from_bin_array: solana_sdk::pubkey::Pubkey,
-    pub to_bin_array: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
+    pub bin_array_bitmap_extension: solana_pubkey::Pubkey,
+    pub from_bin_array: solana_pubkey::Pubkey,
+    pub to_bin_array: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for GoToABin {

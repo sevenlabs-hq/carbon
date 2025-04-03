@@ -13,7 +13,7 @@ pub struct OutEvent {
     pub padding0: [u8; 5],
     pub timestamp: u64,
     pub seq_num: u64,
-    pub owner: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
     pub quantity: i64,
     #[serde(with = "BigArray")]
     pub padding1: [u8; 80],

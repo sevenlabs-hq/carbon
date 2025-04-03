@@ -11,8 +11,8 @@ pub struct OperatorSetCustodyConfig {
 }
 
 pub struct OperatorSetCustodyConfigInstructionAccounts {
-    pub operator: solana_sdk::pubkey::Pubkey,
-    pub custody: solana_sdk::pubkey::Pubkey,
+    pub operator: solana_pubkey::Pubkey,
+    pub custody: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for OperatorSetCustodyConfig {

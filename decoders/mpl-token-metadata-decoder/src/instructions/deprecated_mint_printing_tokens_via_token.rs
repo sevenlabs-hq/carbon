@@ -7,15 +7,15 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct DeprecatedMintPrintingTokensViaToken {}
 
 pub struct DeprecatedMintPrintingTokensViaTokenInstructionAccounts {
-    pub destination: solana_sdk::pubkey::Pubkey,
-    pub token: solana_sdk::pubkey::Pubkey,
-    pub one_time_printing_authorization_mint: solana_sdk::pubkey::Pubkey,
-    pub printing_mint: solana_sdk::pubkey::Pubkey,
-    pub burn_authority: solana_sdk::pubkey::Pubkey,
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub master_edition: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub destination: solana_pubkey::Pubkey,
+    pub token: solana_pubkey::Pubkey,
+    pub one_time_printing_authorization_mint: solana_pubkey::Pubkey,
+    pub printing_mint: solana_pubkey::Pubkey,
+    pub burn_authority: solana_pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub master_edition: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DeprecatedMintPrintingTokensViaToken {

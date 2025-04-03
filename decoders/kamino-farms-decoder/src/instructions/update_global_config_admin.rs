@@ -7,8 +7,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct UpdateGlobalConfigAdmin {}
 
 pub struct UpdateGlobalConfigAdminInstructionAccounts {
-    pub pending_global_admin: solana_sdk::pubkey::Pubkey,
-    pub global_config: solana_sdk::pubkey::Pubkey,
+    pub pending_global_admin: solana_pubkey::Pubkey,
+    pub global_config: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateGlobalConfigAdmin {

@@ -9,16 +9,16 @@ pub struct Liquidate {
 }
 
 pub struct LiquidateInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub liquidator: solana_sdk::pubkey::Pubkey,
-    pub liquidator_margin_account: solana_sdk::pubkey::Pubkey,
-    pub greeks: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_feed: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_program: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub zeta_group: solana_sdk::pubkey::Pubkey,
-    pub liquidated_margin_account: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub liquidator: solana_pubkey::Pubkey,
+    pub liquidator_margin_account: solana_pubkey::Pubkey,
+    pub greeks: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub oracle_backup_feed: solana_pubkey::Pubkey,
+    pub oracle_backup_program: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub zeta_group: solana_pubkey::Pubkey,
+    pub liquidated_margin_account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Liquidate {

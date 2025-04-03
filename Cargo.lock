@@ -858,6 +858,7 @@ dependencies = [
  "serde_json",
  "sha2 0.10.8",
  "solana-client",
+ "solana-pubkey",
  "solana-sdk",
  "solana-transaction-status",
 ]
@@ -883,7 +884,7 @@ dependencies = [
  "solana-sdk",
  "solana-signature",
  "solana-transaction-status",
- "thiserror 1.0.69",
+ "thiserror 2.0.12",
  "tokio",
  "tokio-util",
 ]
@@ -896,6 +897,7 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -908,6 +910,7 @@ dependencies = [
  "carbon-proc-macros",
  "carbon-test-utils",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -924,6 +927,7 @@ dependencies = [
  "log",
  "solana-account-decoder",
  "solana-client",
+ "solana-pubkey",
  "solana-sdk",
  "solana-transaction-status",
  "tokio",
@@ -937,6 +941,7 @@ dependencies = [
  "carbon-core",
  "carbon-test-utils",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -946,6 +951,7 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -955,6 +961,7 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -966,6 +973,7 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -975,6 +983,7 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -986,6 +995,7 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -996,6 +1006,7 @@ dependencies = [
  "carbon-core",
  "serde",
  "serde-big-array",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1006,6 +1017,7 @@ dependencies = [
  "carbon-core",
  "serde",
  "serde-big-array",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1018,6 +1030,7 @@ dependencies = [
  "carbon-proc-macros",
  "carbon-test-utils",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1038,6 +1051,7 @@ dependencies = [
  "hex",
  "paste",
  "solana-client",
+ "solana-pubkey",
  "solana-sdk",
  "solana-transaction-status",
 ]
@@ -1050,6 +1064,7 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1061,6 +1076,7 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1070,6 +1086,7 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
  "spl-memo",
  "spl-token",
@@ -1082,6 +1099,7 @@ dependencies = [
  "carbon-core",
  "serde",
  "serde-big-array",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1093,6 +1111,7 @@ dependencies = [
  "carbon-test-utils",
  "serde",
  "serde-big-array",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1103,6 +1122,7 @@ dependencies = [
  "carbon-core",
  "carbon-test-utils",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1112,6 +1132,7 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1121,6 +1142,7 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1132,6 +1154,7 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1141,6 +1164,7 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1151,6 +1175,7 @@ dependencies = [
  "carbon-core",
  "serde",
  "serde-big-array",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1160,6 +1185,7 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1171,6 +1197,7 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1185,6 +1212,7 @@ dependencies = [
  "quote",
  "serde",
  "solana-client",
+ "solana-pubkey",
  "solana-sdk",
  "solana-transaction-status",
  "syn 1.0.109",
@@ -1210,6 +1238,7 @@ dependencies = [
  "carbon-core",
  "carbon-test-utils",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1232,6 +1261,7 @@ dependencies = [
  "carbon-core",
  "serde",
  "serde-big-array",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1243,6 +1273,7 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1254,6 +1285,7 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1265,6 +1297,7 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1280,6 +1313,7 @@ dependencies = [
  "log",
  "retry",
  "solana-client",
+ "solana-pubkey",
  "solana-sdk",
  "solana-transaction-status",
  "tokio",
@@ -1297,6 +1331,7 @@ dependencies = [
  "futures",
  "log",
  "solana-client",
+ "solana-pubkey",
  "solana-sdk",
  "tokio",
  "tokio-util",
@@ -1312,6 +1347,7 @@ dependencies = [
  "futures",
  "log",
  "solana-client",
+ "solana-pubkey",
  "solana-sdk",
  "tokio",
  "tokio-util",
@@ -1329,6 +1365,7 @@ dependencies = [
  "log",
  "retry",
  "solana-client",
+ "solana-pubkey",
  "solana-sdk",
  "solana-transaction-status",
  "tokio",
@@ -1342,6 +1379,7 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
  "spl-token",
 ]
@@ -1354,6 +1392,7 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1365,6 +1404,7 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1376,6 +1416,7 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1387,6 +1428,7 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1396,6 +1438,7 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1406,6 +1449,7 @@ dependencies = [
  "carbon-core",
  "carbon-test-utils",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
  "spl-token",
 ]
@@ -1419,6 +1463,7 @@ dependencies = [
  "hex",
  "serde",
  "serde_json",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1431,6 +1476,7 @@ dependencies = [
  "carbon-proc-macros",
  "serde",
  "serde-big-array",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1440,6 +1486,7 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-pubkey",
  "solana-sdk",
  "spl-token",
 ]
@@ -1453,6 +1500,7 @@ dependencies = [
  "carbon-proc-macros",
  "serde",
  "serde-big-array",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -1467,6 +1515,7 @@ dependencies = [
  "futures-util",
  "log",
  "solana-client",
+ "solana-pubkey",
  "solana-sdk",
  "solana-transaction-status",
  "tokio",
@@ -1484,6 +1533,7 @@ dependencies = [
  "carbon-proc-macros",
  "serde",
  "serde-big-array",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -3271,6 +3321,7 @@ dependencies = [
  "env_logger",
  "log",
  "solana-client",
+ "solana-pubkey",
  "solana-sdk",
  "solana-transaction-status",
  "tokio",
@@ -3286,6 +3337,7 @@ dependencies = [
  "carbon-proc-macros",
  "serde",
  "serde-big-array",
+ "solana-pubkey",
  "solana-sdk",
 ]
 
@@ -3470,6 +3522,7 @@ dependencies = [
  "env_logger",
  "log",
  "solana-client",
+ "solana-pubkey",
  "solana-sdk",
  "solana-transaction-status",
  "tokio",
@@ -3590,6 +3643,7 @@ dependencies = [
  "env_logger",
  "log",
  "solana-client",
+ "solana-pubkey",
  "solana-sdk",
  "solana-transaction-status",
  "tokio",
@@ -3869,6 +3923,7 @@ dependencies = [
  "env_logger",
  "log",
  "solana-client",
+ "solana-pubkey",
  "solana-sdk",
  "solana-transaction-status",
  "tokio",
@@ -4239,6 +4294,7 @@ dependencies = [
  "helius",
  "log",
  "solana-client",
+ "solana-pubkey",
  "solana-sdk",
  "solana-transaction-status",
  "tokio",
@@ -4469,6 +4525,7 @@ dependencies = [
  "env_logger",
  "log",
  "solana-client",
+ "solana-pubkey",
  "solana-sdk",
  "solana-transaction-status",
  "tokio",
@@ -4488,6 +4545,7 @@ dependencies = [
  "env_logger",
  "log",
  "solana-client",
+ "solana-pubkey",
  "solana-sdk",
  "solana-transaction-status",
  "tokio",
@@ -4506,6 +4564,7 @@ dependencies = [
  "env_logger",
  "log",
  "solana-client",
+ "solana-pubkey",
  "solana-sdk",
  "solana-transaction-status",
  "tokio",
@@ -5101,6 +5160,7 @@ dependencies = [
  "serde",
  "solana-account-decoder",
  "solana-client",
+ "solana-pubkey",
  "solana-sdk",
  "tokio",
  "tokio-util",

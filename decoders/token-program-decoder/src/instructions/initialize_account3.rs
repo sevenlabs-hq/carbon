@@ -4,12 +4,12 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0x12")]
 pub struct InitializeAccount3 {
-    pub owner: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
 }
 
 pub struct InitializeAccount3Accounts {
-    pub account: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub account: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeAccount3 {

@@ -11,8 +11,8 @@ pub struct SetPerpetualsConfig {
 }
 
 pub struct SetPerpetualsConfigInstructionAccounts {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub perpetuals: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub perpetuals: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetPerpetualsConfig {

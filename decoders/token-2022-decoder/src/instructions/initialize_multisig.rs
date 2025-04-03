@@ -9,8 +9,8 @@ pub struct InitializeMultisig {
 }
 
 pub struct InitializeMultisigInstructionAccounts {
-    pub multisig: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub multisig: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeMultisig {

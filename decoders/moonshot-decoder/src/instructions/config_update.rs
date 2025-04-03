@@ -13,8 +13,8 @@ pub struct ConfigUpdate {
 
 #[derive(Debug)]
 pub struct ConfigUpdateInstructionAccounts {
-    pub config_authority: solana_sdk::pubkey::Pubkey,
-    pub config_account: solana_sdk::pubkey::Pubkey,
+    pub config_authority: solana_pubkey::Pubkey,
+    pub config_account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ConfigUpdate {

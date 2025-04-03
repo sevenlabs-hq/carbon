@@ -9,8 +9,8 @@ pub struct UpdatePoolStatus {
 }
 
 pub struct UpdatePoolStatusInstructionAccounts {
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub pool_state: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub pool_state: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdatePoolStatus {

@@ -7,10 +7,10 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct SetTokenStandard {}
 
 pub struct SetTokenStandardInstructionAccounts {
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub update_authority: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub edition: solana_sdk::pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub update_authority: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub edition: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetTokenStandard {

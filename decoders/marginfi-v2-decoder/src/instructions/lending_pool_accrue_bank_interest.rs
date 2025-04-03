@@ -7,8 +7,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct LendingPoolAccrueBankInterest {}
 
 pub struct LendingPoolAccrueBankInterestInstructionAccounts {
-    pub marginfi_group: solana_sdk::pubkey::Pubkey,
-    pub bank: solana_sdk::pubkey::Pubkey,
+    pub marginfi_group: solana_pubkey::Pubkey,
+    pub bank: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for LendingPoolAccrueBankInterest {

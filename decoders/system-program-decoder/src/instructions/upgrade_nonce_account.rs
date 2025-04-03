@@ -7,7 +7,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct UpgradeNonceAccount {}
 
 pub struct UpgradeNonceAccountInstructionAccounts {
-    pub nonce_account: solana_sdk::pubkey::Pubkey,
+    pub nonce_account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpgradeNonceAccount {

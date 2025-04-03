@@ -10,8 +10,8 @@ pub struct UpdateRateInterestBearingMint {
 }
 
 pub struct UpdateRateInterestBearingMintInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub rate_authority: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub rate_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateRateInterestBearingMint {

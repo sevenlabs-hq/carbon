@@ -10,9 +10,9 @@ pub struct Update {
 }
 
 pub struct UpdateInstructionAccounts {
-    pub name_record: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub parent_name_record: solana_sdk::pubkey::Pubkey,
+    pub name_record: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub parent_name_record: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Update {

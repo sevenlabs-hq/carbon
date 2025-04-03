@@ -9,10 +9,10 @@ pub struct InitializeTickArray {
 }
 
 pub struct InitializeTickArrayInstructionAccounts {
-    pub whirlpool: solana_sdk::pubkey::Pubkey,
-    pub funder: solana_sdk::pubkey::Pubkey,
-    pub tick_array: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub whirlpool: solana_pubkey::Pubkey,
+    pub funder: solana_pubkey::Pubkey,
+    pub tick_array: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeTickArray {

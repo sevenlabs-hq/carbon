@@ -5,12 +5,12 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0xa1695801edddd8cb")]
 pub struct UpdateTokenGroupUpdateAuthority {
-    pub new_update_authority: Option<solana_sdk::pubkey::Pubkey>,
+    pub new_update_authority: Option<solana_pubkey::Pubkey>,
 }
 
 pub struct UpdateTokenGroupUpdateAuthorityInstructionAccounts {
-    pub group: solana_sdk::pubkey::Pubkey,
-    pub update_authority: solana_sdk::pubkey::Pubkey,
+    pub group: solana_pubkey::Pubkey,
+    pub update_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateTokenGroupUpdateAuthority {

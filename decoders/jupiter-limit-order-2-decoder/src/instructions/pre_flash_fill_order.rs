@@ -12,13 +12,13 @@ pub struct PreFlashFillOrder {
 }
 
 pub struct PreFlashFillOrderInstructionAccounts {
-    pub taker: solana_sdk::pubkey::Pubkey,
-    pub order: solana_sdk::pubkey::Pubkey,
-    pub input_mint_reserve: solana_sdk::pubkey::Pubkey,
-    pub taker_input_mint_account: solana_sdk::pubkey::Pubkey,
-    pub input_mint: solana_sdk::pubkey::Pubkey,
-    pub input_token_program: solana_sdk::pubkey::Pubkey,
-    pub instruction: solana_sdk::pubkey::Pubkey,
+    pub taker: solana_pubkey::Pubkey,
+    pub order: solana_pubkey::Pubkey,
+    pub input_mint_reserve: solana_pubkey::Pubkey,
+    pub taker_input_mint_account: solana_pubkey::Pubkey,
+    pub input_mint: solana_pubkey::Pubkey,
+    pub input_token_program: solana_pubkey::Pubkey,
+    pub instruction: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for PreFlashFillOrder {

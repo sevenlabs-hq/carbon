@@ -10,8 +10,8 @@ pub struct RepayAndWithdrawAndRedeem {
 }
 
 pub struct RepayAndWithdrawAndRedeemInstructionAccounts {
-    pub repay_accounts: solana_sdk::pubkey::Pubkey,
-    pub withdraw_accounts: solana_sdk::pubkey::Pubkey,
+    pub repay_accounts: solana_pubkey::Pubkey,
+    pub withdraw_accounts: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RepayAndWithdrawAndRedeem {

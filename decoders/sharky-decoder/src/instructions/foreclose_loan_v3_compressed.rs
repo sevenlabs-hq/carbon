@@ -13,18 +13,18 @@ pub struct ForecloseLoanV3Compressed {
 }
 
 pub struct ForecloseLoanV3CompressedInstructionAccounts {
-    pub loan: solana_sdk::pubkey::Pubkey,
-    pub escrow: solana_sdk::pubkey::Pubkey,
-    pub borrower: solana_sdk::pubkey::Pubkey,
-    pub lender: solana_sdk::pubkey::Pubkey,
-    pub tree_authority: solana_sdk::pubkey::Pubkey,
-    pub log_wrapper: solana_sdk::pubkey::Pubkey,
-    pub merkle_tree: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub mpl_bubblegum_program: solana_sdk::pubkey::Pubkey,
-    pub compression_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub loan: solana_pubkey::Pubkey,
+    pub escrow: solana_pubkey::Pubkey,
+    pub borrower: solana_pubkey::Pubkey,
+    pub lender: solana_pubkey::Pubkey,
+    pub tree_authority: solana_pubkey::Pubkey,
+    pub log_wrapper: solana_pubkey::Pubkey,
+    pub merkle_tree: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub mpl_bubblegum_program: solana_pubkey::Pubkey,
+    pub compression_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ForecloseLoanV3Compressed {

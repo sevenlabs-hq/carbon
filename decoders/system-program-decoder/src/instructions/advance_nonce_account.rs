@@ -7,9 +7,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct AdvanceNonceAccount {}
 
 pub struct AdvanceNonceAccountInstructionAccounts {
-    pub nonce_account: solana_sdk::pubkey::Pubkey,
-    pub recent_blockhashes_sysvar: solana_sdk::pubkey::Pubkey,
-    pub nonce_authority: solana_sdk::pubkey::Pubkey,
+    pub nonce_account: solana_pubkey::Pubkey,
+    pub recent_blockhashes_sysvar: solana_pubkey::Pubkey,
+    pub nonce_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for AdvanceNonceAccount {

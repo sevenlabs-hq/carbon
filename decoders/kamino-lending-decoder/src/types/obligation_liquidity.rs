@@ -7,7 +7,7 @@ use {
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub struct ObligationLiquidity {
-    pub borrow_reserve: solana_sdk::pubkey::Pubkey,
+    pub borrow_reserve: solana_pubkey::Pubkey,
     pub cumulative_borrow_rate_bsf: BigFractionBytes,
     pub padding: u64,
     pub borrowed_amount_sf: u128,

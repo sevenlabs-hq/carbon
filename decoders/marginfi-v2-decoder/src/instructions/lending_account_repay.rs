@@ -10,13 +10,13 @@ pub struct LendingAccountRepay {
 }
 
 pub struct LendingAccountRepayInstructionAccounts {
-    pub marginfi_group: solana_sdk::pubkey::Pubkey,
-    pub marginfi_account: solana_sdk::pubkey::Pubkey,
-    pub signer: solana_sdk::pubkey::Pubkey,
-    pub bank: solana_sdk::pubkey::Pubkey,
-    pub signer_token_account: solana_sdk::pubkey::Pubkey,
-    pub bank_liquidity_vault: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub marginfi_group: solana_pubkey::Pubkey,
+    pub marginfi_account: solana_pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
+    pub bank: solana_pubkey::Pubkey,
+    pub signer_token_account: solana_pubkey::Pubkey,
+    pub bank_liquidity_vault: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for LendingAccountRepay {

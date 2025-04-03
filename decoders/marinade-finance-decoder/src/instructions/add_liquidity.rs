@@ -9,15 +9,15 @@ pub struct AddLiquidity {
 }
 
 pub struct AddLiquidityInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub lp_mint: solana_sdk::pubkey::Pubkey,
-    pub lp_mint_authority: solana_sdk::pubkey::Pubkey,
-    pub liq_pool_msol_leg: solana_sdk::pubkey::Pubkey,
-    pub liq_pool_sol_leg_pda: solana_sdk::pubkey::Pubkey,
-    pub transfer_from: solana_sdk::pubkey::Pubkey,
-    pub mint_to: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub lp_mint: solana_pubkey::Pubkey,
+    pub lp_mint_authority: solana_pubkey::Pubkey,
+    pub liq_pool_msol_leg: solana_pubkey::Pubkey,
+    pub liq_pool_sol_leg_pda: solana_pubkey::Pubkey,
+    pub transfer_from: solana_pubkey::Pubkey,
+    pub mint_to: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for AddLiquidity {

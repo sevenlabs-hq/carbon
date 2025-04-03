@@ -12,20 +12,20 @@ pub struct InitializePermissionLbPair {
 }
 
 pub struct InitializePermissionLbPairInstructionAccounts {
-    pub base: solana_sdk::pubkey::Pubkey,
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
-    pub bin_array_bitmap_extension: solana_sdk::pubkey::Pubkey,
-    pub token_mint_x: solana_sdk::pubkey::Pubkey,
-    pub token_mint_y: solana_sdk::pubkey::Pubkey,
-    pub reserve_x: solana_sdk::pubkey::Pubkey,
-    pub reserve_y: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub base: solana_pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
+    pub bin_array_bitmap_extension: solana_pubkey::Pubkey,
+    pub token_mint_x: solana_pubkey::Pubkey,
+    pub token_mint_y: solana_pubkey::Pubkey,
+    pub reserve_x: solana_pubkey::Pubkey,
+    pub reserve_y: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializePermissionLbPair {

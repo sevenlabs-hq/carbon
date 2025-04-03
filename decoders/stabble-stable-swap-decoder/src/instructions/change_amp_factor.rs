@@ -10,9 +10,9 @@ pub struct ChangeAmpFactor {
 }
 
 pub struct ChangeAmpFactorInstructionAccounts {
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub vault: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub vault: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ChangeAmpFactor {

@@ -12,20 +12,20 @@ pub struct LendingPoolAddBank {
 }
 
 pub struct LendingPoolAddBankInstructionAccounts {
-    pub marginfi_group: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub fee_payer: solana_sdk::pubkey::Pubkey,
-    pub bank_mint: solana_sdk::pubkey::Pubkey,
-    pub bank: solana_sdk::pubkey::Pubkey,
-    pub liquidity_vault_authority: solana_sdk::pubkey::Pubkey,
-    pub liquidity_vault: solana_sdk::pubkey::Pubkey,
-    pub insurance_vault_authority: solana_sdk::pubkey::Pubkey,
-    pub insurance_vault: solana_sdk::pubkey::Pubkey,
-    pub fee_vault_authority: solana_sdk::pubkey::Pubkey,
-    pub fee_vault: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub marginfi_group: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub fee_payer: solana_pubkey::Pubkey,
+    pub bank_mint: solana_pubkey::Pubkey,
+    pub bank: solana_pubkey::Pubkey,
+    pub liquidity_vault_authority: solana_pubkey::Pubkey,
+    pub liquidity_vault: solana_pubkey::Pubkey,
+    pub insurance_vault_authority: solana_pubkey::Pubkey,
+    pub insurance_vault: solana_pubkey::Pubkey,
+    pub fee_vault_authority: solana_pubkey::Pubkey,
+    pub fee_vault: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for LendingPoolAddBank {

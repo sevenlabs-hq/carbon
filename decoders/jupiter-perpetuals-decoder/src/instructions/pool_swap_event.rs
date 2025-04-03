@@ -5,14 +5,14 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0xe445a52e51cb9a1d286bd41adf8827dc")]
 pub struct PoolSwapEvent {
-    pub receiving_custody_key: solana_sdk::pubkey::Pubkey,
-    pub dispensing_custody_key: solana_sdk::pubkey::Pubkey,
-    pub pool_key: solana_sdk::pubkey::Pubkey,
+    pub receiving_custody_key: solana_pubkey::Pubkey,
+    pub dispensing_custody_key: solana_pubkey::Pubkey,
+    pub pool_key: solana_pubkey::Pubkey,
     pub amount_in: u64,
     pub amount_out: u64,
     pub swap_usd_amount: u64,
     pub amount_out_after_fees: u64,
     pub fee_bps: u64,
-    pub owner_key: solana_sdk::pubkey::Pubkey,
-    pub receiving_account_key: solana_sdk::pubkey::Pubkey,
+    pub owner_key: solana_pubkey::Pubkey,
+    pub receiving_account_key: solana_pubkey::Pubkey,
 }

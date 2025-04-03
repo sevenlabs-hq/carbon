@@ -11,9 +11,9 @@ pub struct OpenbookV2FulfillmentConfigStatus {
 }
 
 pub struct OpenbookV2FulfillmentConfigStatusInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub openbook_v2_fulfillment_config: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub openbook_v2_fulfillment_config: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for OpenbookV2FulfillmentConfigStatus {

@@ -10,9 +10,9 @@ pub struct UpdateFarmConfig {
 }
 
 pub struct UpdateFarmConfigInstructionAccounts {
-    pub signer: solana_sdk::pubkey::Pubkey,
-    pub farm_state: solana_sdk::pubkey::Pubkey,
-    pub scope_prices: solana_sdk::pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
+    pub farm_state: solana_pubkey::Pubkey,
+    pub scope_prices: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateFarmConfig {

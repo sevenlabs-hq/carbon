@@ -5,5 +5,5 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 pub enum SpotFulfillmentMethod {
     ExternalMarket,
-    Match(solana_sdk::pubkey::Pubkey, u16),
+    Match(solana_pubkey::Pubkey, u16),
 }

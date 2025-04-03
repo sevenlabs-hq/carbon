@@ -5,11 +5,11 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0x01000000")]
 pub struct Assign {
-    pub program_address: solana_sdk::pubkey::Pubkey,
+    pub program_address: solana_pubkey::Pubkey,
 }
 
 pub struct AssignInstructionAccounts {
-    pub account: solana_sdk::pubkey::Pubkey,
+    pub account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Assign {

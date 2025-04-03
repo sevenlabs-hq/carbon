@@ -9,6 +9,7 @@ carbon-log-metrics = { workspace = true }
 carbon-openbook-v2-decoder = { workspace = true }
 carbon-rpc-block-subscribe-datasource = { workspace = true }
 solana-client = { workspace = true }
+solana-pubkey = { workspace = true }
 solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 

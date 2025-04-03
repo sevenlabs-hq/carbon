@@ -6,9 +6,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct FreezeAccount {}
 
 pub struct FreezeAccountAccounts {
-    pub account: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub account: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
     pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 

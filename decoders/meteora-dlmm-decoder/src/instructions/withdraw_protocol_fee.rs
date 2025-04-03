@@ -10,15 +10,15 @@ pub struct WithdrawProtocolFee {
 }
 
 pub struct WithdrawProtocolFeeInstructionAccounts {
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
-    pub reserve_x: solana_sdk::pubkey::Pubkey,
-    pub reserve_y: solana_sdk::pubkey::Pubkey,
-    pub token_x_mint: solana_sdk::pubkey::Pubkey,
-    pub token_y_mint: solana_sdk::pubkey::Pubkey,
-    pub receiver_token_x: solana_sdk::pubkey::Pubkey,
-    pub receiver_token_y: solana_sdk::pubkey::Pubkey,
-    pub token_x_program: solana_sdk::pubkey::Pubkey,
-    pub token_y_program: solana_sdk::pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
+    pub reserve_x: solana_pubkey::Pubkey,
+    pub reserve_y: solana_pubkey::Pubkey,
+    pub token_x_mint: solana_pubkey::Pubkey,
+    pub token_y_mint: solana_pubkey::Pubkey,
+    pub receiver_token_x: solana_pubkey::Pubkey,
+    pub receiver_token_y: solana_pubkey::Pubkey,
+    pub token_x_program: solana_pubkey::Pubkey,
+    pub token_y_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawProtocolFee {

@@ -7,9 +7,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct CloseConfig {}
 
 pub struct CloseConfigInstructionAccounts {
-    pub config: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub rent_receiver: solana_sdk::pubkey::Pubkey,
+    pub config: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub rent_receiver: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CloseConfig {

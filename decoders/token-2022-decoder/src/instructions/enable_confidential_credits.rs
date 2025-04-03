@@ -9,8 +9,8 @@ pub struct EnableConfidentialCredits {
 }
 
 pub struct EnableConfidentialCreditsInstructionAccounts {
-    pub token: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub token: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for EnableConfidentialCredits {

@@ -11,18 +11,18 @@ pub struct DecreaseLiquidity {
 }
 
 pub struct DecreaseLiquidityInstructionAccounts {
-    pub nft_owner: solana_sdk::pubkey::Pubkey,
-    pub nft_account: solana_sdk::pubkey::Pubkey,
-    pub personal_position: solana_sdk::pubkey::Pubkey,
-    pub pool_state: solana_sdk::pubkey::Pubkey,
-    pub protocol_position: solana_sdk::pubkey::Pubkey,
-    pub token_vault0: solana_sdk::pubkey::Pubkey,
-    pub token_vault1: solana_sdk::pubkey::Pubkey,
-    pub tick_array_lower: solana_sdk::pubkey::Pubkey,
-    pub tick_array_upper: solana_sdk::pubkey::Pubkey,
-    pub recipient_token_account0: solana_sdk::pubkey::Pubkey,
-    pub recipient_token_account1: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub nft_owner: solana_pubkey::Pubkey,
+    pub nft_account: solana_pubkey::Pubkey,
+    pub personal_position: solana_pubkey::Pubkey,
+    pub pool_state: solana_pubkey::Pubkey,
+    pub protocol_position: solana_pubkey::Pubkey,
+    pub token_vault0: solana_pubkey::Pubkey,
+    pub token_vault1: solana_pubkey::Pubkey,
+    pub tick_array_lower: solana_pubkey::Pubkey,
+    pub tick_array_upper: solana_pubkey::Pubkey,
+    pub recipient_token_account0: solana_pubkey::Pubkey,
+    pub recipient_token_account1: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DecreaseLiquidity {

@@ -7,11 +7,11 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct RevokeCollectionAuthority {}
 
 pub struct RevokeCollectionAuthorityInstructionAccounts {
-    pub collection_authority_record: solana_sdk::pubkey::Pubkey,
-    pub delegate_authority: solana_sdk::pubkey::Pubkey,
-    pub revoke_authority: solana_sdk::pubkey::Pubkey,
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub collection_authority_record: solana_pubkey::Pubkey,
+    pub delegate_authority: solana_pubkey::Pubkey,
+    pub revoke_authority: solana_pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RevokeCollectionAuthority {

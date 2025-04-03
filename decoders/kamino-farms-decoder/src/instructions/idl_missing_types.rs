@@ -16,8 +16,8 @@ pub struct IdlMissingTypes {
 }
 
 pub struct IdlMissingTypesInstructionAccounts {
-    pub global_admin: solana_sdk::pubkey::Pubkey,
-    pub global_config: solana_sdk::pubkey::Pubkey,
+    pub global_admin: solana_pubkey::Pubkey,
+    pub global_config: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for IdlMissingTypes {

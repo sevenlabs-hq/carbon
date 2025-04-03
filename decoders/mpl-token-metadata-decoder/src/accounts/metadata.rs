@@ -6,8 +6,8 @@ use {
 #[derive(CarbonDeserialize, Debug)]
 pub struct Metadata {
     pub key: Key,
-    pub update_authority: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub update_authority: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
     pub data: Data,
     pub primary_sale_happened: bool,
     pub is_mutable: bool,

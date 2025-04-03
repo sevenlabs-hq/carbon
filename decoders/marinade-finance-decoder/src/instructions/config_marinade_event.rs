@@ -8,7 +8,7 @@ use {
 )]
 #[carbon(discriminator = "0xe445a52e51cb9a1d9fa4f5725efd0309")]
 pub struct ConfigMarinadeEvent {
-    pub state: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
     pub rewards_fee_change: Option<FeeValueChange>,
     pub slots_for_stake_delta_change: Option<U64ValueChange>,
     pub min_stake_change: Option<U64ValueChange>,

@@ -8,8 +8,8 @@ use {
 )]
 #[carbon(discriminator = "0xe445a52e51cb9a1d3a35edb2ee99559c")]
 pub struct SetValidatorScoreEvent {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub validator: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub validator: solana_pubkey::Pubkey,
     pub index: u32,
     pub score_change: U32ValueChange,
 }

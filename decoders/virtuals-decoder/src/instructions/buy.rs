@@ -10,16 +10,16 @@ pub struct Buy {
 }
 
 pub struct BuyInstructionAccounts {
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub vpool: solana_sdk::pubkey::Pubkey,
-    pub token_mint: solana_sdk::pubkey::Pubkey,
-    pub user_virtuals_ata: solana_sdk::pubkey::Pubkey,
-    pub user_token_ata: solana_sdk::pubkey::Pubkey,
-    pub vpool_token_ata: solana_sdk::pubkey::Pubkey,
-    pub platform_prototype: solana_sdk::pubkey::Pubkey,
-    pub platform_prototype_virtuals_ata: solana_sdk::pubkey::Pubkey,
-    pub vpool_virtuals_ata: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub vpool: solana_pubkey::Pubkey,
+    pub token_mint: solana_pubkey::Pubkey,
+    pub user_virtuals_ata: solana_pubkey::Pubkey,
+    pub user_token_ata: solana_pubkey::Pubkey,
+    pub vpool_token_ata: solana_pubkey::Pubkey,
+    pub platform_prototype: solana_pubkey::Pubkey,
+    pub platform_prototype_virtuals_ata: solana_pubkey::Pubkey,
+    pub vpool_virtuals_ata: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Buy {

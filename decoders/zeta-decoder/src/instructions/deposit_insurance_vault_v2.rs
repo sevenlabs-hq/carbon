@@ -9,15 +9,15 @@ pub struct DepositInsuranceVaultV2 {
 }
 
 pub struct DepositInsuranceVaultV2InstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub pricing: solana_sdk::pubkey::Pubkey,
-    pub insurance_vault: solana_sdk::pubkey::Pubkey,
-    pub insurance_deposit_account: solana_sdk::pubkey::Pubkey,
-    pub user_token_account: solana_sdk::pubkey::Pubkey,
-    pub zeta_vault: solana_sdk::pubkey::Pubkey,
-    pub socialized_loss_account: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub pricing: solana_pubkey::Pubkey,
+    pub insurance_vault: solana_pubkey::Pubkey,
+    pub insurance_deposit_account: solana_pubkey::Pubkey,
+    pub user_token_account: solana_pubkey::Pubkey,
+    pub zeta_vault: solana_pubkey::Pubkey,
+    pub socialized_loss_account: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DepositInsuranceVaultV2 {

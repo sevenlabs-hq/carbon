@@ -5,12 +5,12 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0x89f547592ef91635")]
 pub struct EditDelegatedPubkey {
-    pub new_key: solana_sdk::pubkey::Pubkey,
+    pub new_key: solana_pubkey::Pubkey,
 }
 
 pub struct EditDelegatedPubkeyInstructionAccounts {
-    pub margin_account: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub margin_account: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for EditDelegatedPubkey {

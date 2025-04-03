@@ -6,13 +6,13 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x1b")]
 pub struct InitializeConfidentialTransferMint {
     pub confidential_transfer_discriminator: u8,
-    pub authority: Option<solana_sdk::pubkey::Pubkey>,
+    pub authority: Option<solana_pubkey::Pubkey>,
     pub auto_approve_new_accounts: bool,
-    pub auditor_elgamal_pubkey: Option<solana_sdk::pubkey::Pubkey>,
+    pub auditor_elgamal_pubkey: Option<solana_pubkey::Pubkey>,
 }
 
 pub struct InitializeConfidentialTransferMintInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeConfidentialTransferMint {

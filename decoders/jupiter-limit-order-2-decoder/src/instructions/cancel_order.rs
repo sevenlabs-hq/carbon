@@ -7,15 +7,15 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct CancelOrder {}
 
 pub struct CancelOrderInstructionAccounts {
-    pub signer: solana_sdk::pubkey::Pubkey,
-    pub maker: solana_sdk::pubkey::Pubkey,
-    pub order: solana_sdk::pubkey::Pubkey,
-    pub input_mint_reserve: solana_sdk::pubkey::Pubkey,
-    pub maker_input_mint_account: solana_sdk::pubkey::Pubkey,
-    pub input_mint: solana_sdk::pubkey::Pubkey,
-    pub input_token_program: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
+    pub maker: solana_pubkey::Pubkey,
+    pub order: solana_pubkey::Pubkey,
+    pub input_mint_reserve: solana_pubkey::Pubkey,
+    pub maker_input_mint_account: solana_pubkey::Pubkey,
+    pub input_mint: solana_pubkey::Pubkey,
+    pub input_token_program: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CancelOrder {

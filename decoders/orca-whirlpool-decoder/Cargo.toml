@@ -15,4 +15,5 @@ crate-type = ["rlib"]
 [dependencies]
 carbon-core = { workspace = true }
 serde = { workspace = true }
+solana-pubkey = { workspace = true }
 solana-sdk = { workspace = true }

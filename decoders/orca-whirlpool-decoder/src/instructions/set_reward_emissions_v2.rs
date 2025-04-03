@@ -10,9 +10,9 @@ pub struct SetRewardEmissionsV2 {
 }
 
 pub struct SetRewardEmissionsV2InstructionAccounts {
-    pub whirlpool: solana_sdk::pubkey::Pubkey,
-    pub reward_authority: solana_sdk::pubkey::Pubkey,
-    pub reward_vault: solana_sdk::pubkey::Pubkey,
+    pub whirlpool: solana_pubkey::Pubkey,
+    pub reward_authority: solana_pubkey::Pubkey,
+    pub reward_vault: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetRewardEmissionsV2 {

@@ -19,8 +19,8 @@ pub struct PlacePerpOrderV4 {
 }
 
 pub struct PlacePerpOrderV4InstructionAccounts {
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub place_order_accounts: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub place_order_accounts: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for PlacePerpOrderV4 {

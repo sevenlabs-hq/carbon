@@ -9,12 +9,12 @@ pub struct DepositIntoSpotMarketRevenuePool {
 }
 
 pub struct DepositIntoSpotMarketRevenuePoolInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub spot_market: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub spot_market_vault: solana_sdk::pubkey::Pubkey,
-    pub user_token_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub spot_market: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub spot_market_vault: solana_pubkey::Pubkey,
+    pub user_token_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DepositIntoSpotMarketRevenuePool {

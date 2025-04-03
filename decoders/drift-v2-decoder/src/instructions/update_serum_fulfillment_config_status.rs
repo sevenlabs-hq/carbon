@@ -11,9 +11,9 @@ pub struct UpdateSerumFulfillmentConfigStatus {
 }
 
 pub struct UpdateSerumFulfillmentConfigStatusInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub serum_fulfillment_config: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub serum_fulfillment_config: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateSerumFulfillmentConfigStatus {

@@ -9,15 +9,15 @@ pub struct AddValidator {
 }
 
 pub struct AddValidatorInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub manager_authority: solana_sdk::pubkey::Pubkey,
-    pub validator_list: solana_sdk::pubkey::Pubkey,
-    pub validator_vote: solana_sdk::pubkey::Pubkey,
-    pub duplication_flag: solana_sdk::pubkey::Pubkey,
-    pub rent_payer: solana_sdk::pubkey::Pubkey,
-    pub clock: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub manager_authority: solana_pubkey::Pubkey,
+    pub validator_list: solana_pubkey::Pubkey,
+    pub validator_vote: solana_pubkey::Pubkey,
+    pub duplication_flag: solana_pubkey::Pubkey,
+    pub rent_payer: solana_pubkey::Pubkey,
+    pub clock: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for AddValidator {

@@ -8,7 +8,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0xe445a52e51cb9a1d44429c07d894fa72")]
 pub struct InsuranceFundStakeRecordEvent {
     pub ts: i64,
-    pub user_authority: solana_sdk::pubkey::Pubkey,
+    pub user_authority: solana_pubkey::Pubkey,
     pub action: StakeAction,
     pub amount: u64,
     pub market_index: u16,

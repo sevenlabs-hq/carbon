@@ -7,13 +7,13 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct VerifyCollection {}
 
 pub struct VerifyCollectionInstructionAccounts {
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub collection_authority: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub collection_mint: solana_sdk::pubkey::Pubkey,
-    pub collection: solana_sdk::pubkey::Pubkey,
-    pub collection_master_edition_account: solana_sdk::pubkey::Pubkey,
-    pub collection_authority_record: solana_sdk::pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub collection_authority: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub collection_mint: solana_pubkey::Pubkey,
+    pub collection: solana_pubkey::Pubkey,
+    pub collection_master_edition_account: solana_pubkey::Pubkey,
+    pub collection_authority_record: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for VerifyCollection {

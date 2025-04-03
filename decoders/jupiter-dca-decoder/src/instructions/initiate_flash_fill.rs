@@ -8,16 +8,16 @@ pub struct InitiateFlashFill {}
 
 #[derive(Debug, PartialEq)]
 pub struct InitiateFlashFillInstructionAccounts {
-    pub keeper: solana_sdk::pubkey::Pubkey,
-    pub dca: solana_sdk::pubkey::Pubkey,
-    pub input_mint: solana_sdk::pubkey::Pubkey,
-    pub keeper_in_ata: solana_sdk::pubkey::Pubkey,
-    pub in_ata: solana_sdk::pubkey::Pubkey,
-    pub out_ata: solana_sdk::pubkey::Pubkey,
-    pub instructions_sysvar: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
+    pub keeper: solana_pubkey::Pubkey,
+    pub dca: solana_pubkey::Pubkey,
+    pub input_mint: solana_pubkey::Pubkey,
+    pub keeper_in_ata: solana_pubkey::Pubkey,
+    pub in_ata: solana_pubkey::Pubkey,
+    pub out_ata: solana_pubkey::Pubkey,
+    pub instructions_sysvar: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitiateFlashFill {

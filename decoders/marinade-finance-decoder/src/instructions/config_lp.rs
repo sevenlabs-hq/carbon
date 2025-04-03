@@ -12,8 +12,8 @@ pub struct ConfigLp {
 }
 
 pub struct ConfigLpInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub admin_authority: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub admin_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ConfigLp {

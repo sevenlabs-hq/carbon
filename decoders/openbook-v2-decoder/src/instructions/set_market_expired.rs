@@ -7,8 +7,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct SetMarketExpired {}
 
 pub struct SetMarketExpiredInstructionAccounts {
-    pub close_market_admin: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
+    pub close_market_admin: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetMarketExpired {

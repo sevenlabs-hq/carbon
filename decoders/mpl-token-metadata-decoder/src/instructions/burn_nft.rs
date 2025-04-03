@@ -7,13 +7,13 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct BurnNft {}
 
 pub struct BurnNftInstructionAccounts {
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub token_account: solana_sdk::pubkey::Pubkey,
-    pub master_edition_account: solana_sdk::pubkey::Pubkey,
-    pub spl_token_program: solana_sdk::pubkey::Pubkey,
-    pub collection_metadata: solana_sdk::pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub token_account: solana_pubkey::Pubkey,
+    pub master_edition_account: solana_pubkey::Pubkey,
+    pub spl_token_program: solana_pubkey::Pubkey,
+    pub collection_metadata: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for BurnNft {

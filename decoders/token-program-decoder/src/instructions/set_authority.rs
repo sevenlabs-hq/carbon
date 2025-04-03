@@ -8,12 +8,12 @@ use {
 #[carbon(discriminator = "0x06")]
 pub struct SetAuthority {
     pub authority_type: AuthorityType,
-    pub new_authority: Option<solana_sdk::pubkey::Pubkey>,
+    pub new_authority: Option<solana_pubkey::Pubkey>,
 }
 
 pub struct SetAuthorityAccounts {
-    pub account: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub account: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
     pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
 }
 

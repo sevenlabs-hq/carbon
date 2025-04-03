@@ -7,22 +7,22 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct DeprecatedMintNewEditionFromMasterEditionViaPrintingToken {}
 
 pub struct DeprecatedMintNewEditionFromMasterEditionViaPrintingTokenInstructionAccounts {
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub edition: solana_sdk::pubkey::Pubkey,
-    pub master_edition: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub mint_authority: solana_sdk::pubkey::Pubkey,
-    pub printing_mint: solana_sdk::pubkey::Pubkey,
-    pub master_token_account: solana_sdk::pubkey::Pubkey,
-    pub edition_marker: solana_sdk::pubkey::Pubkey,
-    pub burn_authority: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub master_update_authority: solana_sdk::pubkey::Pubkey,
-    pub master_metadata: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub reservation_list: solana_sdk::pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub edition: solana_pubkey::Pubkey,
+    pub master_edition: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub mint_authority: solana_pubkey::Pubkey,
+    pub printing_mint: solana_pubkey::Pubkey,
+    pub master_token_account: solana_pubkey::Pubkey,
+    pub edition_marker: solana_pubkey::Pubkey,
+    pub burn_authority: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub master_update_authority: solana_pubkey::Pubkey,
+    pub master_metadata: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub reservation_list: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts

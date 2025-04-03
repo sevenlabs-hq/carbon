@@ -14,7 +14,7 @@ pub struct AddCustodyParams {
     pub target_ratio_bps: u64,
     pub increase_position_bps: u64,
     pub decrease_position_bps: u64,
-    pub doves_oracle: solana_sdk::pubkey::Pubkey,
+    pub doves_oracle: solana_pubkey::Pubkey,
     pub max_position_size_usd: u64,
     pub jump_rate: JumpRateState,
 }

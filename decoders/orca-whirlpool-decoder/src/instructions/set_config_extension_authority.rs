@@ -7,10 +7,10 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct SetConfigExtensionAuthority {}
 
 pub struct SetConfigExtensionAuthorityInstructionAccounts {
-    pub whirlpools_config: solana_sdk::pubkey::Pubkey,
-    pub whirlpools_config_extension: solana_sdk::pubkey::Pubkey,
-    pub config_extension_authority: solana_sdk::pubkey::Pubkey,
-    pub new_config_extension_authority: solana_sdk::pubkey::Pubkey,
+    pub whirlpools_config: solana_pubkey::Pubkey,
+    pub whirlpools_config_extension: solana_pubkey::Pubkey,
+    pub config_extension_authority: solana_pubkey::Pubkey,
+    pub new_config_extension_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetConfigExtensionAuthority {

@@ -11,12 +11,12 @@ pub struct GetAddLiquidityAmountAndFee2 {
 }
 
 pub struct GetAddLiquidityAmountAndFee2InstructionAccounts {
-    pub perpetuals: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub custody: solana_sdk::pubkey::Pubkey,
-    pub custody_doves_price_account: solana_sdk::pubkey::Pubkey,
-    pub custody_pythnet_price_account: solana_sdk::pubkey::Pubkey,
-    pub lp_token_mint: solana_sdk::pubkey::Pubkey,
+    pub perpetuals: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub custody: solana_pubkey::Pubkey,
+    pub custody_doves_price_account: solana_pubkey::Pubkey,
+    pub custody_pythnet_price_account: solana_pubkey::Pubkey,
+    pub lp_token_mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for GetAddLiquidityAmountAndFee2 {

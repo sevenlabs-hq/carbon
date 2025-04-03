@@ -12,13 +12,13 @@ pub struct PlaceAndMakeSignedMsgPerpOrder {
 }
 
 pub struct PlaceAndMakeSignedMsgPerpOrderInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub user_stats: solana_sdk::pubkey::Pubkey,
-    pub taker: solana_sdk::pubkey::Pubkey,
-    pub taker_stats: solana_sdk::pubkey::Pubkey,
-    pub taker_signed_msg_user_orders: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub user_stats: solana_pubkey::Pubkey,
+    pub taker: solana_pubkey::Pubkey,
+    pub taker_stats: solana_pubkey::Pubkey,
+    pub taker_signed_msg_user_orders: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for PlaceAndMakeSignedMsgPerpOrder {

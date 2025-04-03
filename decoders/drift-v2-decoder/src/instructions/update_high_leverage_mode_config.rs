@@ -10,9 +10,9 @@ pub struct UpdateHighLeverageModeConfig {
 }
 
 pub struct UpdateHighLeverageModeConfigInstructionAccounts {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub high_leverage_mode_config: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub high_leverage_mode_config: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateHighLeverageModeConfig {

@@ -7,14 +7,14 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct RescindLoan {}
 
 pub struct RescindLoanInstructionAccounts {
-    pub loan: solana_sdk::pubkey::Pubkey,
-    pub lender_value_token_account: solana_sdk::pubkey::Pubkey,
-    pub lender: solana_sdk::pubkey::Pubkey,
-    pub value_mint: solana_sdk::pubkey::Pubkey,
-    pub escrow: solana_sdk::pubkey::Pubkey,
-    pub escrow_token_account: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub loan: solana_pubkey::Pubkey,
+    pub lender_value_token_account: solana_pubkey::Pubkey,
+    pub lender: solana_pubkey::Pubkey,
+    pub value_mint: solana_pubkey::Pubkey,
+    pub escrow: solana_pubkey::Pubkey,
+    pub escrow_token_account: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RescindLoan {

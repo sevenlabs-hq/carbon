@@ -18,4 +18,5 @@ carbon-macros = { workspace = true }
 carbon-proc-macros = { workspace = true }
 serde = { workspace = true }
 serde-big-array = { workspace = true }
+solana-pubkey = { workspace = true }
 solana-sdk = { workspace = true }

@@ -9,8 +9,8 @@ pub struct Withdraw {
 }
 
 pub struct WithdrawInstructionAccounts {
-    pub withdraw_from_available: solana_sdk::pubkey::Pubkey,
-    pub withdraw_from_reserve_accounts: solana_sdk::pubkey::Pubkey,
+    pub withdraw_from_available: solana_pubkey::Pubkey,
+    pub withdraw_from_reserve_accounts: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Withdraw {

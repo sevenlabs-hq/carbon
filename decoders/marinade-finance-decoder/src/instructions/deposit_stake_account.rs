@@ -9,21 +9,21 @@ pub struct DepositStakeAccount {
 }
 
 pub struct DepositStakeAccountInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub validator_list: solana_sdk::pubkey::Pubkey,
-    pub stake_list: solana_sdk::pubkey::Pubkey,
-    pub stake_account: solana_sdk::pubkey::Pubkey,
-    pub stake_authority: solana_sdk::pubkey::Pubkey,
-    pub duplication_flag: solana_sdk::pubkey::Pubkey,
-    pub rent_payer: solana_sdk::pubkey::Pubkey,
-    pub msol_mint: solana_sdk::pubkey::Pubkey,
-    pub mint_to: solana_sdk::pubkey::Pubkey,
-    pub msol_mint_authority: solana_sdk::pubkey::Pubkey,
-    pub clock: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub stake_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub validator_list: solana_pubkey::Pubkey,
+    pub stake_list: solana_pubkey::Pubkey,
+    pub stake_account: solana_pubkey::Pubkey,
+    pub stake_authority: solana_pubkey::Pubkey,
+    pub duplication_flag: solana_pubkey::Pubkey,
+    pub rent_payer: solana_pubkey::Pubkey,
+    pub msol_mint: solana_pubkey::Pubkey,
+    pub mint_to: solana_pubkey::Pubkey,
+    pub msol_mint_authority: solana_pubkey::Pubkey,
+    pub clock: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub stake_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DepositStakeAccount {

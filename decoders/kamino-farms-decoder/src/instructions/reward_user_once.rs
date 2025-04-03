@@ -10,9 +10,9 @@ pub struct RewardUserOnce {
 }
 
 pub struct RewardUserOnceInstructionAccounts {
-    pub farm_admin: solana_sdk::pubkey::Pubkey,
-    pub farm_state: solana_sdk::pubkey::Pubkey,
-    pub user_state: solana_sdk::pubkey::Pubkey,
+    pub farm_admin: solana_pubkey::Pubkey,
+    pub farm_state: solana_pubkey::Pubkey,
+    pub user_state: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RewardUserOnce {

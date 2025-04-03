@@ -8,8 +8,8 @@ use {
 )]
 #[carbon(discriminator = "0xe445a52e51cb9a1dad05930f050ec274")]
 pub struct LiquidUnstakeEvent {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub msol_owner: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub msol_owner: solana_pubkey::Pubkey,
     pub liq_pool_sol_balance: u64,
     pub liq_pool_msol_balance: u64,
     pub treasury_msol_balance: Option<u64>,

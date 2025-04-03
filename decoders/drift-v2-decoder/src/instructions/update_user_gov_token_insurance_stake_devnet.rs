@@ -9,8 +9,8 @@ pub struct UpdateUserGovTokenInsuranceStakeDevnet {
 }
 
 pub struct UpdateUserGovTokenInsuranceStakeDevnetInstructionAccounts {
-    pub user_stats: solana_sdk::pubkey::Pubkey,
-    pub signer: solana_sdk::pubkey::Pubkey,
+    pub user_stats: solana_pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateUserGovTokenInsuranceStakeDevnet {

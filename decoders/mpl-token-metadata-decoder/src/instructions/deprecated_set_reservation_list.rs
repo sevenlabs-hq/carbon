@@ -7,9 +7,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct DeprecatedSetReservationList {}
 
 pub struct DeprecatedSetReservationListInstructionAccounts {
-    pub master_edition: solana_sdk::pubkey::Pubkey,
-    pub reservation_list: solana_sdk::pubkey::Pubkey,
-    pub resource: solana_sdk::pubkey::Pubkey,
+    pub master_edition: solana_pubkey::Pubkey,
+    pub reservation_list: solana_pubkey::Pubkey,
+    pub resource: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DeprecatedSetReservationList {

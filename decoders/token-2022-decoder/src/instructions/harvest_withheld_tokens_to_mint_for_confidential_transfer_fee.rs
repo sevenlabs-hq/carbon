@@ -9,7 +9,7 @@ pub struct HarvestWithheldTokensToMintForConfidentialTransferFee {
 }
 
 pub struct HarvestWithheldTokensToMintForConfidentialTransferFeeInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts

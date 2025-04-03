@@ -5,5 +5,5 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct OpenOrdersIndexer {
     pub bump: u8,
     pub created_counter: u32,
-    pub addresses: Vec<solana_sdk::pubkey::Pubkey>,
+    pub addresses: Vec<solana_pubkey::Pubkey>,
 }

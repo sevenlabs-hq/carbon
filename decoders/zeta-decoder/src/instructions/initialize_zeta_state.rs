@@ -11,18 +11,18 @@ pub struct InitializeZetaState {
 }
 
 pub struct InitializeZetaStateInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub mint_authority: solana_sdk::pubkey::Pubkey,
-    pub serum_authority: solana_sdk::pubkey::Pubkey,
-    pub treasury_wallet: solana_sdk::pubkey::Pubkey,
-    pub referrals_admin: solana_sdk::pubkey::Pubkey,
-    pub referrals_rewards_wallet: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub usdc_mint: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub secondary_admin: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub mint_authority: solana_pubkey::Pubkey,
+    pub serum_authority: solana_pubkey::Pubkey,
+    pub treasury_wallet: solana_pubkey::Pubkey,
+    pub referrals_admin: solana_pubkey::Pubkey,
+    pub referrals_rewards_wallet: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub usdc_mint: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub secondary_admin: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeZetaState {

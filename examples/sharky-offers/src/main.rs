@@ -22,7 +22,7 @@ use {
         nonblocking::rpc_client::RpcClient,
         rpc_config::{RpcAccountInfoConfig, RpcProgramAccountsConfig},
     },
-    solana_sdk::pubkey::Pubkey,
+    solana_pubkey::Pubkey,
     std::{env, sync::Arc},
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,

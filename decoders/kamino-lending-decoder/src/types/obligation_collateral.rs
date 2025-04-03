@@ -4,7 +4,7 @@ use carbon_core::{borsh, CarbonDeserialize};
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub struct ObligationCollateral {
-    pub deposit_reserve: solana_sdk::pubkey::Pubkey,
+    pub deposit_reserve: solana_pubkey::Pubkey,
     pub deposited_amount: u64,
     pub market_value_sf: u128,
     pub borrowed_amount_against_this_collateral_in_elevation_group: u64,

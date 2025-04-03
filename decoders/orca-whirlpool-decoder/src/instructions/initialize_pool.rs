@@ -14,17 +14,17 @@ pub struct InitializePool {
 }
 
 pub struct InitializePoolInstructionAccounts {
-    pub whirlpools_config: solana_sdk::pubkey::Pubkey,
-    pub token_mint_a: solana_sdk::pubkey::Pubkey,
-    pub token_mint_b: solana_sdk::pubkey::Pubkey,
-    pub funder: solana_sdk::pubkey::Pubkey,
-    pub whirlpool: solana_sdk::pubkey::Pubkey,
-    pub token_vault_a: solana_sdk::pubkey::Pubkey,
-    pub token_vault_b: solana_sdk::pubkey::Pubkey,
-    pub fee_tier: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub whirlpools_config: solana_pubkey::Pubkey,
+    pub token_mint_a: solana_pubkey::Pubkey,
+    pub token_mint_b: solana_pubkey::Pubkey,
+    pub funder: solana_pubkey::Pubkey,
+    pub whirlpool: solana_pubkey::Pubkey,
+    pub token_vault_a: solana_pubkey::Pubkey,
+    pub token_vault_b: solana_pubkey::Pubkey,
+    pub fee_tier: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializePool {

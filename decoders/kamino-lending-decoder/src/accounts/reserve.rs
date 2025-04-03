@@ -8,9 +8,9 @@ use {
 pub struct Reserve {
     pub version: u64,
     pub last_update: LastUpdate,
-    pub lending_market: solana_sdk::pubkey::Pubkey,
-    pub farm_collateral: solana_sdk::pubkey::Pubkey,
-    pub farm_debt: solana_sdk::pubkey::Pubkey,
+    pub lending_market: solana_pubkey::Pubkey,
+    pub farm_collateral: solana_pubkey::Pubkey,
+    pub farm_debt: solana_pubkey::Pubkey,
     pub liquidity: ReserveLiquidity,
     pub reserve_liquidity_padding: [u64; 150],
     pub collateral: ReserveCollateral,

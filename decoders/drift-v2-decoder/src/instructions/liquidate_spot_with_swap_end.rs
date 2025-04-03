@@ -10,19 +10,19 @@ pub struct LiquidateSpotWithSwapEnd {
 }
 
 pub struct LiquidateSpotWithSwapEndInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub liquidator: solana_sdk::pubkey::Pubkey,
-    pub liquidator_stats: solana_sdk::pubkey::Pubkey,
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub user_stats: solana_sdk::pubkey::Pubkey,
-    pub liability_spot_market_vault: solana_sdk::pubkey::Pubkey,
-    pub asset_spot_market_vault: solana_sdk::pubkey::Pubkey,
-    pub liability_token_account: solana_sdk::pubkey::Pubkey,
-    pub asset_token_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub drift_signer: solana_sdk::pubkey::Pubkey,
-    pub instructions: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub liquidator: solana_pubkey::Pubkey,
+    pub liquidator_stats: solana_pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub user_stats: solana_pubkey::Pubkey,
+    pub liability_spot_market_vault: solana_pubkey::Pubkey,
+    pub asset_spot_market_vault: solana_pubkey::Pubkey,
+    pub liability_token_account: solana_pubkey::Pubkey,
+    pub asset_token_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub drift_signer: solana_pubkey::Pubkey,
+    pub instructions: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for LiquidateSpotWithSwapEnd {

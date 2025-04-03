@@ -9,16 +9,16 @@ pub struct InitFarmsForReserve {
 }
 
 pub struct InitFarmsForReserveInstructionAccounts {
-    pub lending_market_owner: solana_sdk::pubkey::Pubkey,
-    pub lending_market: solana_sdk::pubkey::Pubkey,
-    pub lending_market_authority: solana_sdk::pubkey::Pubkey,
-    pub reserve: solana_sdk::pubkey::Pubkey,
-    pub farms_program: solana_sdk::pubkey::Pubkey,
-    pub farms_global_config: solana_sdk::pubkey::Pubkey,
-    pub farm_state: solana_sdk::pubkey::Pubkey,
-    pub farms_vault_authority: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub lending_market_owner: solana_pubkey::Pubkey,
+    pub lending_market: solana_pubkey::Pubkey,
+    pub lending_market_authority: solana_pubkey::Pubkey,
+    pub reserve: solana_pubkey::Pubkey,
+    pub farms_program: solana_pubkey::Pubkey,
+    pub farms_global_config: solana_pubkey::Pubkey,
+    pub farm_state: solana_pubkey::Pubkey,
+    pub farms_vault_authority: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitFarmsForReserve {

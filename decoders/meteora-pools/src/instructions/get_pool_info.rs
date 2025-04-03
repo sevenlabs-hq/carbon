@@ -7,14 +7,14 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct GetPoolInfo {}
 
 pub struct GetPoolInfoInstructionAccounts {
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub lp_mint: solana_sdk::pubkey::Pubkey,
-    pub a_vault_lp: solana_sdk::pubkey::Pubkey,
-    pub b_vault_lp: solana_sdk::pubkey::Pubkey,
-    pub a_vault: solana_sdk::pubkey::Pubkey,
-    pub b_vault: solana_sdk::pubkey::Pubkey,
-    pub a_vault_lp_mint: solana_sdk::pubkey::Pubkey,
-    pub b_vault_lp_mint: solana_sdk::pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub lp_mint: solana_pubkey::Pubkey,
+    pub a_vault_lp: solana_pubkey::Pubkey,
+    pub b_vault_lp: solana_pubkey::Pubkey,
+    pub a_vault: solana_pubkey::Pubkey,
+    pub b_vault: solana_pubkey::Pubkey,
+    pub a_vault_lp_mint: solana_pubkey::Pubkey,
+    pub b_vault_lp_mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for GetPoolInfo {

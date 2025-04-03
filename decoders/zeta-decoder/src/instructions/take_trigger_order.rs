@@ -9,17 +9,17 @@ pub struct TakeTriggerOrder {
 }
 
 pub struct TakeTriggerOrderInstructionAccounts {
-    pub trigger_order: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub pricing: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_feed: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_program: solana_sdk::pubkey::Pubkey,
-    pub bids: solana_sdk::pubkey::Pubkey,
-    pub asks: solana_sdk::pubkey::Pubkey,
-    pub taker: solana_sdk::pubkey::Pubkey,
-    pub taker_margin_account: solana_sdk::pubkey::Pubkey,
-    pub order_margin_account: solana_sdk::pubkey::Pubkey,
+    pub trigger_order: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub pricing: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub oracle_backup_feed: solana_pubkey::Pubkey,
+    pub oracle_backup_program: solana_pubkey::Pubkey,
+    pub bids: solana_pubkey::Pubkey,
+    pub asks: solana_pubkey::Pubkey,
+    pub taker: solana_pubkey::Pubkey,
+    pub taker_margin_account: solana_pubkey::Pubkey,
+    pub order_margin_account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for TakeTriggerOrder {

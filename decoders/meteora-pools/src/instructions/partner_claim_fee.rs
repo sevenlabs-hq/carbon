@@ -10,14 +10,14 @@ pub struct PartnerClaimFee {
 }
 
 pub struct PartnerClaimFeeInstructionAccounts {
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub a_vault_lp: solana_sdk::pubkey::Pubkey,
-    pub protocol_token_a_fee: solana_sdk::pubkey::Pubkey,
-    pub protocol_token_b_fee: solana_sdk::pubkey::Pubkey,
-    pub partner_token_a: solana_sdk::pubkey::Pubkey,
-    pub partner_token_b: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub partner_authority: solana_sdk::pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub a_vault_lp: solana_pubkey::Pubkey,
+    pub protocol_token_a_fee: solana_pubkey::Pubkey,
+    pub protocol_token_b_fee: solana_pubkey::Pubkey,
+    pub partner_token_a: solana_pubkey::Pubkey,
+    pub partner_token_b: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub partner_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for PartnerClaimFee {

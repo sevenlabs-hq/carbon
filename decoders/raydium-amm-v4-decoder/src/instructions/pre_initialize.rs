@@ -9,20 +9,20 @@ pub struct PreInitialize {
 }
 
 pub struct PreInitializeInstructionAccounts {
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub amm_target_orders: solana_sdk::pubkey::Pubkey,
-    pub pool_withdraw_queue: solana_sdk::pubkey::Pubkey,
-    pub amm_authority: solana_sdk::pubkey::Pubkey,
-    pub lp_mint_address: solana_sdk::pubkey::Pubkey,
-    pub coin_mint_address: solana_sdk::pubkey::Pubkey,
-    pub pc_mint_address: solana_sdk::pubkey::Pubkey,
-    pub pool_coin_token_account: solana_sdk::pubkey::Pubkey,
-    pub pool_pc_token_account: solana_sdk::pubkey::Pubkey,
-    pub pool_temp_lp_token_account: solana_sdk::pubkey::Pubkey,
-    pub serum_market: solana_sdk::pubkey::Pubkey,
-    pub user_wallet: solana_sdk::pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub amm_target_orders: solana_pubkey::Pubkey,
+    pub pool_withdraw_queue: solana_pubkey::Pubkey,
+    pub amm_authority: solana_pubkey::Pubkey,
+    pub lp_mint_address: solana_pubkey::Pubkey,
+    pub coin_mint_address: solana_pubkey::Pubkey,
+    pub pc_mint_address: solana_pubkey::Pubkey,
+    pub pool_coin_token_account: solana_pubkey::Pubkey,
+    pub pool_pc_token_account: solana_pubkey::Pubkey,
+    pub pool_temp_lp_token_account: solana_pubkey::Pubkey,
+    pub serum_market: solana_pubkey::Pubkey,
+    pub user_wallet: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for PreInitialize {

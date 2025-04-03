@@ -7,5 +7,5 @@ use {
 pub struct CollectionAuthorityRecord {
     pub key: Key,
     pub bump: u8,
-    pub update_authority: Option<solana_sdk::pubkey::Pubkey>,
+    pub update_authority: Option<solana_pubkey::Pubkey>,
 }

@@ -7,6 +7,6 @@ use {
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub enum LinkedDataKey {
-    LinkedLifecycleHook(solana_sdk::pubkey::Pubkey),
+    LinkedLifecycleHook(solana_pubkey::Pubkey),
     LinkedAppData(Authority),
 }

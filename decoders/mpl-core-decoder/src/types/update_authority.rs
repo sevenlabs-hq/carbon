@@ -5,6 +5,6 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 pub enum UpdateAuthority {
     None,
-    Address(solana_sdk::pubkey::Pubkey),
-    Collection(solana_sdk::pubkey::Pubkey),
+    Address(solana_pubkey::Pubkey),
+    Collection(solana_pubkey::Pubkey),
 }

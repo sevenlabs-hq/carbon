@@ -11,14 +11,14 @@ pub struct Init {
 }
 
 pub struct InitInstructionAccounts {
-    pub upgrade_authority: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub transfer_authority: solana_sdk::pubkey::Pubkey,
-    pub perpetuals: solana_sdk::pubkey::Pubkey,
-    pub perpetuals_program: solana_sdk::pubkey::Pubkey,
-    pub perpetuals_program_data: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub upgrade_authority: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub transfer_authority: solana_pubkey::Pubkey,
+    pub perpetuals: solana_pubkey::Pubkey,
+    pub perpetuals_program: solana_pubkey::Pubkey,
+    pub perpetuals_program_data: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Init {

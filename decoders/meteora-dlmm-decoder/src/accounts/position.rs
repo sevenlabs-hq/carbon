@@ -6,8 +6,8 @@ use {
 #[derive(CarbonDeserialize, Debug)]
 #[carbon(discriminator = "0xaabc8fe47a40f7d0")]
 pub struct Position {
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
     pub liquidity_shares: [u64; 70],
     pub reward_infos: [UserRewardInfo; 70],
     pub fee_infos: [FeeInfo; 70],

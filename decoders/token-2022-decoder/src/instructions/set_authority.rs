@@ -9,12 +9,12 @@ use {
 #[carbon(discriminator = "0x06")]
 pub struct SetAuthority {
     pub authority_type: AuthorityType,
-    pub new_authority: Option<solana_sdk::pubkey::Pubkey>,
+    pub new_authority: Option<solana_pubkey::Pubkey>,
 }
 
 pub struct SetAuthorityInstructionAccounts {
-    pub owned: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
+    pub owned: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetAuthority {

@@ -9,8 +9,8 @@ pub struct UpdateTokenGroupMaxSize {
 }
 
 pub struct UpdateTokenGroupMaxSizeInstructionAccounts {
-    pub group: solana_sdk::pubkey::Pubkey,
-    pub update_authority: solana_sdk::pubkey::Pubkey,
+    pub group: solana_pubkey::Pubkey,
+    pub update_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateTokenGroupMaxSize {

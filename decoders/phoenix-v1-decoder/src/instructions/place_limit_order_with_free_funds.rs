@@ -10,11 +10,11 @@ pub struct PlaceLimitOrderWithFreeFunds {
 }
 
 pub struct PlaceLimitOrderWithFreeFundsInstructionAccounts {
-    pub phoenix_program: solana_sdk::pubkey::Pubkey,
-    pub log_authority: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub trader: solana_sdk::pubkey::Pubkey,
-    pub seat: solana_sdk::pubkey::Pubkey,
+    pub phoenix_program: solana_pubkey::Pubkey,
+    pub log_authority: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub trader: solana_pubkey::Pubkey,
+    pub seat: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for PlaceLimitOrderWithFreeFunds {

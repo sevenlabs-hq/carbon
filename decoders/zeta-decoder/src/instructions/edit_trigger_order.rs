@@ -18,8 +18,8 @@ pub struct EditTriggerOrder {
 }
 
 pub struct EditTriggerOrderInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub trigger_order: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub trigger_order: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for EditTriggerOrder {

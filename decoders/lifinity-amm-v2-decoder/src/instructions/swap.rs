@@ -11,19 +11,19 @@ pub struct Swap {
 
 #[derive(Debug, PartialEq)]
 pub struct SwapInstructionAccounts {
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub amm: solana_sdk::pubkey::Pubkey,
-    pub user_transfer_authority: solana_sdk::pubkey::Pubkey,
-    pub source_info: solana_sdk::pubkey::Pubkey,
-    pub destination_info: solana_sdk::pubkey::Pubkey,
-    pub swap_source: solana_sdk::pubkey::Pubkey,
-    pub swap_destination: solana_sdk::pubkey::Pubkey,
-    pub pool_mint: solana_sdk::pubkey::Pubkey,
-    pub fee_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub oracle_main_account: solana_sdk::pubkey::Pubkey,
-    pub oracle_sub_account: solana_sdk::pubkey::Pubkey,
-    pub oracle_pc_account: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub amm: solana_pubkey::Pubkey,
+    pub user_transfer_authority: solana_pubkey::Pubkey,
+    pub source_info: solana_pubkey::Pubkey,
+    pub destination_info: solana_pubkey::Pubkey,
+    pub swap_source: solana_pubkey::Pubkey,
+    pub swap_destination: solana_pubkey::Pubkey,
+    pub pool_mint: solana_pubkey::Pubkey,
+    pub fee_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub oracle_main_account: solana_pubkey::Pubkey,
+    pub oracle_sub_account: solana_pubkey::Pubkey,
+    pub oracle_pc_account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Swap {

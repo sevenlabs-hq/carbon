@@ -8,8 +8,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0xe445a52e51cb9a1db4f1dacf66872c86")]
 pub struct DepositRecordEvent {
     pub ts: i64,
-    pub user_authority: solana_sdk::pubkey::Pubkey,
-    pub user: solana_sdk::pubkey::Pubkey,
+    pub user_authority: solana_pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
     pub direction: DepositDirection,
     pub deposit_record_id: u64,
     pub amount: u64,
@@ -22,5 +22,5 @@ pub struct DepositRecordEvent {
     pub total_deposits_after: u64,
     pub total_withdraws_after: u64,
     pub explanation: DepositExplanation,
-    pub transfer_user: Option<solana_sdk::pubkey::Pubkey>,
+    pub transfer_user: Option<solana_pubkey::Pubkey>,
 }

@@ -5,10 +5,10 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0xe445a52e51cb9a1d5d0f46aa308cd4db")]
 pub struct ClaimEvent {
-    pub state: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
     pub epoch: u64,
-    pub ticket: solana_sdk::pubkey::Pubkey,
-    pub beneficiary: solana_sdk::pubkey::Pubkey,
+    pub ticket: solana_pubkey::Pubkey,
+    pub beneficiary: solana_pubkey::Pubkey,
     pub circulating_ticket_balance: u64,
     pub circulating_ticket_count: u64,
     pub reserve_balance: u64,

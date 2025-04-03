@@ -5,6 +5,6 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 pub enum ProgrammableConfig {
     V1 {
-        rule_set: Option<solana_sdk::pubkey::Pubkey>,
+        rule_set: Option<solana_pubkey::Pubkey>,
     },
 }

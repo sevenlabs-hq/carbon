@@ -12,10 +12,10 @@ pub struct SetCollectionSize {
 }
 
 pub struct SetCollectionSizeInstructionAccounts {
-    pub collection_metadata: solana_sdk::pubkey::Pubkey,
-    pub collection_authority: solana_sdk::pubkey::Pubkey,
-    pub collection_mint: solana_sdk::pubkey::Pubkey,
-    pub collection_authority_record: solana_sdk::pubkey::Pubkey,
+    pub collection_metadata: solana_pubkey::Pubkey,
+    pub collection_authority: solana_pubkey::Pubkey,
+    pub collection_mint: solana_pubkey::Pubkey,
+    pub collection_authority_record: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetCollectionSize {

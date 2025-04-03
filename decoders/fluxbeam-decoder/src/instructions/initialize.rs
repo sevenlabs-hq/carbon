@@ -13,14 +13,14 @@ pub struct Initialize {
 
 #[derive(Debug, PartialEq)]
 pub struct InitializeInstructionAccounts {
-    pub swap: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub token_a: solana_sdk::pubkey::Pubkey,
-    pub token_b: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub fee: solana_sdk::pubkey::Pubkey,
-    pub destination: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub swap: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub token_a: solana_pubkey::Pubkey,
+    pub token_b: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub fee: solana_pubkey::Pubkey,
+    pub destination: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Initialize {

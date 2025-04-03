@@ -7,8 +7,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct CloseCrossMarginAccountManager {}
 
 pub struct CloseCrossMarginAccountManagerInstructionAccounts {
-    pub cross_margin_account_manager: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub cross_margin_account_manager: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CloseCrossMarginAccountManager {

@@ -7,9 +7,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct SetDelegate {}
 
 pub struct SetDelegateInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub open_orders_account: solana_sdk::pubkey::Pubkey,
-    pub delegate_account: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub open_orders_account: solana_pubkey::Pubkey,
+    pub delegate_account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetDelegate {
