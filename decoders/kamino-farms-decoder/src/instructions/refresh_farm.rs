@@ -15,7 +15,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RefreshFarm {
     type ArrangedAccounts = RefreshFarmInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [farm_state, scope_prices, _remaining @ ..] = accounts else {
             return None;

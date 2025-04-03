@@ -29,7 +29,7 @@ impl carbon_core::deserialize::ArrangeAccounts for FlashFillOrder {
     type ArrangedAccounts = FlashFillOrderInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [order, reserve, maker, taker, maker_output_account, taker_input_account, fee_authority, program_fee_account, referral, input_mint, input_mint_token_program, output_mint, output_mint_token_program, system_program, _remaining @ ..] =
             accounts

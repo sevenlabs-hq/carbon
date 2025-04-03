@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DepositIntoPerpMarketFeePool 
     type ArrangedAccounts = DepositIntoPerpMarketFeePoolInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, perp_market, admin, source_vault, drift_signer, quote_spot_market, spot_market_vault, token_program, _remaining @ ..] =
             accounts

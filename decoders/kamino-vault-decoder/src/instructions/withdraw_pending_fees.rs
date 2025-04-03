@@ -29,7 +29,7 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawPendingFees {
     type ArrangedAccounts = WithdrawPendingFeesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin_authority, vault_state, reserve, token_vault, ctoken_vault, base_vault_authority, token_ata, token_mint, lending_market, lending_market_authority, reserve_liquidity_supply, reserve_collateral_mint, klend_program, token_program, reserve_collateral_token_program, instruction_sysvar_account, _remaining @ ..] =
             accounts

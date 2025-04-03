@@ -27,7 +27,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Withdraw {
     type ArrangedAccounts = WithdrawInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, zeta_group, vault, margin_account, user_token_account, token_program, authority, greeks, oracle, oracle_backup_feed, oracle_backup_program, socialized_loss_account, _remaining @ ..] =
             accounts

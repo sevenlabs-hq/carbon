@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeProtectedMakerModeC
     type ArrangedAccounts = InitializeProtectedMakerModeConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, protected_maker_mode_config, state, rent, system_program, _remaining @ ..] =
             accounts

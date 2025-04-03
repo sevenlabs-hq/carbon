@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for AuthorizeNonceAccount {
     type ArrangedAccounts = AuthorizeNonceAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [nonce_account, nonce_authority, _remaining @ ..] = accounts else {
             return None;

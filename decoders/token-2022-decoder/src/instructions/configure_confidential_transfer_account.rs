@@ -27,7 +27,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ConfigureConfidentialTransfer
     type ArrangedAccounts = ConfigureConfidentialTransferAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [token, mint, instructions_sysvar_or_context_state, record, authority, _remaining @ ..] =
             accounts

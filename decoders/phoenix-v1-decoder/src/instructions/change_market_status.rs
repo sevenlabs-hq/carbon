@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ChangeMarketStatus {
     type ArrangedAccounts = ChangeMarketStatusInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [phoenix_program, log_authority, market, market_authority, _remaining @ ..] = accounts
         else {

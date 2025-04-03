@@ -16,7 +16,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Delete {
     type ArrangedAccounts = DeleteInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [name_record, owner, refund_account, _remaining @ ..] = accounts else {
             return None;

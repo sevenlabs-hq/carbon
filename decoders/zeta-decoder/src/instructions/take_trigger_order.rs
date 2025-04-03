@@ -26,7 +26,7 @@ impl carbon_core::deserialize::ArrangeAccounts for TakeTriggerOrder {
     type ArrangedAccounts = TakeTriggerOrderInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [trigger_order, state, pricing, oracle, oracle_backup_feed, oracle_backup_program, bids, asks, taker, taker_margin_account, order_margin_account, _remaining @ ..] =
             accounts

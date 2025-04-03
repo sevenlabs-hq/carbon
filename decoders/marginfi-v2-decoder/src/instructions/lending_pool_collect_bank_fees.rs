@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for LendingPoolCollectBankFees {
     type ArrangedAccounts = LendingPoolCollectBankFeesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [marginfi_group, bank, liquidity_vault_authority, liquidity_vault, insurance_vault, fee_vault, token_program, _remaining @ ..] =
             accounts

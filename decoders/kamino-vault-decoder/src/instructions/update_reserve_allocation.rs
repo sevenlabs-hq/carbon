@@ -25,7 +25,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateReserveAllocation {
     type ArrangedAccounts = UpdateReserveAllocationInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin_authority, vault_state, base_vault_authority, reserve_collateral_mint, reserve, ctoken_vault, reserve_collateral_token_program, system_program, rent, _remaining @ ..] =
             accounts

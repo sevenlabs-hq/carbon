@@ -30,7 +30,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DeactivateStake {
     type ArrangedAccounts = DeactivateStakeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, reserve_pda, validator_list, stake_list, stake_account, stake_deposit_authority, split_stake_account, split_stake_rent_payer, clock, rent, epoch_schedule, stake_history, system_program, stake_program, _remaining @ ..] =
             accounts

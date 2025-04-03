@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for AddRewards {
     type ArrangedAccounts = AddRewardsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, farm_state, reward_mint, reward_vault, farm_vaults_authority, payer_reward_token_ata, scope_prices, token_program, _remaining @ ..] =
             accounts

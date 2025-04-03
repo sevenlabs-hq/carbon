@@ -36,7 +36,7 @@ impl carbon_core::deserialize::ArrangeAccounts for MintNewEditionFromMasterEditi
     type ArrangedAccounts = MintNewEditionFromMasterEditionViaVaultProxyInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [new_metadata, new_edition, master_edition, new_mint, edition_mark_pda, new_mint_authority, payer, vault_authority, safety_deposit_store, safety_deposit_box, vault, new_metadata_update_authority, metadata, token_program, token_vault_program, system_program, rent, _remaining @ ..] =
             accounts

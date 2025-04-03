@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawSlashedAmount {
     type ArrangedAccounts = WithdrawSlashedAmountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [crank, farm_state, slashed_amount_spill_address, farm_vault, farm_vaults_authority, token_program, _remaining @ ..] =
             accounts

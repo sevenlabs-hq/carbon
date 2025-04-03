@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdatePerpMarketLiquidationFe
     type ArrangedAccounts = UpdatePerpMarketLiquidationFeeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, state, perp_market, _remaining @ ..] = accounts else {
             return None;

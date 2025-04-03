@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdatePythPullOracle {
     type ArrangedAccounts = UpdatePythPullOracleInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [keeper, pyth_solana_receiver, encoded_vaa, price_feed, _remaining @ ..] = accounts
         else {

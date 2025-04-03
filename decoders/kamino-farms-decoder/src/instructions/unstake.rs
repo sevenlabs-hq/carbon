@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Unstake {
     type ArrangedAccounts = UnstakeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, user_state, farm_state, scope_prices, _remaining @ ..] = accounts else {
             return None;

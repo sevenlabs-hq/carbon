@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for BurnChecked {
     type ArrangedAccounts = BurnCheckedInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [account, mint, authority, _remaining @ ..] = accounts else {
             return None;

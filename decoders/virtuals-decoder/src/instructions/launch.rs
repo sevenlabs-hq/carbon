@@ -29,7 +29,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Launch {
     type ArrangedAccounts = LaunchInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [creator, creator_virtuals_ata, token_mint, platform_prototype, platform_prototype_virtuals_ata, vpool, token_metadata, metadata_program, token_program, associated_token_program, system_program, rent, _remaining @ ..] =
             accounts

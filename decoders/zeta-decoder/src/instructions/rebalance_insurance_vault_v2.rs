@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RebalanceInsuranceVaultV2 {
     type ArrangedAccounts = RebalanceInsuranceVaultV2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, zeta_vault, insurance_vault, treasury_wallet, treasury_split_token_account, socialized_loss_account, token_program, _remaining @ ..] =
             accounts

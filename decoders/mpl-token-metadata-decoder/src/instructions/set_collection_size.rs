@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetCollectionSize {
     type ArrangedAccounts = SetCollectionSizeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [collection_metadata, collection_authority, collection_mint, collection_authority_record, _remaining @ ..] =
             accounts

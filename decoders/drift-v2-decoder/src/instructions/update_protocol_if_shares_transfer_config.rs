@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateProtocolIfSharesTransfe
     type ArrangedAccounts = UpdateProtocolIfSharesTransferConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, protocol_if_shares_transfer_config, state, _remaining @ ..] = accounts else {
             return None;

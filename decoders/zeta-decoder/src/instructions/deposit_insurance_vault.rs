@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DepositInsuranceVault {
     type ArrangedAccounts = DepositInsuranceVaultInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, insurance_vault, insurance_deposit_account, user_token_account, zeta_vault, socialized_loss_account, authority, token_program, _remaining @ ..] =
             accounts

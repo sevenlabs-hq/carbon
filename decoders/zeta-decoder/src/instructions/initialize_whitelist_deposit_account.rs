@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeWhitelistDepositAcc
     type ArrangedAccounts = InitializeWhitelistDepositAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [whitelist_deposit_account, admin, user, system_program, state, _remaining @ ..] =
             accounts

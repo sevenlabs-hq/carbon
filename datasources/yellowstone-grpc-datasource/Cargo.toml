@@ -13,9 +13,11 @@ categories = ["encoding"]
 crate-type = ["rlib"]
 
 [dependencies]
+solana-account = { workspace = true }
 solana-client = { workspace = true }
+solana-program = { workspace = true }
 solana-pubkey = { workspace = true }
-solana-sdk = { workspace = true }
+solana-signature = { workspace = true }
 solana-transaction-status = { workspace = true }
 
 carbon-core = { workspace = true }

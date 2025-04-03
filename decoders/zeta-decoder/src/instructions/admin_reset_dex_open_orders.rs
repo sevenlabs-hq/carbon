@@ -28,7 +28,7 @@ impl carbon_core::deserialize::ArrangeAccounts for AdminResetDexOpenOrders {
     type ArrangedAccounts = AdminResetDexOpenOrdersInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, dex_program, open_orders, cross_margin_account, pricing_admin, authority, market, bids, asks, serum_authority, event_queue, _remaining @ ..] =
             accounts

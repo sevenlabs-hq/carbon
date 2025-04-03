@@ -26,7 +26,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateTokenMetadata {
     type ArrangedAccounts = CreateTokenMetadataInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, perpetuals, pool, transfer_authority, metadata, lp_token_mint, token_metadata_program, system_program, rent, _remaining @ ..] =
             accounts

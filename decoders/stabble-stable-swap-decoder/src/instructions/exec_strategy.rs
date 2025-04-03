@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ExecStrategy {
     type ArrangedAccounts = ExecStrategyInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [strategy, pool, _remaining @ ..] = accounts else {
             return None;

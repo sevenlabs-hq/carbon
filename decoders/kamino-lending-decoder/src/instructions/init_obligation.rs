@@ -27,7 +27,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitObligation {
     type ArrangedAccounts = InitObligationInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [obligation_owner, fee_payer, obligation, lending_market, seed1_account, seed2_account, owner_user_metadata, rent, system_program, _remaining @ ..] =
             accounts

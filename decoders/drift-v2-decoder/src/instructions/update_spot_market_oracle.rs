@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateSpotMarketOracle {
     type ArrangedAccounts = UpdateSpotMarketOracleInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, state, spot_market, oracle, old_oracle, _remaining @ ..] = accounts else {
             return None;

@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CloseEscrowAccount {
     type ArrangedAccounts = CloseEscrowAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [escrow, metadata, mint, token_account, edition, payer, system_program, sysvar_instructions, _remaining @ ..] =
             accounts

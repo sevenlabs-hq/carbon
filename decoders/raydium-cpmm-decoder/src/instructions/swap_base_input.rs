@@ -29,7 +29,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SwapBaseInput {
     type ArrangedAccounts = SwapBaseInputInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, authority, amm_config, pool_state, input_token_account, output_token_account, input_vault, output_vault, input_token_program, output_token_program, input_token_mint, output_token_mint, observation_state, _remaining @ ..] =
             accounts

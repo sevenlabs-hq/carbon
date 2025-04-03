@@ -41,7 +41,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ClaimFees {
     type ArrangedAccounts = ClaimFeesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, vpool, virtuals_mint, token_mint, vpool_virtuals_ata, vpool_token_ata, platform, platform_virtuals_ata, platform_token_ata, creator_virtuals_ata, creator_token_ata, pool, lp_mint, lock_escrow, escrow_vault, token_program, virtuals_vault, token_vault, virtuals_token_vault, token_token_vault, virtuals_vault_lp_mint, token_vault_lp_mint, virtuals_vault_lp, token_vault_lp, vault_program, associated_token_program, system_program, dynamic_amm_program, _remaining @ ..] =
             accounts

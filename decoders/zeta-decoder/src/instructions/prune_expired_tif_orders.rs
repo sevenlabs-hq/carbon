@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for PruneExpiredTifOrders {
     type ArrangedAccounts = PruneExpiredTifOrdersInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [dex_program, state, serum_authority, market, bids, asks, event_queue, _remaining @ ..] =
             accounts

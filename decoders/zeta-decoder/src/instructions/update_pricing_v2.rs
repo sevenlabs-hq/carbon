@@ -25,7 +25,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdatePricingV2 {
     type ArrangedAccounts = UpdatePricingV2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, pricing, oracle, oracle_backup_feed, oracle_backup_program, perp_market, perp_bids, perp_asks, _remaining @ ..] =
             accounts

@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Disable {
     type ArrangedAccounts = DisableInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, global_config, event_authority, program, _remaining @ ..] = accounts else {
             return None;

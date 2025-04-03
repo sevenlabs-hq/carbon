@@ -27,7 +27,7 @@ impl carbon_core::deserialize::ArrangeAccounts for PlacePerpOrderV4 {
     type ArrangedAccounts = PlacePerpOrderV4InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [authority, place_order_accounts, _remaining @ ..] = accounts else {
             return None;

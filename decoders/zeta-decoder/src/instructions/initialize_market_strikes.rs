@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeMarketStrikes {
     type ArrangedAccounts = InitializeMarketStrikesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, zeta_group, oracle, oracle_backup_feed, oracle_backup_program, _remaining @ ..] =
             accounts

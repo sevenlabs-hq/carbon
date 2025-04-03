@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateConfig {
     type ArrangedAccounts = CreateConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, global_config, system_program, event_authority, program, _remaining @ ..] =
             accounts

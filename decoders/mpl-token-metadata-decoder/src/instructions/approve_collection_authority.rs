@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ApproveCollectionAuthority {
     type ArrangedAccounts = ApproveCollectionAuthorityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [collection_authority_record, new_collection_authority, update_authority, payer, metadata, mint, system_program, rent, _remaining @ ..] =
             accounts

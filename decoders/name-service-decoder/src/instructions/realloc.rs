@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Realloc {
     type ArrangedAccounts = ReallocInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [system_program, payer, name_record, owner, _remaining @ ..] = accounts else {
             return None;

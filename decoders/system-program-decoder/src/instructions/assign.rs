@@ -16,7 +16,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Assign {
     type ArrangedAccounts = AssignInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [account, _remaining @ ..] = accounts else {
             return None;

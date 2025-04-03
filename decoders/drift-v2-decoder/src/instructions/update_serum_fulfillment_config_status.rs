@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateSerumFulfillmentConfigS
     type ArrangedAccounts = UpdateSerumFulfillmentConfigStatusInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, serum_fulfillment_config, admin, _remaining @ ..] = accounts else {
             return None;

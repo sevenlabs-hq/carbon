@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateActive {
     type ArrangedAccounts = UpdateActiveInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [common, validator_list, _remaining @ ..] = accounts else {
             return None;

@@ -35,7 +35,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreatePool {
     type ArrangedAccounts = CreatePoolInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [pool, global_config, creator, base_mint, quote_mint, lp_mint, user_base_token_account, user_quote_token_account, user_pool_token_account, pool_base_token_account, pool_quote_token_account, system_program, token_2022_program, base_token_program, quote_token_program, associated_token_program, event_authority, program, _remaining @ ..] =
             accounts

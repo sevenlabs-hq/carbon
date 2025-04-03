@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RecoverNested {
     type ArrangedAccounts = RecoverNestedInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [nested_associated_account_address, nested_token_mint_address, destination_associated_account_address, owner_associated_account_address, owner_token_mint_address, wallet_address, token_program, _remaining @ ..] =
             accounts

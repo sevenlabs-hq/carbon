@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for OrderUnstake {
     type ArrangedAccounts = OrderUnstakeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, msol_mint, burn_msol_from, burn_msol_authority, new_ticket_account, clock, rent, token_program, _remaining @ ..] =
             accounts

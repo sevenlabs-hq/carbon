@@ -35,7 +35,7 @@ impl carbon_core::deserialize::ArrangeAccounts for LockCpLiquidity {
     type ArrangedAccounts = LockCpLiquidityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [authority, payer, liquidity_owner, fee_nft_owner, fee_nft_mint, fee_nft_account, pool_state, locked_liquidity, lp_mint, liquidity_owner_lp, locked_lp_vault, token0_vault, token1_vault, metadata_account, rent, system_program, token_program, associated_token_program, metadata_program, _remaining @ ..] =
             accounts

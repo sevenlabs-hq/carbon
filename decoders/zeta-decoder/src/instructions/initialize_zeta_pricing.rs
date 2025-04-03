@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeZetaPricing {
     type ArrangedAccounts = InitializeZetaPricingInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, pricing, rent, system_program, token_program, admin, _remaining @ ..] =
             accounts

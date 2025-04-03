@@ -16,7 +16,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ThawAccount {
     type ArrangedAccounts = ThawAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [account, mint, owner, _remaining @ ..] = accounts else {
             return None;

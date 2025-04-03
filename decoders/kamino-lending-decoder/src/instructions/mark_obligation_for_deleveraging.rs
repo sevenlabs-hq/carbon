@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for MarkObligationForDeleveraging
     type ArrangedAccounts = MarkObligationForDeleveragingInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [risk_council, obligation, lending_market, _remaining @ ..] = accounts else {
             return None;

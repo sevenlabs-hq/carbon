@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DelegateStake {
     type ArrangedAccounts = DelegateStakeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [stake, vote, clock, stake_history, stake_config, stake_authority, _remaining @ ..] =
             accounts

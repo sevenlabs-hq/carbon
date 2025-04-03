@@ -29,7 +29,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializePositionByOperator 
     type ArrangedAccounts = InitializePositionByOperatorInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, base, position, lb_pair, owner, operator, operator_token_x, owner_token_x, system_program, event_authority, program, _remaining @ ..] =
             accounts

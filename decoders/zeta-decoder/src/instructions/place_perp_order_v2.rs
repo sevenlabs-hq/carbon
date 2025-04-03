@@ -40,7 +40,7 @@ impl carbon_core::deserialize::ArrangeAccounts for PlacePerpOrderV2 {
     type ArrangedAccounts = PlacePerpOrderV2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, zeta_group, margin_account, authority, dex_program, token_program, serum_authority, greeks, open_orders, rent, market_accounts, oracle, oracle_backup_feed, oracle_backup_program, market_mint, mint_authority, perp_sync_queue, _remaining @ ..] =
             accounts

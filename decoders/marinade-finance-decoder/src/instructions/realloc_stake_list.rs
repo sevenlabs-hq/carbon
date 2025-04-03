@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ReallocStakeList {
     type ArrangedAccounts = ReallocStakeListInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, admin_authority, stake_list, rent_funds, system_program, _remaining @ ..] =
             accounts

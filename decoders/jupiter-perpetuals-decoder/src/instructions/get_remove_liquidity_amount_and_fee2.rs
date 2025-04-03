@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for GetRemoveLiquidityAmountAndFe
     type ArrangedAccounts = GetRemoveLiquidityAmountAndFee2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [perpetuals, pool, custody, custody_doves_price_account, custody_pythnet_price_account, lp_token_mint, _remaining @ ..] =
             accounts

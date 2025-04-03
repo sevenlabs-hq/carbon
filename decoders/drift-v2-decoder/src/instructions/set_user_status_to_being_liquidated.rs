@@ -16,7 +16,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetUserStatusToBeingLiquidate
     type ArrangedAccounts = SetUserStatusToBeingLiquidatedInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, user, authority, _remaining @ ..] = accounts else {
             return None;

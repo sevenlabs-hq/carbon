@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawReferrerFees {
     type ArrangedAccounts = WithdrawReferrerFeesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [referrer, referrer_token_state, reserve, reserve_liquidity_mint, reserve_supply_liquidity, referrer_token_account, lending_market, lending_market_authority, token_program, _remaining @ ..] =
             accounts

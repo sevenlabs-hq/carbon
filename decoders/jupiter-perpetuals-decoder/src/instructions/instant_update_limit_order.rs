@@ -27,7 +27,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InstantUpdateLimitOrder {
     type ArrangedAccounts = InstantUpdateLimitOrderInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [keeper, api_keeper, owner, perpetuals, pool, position, position_request, custody, custody_doves_price_account, custody_pythnet_price_account, _remaining @ ..] =
             accounts

@@ -16,7 +16,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UiAmountToAmount {
     type ArrangedAccounts = UiAmountToAmountAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let mint = accounts.first()?;
 

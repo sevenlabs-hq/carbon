@@ -15,7 +15,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetMarketExpired {
     type ArrangedAccounts = SetMarketExpiredInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [close_market_admin, market, _remaining @ ..] = accounts else {
             return None;

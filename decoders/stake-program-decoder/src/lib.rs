@@ -1,4 +1,4 @@
-use solana_sdk::{pubkey, pubkey::Pubkey};
+use solana_pubkey::Pubkey;
 
 pub struct StakeProgramDecoder;
 
@@ -6,4 +6,5 @@ pub mod accounts;
 pub mod instructions;
 pub mod types;
 
-pub const PROGRAM_ID: Pubkey = pubkey!("Stake11111111111111111111111111111111111111");
+pub const PROGRAM_ID: Pubkey =
+    solana_pubkey::Pubkey::from_str_const("Stake11111111111111111111111111111111111111");

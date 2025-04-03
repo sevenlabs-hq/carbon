@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for TreasuryMovement {
     type ArrangedAccounts = TreasuryMovementInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, insurance_vault, treasury_wallet, referrals_rewards_wallet, token_program, admin, _remaining @ ..] =
             accounts

@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeGlobalConfig {
     type ArrangedAccounts = InitializeGlobalConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [global_admin, global_config, treasury_vaults_authority, system_program, _remaining @ ..] =
             accounts

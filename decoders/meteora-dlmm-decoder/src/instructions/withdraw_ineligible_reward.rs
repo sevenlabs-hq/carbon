@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawIneligibleReward {
     type ArrangedAccounts = WithdrawIneligibleRewardInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [lb_pair, reward_vault, reward_mint, funder_token_account, funder, bin_array, token_program, event_authority, program, _remaining @ ..] =
             accounts

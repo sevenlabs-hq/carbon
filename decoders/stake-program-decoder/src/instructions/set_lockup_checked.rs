@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetLockupChecked {
     type ArrangedAccounts = SetLockupCheckedInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [stake, authority, _remaining @ ..] = accounts else {
             return None;

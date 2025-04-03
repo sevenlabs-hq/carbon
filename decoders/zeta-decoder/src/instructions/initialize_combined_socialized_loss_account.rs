@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeCombinedSocializedL
     type ArrangedAccounts = InitializeCombinedSocializedLossAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, socialized_loss_account, token_program, usdc_mint, admin, system_program, _remaining @ ..] =
             accounts

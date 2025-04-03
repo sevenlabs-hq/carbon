@@ -30,7 +30,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Withdraw {
     type ArrangedAccounts = WithdrawInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [user, dca, input_mint, output_mint, dca_ata, user_in_ata, user_out_ata, system_program, token_program, associated_token_program, event_authority, program, _remaining @ ..] =
             accounts

@@ -29,7 +29,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Utilize {
     type ArrangedAccounts = UtilizeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [metadata, token_account, mint, use_authority, owner, token_program, ata_program, system_program, rent, use_authority_record, burner, _remaining @ ..] =
             accounts

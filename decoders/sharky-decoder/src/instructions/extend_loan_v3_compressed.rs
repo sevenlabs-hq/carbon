@@ -38,7 +38,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ExtendLoanV3Compressed {
     type ArrangedAccounts = ExtendLoanV3CompressedInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [loan, new_loan, borrower, lender, new_lender, escrow, new_escrow, value_mint, order_book, fee_authority, tree_authority, log_wrapper, merkle_tree, system_program, token_program, mpl_bubblegum_program, compression_program, rent, _remaining @ ..] =
             accounts

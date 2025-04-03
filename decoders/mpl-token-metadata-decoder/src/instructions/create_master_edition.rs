@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateMasterEdition {
     type ArrangedAccounts = CreateMasterEditionInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [edition, mint, update_authority, mint_authority, payer, metadata, token_program, system_program, rent, _remaining @ ..] =
             accounts

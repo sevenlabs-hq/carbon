@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ModifyOrderByUserId {
     type ArrangedAccounts = ModifyOrderByUserIdInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, user, authority, _remaining @ ..] = accounts else {
             return None;

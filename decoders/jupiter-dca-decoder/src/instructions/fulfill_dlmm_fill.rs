@@ -30,7 +30,7 @@ impl carbon_core::deserialize::ArrangeAccounts for FulfillDlmmFill {
     type ArrangedAccounts = FulfillDlmmFillInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [keeper, dca, input_mint, output_mint, keeper_in_ata, in_ata, out_ata, fee_authority, fee_ata, instructions_sysvar, system_program, token_program, associated_token_program, event_authority, program, _remaining @ ..] =
             accounts

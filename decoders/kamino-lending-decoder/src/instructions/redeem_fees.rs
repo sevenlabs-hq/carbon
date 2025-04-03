@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RedeemFees {
     type ArrangedAccounts = RedeemFeesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [reserve, reserve_liquidity_mint, reserve_liquidity_fee_receiver, reserve_supply_liquidity, lending_market, lending_market_authority, token_program, _remaining @ ..] =
             accounts

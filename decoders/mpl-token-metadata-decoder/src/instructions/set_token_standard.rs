@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetTokenStandard {
     type ArrangedAccounts = SetTokenStandardInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [metadata, update_authority, mint, edition, _remaining @ ..] = accounts else {
             return None;

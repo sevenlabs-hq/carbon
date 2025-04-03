@@ -677,7 +677,7 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
             type InstructionType = #instruction_types_enum_name;
 
             fn parse_instruction(
-                instruction: &solana_sdk::instruction::Instruction
+                instruction: &solana_instruction::Instruction
             ) -> Option<carbon_core::instruction::DecodedInstruction<Self>> {
                 #(#parse_instruction_arms)*
                 None

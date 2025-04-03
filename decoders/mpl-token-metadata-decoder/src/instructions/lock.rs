@@ -31,7 +31,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Lock {
     type ArrangedAccounts = LockInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [authority, token_owner, token, mint, metadata, edition, token_record, payer, system_program, sysvar_instructions, spl_token_program, authorization_rules_program, authorization_rules, _remaining @ ..] =
             accounts

@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for PauseSpotMarketDepositWithdra
     type ArrangedAccounts = PauseSpotMarketDepositWithdrawInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, keeper, spot_market, spot_market_vault, _remaining @ ..] = accounts else {
             return None;

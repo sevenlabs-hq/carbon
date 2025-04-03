@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeZetaReferralsReward
     type ArrangedAccounts = InitializeZetaReferralsRewardsWalletInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, referrals_rewards_wallet, rent, system_program, token_program, usdc_mint, admin, _remaining @ ..] =
             accounts

@@ -33,7 +33,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ClaimFee {
     type ArrangedAccounts = ClaimFeeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [pool, lp_mint, lock_escrow, owner, source_tokens, escrow_vault, token_program, a_token_vault, b_token_vault, a_vault, b_vault, a_vault_lp, b_vault_lp, a_vault_lp_mint, b_vault_lp_mint, user_a_token, user_b_token, vault_program, _remaining @ ..] =
             accounts

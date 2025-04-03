@@ -25,7 +25,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeSharesMetadata {
     type ArrangedAccounts = InitializeSharesMetadataInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin_authority, vault_state, shares_mint, base_vault_authority, shares_metadata, system_program, rent, metadata_program, _remaining @ ..] =
             accounts

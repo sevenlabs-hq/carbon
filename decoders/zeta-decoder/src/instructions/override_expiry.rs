@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for OverrideExpiry {
     type ArrangedAccounts = OverrideExpiryInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, admin, zeta_group, _remaining @ ..] = accounts else {
             return None;

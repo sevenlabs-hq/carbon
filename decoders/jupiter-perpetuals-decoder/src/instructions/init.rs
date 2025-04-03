@@ -25,7 +25,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Init {
     type ArrangedAccounts = InitInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [upgrade_authority, admin, transfer_authority, perpetuals, perpetuals_program, perpetuals_program_data, system_program, token_program, _remaining @ ..] =
             accounts

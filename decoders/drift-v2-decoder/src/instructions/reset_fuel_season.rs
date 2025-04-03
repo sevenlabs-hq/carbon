@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ResetFuelSeason {
     type ArrangedAccounts = ResetFuelSeasonInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [user_stats, authority, state, admin, _remaining @ ..] = accounts else {
             return None;

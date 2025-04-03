@@ -46,7 +46,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeSpotMarket {
     type ArrangedAccounts = InitializeSpotMarketInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [spot_market, spot_market_mint, spot_market_vault, insurance_fund_vault, drift_signer, state, oracle, admin, rent, system_program, token_program, _remaining @ ..] =
             accounts

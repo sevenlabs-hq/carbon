@@ -10,11 +10,11 @@ pub enum FluxbeamAccount {
     SwapV1(swap_v1::SwapV1),
 }
 
-impl<'a> AccountDecoder<'a> for FluxbeamDecoder {
+impl AccountDecoder<'_> for FluxbeamDecoder {
     type AccountType = FluxbeamAccount;
     fn decode_account(
         &self,
-        account: &solana_sdk::account::Account,
+        account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;
@@ -36,8 +36,6 @@ impl<'a> AccountDecoder<'a> for FluxbeamDecoder {
 
 #[cfg(test)]
 mod tests {
-    use solana_sdk::pubkey;
-
     use crate::types::{CurveType, Fees, SwapCurve};
 
     use super::*;
@@ -49,13 +47,27 @@ mod tests {
             _padding: 0,
             is_initialized: true,
             bump_seed: 254,
-            token_program_id: pubkey!("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
-            token_a: pubkey!("jM5cFHP9iPj9en1fJFJLfRpLt68Y81UdWfXHv9an3HK"),
-            token_b: pubkey!("8a4WD4hbfuPyiistrVU8qcpwMcJmf3RBuw1s1tvVYJ1Q"),
-            pool_mint: pubkey!("7XeJQykinTiK1EveXb9y4zodFtdtu1YwkygBmWbz1pC3"),
-            token_a_mint: pubkey!("So11111111111111111111111111111111111111112"),
-            token_b_mint: pubkey!("3YkBR2w1ttpWKzdP5XQtzXqsGFS9i1mGg9pDrqn4e9j6"),
-            pool_fee_account: pubkey!("396TeW1MeyQvFGgxjaxJxRFkuiir4Ye4imuxVDcqfE88"),
+            token_program_id: solana_pubkey::Pubkey::from_str_const(
+                "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+            ),
+            token_a: solana_pubkey::Pubkey::from_str_const(
+                "jM5cFHP9iPj9en1fJFJLfRpLt68Y81UdWfXHv9an3HK",
+            ),
+            token_b: solana_pubkey::Pubkey::from_str_const(
+                "8a4WD4hbfuPyiistrVU8qcpwMcJmf3RBuw1s1tvVYJ1Q",
+            ),
+            pool_mint: solana_pubkey::Pubkey::from_str_const(
+                "7XeJQykinTiK1EveXb9y4zodFtdtu1YwkygBmWbz1pC3",
+            ),
+            token_a_mint: solana_pubkey::Pubkey::from_str_const(
+                "So11111111111111111111111111111111111111112",
+            ),
+            token_b_mint: solana_pubkey::Pubkey::from_str_const(
+                "3YkBR2w1ttpWKzdP5XQtzXqsGFS9i1mGg9pDrqn4e9j6",
+            ),
+            pool_fee_account: solana_pubkey::Pubkey::from_str_const(
+                "396TeW1MeyQvFGgxjaxJxRFkuiir4Ye4imuxVDcqfE88",
+            ),
             fees: Fees {
                 trade_fee_numerator: 2,
                 trade_fee_denominator: 1000,

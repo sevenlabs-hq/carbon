@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DeleteInitializedSpotMarket {
     type ArrangedAccounts = DeleteInitializedSpotMarketInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, state, spot_market, spot_market_vault, insurance_fund_vault, drift_signer, token_program, _remaining @ ..] =
             accounts

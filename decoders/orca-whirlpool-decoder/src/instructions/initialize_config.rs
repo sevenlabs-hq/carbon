@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeConfig {
     type ArrangedAccounts = InitializeConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [config, funder, system_program, _remaining @ ..] = accounts else {
             return None;

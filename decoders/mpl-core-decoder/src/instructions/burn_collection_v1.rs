@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for BurnCollectionV1 {
     type ArrangedAccounts = BurnCollectionV1InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [collection, payer, authority, log_wrapper, _remaining @ ..] = accounts else {
             return None;

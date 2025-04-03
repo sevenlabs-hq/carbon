@@ -46,7 +46,7 @@ impl carbon_core::deserialize::ArrangeAccounts
         InitializePermissionlessConstantProductPoolWithConfig2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [pool, config, lp_mint, token_a_mint, token_b_mint, a_vault, b_vault, a_token_vault, b_token_vault, a_vault_lp_mint, b_vault_lp_mint, a_vault_lp, b_vault_lp, payer_token_a, payer_token_b, payer_pool_lp, protocol_token_a_fee, protocol_token_b_fee, payer, rent, mint_metadata, metadata_program, vault_program, token_program, associated_token_program, system_program, _remaining @ ..] =
             accounts

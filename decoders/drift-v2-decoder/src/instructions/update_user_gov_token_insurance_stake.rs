@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateUserGovTokenInsuranceSt
     type ArrangedAccounts = UpdateUserGovTokenInsuranceStakeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, spot_market, insurance_fund_stake, user_stats, signer, insurance_fund_vault, _remaining @ ..] =
             accounts

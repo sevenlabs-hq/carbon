@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Resize {
     type ArrangedAccounts = ResizeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [metadata, edition, mint, payer, authority, token, system_program, _remaining @ ..] =
             accounts

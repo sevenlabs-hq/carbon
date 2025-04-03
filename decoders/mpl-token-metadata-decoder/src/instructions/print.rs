@@ -36,7 +36,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Print {
     type ArrangedAccounts = PrintInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [edition_metadata, edition, edition_mint, edition_token_account_owner, edition_token_account, edition_mint_authority, edition_token_record, master_edition, edition_marker_pda, payer, master_token_account_owner, master_token_account, master_metadata, update_authority, spl_token_program, spl_ata_program, sysvar_instructions, system_program, _remaining @ ..] =
             accounts

@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawProtocolFees {
     type ArrangedAccounts = WithdrawProtocolFeesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [pool, a_vault_lp, protocol_token_a_fee, protocol_token_b_fee, treasury_token_a, treasury_token_b, token_program, _remaining @ ..] =
             accounts

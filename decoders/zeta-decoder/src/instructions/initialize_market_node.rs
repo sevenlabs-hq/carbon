@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeMarketNode {
     type ArrangedAccounts = InitializeMarketNodeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [zeta_group, market_node, greeks, payer, system_program, _remaining @ ..] = accounts
         else {

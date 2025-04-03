@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Claim {
     type ArrangedAccounts = ClaimInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [wallet, program_authority, system_program, _remaining @ ..] = accounts else {
             return None;

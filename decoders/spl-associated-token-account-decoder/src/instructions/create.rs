@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Create {
     type ArrangedAccounts = CreateInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [funding_address, associated_account_address, wallet_address, token_mint_address, system_program, token_program, _remaining @ ..] =
             accounts

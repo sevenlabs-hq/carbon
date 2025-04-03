@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeTokenBadge {
     type ArrangedAccounts = InitializeTokenBadgeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [whirlpools_config, whirlpools_config_extension, token_badge_authority, token_mint, token_badge, funder, system_program, _remaining @ ..] =
             accounts

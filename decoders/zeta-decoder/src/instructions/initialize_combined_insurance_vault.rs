@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeCombinedInsuranceVa
     type ArrangedAccounts = InitializeCombinedInsuranceVaultInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, insurance_vault, token_program, usdc_mint, admin, system_program, _remaining @ ..] =
             accounts

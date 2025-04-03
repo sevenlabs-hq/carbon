@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeReferrerAccounts {
     type ArrangedAccounts = InitializeReferrerAccountsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [authority, referrer_id_account, referrer_pubkey_account, system_program, _remaining @ ..] =
             accounts

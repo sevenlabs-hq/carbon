@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Initialize {
     type ArrangedAccounts = InitializeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, virtuals_mint, token_mint, vpool_virtuals_ata, vpool_token_ata, vpool, token_program, associated_token_program, system_program, _remaining @ ..] =
             accounts

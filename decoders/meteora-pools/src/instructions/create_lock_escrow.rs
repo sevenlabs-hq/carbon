@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateLockEscrow {
     type ArrangedAccounts = CreateLockEscrowInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [pool, lock_escrow, owner, lp_mint, payer, system_program, _remaining @ ..] = accounts
         else {

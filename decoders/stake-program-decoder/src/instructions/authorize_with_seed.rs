@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for AuthorizeWithSeed {
     type ArrangedAccounts = AuthorizeWithSeedInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [stake, authority_base, clock, _remaining @ ..] = accounts else {
             return None;

@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CloseOpenOrders {
     type ArrangedAccounts = CloseOpenOrdersInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, zeta_group, dex_program, open_orders, margin_account, authority, market, serum_authority, open_orders_map, _remaining @ ..] =
             accounts

@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Split {
     type ArrangedAccounts = SplitInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [from, to, stake_authority, _remaining @ ..] = accounts else {
             return None;

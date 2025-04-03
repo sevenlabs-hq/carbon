@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetValidatorScore {
     type ArrangedAccounts = SetValidatorScoreInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, manager_authority, validator_list, _remaining @ ..] = accounts else {
             return None;

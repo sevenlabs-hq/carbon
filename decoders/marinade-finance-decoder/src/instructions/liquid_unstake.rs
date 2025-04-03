@@ -25,7 +25,7 @@ impl carbon_core::deserialize::ArrangeAccounts for LiquidUnstake {
     type ArrangedAccounts = LiquidUnstakeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, msol_mint, liq_pool_sol_leg_pda, liq_pool_msol_leg, treasury_msol_account, get_msol_from, get_msol_from_authority, transfer_sol_to, system_program, token_program, _remaining @ ..] =
             accounts

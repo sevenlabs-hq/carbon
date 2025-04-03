@@ -27,7 +27,7 @@ impl carbon_core::deserialize::ArrangeAccounts for PositionMovement {
     type ArrangedAccounts = PositionMovementInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, zeta_group, margin_account, spread_account, authority, greeks, oracle, oracle_backup_feed, oracle_backup_program, _remaining @ ..] =
             accounts

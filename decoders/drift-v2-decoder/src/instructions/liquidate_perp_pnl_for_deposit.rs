@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for LiquidatePerpPnlForDeposit {
     type ArrangedAccounts = LiquidatePerpPnlForDepositInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, authority, liquidator, liquidator_stats, user, user_stats, _remaining @ ..] =
             accounts

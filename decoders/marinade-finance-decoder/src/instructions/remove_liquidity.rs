@@ -26,7 +26,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RemoveLiquidity {
     type ArrangedAccounts = RemoveLiquidityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, lp_mint, burn_from, burn_from_authority, transfer_sol_to, transfer_msol_to, liq_pool_sol_leg_pda, liq_pool_msol_leg, liq_pool_msol_leg_authority, system_program, token_program, _remaining @ ..] =
             accounts

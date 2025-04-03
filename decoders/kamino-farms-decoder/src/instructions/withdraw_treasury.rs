@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawTreasury {
     type ArrangedAccounts = WithdrawTreasuryInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [global_admin, global_config, reward_mint, reward_treasury_vault, treasury_vault_authority, withdraw_destination_token_account, token_program, _remaining @ ..] =
             accounts

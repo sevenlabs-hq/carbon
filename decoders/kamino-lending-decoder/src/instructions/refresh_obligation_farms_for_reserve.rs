@@ -25,7 +25,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RefreshObligationFarmsForRese
     type ArrangedAccounts = RefreshObligationFarmsForReserveInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [crank, obligation, lending_market_authority, reserve, reserve_farm_state, obligation_farm_user_state, lending_market, farms_program, rent, system_program, _remaining @ ..] =
             accounts

@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for EmptyConfidentialTransferAcco
     type ArrangedAccounts = EmptyConfidentialTransferAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [token, instructions_sysvar_or_context_state, record, authority, _remaining @ ..] =
             accounts

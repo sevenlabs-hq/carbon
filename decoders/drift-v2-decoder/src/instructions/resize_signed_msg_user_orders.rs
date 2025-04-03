@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ResizeSignedMsgUserOrders {
     type ArrangedAccounts = ResizeSignedMsgUserOrdersInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [signed_msg_user_orders, authority, system_program, _remaining @ ..] = accounts else {
             return None;

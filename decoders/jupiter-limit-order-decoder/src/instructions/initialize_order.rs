@@ -29,7 +29,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeOrder {
     type ArrangedAccounts = InitializeOrderInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [base, maker, order, reserve, maker_input_account, input_mint, maker_output_account, referral, output_mint, system_program, token_program, rent, _remaining @ ..] =
             accounts

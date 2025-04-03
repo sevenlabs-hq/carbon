@@ -25,7 +25,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Swap {
     type ArrangedAccounts = SwapInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [phoenix_program, log_authority, market, trader, base_account, quote_account, base_vault, quote_vault, token_program, _remaining @ ..] =
             accounts

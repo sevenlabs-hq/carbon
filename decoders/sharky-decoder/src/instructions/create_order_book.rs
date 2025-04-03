@@ -25,7 +25,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateOrderBook {
     type ArrangedAccounts = CreateOrderBookInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [order_book, payer, system_program, _remaining @ ..] = accounts else {
             return None;

@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeNonceAccount {
     type ArrangedAccounts = InitializeNonceAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [nonce_account, recent_blockhashes_sysvar, rent_sysvar, _remaining @ ..] = accounts
         else {

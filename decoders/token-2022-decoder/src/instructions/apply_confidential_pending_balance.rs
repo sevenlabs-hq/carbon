@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ApplyConfidentialPendingBalan
     type ArrangedAccounts = ApplyConfidentialPendingBalanceInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [token, authority, _remaining @ ..] = accounts else {
             return None;

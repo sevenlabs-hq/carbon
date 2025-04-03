@@ -31,7 +31,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Route {
     type ArrangedAccounts = RouteInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [token_program, user_transfer_authority, user_source_token_account, user_destination_token_account, destination_token_account, destination_mint, platform_fee_account, event_authority, program, _remaining @ ..] =
             accounts

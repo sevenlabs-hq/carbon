@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetTestTime {
     type ArrangedAccounts = SetTestTimeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, perpetuals, _remaining @ ..] = accounts else {
             return None;

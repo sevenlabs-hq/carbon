@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Reallocate {
     type ArrangedAccounts = ReallocateInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [token, payer, system_program, owner, _remaining @ ..] = accounts else {
             return None;

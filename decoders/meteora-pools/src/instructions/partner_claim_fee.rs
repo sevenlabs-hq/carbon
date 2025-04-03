@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for PartnerClaimFee {
     type ArrangedAccounts = PartnerClaimFeeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [pool, a_vault_lp, protocol_token_a_fee, protocol_token_b_fee, partner_token_a, partner_token_b, token_program, partner_authority, _remaining @ ..] =
             accounts

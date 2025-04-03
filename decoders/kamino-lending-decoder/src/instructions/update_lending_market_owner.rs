@@ -15,7 +15,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateLendingMarketOwner {
     type ArrangedAccounts = UpdateLendingMarketOwnerInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [lending_market_owner_cached, lending_market, _remaining @ ..] = accounts else {
             return None;

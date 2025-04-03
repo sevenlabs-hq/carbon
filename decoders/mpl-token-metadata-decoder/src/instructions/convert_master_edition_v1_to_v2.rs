@@ -16,7 +16,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ConvertMasterEditionV1ToV2 {
     type ArrangedAccounts = ConvertMasterEditionV1ToV2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [master_edition, one_time_auth, printing_mint, _remaining @ ..] = accounts else {
             return None;

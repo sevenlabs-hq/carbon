@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RepayObligationLiquidity {
     type ArrangedAccounts = RepayObligationLiquidityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, obligation, lending_market, repay_reserve, reserve_liquidity_mint, reserve_destination_liquidity, user_source_liquidity, token_program, instruction_sysvar_account, _remaining @ ..] =
             accounts

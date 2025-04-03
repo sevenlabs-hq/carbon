@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetPreActivationDuration {
     type ArrangedAccounts = SetPreActivationDurationInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [lb_pair, creator, _remaining @ ..] = accounts else {
             return None;

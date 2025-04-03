@@ -28,7 +28,7 @@ impl carbon_core::deserialize::ArrangeAccounts for TokenMint {
     type ArrangedAccounts = TokenMintInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [sender, backend_authority, curve_account, mint, mint_metadata, curve_token_account, config_account, token_program, associated_token_program, mpl_token_metadata, system_program, _remaining @ ..] =
             accounts

@@ -15,7 +15,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RemoveCreatorVerification {
     type ArrangedAccounts = RemoveCreatorVerificationInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [metadata, creator, _remaining @ ..] = accounts else {
             return None;

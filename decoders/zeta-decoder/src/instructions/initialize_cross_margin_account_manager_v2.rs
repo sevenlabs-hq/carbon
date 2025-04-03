@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeCrossMarginAccountM
     type ArrangedAccounts = InitializeCrossMarginAccountManagerV2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [cross_margin_account_manager, authority, payer, zeta_program, system_program, _remaining @ ..] =
             accounts

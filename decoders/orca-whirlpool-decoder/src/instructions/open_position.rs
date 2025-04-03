@@ -30,7 +30,7 @@ impl carbon_core::deserialize::ArrangeAccounts for OpenPosition {
     type ArrangedAccounts = OpenPositionInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [funder, owner, position, position_mint, position_token_account, whirlpool, token_program, system_program, rent, associated_token_program, _remaining @ ..] =
             accounts

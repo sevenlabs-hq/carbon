@@ -16,7 +16,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateReferralsAdmin {
     type ArrangedAccounts = UpdateReferralsAdminInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, admin, new_admin, _remaining @ ..] = accounts else {
             return None;

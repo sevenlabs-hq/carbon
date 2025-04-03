@@ -26,7 +26,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Sell {
     type ArrangedAccounts = SellInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [user, vpool, token_mint, user_virtuals_ata, user_token_ata, vpool_token_ata, platform_prototype, platform_prototype_virtuals_ata, vpool_virtuals_ata, token_program, _remaining @ ..] =
             accounts

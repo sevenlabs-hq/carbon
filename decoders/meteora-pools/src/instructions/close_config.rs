@@ -16,7 +16,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CloseConfig {
     type ArrangedAccounts = CloseConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [config, admin, rent_receiver, _remaining @ ..] = accounts else {
             return None;

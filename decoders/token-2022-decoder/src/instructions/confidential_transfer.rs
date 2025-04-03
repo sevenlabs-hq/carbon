@@ -31,7 +31,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ConfidentialTransfer {
     type ArrangedAccounts = ConfidentialTransferInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [source_token, mint, destination_token, instructions_sysvar, equality_record, ciphertext_validity_record, range_record, authority, _remaining @ ..] =
             accounts

@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for AddValidator {
     type ArrangedAccounts = AddValidatorInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, manager_authority, validator_list, validator_vote, duplication_flag, rent_payer, clock, rent, system_program, _remaining @ ..] =
             accounts
