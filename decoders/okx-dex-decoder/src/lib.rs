@@ -1,5 +1,4 @@
 use solana_pubkey::Pubkey;
-
 pub struct OkxDexDecoder;
 pub mod accounts;
 pub mod instructions;
