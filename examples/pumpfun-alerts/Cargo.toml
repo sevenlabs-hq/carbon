@@ -9,7 +9,7 @@ carbon-helius-atlas-ws-datasource = { workspace = true }
 carbon-pumpfun-decoder = { workspace = true }
 solana-client = { workspace = true }
 solana-pubkey = { workspace = true }
-solana-sdk = { workspace = true }
+solana-native-token = { workspace = true }
 solana-transaction-status = { workspace = true }
 
 async-trait = { workspace = true }

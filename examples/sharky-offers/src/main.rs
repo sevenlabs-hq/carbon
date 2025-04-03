@@ -85,7 +85,7 @@ impl Datasource for GpaBackfillDatasource {
                 account,
                 slot,
             })) {
-                println!("\nFailed to send account update: {:?}", e);
+                log::error!("Failed to send account update: {:?}", e);
             }
         }
 
@@ -112,10 +112,10 @@ impl Processor for SharkyAccountProcessor {
 
         match account.data {
             SharkyAccount::OrderBook(order_book) => {
-                println!("Orderbook: {:?}", &order_book);
+                log::info!("Orderbook: {:?}", &order_book);
             }
             SharkyAccount::Loan(loan) => {
-                println!("Loan: {:?}", &loan);
+                log::info!("Loan: {:?}", &loan);
             }
             _ => {}
         }
