@@ -32,13 +32,13 @@ pub enum DriftAccount {
         protocol_if_shares_transfer_config::ProtocolIfSharesTransferConfig,
     ),
     PrelaunchOracle(prelaunch_oracle::PrelaunchOracle),
-    PerpMarket(perp_market::PerpMarket),
+    PerpMarket(Box<perp_market::PerpMarket>),
     ProtectedMakerModeConfig(protected_maker_mode_config::ProtectedMakerModeConfig),
     PythLazerOracle(pyth_lazer_oracle::PythLazerOracle),
     SignedMsgUserOrders(signed_msg_user_orders::SignedMsgUserOrders),
-    SpotMarket(spot_market::SpotMarket),
-    State(state::State),
-    User(user::User),
+    SpotMarket(Box<spot_market::SpotMarket>),
+    State(Box<state::State>),
+    User(Box<user::User>),
     UserStats(user_stats::UserStats),
     ReferrerName(referrer_name::ReferrerName),
     FuelOverflow(fuel_overflow::FuelOverflow),
@@ -150,7 +150,7 @@ impl AccountDecoder<'_> for DriftDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: DriftAccount::PerpMarket(decoded_account),
+                data: DriftAccount::PerpMarket(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -199,7 +199,7 @@ impl AccountDecoder<'_> for DriftDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: DriftAccount::SpotMarket(decoded_account),
+                data: DriftAccount::SpotMarket(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -209,7 +209,7 @@ impl AccountDecoder<'_> for DriftDecoder {
         if let Some(decoded_account) = state::State::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: DriftAccount::State(decoded_account),
+                data: DriftAccount::State(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -219,7 +219,7 @@ impl AccountDecoder<'_> for DriftDecoder {
         if let Some(decoded_account) = user::User::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: DriftAccount::User(decoded_account),
+                data: DriftAccount::User(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
