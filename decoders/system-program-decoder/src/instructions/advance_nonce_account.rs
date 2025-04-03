@@ -7,16 +7,16 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct AdvanceNonceAccount {}
 
 pub struct AdvanceNonceAccountInstructionAccounts {
-    pub nonce_account: solana_sdk::pubkey::Pubkey,
-    pub recent_blockhashes_sysvar: solana_sdk::pubkey::Pubkey,
-    pub nonce_authority: solana_sdk::pubkey::Pubkey,
+    pub nonce_account: solana_pubkey::Pubkey,
+    pub recent_blockhashes_sysvar: solana_pubkey::Pubkey,
+    pub nonce_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for AdvanceNonceAccount {
     type ArrangedAccounts = AdvanceNonceAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [nonce_account, recent_blockhashes_sysvar, nonce_authority, _remaining @ ..] = accounts
         else {

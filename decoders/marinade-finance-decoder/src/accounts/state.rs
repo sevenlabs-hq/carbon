@@ -6,10 +6,10 @@ use {
 #[derive(CarbonDeserialize, Debug)]
 #[carbon(discriminator = "0xd8926b5e684bb6b1")]
 pub struct State {
-    pub msol_mint: solana_sdk::pubkey::Pubkey,
-    pub admin_authority: solana_sdk::pubkey::Pubkey,
-    pub operational_sol_account: solana_sdk::pubkey::Pubkey,
-    pub treasury_msol_account: solana_sdk::pubkey::Pubkey,
+    pub msol_mint: solana_pubkey::Pubkey,
+    pub admin_authority: solana_pubkey::Pubkey,
+    pub operational_sol_account: solana_pubkey::Pubkey,
+    pub treasury_msol_account: solana_pubkey::Pubkey,
     pub reserve_bump_seed: u8,
     pub msol_mint_authority_bump_seed: u8,
     pub rent_exempt_for_token_acc: u64,
@@ -27,7 +27,7 @@ pub struct State {
     pub min_withdraw: u64,
     pub staking_sol_cap: u64,
     pub emergency_cooling_down: u64,
-    pub pause_authority: solana_sdk::pubkey::Pubkey,
+    pub pause_authority: solana_pubkey::Pubkey,
     pub paused: bool,
     pub delayed_unstake_fee: FeeCents,
     pub withdraw_stake_account_fee: FeeCents,

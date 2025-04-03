@@ -9,15 +9,15 @@ pub struct Withdraw {
 }
 
 pub struct WithdrawInstructionAccounts {
-    pub withdraw_from_available: solana_sdk::pubkey::Pubkey,
-    pub withdraw_from_reserve_accounts: solana_sdk::pubkey::Pubkey,
+    pub withdraw_from_available: solana_pubkey::Pubkey,
+    pub withdraw_from_reserve_accounts: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Withdraw {
     type ArrangedAccounts = WithdrawInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [withdraw_from_available, withdraw_from_reserve_accounts, _remaining @ ..] = accounts
         else {

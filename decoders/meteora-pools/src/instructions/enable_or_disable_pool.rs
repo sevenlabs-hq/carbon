@@ -9,15 +9,15 @@ pub struct EnableOrDisablePool {
 }
 
 pub struct EnableOrDisablePoolInstructionAccounts {
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for EnableOrDisablePool {
     type ArrangedAccounts = EnableOrDisablePoolInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [pool, admin, _remaining @ ..] = accounts else {
             return None;

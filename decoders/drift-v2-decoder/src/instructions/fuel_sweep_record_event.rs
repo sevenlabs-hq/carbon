@@ -6,7 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0xe445a52e51cb9a1d295425f684f08308")]
 pub struct FuelSweepRecordEvent {
     pub ts: i64,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
     pub user_stats_fuel_insurance: u32,
     pub user_stats_fuel_deposits: u32,
     pub user_stats_fuel_borrows: u32,

@@ -11,19 +11,19 @@ pub struct Create {
 }
 
 pub struct CreateInstructionAccounts {
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub funding_account: solana_sdk::pubkey::Pubkey,
-    pub name_record: solana_sdk::pubkey::Pubkey,
-    pub account_class: solana_sdk::pubkey::Pubkey,
-    pub parent_name_record: solana_sdk::pubkey::Pubkey,
-    pub parent_name_record_class: solana_sdk::pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub funding_account: solana_pubkey::Pubkey,
+    pub name_record: solana_pubkey::Pubkey,
+    pub account_class: solana_pubkey::Pubkey,
+    pub parent_name_record: solana_pubkey::Pubkey,
+    pub parent_name_record_class: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Create {
     type ArrangedAccounts = CreateInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [system_program, funding_account, name_record, account_class, parent_name_record, parent_name_record_class, _remaining @ ..] =
             accounts

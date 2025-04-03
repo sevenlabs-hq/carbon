@@ -5,8 +5,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0xe445a52e51cb9a1df6e43a8291aa4fcc")]
 pub struct FundRewardEvent {
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
-    pub funder: solana_sdk::pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
+    pub funder: solana_pubkey::Pubkey,
     pub reward_index: u64,
     pub amount: u64,
 }

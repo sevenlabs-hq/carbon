@@ -10,24 +10,24 @@ pub struct DepositSingleTokenTypeExactAmountIn {
 }
 
 pub struct DepositSingleTokenTypeExactAmountInInstructionAccounts {
-    pub swap: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub user_transfer_authority: solana_sdk::pubkey::Pubkey,
-    pub source_token: solana_sdk::pubkey::Pubkey,
-    pub swap_token_a: solana_sdk::pubkey::Pubkey,
-    pub swap_token_b: solana_sdk::pubkey::Pubkey,
-    pub pool_mint: solana_sdk::pubkey::Pubkey,
-    pub destination: solana_sdk::pubkey::Pubkey,
-    pub source_mint: solana_sdk::pubkey::Pubkey,
-    pub token_a_program: solana_sdk::pubkey::Pubkey,
-    pub token_b_program: solana_sdk::pubkey::Pubkey,
+    pub swap: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub user_transfer_authority: solana_pubkey::Pubkey,
+    pub source_token: solana_pubkey::Pubkey,
+    pub swap_token_a: solana_pubkey::Pubkey,
+    pub swap_token_b: solana_pubkey::Pubkey,
+    pub pool_mint: solana_pubkey::Pubkey,
+    pub destination: solana_pubkey::Pubkey,
+    pub source_mint: solana_pubkey::Pubkey,
+    pub token_a_program: solana_pubkey::Pubkey,
+    pub token_b_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DepositSingleTokenTypeExactAmountIn {
     type ArrangedAccounts = DepositSingleTokenTypeExactAmountInInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [swap, authority, user_transfer_authority, source_token, swap_token_a, swap_token_b, pool_mint, destination, source_mint, token_a_program, token_b_program, _remaining @ ..] =
             accounts

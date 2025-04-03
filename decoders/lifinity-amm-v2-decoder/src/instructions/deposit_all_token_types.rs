@@ -12,23 +12,23 @@ pub struct DepositAllTokenTypes {
 
 #[derive(Debug, PartialEq)]
 pub struct DepositAllTokenTypesInstructionAccounts {
-    pub amm: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub user_transfer_authority_info: solana_sdk::pubkey::Pubkey,
-    pub source_a_info: solana_sdk::pubkey::Pubkey,
-    pub source_b_info: solana_sdk::pubkey::Pubkey,
-    pub token_a: solana_sdk::pubkey::Pubkey,
-    pub token_b: solana_sdk::pubkey::Pubkey,
-    pub pool_mint: solana_sdk::pubkey::Pubkey,
-    pub destination: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub amm: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub user_transfer_authority_info: solana_pubkey::Pubkey,
+    pub source_a_info: solana_pubkey::Pubkey,
+    pub source_b_info: solana_pubkey::Pubkey,
+    pub token_a: solana_pubkey::Pubkey,
+    pub token_b: solana_pubkey::Pubkey,
+    pub pool_mint: solana_pubkey::Pubkey,
+    pub destination: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DepositAllTokenTypes {
     type ArrangedAccounts = DepositAllTokenTypesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [amm, authority, user_transfer_authority_info, source_a_info, source_b_info, token_a, token_b, pool_mint, destination, token_program, _remaining @ ..] =
             accounts

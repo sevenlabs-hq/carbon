@@ -7,15 +7,15 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct CloseNftList {}
 
 pub struct CloseNftListInstructionAccounts {
-    pub nft_list: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
+    pub nft_list: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CloseNftList {
     type ArrangedAccounts = CloseNftListInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [nft_list, payer, _remaining @ ..] = accounts else {
             return None;

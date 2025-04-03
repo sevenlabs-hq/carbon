@@ -9,16 +9,16 @@ pub struct Split {
 }
 
 pub struct SplitInstructionAccounts {
-    pub from: solana_sdk::pubkey::Pubkey,
-    pub to: solana_sdk::pubkey::Pubkey,
-    pub stake_authority: solana_sdk::pubkey::Pubkey,
+    pub from: solana_pubkey::Pubkey,
+    pub to: solana_pubkey::Pubkey,
+    pub stake_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Split {
     type ArrangedAccounts = SplitInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [from, to, stake_authority, _remaining @ ..] = accounts else {
             return None;

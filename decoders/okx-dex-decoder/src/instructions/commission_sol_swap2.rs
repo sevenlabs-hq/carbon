@@ -12,20 +12,20 @@ pub struct CommissionSolSwap2 {
 }
 
 pub struct CommissionSolSwap2InstructionAccounts {
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub source_token_account: solana_sdk::pubkey::Pubkey,
-    pub destination_token_account: solana_sdk::pubkey::Pubkey,
-    pub source_mint: solana_sdk::pubkey::Pubkey,
-    pub destination_mint: solana_sdk::pubkey::Pubkey,
-    pub commission_account: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub source_token_account: solana_pubkey::Pubkey,
+    pub destination_token_account: solana_pubkey::Pubkey,
+    pub source_mint: solana_pubkey::Pubkey,
+    pub destination_mint: solana_pubkey::Pubkey,
+    pub commission_account: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CommissionSolSwap2 {
     type ArrangedAccounts = CommissionSolSwap2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, source_token_account, destination_token_account, source_mint, destination_mint, commission_account, system_program, _remaining @ ..] =
             accounts

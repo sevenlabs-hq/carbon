@@ -10,12 +10,14 @@ carbon-rpc-program-subscribe-datasource = { workspace = true }
 carbon-sharky-decoder = { workspace = true }
 solana-account-decoder.workspace = true
 solana-client.workspace = true
-solana-sdk.workspace = true
+solana-instruction = { workspace = true, default-features = false }
+solana-pubkey = { workspace = true }
 
 anyhow = { workspace = true }
 async-trait = { workspace = true }
 dotenv = { workspace = true }
 env_logger = { workspace = true }
+log = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 tokio = { workspace = true, features = ["full"] }
 tokio-util = { workspace = true }

@@ -7,19 +7,19 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct RefreshReserve {}
 
 pub struct RefreshReserveInstructionAccounts {
-    pub reserve: solana_sdk::pubkey::Pubkey,
-    pub lending_market: solana_sdk::pubkey::Pubkey,
-    pub pyth_oracle: solana_sdk::pubkey::Pubkey,
-    pub switchboard_price_oracle: solana_sdk::pubkey::Pubkey,
-    pub switchboard_twap_oracle: solana_sdk::pubkey::Pubkey,
-    pub scope_prices: solana_sdk::pubkey::Pubkey,
+    pub reserve: solana_pubkey::Pubkey,
+    pub lending_market: solana_pubkey::Pubkey,
+    pub pyth_oracle: solana_pubkey::Pubkey,
+    pub switchboard_price_oracle: solana_pubkey::Pubkey,
+    pub switchboard_twap_oracle: solana_pubkey::Pubkey,
+    pub scope_prices: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RefreshReserve {
     type ArrangedAccounts = RefreshReserveInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [reserve, lending_market, pyth_oracle, switchboard_price_oracle, switchboard_twap_oracle, scope_prices, _remaining @ ..] =
             accounts

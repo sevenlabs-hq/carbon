@@ -20,15 +20,15 @@ pub struct PlacePerpOrderV5 {
 }
 
 pub struct PlacePerpOrderV5InstructionAccounts {
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub place_order_accounts: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub place_order_accounts: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for PlacePerpOrderV5 {
     type ArrangedAccounts = PlacePerpOrderV5InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [authority, place_order_accounts, _remaining @ ..] = accounts else {
             return None;

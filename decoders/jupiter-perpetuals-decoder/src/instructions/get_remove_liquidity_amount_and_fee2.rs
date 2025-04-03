@@ -11,19 +11,19 @@ pub struct GetRemoveLiquidityAmountAndFee2 {
 }
 
 pub struct GetRemoveLiquidityAmountAndFee2InstructionAccounts {
-    pub perpetuals: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub custody: solana_sdk::pubkey::Pubkey,
-    pub custody_doves_price_account: solana_sdk::pubkey::Pubkey,
-    pub custody_pythnet_price_account: solana_sdk::pubkey::Pubkey,
-    pub lp_token_mint: solana_sdk::pubkey::Pubkey,
+    pub perpetuals: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub custody: solana_pubkey::Pubkey,
+    pub custody_doves_price_account: solana_pubkey::Pubkey,
+    pub custody_pythnet_price_account: solana_pubkey::Pubkey,
+    pub lp_token_mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for GetRemoveLiquidityAmountAndFee2 {
     type ArrangedAccounts = GetRemoveLiquidityAmountAndFee2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [perpetuals, pool, custody, custody_doves_price_account, custody_pythnet_price_account, lp_token_mint, _remaining @ ..] =
             accounts

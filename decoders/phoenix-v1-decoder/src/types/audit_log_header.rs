@@ -8,7 +8,7 @@ pub struct AuditLogHeader {
     pub sequence_number: u64,
     pub timestamp: i64,
     pub slot: u64,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub signer: solana_sdk::pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
     pub total_events: u16,
 }

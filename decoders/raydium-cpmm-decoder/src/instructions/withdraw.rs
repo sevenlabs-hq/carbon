@@ -11,27 +11,27 @@ pub struct Withdraw {
 }
 
 pub struct WithdrawInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub pool_state: solana_sdk::pubkey::Pubkey,
-    pub owner_lp_token: solana_sdk::pubkey::Pubkey,
-    pub token0_account: solana_sdk::pubkey::Pubkey,
-    pub token1_account: solana_sdk::pubkey::Pubkey,
-    pub token0_vault: solana_sdk::pubkey::Pubkey,
-    pub token1_vault: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub token_program2022: solana_sdk::pubkey::Pubkey,
-    pub vault0_mint: solana_sdk::pubkey::Pubkey,
-    pub vault1_mint: solana_sdk::pubkey::Pubkey,
-    pub lp_mint: solana_sdk::pubkey::Pubkey,
-    pub memo_program: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub pool_state: solana_pubkey::Pubkey,
+    pub owner_lp_token: solana_pubkey::Pubkey,
+    pub token0_account: solana_pubkey::Pubkey,
+    pub token1_account: solana_pubkey::Pubkey,
+    pub token0_vault: solana_pubkey::Pubkey,
+    pub token1_vault: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub token_program2022: solana_pubkey::Pubkey,
+    pub vault0_mint: solana_pubkey::Pubkey,
+    pub vault1_mint: solana_pubkey::Pubkey,
+    pub lp_mint: solana_pubkey::Pubkey,
+    pub memo_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Withdraw {
     type ArrangedAccounts = WithdrawInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, authority, pool_state, owner_lp_token, token0_account, token1_account, token0_vault, token1_vault, token_program, token_program2022, vault0_mint, vault1_mint, lp_mint, memo_program, _remaining @ ..] =
             accounts

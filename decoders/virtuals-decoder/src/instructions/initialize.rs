@@ -7,22 +7,22 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct Initialize {}
 
 pub struct InitializeInstructionAccounts {
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub virtuals_mint: solana_sdk::pubkey::Pubkey,
-    pub token_mint: solana_sdk::pubkey::Pubkey,
-    pub vpool_virtuals_ata: solana_sdk::pubkey::Pubkey,
-    pub vpool_token_ata: solana_sdk::pubkey::Pubkey,
-    pub vpool: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub virtuals_mint: solana_pubkey::Pubkey,
+    pub token_mint: solana_pubkey::Pubkey,
+    pub vpool_virtuals_ata: solana_pubkey::Pubkey,
+    pub vpool_token_ata: solana_pubkey::Pubkey,
+    pub vpool: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Initialize {
     type ArrangedAccounts = InitializeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, virtuals_mint, token_mint, vpool_virtuals_ata, vpool_token_ata, vpool, token_program, associated_token_program, system_program, _remaining @ ..] =
             accounts

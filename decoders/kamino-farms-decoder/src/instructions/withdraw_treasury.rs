@@ -9,20 +9,20 @@ pub struct WithdrawTreasury {
 }
 
 pub struct WithdrawTreasuryInstructionAccounts {
-    pub global_admin: solana_sdk::pubkey::Pubkey,
-    pub global_config: solana_sdk::pubkey::Pubkey,
-    pub reward_mint: solana_sdk::pubkey::Pubkey,
-    pub reward_treasury_vault: solana_sdk::pubkey::Pubkey,
-    pub treasury_vault_authority: solana_sdk::pubkey::Pubkey,
-    pub withdraw_destination_token_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub global_admin: solana_pubkey::Pubkey,
+    pub global_config: solana_pubkey::Pubkey,
+    pub reward_mint: solana_pubkey::Pubkey,
+    pub reward_treasury_vault: solana_pubkey::Pubkey,
+    pub treasury_vault_authority: solana_pubkey::Pubkey,
+    pub withdraw_destination_token_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawTreasury {
     type ArrangedAccounts = WithdrawTreasuryInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [global_admin, global_config, reward_mint, reward_treasury_vault, treasury_vault_authority, withdraw_destination_token_account, token_program, _remaining @ ..] =
             accounts

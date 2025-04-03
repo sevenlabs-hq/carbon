@@ -7,16 +7,16 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct ClosePresetParameter {}
 
 pub struct ClosePresetParameterInstructionAccounts {
-    pub preset_parameter: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub rent_receiver: solana_sdk::pubkey::Pubkey,
+    pub preset_parameter: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub rent_receiver: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ClosePresetParameter {
     type ArrangedAccounts = ClosePresetParameterInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [preset_parameter, admin, rent_receiver, _remaining @ ..] = accounts else {
             return None;

@@ -6,19 +6,19 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x24")]
 pub struct UpdateTransferHook {
     pub transfer_hook_discriminator: u8,
-    pub program_id: Option<solana_sdk::pubkey::Pubkey>,
+    pub program_id: Option<solana_pubkey::Pubkey>,
 }
 
 pub struct UpdateTransferHookInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateTransferHook {
     type ArrangedAccounts = UpdateTransferHookInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [mint, authority, _remaining @ ..] = accounts else {
             return None;

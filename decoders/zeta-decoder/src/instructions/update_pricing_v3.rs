@@ -13,20 +13,20 @@ pub struct UpdatePricingV3 {
 }
 
 pub struct UpdatePricingV3InstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub pricing: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub perp_market: solana_sdk::pubkey::Pubkey,
-    pub perp_bids: solana_sdk::pubkey::Pubkey,
-    pub perp_asks: solana_sdk::pubkey::Pubkey,
-    pub pricing_admin: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub pricing: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub perp_market: solana_pubkey::Pubkey,
+    pub perp_bids: solana_pubkey::Pubkey,
+    pub perp_asks: solana_pubkey::Pubkey,
+    pub pricing_admin: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdatePricingV3 {
     type ArrangedAccounts = UpdatePricingV3InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, pricing, oracle, perp_market, perp_bids, perp_asks, pricing_admin, _remaining @ ..] =
             accounts

@@ -10,25 +10,25 @@ pub struct FillOrder {
 }
 
 pub struct FillOrderInstructionAccounts {
-    pub order: solana_sdk::pubkey::Pubkey,
-    pub reserve: solana_sdk::pubkey::Pubkey,
-    pub maker: solana_sdk::pubkey::Pubkey,
-    pub taker: solana_sdk::pubkey::Pubkey,
-    pub taker_output_account: solana_sdk::pubkey::Pubkey,
-    pub maker_output_account: solana_sdk::pubkey::Pubkey,
-    pub taker_input_account: solana_sdk::pubkey::Pubkey,
-    pub fee_authority: solana_sdk::pubkey::Pubkey,
-    pub program_fee_account: solana_sdk::pubkey::Pubkey,
-    pub referral: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub order: solana_pubkey::Pubkey,
+    pub reserve: solana_pubkey::Pubkey,
+    pub maker: solana_pubkey::Pubkey,
+    pub taker: solana_pubkey::Pubkey,
+    pub taker_output_account: solana_pubkey::Pubkey,
+    pub maker_output_account: solana_pubkey::Pubkey,
+    pub taker_input_account: solana_pubkey::Pubkey,
+    pub fee_authority: solana_pubkey::Pubkey,
+    pub program_fee_account: solana_pubkey::Pubkey,
+    pub referral: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for FillOrder {
     type ArrangedAccounts = FillOrderInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [order, reserve, maker, taker, taker_output_account, maker_output_account, taker_input_account, fee_authority, program_fee_account, referral, token_program, system_program, _remaining @ ..] =
             accounts

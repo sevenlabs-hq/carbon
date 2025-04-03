@@ -5,7 +5,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(CarbonDeserialize, Debug)]
 #[carbon(discriminator = "0xd8926b5e684bb6b1")]
 pub struct State {
-    pub admin: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
     pub state_nonce: u8,
     pub serum_nonce: u8,
     pub mint_auth_nonce: u8,
@@ -23,10 +23,10 @@ pub struct State {
     pub margin_concession_percentage: u8,
     pub treasury_wallet_nonce: u8,
     pub deprecated_option_fee_values: [u64; 2],
-    pub referrals_admin: solana_sdk::pubkey::Pubkey,
+    pub referrals_admin: solana_pubkey::Pubkey,
     pub referrals_rewards_wallet_nonce: u8,
     pub max_perp_delta_age: u16,
-    pub secondary_admin: solana_sdk::pubkey::Pubkey,
+    pub secondary_admin: solana_pubkey::Pubkey,
     pub vault_nonce: u8,
     pub insurance_vault_nonce: u8,
     pub deprecated_total_insurance_vault_deposits: u64,
@@ -35,7 +35,7 @@ pub struct State {
     pub native_open_interest_limit: u64,
     pub halt_states: [HaltStateV2; 25],
     pub halt_states_padding: [HaltStateV2; 0],
-    pub trigger_admin: solana_sdk::pubkey::Pubkey,
+    pub trigger_admin: solana_pubkey::Pubkey,
     pub min_lot_sizes: [u32; 25],
     pub min_lot_sizes_padding: [u32; 0],
     pub tick_sizes: [u32; 25],
@@ -43,9 +43,9 @@ pub struct State {
     pub deprecated_maker_fee_value: u64,
     pub native_take_trigger_order_fee_percentage: u64,
     pub native_maker_rebate_percentage: u64,
-    pub ma_type_admin: solana_sdk::pubkey::Pubkey,
-    pub pricing_admin: solana_sdk::pubkey::Pubkey,
-    pub treasury_split_token_account: solana_sdk::pubkey::Pubkey,
+    pub ma_type_admin: solana_pubkey::Pubkey,
+    pub pricing_admin: solana_pubkey::Pubkey,
+    pub treasury_split_token_account: solana_pubkey::Pubkey,
     pub treasury_split_percentage: u8,
     pub padding: [u8; 185],
 }

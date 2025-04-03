@@ -10,21 +10,21 @@ pub struct EmergencyUnstake {
 }
 
 pub struct EmergencyUnstakeInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub validator_manager_authority: solana_sdk::pubkey::Pubkey,
-    pub validator_list: solana_sdk::pubkey::Pubkey,
-    pub stake_list: solana_sdk::pubkey::Pubkey,
-    pub stake_account: solana_sdk::pubkey::Pubkey,
-    pub stake_deposit_authority: solana_sdk::pubkey::Pubkey,
-    pub clock: solana_sdk::pubkey::Pubkey,
-    pub stake_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub validator_manager_authority: solana_pubkey::Pubkey,
+    pub validator_list: solana_pubkey::Pubkey,
+    pub stake_list: solana_pubkey::Pubkey,
+    pub stake_account: solana_pubkey::Pubkey,
+    pub stake_deposit_authority: solana_pubkey::Pubkey,
+    pub clock: solana_pubkey::Pubkey,
+    pub stake_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for EmergencyUnstake {
     type ArrangedAccounts = EmergencyUnstakeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, validator_manager_authority, validator_list, stake_list, stake_account, stake_deposit_authority, clock, stake_program, _remaining @ ..] =
             accounts

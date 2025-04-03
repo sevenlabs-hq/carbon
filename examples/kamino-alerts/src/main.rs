@@ -97,9 +97,10 @@ impl Processor for KaminoLendingInstructionProcessor {
             &signature.to_string()[signature.to_string().len() - 4..signature.to_string().len()]
         );
 
-        println!(
+        log::info!(
             "instruction processed ({}) {:?}",
-            signature, instruction.data
+            signature,
+            instruction.data
         );
 
         Ok(())
@@ -132,7 +133,7 @@ impl Processor for KaminoLendingAccountProcessor {
             }
         }
 
-        println!(
+        log::info!(
             "account updated ({}) {:?}",
             pubkey_str,
             max_total_chars(

@@ -9,7 +9,7 @@ pub struct HarvestWithheldTokensToMintForConfidentialTransferFee {
 }
 
 pub struct HarvestWithheldTokensToMintForConfidentialTransferFeeInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts
@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts
         HarvestWithheldTokensToMintForConfidentialTransferFeeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [mint, _remaining @ ..] = accounts else {
             return None;

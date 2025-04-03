@@ -7,9 +7,9 @@ use {
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub struct ReserveLiquidity {
-    pub mint_pubkey: solana_sdk::pubkey::Pubkey,
-    pub supply_vault: solana_sdk::pubkey::Pubkey,
-    pub fee_vault: solana_sdk::pubkey::Pubkey,
+    pub mint_pubkey: solana_pubkey::Pubkey,
+    pub supply_vault: solana_pubkey::Pubkey,
+    pub fee_vault: solana_pubkey::Pubkey,
     pub available_amount: u64,
     pub borrowed_amount_sf: u128,
     pub market_price_sf: u128,
@@ -22,7 +22,7 @@ pub struct ReserveLiquidity {
     pub accumulated_referrer_fees_sf: u128,
     pub pending_referrer_fees_sf: u128,
     pub absolute_referral_rate_sf: u128,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
     #[serde(with = "BigArray")]
     pub padding2: [u64; 51],
     pub padding3: [u128; 32],

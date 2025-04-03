@@ -10,8 +10,9 @@ keywords = ["solana", "indexer", "program", "datasource"]
 categories = ["encoding"]
 
 [dependencies]
+solana-account = { workspace = true }
 solana-client = { workspace = true }
-solana-sdk = { workspace = true }
+solana-pubkey = { workspace = true }
 
 carbon-core = { workspace = true }
 

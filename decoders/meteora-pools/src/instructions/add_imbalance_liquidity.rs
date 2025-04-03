@@ -11,29 +11,29 @@ pub struct AddImbalanceLiquidity {
 }
 
 pub struct AddImbalanceLiquidityInstructionAccounts {
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub lp_mint: solana_sdk::pubkey::Pubkey,
-    pub user_pool_lp: solana_sdk::pubkey::Pubkey,
-    pub a_vault_lp: solana_sdk::pubkey::Pubkey,
-    pub b_vault_lp: solana_sdk::pubkey::Pubkey,
-    pub a_vault: solana_sdk::pubkey::Pubkey,
-    pub b_vault: solana_sdk::pubkey::Pubkey,
-    pub a_vault_lp_mint: solana_sdk::pubkey::Pubkey,
-    pub b_vault_lp_mint: solana_sdk::pubkey::Pubkey,
-    pub a_token_vault: solana_sdk::pubkey::Pubkey,
-    pub b_token_vault: solana_sdk::pubkey::Pubkey,
-    pub user_a_token: solana_sdk::pubkey::Pubkey,
-    pub user_b_token: solana_sdk::pubkey::Pubkey,
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub vault_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub lp_mint: solana_pubkey::Pubkey,
+    pub user_pool_lp: solana_pubkey::Pubkey,
+    pub a_vault_lp: solana_pubkey::Pubkey,
+    pub b_vault_lp: solana_pubkey::Pubkey,
+    pub a_vault: solana_pubkey::Pubkey,
+    pub b_vault: solana_pubkey::Pubkey,
+    pub a_vault_lp_mint: solana_pubkey::Pubkey,
+    pub b_vault_lp_mint: solana_pubkey::Pubkey,
+    pub a_token_vault: solana_pubkey::Pubkey,
+    pub b_token_vault: solana_pubkey::Pubkey,
+    pub user_a_token: solana_pubkey::Pubkey,
+    pub user_b_token: solana_pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub vault_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for AddImbalanceLiquidity {
     type ArrangedAccounts = AddImbalanceLiquidityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [pool, lp_mint, user_pool_lp, a_vault_lp, b_vault_lp, a_vault, b_vault, a_vault_lp_mint, b_vault_lp_mint, a_token_vault, b_token_vault, user_a_token, user_b_token, user, vault_program, token_program, _remaining @ ..] =
             accounts

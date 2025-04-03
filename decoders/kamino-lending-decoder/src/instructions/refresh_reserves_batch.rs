@@ -14,7 +14,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RefreshReservesBatch {
     type ArrangedAccounts = RefreshReservesBatchInstructionAccounts;
 
     fn arrange_accounts(
-        _accounts: &[solana_sdk::instruction::AccountMeta],
+        _accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         Some(RefreshReservesBatchInstructionAccounts {})
     }

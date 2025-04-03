@@ -10,26 +10,26 @@ pub struct SwapBaseOutput {
 }
 
 pub struct SwapBaseOutputInstructionAccounts {
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub amm_config: solana_sdk::pubkey::Pubkey,
-    pub pool_state: solana_sdk::pubkey::Pubkey,
-    pub input_token_account: solana_sdk::pubkey::Pubkey,
-    pub output_token_account: solana_sdk::pubkey::Pubkey,
-    pub input_vault: solana_sdk::pubkey::Pubkey,
-    pub output_vault: solana_sdk::pubkey::Pubkey,
-    pub input_token_program: solana_sdk::pubkey::Pubkey,
-    pub output_token_program: solana_sdk::pubkey::Pubkey,
-    pub input_token_mint: solana_sdk::pubkey::Pubkey,
-    pub output_token_mint: solana_sdk::pubkey::Pubkey,
-    pub observation_state: solana_sdk::pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub amm_config: solana_pubkey::Pubkey,
+    pub pool_state: solana_pubkey::Pubkey,
+    pub input_token_account: solana_pubkey::Pubkey,
+    pub output_token_account: solana_pubkey::Pubkey,
+    pub input_vault: solana_pubkey::Pubkey,
+    pub output_vault: solana_pubkey::Pubkey,
+    pub input_token_program: solana_pubkey::Pubkey,
+    pub output_token_program: solana_pubkey::Pubkey,
+    pub input_token_mint: solana_pubkey::Pubkey,
+    pub output_token_mint: solana_pubkey::Pubkey,
+    pub observation_state: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SwapBaseOutput {
     type ArrangedAccounts = SwapBaseOutputInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, authority, amm_config, pool_state, input_token_account, output_token_account, input_vault, output_vault, input_token_program, output_token_program, input_token_mint, output_token_mint, observation_state, _remaining @ ..] =
             accounts

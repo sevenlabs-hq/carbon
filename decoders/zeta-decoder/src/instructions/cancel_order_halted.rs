@@ -13,14 +13,14 @@ pub struct CancelOrderHalted {
 }
 
 pub struct CancelOrderHaltedInstructionAccounts {
-    pub cancel_accounts: solana_sdk::pubkey::Pubkey,
+    pub cancel_accounts: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CancelOrderHalted {
     type ArrangedAccounts = CancelOrderHaltedInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [cancel_accounts, _remaining @ ..] = accounts else {
             return None;

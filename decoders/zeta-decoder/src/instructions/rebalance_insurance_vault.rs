@@ -7,19 +7,19 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct RebalanceInsuranceVault {}
 
 pub struct RebalanceInsuranceVaultInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub zeta_vault: solana_sdk::pubkey::Pubkey,
-    pub insurance_vault: solana_sdk::pubkey::Pubkey,
-    pub treasury_wallet: solana_sdk::pubkey::Pubkey,
-    pub socialized_loss_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub zeta_vault: solana_pubkey::Pubkey,
+    pub insurance_vault: solana_pubkey::Pubkey,
+    pub treasury_wallet: solana_pubkey::Pubkey,
+    pub socialized_loss_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RebalanceInsuranceVault {
     type ArrangedAccounts = RebalanceInsuranceVaultInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, zeta_vault, insurance_vault, treasury_wallet, socialized_loss_account, token_program, _remaining @ ..] =
             accounts

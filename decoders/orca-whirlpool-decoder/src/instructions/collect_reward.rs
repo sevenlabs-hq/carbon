@@ -9,20 +9,20 @@ pub struct CollectReward {
 }
 
 pub struct CollectRewardInstructionAccounts {
-    pub whirlpool: solana_sdk::pubkey::Pubkey,
-    pub position_authority: solana_sdk::pubkey::Pubkey,
-    pub position: solana_sdk::pubkey::Pubkey,
-    pub position_token_account: solana_sdk::pubkey::Pubkey,
-    pub reward_owner_account: solana_sdk::pubkey::Pubkey,
-    pub reward_vault: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub whirlpool: solana_pubkey::Pubkey,
+    pub position_authority: solana_pubkey::Pubkey,
+    pub position: solana_pubkey::Pubkey,
+    pub position_token_account: solana_pubkey::Pubkey,
+    pub reward_owner_account: solana_pubkey::Pubkey,
+    pub reward_vault: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CollectReward {
     type ArrangedAccounts = CollectRewardInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [whirlpool, position_authority, position, position_token_account, reward_owner_account, reward_vault, token_program, _remaining @ ..] =
             accounts

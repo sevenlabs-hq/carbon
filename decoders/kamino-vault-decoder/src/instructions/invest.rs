@@ -7,29 +7,29 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct Invest {}
 
 pub struct InvestInstructionAccounts {
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub payer_token_account: solana_sdk::pubkey::Pubkey,
-    pub vault_state: solana_sdk::pubkey::Pubkey,
-    pub token_vault: solana_sdk::pubkey::Pubkey,
-    pub token_mint: solana_sdk::pubkey::Pubkey,
-    pub base_vault_authority: solana_sdk::pubkey::Pubkey,
-    pub ctoken_vault: solana_sdk::pubkey::Pubkey,
-    pub reserve: solana_sdk::pubkey::Pubkey,
-    pub lending_market: solana_sdk::pubkey::Pubkey,
-    pub lending_market_authority: solana_sdk::pubkey::Pubkey,
-    pub reserve_liquidity_supply: solana_sdk::pubkey::Pubkey,
-    pub reserve_collateral_mint: solana_sdk::pubkey::Pubkey,
-    pub klend_program: solana_sdk::pubkey::Pubkey,
-    pub reserve_collateral_token_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub instruction_sysvar_account: solana_sdk::pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub payer_token_account: solana_pubkey::Pubkey,
+    pub vault_state: solana_pubkey::Pubkey,
+    pub token_vault: solana_pubkey::Pubkey,
+    pub token_mint: solana_pubkey::Pubkey,
+    pub base_vault_authority: solana_pubkey::Pubkey,
+    pub ctoken_vault: solana_pubkey::Pubkey,
+    pub reserve: solana_pubkey::Pubkey,
+    pub lending_market: solana_pubkey::Pubkey,
+    pub lending_market_authority: solana_pubkey::Pubkey,
+    pub reserve_liquidity_supply: solana_pubkey::Pubkey,
+    pub reserve_collateral_mint: solana_pubkey::Pubkey,
+    pub klend_program: solana_pubkey::Pubkey,
+    pub reserve_collateral_token_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub instruction_sysvar_account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Invest {
     type ArrangedAccounts = InvestInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, payer_token_account, vault_state, token_vault, token_mint, base_vault_authority, ctoken_vault, reserve, lending_market, lending_market_authority, reserve_liquidity_supply, reserve_collateral_mint, klend_program, reserve_collateral_token_program, token_program, instruction_sysvar_account, _remaining @ ..] =
             accounts

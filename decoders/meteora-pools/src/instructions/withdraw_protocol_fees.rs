@@ -7,20 +7,20 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct WithdrawProtocolFees {}
 
 pub struct WithdrawProtocolFeesInstructionAccounts {
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub a_vault_lp: solana_sdk::pubkey::Pubkey,
-    pub protocol_token_a_fee: solana_sdk::pubkey::Pubkey,
-    pub protocol_token_b_fee: solana_sdk::pubkey::Pubkey,
-    pub treasury_token_a: solana_sdk::pubkey::Pubkey,
-    pub treasury_token_b: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub a_vault_lp: solana_pubkey::Pubkey,
+    pub protocol_token_a_fee: solana_pubkey::Pubkey,
+    pub protocol_token_b_fee: solana_pubkey::Pubkey,
+    pub treasury_token_a: solana_pubkey::Pubkey,
+    pub treasury_token_b: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawProtocolFees {
     type ArrangedAccounts = WithdrawProtocolFeesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [pool, a_vault_lp, protocol_token_a_fee, protocol_token_b_fee, treasury_token_a, treasury_token_b, token_program, _remaining @ ..] =
             accounts

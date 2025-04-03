@@ -9,17 +9,17 @@ pub struct BurnChecked {
 }
 
 pub struct BurnCheckedAccounts {
-    pub account: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    pub account: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub remaining_accounts: Vec<solana_instruction::AccountMeta>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for BurnChecked {
     type ArrangedAccounts = BurnCheckedAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [account, mint, owner, remaining_accounts @ ..] = accounts else {
             return None;

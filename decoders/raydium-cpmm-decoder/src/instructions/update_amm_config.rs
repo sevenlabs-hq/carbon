@@ -10,15 +10,15 @@ pub struct UpdateAmmConfig {
 }
 
 pub struct UpdateAmmConfigInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub amm_config: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub amm_config: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateAmmConfig {
     type ArrangedAccounts = UpdateAmmConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, amm_config, _remaining @ ..] = accounts else {
             return None;

@@ -9,15 +9,15 @@ pub struct UpdateExchangeStatus {
 }
 
 pub struct UpdateExchangeStatusInstructionAccounts {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateExchangeStatus {
     type ArrangedAccounts = UpdateExchangeStatusInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, state, _remaining @ ..] = accounts else {
             return None;

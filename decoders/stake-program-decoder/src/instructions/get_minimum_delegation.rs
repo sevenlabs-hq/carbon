@@ -12,7 +12,7 @@ impl carbon_core::deserialize::ArrangeAccounts for GetMinimumDelegation {
     type ArrangedAccounts = GetMinimumDelegationInstructionAccounts;
 
     fn arrange_accounts(
-        _accounts: &[solana_sdk::instruction::AccountMeta],
+        _accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         Some(GetMinimumDelegationInstructionAccounts {})
     }

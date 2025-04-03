@@ -7,21 +7,21 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct BatchThawLstAccounts {}
 
 pub struct BatchThawLstAccountsInstructionAccounts {
-    pub signer: solana_sdk::pubkey::Pubkey,
-    pub solayer_admin: solana_sdk::pubkey::Pubkey,
-    pub lst_mint: solana_sdk::pubkey::Pubkey,
-    pub rst_mint: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
+    pub solayer_admin: solana_pubkey::Pubkey,
+    pub lst_mint: solana_pubkey::Pubkey,
+    pub rst_mint: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for BatchThawLstAccounts {
     type ArrangedAccounts = BatchThawLstAccountsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [signer, solayer_admin, lst_mint, rst_mint, pool, associated_token_program, token_program, system_program, _remaining @ ..] =
             accounts

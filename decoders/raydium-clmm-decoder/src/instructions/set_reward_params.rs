@@ -12,19 +12,19 @@ pub struct SetRewardParams {
 }
 
 pub struct SetRewardParamsInstructionAccounts {
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub amm_config: solana_sdk::pubkey::Pubkey,
-    pub pool_state: solana_sdk::pubkey::Pubkey,
-    pub operation_state: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub token_program2022: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub amm_config: solana_pubkey::Pubkey,
+    pub pool_state: solana_pubkey::Pubkey,
+    pub operation_state: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub token_program2022: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetRewardParams {
     type ArrangedAccounts = SetRewardParamsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [authority, amm_config, pool_state, operation_state, token_program, token_program2022, _remaining @ ..] =
             accounts

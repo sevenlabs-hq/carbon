@@ -7,23 +7,23 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct BurnEditionNft {}
 
 pub struct BurnEditionNftInstructionAccounts {
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub print_edition_mint: solana_sdk::pubkey::Pubkey,
-    pub master_edition_mint: solana_sdk::pubkey::Pubkey,
-    pub print_edition_token_account: solana_sdk::pubkey::Pubkey,
-    pub master_edition_token_account: solana_sdk::pubkey::Pubkey,
-    pub master_edition_account: solana_sdk::pubkey::Pubkey,
-    pub print_edition_account: solana_sdk::pubkey::Pubkey,
-    pub edition_marker_account: solana_sdk::pubkey::Pubkey,
-    pub spl_token_program: solana_sdk::pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub print_edition_mint: solana_pubkey::Pubkey,
+    pub master_edition_mint: solana_pubkey::Pubkey,
+    pub print_edition_token_account: solana_pubkey::Pubkey,
+    pub master_edition_token_account: solana_pubkey::Pubkey,
+    pub master_edition_account: solana_pubkey::Pubkey,
+    pub print_edition_account: solana_pubkey::Pubkey,
+    pub edition_marker_account: solana_pubkey::Pubkey,
+    pub spl_token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for BurnEditionNft {
     type ArrangedAccounts = BurnEditionNftInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [metadata, owner, print_edition_mint, master_edition_mint, print_edition_token_account, master_edition_token_account, master_edition_account, print_edition_account, edition_marker_account, spl_token_program, _remaining @ ..] =
             accounts

@@ -12,15 +12,15 @@ pub struct SetPoolFees {
 }
 
 pub struct SetPoolFeesInstructionAccounts {
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub fee_operator: solana_sdk::pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub fee_operator: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetPoolFees {
     type ArrangedAccounts = SetPoolFeesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [pool, fee_operator, _remaining @ ..] = accounts else {
             return None;

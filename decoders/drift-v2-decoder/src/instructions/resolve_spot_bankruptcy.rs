@@ -9,23 +9,23 @@ pub struct ResolveSpotBankruptcy {
 }
 
 pub struct ResolveSpotBankruptcyInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub liquidator: solana_sdk::pubkey::Pubkey,
-    pub liquidator_stats: solana_sdk::pubkey::Pubkey,
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub user_stats: solana_sdk::pubkey::Pubkey,
-    pub spot_market_vault: solana_sdk::pubkey::Pubkey,
-    pub insurance_fund_vault: solana_sdk::pubkey::Pubkey,
-    pub drift_signer: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub liquidator: solana_pubkey::Pubkey,
+    pub liquidator_stats: solana_pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub user_stats: solana_pubkey::Pubkey,
+    pub spot_market_vault: solana_pubkey::Pubkey,
+    pub insurance_fund_vault: solana_pubkey::Pubkey,
+    pub drift_signer: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ResolveSpotBankruptcy {
     type ArrangedAccounts = ResolveSpotBankruptcyInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, authority, liquidator, liquidator_stats, user, user_stats, spot_market_vault, insurance_fund_vault, drift_signer, token_program, _remaining @ ..] =
             accounts

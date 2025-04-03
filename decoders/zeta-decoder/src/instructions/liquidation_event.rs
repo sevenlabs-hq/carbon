@@ -15,9 +15,9 @@ pub struct LiquidationEvent {
     pub remaining_liquidator_balance: u64,
     pub mark_price: u64,
     pub underlying_price: u64,
-    pub liquidatee: solana_sdk::pubkey::Pubkey,
-    pub liquidator: solana_sdk::pubkey::Pubkey,
+    pub liquidatee: solana_pubkey::Pubkey,
+    pub liquidator: solana_pubkey::Pubkey,
     pub asset: Asset,
-    pub liquidatee_margin_account: solana_sdk::pubkey::Pubkey,
-    pub liquidator_margin_account: solana_sdk::pubkey::Pubkey,
+    pub liquidatee_margin_account: solana_pubkey::Pubkey,
+    pub liquidator_margin_account: solana_pubkey::Pubkey,
 }

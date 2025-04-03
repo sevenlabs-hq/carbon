@@ -9,17 +9,17 @@ pub struct Realloc {
 }
 
 pub struct ReallocInstructionAccounts {
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub name_record: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub name_record: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Realloc {
     type ArrangedAccounts = ReallocInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [system_program, payer, name_record, owner, _remaining @ ..] = accounts else {
             return None;

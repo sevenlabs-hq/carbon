@@ -12,30 +12,30 @@ pub struct AddLiquidityByStrategy {
 }
 
 pub struct AddLiquidityByStrategyInstructionAccounts {
-    pub position: solana_sdk::pubkey::Pubkey,
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
-    pub bin_array_bitmap_extension: solana_sdk::pubkey::Pubkey,
-    pub user_token_x: solana_sdk::pubkey::Pubkey,
-    pub user_token_y: solana_sdk::pubkey::Pubkey,
-    pub reserve_x: solana_sdk::pubkey::Pubkey,
-    pub reserve_y: solana_sdk::pubkey::Pubkey,
-    pub token_x_mint: solana_sdk::pubkey::Pubkey,
-    pub token_y_mint: solana_sdk::pubkey::Pubkey,
-    pub bin_array_lower: solana_sdk::pubkey::Pubkey,
-    pub bin_array_upper: solana_sdk::pubkey::Pubkey,
-    pub sender: solana_sdk::pubkey::Pubkey,
-    pub token_x_program: solana_sdk::pubkey::Pubkey,
-    pub token_y_program: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
-    pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    pub position: solana_pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
+    pub bin_array_bitmap_extension: solana_pubkey::Pubkey,
+    pub user_token_x: solana_pubkey::Pubkey,
+    pub user_token_y: solana_pubkey::Pubkey,
+    pub reserve_x: solana_pubkey::Pubkey,
+    pub reserve_y: solana_pubkey::Pubkey,
+    pub token_x_mint: solana_pubkey::Pubkey,
+    pub token_y_mint: solana_pubkey::Pubkey,
+    pub bin_array_lower: solana_pubkey::Pubkey,
+    pub bin_array_upper: solana_pubkey::Pubkey,
+    pub sender: solana_pubkey::Pubkey,
+    pub token_x_program: solana_pubkey::Pubkey,
+    pub token_y_program: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
+    pub remaining_accounts: Vec<solana_instruction::AccountMeta>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for AddLiquidityByStrategy {
     type ArrangedAccounts = AddLiquidityByStrategyInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [position, lb_pair, bin_array_bitmap_extension, user_token_x, user_token_y, reserve_x, reserve_y, token_x_mint, token_y_mint, bin_array_lower, bin_array_upper, sender, token_x_program, token_y_program, event_authority, program, remaining_accounts @ ..] =
             accounts

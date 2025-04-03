@@ -9,34 +9,34 @@ pub struct ExtendLoanV3 {
 }
 
 pub struct ExtendLoanV3InstructionAccounts {
-    pub loan: solana_sdk::pubkey::Pubkey,
-    pub new_loan: solana_sdk::pubkey::Pubkey,
-    pub borrower: solana_sdk::pubkey::Pubkey,
-    pub borrower_collateral_token_account: solana_sdk::pubkey::Pubkey,
-    pub lender: solana_sdk::pubkey::Pubkey,
-    pub new_lender: solana_sdk::pubkey::Pubkey,
-    pub escrow: solana_sdk::pubkey::Pubkey,
-    pub escrow_collateral_token_account: solana_sdk::pubkey::Pubkey,
-    pub new_escrow: solana_sdk::pubkey::Pubkey,
-    pub new_escrow_collateral_token_account: solana_sdk::pubkey::Pubkey,
-    pub value_mint: solana_sdk::pubkey::Pubkey,
-    pub collateral_mint: solana_sdk::pubkey::Pubkey,
-    pub order_book: solana_sdk::pubkey::Pubkey,
-    pub fee_authority: solana_sdk::pubkey::Pubkey,
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub edition: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub mpl_token_metadata_program: solana_sdk::pubkey::Pubkey,
+    pub loan: solana_pubkey::Pubkey,
+    pub new_loan: solana_pubkey::Pubkey,
+    pub borrower: solana_pubkey::Pubkey,
+    pub borrower_collateral_token_account: solana_pubkey::Pubkey,
+    pub lender: solana_pubkey::Pubkey,
+    pub new_lender: solana_pubkey::Pubkey,
+    pub escrow: solana_pubkey::Pubkey,
+    pub escrow_collateral_token_account: solana_pubkey::Pubkey,
+    pub new_escrow: solana_pubkey::Pubkey,
+    pub new_escrow_collateral_token_account: solana_pubkey::Pubkey,
+    pub value_mint: solana_pubkey::Pubkey,
+    pub collateral_mint: solana_pubkey::Pubkey,
+    pub order_book: solana_pubkey::Pubkey,
+    pub fee_authority: solana_pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub edition: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub mpl_token_metadata_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ExtendLoanV3 {
     type ArrangedAccounts = ExtendLoanV3InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [loan, new_loan, borrower, borrower_collateral_token_account, lender, new_lender, escrow, escrow_collateral_token_account, new_escrow, new_escrow_collateral_token_account, value_mint, collateral_mint, order_book, fee_authority, metadata, edition, system_program, token_program, associated_token_program, rent, mpl_token_metadata_program, _remaining @ ..] =
             accounts

@@ -9,19 +9,19 @@ pub struct DepositIntoSpotMarketRevenuePool {
 }
 
 pub struct DepositIntoSpotMarketRevenuePoolInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub spot_market: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub spot_market_vault: solana_sdk::pubkey::Pubkey,
-    pub user_token_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub spot_market: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub spot_market_vault: solana_pubkey::Pubkey,
+    pub user_token_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DepositIntoSpotMarketRevenuePool {
     type ArrangedAccounts = DepositIntoSpotMarketRevenuePoolInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, spot_market, authority, spot_market_vault, user_token_account, token_program, _remaining @ ..] =
             accounts

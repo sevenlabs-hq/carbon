@@ -8,5 +8,5 @@ use {
 )]
 pub struct OracleConfig {
     pub setup: OracleSetup,
-    pub keys: [solana_sdk::pubkey::Pubkey; 5],
+    pub keys: [solana_pubkey::Pubkey; 5],
 }

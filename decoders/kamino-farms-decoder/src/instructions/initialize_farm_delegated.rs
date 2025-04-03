@@ -7,20 +7,20 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct InitializeFarmDelegated {}
 
 pub struct InitializeFarmDelegatedInstructionAccounts {
-    pub farm_admin: solana_sdk::pubkey::Pubkey,
-    pub farm_delegate: solana_sdk::pubkey::Pubkey,
-    pub farm_state: solana_sdk::pubkey::Pubkey,
-    pub global_config: solana_sdk::pubkey::Pubkey,
-    pub farm_vaults_authority: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub farm_admin: solana_pubkey::Pubkey,
+    pub farm_delegate: solana_pubkey::Pubkey,
+    pub farm_state: solana_pubkey::Pubkey,
+    pub global_config: solana_pubkey::Pubkey,
+    pub farm_vaults_authority: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeFarmDelegated {
     type ArrangedAccounts = InitializeFarmDelegatedInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [farm_admin, farm_delegate, farm_state, global_config, farm_vaults_authority, system_program, rent, _remaining @ ..] =
             accounts

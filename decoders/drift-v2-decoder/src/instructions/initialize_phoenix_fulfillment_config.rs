@@ -9,23 +9,23 @@ pub struct InitializePhoenixFulfillmentConfig {
 }
 
 pub struct InitializePhoenixFulfillmentConfigInstructionAccounts {
-    pub base_spot_market: solana_sdk::pubkey::Pubkey,
-    pub quote_spot_market: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub phoenix_program: solana_sdk::pubkey::Pubkey,
-    pub phoenix_market: solana_sdk::pubkey::Pubkey,
-    pub drift_signer: solana_sdk::pubkey::Pubkey,
-    pub phoenix_fulfillment_config: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub base_spot_market: solana_pubkey::Pubkey,
+    pub quote_spot_market: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub phoenix_program: solana_pubkey::Pubkey,
+    pub phoenix_market: solana_pubkey::Pubkey,
+    pub drift_signer: solana_pubkey::Pubkey,
+    pub phoenix_fulfillment_config: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializePhoenixFulfillmentConfig {
     type ArrangedAccounts = InitializePhoenixFulfillmentConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [base_spot_market, quote_spot_market, state, phoenix_program, phoenix_market, drift_signer, phoenix_fulfillment_config, admin, rent, system_program, _remaining @ ..] =
             accounts

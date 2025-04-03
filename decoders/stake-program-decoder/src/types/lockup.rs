@@ -6,5 +6,5 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct Lockup {
     pub unix_timestamp: i64,
     pub epoch: u64,
-    pub custodian: solana_sdk::pubkey::Pubkey,
+    pub custodian: solana_pubkey::Pubkey,
 }

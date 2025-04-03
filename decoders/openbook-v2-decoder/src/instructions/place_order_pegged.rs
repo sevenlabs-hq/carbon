@@ -12,25 +12,25 @@ pub struct PlaceOrderPegged {
 }
 
 pub struct PlaceOrderPeggedInstructionAccounts {
-    pub signer: solana_sdk::pubkey::Pubkey,
-    pub open_orders_account: solana_sdk::pubkey::Pubkey,
-    pub open_orders_admin: solana_sdk::pubkey::Pubkey,
-    pub user_token_account: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub bids: solana_sdk::pubkey::Pubkey,
-    pub asks: solana_sdk::pubkey::Pubkey,
-    pub event_heap: solana_sdk::pubkey::Pubkey,
-    pub market_vault: solana_sdk::pubkey::Pubkey,
-    pub oracle_a: solana_sdk::pubkey::Pubkey,
-    pub oracle_b: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
+    pub open_orders_account: solana_pubkey::Pubkey,
+    pub open_orders_admin: solana_pubkey::Pubkey,
+    pub user_token_account: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub bids: solana_pubkey::Pubkey,
+    pub asks: solana_pubkey::Pubkey,
+    pub event_heap: solana_pubkey::Pubkey,
+    pub market_vault: solana_pubkey::Pubkey,
+    pub oracle_a: solana_pubkey::Pubkey,
+    pub oracle_b: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for PlaceOrderPegged {
     type ArrangedAccounts = PlaceOrderPeggedInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [signer, open_orders_account, open_orders_admin, user_token_account, market, bids, asks, event_heap, market_vault, oracle_a, oracle_b, token_program, _remaining @ ..] =
             accounts

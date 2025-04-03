@@ -10,26 +10,26 @@ pub struct CreatePool {
 }
 
 pub struct CreatePoolInstructionAccounts {
-    pub pool_creator: solana_sdk::pubkey::Pubkey,
-    pub amm_config: solana_sdk::pubkey::Pubkey,
-    pub pool_state: solana_sdk::pubkey::Pubkey,
-    pub token_mint0: solana_sdk::pubkey::Pubkey,
-    pub token_mint1: solana_sdk::pubkey::Pubkey,
-    pub token_vault0: solana_sdk::pubkey::Pubkey,
-    pub token_vault1: solana_sdk::pubkey::Pubkey,
-    pub observation_state: solana_sdk::pubkey::Pubkey,
-    pub tick_array_bitmap: solana_sdk::pubkey::Pubkey,
-    pub token_program0: solana_sdk::pubkey::Pubkey,
-    pub token_program1: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub pool_creator: solana_pubkey::Pubkey,
+    pub amm_config: solana_pubkey::Pubkey,
+    pub pool_state: solana_pubkey::Pubkey,
+    pub token_mint0: solana_pubkey::Pubkey,
+    pub token_mint1: solana_pubkey::Pubkey,
+    pub token_vault0: solana_pubkey::Pubkey,
+    pub token_vault1: solana_pubkey::Pubkey,
+    pub observation_state: solana_pubkey::Pubkey,
+    pub tick_array_bitmap: solana_pubkey::Pubkey,
+    pub token_program0: solana_pubkey::Pubkey,
+    pub token_program1: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CreatePool {
     type ArrangedAccounts = CreatePoolInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [pool_creator, amm_config, pool_state, token_mint0, token_mint1, token_vault0, token_vault1, observation_state, tick_array_bitmap, token_program0, token_program1, system_program, rent, _remaining @ ..] =
             accounts

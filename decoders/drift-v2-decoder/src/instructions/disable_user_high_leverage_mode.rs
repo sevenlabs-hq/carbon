@@ -7,17 +7,17 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct DisableUserHighLeverageMode {}
 
 pub struct DisableUserHighLeverageModeInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub high_leverage_mode_config: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub high_leverage_mode_config: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DisableUserHighLeverageMode {
     type ArrangedAccounts = DisableUserHighLeverageModeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, authority, user, high_leverage_mode_config, _remaining @ ..] = accounts else {
             return None;

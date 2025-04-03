@@ -14,27 +14,27 @@ pub struct TakeLoanV3Compressed {
 }
 
 pub struct TakeLoanV3CompressedInstructionAccounts {
-    pub lender: solana_sdk::pubkey::Pubkey,
-    pub borrower: solana_sdk::pubkey::Pubkey,
-    pub loan: solana_sdk::pubkey::Pubkey,
-    pub escrow: solana_sdk::pubkey::Pubkey,
-    pub order_book: solana_sdk::pubkey::Pubkey,
-    pub collateral_mint: solana_sdk::pubkey::Pubkey,
-    pub tree_authority: solana_sdk::pubkey::Pubkey,
-    pub log_wrapper: solana_sdk::pubkey::Pubkey,
-    pub merkle_tree: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub mpl_bubblegum_program: solana_sdk::pubkey::Pubkey,
-    pub compression_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub lender: solana_pubkey::Pubkey,
+    pub borrower: solana_pubkey::Pubkey,
+    pub loan: solana_pubkey::Pubkey,
+    pub escrow: solana_pubkey::Pubkey,
+    pub order_book: solana_pubkey::Pubkey,
+    pub collateral_mint: solana_pubkey::Pubkey,
+    pub tree_authority: solana_pubkey::Pubkey,
+    pub log_wrapper: solana_pubkey::Pubkey,
+    pub merkle_tree: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub mpl_bubblegum_program: solana_pubkey::Pubkey,
+    pub compression_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for TakeLoanV3Compressed {
     type ArrangedAccounts = TakeLoanV3CompressedInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [lender, borrower, loan, escrow, order_book, collateral_mint, tree_authority, log_wrapper, merkle_tree, system_program, token_program, mpl_bubblegum_program, compression_program, rent, _remaining @ ..] =
             accounts

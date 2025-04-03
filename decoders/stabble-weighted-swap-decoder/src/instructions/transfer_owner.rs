@@ -5,19 +5,19 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0xf519ddaf6ae5e12d")]
 pub struct TransferOwner {
-    pub new_owner: solana_sdk::pubkey::Pubkey,
+    pub new_owner: solana_pubkey::Pubkey,
 }
 
 pub struct TransferOwnerInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for TransferOwner {
     type ArrangedAccounts = TransferOwnerInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, pool, _remaining @ ..] = accounts else {
             return None;

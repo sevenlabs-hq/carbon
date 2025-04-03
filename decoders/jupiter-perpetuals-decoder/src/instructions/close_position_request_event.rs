@@ -10,8 +10,8 @@ pub struct ClosePositionRequestEvent {
     pub request_change: u8,
     pub request_type: u8,
     pub side: u8,
-    pub position_request_key: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub position_request_key: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
     pub amount: u64,
 }

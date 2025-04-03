@@ -7,17 +7,17 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct CreateOpenOrdersIndexer {}
 
 pub struct CreateOpenOrdersIndexerInstructionAccounts {
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub open_orders_indexer: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub open_orders_indexer: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CreateOpenOrdersIndexer {
     type ArrangedAccounts = CreateOpenOrdersIndexerInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, owner, open_orders_indexer, system_program, _remaining @ ..] = accounts else {
             return None;

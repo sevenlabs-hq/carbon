@@ -9,18 +9,18 @@ pub struct CancelOrderByClientOrderId {
 }
 
 pub struct CancelOrderByClientOrderIdInstructionAccounts {
-    pub signer: solana_sdk::pubkey::Pubkey,
-    pub open_orders_account: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub bids: solana_sdk::pubkey::Pubkey,
-    pub asks: solana_sdk::pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
+    pub open_orders_account: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub bids: solana_pubkey::Pubkey,
+    pub asks: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CancelOrderByClientOrderId {
     type ArrangedAccounts = CancelOrderByClientOrderIdInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [signer, open_orders_account, market, bids, asks, _remaining @ ..] = accounts else {
             return None;

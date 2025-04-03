@@ -12,19 +12,19 @@ pub struct UpdateOrderBook {
     pub apy: Option<APY>,
     pub loan_terms: Option<BookLoanTerms>,
     pub fee_permillicentage: Option<u16>,
-    pub fee_authority: Option<solana_sdk::pubkey::Pubkey>,
+    pub fee_authority: Option<solana_pubkey::Pubkey>,
 }
 
 pub struct UpdateOrderBookInstructionAccounts {
-    pub order_book: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
+    pub order_book: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateOrderBook {
     type ArrangedAccounts = UpdateOrderBookInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [order_book, payer, _remaining @ ..] = accounts else {
             return None;

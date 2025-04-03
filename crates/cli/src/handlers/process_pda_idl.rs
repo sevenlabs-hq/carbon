@@ -4,7 +4,8 @@ use {
     borsh::BorshDeserialize,
     flate2::read::ZlibDecoder,
     solana_client::rpc_client::RpcClient,
-    solana_sdk::{commitment_config::CommitmentConfig, pubkey::Pubkey},
+    solana_pubkey::Pubkey,
+    solana_sdk::commitment_config::CommitmentConfig,
     std::{fs, io::prelude::*, path::Path, str::FromStr},
 };
 

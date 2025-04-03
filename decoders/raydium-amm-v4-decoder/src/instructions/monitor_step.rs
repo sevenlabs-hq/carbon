@@ -11,32 +11,32 @@ pub struct MonitorStep {
 }
 
 pub struct MonitorStepInstructionAccounts {
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub clock: solana_sdk::pubkey::Pubkey,
-    pub amm: solana_sdk::pubkey::Pubkey,
-    pub amm_authority: solana_sdk::pubkey::Pubkey,
-    pub amm_open_orders: solana_sdk::pubkey::Pubkey,
-    pub amm_target_orders: solana_sdk::pubkey::Pubkey,
-    pub pool_coin_token_account: solana_sdk::pubkey::Pubkey,
-    pub pool_pc_token_account: solana_sdk::pubkey::Pubkey,
-    pub pool_withdraw_queue: solana_sdk::pubkey::Pubkey,
-    pub serum_program: solana_sdk::pubkey::Pubkey,
-    pub serum_market: solana_sdk::pubkey::Pubkey,
-    pub serum_coin_vault_account: solana_sdk::pubkey::Pubkey,
-    pub serum_pc_vault_account: solana_sdk::pubkey::Pubkey,
-    pub serum_vault_signer: solana_sdk::pubkey::Pubkey,
-    pub serum_req_q: solana_sdk::pubkey::Pubkey,
-    pub serum_event_q: solana_sdk::pubkey::Pubkey,
-    pub serum_bids: solana_sdk::pubkey::Pubkey,
-    pub serum_asks: solana_sdk::pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub clock: solana_pubkey::Pubkey,
+    pub amm: solana_pubkey::Pubkey,
+    pub amm_authority: solana_pubkey::Pubkey,
+    pub amm_open_orders: solana_pubkey::Pubkey,
+    pub amm_target_orders: solana_pubkey::Pubkey,
+    pub pool_coin_token_account: solana_pubkey::Pubkey,
+    pub pool_pc_token_account: solana_pubkey::Pubkey,
+    pub pool_withdraw_queue: solana_pubkey::Pubkey,
+    pub serum_program: solana_pubkey::Pubkey,
+    pub serum_market: solana_pubkey::Pubkey,
+    pub serum_coin_vault_account: solana_pubkey::Pubkey,
+    pub serum_pc_vault_account: solana_pubkey::Pubkey,
+    pub serum_vault_signer: solana_pubkey::Pubkey,
+    pub serum_req_q: solana_pubkey::Pubkey,
+    pub serum_event_q: solana_pubkey::Pubkey,
+    pub serum_bids: solana_pubkey::Pubkey,
+    pub serum_asks: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for MonitorStep {
     type ArrangedAccounts = MonitorStepInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [token_program, rent, clock, amm, amm_authority, amm_open_orders, amm_target_orders, pool_coin_token_account, pool_pc_token_account, pool_withdraw_queue, serum_program, serum_market, serum_coin_vault_account, serum_pc_vault_account, serum_vault_signer, serum_req_q, serum_event_q, serum_bids, serum_asks, _remaining @ ..] =
             accounts

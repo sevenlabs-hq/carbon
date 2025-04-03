@@ -7,18 +7,18 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct SetNewAccountAuthority {}
 
 pub struct SetNewAccountAuthorityInstructionAccounts {
-    pub marginfi_account: solana_sdk::pubkey::Pubkey,
-    pub marginfi_group: solana_sdk::pubkey::Pubkey,
-    pub signer: solana_sdk::pubkey::Pubkey,
-    pub new_authority: solana_sdk::pubkey::Pubkey,
-    pub fee_payer: solana_sdk::pubkey::Pubkey,
+    pub marginfi_account: solana_pubkey::Pubkey,
+    pub marginfi_group: solana_pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
+    pub new_authority: solana_pubkey::Pubkey,
+    pub fee_payer: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetNewAccountAuthority {
     type ArrangedAccounts = SetNewAccountAuthorityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [marginfi_account, marginfi_group, signer, new_authority, fee_payer, _remaining @ ..] =
             accounts

@@ -37,9 +37,12 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SystemProgramDecoder {
 
     fn decode_instruction(
         &self,
-        instruction: &solana_sdk::instruction::Instruction,
+        instruction: &solana_instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
-        if !instruction.program_id.eq(&solana_sdk::system_program::id()) {
+        if !instruction
+            .program_id
+            .eq(&solana_program::system_program::id())
+        {
             return None;
         }
 
@@ -67,7 +70,7 @@ mod tests {
         deserialize::{ArrangeAccounts, U64PrefixString},
         instruction::InstructionDecoder,
     };
-    use solana_sdk::{instruction::AccountMeta, pubkey};
+    use solana_instruction::AccountMeta;
 
     use super::*;
 
@@ -76,28 +79,42 @@ mod tests {
         // Arrange
         let expected_ix = SystemProgramInstruction::CreateAccountWithSeed(
             create_account_with_seed::CreateAccountWithSeed {
-                base: pubkey!("6bBmDxYqXeFbXN8SmtjTpiA3SrEDKsxK8RG6yhPGpa9G"),
+                base: solana_pubkey::Pubkey::from_str_const(
+                    "6bBmDxYqXeFbXN8SmtjTpiA3SrEDKsxK8RG6yhPGpa9G",
+                ),
                 seed: U64PrefixString("CF9nRGJcFhH57xgcPxaamBs5pHxHexP9".to_string()),
                 space: 165,
                 amount: 1283531083,
-                program_address: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                program_address: solana_pubkey::Pubkey::from_str_const(
+                    "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+                ),
             },
         );
         let expected_accounts = vec![
             AccountMeta::new(
-                pubkey!("6bBmDxYqXeFbXN8SmtjTpiA3SrEDKsxK8RG6yhPGpa9G"),
+                solana_pubkey::Pubkey::from_str_const(
+                    "6bBmDxYqXeFbXN8SmtjTpiA3SrEDKsxK8RG6yhPGpa9G",
+                ),
                 true,
             ),
             AccountMeta::new(
-                pubkey!("3MoeLKJVQHNUtTAXEurLAQtCSXpLGAvairYEHpkqW6CC"),
+                solana_pubkey::Pubkey::from_str_const(
+                    "3MoeLKJVQHNUtTAXEurLAQtCSXpLGAvairYEHpkqW6CC",
+                ),
                 false,
             ),
         ];
         let expected_arranged_accounts =
             create_account_with_seed::CreateAccountWithSeedInstructionAccounts {
-                payer: pubkey!("6bBmDxYqXeFbXN8SmtjTpiA3SrEDKsxK8RG6yhPGpa9G"),
-                new_account: pubkey!("3MoeLKJVQHNUtTAXEurLAQtCSXpLGAvairYEHpkqW6CC"),
-                base_account: pubkey!("6bBmDxYqXeFbXN8SmtjTpiA3SrEDKsxK8RG6yhPGpa9G"),
+                payer: solana_pubkey::Pubkey::from_str_const(
+                    "6bBmDxYqXeFbXN8SmtjTpiA3SrEDKsxK8RG6yhPGpa9G",
+                ),
+                new_account: solana_pubkey::Pubkey::from_str_const(
+                    "3MoeLKJVQHNUtTAXEurLAQtCSXpLGAvairYEHpkqW6CC",
+                ),
+                base_account: solana_pubkey::Pubkey::from_str_const(
+                    "6bBmDxYqXeFbXN8SmtjTpiA3SrEDKsxK8RG6yhPGpa9G",
+                ),
             };
 
         // Act
@@ -117,7 +134,7 @@ mod tests {
         // Assert
         assert_eq!(decoded.data, expected_ix);
         assert_eq!(decoded.accounts, expected_accounts);
-        assert_eq!(decoded.program_id, solana_sdk::system_program::id());
+        assert_eq!(decoded.program_id, solana_program::system_program::id());
         assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
     }
 }

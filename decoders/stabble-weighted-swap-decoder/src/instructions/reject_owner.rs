@@ -7,15 +7,15 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct RejectOwner {}
 
 pub struct RejectOwnerInstructionAccounts {
-    pub pending_owner: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
+    pub pending_owner: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RejectOwner {
     type ArrangedAccounts = RejectOwnerInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [pending_owner, pool, _remaining @ ..] = accounts else {
             return None;

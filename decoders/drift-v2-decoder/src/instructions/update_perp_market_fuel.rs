@@ -11,16 +11,16 @@ pub struct UpdatePerpMarketFuel {
 }
 
 pub struct UpdatePerpMarketFuelInstructionAccounts {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub perp_market: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub perp_market: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdatePerpMarketFuel {
     type ArrangedAccounts = UpdatePerpMarketFuelInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, state, perp_market, _remaining @ ..] = accounts else {
             return None;

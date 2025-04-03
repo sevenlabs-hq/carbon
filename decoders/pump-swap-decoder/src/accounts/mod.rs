@@ -12,11 +12,11 @@ pub enum PumpSwapAccount {
     Pool(pool::Pool),
 }
 
-impl<'a> AccountDecoder<'a> for PumpSwapDecoder {
+impl AccountDecoder<'_> for PumpSwapDecoder {
     type AccountType = PumpSwapAccount;
     fn decode_account(
         &self,
-        account: &solana_sdk::account::Account,
+        account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;

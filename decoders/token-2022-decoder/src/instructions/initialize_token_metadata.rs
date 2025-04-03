@@ -11,17 +11,17 @@ pub struct InitializeTokenMetadata {
 }
 
 pub struct InitializeTokenMetadataInstructionAccounts {
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub update_authority: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub mint_authority: solana_sdk::pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub update_authority: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub mint_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeTokenMetadata {
     type ArrangedAccounts = InitializeTokenMetadataInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [metadata, update_authority, mint, mint_authority, _remaining @ ..] = accounts else {
             return None;

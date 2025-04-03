@@ -7,26 +7,26 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct DeprecatedCreateMasterEdition {}
 
 pub struct DeprecatedCreateMasterEditionInstructionAccounts {
-    pub edition: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub printing_mint: solana_sdk::pubkey::Pubkey,
-    pub one_time_printing_authorization_mint: solana_sdk::pubkey::Pubkey,
-    pub update_authority: solana_sdk::pubkey::Pubkey,
-    pub printing_mint_authority: solana_sdk::pubkey::Pubkey,
-    pub mint_authority: solana_sdk::pubkey::Pubkey,
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub one_time_printing_authorization_mint_authority: solana_sdk::pubkey::Pubkey,
+    pub edition: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub printing_mint: solana_pubkey::Pubkey,
+    pub one_time_printing_authorization_mint: solana_pubkey::Pubkey,
+    pub update_authority: solana_pubkey::Pubkey,
+    pub printing_mint_authority: solana_pubkey::Pubkey,
+    pub mint_authority: solana_pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub one_time_printing_authorization_mint_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DeprecatedCreateMasterEdition {
     type ArrangedAccounts = DeprecatedCreateMasterEditionInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [edition, mint, printing_mint, one_time_printing_authorization_mint, update_authority, printing_mint_authority, mint_authority, metadata, payer, token_program, system_program, rent, one_time_printing_authorization_mint_authority, _remaining @ ..] =
             accounts

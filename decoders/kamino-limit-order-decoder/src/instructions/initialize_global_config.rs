@@ -7,16 +7,16 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct InitializeGlobalConfig {}
 
 pub struct InitializeGlobalConfigInstructionAccounts {
-    pub admin_authority: solana_sdk::pubkey::Pubkey,
-    pub pda_authority: solana_sdk::pubkey::Pubkey,
-    pub global_config: solana_sdk::pubkey::Pubkey,
+    pub admin_authority: solana_pubkey::Pubkey,
+    pub pda_authority: solana_pubkey::Pubkey,
+    pub global_config: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeGlobalConfig {
     type ArrangedAccounts = InitializeGlobalConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin_authority, pda_authority, global_config, _remaining @ ..] = accounts else {
             return None;

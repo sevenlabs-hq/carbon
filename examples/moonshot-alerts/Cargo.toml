@@ -9,7 +9,7 @@ carbon-log-metrics = { workspace = true }
 carbon-moonshot-decoder = { workspace = true }
 carbon-rpc-block-subscribe-datasource = { workspace = true }
 solana-client = { workspace = true }
-solana-sdk = { workspace = true }
+solana-pubkey = { workspace = true }
 solana-transaction-status = { workspace = true }
 
 async-trait = { workspace = true }

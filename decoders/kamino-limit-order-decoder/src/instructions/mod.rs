@@ -39,12 +39,12 @@ pub enum KaminoLimitOrderInstruction {
     UserSwapBalancesEvent(user_swap_balances_event::UserSwapBalancesEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for KaminoLimitOrderDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for KaminoLimitOrderDecoder {
     type InstructionType = KaminoLimitOrderInstruction;
 
     fn decode_instruction(
         &self,
-        instruction: &solana_sdk::instruction::Instruction,
+        instruction: &solana_instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         if !instruction.program_id.eq(&PROGRAM_ID) {
             return None;

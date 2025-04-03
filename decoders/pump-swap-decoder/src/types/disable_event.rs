@@ -5,7 +5,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 pub struct DisableEvent {
     pub timestamp: i64,
-    pub admin: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
     pub disable_create_pool: bool,
     pub disable_deposit: bool,
     pub disable_withdraw: bool,

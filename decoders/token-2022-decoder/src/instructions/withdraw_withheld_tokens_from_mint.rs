@@ -9,16 +9,16 @@ pub struct WithdrawWithheldTokensFromMint {
 }
 
 pub struct WithdrawWithheldTokensFromMintInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub fee_receiver: solana_sdk::pubkey::Pubkey,
-    pub withdraw_withheld_authority: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub fee_receiver: solana_pubkey::Pubkey,
+    pub withdraw_withheld_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawWithheldTokensFromMint {
     type ArrangedAccounts = WithdrawWithheldTokensFromMintInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [mint, fee_receiver, withdraw_withheld_authority, _remaining @ ..] = accounts else {
             return None;

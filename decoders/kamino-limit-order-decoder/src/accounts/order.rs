@@ -3,12 +3,12 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(CarbonDeserialize, Debug)]
 #[carbon(discriminator = "0x86addfb94d561c33")]
 pub struct Order {
-    pub global_config: solana_sdk::pubkey::Pubkey,
-    pub maker: solana_sdk::pubkey::Pubkey,
-    pub input_mint: solana_sdk::pubkey::Pubkey,
-    pub input_mint_program_id: solana_sdk::pubkey::Pubkey,
-    pub output_mint: solana_sdk::pubkey::Pubkey,
-    pub output_mint_program_id: solana_sdk::pubkey::Pubkey,
+    pub global_config: solana_pubkey::Pubkey,
+    pub maker: solana_pubkey::Pubkey,
+    pub input_mint: solana_pubkey::Pubkey,
+    pub input_mint_program_id: solana_pubkey::Pubkey,
+    pub output_mint: solana_pubkey::Pubkey,
+    pub output_mint_program_id: solana_pubkey::Pubkey,
     pub initial_input_amount: u64,
     pub expected_output_amount: u64,
     pub remaining_input_amount: u64,

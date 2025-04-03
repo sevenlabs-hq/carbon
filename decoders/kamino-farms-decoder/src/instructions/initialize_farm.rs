@@ -7,22 +7,22 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct InitializeFarm {}
 
 pub struct InitializeFarmInstructionAccounts {
-    pub farm_admin: solana_sdk::pubkey::Pubkey,
-    pub farm_state: solana_sdk::pubkey::Pubkey,
-    pub global_config: solana_sdk::pubkey::Pubkey,
-    pub farm_vault: solana_sdk::pubkey::Pubkey,
-    pub farm_vaults_authority: solana_sdk::pubkey::Pubkey,
-    pub token_mint: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub farm_admin: solana_pubkey::Pubkey,
+    pub farm_state: solana_pubkey::Pubkey,
+    pub global_config: solana_pubkey::Pubkey,
+    pub farm_vault: solana_pubkey::Pubkey,
+    pub farm_vaults_authority: solana_pubkey::Pubkey,
+    pub token_mint: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeFarm {
     type ArrangedAccounts = InitializeFarmInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [farm_admin, farm_state, global_config, farm_vault, farm_vaults_authority, token_mint, token_program, system_program, rent, _remaining @ ..] =
             accounts

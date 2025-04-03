@@ -9,15 +9,15 @@ pub struct UpdateAmms {
 }
 
 pub struct UpdateAmmsInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateAmms {
     type ArrangedAccounts = UpdateAmmsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, authority, _remaining @ ..] = accounts else {
             return None;

@@ -8,5 +8,5 @@ pub struct BootstrapLiquidityEvent {
     pub lp_mint_amount: u64,
     pub token_a_amount: u64,
     pub token_b_amount: u64,
-    pub pool: solana_sdk::pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
 }

@@ -14,10 +14,16 @@ crate-type = ["rlib"]
 
 [dependencies]
 bincode = { workspace = true }
+bs58 = { workspace = true }
 helius = { workspace = true }
+solana-account = { workspace = true }
 solana-account-decoder = { workspace = true }
 solana-client = { workspace = true }
+solana-clock = { workspace = true }
+solana-program = { workspace = true }
+solana-pubkey = { workspace = true }
 solana-sdk = { workspace = true }
+solana-signature = { workspace = true }
 solana-transaction-status = { workspace = true }
 
 carbon-core = { workspace = true }

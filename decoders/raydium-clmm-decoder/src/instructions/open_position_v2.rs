@@ -17,35 +17,35 @@ pub struct OpenPositionV2 {
 }
 
 pub struct OpenPositionV2InstructionAccounts {
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub position_nft_owner: solana_sdk::pubkey::Pubkey,
-    pub position_nft_mint: solana_sdk::pubkey::Pubkey,
-    pub position_nft_account: solana_sdk::pubkey::Pubkey,
-    pub metadata_account: solana_sdk::pubkey::Pubkey,
-    pub pool_state: solana_sdk::pubkey::Pubkey,
-    pub protocol_position: solana_sdk::pubkey::Pubkey,
-    pub tick_array_lower: solana_sdk::pubkey::Pubkey,
-    pub tick_array_upper: solana_sdk::pubkey::Pubkey,
-    pub personal_position: solana_sdk::pubkey::Pubkey,
-    pub token_account0: solana_sdk::pubkey::Pubkey,
-    pub token_account1: solana_sdk::pubkey::Pubkey,
-    pub token_vault0: solana_sdk::pubkey::Pubkey,
-    pub token_vault1: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
-    pub metadata_program: solana_sdk::pubkey::Pubkey,
-    pub token_program2022: solana_sdk::pubkey::Pubkey,
-    pub vault0_mint: solana_sdk::pubkey::Pubkey,
-    pub vault1_mint: solana_sdk::pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub position_nft_owner: solana_pubkey::Pubkey,
+    pub position_nft_mint: solana_pubkey::Pubkey,
+    pub position_nft_account: solana_pubkey::Pubkey,
+    pub metadata_account: solana_pubkey::Pubkey,
+    pub pool_state: solana_pubkey::Pubkey,
+    pub protocol_position: solana_pubkey::Pubkey,
+    pub tick_array_lower: solana_pubkey::Pubkey,
+    pub tick_array_upper: solana_pubkey::Pubkey,
+    pub personal_position: solana_pubkey::Pubkey,
+    pub token_account0: solana_pubkey::Pubkey,
+    pub token_account1: solana_pubkey::Pubkey,
+    pub token_vault0: solana_pubkey::Pubkey,
+    pub token_vault1: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub metadata_program: solana_pubkey::Pubkey,
+    pub token_program2022: solana_pubkey::Pubkey,
+    pub vault0_mint: solana_pubkey::Pubkey,
+    pub vault1_mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for OpenPositionV2 {
     type ArrangedAccounts = OpenPositionV2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, position_nft_owner, position_nft_mint, position_nft_account, metadata_account, pool_state, protocol_position, tick_array_lower, tick_array_upper, personal_position, token_account0, token_account1, token_vault0, token_vault1, rent, system_program, token_program, associated_token_program, metadata_program, token_program2022, vault0_mint, vault1_mint, _remaining @ ..] =
             accounts

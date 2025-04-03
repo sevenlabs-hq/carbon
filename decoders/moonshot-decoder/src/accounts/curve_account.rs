@@ -8,7 +8,7 @@ use {
 pub struct CurveAccount {
     pub total_supply: u64,
     pub curve_amount: u64,
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
     pub decimals: u8,
     pub collateral_currency: Currency,
     pub curve_type: CurveType,
@@ -26,7 +26,7 @@ impl Default for CurveAccount {
         Self {
             total_supply: 0,
             curve_amount: 0,
-            mint: solana_sdk::pubkey::Pubkey::default(),
+            mint: solana_pubkey::Pubkey::default(),
             decimals: 0,
             collateral_currency: Currency::default(),
             curve_type: CurveType::default(),

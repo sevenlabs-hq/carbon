@@ -9,22 +9,22 @@ pub struct InitializeRewardV2 {
 }
 
 pub struct InitializeRewardV2InstructionAccounts {
-    pub reward_authority: solana_sdk::pubkey::Pubkey,
-    pub funder: solana_sdk::pubkey::Pubkey,
-    pub whirlpool: solana_sdk::pubkey::Pubkey,
-    pub reward_mint: solana_sdk::pubkey::Pubkey,
-    pub reward_token_badge: solana_sdk::pubkey::Pubkey,
-    pub reward_vault: solana_sdk::pubkey::Pubkey,
-    pub reward_token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub reward_authority: solana_pubkey::Pubkey,
+    pub funder: solana_pubkey::Pubkey,
+    pub whirlpool: solana_pubkey::Pubkey,
+    pub reward_mint: solana_pubkey::Pubkey,
+    pub reward_token_badge: solana_pubkey::Pubkey,
+    pub reward_vault: solana_pubkey::Pubkey,
+    pub reward_token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeRewardV2 {
     type ArrangedAccounts = InitializeRewardV2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [reward_authority, funder, whirlpool, reward_mint, reward_token_badge, reward_vault, reward_token_program, system_program, rent, _remaining @ ..] =
             accounts

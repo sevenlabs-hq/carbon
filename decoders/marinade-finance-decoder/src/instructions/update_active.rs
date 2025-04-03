@@ -10,15 +10,15 @@ pub struct UpdateActive {
 }
 
 pub struct UpdateActiveInstructionAccounts {
-    pub common: solana_sdk::pubkey::Pubkey,
-    pub validator_list: solana_sdk::pubkey::Pubkey,
+    pub common: solana_pubkey::Pubkey,
+    pub validator_list: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateActive {
     type ArrangedAccounts = UpdateActiveInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [common, validator_list, _remaining @ ..] = accounts else {
             return None;

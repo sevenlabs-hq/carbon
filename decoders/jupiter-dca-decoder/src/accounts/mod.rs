@@ -13,7 +13,7 @@ impl AccountDecoder<'_> for JupiterDcaDecoder {
     type AccountType = JupiterDcaAccount;
     fn decode_account(
         &self,
-        account: &solana_sdk::account::Account,
+        account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;
@@ -35,16 +35,20 @@ impl AccountDecoder<'_> for JupiterDcaDecoder {
 
 #[cfg(test)]
 mod tests {
-    use solana_sdk::pubkey;
-
     use super::*;
 
     #[test]
     fn test_decode_dca_account() {
         let expected_dca_account = dca::Dca {
-            user: pubkey!("EjJLRurptQpJCPQhC62V7D3CmEV5bvMo2tZG1B8x1Td8"),
-            input_mint: pubkey!("JxxWsvm9jHt4ah7DT9NuLyVLYZcZLUdPD93PcPQ71Ka"),
-            output_mint: pubkey!("UxxvnMnUGoXJig9wc8phE1mYJZMFq3hpfr259zMWcq4"),
+            user: solana_pubkey::Pubkey::from_str_const(
+                "EjJLRurptQpJCPQhC62V7D3CmEV5bvMo2tZG1B8x1Td8",
+            ),
+            input_mint: solana_pubkey::Pubkey::from_str_const(
+                "JxxWsvm9jHt4ah7DT9NuLyVLYZcZLUdPD93PcPQ71Ka",
+            ),
+            output_mint: solana_pubkey::Pubkey::from_str_const(
+                "UxxvnMnUGoXJig9wc8phE1mYJZMFq3hpfr259zMWcq4",
+            ),
             idx: 1705434692,
             next_cycle_at: 1705434698,
             in_deposited: 100000000000,
@@ -55,8 +59,12 @@ mod tests {
             in_amount_per_cycle: 16666666666,
             cycle_frequency: 300,
             next_cycle_amount_left: 16666666666,
-            in_account: pubkey!("DKFfnUUVWfXEnUFgNq7Rrrv6mY96nmugBGz4tpw7VDnw"),
-            out_account: pubkey!("4aurjtonLaxwaAuScXu3VZCHh6UnZcyxgPWEwy4tXQyS"),
+            in_account: solana_pubkey::Pubkey::from_str_const(
+                "DKFfnUUVWfXEnUFgNq7Rrrv6mY96nmugBGz4tpw7VDnw",
+            ),
+            out_account: solana_pubkey::Pubkey::from_str_const(
+                "4aurjtonLaxwaAuScXu3VZCHh6UnZcyxgPWEwy4tXQyS",
+            ),
             min_out_amount: 0,
             max_out_amount: 8333333,
             keeper_in_balance_before_borrow: 0,

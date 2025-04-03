@@ -9,16 +9,16 @@ pub struct PostPythLazerOracleUpdate {
 }
 
 pub struct PostPythLazerOracleUpdateInstructionAccounts {
-    pub keeper: solana_sdk::pubkey::Pubkey,
-    pub pyth_lazer_storage: solana_sdk::pubkey::Pubkey,
-    pub ix_sysvar: solana_sdk::pubkey::Pubkey,
+    pub keeper: solana_pubkey::Pubkey,
+    pub pyth_lazer_storage: solana_pubkey::Pubkey,
+    pub ix_sysvar: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for PostPythLazerOracleUpdate {
     type ArrangedAccounts = PostPythLazerOracleUpdateInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [keeper, pyth_lazer_storage, ix_sysvar, _remaining @ ..] = accounts else {
             return None;

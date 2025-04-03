@@ -5,19 +5,19 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0xd7e4a6e45464567b")]
 pub struct UpdateTokenMetadataUpdateAuthority {
-    pub new_update_authority: Option<solana_sdk::pubkey::Pubkey>,
+    pub new_update_authority: Option<solana_pubkey::Pubkey>,
 }
 
 pub struct UpdateTokenMetadataUpdateAuthorityInstructionAccounts {
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub update_authority: solana_sdk::pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub update_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateTokenMetadataUpdateAuthority {
     type ArrangedAccounts = UpdateTokenMetadataUpdateAuthorityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [metadata, update_authority, _remaining @ ..] = accounts else {
             return None;

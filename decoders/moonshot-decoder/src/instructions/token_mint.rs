@@ -11,24 +11,24 @@ pub struct TokenMint {
 
 #[derive(Debug, PartialEq)]
 pub struct TokenMintInstructionAccounts {
-    pub sender: solana_sdk::pubkey::Pubkey,
-    pub backend_authority: solana_sdk::pubkey::Pubkey,
-    pub curve_account: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub mint_metadata: solana_sdk::pubkey::Pubkey,
-    pub curve_token_account: solana_sdk::pubkey::Pubkey,
-    pub config_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
-    pub mpl_token_metadata: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub sender: solana_pubkey::Pubkey,
+    pub backend_authority: solana_pubkey::Pubkey,
+    pub curve_account: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub mint_metadata: solana_pubkey::Pubkey,
+    pub curve_token_account: solana_pubkey::Pubkey,
+    pub config_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub mpl_token_metadata: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for TokenMint {
     type ArrangedAccounts = TokenMintInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [sender, backend_authority, curve_account, mint, mint_metadata, curve_token_account, config_account, token_program, associated_token_program, mpl_token_metadata, system_program, _remaining @ ..] =
             accounts

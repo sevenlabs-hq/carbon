@@ -9,31 +9,31 @@ pub struct ClaimFee {
 }
 
 pub struct ClaimFeeInstructionAccounts {
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub lp_mint: solana_sdk::pubkey::Pubkey,
-    pub lock_escrow: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub source_tokens: solana_sdk::pubkey::Pubkey,
-    pub escrow_vault: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub a_token_vault: solana_sdk::pubkey::Pubkey,
-    pub b_token_vault: solana_sdk::pubkey::Pubkey,
-    pub a_vault: solana_sdk::pubkey::Pubkey,
-    pub b_vault: solana_sdk::pubkey::Pubkey,
-    pub a_vault_lp: solana_sdk::pubkey::Pubkey,
-    pub b_vault_lp: solana_sdk::pubkey::Pubkey,
-    pub a_vault_lp_mint: solana_sdk::pubkey::Pubkey,
-    pub b_vault_lp_mint: solana_sdk::pubkey::Pubkey,
-    pub user_a_token: solana_sdk::pubkey::Pubkey,
-    pub user_b_token: solana_sdk::pubkey::Pubkey,
-    pub vault_program: solana_sdk::pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub lp_mint: solana_pubkey::Pubkey,
+    pub lock_escrow: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub source_tokens: solana_pubkey::Pubkey,
+    pub escrow_vault: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub a_token_vault: solana_pubkey::Pubkey,
+    pub b_token_vault: solana_pubkey::Pubkey,
+    pub a_vault: solana_pubkey::Pubkey,
+    pub b_vault: solana_pubkey::Pubkey,
+    pub a_vault_lp: solana_pubkey::Pubkey,
+    pub b_vault_lp: solana_pubkey::Pubkey,
+    pub a_vault_lp_mint: solana_pubkey::Pubkey,
+    pub b_vault_lp_mint: solana_pubkey::Pubkey,
+    pub user_a_token: solana_pubkey::Pubkey,
+    pub user_b_token: solana_pubkey::Pubkey,
+    pub vault_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ClaimFee {
     type ArrangedAccounts = ClaimFeeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [pool, lp_mint, lock_escrow, owner, source_tokens, escrow_vault, token_program, a_token_vault, b_token_vault, a_vault, b_vault, a_vault_lp, b_vault_lp, a_vault_lp_mint, b_vault_lp_mint, user_a_token, user_b_token, vault_program, _remaining @ ..] =
             accounts

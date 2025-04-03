@@ -6,11 +6,11 @@ use {
 #[derive(CarbonDeserialize, Debug, PartialEq)]
 #[carbon(discriminator = "0xbdff6146babd1866")]
 pub struct ConfigAccount {
-    pub migration_authority: solana_sdk::pubkey::Pubkey,
-    pub backend_authority: solana_sdk::pubkey::Pubkey,
-    pub config_authority: solana_sdk::pubkey::Pubkey,
-    pub helio_fee: solana_sdk::pubkey::Pubkey,
-    pub dex_fee: solana_sdk::pubkey::Pubkey,
+    pub migration_authority: solana_pubkey::Pubkey,
+    pub backend_authority: solana_pubkey::Pubkey,
+    pub config_authority: solana_pubkey::Pubkey,
+    pub helio_fee: solana_pubkey::Pubkey,
+    pub dex_fee: solana_pubkey::Pubkey,
     pub fee_bps: u16,
     pub dex_fee_share: u8,
     pub migration_fee: u64,
@@ -28,11 +28,11 @@ pub struct ConfigAccount {
 impl Default for ConfigAccount {
     fn default() -> Self {
         Self {
-            migration_authority: solana_sdk::pubkey::Pubkey::default(),
-            backend_authority: solana_sdk::pubkey::Pubkey::default(),
-            config_authority: solana_sdk::pubkey::Pubkey::default(),
-            helio_fee: solana_sdk::pubkey::Pubkey::default(),
-            dex_fee: solana_sdk::pubkey::Pubkey::default(),
+            migration_authority: solana_pubkey::Pubkey::default(),
+            backend_authority: solana_pubkey::Pubkey::default(),
+            config_authority: solana_pubkey::Pubkey::default(),
+            helio_fee: solana_pubkey::Pubkey::default(),
+            dex_fee: solana_pubkey::Pubkey::default(),
             fee_bps: 0,
             dex_fee_share: 0,
             migration_fee: 0,

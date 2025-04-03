@@ -9,16 +9,16 @@ pub struct SetRewardAuthority {
 }
 
 pub struct SetRewardAuthorityInstructionAccounts {
-    pub whirlpool: solana_sdk::pubkey::Pubkey,
-    pub reward_authority: solana_sdk::pubkey::Pubkey,
-    pub new_reward_authority: solana_sdk::pubkey::Pubkey,
+    pub whirlpool: solana_pubkey::Pubkey,
+    pub reward_authority: solana_pubkey::Pubkey,
+    pub new_reward_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetRewardAuthority {
     type ArrangedAccounts = SetRewardAuthorityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [whirlpool, reward_authority, new_reward_authority, _remaining @ ..] = accounts else {
             return None;

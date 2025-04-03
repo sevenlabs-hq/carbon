@@ -5,5 +5,5 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0xe445a52e51cb9a1df9b56c5904965aae")]
 pub struct CloseConfigEvent {
-    pub config: solana_sdk::pubkey::Pubkey,
+    pub config: solana_pubkey::Pubkey,
 }

@@ -10,30 +10,30 @@ pub struct Buy {
 }
 
 pub struct BuyInstructionAccounts {
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub global_config: solana_sdk::pubkey::Pubkey,
-    pub base_mint: solana_sdk::pubkey::Pubkey,
-    pub quote_mint: solana_sdk::pubkey::Pubkey,
-    pub user_base_token_account: solana_sdk::pubkey::Pubkey,
-    pub user_quote_token_account: solana_sdk::pubkey::Pubkey,
-    pub pool_base_token_account: solana_sdk::pubkey::Pubkey,
-    pub pool_quote_token_account: solana_sdk::pubkey::Pubkey,
-    pub protocol_fee_recipient: solana_sdk::pubkey::Pubkey,
-    pub protocol_fee_recipient_token_account: solana_sdk::pubkey::Pubkey,
-    pub base_token_program: solana_sdk::pubkey::Pubkey,
-    pub quote_token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub global_config: solana_pubkey::Pubkey,
+    pub base_mint: solana_pubkey::Pubkey,
+    pub quote_mint: solana_pubkey::Pubkey,
+    pub user_base_token_account: solana_pubkey::Pubkey,
+    pub user_quote_token_account: solana_pubkey::Pubkey,
+    pub pool_base_token_account: solana_pubkey::Pubkey,
+    pub pool_quote_token_account: solana_pubkey::Pubkey,
+    pub protocol_fee_recipient: solana_pubkey::Pubkey,
+    pub protocol_fee_recipient_token_account: solana_pubkey::Pubkey,
+    pub base_token_program: solana_pubkey::Pubkey,
+    pub quote_token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Buy {
     type ArrangedAccounts = BuyInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [pool, user, global_config, base_mint, quote_mint, user_base_token_account, user_quote_token_account, pool_base_token_account, pool_quote_token_account, protocol_fee_recipient, protocol_fee_recipient_token_account, base_token_program, quote_token_program, system_program, associated_token_program, event_authority, program, _remaining @ ..] =
             accounts

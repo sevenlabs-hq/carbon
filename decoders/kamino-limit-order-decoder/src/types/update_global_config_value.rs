@@ -7,5 +7,5 @@ pub enum UpdateGlobalConfigValue {
     Bool(bool),
     U16(u16),
     U64(u64),
-    Pubkey(solana_sdk::pubkey::Pubkey),
+    Pubkey(solana_pubkey::Pubkey),
 }

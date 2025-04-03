@@ -16,34 +16,34 @@ pub struct CreateMarket {
 }
 
 pub struct CreateMarketInstructionAccounts {
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub market_authority: solana_sdk::pubkey::Pubkey,
-    pub bids: solana_sdk::pubkey::Pubkey,
-    pub asks: solana_sdk::pubkey::Pubkey,
-    pub event_heap: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub market_base_vault: solana_sdk::pubkey::Pubkey,
-    pub market_quote_vault: solana_sdk::pubkey::Pubkey,
-    pub base_mint: solana_sdk::pubkey::Pubkey,
-    pub quote_mint: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
-    pub oracle_a: solana_sdk::pubkey::Pubkey,
-    pub oracle_b: solana_sdk::pubkey::Pubkey,
-    pub collect_fee_admin: solana_sdk::pubkey::Pubkey,
-    pub open_orders_admin: solana_sdk::pubkey::Pubkey,
-    pub consume_events_admin: solana_sdk::pubkey::Pubkey,
-    pub close_market_admin: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub market_authority: solana_pubkey::Pubkey,
+    pub bids: solana_pubkey::Pubkey,
+    pub asks: solana_pubkey::Pubkey,
+    pub event_heap: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub market_base_vault: solana_pubkey::Pubkey,
+    pub market_quote_vault: solana_pubkey::Pubkey,
+    pub base_mint: solana_pubkey::Pubkey,
+    pub quote_mint: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub oracle_a: solana_pubkey::Pubkey,
+    pub oracle_b: solana_pubkey::Pubkey,
+    pub collect_fee_admin: solana_pubkey::Pubkey,
+    pub open_orders_admin: solana_pubkey::Pubkey,
+    pub consume_events_admin: solana_pubkey::Pubkey,
+    pub close_market_admin: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CreateMarket {
     type ArrangedAccounts = CreateMarketInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [market, market_authority, bids, asks, event_heap, payer, market_base_vault, market_quote_vault, base_mint, quote_mint, system_program, token_program, associated_token_program, oracle_a, oracle_b, collect_fee_admin, open_orders_admin, consume_events_admin, close_market_admin, event_authority, program, _remaining @ ..] =
             accounts

@@ -9,18 +9,18 @@ pub struct InitializeProtectedMakerModeConfig {
 }
 
 pub struct InitializeProtectedMakerModeConfigInstructionAccounts {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub protected_maker_mode_config: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub protected_maker_mode_config: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeProtectedMakerModeConfig {
     type ArrangedAccounts = InitializeProtectedMakerModeConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, protected_maker_mode_config, state, rent, system_program, _remaining @ ..] =
             accounts

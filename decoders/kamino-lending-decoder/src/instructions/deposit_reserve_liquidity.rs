@@ -9,25 +9,25 @@ pub struct DepositReserveLiquidity {
 }
 
 pub struct DepositReserveLiquidityInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub reserve: solana_sdk::pubkey::Pubkey,
-    pub lending_market: solana_sdk::pubkey::Pubkey,
-    pub lending_market_authority: solana_sdk::pubkey::Pubkey,
-    pub reserve_liquidity_mint: solana_sdk::pubkey::Pubkey,
-    pub reserve_liquidity_supply: solana_sdk::pubkey::Pubkey,
-    pub reserve_collateral_mint: solana_sdk::pubkey::Pubkey,
-    pub user_source_liquidity: solana_sdk::pubkey::Pubkey,
-    pub user_destination_collateral: solana_sdk::pubkey::Pubkey,
-    pub collateral_token_program: solana_sdk::pubkey::Pubkey,
-    pub liquidity_token_program: solana_sdk::pubkey::Pubkey,
-    pub instruction_sysvar_account: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub reserve: solana_pubkey::Pubkey,
+    pub lending_market: solana_pubkey::Pubkey,
+    pub lending_market_authority: solana_pubkey::Pubkey,
+    pub reserve_liquidity_mint: solana_pubkey::Pubkey,
+    pub reserve_liquidity_supply: solana_pubkey::Pubkey,
+    pub reserve_collateral_mint: solana_pubkey::Pubkey,
+    pub user_source_liquidity: solana_pubkey::Pubkey,
+    pub user_destination_collateral: solana_pubkey::Pubkey,
+    pub collateral_token_program: solana_pubkey::Pubkey,
+    pub liquidity_token_program: solana_pubkey::Pubkey,
+    pub instruction_sysvar_account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DepositReserveLiquidity {
     type ArrangedAccounts = DepositReserveLiquidityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, reserve, lending_market, lending_market_authority, reserve_liquidity_mint, reserve_liquidity_supply, reserve_collateral_mint, user_source_liquidity, user_destination_collateral, collateral_token_program, liquidity_token_program, instruction_sysvar_account, _remaining @ ..] =
             accounts

@@ -5,11 +5,11 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(CarbonDeserialize, Debug)]
 #[carbon(discriminator = "0x0c26fac72e9a20d8")]
 pub struct PositionRequest {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub custody: solana_sdk::pubkey::Pubkey,
-    pub position: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub custody: solana_pubkey::Pubkey,
+    pub position: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
     pub open_time: i64,
     pub update_time: i64,
     pub size_usd_delta: u64,
@@ -26,5 +26,5 @@ pub struct PositionRequest {
     pub executed: bool,
     pub counter: u64,
     pub bump: u8,
-    pub referral: Option<solana_sdk::pubkey::Pubkey>,
+    pub referral: Option<solana_pubkey::Pubkey>,
 }

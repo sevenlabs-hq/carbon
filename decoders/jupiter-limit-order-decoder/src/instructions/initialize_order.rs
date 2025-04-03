@@ -11,25 +11,25 @@ pub struct InitializeOrder {
 }
 
 pub struct InitializeOrderInstructionAccounts {
-    pub base: solana_sdk::pubkey::Pubkey,
-    pub maker: solana_sdk::pubkey::Pubkey,
-    pub order: solana_sdk::pubkey::Pubkey,
-    pub reserve: solana_sdk::pubkey::Pubkey,
-    pub maker_input_account: solana_sdk::pubkey::Pubkey,
-    pub input_mint: solana_sdk::pubkey::Pubkey,
-    pub maker_output_account: solana_sdk::pubkey::Pubkey,
-    pub referral: solana_sdk::pubkey::Pubkey,
-    pub output_mint: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub base: solana_pubkey::Pubkey,
+    pub maker: solana_pubkey::Pubkey,
+    pub order: solana_pubkey::Pubkey,
+    pub reserve: solana_pubkey::Pubkey,
+    pub maker_input_account: solana_pubkey::Pubkey,
+    pub input_mint: solana_pubkey::Pubkey,
+    pub maker_output_account: solana_pubkey::Pubkey,
+    pub referral: solana_pubkey::Pubkey,
+    pub output_mint: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeOrder {
     type ArrangedAccounts = InitializeOrderInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [base, maker, order, reserve, maker_input_account, input_mint, maker_output_account, referral, output_mint, system_program, token_program, rent, _remaining @ ..] =
             accounts

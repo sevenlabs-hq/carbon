@@ -22,6 +22,7 @@
 //!
 //! - **`schema`**: For building transaction schemas.
 //! - **`try_decode_ix`**: For decoding instructions dynamically.
+#![no_std]
 
 pub mod schemas;
 pub mod try_decode_ixs;

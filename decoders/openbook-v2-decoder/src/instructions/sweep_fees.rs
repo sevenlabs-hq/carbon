@@ -7,19 +7,19 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct SweepFees {}
 
 pub struct SweepFeesInstructionAccounts {
-    pub collect_fee_admin: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub market_authority: solana_sdk::pubkey::Pubkey,
-    pub market_quote_vault: solana_sdk::pubkey::Pubkey,
-    pub token_receiver_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub collect_fee_admin: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub market_authority: solana_pubkey::Pubkey,
+    pub market_quote_vault: solana_pubkey::Pubkey,
+    pub token_receiver_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SweepFees {
     type ArrangedAccounts = SweepFeesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [collect_fee_admin, market, market_authority, market_quote_vault, token_receiver_account, token_program, _remaining @ ..] =
             accounts

@@ -8,7 +8,7 @@ use {
 )]
 #[carbon(discriminator = "0xe445a52e51cb9a1d9fccc08a4491e094")]
 pub struct ConfigLpEvent {
-    pub state: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
     pub min_fee_change: Option<FeeValueChange>,
     pub max_fee_change: Option<FeeValueChange>,
     pub liquidity_target_change: Option<U64ValueChange>,

@@ -6,14 +6,14 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct InitializeImmutableOwner {}
 
 pub struct InitializeImmutableOwnerAccounts {
-    pub account: solana_sdk::pubkey::Pubkey,
+    pub account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeImmutableOwner {
     type ArrangedAccounts = InitializeImmutableOwnerAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let account = accounts.first()?;
 

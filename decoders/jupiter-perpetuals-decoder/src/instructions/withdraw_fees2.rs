@@ -11,23 +11,23 @@ pub struct WithdrawFees2 {
 }
 
 pub struct WithdrawFees2InstructionAccounts {
-    pub keeper: solana_sdk::pubkey::Pubkey,
-    pub transfer_authority: solana_sdk::pubkey::Pubkey,
-    pub perpetuals: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub custody: solana_sdk::pubkey::Pubkey,
-    pub custody_token_account: solana_sdk::pubkey::Pubkey,
-    pub custody_doves_price_account: solana_sdk::pubkey::Pubkey,
-    pub custody_pythnet_price_account: solana_sdk::pubkey::Pubkey,
-    pub receiving_token_account: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub keeper: solana_pubkey::Pubkey,
+    pub transfer_authority: solana_pubkey::Pubkey,
+    pub perpetuals: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub custody: solana_pubkey::Pubkey,
+    pub custody_token_account: solana_pubkey::Pubkey,
+    pub custody_doves_price_account: solana_pubkey::Pubkey,
+    pub custody_pythnet_price_account: solana_pubkey::Pubkey,
+    pub receiving_token_account: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawFees2 {
     type ArrangedAccounts = WithdrawFees2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [keeper, transfer_authority, perpetuals, pool, custody, custody_token_account, custody_doves_price_account, custody_pythnet_price_account, receiving_token_account, token_program, _remaining @ ..] =
             accounts

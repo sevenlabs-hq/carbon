@@ -7,18 +7,18 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct InitializeCrossMarginAccountManager {}
 
 pub struct InitializeCrossMarginAccountManagerInstructionAccounts {
-    pub cross_margin_account_manager: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub zeta_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub cross_margin_account_manager: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub zeta_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeCrossMarginAccountManager {
     type ArrangedAccounts = InitializeCrossMarginAccountManagerInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [cross_margin_account_manager, authority, payer, zeta_program, system_program, _remaining @ ..] =
             accounts

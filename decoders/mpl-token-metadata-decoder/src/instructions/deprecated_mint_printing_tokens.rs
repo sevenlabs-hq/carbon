@@ -7,20 +7,20 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct DeprecatedMintPrintingTokens {}
 
 pub struct DeprecatedMintPrintingTokensInstructionAccounts {
-    pub destination: solana_sdk::pubkey::Pubkey,
-    pub printing_mint: solana_sdk::pubkey::Pubkey,
-    pub update_authority: solana_sdk::pubkey::Pubkey,
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub master_edition: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub destination: solana_pubkey::Pubkey,
+    pub printing_mint: solana_pubkey::Pubkey,
+    pub update_authority: solana_pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub master_edition: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DeprecatedMintPrintingTokens {
     type ArrangedAccounts = DeprecatedMintPrintingTokensInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [destination, printing_mint, update_authority, metadata, master_edition, token_program, rent, _remaining @ ..] =
             accounts

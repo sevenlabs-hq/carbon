@@ -11,16 +11,16 @@ pub struct SetCustodyConfig {
 }
 
 pub struct SetCustodyConfigInstructionAccounts {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub perpetuals: solana_sdk::pubkey::Pubkey,
-    pub custody: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub perpetuals: solana_pubkey::Pubkey,
+    pub custody: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetCustodyConfig {
     type ArrangedAccounts = SetCustodyConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, perpetuals, custody, _remaining @ ..] = accounts else {
             return None;

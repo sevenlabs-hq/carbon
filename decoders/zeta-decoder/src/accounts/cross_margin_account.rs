@@ -5,8 +5,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(CarbonDeserialize, Debug)]
 #[carbon(discriminator = "0xf25e8e8323f4931c")]
 pub struct CrossMarginAccount {
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub delegated_pubkey: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub delegated_pubkey: solana_pubkey::Pubkey,
     pub balance: u64,
     pub subaccount_index: u8,
     pub nonce: u8,

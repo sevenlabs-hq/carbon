@@ -11,29 +11,29 @@ pub struct DecreaseLiquidityV2 {
 }
 
 pub struct DecreaseLiquidityV2InstructionAccounts {
-    pub nft_owner: solana_sdk::pubkey::Pubkey,
-    pub nft_account: solana_sdk::pubkey::Pubkey,
-    pub personal_position: solana_sdk::pubkey::Pubkey,
-    pub pool_state: solana_sdk::pubkey::Pubkey,
-    pub protocol_position: solana_sdk::pubkey::Pubkey,
-    pub token_vault0: solana_sdk::pubkey::Pubkey,
-    pub token_vault1: solana_sdk::pubkey::Pubkey,
-    pub tick_array_lower: solana_sdk::pubkey::Pubkey,
-    pub tick_array_upper: solana_sdk::pubkey::Pubkey,
-    pub recipient_token_account0: solana_sdk::pubkey::Pubkey,
-    pub recipient_token_account1: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub token_program2022: solana_sdk::pubkey::Pubkey,
-    pub memo_program: solana_sdk::pubkey::Pubkey,
-    pub vault0_mint: solana_sdk::pubkey::Pubkey,
-    pub vault1_mint: solana_sdk::pubkey::Pubkey,
+    pub nft_owner: solana_pubkey::Pubkey,
+    pub nft_account: solana_pubkey::Pubkey,
+    pub personal_position: solana_pubkey::Pubkey,
+    pub pool_state: solana_pubkey::Pubkey,
+    pub protocol_position: solana_pubkey::Pubkey,
+    pub token_vault0: solana_pubkey::Pubkey,
+    pub token_vault1: solana_pubkey::Pubkey,
+    pub tick_array_lower: solana_pubkey::Pubkey,
+    pub tick_array_upper: solana_pubkey::Pubkey,
+    pub recipient_token_account0: solana_pubkey::Pubkey,
+    pub recipient_token_account1: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub token_program2022: solana_pubkey::Pubkey,
+    pub memo_program: solana_pubkey::Pubkey,
+    pub vault0_mint: solana_pubkey::Pubkey,
+    pub vault1_mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DecreaseLiquidityV2 {
     type ArrangedAccounts = DecreaseLiquidityV2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [nft_owner, nft_account, personal_position, pool_state, protocol_position, token_vault0, token_vault1, tick_array_lower, tick_array_upper, recipient_token_account0, recipient_token_account1, token_program, token_program2022, memo_program, vault0_mint, vault1_mint, _remaining @ ..] =
             accounts

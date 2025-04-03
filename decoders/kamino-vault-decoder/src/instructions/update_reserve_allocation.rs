@@ -10,22 +10,22 @@ pub struct UpdateReserveAllocation {
 }
 
 pub struct UpdateReserveAllocationInstructionAccounts {
-    pub admin_authority: solana_sdk::pubkey::Pubkey,
-    pub vault_state: solana_sdk::pubkey::Pubkey,
-    pub base_vault_authority: solana_sdk::pubkey::Pubkey,
-    pub reserve_collateral_mint: solana_sdk::pubkey::Pubkey,
-    pub reserve: solana_sdk::pubkey::Pubkey,
-    pub ctoken_vault: solana_sdk::pubkey::Pubkey,
-    pub reserve_collateral_token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub admin_authority: solana_pubkey::Pubkey,
+    pub vault_state: solana_pubkey::Pubkey,
+    pub base_vault_authority: solana_pubkey::Pubkey,
+    pub reserve_collateral_mint: solana_pubkey::Pubkey,
+    pub reserve: solana_pubkey::Pubkey,
+    pub ctoken_vault: solana_pubkey::Pubkey,
+    pub reserve_collateral_token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateReserveAllocation {
     type ArrangedAccounts = UpdateReserveAllocationInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin_authority, vault_state, base_vault_authority, reserve_collateral_mint, reserve, ctoken_vault, reserve_collateral_token_program, system_program, rent, _remaining @ ..] =
             accounts

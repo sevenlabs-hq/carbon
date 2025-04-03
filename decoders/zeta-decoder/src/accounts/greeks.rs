@@ -20,7 +20,7 @@ pub struct Greeks {
     pub nodes: [u64; 5],
     pub volatility: [u64; 10],
     pub volatility_padding: [u64; 20],
-    pub node_keys: [solana_sdk::pubkey::Pubkey; 138],
+    pub node_keys: [solana_pubkey::Pubkey; 138],
     pub halt_force_pricing: [bool; 6],
     pub perp_update_timestamp: u64,
     pub perp_funding_delta: AnchorDecimal,

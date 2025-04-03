@@ -9,15 +9,15 @@ pub struct TransferSol {
 }
 
 pub struct TransferSolInstructionAccounts {
-    pub source: solana_sdk::pubkey::Pubkey,
-    pub destination: solana_sdk::pubkey::Pubkey,
+    pub source: solana_pubkey::Pubkey,
+    pub destination: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for TransferSol {
     type ArrangedAccounts = TransferSolInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [source, destination, _remaining @ ..] = accounts else {
             return None;

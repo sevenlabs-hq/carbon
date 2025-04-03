@@ -8,7 +8,7 @@ use {
 )]
 pub struct UpdateMetadataAccountArgsV2 {
     pub data: Option<DataV2>,
-    pub update_authority: Option<solana_sdk::pubkey::Pubkey>,
+    pub update_authority: Option<solana_pubkey::Pubkey>,
     pub primary_sale_happened: Option<bool>,
     pub is_mutable: Option<bool>,
 }

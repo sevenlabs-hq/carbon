@@ -12,28 +12,28 @@ pub struct Mint {
 }
 
 pub struct MintInstructionAccounts {
-    pub token: solana_sdk::pubkey::Pubkey,
-    pub token_owner: solana_sdk::pubkey::Pubkey,
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub master_edition: solana_sdk::pubkey::Pubkey,
-    pub token_record: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub delegate_record: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub sysvar_instructions: solana_sdk::pubkey::Pubkey,
-    pub spl_token_program: solana_sdk::pubkey::Pubkey,
-    pub spl_ata_program: solana_sdk::pubkey::Pubkey,
-    pub authorization_rules_program: solana_sdk::pubkey::Pubkey,
-    pub authorization_rules: solana_sdk::pubkey::Pubkey,
+    pub token: solana_pubkey::Pubkey,
+    pub token_owner: solana_pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub master_edition: solana_pubkey::Pubkey,
+    pub token_record: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub delegate_record: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub sysvar_instructions: solana_pubkey::Pubkey,
+    pub spl_token_program: solana_pubkey::Pubkey,
+    pub spl_ata_program: solana_pubkey::Pubkey,
+    pub authorization_rules_program: solana_pubkey::Pubkey,
+    pub authorization_rules: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Mint {
     type ArrangedAccounts = MintInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [token, token_owner, metadata, master_edition, token_record, mint, authority, delegate_record, payer, system_program, sysvar_instructions, spl_token_program, spl_ata_program, authorization_rules_program, authorization_rules, _remaining @ ..] =
             accounts

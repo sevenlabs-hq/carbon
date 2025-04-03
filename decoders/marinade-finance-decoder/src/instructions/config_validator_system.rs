@@ -9,15 +9,15 @@ pub struct ConfigValidatorSystem {
 }
 
 pub struct ConfigValidatorSystemInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub manager_authority: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub manager_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ConfigValidatorSystem {
     type ArrangedAccounts = ConfigValidatorSystemInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, manager_authority, _remaining @ ..] = accounts else {
             return None;

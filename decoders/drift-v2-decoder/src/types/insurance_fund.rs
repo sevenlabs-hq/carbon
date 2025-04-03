@@ -4,7 +4,7 @@ use carbon_core::{borsh, CarbonDeserialize};
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub struct InsuranceFund {
-    pub vault: solana_sdk::pubkey::Pubkey,
+    pub vault: solana_pubkey::Pubkey,
     pub total_shares: u128,
     pub user_shares: u128,
     pub shares_base: u128,

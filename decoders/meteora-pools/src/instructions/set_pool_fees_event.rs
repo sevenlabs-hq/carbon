@@ -9,5 +9,5 @@ pub struct SetPoolFeesEvent {
     pub trade_fee_denominator: u64,
     pub protocol_trade_fee_numerator: u64,
     pub protocol_trade_fee_denominator: u64,
-    pub pool: solana_sdk::pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
 }

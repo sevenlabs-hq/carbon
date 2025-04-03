@@ -12,28 +12,28 @@ pub struct WithdrawAllTokenTypes {
 
 #[derive(Debug, PartialEq)]
 pub struct WithdrawAllTokenTypesInstructionAccounts {
-    pub swap: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub user_transfer_authority: solana_sdk::pubkey::Pubkey,
-    pub pool_mint: solana_sdk::pubkey::Pubkey,
-    pub source: solana_sdk::pubkey::Pubkey,
-    pub swap_token_a: solana_sdk::pubkey::Pubkey,
-    pub swap_token_b: solana_sdk::pubkey::Pubkey,
-    pub destination_token_a: solana_sdk::pubkey::Pubkey,
-    pub destination_token_b: solana_sdk::pubkey::Pubkey,
-    pub fee_account: solana_sdk::pubkey::Pubkey,
-    pub token_a_mint: solana_sdk::pubkey::Pubkey,
-    pub token_b_mint: solana_sdk::pubkey::Pubkey,
-    pub pool_token_program: solana_sdk::pubkey::Pubkey,
-    pub token_a_program: solana_sdk::pubkey::Pubkey,
-    pub token_b_program: solana_sdk::pubkey::Pubkey,
+    pub swap: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub user_transfer_authority: solana_pubkey::Pubkey,
+    pub pool_mint: solana_pubkey::Pubkey,
+    pub source: solana_pubkey::Pubkey,
+    pub swap_token_a: solana_pubkey::Pubkey,
+    pub swap_token_b: solana_pubkey::Pubkey,
+    pub destination_token_a: solana_pubkey::Pubkey,
+    pub destination_token_b: solana_pubkey::Pubkey,
+    pub fee_account: solana_pubkey::Pubkey,
+    pub token_a_mint: solana_pubkey::Pubkey,
+    pub token_b_mint: solana_pubkey::Pubkey,
+    pub pool_token_program: solana_pubkey::Pubkey,
+    pub token_a_program: solana_pubkey::Pubkey,
+    pub token_b_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawAllTokenTypes {
     type ArrangedAccounts = WithdrawAllTokenTypesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [swap, authority, user_transfer_authority, pool_mint, source, swap_token_a, swap_token_b, destination_token_a, destination_token_b, fee_account, token_a_mint, token_b_mint, pool_token_program, token_a_program, token_b_program, _remaining @ ..] =
             accounts

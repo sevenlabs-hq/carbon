@@ -9,24 +9,24 @@ pub struct InitializeSerumFulfillmentConfig {
 }
 
 pub struct InitializeSerumFulfillmentConfigInstructionAccounts {
-    pub base_spot_market: solana_sdk::pubkey::Pubkey,
-    pub quote_spot_market: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub serum_program: solana_sdk::pubkey::Pubkey,
-    pub serum_market: solana_sdk::pubkey::Pubkey,
-    pub serum_open_orders: solana_sdk::pubkey::Pubkey,
-    pub drift_signer: solana_sdk::pubkey::Pubkey,
-    pub serum_fulfillment_config: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub base_spot_market: solana_pubkey::Pubkey,
+    pub quote_spot_market: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub serum_program: solana_pubkey::Pubkey,
+    pub serum_market: solana_pubkey::Pubkey,
+    pub serum_open_orders: solana_pubkey::Pubkey,
+    pub drift_signer: solana_pubkey::Pubkey,
+    pub serum_fulfillment_config: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeSerumFulfillmentConfig {
     type ArrangedAccounts = InitializeSerumFulfillmentConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [base_spot_market, quote_spot_market, state, serum_program, serum_market, serum_open_orders, drift_signer, serum_fulfillment_config, admin, rent, system_program, _remaining @ ..] =
             accounts

@@ -12,9 +12,9 @@ impl AccountDecoder<'_> for SystemProgramDecoder {
     type AccountType = SystemAccount;
     fn decode_account(
         &self,
-        account: &solana_sdk::account::Account,
+        account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
-        if !account.owner.eq(&solana_sdk::system_program::id()) {
+        if !account.owner.eq(&solana_program::system_program::id()) {
             return None;
         }
 

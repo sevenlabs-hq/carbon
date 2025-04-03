@@ -9,16 +9,16 @@ pub struct UpdateDeactivated {
 }
 
 pub struct UpdateDeactivatedInstructionAccounts {
-    pub common: solana_sdk::pubkey::Pubkey,
-    pub operational_sol_account: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub common: solana_pubkey::Pubkey,
+    pub operational_sol_account: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateDeactivated {
     type ArrangedAccounts = UpdateDeactivatedInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [common, operational_sol_account, system_program, _remaining @ ..] = accounts else {
             return None;

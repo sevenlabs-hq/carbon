@@ -9,16 +9,16 @@ pub struct SetStakeDelegated {
 }
 
 pub struct SetStakeDelegatedInstructionAccounts {
-    pub delegate_authority: solana_sdk::pubkey::Pubkey,
-    pub user_state: solana_sdk::pubkey::Pubkey,
-    pub farm_state: solana_sdk::pubkey::Pubkey,
+    pub delegate_authority: solana_pubkey::Pubkey,
+    pub user_state: solana_pubkey::Pubkey,
+    pub farm_state: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetStakeDelegated {
     type ArrangedAccounts = SetStakeDelegatedInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [delegate_authority, user_state, farm_state, _remaining @ ..] = accounts else {
             return None;

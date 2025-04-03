@@ -13,11 +13,12 @@ use {
         websocket::EnhancedWebsocket,
         Helius,
     },
-    solana_sdk::{
-        account::Account, bs58, instruction::CompiledInstruction, message::v0::LoadedAddresses,
-        pubkey::Pubkey, signature::Signature, sysvar::clock::Clock,
-        transaction_context::TransactionReturnData,
-    },
+    solana_account::Account,
+    solana_clock::Clock,
+    solana_program::{instruction::CompiledInstruction, message::v0::LoadedAddresses},
+    solana_pubkey::Pubkey,
+    solana_sdk::transaction_context::TransactionReturnData,
+    solana_signature::Signature,
     solana_transaction_status::{
         option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
         TransactionStatusMeta, TransactionTokenBalance, UiInstruction, UiLoadedAddresses,
@@ -68,7 +69,7 @@ pub struct HeliusWebsocket {
 }
 
 impl HeliusWebsocket {
-    pub fn new(
+    pub const fn new(
         api_key: String,
         filters: Filters,
         account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
@@ -82,7 +83,7 @@ impl HeliusWebsocket {
         }
     }
 
-    fn get_ws_url(cluster: &Cluster) -> &'static str {
+    const fn get_ws_url(cluster: &Cluster) -> &'static str {
         match cluster {
             Cluster::MainnetBeta => MAINNET_WS_URL,
             _ => DEVNET_WS_URL,
@@ -180,7 +181,7 @@ impl Datasource for HeliusWebsocket {
                     };
 
                     let (mut stream, _unsub) = match ws
-                        .account_subscribe(&solana_sdk::sysvar::clock::ID, None)
+                        .account_subscribe(&solana_program::sysvar::clock::ID, None)
                         .await
                     {
                         Ok(subscription) => subscription,
@@ -304,7 +305,7 @@ impl Datasource for HeliusWebsocket {
                                                     }
                                                 };
 
-                                                if decoded_account.lamports == 0 && decoded_account.data.is_empty() && decoded_account.owner == solana_sdk::system_program::ID {
+                                                if decoded_account.lamports == 0 && decoded_account.data.is_empty() && decoded_account.owner == solana_program::system_program::ID {
                                                     let accounts_tracked =
                                                         account_deletions_tracked.read().await;
                                                     if !accounts_tracked.is_empty() && accounts_tracked.contains(&account) {

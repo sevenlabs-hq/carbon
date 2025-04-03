@@ -9,18 +9,18 @@ pub struct ReallocValidatorList {
 }
 
 pub struct ReallocValidatorListInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub admin_authority: solana_sdk::pubkey::Pubkey,
-    pub validator_list: solana_sdk::pubkey::Pubkey,
-    pub rent_funds: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub admin_authority: solana_pubkey::Pubkey,
+    pub validator_list: solana_pubkey::Pubkey,
+    pub rent_funds: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ReallocValidatorList {
     type ArrangedAccounts = ReallocValidatorListInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, admin_authority, validator_list, rent_funds, system_program, _remaining @ ..] =
             accounts

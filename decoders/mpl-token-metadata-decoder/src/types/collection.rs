@@ -5,5 +5,5 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 pub struct Collection {
     pub verified: bool,
-    pub key: solana_sdk::pubkey::Pubkey,
+    pub key: solana_pubkey::Pubkey,
 }

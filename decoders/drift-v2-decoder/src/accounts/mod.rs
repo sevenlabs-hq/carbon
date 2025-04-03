@@ -44,11 +44,11 @@ pub enum DriftAccount {
     FuelOverflow(fuel_overflow::FuelOverflow),
 }
 
-impl<'a> AccountDecoder<'a> for DriftDecoder {
+impl AccountDecoder<'_> for DriftDecoder {
     type AccountType = DriftAccount;
     fn decode_account(
         &self,
-        account: &solana_sdk::account::Account,
+        account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;

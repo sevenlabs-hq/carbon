@@ -13,25 +13,25 @@ pub struct Swap {
 }
 
 pub struct SwapInstructionAccounts {
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub token_authority: solana_sdk::pubkey::Pubkey,
-    pub whirlpool: solana_sdk::pubkey::Pubkey,
-    pub token_owner_account_a: solana_sdk::pubkey::Pubkey,
-    pub token_vault_a: solana_sdk::pubkey::Pubkey,
-    pub token_owner_account_b: solana_sdk::pubkey::Pubkey,
-    pub token_vault_b: solana_sdk::pubkey::Pubkey,
-    pub tick_array0: solana_sdk::pubkey::Pubkey,
-    pub tick_array1: solana_sdk::pubkey::Pubkey,
-    pub tick_array2: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    pub token_program: solana_pubkey::Pubkey,
+    pub token_authority: solana_pubkey::Pubkey,
+    pub whirlpool: solana_pubkey::Pubkey,
+    pub token_owner_account_a: solana_pubkey::Pubkey,
+    pub token_vault_a: solana_pubkey::Pubkey,
+    pub token_owner_account_b: solana_pubkey::Pubkey,
+    pub token_vault_b: solana_pubkey::Pubkey,
+    pub tick_array0: solana_pubkey::Pubkey,
+    pub tick_array1: solana_pubkey::Pubkey,
+    pub tick_array2: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub remaining_accounts: Vec<solana_instruction::AccountMeta>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Swap {
     type ArrangedAccounts = SwapInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [token_program, token_authority, whirlpool, token_owner_account_a, token_vault_a, token_owner_account_b, token_vault_b, tick_array0, tick_array1, tick_array2, oracle, remaining_accounts @ ..] =
             accounts

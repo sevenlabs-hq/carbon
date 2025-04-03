@@ -15,7 +15,7 @@ pub struct BankConfigCompact {
     pub interest_rate_config: InterestRateConfigCompact,
     pub operational_state: BankOperationalState,
     pub oracle_setup: OracleSetup,
-    pub oracle_key: solana_sdk::pubkey::Pubkey,
+    pub oracle_key: solana_pubkey::Pubkey,
     pub auto_padding_0: [u8; 6],
     pub borrow_limit: u64,
     pub risk_tier: RiskTier,

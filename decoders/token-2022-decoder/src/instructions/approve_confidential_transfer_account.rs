@@ -9,16 +9,16 @@ pub struct ApproveConfidentialTransferAccount {
 }
 
 pub struct ApproveConfidentialTransferAccountInstructionAccounts {
-    pub token: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub token: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ApproveConfidentialTransferAccount {
     type ArrangedAccounts = ApproveConfidentialTransferAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [token, mint, authority, _remaining @ ..] = accounts else {
             return None;

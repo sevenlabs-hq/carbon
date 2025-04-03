@@ -5,20 +5,20 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0x02")]
 pub struct Transfer {
-    pub new_owner: solana_sdk::pubkey::Pubkey,
+    pub new_owner: solana_pubkey::Pubkey,
 }
 
 pub struct TransferInstructionAccounts {
-    pub name_record: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub parent_name_record: solana_sdk::pubkey::Pubkey,
+    pub name_record: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub parent_name_record: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Transfer {
     type ArrangedAccounts = TransferInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [name_record, owner, parent_name_record, _remaining @ ..] = accounts else {
             return None;

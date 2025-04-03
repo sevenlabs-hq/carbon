@@ -7,8 +7,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0xe445a52e51cb9a1d7fca0fb7c8c0040c")]
 pub struct ApplyFundingEvent {
-    pub margin_account: solana_sdk::pubkey::Pubkey,
-    pub user: solana_sdk::pubkey::Pubkey,
+    pub margin_account: solana_pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
     pub asset: Asset,
     pub balance_change: i64,
     pub remaining_balance: u64,

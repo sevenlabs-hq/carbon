@@ -5,8 +5,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 pub struct CreateConfigEvent {
     pub timestamp: i64,
-    pub admin: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
     pub lp_fee_basis_points: u64,
     pub protocol_fee_basis_points: u64,
-    pub protocol_fee_recipients: [solana_sdk::pubkey::Pubkey; 8],
+    pub protocol_fee_recipients: [solana_pubkey::Pubkey; 8],
 }

@@ -7,7 +7,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct Nonce {
     pub version: NonceVersion,
     pub state: NonceState,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub blockhash: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub blockhash: solana_pubkey::Pubkey,
     pub lamports_per_signature: u64,
 }

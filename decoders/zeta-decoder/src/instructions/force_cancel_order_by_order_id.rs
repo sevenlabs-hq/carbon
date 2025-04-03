@@ -13,19 +13,19 @@ pub struct ForceCancelOrderByOrderId {
 }
 
 pub struct ForceCancelOrderByOrderIdInstructionAccounts {
-    pub zeta_group: solana_sdk::pubkey::Pubkey,
-    pub greeks: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_feed: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_program: solana_sdk::pubkey::Pubkey,
-    pub cancel_accounts: solana_sdk::pubkey::Pubkey,
+    pub zeta_group: solana_pubkey::Pubkey,
+    pub greeks: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub oracle_backup_feed: solana_pubkey::Pubkey,
+    pub oracle_backup_program: solana_pubkey::Pubkey,
+    pub cancel_accounts: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ForceCancelOrderByOrderId {
     type ArrangedAccounts = ForceCancelOrderByOrderIdInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [zeta_group, greeks, oracle, oracle_backup_feed, oracle_backup_program, cancel_accounts, _remaining @ ..] =
             accounts

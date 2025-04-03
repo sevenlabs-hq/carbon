@@ -6,19 +6,19 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x29")]
 pub struct InitializeGroupMemberPointer {
     pub group_member_pointer_discriminator: u8,
-    pub authority: Option<solana_sdk::pubkey::Pubkey>,
-    pub member_address: Option<solana_sdk::pubkey::Pubkey>,
+    pub authority: Option<solana_pubkey::Pubkey>,
+    pub member_address: Option<solana_pubkey::Pubkey>,
 }
 
 pub struct InitializeGroupMemberPointerInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeGroupMemberPointer {
     type ArrangedAccounts = InitializeGroupMemberPointerInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [mint, _remaining @ ..] = accounts else {
             return None;

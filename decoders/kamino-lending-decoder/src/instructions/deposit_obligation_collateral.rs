@@ -9,21 +9,21 @@ pub struct DepositObligationCollateral {
 }
 
 pub struct DepositObligationCollateralInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub obligation: solana_sdk::pubkey::Pubkey,
-    pub lending_market: solana_sdk::pubkey::Pubkey,
-    pub deposit_reserve: solana_sdk::pubkey::Pubkey,
-    pub reserve_destination_collateral: solana_sdk::pubkey::Pubkey,
-    pub user_source_collateral: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub instruction_sysvar_account: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub obligation: solana_pubkey::Pubkey,
+    pub lending_market: solana_pubkey::Pubkey,
+    pub deposit_reserve: solana_pubkey::Pubkey,
+    pub reserve_destination_collateral: solana_pubkey::Pubkey,
+    pub user_source_collateral: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub instruction_sysvar_account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DepositObligationCollateral {
     type ArrangedAccounts = DepositObligationCollateralInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, obligation, lending_market, deposit_reserve, reserve_destination_collateral, user_source_collateral, token_program, instruction_sysvar_account, _remaining @ ..] =
             accounts

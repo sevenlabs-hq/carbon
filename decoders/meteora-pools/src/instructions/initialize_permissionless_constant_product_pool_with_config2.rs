@@ -11,32 +11,32 @@ pub struct InitializePermissionlessConstantProductPoolWithConfig2 {
 }
 
 pub struct InitializePermissionlessConstantProductPoolWithConfig2InstructionAccounts {
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub config: solana_sdk::pubkey::Pubkey,
-    pub lp_mint: solana_sdk::pubkey::Pubkey,
-    pub token_a_mint: solana_sdk::pubkey::Pubkey,
-    pub token_b_mint: solana_sdk::pubkey::Pubkey,
-    pub a_vault: solana_sdk::pubkey::Pubkey,
-    pub b_vault: solana_sdk::pubkey::Pubkey,
-    pub a_token_vault: solana_sdk::pubkey::Pubkey,
-    pub b_token_vault: solana_sdk::pubkey::Pubkey,
-    pub a_vault_lp_mint: solana_sdk::pubkey::Pubkey,
-    pub b_vault_lp_mint: solana_sdk::pubkey::Pubkey,
-    pub a_vault_lp: solana_sdk::pubkey::Pubkey,
-    pub b_vault_lp: solana_sdk::pubkey::Pubkey,
-    pub payer_token_a: solana_sdk::pubkey::Pubkey,
-    pub payer_token_b: solana_sdk::pubkey::Pubkey,
-    pub payer_pool_lp: solana_sdk::pubkey::Pubkey,
-    pub protocol_token_a_fee: solana_sdk::pubkey::Pubkey,
-    pub protocol_token_b_fee: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub mint_metadata: solana_sdk::pubkey::Pubkey,
-    pub metadata_program: solana_sdk::pubkey::Pubkey,
-    pub vault_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub config: solana_pubkey::Pubkey,
+    pub lp_mint: solana_pubkey::Pubkey,
+    pub token_a_mint: solana_pubkey::Pubkey,
+    pub token_b_mint: solana_pubkey::Pubkey,
+    pub a_vault: solana_pubkey::Pubkey,
+    pub b_vault: solana_pubkey::Pubkey,
+    pub a_token_vault: solana_pubkey::Pubkey,
+    pub b_token_vault: solana_pubkey::Pubkey,
+    pub a_vault_lp_mint: solana_pubkey::Pubkey,
+    pub b_vault_lp_mint: solana_pubkey::Pubkey,
+    pub a_vault_lp: solana_pubkey::Pubkey,
+    pub b_vault_lp: solana_pubkey::Pubkey,
+    pub payer_token_a: solana_pubkey::Pubkey,
+    pub payer_token_b: solana_pubkey::Pubkey,
+    pub payer_pool_lp: solana_pubkey::Pubkey,
+    pub protocol_token_a_fee: solana_pubkey::Pubkey,
+    pub protocol_token_b_fee: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub mint_metadata: solana_pubkey::Pubkey,
+    pub metadata_program: solana_pubkey::Pubkey,
+    pub vault_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts
@@ -46,7 +46,7 @@ impl carbon_core::deserialize::ArrangeAccounts
         InitializePermissionlessConstantProductPoolWithConfig2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [pool, config, lp_mint, token_a_mint, token_b_mint, a_vault, b_vault, a_token_vault, b_token_vault, a_vault_lp_mint, b_vault_lp_mint, a_vault_lp, b_vault_lp, payer_token_a, payer_token_b, payer_pool_lp, protocol_token_a_fee, protocol_token_b_fee, payer, rent, mint_metadata, metadata_program, vault_program, token_program, associated_token_program, system_program, _remaining @ ..] =
             accounts

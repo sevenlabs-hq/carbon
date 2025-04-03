@@ -7,21 +7,21 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct ApproveCollectionAuthority {}
 
 pub struct ApproveCollectionAuthorityInstructionAccounts {
-    pub collection_authority_record: solana_sdk::pubkey::Pubkey,
-    pub new_collection_authority: solana_sdk::pubkey::Pubkey,
-    pub update_authority: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub collection_authority_record: solana_pubkey::Pubkey,
+    pub new_collection_authority: solana_pubkey::Pubkey,
+    pub update_authority: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ApproveCollectionAuthority {
     type ArrangedAccounts = ApproveCollectionAuthorityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [collection_authority_record, new_collection_authority, update_authority, payer, metadata, mint, system_program, rent, _remaining @ ..] =
             accounts

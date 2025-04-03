@@ -10,16 +10,16 @@ pub struct UpdateHighLeverageModeConfig {
 }
 
 pub struct UpdateHighLeverageModeConfigInstructionAccounts {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub high_leverage_mode_config: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub high_leverage_mode_config: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateHighLeverageModeConfig {
     type ArrangedAccounts = UpdateHighLeverageModeConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, high_leverage_mode_config, state, _remaining @ ..] = accounts else {
             return None;

@@ -12,17 +12,17 @@ pub struct SettleMultiplePnls {
 }
 
 pub struct SettleMultiplePnlsInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub spot_market_vault: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub spot_market_vault: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SettleMultiplePnls {
     type ArrangedAccounts = SettleMultiplePnlsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, user, authority, spot_market_vault, _remaining @ ..] = accounts else {
             return None;

@@ -12,21 +12,21 @@ pub struct CreateV2 {
 }
 
 pub struct CreateV2InstructionAccounts {
-    pub asset: solana_sdk::pubkey::Pubkey,
-    pub collection: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub update_authority: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub log_wrapper: solana_sdk::pubkey::Pubkey,
+    pub asset: solana_pubkey::Pubkey,
+    pub collection: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub update_authority: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub log_wrapper: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CreateV2 {
     type ArrangedAccounts = CreateV2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [asset, collection, authority, payer, owner, update_authority, system_program, log_wrapper, _remaining @ ..] =
             accounts

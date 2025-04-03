@@ -1,8 +1,9 @@
-use solana_sdk::{pubkey, pubkey::Pubkey};
+use solana_pubkey::Pubkey;
 
 pub struct RaydiumCpmmDecoder;
 pub mod accounts;
 pub mod instructions;
 pub mod types;
 
-pub const PROGRAM_ID: Pubkey = pubkey!("CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C");
+pub const PROGRAM_ID: Pubkey =
+    solana_pubkey::Pubkey::from_str_const("CPMMoo8L3F4NbTegBCKVNunggL7H1ZpdTHKxQB5qKP1C");

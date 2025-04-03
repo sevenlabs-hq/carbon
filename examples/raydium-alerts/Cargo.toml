@@ -8,6 +8,7 @@ carbon-core = { workspace = true }
 carbon-raydium-amm-v4-decoder = { workspace = true }
 carbon-yellowstone-grpc-datasource = { workspace = true }
 solana-client = { workspace = true }
+solana-pubkey = { workspace = true }
 solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 

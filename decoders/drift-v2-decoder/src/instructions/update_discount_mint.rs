@@ -5,19 +5,19 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0x20fc7ad3421f2ff1")]
 pub struct UpdateDiscountMint {
-    pub discount_mint: solana_sdk::pubkey::Pubkey,
+    pub discount_mint: solana_pubkey::Pubkey,
 }
 
 pub struct UpdateDiscountMintInstructionAccounts {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateDiscountMint {
     type ArrangedAccounts = UpdateDiscountMintInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, state, _remaining @ ..] = accounts else {
             return None;

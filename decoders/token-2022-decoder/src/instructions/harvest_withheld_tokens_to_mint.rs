@@ -9,14 +9,14 @@ pub struct HarvestWithheldTokensToMint {
 }
 
 pub struct HarvestWithheldTokensToMintInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for HarvestWithheldTokensToMint {
     type ArrangedAccounts = HarvestWithheldTokensToMintInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [mint, _remaining @ ..] = accounts else {
             return None;
