@@ -3,13 +3,13 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-pub struct CreateEvent {
-    pub name: String,
-    pub symbol: String,
-    pub uri: String,
-    pub mint: solana_pubkey::Pubkey,
-    pub bonding_curve: solana_pubkey::Pubkey,
+pub struct CompletePumpAmmMigrationEvent {
     pub user: solana_pubkey::Pubkey,
-    pub creator: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub mint_amount: u64,
+    pub sol_amount: u64,
+    pub pool_migration_fee: u64,
+    pub bonding_curve: solana_pubkey::Pubkey,
     pub timestamp: i64,
+    pub pool: solana_pubkey::Pubkey,
 }
