@@ -3,13 +3,10 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-pub struct CreateEvent {
-    pub name: String,
-    pub symbol: String,
-    pub uri: String,
-    pub mint: solana_pubkey::Pubkey,
-    pub bonding_curve: solana_pubkey::Pubkey,
+pub struct ExtendAccountEvent {
+    pub account: solana_pubkey::Pubkey,
     pub user: solana_pubkey::Pubkey,
-    pub creator: solana_pubkey::Pubkey,
+    pub current_size: u64,
+    pub new_size: u64,
     pub timestamp: i64,
 }

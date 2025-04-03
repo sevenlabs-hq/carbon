@@ -6,7 +6,6 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0xb712469c946da122")]
 pub struct Withdraw {}
 
-#[derive(Debug, PartialEq)]
 pub struct WithdrawInstructionAccounts {
     pub global: solana_pubkey::Pubkey,
     pub last_withdraw: solana_pubkey::Pubkey,

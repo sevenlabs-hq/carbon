@@ -9,7 +9,6 @@ pub struct Sell {
     pub min_sol_output: u64,
 }
 
-#[derive(Debug, PartialEq)]
 pub struct SellInstructionAccounts {
     pub global: solana_pubkey::Pubkey,
     pub fee_recipient: solana_pubkey::Pubkey,
