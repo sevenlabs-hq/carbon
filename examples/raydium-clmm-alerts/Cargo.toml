@@ -10,7 +10,6 @@ carbon-raydium-clmm-decoder = { workspace = true }
 carbon-rpc-block-subscribe-datasource = { workspace = true }
 solana-client = { workspace = true }
 solana-pubkey = { workspace = true }
-solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 
 async-trait = { workspace = true }

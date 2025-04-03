@@ -99,7 +99,8 @@ impl Processor for KaminoLendingInstructionProcessor {
 
         log::info!(
             "instruction processed ({}) {:?}",
-            signature, instruction.data
+            signature,
+            instruction.data
         );
 
         Ok(())
