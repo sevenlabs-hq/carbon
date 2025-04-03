@@ -13,14 +13,14 @@ pub mod user_metadata;
 pub mod user_state;
 
 pub enum KaminoLendingAccount {
-    UserState(user_state::UserState),
-    LendingMarket(lending_market::LendingMarket),
-    Obligation(obligation::Obligation),
+    UserState(Box<user_state::UserState>),
+    LendingMarket(Box<lending_market::LendingMarket>),
+    Obligation(Box<obligation::Obligation>),
     ReferrerState(referrer_state::ReferrerState),
-    ReferrerTokenState(referrer_token_state::ReferrerTokenState),
+    ReferrerTokenState(Box<referrer_token_state::ReferrerTokenState>),
     ShortUrl(short_url::ShortUrl),
-    UserMetadata(user_metadata::UserMetadata),
-    Reserve(reserve::Reserve),
+    UserMetadata(Box<user_metadata::UserMetadata>),
+    Reserve(Box<reserve::Reserve>),
 }
 
 impl AccountDecoder<'_> for KaminoLendingDecoder {
@@ -36,7 +36,7 @@ impl AccountDecoder<'_> for KaminoLendingDecoder {
         if let Some(decoded_account) = user_state::UserState::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: KaminoLendingAccount::UserState(decoded_account),
+                data: KaminoLendingAccount::UserState(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -48,7 +48,7 @@ impl AccountDecoder<'_> for KaminoLendingDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: KaminoLendingAccount::LendingMarket(decoded_account),
+                data: KaminoLendingAccount::LendingMarket(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -59,7 +59,7 @@ impl AccountDecoder<'_> for KaminoLendingDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: KaminoLendingAccount::Obligation(decoded_account),
+                data: KaminoLendingAccount::Obligation(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -83,7 +83,7 @@ impl AccountDecoder<'_> for KaminoLendingDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: KaminoLendingAccount::ReferrerTokenState(decoded_account),
+                data: KaminoLendingAccount::ReferrerTokenState(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -105,7 +105,7 @@ impl AccountDecoder<'_> for KaminoLendingDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: KaminoLendingAccount::UserMetadata(decoded_account),
+                data: KaminoLendingAccount::UserMetadata(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -115,7 +115,7 @@ impl AccountDecoder<'_> for KaminoLendingDecoder {
         if let Some(decoded_account) = reserve::Reserve::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: KaminoLendingAccount::Reserve(decoded_account),
+                data: KaminoLendingAccount::Reserve(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

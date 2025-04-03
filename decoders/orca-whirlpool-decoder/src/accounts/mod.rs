@@ -18,9 +18,9 @@ pub enum OrcaWhirlpoolAccount {
     FeeTier(fee_tier::FeeTier),
     PositionBundle(position_bundle::PositionBundle),
     Position(position::Position),
-    TickArray(tick_array::TickArray),
+    TickArray(Box<tick_array::TickArray>),
     TokenBadge(token_badge::TokenBadge),
-    Whirlpool(whirlpool::Whirlpool),
+    Whirlpool(Box<whirlpool::Whirlpool>),
 }
 
 impl AccountDecoder<'_> for OrcaWhirlpoolDecoder {
@@ -94,7 +94,7 @@ impl AccountDecoder<'_> for OrcaWhirlpoolDecoder {
         if let Some(decoded_account) = tick_array::TickArray::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: OrcaWhirlpoolAccount::TickArray(decoded_account),
+                data: OrcaWhirlpoolAccount::TickArray(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -115,7 +115,7 @@ impl AccountDecoder<'_> for OrcaWhirlpoolDecoder {
         if let Some(decoded_account) = whirlpool::Whirlpool::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: OrcaWhirlpoolAccount::Whirlpool(decoded_account),
+                data: OrcaWhirlpoolAccount::Whirlpool(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

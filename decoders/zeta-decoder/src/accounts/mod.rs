@@ -29,8 +29,8 @@ pub mod whitelist_trading_fees_account;
 pub mod zeta_group;
 
 pub enum ZetaAccount {
-    Pricing(pricing::Pricing),
-    Greeks(greeks::Greeks),
+    Pricing(Box<pricing::Pricing>),
+    Greeks(Box<greeks::Greeks>),
     MarketIndexes(market_indexes::MarketIndexes),
     OpenOrdersMap(open_orders_map::OpenOrdersMap),
     CrossOpenOrdersMap(cross_open_orders_map::CrossOpenOrdersMap),
@@ -67,7 +67,7 @@ impl AccountDecoder<'_> for ZetaDecoder {
         if let Some(decoded_account) = pricing::Pricing::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: ZetaAccount::Pricing(decoded_account),
+                data: ZetaAccount::Pricing(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -77,7 +77,7 @@ impl AccountDecoder<'_> for ZetaDecoder {
         if let Some(decoded_account) = greeks::Greeks::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: ZetaAccount::Greeks(decoded_account),
+                data: ZetaAccount::Greeks(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

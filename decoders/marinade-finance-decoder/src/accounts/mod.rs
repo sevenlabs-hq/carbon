@@ -8,7 +8,7 @@ pub mod ticket_account_data;
 
 pub enum MarinadeFinanceAccount {
     TicketAccountData(ticket_account_data::TicketAccountData),
-    State(state::State),
+    State(Box<state::State>),
 }
 
 impl AccountDecoder<'_> for MarinadeFinanceDecoder {
@@ -35,7 +35,7 @@ impl AccountDecoder<'_> for MarinadeFinanceDecoder {
         if let Some(decoded_account) = state::State::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: MarinadeFinanceAccount::State(decoded_account),
+                data: MarinadeFinanceAccount::State(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

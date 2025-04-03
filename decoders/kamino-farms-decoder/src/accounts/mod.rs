@@ -9,10 +9,10 @@ pub mod oracle_prices;
 pub mod user_state;
 
 pub enum KaminoFarmsAccount {
-    FarmState(farm_state::FarmState),
-    GlobalConfig(global_config::GlobalConfig),
-    UserState(user_state::UserState),
-    OraclePrices(oracle_prices::OraclePrices),
+    FarmState(Box<farm_state::FarmState>),
+    GlobalConfig(Box<global_config::GlobalConfig>),
+    UserState(Box<user_state::UserState>),
+    OraclePrices(Box<oracle_prices::OraclePrices>),
 }
 
 impl AccountDecoder<'_> for KaminoFarmsDecoder {
@@ -27,7 +27,7 @@ impl AccountDecoder<'_> for KaminoFarmsDecoder {
         if let Some(decoded_account) = farm_state::FarmState::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: KaminoFarmsAccount::FarmState(decoded_account),
+                data: KaminoFarmsAccount::FarmState(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -39,7 +39,7 @@ impl AccountDecoder<'_> for KaminoFarmsDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: KaminoFarmsAccount::GlobalConfig(decoded_account),
+                data: KaminoFarmsAccount::GlobalConfig(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -49,7 +49,7 @@ impl AccountDecoder<'_> for KaminoFarmsDecoder {
         if let Some(decoded_account) = user_state::UserState::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: KaminoFarmsAccount::UserState(decoded_account),
+                data: KaminoFarmsAccount::UserState(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -61,7 +61,7 @@ impl AccountDecoder<'_> for KaminoFarmsDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: KaminoFarmsAccount::OraclePrices(decoded_account),
+                data: KaminoFarmsAccount::OraclePrices(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
