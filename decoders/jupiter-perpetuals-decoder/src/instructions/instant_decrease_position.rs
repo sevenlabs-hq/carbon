@@ -39,7 +39,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InstantDecreasePosition {
     type ArrangedAccounts = InstantDecreasePositionInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [keeper, api_keeper, owner, receiving_account, transfer_authority, perpetuals, pool, position, custody, custody_doves_price_account, custody_pythnet_price_account, collateral_custody, collateral_custody_doves_price_account, collateral_custody_pythnet_price_account, collateral_custody_token_account, desired_mint, referral, token_program, associated_token_program, system_program, event_authority, program, _remaining @ ..] =
             accounts

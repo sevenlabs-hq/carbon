@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateTakeTriggerOrderFeePerc
     type ArrangedAccounts = UpdateTakeTriggerOrderFeePercentageInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, admin, _remaining @ ..] = accounts else {
             return None;

@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for AdminCrankEventQueue {
     type ArrangedAccounts = AdminCrankEventQueueInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, authority, market, event_queue, dex_program, serum_authority, open_orders, _remaining @ ..] =
             accounts

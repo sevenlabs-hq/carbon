@@ -16,7 +16,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DeactivateDelinquent {
     type ArrangedAccounts = DeactivateDelinquentInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [stake, vote, reference_vote, _remaining @ ..] = accounts else {
             return None;

@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ExtendAccount {
     type ArrangedAccounts = ExtendAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [account, user, system_program, event_authority, program, _remaining @ ..] = accounts
         else {

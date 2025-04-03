@@ -35,7 +35,7 @@ impl carbon_core::deserialize::ArrangeAccounts for OpenDca {
     type ArrangedAccounts = OpenDcaInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [dca, user, input_mint, output_mint, user_ata, in_ata, out_ata, system_program, token_program, associated_token_program, event_authority, program, _remaining @ ..] =
             accounts

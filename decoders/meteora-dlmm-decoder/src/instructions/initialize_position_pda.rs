@@ -25,7 +25,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializePositionPda {
     type ArrangedAccounts = InitializePositionPdaInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, base, position, lb_pair, owner, system_program, rent, event_authority, program, _remaining @ ..] =
             accounts

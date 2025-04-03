@@ -27,7 +27,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ClaimFee {
     type ArrangedAccounts = ClaimFeeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [lb_pair, position, bin_array_lower, bin_array_upper, sender, reserve_x, reserve_y, user_token_x, user_token_y, token_x_mint, token_y_mint, token_program, event_authority, program, _remaining @ ..] =
             accounts

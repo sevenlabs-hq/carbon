@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for EmergencyUnstake {
     type ArrangedAccounts = EmergencyUnstakeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, validator_manager_authority, validator_list, stake_list, stake_account, stake_deposit_authority, clock, stake_program, _remaining @ ..] =
             accounts

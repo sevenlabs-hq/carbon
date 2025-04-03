@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeWhitelistTradingFee
     type ArrangedAccounts = InitializeWhitelistTradingFeesAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [whitelist_trading_fees_account, admin, user, system_program, state, _remaining @ ..] =
             accounts

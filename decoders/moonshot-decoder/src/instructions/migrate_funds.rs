@@ -26,7 +26,7 @@ impl carbon_core::deserialize::ArrangeAccounts for MigrateFunds {
     type ArrangedAccounts = MigrateFundsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [backend_authority, migration_authority, curve_account, curve_token_account, migration_authority_token_account, mint, dex_fee_account, helio_fee_account, config_account, system_program, token_program, associated_token_program, _remaining @ ..] =
             accounts

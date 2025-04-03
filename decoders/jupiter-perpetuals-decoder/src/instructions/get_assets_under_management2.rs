@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for GetAssetsUnderManagement2 {
     type ArrangedAccounts = GetAssetsUnderManagement2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [perpetuals, pool, _remaining @ ..] = accounts else {
             return None;

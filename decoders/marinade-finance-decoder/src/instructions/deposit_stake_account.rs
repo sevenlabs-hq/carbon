@@ -30,7 +30,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DepositStakeAccount {
     type ArrangedAccounts = DepositStakeAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, validator_list, stake_list, stake_account, stake_authority, duplication_flag, rent_payer, msol_mint, mint_to, msol_mint_authority, clock, rent, system_program, token_program, stake_program, _remaining @ ..] =
             accounts

@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RevertFill {
     type ArrangedAccounts = RevertFillInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, authority, filler, filler_stats, _remaining @ ..] = accounts else {
             return None;

@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for PostPythLazerOracleUpdate {
     type ArrangedAccounts = PostPythLazerOracleUpdateInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [keeper, pyth_lazer_storage, ix_sysvar, _remaining @ ..] = accounts else {
             return None;

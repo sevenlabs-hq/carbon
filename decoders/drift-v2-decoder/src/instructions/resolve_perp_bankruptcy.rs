@@ -26,7 +26,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ResolvePerpBankruptcy {
     type ArrangedAccounts = ResolvePerpBankruptcyInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, authority, liquidator, liquidator_stats, user, user_stats, spot_market_vault, insurance_fund_vault, drift_signer, token_program, _remaining @ ..] =
             accounts

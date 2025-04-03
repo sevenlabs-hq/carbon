@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for OperatorSetCustodyConfig {
     type ArrangedAccounts = OperatorSetCustodyConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [operator, custody, _remaining @ ..] = accounts else {
             return None;

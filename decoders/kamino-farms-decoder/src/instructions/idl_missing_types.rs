@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for IdlMissingTypes {
     type ArrangedAccounts = IdlMissingTypesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [global_admin, global_config, _remaining @ ..] = accounts else {
             return None;

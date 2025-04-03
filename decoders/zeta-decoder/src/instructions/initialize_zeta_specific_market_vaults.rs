@@ -30,7 +30,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeZetaSpecificMarketV
     type ArrangedAccounts = InitializeZetaSpecificMarketVaultsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, market_indexes, pricing, admin, market, base_mint, quote_mint, zeta_base_vault, zeta_quote_vault, serum_authority, system_program, token_program, rent, _remaining @ ..] =
             accounts

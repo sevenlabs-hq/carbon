@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for BatchThawLstAccounts {
     type ArrangedAccounts = BatchThawLstAccountsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [signer, solayer_admin, lst_mint, rst_mint, pool, associated_token_program, token_program, system_program, _remaining @ ..] =
             accounts

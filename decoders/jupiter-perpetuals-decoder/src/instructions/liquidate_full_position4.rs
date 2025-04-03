@@ -30,7 +30,7 @@ impl carbon_core::deserialize::ArrangeAccounts for LiquidateFullPosition4 {
     type ArrangedAccounts = LiquidateFullPosition4InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [signer, perpetuals, pool, position, custody, custody_doves_price_account, custody_pythnet_price_account, collateral_custody, collateral_custody_doves_price_account, collateral_custody_pythnet_price_account, collateral_custody_token_account, event_authority, program, _remaining @ ..] =
             accounts

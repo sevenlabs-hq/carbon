@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CancelExpiredOrder {
     type ArrangedAccounts = CancelExpiredOrderInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [order, reserve, maker, maker_input_account, system_program, token_program, input_mint, _remaining @ ..] =
             accounts

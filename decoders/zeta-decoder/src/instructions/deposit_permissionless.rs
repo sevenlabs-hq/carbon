@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DepositPermissionless {
     type ArrangedAccounts = DepositPermissionlessInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [cross_margin_account, vault, deposit_token_acc, socialized_loss_account, authority, payer, token_program, state, pricing, _remaining @ ..] =
             accounts

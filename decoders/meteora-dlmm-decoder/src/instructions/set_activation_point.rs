@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetActivationPoint {
     type ArrangedAccounts = SetActivationPointInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [lb_pair, admin, _remaining @ ..] = accounts else {
             return None;

@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateSpotMarketStepSizeAndTi
     type ArrangedAccounts = UpdateSpotMarketStepSizeAndTickSizeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, state, spot_market, _remaining @ ..] = accounts else {
             return None;

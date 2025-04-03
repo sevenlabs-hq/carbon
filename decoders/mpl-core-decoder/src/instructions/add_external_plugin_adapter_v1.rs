@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for AddExternalPluginAdapterV1 {
     type ArrangedAccounts = AddExternalPluginAdapterV1InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [asset, collection, payer, authority, system_program, log_wrapper, _remaining @ ..] =
             accounts

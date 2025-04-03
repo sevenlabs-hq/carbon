@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CancelAllMarketOrders {
     type ArrangedAccounts = CancelAllMarketOrdersInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [authority, cancel_accounts, _remaining @ ..] = accounts else {
             return None;

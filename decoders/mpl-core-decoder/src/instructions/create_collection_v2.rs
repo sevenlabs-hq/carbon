@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateCollectionV2 {
     type ArrangedAccounts = CreateCollectionV2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [collection, update_authority, payer, system_program, _remaining @ ..] = accounts
         else {

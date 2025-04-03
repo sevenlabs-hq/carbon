@@ -14,7 +14,7 @@ impl carbon_core::deserialize::ArrangeAccounts for GetAccountDataSize {
     type ArrangedAccounts = GetAccountDataSizeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [mint, _remaining @ ..] = accounts else {
             return None;

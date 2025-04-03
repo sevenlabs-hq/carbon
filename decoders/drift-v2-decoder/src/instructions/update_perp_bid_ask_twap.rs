@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdatePerpBidAskTwap {
     type ArrangedAccounts = UpdatePerpBidAskTwapInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, perp_market, oracle, keeper_stats, authority, _remaining @ ..] = accounts
         else {

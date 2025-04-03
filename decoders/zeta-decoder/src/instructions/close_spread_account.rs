@@ -16,7 +16,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CloseSpreadAccount {
     type ArrangedAccounts = CloseSpreadAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [spread_account, authority, zeta_group, _remaining @ ..] = accounts else {
             return None;

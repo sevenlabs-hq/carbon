@@ -26,7 +26,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateV1 {
     type ArrangedAccounts = CreateV1InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [asset, collection, authority, payer, owner, update_authority, system_program, log_wrapper, _remaining @ ..] =
             accounts

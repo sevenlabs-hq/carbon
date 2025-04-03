@@ -34,7 +34,7 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawStakeAccount {
     type ArrangedAccounts = WithdrawStakeAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, msol_mint, burn_msol_from, burn_msol_authority, treasury_msol_account, validator_list, stake_list, stake_withdraw_authority, stake_deposit_authority, stake_account, split_stake_account, split_stake_rent_payer, clock, system_program, token_program, stake_program, _remaining @ ..] =
             accounts

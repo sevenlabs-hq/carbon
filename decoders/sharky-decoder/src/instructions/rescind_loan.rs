@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RescindLoan {
     type ArrangedAccounts = RescindLoanInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [loan, lender_value_token_account, lender, value_mint, escrow, escrow_token_account, system_program, token_program, _remaining @ ..] =
             accounts

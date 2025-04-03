@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RevokeUseAuthority {
     type ArrangedAccounts = RevokeUseAuthorityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [use_authority_record, owner, user, owner_token_account, mint, metadata, token_program, system_program, rent, _remaining @ ..] =
             accounts

@@ -31,7 +31,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Deposit {
     type ArrangedAccounts = DepositInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [token_program, amm, amm_authority, amm_open_orders, amm_target_orders, lp_mint_address, pool_coin_token_account, pool_pc_token_account, serum_market, user_coin_token_account, user_pc_token_account, user_lp_token_account, user_owner, serum_event_queue, _remaining @ ..] =
             accounts

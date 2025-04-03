@@ -27,7 +27,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CollectFundFee {
     type ArrangedAccounts = CollectFundFeeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, pool_state, amm_config, token_vault0, token_vault1, vault0_mint, vault1_mint, recipient_token_account0, recipient_token_account1, token_program, token_program2022, _remaining @ ..] =
             accounts

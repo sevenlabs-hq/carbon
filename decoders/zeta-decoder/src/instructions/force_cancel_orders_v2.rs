@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ForceCancelOrdersV2 {
     type ArrangedAccounts = ForceCancelOrdersV2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [pricing, oracle, oracle_backup_feed, oracle_backup_program, cancel_accounts, _remaining @ ..] =
             accounts

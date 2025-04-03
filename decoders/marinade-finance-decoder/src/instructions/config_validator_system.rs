@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ConfigValidatorSystem {
     type ArrangedAccounts = ConfigValidatorSystemInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, manager_authority, _remaining @ ..] = accounts else {
             return None;

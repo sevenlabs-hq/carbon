@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawWithheldTokensFromAcc
     type ArrangedAccounts = WithdrawWithheldTokensFromAccountsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [mint, fee_receiver, withdraw_withheld_authority, _remaining @ ..] = accounts else {
             return None;

@@ -16,7 +16,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DeprecatedSetReservationList 
     type ArrangedAccounts = DeprecatedSetReservationListInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [master_edition, reservation_list, resource, _remaining @ ..] = accounts else {
             return None;

@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UnverifyCollection {
     type ArrangedAccounts = UnverifyCollectionInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [metadata, collection_authority, collection_mint, collection, collection_master_edition_account, collection_authority_record, _remaining @ ..] =
             accounts

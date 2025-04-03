@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DeletePositionBundle {
     type ArrangedAccounts = DeletePositionBundleInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [position_bundle, position_bundle_mint, position_bundle_token_account, position_bundle_owner, receiver, token_program, _remaining @ ..] =
             accounts

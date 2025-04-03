@@ -33,7 +33,7 @@ impl carbon_core::deserialize::ArrangeAccounts for IncreaseLiquidityV2 {
     type ArrangedAccounts = IncreaseLiquidityV2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [nft_owner, nft_account, pool_state, protocol_position, personal_position, tick_array_lower, tick_array_upper, token_account0, token_account1, token_vault0, token_vault1, token_program, token_program2022, vault0_mint, vault1_mint, _remaining @ ..] =
             accounts

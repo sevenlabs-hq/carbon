@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SweepFuel {
     type ArrangedAccounts = SweepFuelInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [fuel_overflow, user_stats, authority, signer, _remaining @ ..] = accounts else {
             return None;

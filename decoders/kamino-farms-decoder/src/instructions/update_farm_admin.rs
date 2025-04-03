@@ -15,7 +15,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateFarmAdmin {
     type ArrangedAccounts = UpdateFarmAdminInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [pending_farm_admin, farm_state, _remaining @ ..] = accounts else {
             return None;

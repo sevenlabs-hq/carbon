@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeMarketIndexes {
     type ArrangedAccounts = InitializeMarketIndexesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, market_indexes, admin, system_program, pricing, _remaining @ ..] = accounts
         else {

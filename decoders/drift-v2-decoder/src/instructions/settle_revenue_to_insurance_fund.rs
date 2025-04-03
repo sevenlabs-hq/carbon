@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SettleRevenueToInsuranceFund 
     type ArrangedAccounts = SettleRevenueToInsuranceFundInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, spot_market, spot_market_vault, drift_signer, insurance_fund_vault, token_program, _remaining @ ..] =
             accounts

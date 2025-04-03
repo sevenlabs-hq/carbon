@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SettlePnl {
     type ArrangedAccounts = SettlePnlInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, user, authority, spot_market_vault, _remaining @ ..] = accounts else {
             return None;

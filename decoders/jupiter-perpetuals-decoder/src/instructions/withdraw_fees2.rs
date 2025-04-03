@@ -27,7 +27,7 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawFees2 {
     type ArrangedAccounts = WithdrawFees2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [keeper, transfer_authority, perpetuals, pool, custody, custody_token_account, custody_doves_price_account, custody_pythnet_price_account, receiving_token_account, token_program, _remaining @ ..] =
             accounts

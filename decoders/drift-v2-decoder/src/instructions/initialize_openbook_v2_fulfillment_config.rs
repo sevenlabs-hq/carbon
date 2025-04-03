@@ -25,7 +25,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeOpenbookV2Fulfillme
     type ArrangedAccounts = InitializeOpenbookV2FulfillmentConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [base_spot_market, quote_spot_market, state, openbook_v2_program, openbook_v2_market, drift_signer, openbook_v2_fulfillment_config, admin, rent, system_program, _remaining @ ..] =
             accounts

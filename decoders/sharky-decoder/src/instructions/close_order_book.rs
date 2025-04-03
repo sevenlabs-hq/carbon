@@ -15,7 +15,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CloseOrderBook {
     type ArrangedAccounts = CloseOrderBookInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [order_book, payer, _remaining @ ..] = accounts else {
             return None;

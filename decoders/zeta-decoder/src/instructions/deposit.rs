@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Deposit {
     type ArrangedAccounts = DepositInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [zeta_group, margin_account, vault, user_token_account, socialized_loss_account, authority, token_program, state, greeks, _remaining @ ..] =
             accounts

@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitVault {
     type ArrangedAccounts = InitVaultInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin_authority, vault_state, base_vault_authority, token_vault, base_token_mint, shares_mint, system_program, rent, token_program, shares_token_program, _remaining @ ..] =
             accounts

@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeFuelOverflow {
     type ArrangedAccounts = InitializeFuelOverflowInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [fuel_overflow, user_stats, authority, payer, rent, system_program, _remaining @ ..] =
             accounts

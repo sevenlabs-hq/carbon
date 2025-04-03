@@ -36,7 +36,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SharedAccountsExactOutRoute {
     type ArrangedAccounts = SharedAccountsExactOutRouteInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [token_program, program_authority, user_transfer_authority, source_token_account, program_source_token_account, program_destination_token_account, destination_token_account, source_mint, destination_mint, platform_fee_account, token_2022_program, event_authority, program, _remaining @ ..] =
             accounts

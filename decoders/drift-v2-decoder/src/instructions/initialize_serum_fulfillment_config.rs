@@ -26,7 +26,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeSerumFulfillmentCon
     type ArrangedAccounts = InitializeSerumFulfillmentConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [base_spot_market, quote_spot_market, state, serum_program, serum_market, serum_open_orders, drift_signer, serum_fulfillment_config, admin, rent, system_program, _remaining @ ..] =
             accounts

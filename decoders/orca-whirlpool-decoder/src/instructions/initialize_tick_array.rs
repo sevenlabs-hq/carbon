@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeTickArray {
     type ArrangedAccounts = InitializeTickArrayInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [whirlpool, funder, tick_array, system_program, _remaining @ ..] = accounts else {
             return None;

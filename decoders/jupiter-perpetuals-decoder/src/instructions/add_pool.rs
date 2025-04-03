@@ -25,7 +25,7 @@ impl carbon_core::deserialize::ArrangeAccounts for AddPool {
     type ArrangedAccounts = AddPoolInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, transfer_authority, perpetuals, pool, lp_token_mint, system_program, token_program, rent, _remaining @ ..] =
             accounts

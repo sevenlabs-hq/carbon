@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Approve {
     type ArrangedAccounts = ApproveInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [source, delegate, owner, _remaining @ ..] = accounts else {
             return None;

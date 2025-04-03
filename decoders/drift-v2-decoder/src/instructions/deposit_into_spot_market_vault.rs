@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DepositIntoSpotMarketVault {
     type ArrangedAccounts = DepositIntoSpotMarketVaultInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, spot_market, admin, source_vault, spot_market_vault, token_program, _remaining @ ..] =
             accounts

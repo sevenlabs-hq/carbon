@@ -28,7 +28,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DepositAllTokenTypes {
     type ArrangedAccounts = DepositAllTokenTypesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [amm, authority, user_transfer_authority_info, source_a_info, source_b_info, token_a, token_b, pool_mint, destination, token_program, _remaining @ ..] =
             accounts

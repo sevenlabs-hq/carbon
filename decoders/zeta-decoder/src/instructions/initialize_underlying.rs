@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeUnderlying {
     type ArrangedAccounts = InitializeUnderlyingInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, zeta_program, state, system_program, underlying, underlying_mint, _remaining @ ..] =
             accounts

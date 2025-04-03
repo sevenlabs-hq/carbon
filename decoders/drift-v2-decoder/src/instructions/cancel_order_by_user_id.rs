@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CancelOrderByUserId {
     type ArrangedAccounts = CancelOrderByUserIdInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, user, authority, _remaining @ ..] = accounts else {
             return None;

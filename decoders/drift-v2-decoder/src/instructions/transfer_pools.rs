@@ -30,7 +30,7 @@ impl carbon_core::deserialize::ArrangeAccounts for TransferPools {
     type ArrangedAccounts = TransferPoolsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [from_user, to_user, user_stats, authority, state, deposit_from_spot_market_vault, deposit_to_spot_market_vault, borrow_from_spot_market_vault, borrow_to_spot_market_vault, drift_signer, _remaining @ ..] =
             accounts

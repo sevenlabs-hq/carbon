@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DepositToFarmVault {
     type ArrangedAccounts = DepositToFarmVaultInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [depositor, farm_state, farm_vault, depositor_ata, token_program, _remaining @ ..] =
             accounts

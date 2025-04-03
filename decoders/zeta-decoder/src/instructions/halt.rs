@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Halt {
     type ArrangedAccounts = HaltInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, pricing, admin, _remaining @ ..] = accounts else {
             return None;

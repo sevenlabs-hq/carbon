@@ -26,7 +26,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Deposit {
     type ArrangedAccounts = DepositInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, msol_mint, liq_pool_sol_leg_pda, liq_pool_msol_leg, liq_pool_msol_leg_authority, reserve_pda, transfer_from, mint_to, msol_mint_authority, system_program, token_program, _remaining @ ..] =
             accounts

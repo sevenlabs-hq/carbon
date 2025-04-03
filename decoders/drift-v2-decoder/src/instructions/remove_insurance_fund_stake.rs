@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RemoveInsuranceFundStake {
     type ArrangedAccounts = RemoveInsuranceFundStakeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, spot_market, insurance_fund_stake, user_stats, authority, insurance_fund_vault, drift_signer, user_token_account, token_program, _remaining @ ..] =
             accounts

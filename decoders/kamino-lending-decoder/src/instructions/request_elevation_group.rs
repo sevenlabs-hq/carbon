@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RequestElevationGroup {
     type ArrangedAccounts = RequestElevationGroupInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, obligation, lending_market, _remaining @ ..] = accounts else {
             return None;

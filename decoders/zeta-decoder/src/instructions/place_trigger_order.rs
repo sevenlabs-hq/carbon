@@ -36,7 +36,7 @@ impl carbon_core::deserialize::ArrangeAccounts for PlaceTriggerOrder {
     type ArrangedAccounts = PlaceTriggerOrderInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, open_orders, authority, margin_account, pricing, trigger_order, system_program, dex_program, market, _remaining @ ..] =
             accounts

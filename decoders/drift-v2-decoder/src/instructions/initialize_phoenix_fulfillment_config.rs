@@ -25,7 +25,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializePhoenixFulfillmentC
     type ArrangedAccounts = InitializePhoenixFulfillmentConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [base_spot_market, quote_spot_market, state, phoenix_program, phoenix_market, drift_signer, phoenix_fulfillment_config, admin, rent, system_program, _remaining @ ..] =
             accounts

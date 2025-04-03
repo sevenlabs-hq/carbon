@@ -28,7 +28,7 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawSingleTokenTypeExactA
     type ArrangedAccounts = WithdrawSingleTokenTypeExactAmountOutInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [swap, authority, user_transfer_authority, pool_mint, pool_token_source, swap_token_a, swap_token_b, destination, fee_account, destination_mint, token_a_program, token_b_program, _remaining @ ..] =
             accounts

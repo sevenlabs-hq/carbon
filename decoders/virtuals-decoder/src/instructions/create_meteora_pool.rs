@@ -49,7 +49,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateMeteoraPool {
     type ArrangedAccounts = CreateMeteoraPoolInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [vpool, meteora_deployer, meteora_deployer_virtuals_ata, meteora_deployer_token_ata, vpool_virtuals_ata, vpool_token_ata, lock_escrow, escrow_vault, pool, config, lp_mint, virtuals_mint, token_mint, virtuals_vault, token_vault, virtuals_token_vault, token_token_vault, virtuals_vault_lp_mint, token_vault_lp_mint, virtuals_vault_lp, token_vault_lp, pool_virtuals_ata, pool_token_ata, meteora_deployer_pool_lp, protocol_virtuals_fee, protocol_token_fee, payer, token_metadata, rent, mint_metadata, metadata_program, vault_program, token_program, associated_token_program, system_program, dynamic_amm_program, _remaining @ ..] =
             accounts

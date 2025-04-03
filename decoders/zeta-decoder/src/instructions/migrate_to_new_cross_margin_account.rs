@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for MigrateToNewCrossMarginAccoun
     type ArrangedAccounts = MigrateToNewCrossMarginAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [new_cross_margin_account, old_cross_margin_account, pricing, authority, _remaining @ ..] =
             accounts

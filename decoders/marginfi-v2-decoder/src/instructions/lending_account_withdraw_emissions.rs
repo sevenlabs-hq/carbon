@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for LendingAccountWithdrawEmissio
     type ArrangedAccounts = LendingAccountWithdrawEmissionsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [marginfi_group, marginfi_account, signer, bank, emissions_mint, emissions_auth, emissions_vault, destination_account, token_program, _remaining @ ..] =
             accounts

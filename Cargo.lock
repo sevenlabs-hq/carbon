@@ -897,8 +897,9 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -910,8 +911,9 @@ dependencies = [
  "carbon-proc-macros",
  "carbon-test-utils",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -941,8 +943,9 @@ dependencies = [
  "carbon-core",
  "carbon-test-utils",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -951,8 +954,9 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -961,8 +965,9 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -973,8 +978,9 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -983,8 +989,9 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -995,8 +1002,9 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1006,8 +1014,9 @@ dependencies = [
  "carbon-core",
  "serde",
  "serde-big-array",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1017,8 +1026,9 @@ dependencies = [
  "carbon-core",
  "serde",
  "serde-big-array",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1030,8 +1040,9 @@ dependencies = [
  "carbon-proc-macros",
  "carbon-test-utils",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1064,8 +1075,9 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1076,8 +1088,9 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1086,8 +1099,9 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
  "spl-memo",
  "spl-token",
 ]
@@ -1099,8 +1113,9 @@ dependencies = [
  "carbon-core",
  "serde",
  "serde-big-array",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1111,8 +1126,9 @@ dependencies = [
  "carbon-test-utils",
  "serde",
  "serde-big-array",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1122,8 +1138,9 @@ dependencies = [
  "carbon-core",
  "carbon-test-utils",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1132,8 +1149,9 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1142,8 +1160,9 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1154,8 +1173,9 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1164,8 +1184,9 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1175,8 +1196,9 @@ dependencies = [
  "carbon-core",
  "serde",
  "serde-big-array",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1185,8 +1207,9 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1197,8 +1220,9 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1238,8 +1262,9 @@ dependencies = [
  "carbon-core",
  "carbon-test-utils",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1261,8 +1286,9 @@ dependencies = [
  "carbon-core",
  "serde",
  "serde-big-array",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1273,8 +1299,9 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1285,8 +1312,9 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1297,8 +1325,9 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1379,8 +1408,9 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
  "spl-token",
 ]
 
@@ -1392,8 +1422,9 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1404,8 +1435,9 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1416,8 +1448,9 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1428,8 +1461,9 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1438,8 +1472,9 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1449,8 +1484,10 @@ dependencies = [
  "carbon-core",
  "carbon-test-utils",
  "serde",
+ "solana-account",
+ "solana-instruction",
+ "solana-program",
  "solana-pubkey",
- "solana-sdk",
  "spl-token",
 ]
 
@@ -1476,8 +1513,9 @@ dependencies = [
  "carbon-proc-macros",
  "serde",
  "serde-big-array",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1486,8 +1524,10 @@ version = "0.7.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "solana-account",
+ "solana-instruction",
+ "solana-program-pack",
  "solana-pubkey",
- "solana-sdk",
  "spl-token",
 ]
 
@@ -1500,8 +1540,9 @@ dependencies = [
  "carbon-proc-macros",
  "serde",
  "serde-big-array",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -1514,9 +1555,11 @@ dependencies = [
  "futures",
  "futures-util",
  "log",
+ "solana-account",
  "solana-client",
+ "solana-program",
  "solana-pubkey",
- "solana-sdk",
+ "solana-signature",
  "solana-transaction-status",
  "tokio",
  "tokio-util",
@@ -1533,8 +1576,9 @@ dependencies = [
  "carbon-proc-macros",
  "serde",
  "serde-big-array",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -3337,8 +3381,9 @@ dependencies = [
  "carbon-proc-macros",
  "serde",
  "serde-big-array",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -5160,8 +5205,8 @@ dependencies = [
  "serde",
  "solana-account-decoder",
  "solana-client",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
  "tokio",
  "tokio-util",
 ]

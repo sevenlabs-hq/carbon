@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeFarm {
     type ArrangedAccounts = InitializeFarmInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [farm_admin, farm_state, global_config, farm_vault, farm_vaults_authority, token_mint, token_program, system_program, rent, _remaining @ ..] =
             accounts

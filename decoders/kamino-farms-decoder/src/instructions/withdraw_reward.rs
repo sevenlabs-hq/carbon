@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawReward {
     type ArrangedAccounts = WithdrawRewardInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [farm_admin, farm_state, reward_mint, reward_vault, farm_vaults_authority, admin_reward_token_ata, scope_prices, token_program, _remaining @ ..] =
             accounts

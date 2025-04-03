@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateFee {
     type ArrangedAccounts = UpdateFeeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [keeper, fee_authority, _remaining @ ..] = accounts else {
             return None;

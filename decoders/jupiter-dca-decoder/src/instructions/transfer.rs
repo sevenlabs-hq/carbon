@@ -25,7 +25,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Transfer {
     type ArrangedAccounts = TransferInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [keeper, dca, user, output_mint, dca_out_ata, user_out_ata, intermediate_account, system_program, token_program, associated_token_program, event_authority, program, _remaining @ ..] =
             accounts

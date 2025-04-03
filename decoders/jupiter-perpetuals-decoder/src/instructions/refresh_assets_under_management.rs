@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RefreshAssetsUnderManagement 
     type ArrangedAccounts = RefreshAssetsUnderManagementInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [keeper, perpetuals, pool, _remaining @ ..] = accounts else {
             return None;

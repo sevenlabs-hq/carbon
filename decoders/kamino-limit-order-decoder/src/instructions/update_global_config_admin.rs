@@ -15,7 +15,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateGlobalConfigAdmin {
     type ArrangedAccounts = UpdateGlobalConfigAdminInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin_authority_cached, global_config, _remaining @ ..] = accounts else {
             return None;

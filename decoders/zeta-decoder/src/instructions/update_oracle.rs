@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateOracle {
     type ArrangedAccounts = UpdateOracleInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, zeta_group, admin, oracle, _remaining @ ..] = accounts else {
             return None;

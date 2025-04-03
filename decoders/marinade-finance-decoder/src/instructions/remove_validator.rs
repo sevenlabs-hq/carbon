@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for RemoveValidator {
     type ArrangedAccounts = RemoveValidatorInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, manager_authority, validator_list, duplication_flag, operational_sol_account, _remaining @ ..] =
             accounts

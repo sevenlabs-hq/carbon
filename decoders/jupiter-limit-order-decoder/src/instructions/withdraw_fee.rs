@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawFee {
     type ArrangedAccounts = WithdrawFeeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, fee_authority, program_fee_account, admin_token_acocunt, token_program, mint, _remaining @ ..] =
             accounts

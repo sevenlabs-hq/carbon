@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for BurnVaultTokens {
     type ArrangedAccounts = BurnVaultTokensInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, mint, vault, serum_authority, token_program, _remaining @ ..] = accounts else {
             return None;

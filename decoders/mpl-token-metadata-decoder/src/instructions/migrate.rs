@@ -28,7 +28,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Migrate {
     type ArrangedAccounts = MigrateInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [metadata, edition, token, token_owner, mint, payer, authority, collection_metadata, delegate_record, token_record, system_program, sysvar_instructions, spl_token_program, authorization_rules_program, authorization_rules, _remaining @ ..] =
             accounts

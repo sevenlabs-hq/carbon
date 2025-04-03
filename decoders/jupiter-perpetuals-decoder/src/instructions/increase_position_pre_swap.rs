@@ -28,7 +28,7 @@ impl carbon_core::deserialize::ArrangeAccounts for IncreasePositionPreSwap {
     type ArrangedAccounts = IncreasePositionPreSwapInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [keeper, keeper_ata, position_request, position_request_ata, position, collateral_custody, collateral_custody_token_account, instruction, token_program, event_authority, program, _remaining @ ..] =
             accounts

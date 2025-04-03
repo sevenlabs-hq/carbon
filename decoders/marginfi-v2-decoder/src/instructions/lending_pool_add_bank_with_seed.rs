@@ -33,7 +33,7 @@ impl carbon_core::deserialize::ArrangeAccounts for LendingPoolAddBankWithSeed {
     type ArrangedAccounts = LendingPoolAddBankWithSeedInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [marginfi_group, admin, fee_payer, bank_mint, bank, liquidity_vault_authority, liquidity_vault, insurance_vault_authority, insurance_vault, fee_vault_authority, fee_vault, rent, token_program, system_program, _remaining @ ..] =
             accounts

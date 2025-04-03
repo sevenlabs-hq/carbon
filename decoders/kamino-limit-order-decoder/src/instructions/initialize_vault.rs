@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeVault {
     type ArrangedAccounts = InitializeVaultInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, global_config, pda_authority, mint, vault, token_program, system_program, _remaining @ ..] =
             accounts

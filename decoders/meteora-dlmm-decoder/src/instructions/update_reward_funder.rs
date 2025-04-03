@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateRewardFunder {
     type ArrangedAccounts = UpdateRewardFunderInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [lb_pair, admin, event_authority, program, _remaining @ ..] = accounts else {
             return None;

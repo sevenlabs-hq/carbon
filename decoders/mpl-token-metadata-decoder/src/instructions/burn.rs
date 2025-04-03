@@ -32,7 +32,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Burn {
     type ArrangedAccounts = BurnInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [authority, collection_metadata, metadata, edition, mint, token, master_edition, master_edition_mint, master_edition_token, edition_marker, token_record, system_program, sysvar_instructions, spl_token_program, _remaining @ ..] =
             accounts

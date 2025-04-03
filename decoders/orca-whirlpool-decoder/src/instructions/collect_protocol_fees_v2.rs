@@ -30,7 +30,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CollectProtocolFeesV2 {
     type ArrangedAccounts = CollectProtocolFeesV2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [whirlpools_config, whirlpool, collect_protocol_fees_authority, token_mint_a, token_mint_b, token_vault_a, token_vault_b, token_destination_a, token_destination_b, token_program_a, token_program_b, memo_program, _remaining @ ..] =
             accounts

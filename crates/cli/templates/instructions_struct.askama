@@ -22,7 +22,7 @@ pub struct {{ instruction.struct_name }}InstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for {{ instruction.struct_name }} {
     type ArrangedAccounts = {{ instruction.struct_name }}InstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_sdk::instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
         let [
             {%- for i in (0..instruction.accounts.len()) %}
             {{ instruction.accounts[i].name }},

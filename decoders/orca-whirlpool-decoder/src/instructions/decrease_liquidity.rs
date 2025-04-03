@@ -28,7 +28,7 @@ impl carbon_core::deserialize::ArrangeAccounts for DecreaseLiquidity {
     type ArrangedAccounts = DecreaseLiquidityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [whirlpool, token_program, position_authority, position, position_token_account, token_owner_account_a, token_owner_account_b, token_vault_a, token_vault_b, tick_array_lower, tick_array_upper, _remaining @ ..] =
             accounts

@@ -32,7 +32,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Swap {
     type ArrangedAccounts = SwapInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [swap, authority, user_transfer_authority, source, swap_source, swap_destination, destination, pool_mint, pool_fee, source_mint, destination_mint, source_token_program, destination_token_program, pool_token_program, swap_program, _remaining @ ..] =
             accounts

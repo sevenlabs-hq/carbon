@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateAmmConfig {
     type ArrangedAccounts = CreateAmmConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, amm_config, system_program, _remaining @ ..] = accounts else {
             return None;

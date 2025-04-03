@@ -22,7 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for PlaceSignedMsgTakerOrder {
     type ArrangedAccounts = PlaceSignedMsgTakerOrderInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, user, user_stats, signed_msg_user_orders, authority, ix_sysvar, _remaining @ ..] =
             accounts

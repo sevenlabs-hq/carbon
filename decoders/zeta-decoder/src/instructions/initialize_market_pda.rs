@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeMarketPda {
     type ArrangedAccounts = InitializeMarketPdaInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, market_indexes, pricing, admin, market, system_program, rent, _remaining @ ..] =
             accounts

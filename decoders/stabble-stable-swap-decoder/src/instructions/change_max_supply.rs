@@ -17,7 +17,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ChangeMaxSupply {
     type ArrangedAccounts = ChangeMaxSupplyInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, pool, _remaining @ ..] = accounts else {
             return None;

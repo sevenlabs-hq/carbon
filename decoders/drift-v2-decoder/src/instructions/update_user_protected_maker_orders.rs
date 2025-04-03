@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateUserProtectedMakerOrder
     type ArrangedAccounts = UpdateUserProtectedMakerOrdersInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, user, authority, protected_maker_mode_config, _remaining @ ..] = accounts
         else {

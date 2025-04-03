@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SetNewAccountAuthority {
     type ArrangedAccounts = SetNewAccountAuthorityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [marginfi_account, marginfi_group, signer, new_authority, fee_payer, _remaining @ ..] =
             accounts

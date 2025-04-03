@@ -8,7 +8,9 @@ use {
         metrics::MetricsCollection,
     },
     futures::{sink::SinkExt, StreamExt},
-    solana_sdk::{account::Account, pubkey::Pubkey, signature::Signature},
+    solana_account::Account,
+    solana_pubkey::Pubkey,
+    solana_signature::Signature,
     std::{
         collections::{HashMap, HashSet},
         convert::TryFrom,
@@ -144,7 +146,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                     if account.lamports == 0
                                                         && account.data.is_empty()
                                                         && account_owner_pubkey
-                                                            == solana_sdk::system_program::ID
+                                                            == solana_program::system_program::ID
                                                     {
                                                         let accounts =
                                                             account_deletions_tracked.read().await;

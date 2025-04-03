@@ -26,14 +26,14 @@ pub struct SwapV2InstructionAccounts {
     pub memo_program: solana_pubkey::Pubkey,
     pub input_vault_mint: solana_pubkey::Pubkey,
     pub output_vault_mint: solana_pubkey::Pubkey,
-    pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    pub remaining_accounts: Vec<solana_instruction::AccountMeta>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SwapV2 {
     type ArrangedAccounts = SwapV2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, amm_config, pool_state, input_token_account, output_token_account, input_vault, output_vault, observation_state, token_program, token_program2022, memo_program, input_vault_mint, output_vault_mint, remaining_accounts @ ..] =
             accounts

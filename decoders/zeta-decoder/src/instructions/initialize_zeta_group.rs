@@ -35,7 +35,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeZetaGroup {
     type ArrangedAccounts = InitializeZetaGroupInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, admin, system_program, underlying_mint, zeta_program, oracle, oracle_backup_feed, oracle_backup_program, zeta_group, greeks, perp_sync_queue, underlying, vault, insurance_vault, socialized_loss_account, token_program, usdc_mint, rent, _remaining @ ..] =
             accounts

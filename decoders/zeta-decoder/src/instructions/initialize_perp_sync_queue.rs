@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializePerpSyncQueue {
     type ArrangedAccounts = InitializePerpSyncQueueInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, zeta_program, state, perp_sync_queue, pricing, system_program, _remaining @ ..] =
             accounts

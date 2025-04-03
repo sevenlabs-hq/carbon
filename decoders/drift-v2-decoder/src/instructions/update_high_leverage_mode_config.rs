@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateHighLeverageModeConfig 
     type ArrangedAccounts = UpdateHighLeverageModeConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, high_leverage_mode_config, state, _remaining @ ..] = accounts else {
             return None;

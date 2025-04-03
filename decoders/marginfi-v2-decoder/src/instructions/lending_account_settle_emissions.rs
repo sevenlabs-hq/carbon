@@ -15,7 +15,7 @@ impl carbon_core::deserialize::ArrangeAccounts for LendingAccountSettleEmissions
     type ArrangedAccounts = LendingAccountSettleEmissionsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [marginfi_account, bank, _remaining @ ..] = accounts else {
             return None;

@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for LendingPoolHandleBankruptcy {
     type ArrangedAccounts = LendingPoolHandleBankruptcyInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [marginfi_group, admin, bank, marginfi_account, liquidity_vault, insurance_vault, insurance_vault_authority, token_program, _remaining @ ..] =
             accounts

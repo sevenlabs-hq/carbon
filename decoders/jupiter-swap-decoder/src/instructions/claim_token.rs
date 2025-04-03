@@ -24,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ClaimToken {
     type ArrangedAccounts = ClaimTokenInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, wallet, program_authority, program_token_account, destination_token_account, mint, associated_token_token_program, associated_token_program, system_program, _remaining @ ..] =
             accounts

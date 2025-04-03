@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ChangeSeatStatus {
     type ArrangedAccounts = ChangeSeatStatusInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [phoenix_program, log_authority, market, market_authority, seat, _remaining @ ..] =
             accounts

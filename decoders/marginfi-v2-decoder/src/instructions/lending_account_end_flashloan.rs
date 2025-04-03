@@ -15,7 +15,7 @@ impl carbon_core::deserialize::ArrangeAccounts for LendingAccountEndFlashloan {
     type ArrangedAccounts = LendingAccountEndFlashloanInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [marginfi_account, signer, _remaining @ ..] = accounts else {
             return None;

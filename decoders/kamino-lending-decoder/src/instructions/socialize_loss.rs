@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SocializeLoss {
     type ArrangedAccounts = SocializeLossInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [risk_council, obligation, lending_market, reserve, instruction_sysvar_account, _remaining @ ..] =
             accounts

@@ -26,7 +26,7 @@ impl carbon_core::deserialize::ArrangeAccounts for EditTriggerOrder {
     type ArrangedAccounts = EditTriggerOrderInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, trigger_order, _remaining @ ..] = accounts else {
             return None;

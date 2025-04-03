@@ -31,7 +31,7 @@ impl carbon_core::deserialize::ArrangeAccounts for EndSwap {
     type ArrangedAccounts = EndSwapInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, user, user_stats, authority, out_spot_market_vault, in_spot_market_vault, out_token_account, in_token_account, token_program, drift_signer, instructions, _remaining @ ..] =
             accounts

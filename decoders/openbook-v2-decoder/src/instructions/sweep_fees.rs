@@ -19,7 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SweepFees {
     type ArrangedAccounts = SweepFeesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [collect_fee_admin, market, market_authority, market_quote_vault, token_receiver_account, token_program, _remaining @ ..] =
             accounts

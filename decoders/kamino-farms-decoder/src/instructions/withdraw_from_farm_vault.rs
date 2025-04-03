@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawFromFarmVault {
     type ArrangedAccounts = WithdrawFromFarmVaultInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [withdraw_authority, farm_state, withdrawer_token_account, farm_vault, farm_vaults_authority, token_program, _remaining @ ..] =
             accounts

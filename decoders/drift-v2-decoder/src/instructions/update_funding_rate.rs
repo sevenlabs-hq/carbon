@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateFundingRate {
     type ArrangedAccounts = UpdateFundingRateInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, perp_market, oracle, _remaining @ ..] = accounts else {
             return None;

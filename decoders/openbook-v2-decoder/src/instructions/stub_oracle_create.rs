@@ -18,7 +18,7 @@ impl carbon_core::deserialize::ArrangeAccounts for StubOracleCreate {
     type ArrangedAccounts = StubOracleCreateInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, owner, oracle, mint, system_program, _remaining @ ..] = accounts else {
             return None;

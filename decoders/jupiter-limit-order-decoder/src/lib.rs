@@ -1,8 +1,9 @@
-use solana_sdk::{pubkey, pubkey::Pubkey};
+use solana_pubkey::Pubkey;
 
 pub struct JupiterLimitOrderDecoder;
 pub mod accounts;
 pub mod instructions;
 pub mod types;
 
-pub const PROGRAM_ID: Pubkey = pubkey!("jupoNjAxXgZ4rjzxzPMP4oxduvQsQtZzyknqvzYNrNu");
+pub const PROGRAM_ID: Pubkey =
+    solana_pubkey::Pubkey::from_str_const("jupoNjAxXgZ4rjzxzPMP4oxduvQsQtZzyknqvzYNrNu");

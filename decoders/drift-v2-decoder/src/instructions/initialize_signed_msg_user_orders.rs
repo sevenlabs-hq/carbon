@@ -20,7 +20,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeSignedMsgUserOrders
     type ArrangedAccounts = InitializeSignedMsgUserOrdersInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [signed_msg_user_orders, authority, payer, rent, system_program, _remaining @ ..] =
             accounts

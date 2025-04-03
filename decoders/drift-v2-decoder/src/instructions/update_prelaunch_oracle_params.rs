@@ -21,7 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdatePrelaunchOracleParams {
     type ArrangedAccounts = UpdatePrelaunchOracleParamsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, prelaunch_oracle, perp_market, state, _remaining @ ..] = accounts else {
             return None;

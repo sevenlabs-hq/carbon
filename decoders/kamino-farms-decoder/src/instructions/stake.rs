@@ -23,7 +23,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Stake {
     type ArrangedAccounts = StakeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, user_state, farm_state, farm_vault, user_ata, token_mint, scope_prices, token_program, _remaining @ ..] =
             accounts
