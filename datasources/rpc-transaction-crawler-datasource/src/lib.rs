@@ -11,7 +11,9 @@ use {
         nonblocking::rpc_client::RpcClient, rpc_client::GetConfirmedSignaturesForAddress2Config,
         rpc_config::RpcTransactionConfig,
     },
-    solana_sdk::{commitment_config::CommitmentConfig, pubkey::Pubkey, signature::Signature},
+    solana_pubkey::Pubkey,
+    solana_sdk::commitment_config::CommitmentConfig,
+    solana_signature::Signature,
     solana_transaction_status::{
         EncodedConfirmedTransactionWithStatusMeta, UiLoadedAddresses, UiTransactionEncoding,
     },
