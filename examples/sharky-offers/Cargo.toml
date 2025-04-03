@@ -17,6 +17,7 @@ anyhow = { workspace = true }
 async-trait = { workspace = true }
 dotenv = { workspace = true }
 env_logger = { workspace = true }
+log = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 tokio = { workspace = true, features = ["full"] }
 tokio-util = { workspace = true }

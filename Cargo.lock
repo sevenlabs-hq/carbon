@@ -1506,8 +1506,9 @@ dependencies = [
  "hex",
  "serde",
  "serde_json",
+ "solana-account",
+ "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
@@ -4345,8 +4346,8 @@ dependencies = [
  "helius",
  "log",
  "solana-client",
+ "solana-native-token",
  "solana-pubkey",
- "solana-sdk",
  "solana-transaction-status",
  "tokio",
 ]
@@ -5208,6 +5209,7 @@ dependencies = [
  "carbon-sharky-decoder",
  "dotenv",
  "env_logger",
+ "log",
  "serde",
  "solana-account-decoder",
  "solana-client",
