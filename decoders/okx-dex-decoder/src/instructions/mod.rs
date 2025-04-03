@@ -41,7 +41,7 @@ pub enum OkxDexInstruction {
     SwapEvent(swap_event::SwapEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for OkxDexDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for OkxDexDecoder {
     type InstructionType = OkxDexInstruction;
 
     fn decode_instruction(

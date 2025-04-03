@@ -16,7 +16,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ExpireSeries {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [_remaining @ ..] = accounts else {
+        let _remaining = accounts else {
             return None;
         };
 

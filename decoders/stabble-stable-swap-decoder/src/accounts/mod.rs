@@ -14,7 +14,7 @@ pub enum StableSwapAccount {
     Vault(vault::Vault),
 }
 
-impl<'a> AccountDecoder<'a> for StableSwapDecoder {
+impl AccountDecoder<'_> for StableSwapDecoder {
     type AccountType = StableSwapAccount;
     fn decode_account(
         &self,

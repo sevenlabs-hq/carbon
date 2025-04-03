@@ -445,7 +445,7 @@ pub enum DriftInstruction {
     FuelSeasonRecordEvent(fuel_season_record_event::FuelSeasonRecordEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for DriftDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for DriftDecoder {
     type InstructionType = DriftInstruction;
 
     fn decode_instruction(

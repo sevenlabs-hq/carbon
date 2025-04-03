@@ -139,7 +139,7 @@ pub enum PerpetualsInstruction {
     InstantDecreasePositionEvent(instant_decrease_position_event::InstantDecreasePositionEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for PerpetualsDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for PerpetualsDecoder {
     type InstructionType = PerpetualsInstruction;
 
     fn decode_instruction(

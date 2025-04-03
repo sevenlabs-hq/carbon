@@ -13,7 +13,7 @@ pub enum MarginfiV2Account {
     Bank(bank::Bank),
 }
 
-impl<'a> AccountDecoder<'a> for MarginfiV2Decoder {
+impl AccountDecoder<'_> for MarginfiV2Decoder {
     type AccountType = MarginfiV2Account;
     fn decode_account(
         &self,

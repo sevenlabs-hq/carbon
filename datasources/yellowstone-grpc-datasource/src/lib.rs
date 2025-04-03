@@ -42,7 +42,7 @@ pub struct YellowstoneGrpcGeyserClient {
 }
 
 impl YellowstoneGrpcGeyserClient {
-    pub fn new(
+    pub const fn new(
         endpoint: String,
         x_token: Option<String>,
         commitment: Option<CommitmentLevel>,

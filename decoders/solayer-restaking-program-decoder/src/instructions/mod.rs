@@ -21,7 +21,7 @@ pub enum SolayerRestakingProgramInstruction {
     BatchThawLstAccounts(batch_thaw_lst_accounts::BatchThawLstAccounts),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for SolayerRestakingProgramDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for SolayerRestakingProgramDecoder {
     type InstructionType = SolayerRestakingProgramInstruction;
 
     fn decode_instruction(

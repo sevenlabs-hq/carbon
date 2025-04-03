@@ -75,7 +75,7 @@ pub enum PhoenixInstruction {
     ChangeFeeRecipient(change_fee_recipient::ChangeFeeRecipient),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for PhoenixDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for PhoenixDecoder {
     type InstructionType = PhoenixInstruction;
 
     fn decode_instruction(

@@ -69,7 +69,7 @@ pub struct HeliusWebsocket {
 }
 
 impl HeliusWebsocket {
-    pub fn new(
+    pub const fn new(
         api_key: String,
         filters: Filters,
         account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
@@ -83,7 +83,7 @@ impl HeliusWebsocket {
         }
     }
 
-    fn get_ws_url(cluster: &Cluster) -> &'static str {
+    const fn get_ws_url(cluster: &Cluster) -> &'static str {
         match cluster {
             Cluster::MainnetBeta => MAINNET_WS_URL,
             _ => DEVNET_WS_URL,

@@ -11,7 +11,7 @@ pub enum KaminoLimitOrderAccount {
     GlobalConfig(global_config::GlobalConfig),
 }
 
-impl<'a> AccountDecoder<'a> for KaminoLimitOrderDecoder {
+impl AccountDecoder<'_> for KaminoLimitOrderDecoder {
     type AccountType = KaminoLimitOrderAccount;
     fn decode_account(
         &self,

@@ -12,7 +12,7 @@ pub enum PumpSwapAccount {
     Pool(pool::Pool),
 }
 
-impl<'a> AccountDecoder<'a> for PumpSwapDecoder {
+impl AccountDecoder<'_> for PumpSwapDecoder {
     type AccountType = PumpSwapAccount;
     fn decode_account(
         &self,

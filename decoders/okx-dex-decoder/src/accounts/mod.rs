@@ -1,11 +1,10 @@
 use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
 
 use super::OkxDexDecoder;
 
 pub enum OkxDexAccount {}
 
-impl<'a> AccountDecoder<'a> for OkxDexDecoder {
+impl AccountDecoder<'_> for OkxDexDecoder {
     type AccountType = OkxDexAccount;
     fn decode_account(
         &self,

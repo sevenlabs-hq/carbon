@@ -9,7 +9,7 @@ pub enum SolayerRestakingProgramAccount {
     RestakingPool(restaking_pool::RestakingPool),
 }
 
-impl<'a> AccountDecoder<'a> for SolayerRestakingProgramDecoder {
+impl AccountDecoder<'_> for SolayerRestakingProgramDecoder {
     type AccountType = SolayerRestakingProgramAccount;
     fn decode_account(
         &self,

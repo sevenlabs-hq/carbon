@@ -82,7 +82,7 @@ pub enum MarginfiV2Instruction {
     MarginfiAccountTransferAccountAuthorityEvent(marginfi_account_transfer_account_authority_event::MarginfiAccountTransferAccountAuthorityEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for MarginfiV2Decoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for MarginfiV2Decoder {
     type InstructionType = MarginfiV2Instruction;
 
     fn decode_instruction(

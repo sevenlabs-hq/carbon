@@ -15,7 +15,7 @@ pub enum KaminoFarmsAccount {
     OraclePrices(oracle_prices::OraclePrices),
 }
 
-impl<'a> AccountDecoder<'a> for KaminoFarmsDecoder {
+impl AccountDecoder<'_> for KaminoFarmsDecoder {
     type AccountType = KaminoFarmsAccount;
     fn decode_account(
         &self,
