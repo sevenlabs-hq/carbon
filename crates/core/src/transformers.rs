@@ -96,7 +96,7 @@ pub fn extract_instructions_with_metadata(
                     .get(compiled_instruction.program_id_index as usize)
                     .unwrap_or(&Pubkey::default());
 
-                let accounts: Vec<_> = compiled_instruction
+                let accounts = compiled_instruction
                     .accounts
                     .iter()
                     .filter_map(|account_index| {
@@ -107,7 +107,7 @@ pub fn extract_instructions_with_metadata(
                             is_signer: legacy.is_signer(*account_index as usize),
                         })
                     })
-                    .collect();
+                    .collect::<Vec<_>>();
 
                 instructions_with_metadata.push((
                     InstructionMetadata {
@@ -125,9 +125,7 @@ pub fn extract_instructions_with_metadata(
                 if let Some(inner_instructions) = &meta.inner_instructions {
                     for inner_instructions_per_tx in inner_instructions {
                         if inner_instructions_per_tx.index == i as u8 {
-                            for (inner_ix_idx, inner_instruction) in
-                                inner_instructions_per_tx.instructions.iter().enumerate()
-                            {
+                            for inner_instruction in inner_instructions_per_tx.instructions.iter() {
                                 let program_id = *legacy
                                     .account_keys
                                     .get(inner_instruction.instruction.program_id_index as usize)
@@ -154,7 +152,7 @@ pub fn extract_instructions_with_metadata(
                                     InstructionMetadata {
                                         transaction_metadata: transaction_metadata.clone(),
                                         stack_height: inner_instruction.stack_height.unwrap_or(1),
-                                        index: inner_ix_idx as u32 + 1,
+                                        index: inner_instructions_per_tx.index as u32,
                                     },
                                     solana_instruction::Instruction {
                                         program_id,
@@ -186,7 +184,7 @@ pub fn extract_instructions_with_metadata(
                     .get(compiled_instruction.program_id_index as usize)
                     .unwrap_or(&Pubkey::default());
 
-                let accounts: Vec<AccountMeta> = compiled_instruction
+                let accounts = compiled_instruction
                     .accounts
                     .iter()
                     .map(|account_index| {
@@ -199,7 +197,7 @@ pub fn extract_instructions_with_metadata(
                             is_signer: loaded_message.is_signer(*account_index as usize),
                         }
                     })
-                    .collect();
+                    .collect::<Vec<_>>();
 
                 instructions_with_metadata.push((
                     InstructionMetadata {
@@ -217,15 +215,13 @@ pub fn extract_instructions_with_metadata(
                 if let Some(inner_instructions) = &meta.inner_instructions {
                     for inner_instructions_per_tx in inner_instructions {
                         if inner_instructions_per_tx.index == i as u8 {
-                            for (inner_ix_idx, inner_instruction) in
-                                inner_instructions_per_tx.instructions.iter().enumerate()
-                            {
+                            for inner_instruction in inner_instructions_per_tx.instructions.iter() {
                                 let program_id = *loaded_message
                                     .account_keys()
                                     .get(inner_instruction.instruction.program_id_index as usize)
                                     .unwrap_or(&Pubkey::default());
 
-                                let accounts: Vec<AccountMeta> = inner_instruction
+                                let accounts = inner_instruction
                                     .instruction
                                     .accounts
                                     .iter()
@@ -244,13 +240,13 @@ pub fn extract_instructions_with_metadata(
                                                 .is_signer(*account_index as usize),
                                         }
                                     })
-                                    .collect();
+                                    .collect::<Vec<_>>();
 
                                 instructions_with_metadata.push((
                                     InstructionMetadata {
                                         transaction_metadata: transaction_metadata.clone(),
                                         stack_height: inner_instruction.stack_height.unwrap_or(1),
-                                        index: inner_ix_idx as u32 + 1,
+                                        index: inner_instructions_per_tx.index as u32,
                                     },
                                     solana_instruction::Instruction {
                                         program_id,
@@ -543,4 +539,697 @@ pub fn transaction_metadata_from_original_meta(
             .map(|compute_unit_consumed| compute_unit_consumed)
             .or(None),
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use std::vec;
+
+    use carbon_test_utils::base58_deserialize;
+    use solana_account_decoder_client_types::token::UiTokenAmount;
+    use solana_sdk::{
+        hash::Hash,
+        message::{
+            legacy::Message,
+            v0::{self, MessageAddressTableLookup},
+            MessageHeader,
+        },
+        transaction::VersionedTransaction,
+    };
+    use solana_signature::Signature;
+
+    use crate::instruction::{InstructionsWithMetadata, NestedInstructions};
+
+    use super::*;
+
+    #[test]
+    fn test_transaction_metadata_from_original_meta_simple() {
+        // Arrange
+        let expected_tx_meta = TransactionStatusMeta {
+            status: Ok(()),
+            fee: 9000,
+            pre_balances: vec![
+                323078186,
+                2039280,
+                3320301592555,
+                68596164896,
+                446975391774,
+                1019603,
+                2039280,
+                1,
+                1141440,
+                1,
+                731913600,
+                934087680,
+                3695760,
+                1461600
+            ],
+            post_balances: vec![
+                321402879,
+                2039280,
+                3320301602394,
+                68597804804,
+                446975398334,
+                1029603,
+                2039280,
+                1,
+                1141440,
+                1,
+                731913600,
+                934087680,
+                3695760,
+                1461600,
+            ],
+            inner_instructions: Some(vec![
+                InnerInstructions{
+                    index: 1,
+                    instructions: vec![
+                        InnerInstruction{
+                            instruction: CompiledInstruction{
+                                program_id_index: 11,
+                                accounts: vec![
+                                    1,
+                                    13,
+                                    6,
+                                    3
+                                ],
+                                data: base58_deserialize::ix_data("hDDqy4KAEGx3J") 
+                            },
+                            stack_height: Some(2),
+                        },
+                        InnerInstruction{
+                            instruction: CompiledInstruction{
+                                program_id_index: 7,
+                                accounts: vec![
+                                    0,
+                                    3
+                                ],
+                                data: base58_deserialize::ix_data("3Bxs4ezjpW22kuoV") 
+                            },
+                            stack_height: Some(2),
+                        },
+                        InnerInstruction{
+                            instruction: CompiledInstruction{
+                                program_id_index: 7,
+                                accounts: vec![
+                                    0,
+                                    2
+                                ],
+                                data: base58_deserialize::ix_data("3Bxs4KSwSHEiNiN3") 
+                            },
+                            stack_height: Some(2),
+                        },
+                        InnerInstruction{
+                            instruction: CompiledInstruction{
+                                program_id_index: 7,
+                                accounts: vec![
+                                    0,
+                                    4
+                                ],
+                                data: base58_deserialize::ix_data("3Bxs4TdopiUbobUj") 
+                            },
+                            stack_height: Some(2),
+                        },
+                    ],
+            }
+            ]),
+            log_messages: Some(vec![
+                "Program ComputeBudget111111111111111111111111111111 invoke [1]",
+                "Program ComputeBudget111111111111111111111111111111 success",
+                "Program MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG invoke [1]",
+                "Program log: Instruction: Buy",
+                "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]",
+                "Program log: Instruction: TransferChecked",
+                "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 6147 of 370747 compute units",
+                "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
+                "Program 11111111111111111111111111111111 invoke [2]",
+                "Program 11111111111111111111111111111111 success",
+                "Program 11111111111111111111111111111111 invoke [2]",
+                "Program 11111111111111111111111111111111 success",
+                "Program 11111111111111111111111111111111 invoke [2]",
+                "Program 11111111111111111111111111111111 success",
+                "Program log: Transfering collateral from buyer to curve account: 1639908, Helio fee: 6560, Dex fee: 9839",
+                "Program data: vdt/007mYe5XD5Rn8AQAAOQFGQAAAAAAbyYAAAAAAACgGQAAAAAAAAAGZYutIlwKL4hMgKVUfMrwNkmY1Lx+bGF8yTqY+mFm7CM5km+SaKcGm4hX/quBhPtof2NGGMA12sQ53BrrO1WYoPAAAAAAAc/9l+YGhwgMeWNsZs3HFBi8RjvPXd5tjX5Jv9YfHhgWAAUAAAB0cmFkZQ==",
+                "Program MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG consumed 44550 of 399850 compute units",
+                "Program MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG success",
+                "Program 11111111111111111111111111111111 invoke [1]",
+                "Program 11111111111111111111111111111111 success"
+            ].into_iter().map(|s| s.to_string()).collect()),
+            pre_token_balances: Some(vec![
+                TransactionTokenBalance {
+                    account_index:1,
+                    mint:"3cBFsM1wosTJi9yun6kcHhYHyJcut1MNQY28zjC4moon".to_owned(),
+                    ui_token_amount: UiTokenAmount {
+                        ui_amount: Some(253495663.57641867),
+                        decimals: 9,
+                        amount: "253495663576418647".to_owned(),
+                        ui_amount_string: "253495663.576418647".to_owned(),
+                    },
+                    owner: "4CYhuDhT4c9ATZpJceoQG8Du4vCjf5ZKvxsyXpJoVub4".to_owned(),
+                    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_owned(),
+                },
+                TransactionTokenBalance {
+                    account_index:6,
+                    mint:"3cBFsM1wosTJi9yun6kcHhYHyJcut1MNQY28zjC4moon".to_owned(),
+                    ui_token_amount: UiTokenAmount {
+                        ui_amount: Some(2266244.543486133),
+                        decimals: 9,
+                        amount: "2266244543486133".to_owned(),
+                        ui_amount_string: "2266244.543486133".to_owned(),
+                    },
+                    owner: "Ezug1uk7oTEULvBcXCngdZuJDmZ8Ed2TKY4oov4GmLLm".to_owned(),
+                    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_owned(),
+                },
+            ]),
+            post_token_balances: Some(vec![
+                TransactionTokenBalance {
+                    account_index:1,
+                    mint:"3cBFsM1wosTJi9yun6kcHhYHyJcut1MNQY28zjC4moon".to_owned(),
+                    ui_token_amount: UiTokenAmount {
+                        ui_amount: Some(253490233.0),
+                        decimals: 9,
+                        amount: "253490233000000000".to_owned(),
+                        ui_amount_string: "253490233".to_owned(),
+                    },
+                    owner: "4CYhuDhT4c9ATZpJceoQG8Du4vCjf5ZKvxsyXpJoVub4".to_owned(),
+                    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_owned(),
+                },
+                TransactionTokenBalance {
+                    account_index:6,
+                    mint:"3cBFsM1wosTJi9yun6kcHhYHyJcut1MNQY28zjC4moon".to_owned(),
+                    ui_token_amount: UiTokenAmount {
+                        ui_amount: Some(2271675.11990478),
+                        decimals: 9,
+                        amount: "2271675119904780".to_owned(),
+                        ui_amount_string: "2271675.11990478".to_owned(),
+                    },
+                    owner: "Ezug1uk7oTEULvBcXCngdZuJDmZ8Ed2TKY4oov4GmLLm".to_owned(),
+                    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_owned(),
+                },
+            ]),
+            rewards: Some(vec![]),
+            loaded_addresses: LoadedAddresses {
+                writable: vec![],
+                readonly: vec![],
+            },
+            return_data: None,
+            compute_units_consumed: Some(44850),
+        };
+        // Act
+        let tx_meta_status =
+            carbon_test_utils::read_transaction_meta("tests/fixtures/simple_tx.json")
+                .expect("read fixture");
+
+        let original_tx_meta = transaction_metadata_from_original_meta(tx_meta_status)
+            .expect("transaction metadata from original meta");
+        let transaction_update = TransactionUpdate {
+            signature: Signature::default(),
+            transaction: VersionedTransaction {
+                signatures: vec![Signature::default()],
+                message: VersionedMessage::Legacy(Message {
+                    header: MessageHeader::default(),
+                    account_keys: vec![
+                        Pubkey::from_str_const("Ezug1uk7oTEULvBcXCngdZuJDmZ8Ed2TKY4oov4GmLLm"),
+                        Pubkey::from_str_const("5Zg9kJdzYFKwS4hLzF1QvvNBYyUNpn9YWxYp6HVMknJt"),
+                        Pubkey::from_str_const("3udvfL24waJcLhskRAsStNMoNUvtyXdxrWQz4hgi953N"),
+                        Pubkey::from_str_const("4CYhuDhT4c9ATZpJceoQG8Du4vCjf5ZKvxsyXpJoVub4"),
+                        Pubkey::from_str_const("5K5RtTWzzLp4P8Npi84ocf7F1vBsAu29N1irG4iiUnzt"),
+                        Pubkey::from_str_const("ADaUMid9yfUytqMBgopwjb2DTLSokTSzL1zt6iGPaS49"),
+                        Pubkey::from_str_const("6FqNPPA4W1nuvL1BHGhusSHjdNa4qJBoXyRKggAh9pb9"),
+                        Pubkey::from_str_const("11111111111111111111111111111111"),
+                        Pubkey::from_str_const("MoonCVVNZFSYkqNXP6bxHLPL6QQJiMagDL3qcqUQTrG"),
+                        Pubkey::from_str_const("ComputeBudget111111111111111111111111111111"),
+                        Pubkey::from_str_const("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
+                        Pubkey::from_str_const("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                        Pubkey::from_str_const("36Eru7v11oU5Pfrojyn5oY3nETA1a1iqsw2WUu6afkM9"),
+                        Pubkey::from_str_const("3cBFsM1wosTJi9yun6kcHhYHyJcut1MNQY28zjC4moon"),
+                    ],
+                    recent_blockhash: Hash::default(),
+                    instructions: vec![
+                        CompiledInstruction {
+                            program_id_index: 9,
+                            accounts: vec![],
+                            data: base58_deserialize::ix_data("3GAG5eogvTjV"),
+                        },
+                        CompiledInstruction {
+                            program_id_index: 8,
+                            accounts: vec![0, 6, 3, 1, 2, 4, 5, 12, 11, 10, 7],
+                            data: base58_deserialize::ix_data(
+                                "XJqfG9ATWCDptdf7vx8UxGEDKxSPzetbnXg1wZsUpasa7",
+                            ),
+                        },
+                        CompiledInstruction {
+                            program_id_index: 7,
+                            accounts: vec![],
+                            data: base58_deserialize::ix_data("3GAG5eogvTjV"),
+                        },
+                    ],
+                }),
+            },
+            meta: original_tx_meta.clone(),
+            is_vote: false,
+            slot: 123,
+            block_time: Some(123),
+        };
+        let transaction_metadata = transaction_update
+            .clone()
+            .try_into()
+            .expect("transaction metadata");
+        let instructions_with_metadata: InstructionsWithMetadata =
+            extract_instructions_with_metadata(&transaction_metadata, &transaction_update)
+                .expect("extract instructions with metadata");
+
+        let nested_instructions: NestedInstructions = instructions_with_metadata.into();
+
+        // Assert
+        assert_eq!(original_tx_meta, expected_tx_meta);
+        assert_eq!(nested_instructions.len(), 3);
+        assert_eq!(nested_instructions[0].inner_instructions.len(), 0);
+        assert_eq!(nested_instructions[1].inner_instructions.len(), 4);
+        assert_eq!(nested_instructions[2].inner_instructions.len(), 0);
+    }
+
+    #[test]
+    fn test_transaction_metadata_from_original_meta_cpi() {
+        // Arrange
+        let expected_tx_meta = TransactionStatusMeta {
+            status: Ok(()),
+            fee: 80000,
+            pre_balances: vec![
+                64472129,
+                2039280,
+                2039280,
+                71437440,
+                2039280,
+                1,
+                1141440,
+                7775404600,
+                117416465239,
+                731913600,
+                71437440,
+                23385600,
+                71437440,
+                7182750,
+                2039280,
+                2039280,
+                1141440,
+                1,
+                934087680,
+                4000000
+            ],
+            post_balances: vec![
+                64392129,
+                2039280,
+                2039280,
+                71437440,
+                2039280,
+                1,
+                1141440,
+                7775404600,
+                117416465239,
+                731913600,
+                71437440,
+                23385600,
+                71437440,
+                7182750,
+                2039280,
+                2039280,
+                1141440,
+                1,
+                934087680,
+                4000000
+            ],
+            inner_instructions: Some(vec![
+                InnerInstructions {
+                    index: 3,
+                    instructions: vec![
+                        InnerInstruction{
+                            instruction: CompiledInstruction{
+                                program_id_index: 16,
+                                accounts: vec![
+                                    13,
+                                    16,
+                                    14,
+                                    15,
+                                    1,
+                                    2,
+                                    7,
+                                    8,
+                                    11,
+                                    16,
+                                    0,
+                                    18,
+                                    18,
+                                    19,
+                                    16,
+                                    3,
+                                    10,
+                                    12,
+                                ],
+                                data: base58_deserialize::ix_data("PgQWtn8oziwqoZL8sWNwT7LtzLzAUp8MM") 
+                            },
+                            stack_height: Some(2),
+                        },
+                        InnerInstruction{
+                            instruction: CompiledInstruction{
+                                program_id_index: 18,
+                                accounts: vec![
+                                    1,
+                                    8,
+                                    15,
+                                    0,
+                                ],
+                                data: base58_deserialize::ix_data("gD28Qcm8qkpHv") 
+                            },
+                            stack_height: Some(3),
+                        },
+                        InnerInstruction{
+                            instruction: CompiledInstruction{
+                                program_id_index: 18,
+                                accounts: vec![
+                                    14,
+                                    7,
+                                    2,
+                                    13,
+                                ],
+                                data: base58_deserialize::ix_data("hLZYKissEeFUU") 
+                            },
+                            stack_height: Some(3),
+                        },
+                        InnerInstruction{
+                            instruction: CompiledInstruction{
+                                program_id_index: 16,
+                                accounts: vec![
+                                    19,
+                                ],
+                                data: base58_deserialize::ix_data("yCGxBopjnVNQkNP5usq1PonMQAFjN4WpP7MXQHZjf7XRFvuZeLCkVHy966UtS1VyTsN9u6oGPC5aaYqLj5UXxLj8FaCJccaibatRPgkX95PDrzwLBhZE43gcsTwwccBuEd67YuWJsM1j7tXo5ntSaTWRsfuaqkkoaCDDeidPunPSTBRUY68Hw5oFnYhUcG5CUEPWmM") 
+                            },
+                            stack_height: Some(3),
+                        },
+                        InnerInstruction{
+                            instruction: CompiledInstruction{
+                                program_id_index: 18,
+                                accounts: vec![
+                                    1,
+                                    8,
+                                    4,
+                                    0,
+                                ],
+                                data: base58_deserialize::ix_data("heASn5ozzjZrp") 
+                            },
+                            stack_height: Some(2),
+                        },
+                    ],
+                }
+            ]),
+            log_messages: Some(vec![
+                "Program ComputeBudget111111111111111111111111111111 invoke [1]",
+                "Program ComputeBudget111111111111111111111111111111 success",
+                "Program ComputeBudget111111111111111111111111111111 invoke [1]",
+                "Program ComputeBudget111111111111111111111111111111 success",
+                "Program ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL invoke [1]",
+                "Program log: CreateIdempotent",
+                "Program ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL consumed 4338 of 191700 compute units",
+                "Program ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL success",
+                "Program 6m2CDdhRgxpH4WjvdzxAYbGxwdGUz5MziiL5jek2kBma invoke [1]",
+                "Program log: Instruction: CommissionSplSwap2",
+                "Program log: order_id: 105213",
+                "Program log: AFbX8oGjGpmVFywbVouvhQSRmiW2aR1mohfahi4Y2AdB",
+                "Program log: 7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx",
+                "Program log: 7Z2QzVa3q7r7m84nuez9eRn2u3oCUeg9D1bzdRvNFdxN",
+                "Program log: 7Z2QzVa3q7r7m84nuez9eRn2u3oCUeg9D1bzdRvNFdxN",
+                "Program log: before_source_balance: 9452950000000, before_destination_balance: 573930799366, amount_in: 9372599925000, expect_amount_out: 1700985700449, min_return: 1680573872044",
+                "Program log: Dex::MeteoraDlmm amount_in: 9372599925000, offset: 0",
+                "Program log: BMCheVSdKZ6rxsoJ1MChA5HQRtk5pz4QkCLs7MXFkvZJ",
+                "Program LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo invoke [2]",
+                "Program log: Instruction: Swap",
+                "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [3]",
+                "Program log: Instruction: TransferChecked",
+                "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 6173 of 112532 compute units",
+                "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
+                "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [3]",
+                "Program log: Instruction: TransferChecked",
+                "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 6147 of 102925 compute units",
+                "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
+                "Program LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo invoke [3]",
+                "Program LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo consumed 2134 of 93344 compute units",
+                "Program LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo success",
+                "Program LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo consumed 63904 of 153546 compute units",
+                "Program LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo success",
+                "Program data: QMbN6CYIceINCDl9OoYIAABhAKYKjAEAAA==",
+                "Program log: SwapEvent { dex: MeteoraDlmm, amount_in: 9372599925000, amount_out: 1700985700449 }",
+                "Program log: 6VRWsRGxnJFg7y4ck3NBsBPQ5SLkCtkH3tTioJkEby3b",
+                "Program log: AADrz4o64xxynMr8tochpqAYevmySvsEhjAgKEXNcjnd",
+                "Program log: after_source_balance: 80350075000, after_destination_balance: 2274916499815, source_token_change: 9372599925000, destination_token_change: 1700985700449",
+                "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA invoke [2]",
+                "Program log: Instruction: TransferChecked",
+                "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA consumed 6173 of 76109 compute units",
+                "Program TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA success",
+                "Program log: commission_direction: true, commission_amount: 80350075000",
+                "Program 6m2CDdhRgxpH4WjvdzxAYbGxwdGUz5MziiL5jek2kBma consumed 118873 of 187362 compute units",
+                "Program 6m2CDdhRgxpH4WjvdzxAYbGxwdGUz5MziiL5jek2kBma success"
+            ].into_iter().map(|s| s.to_string()).collect()),
+            pre_token_balances: Some(vec![
+                TransactionTokenBalance {
+                    account_index:1,
+                    mint:"AFbX8oGjGpmVFywbVouvhQSRmiW2aR1mohfahi4Y2AdB".to_owned(),
+                    ui_token_amount: UiTokenAmount {
+                        ui_amount: Some(9452.95),
+                        decimals: 9,
+                        amount: "9452950000000".to_owned(),
+                        ui_amount_string: "9452.95".to_owned(),
+                    },
+                    owner: "7Z2QzVa3q7r7m84nuez9eRn2u3oCUeg9D1bzdRvNFdxN".to_owned(),
+                    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_owned(),
+                },
+                TransactionTokenBalance {
+                    account_index:2,
+                    mint:"7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx".to_owned(),
+                    ui_token_amount: UiTokenAmount {
+                        ui_amount: Some(573.930799366),
+                        decimals: 9,
+                        amount: "573930799366".to_owned(),
+                        ui_amount_string: "573.930799366".to_owned(),
+                    },
+                    owner: "7Z2QzVa3q7r7m84nuez9eRn2u3oCUeg9D1bzdRvNFdxN".to_owned(),
+                    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_owned(),
+                },
+                TransactionTokenBalance {
+                    account_index:4,
+                    mint:"AFbX8oGjGpmVFywbVouvhQSRmiW2aR1mohfahi4Y2AdB".to_owned(),
+                    ui_token_amount: UiTokenAmount {
+                        ui_amount: Some(357.387320573),
+                        decimals: 9,
+                        amount: "357387320573".to_owned(),
+                        ui_amount_string: "357.387320573".to_owned(),
+                    },
+                    owner: "8psNvWTrdNTiVRNzAgsou9kETXNJm2SXZyaKuJraVRtf".to_owned(),
+                    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_owned(),
+                },
+                TransactionTokenBalance {
+                    account_index:14,
+                    mint:"7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx".to_owned(),
+                    ui_token_amount: UiTokenAmount {
+                        ui_amount: Some(108469.853556668),
+                        decimals: 9,
+                        amount: "108469853556668".to_owned(),
+                        ui_amount_string: "108469.853556668".to_owned(),
+                    },
+                    owner: "BMCheVSdKZ6rxsoJ1MChA5HQRtk5pz4QkCLs7MXFkvZJ".to_owned(),
+                    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_owned(),
+                },
+                TransactionTokenBalance {
+                    account_index:15,
+                    mint:"AFbX8oGjGpmVFywbVouvhQSRmiW2aR1mohfahi4Y2AdB".to_owned(),
+                    ui_token_amount: UiTokenAmount {
+                        ui_amount: Some(176698.438078034),
+                        decimals: 9,
+                        amount: "176698438078034".to_owned(),
+                        ui_amount_string: "176698.438078034".to_owned(),
+                    },
+                    owner: "BMCheVSdKZ6rxsoJ1MChA5HQRtk5pz4QkCLs7MXFkvZJ".to_owned(),
+                    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_owned(),
+                },
+            ]),
+            post_token_balances: Some(vec![
+                TransactionTokenBalance {
+                    account_index:1,
+                    mint:"AFbX8oGjGpmVFywbVouvhQSRmiW2aR1mohfahi4Y2AdB".to_owned(),
+                    ui_token_amount: UiTokenAmount {
+                        ui_amount: None,
+                        decimals: 9,
+                        amount: "0".to_owned(),
+                        ui_amount_string: "0".to_owned(),
+                    },
+                    owner: "7Z2QzVa3q7r7m84nuez9eRn2u3oCUeg9D1bzdRvNFdxN".to_owned(),
+                    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_owned(),
+                },
+                TransactionTokenBalance {
+                    account_index:2,
+                    mint:"7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx".to_owned(),
+                    ui_token_amount: UiTokenAmount {
+                        ui_amount: Some( 2274.916499815),
+                        decimals: 9,
+                        amount: "2274916499815".to_owned(),
+                        ui_amount_string: "2274.916499815".to_owned(),
+                    },
+                    owner: "7Z2QzVa3q7r7m84nuez9eRn2u3oCUeg9D1bzdRvNFdxN".to_owned(),
+                    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_owned(),
+                },
+                TransactionTokenBalance {
+                    account_index:4,
+                    mint:"AFbX8oGjGpmVFywbVouvhQSRmiW2aR1mohfahi4Y2AdB".to_owned(),
+                    ui_token_amount: UiTokenAmount {
+                        ui_amount: Some(437.737395573),
+                        decimals: 9,
+                        amount: "437737395573".to_owned(),
+                        ui_amount_string: "437.737395573".to_owned(),
+                    },
+                    owner: "8psNvWTrdNTiVRNzAgsou9kETXNJm2SXZyaKuJraVRtf".to_owned(),
+                    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_owned(),
+                },
+                TransactionTokenBalance {
+                    account_index:14,
+                    mint:"7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx".to_owned(),
+                    ui_token_amount: UiTokenAmount {
+                        ui_amount: Some(106768.867856219),
+                        decimals: 9,
+                        amount: "106768867856219".to_owned(),
+                        ui_amount_string: "106768.867856219".to_owned(),
+                    },
+                    owner: "BMCheVSdKZ6rxsoJ1MChA5HQRtk5pz4QkCLs7MXFkvZJ".to_owned(),
+                    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_owned(),
+                },
+                TransactionTokenBalance {
+                    account_index:15,
+                    mint:"AFbX8oGjGpmVFywbVouvhQSRmiW2aR1mohfahi4Y2AdB".to_owned(),
+                    ui_token_amount: UiTokenAmount {
+                        ui_amount: Some(186071.038003034),
+                        decimals: 9,
+                        amount: "186071038003034".to_owned(),
+                        ui_amount_string: "186071.038003034".to_owned(),
+                    },
+                    owner: "BMCheVSdKZ6rxsoJ1MChA5HQRtk5pz4QkCLs7MXFkvZJ".to_owned(),
+                    program_id: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA".to_owned(),
+                },
+            ]),
+            rewards: Some(vec![]),
+            loaded_addresses: LoadedAddresses {
+                writable: vec![
+                    Pubkey::from_str_const("12QvTU4Z7XdxT16mSYU8rE2n9CpXpvunHiZrfySaf7h8"),
+                    Pubkey::from_str_const("76TaSYC4LuopNGf5apJUXMG2MDfcQMHiw6SMX93VYQGp"),
+                    Pubkey::from_str_const("7q4JPakWqK7UrjRsTNoYXMNeBYKP3WKawNcHYzidTaav"),
+                    Pubkey::from_str_const("BMCheVSdKZ6rxsoJ1MChA5HQRtk5pz4QkCLs7MXFkvZJ"),
+                    Pubkey::from_str_const("GqXFYwijuNaKRQgtrVrJkDGXorPcZwX7Vyd4jDsuxW9J"),
+                    Pubkey::from_str_const("JBbKXBC4yBco9BfChDaf5GHd8hyLbjASeLxFCwGCH99a"),
+                    Pubkey::from_str_const("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo")
+                ],
+                readonly: vec![
+                    Pubkey::from_str_const("11111111111111111111111111111111"),
+                    Pubkey::from_str_const("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                    Pubkey::from_str_const("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+                ],
+            },
+            return_data: None,
+            compute_units_consumed: Some(123511),
+        };
+
+        // Act
+        let tx_meta_status = carbon_test_utils::read_transaction_meta("tests/fixtures/cpi_tx.json")
+            .expect("read fixture");
+        let original_tx_meta = transaction_metadata_from_original_meta(tx_meta_status)
+            .expect("transaction metadata from original meta");
+        let transaction_update = TransactionUpdate {
+            signature: Signature::default(),
+            transaction: VersionedTransaction {
+                signatures: vec![Signature::default()],
+                message: VersionedMessage::V0(v0::Message {
+                    header: MessageHeader::default(),
+                    account_keys: vec![
+                        Pubkey::from_str_const("7Z2QzVa3q7r7m84nuez9eRn2u3oCUeg9D1bzdRvNFdxN"),
+                        Pubkey::from_str_const("6VRWsRGxnJFg7y4ck3NBsBPQ5SLkCtkH3tTioJkEby3b"),
+                        Pubkey::from_str_const("AADrz4o64xxynMr8tochpqAYevmySvsEhjAgKEXNcjnd"),
+                        Pubkey::from_str_const("EuGVLjHv1K1YVxmcukLYMBjGB7YXy5hxbJ2z4LeDLUfQ"),
+                        Pubkey::from_str_const("FDxb6WnUHrSsz9zwKqneC5JXVmrRgPySBjf6WfNfFyrM"),
+                        Pubkey::from_str_const("ComputeBudget111111111111111111111111111111"),
+                        Pubkey::from_str_const("6m2CDdhRgxpH4WjvdzxAYbGxwdGUz5MziiL5jek2kBma"),
+                        Pubkey::from_str_const("7i5KKsX2weiTkry7jA4ZwSuXGhs5eJBEjY8vVxR4pfRx"),
+                        Pubkey::from_str_const("AFbX8oGjGpmVFywbVouvhQSRmiW2aR1mohfahi4Y2AdB"),
+                        Pubkey::from_str_const("ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"),
+                        Pubkey::from_str_const("12QvTU4Z7XdxT16mSYU8rE2n9CpXpvunHiZrfySaf7h8"),
+                        Pubkey::from_str_const("76TaSYC4LuopNGf5apJUXMG2MDfcQMHiw6SMX93VYQGp"),
+                        Pubkey::from_str_const("7q4JPakWqK7UrjRsTNoYXMNeBYKP3WKawNcHYzidTaav"),
+                        Pubkey::from_str_const("BMCheVSdKZ6rxsoJ1MChA5HQRtk5pz4QkCLs7MXFkvZJ"),
+                        Pubkey::from_str_const("GqXFYwijuNaKRQgtrVrJkDGXorPcZwX7Vyd4jDsuxW9J"),
+                        Pubkey::from_str_const("JBbKXBC4yBco9BfChDaf5GHd8hyLbjASeLxFCwGCH99a"),
+                        Pubkey::from_str_const("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                        Pubkey::from_str_const("11111111111111111111111111111111"),
+                        Pubkey::from_str_const("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                        Pubkey::from_str_const("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+                    ],
+                    recent_blockhash: Hash::default(),
+                    instructions: vec![
+                        CompiledInstruction {
+                            program_id_index: 5,
+                            accounts: vec![],
+                            data: base58_deserialize::ix_data("3GAG5eogvTjV"),
+                        },
+                        CompiledInstruction {
+                            program_id_index: 5,
+                            accounts: vec![],
+                            data: base58_deserialize::ix_data("3GAG5eogvTjV"),
+                        },
+                        CompiledInstruction {
+                            program_id_index: 9,
+                            accounts: vec![],
+                            data: base58_deserialize::ix_data("3GAG5eogvTjV"),
+                        },
+                        CompiledInstruction {
+                            program_id_index: 8,
+                            accounts: vec![],
+                            data: base58_deserialize::ix_data(
+                                "XJqfG9ATWCDptdf7vx8UxGEDKxSPzetbnXg1wZsUpasa7",
+                            ),
+                        },
+                    ],
+                    address_table_lookups: vec![
+                        MessageAddressTableLookup {
+                            account_key: Pubkey::from_str_const(
+                                "FfMiwAdZeeSZyuApu5fsCuPzvyAyKdEbNcmEVEEhgJAW",
+                            ),
+                            writable_indexes: vec![0, 1, 2, 3, 4, 5],
+                            readonly_indexes: vec![],
+                        },
+                        MessageAddressTableLookup {
+                            account_key: Pubkey::from_str_const(
+                                "EDDSpjZHrsFKYTMJDcBqXAjkLcu9EKdvrQR4XnqsXErH",
+                            ),
+                            writable_indexes: vec![0],
+                            readonly_indexes: vec![3, 4, 5],
+                        },
+                    ],
+                }),
+            },
+            meta: original_tx_meta.clone(),
+            is_vote: false,
+            slot: 123,
+            block_time: Some(123),
+        };
+        let transaction_metadata = transaction_update
+            .clone()
+            .try_into()
+            .expect("transaction metadata");
+        let instructions_with_metadata: InstructionsWithMetadata =
+            extract_instructions_with_metadata(&transaction_metadata, &transaction_update)
+                .expect("extract instructions with metadata");
+        let nested_instructions: NestedInstructions = instructions_with_metadata.into();
+
+        // Assert
+        assert_eq!(original_tx_meta, expected_tx_meta);
+        assert_eq!(nested_instructions.len(), 4);
+        assert_eq!(nested_instructions[0].inner_instructions.len(), 0);
+        assert_eq!(nested_instructions[1].inner_instructions.len(), 0);
+        assert_eq!(nested_instructions[2].inner_instructions.len(), 0);
+        assert_eq!(nested_instructions[3].inner_instructions.len(), 5);
+    }
 }

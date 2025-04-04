@@ -40,3 +40,8 @@ carbon-proc-macros = { workspace = true, optional = true }
 
 [lib]
 crate-type = ["rlib"]
+
+[dev-dependencies]
+carbon-test-utils = { workspace = true }
+solana-account-decoder-client-types = { workspace = true }
+
