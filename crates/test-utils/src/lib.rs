@@ -3,8 +3,10 @@ use serde::Deserialize;
 use solana_account::Account;
 use solana_instruction::{AccountMeta, Instruction};
 use solana_pubkey::Pubkey;
+use solana_transaction_status::UiTransactionStatusMeta;
 use std::{fs, path::Path};
 
+pub mod base58_deserialize;
 mod base64_deserialize;
 mod field_as_string;
 mod hex_deserialize;
@@ -67,6 +69,17 @@ impl From<TestAccount> for Account {
             rent_epoch: val.rent_epoch,
         }
     }
+}
+
+pub fn read_transaction_meta<P: AsRef<Path>>(
+    tx_path: P,
+) -> anyhow::Result<UiTransactionStatusMeta> {
+    let data = fs::read(tx_path).map_err(|e| anyhow::anyhow!("Couldn't read fixture: {e}"))?;
+
+    let tx_status_meta = serde_json::from_slice::<UiTransactionStatusMeta>(&data)
+        .map_err(|e| anyhow::anyhow!("Couldn't deserialize fixture: {e}"))?;
+
+    Ok(tx_status_meta)
 }
 
 pub fn read_instruction<P: AsRef<Path>>(ix_path: P) -> anyhow::Result<Instruction> {

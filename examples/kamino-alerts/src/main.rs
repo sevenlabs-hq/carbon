@@ -3,7 +3,7 @@ use {
     carbon_core::{
         account::{AccountMetadata, DecodedAccount},
         error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstruction},
+        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
         metrics::MetricsCollection,
         processor::Processor,
     },
@@ -81,7 +81,7 @@ impl Processor for KaminoLendingInstructionProcessor {
     type InputType = (
         InstructionMetadata,
         DecodedInstruction<KaminoLendingInstruction>,
-        Vec<NestedInstruction>,
+        NestedInstructions,
     );
 
     async fn process(
