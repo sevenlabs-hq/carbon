@@ -50,6 +50,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MoonshotDecoder {
 
 #[cfg(test)]
 mod tests {
+    use alloc::{string::ToString, vec};
     use carbon_core::{
         deserialize::{ArrangeAccounts, PrefixString},
         instruction::InstructionDecoder,

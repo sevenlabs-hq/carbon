@@ -217,6 +217,7 @@ pub mod update_whitelist_mint;
 pub mod update_withdraw_guard_threshold;
 pub mod withdraw;
 
+#[allow(clippy::large_enum_variant)]
 #[derive(
     carbon_core::InstructionType,
     serde::Serialize,

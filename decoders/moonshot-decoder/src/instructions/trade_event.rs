@@ -1,5 +1,6 @@
 use {
     super::super::types::*,
+    alloc::string::String,
     carbon_core::{borsh, CarbonDeserialize},
 };
 

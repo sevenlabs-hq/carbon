@@ -1,3 +1,4 @@
+use alloc::string::String;
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
@@ -10,4 +11,6 @@ pub struct CreateEvent {
     pub mint: solana_pubkey::Pubkey,
     pub bonding_curve: solana_pubkey::Pubkey,
     pub user: solana_pubkey::Pubkey,
+    pub creator: solana_pubkey::Pubkey,
+    pub timestamp: i64,
 }

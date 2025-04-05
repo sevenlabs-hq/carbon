@@ -7,8 +7,8 @@ pub mod reserve;
 pub mod vault_state;
 
 pub enum KaminoVaultAccount {
-    Reserve(reserve::Reserve),
-    VaultState(vault_state::VaultState),
+    Reserve(Box<reserve::Reserve>),
+    VaultState(Box<vault_state::VaultState>),
 }
 
 impl AccountDecoder<'_> for KaminoVaultDecoder {
@@ -24,7 +24,7 @@ impl AccountDecoder<'_> for KaminoVaultDecoder {
         if let Some(decoded_account) = reserve::Reserve::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: KaminoVaultAccount::Reserve(decoded_account),
+                data: KaminoVaultAccount::Reserve(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -35,7 +35,7 @@ impl AccountDecoder<'_> for KaminoVaultDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: KaminoVaultAccount::VaultState(decoded_account),
+                data: KaminoVaultAccount::VaultState(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

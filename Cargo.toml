@@ -30,6 +30,7 @@ carbon-log-metrics = { path = "metrics/log-metrics", version = "0.7.0" }
 carbon-prometheus-metrics = { path = "metrics/prometheus-metrics", version = "0.7.0" }
 
 # decoders
+carbon-associated-token-account-decoder = { path = "decoders/associated-token-account-decoder", version = "0.7.0" }
 carbon-drift-v2-decoder = { path = "decoders/drift-v2-decoder", version = "0.7.0" }
 carbon-fluxbeam-decoder = { path = "decoders/fluxbeam-decoder", version = "0.7.0" }
 carbon-jupiter-dca-decoder = { path = "decoders/jupiter-dca-decoder", version = "0.7.0" }
@@ -62,7 +63,6 @@ carbon-raydium-cpmm-decoder = { path = "decoders/raydium-cpmm-decoder", version 
 carbon-raydium-liquidity-locking-decoder = { path = "decoders/carbon-raydium-liquidity-locking-decoder", version = "0.7.0" }
 carbon-sharky-decoder = { path = "decoders/sharky-decoder", version = "0.7.0" }
 carbon-solayer-restaking-program-decoder = { path = "decoders/solayer-restaking-program-decoder", version = "0.7.0" }
-carbon-spl-associated-token-account-decoder = { path = "decoders/spl-associated-token-account-decoder", version = "0.7.0" }
 carbon-stabble-stable-swap-decoder = { path = "decoders/carbon-stabble-stable-swap-decoder", version = "0.7.0" }
 carbon-stabble-weighted-swap-decoder = { path = "decoders/carbon-stabble-weighted-swap-decoder", version = "0.7.0" }
 carbon-stake-program-decoder = { path = "decoders/carbon-stake-program-decoder", version = "0.7.0" }

@@ -66,6 +66,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SystemProgramDecoder {
 
 #[cfg(test)]
 mod tests {
+    use alloc::{string::ToString, vec};
     use carbon_core::{
         deserialize::{ArrangeAccounts, U64PrefixString},
         instruction::InstructionDecoder,
