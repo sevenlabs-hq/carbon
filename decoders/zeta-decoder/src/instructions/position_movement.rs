@@ -1,5 +1,6 @@
 use super::super::types::*;
 
+use alloc::vec::Vec;
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(

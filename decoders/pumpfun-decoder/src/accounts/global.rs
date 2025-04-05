@@ -11,7 +11,12 @@ pub struct Global {
     pub initial_real_token_reserves: u64,
     pub token_total_supply: u64,
     pub fee_basis_points: u64,
-    pub _reserved: [u8; 399],
+    pub withdraw_authority: solana_pubkey::Pubkey,
+    pub enable_migrate: bool,
+    pub pool_migration_fee: u64,
+    pub creator_fee: u64,
+    pub fee_recipients: [solana_pubkey::Pubkey; 7], // 224
+    pub _reserved: [u8; 126],
 }
 
 impl Default for Global {
@@ -26,7 +31,20 @@ impl Default for Global {
             initial_real_token_reserves: 0,
             token_total_supply: 0,
             fee_basis_points: 0,
-            _reserved: [0; 399],
+            withdraw_authority: solana_pubkey::Pubkey::default(),
+            enable_migrate: false,
+            pool_migration_fee: 0,
+            creator_fee: 0,
+            fee_recipients: [
+                solana_pubkey::Pubkey::default(),
+                solana_pubkey::Pubkey::default(),
+                solana_pubkey::Pubkey::default(),
+                solana_pubkey::Pubkey::default(),
+                solana_pubkey::Pubkey::default(),
+                solana_pubkey::Pubkey::default(),
+                solana_pubkey::Pubkey::default(),
+            ],
+            _reserved: [0; 126],
         }
     }
 }

@@ -1,3 +1,6 @@
+#![no_std]
+
+extern crate alloc;
 use solana_pubkey::Pubkey;
 
 pub struct StakeProgramDecoder;
@@ -7,4 +10,4 @@ pub mod instructions;
 pub mod types;
 
 pub const PROGRAM_ID: Pubkey =
-    solana_pubkey::Pubkey::from_str_const("Stake11111111111111111111111111111111111111");
+    Pubkey::from_str_const("Stake11111111111111111111111111111111111111");

@@ -9,9 +9,9 @@ pub mod lock_escrow;
 pub mod pool;
 
 pub enum MeteoraPoolsProgramAccount {
-    Config(config::Config),
+    Config(Box<config::Config>),
     LockEscrow(lock_escrow::LockEscrow),
-    Pool(pool::Pool),
+    Pool(Box<pool::Pool>),
 }
 
 impl AccountDecoder<'_> for MeteoraPoolsDecoder {
@@ -27,7 +27,7 @@ impl AccountDecoder<'_> for MeteoraPoolsDecoder {
         if let Some(decoded_account) = config::Config::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: MeteoraPoolsProgramAccount::Config(decoded_account),
+                data: MeteoraPoolsProgramAccount::Config(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -48,7 +48,7 @@ impl AccountDecoder<'_> for MeteoraPoolsDecoder {
         if let Some(decoded_account) = pool::Pool::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: MeteoraPoolsProgramAccount::Pool(decoded_account),
+                data: MeteoraPoolsProgramAccount::Pool(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

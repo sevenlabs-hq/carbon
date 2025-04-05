@@ -8,7 +8,7 @@ pub mod market_header;
 pub mod seat;
 
 pub enum PhoenixAccount {
-    MarketHeader(market_header::MarketHeader),
+    MarketHeader(Box<market_header::MarketHeader>),
     Seat(seat::Seat),
 }
 
@@ -27,7 +27,7 @@ impl AccountDecoder<'_> for PhoenixDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: PhoenixAccount::MarketHeader(decoded_account),
+                data: PhoenixAccount::MarketHeader(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

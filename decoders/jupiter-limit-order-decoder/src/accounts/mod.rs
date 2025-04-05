@@ -8,7 +8,7 @@ pub mod order;
 
 pub enum JupiterLimitOrderAccount {
     Fee(fee::Fee),
-    Order(order::Order),
+    Order(Box<order::Order>),
 }
 
 impl AccountDecoder<'_> for JupiterLimitOrderDecoder {
@@ -34,7 +34,7 @@ impl AccountDecoder<'_> for JupiterLimitOrderDecoder {
         if let Some(decoded_account) = order::Order::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: JupiterLimitOrderAccount::Order(decoded_account),
+                data: JupiterLimitOrderAccount::Order(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

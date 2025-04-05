@@ -839,6 +839,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-associated-token-account-decoder"
+version = "0.7.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey",
+]
+
+[[package]]
 name = "carbon-cli"
 version = "0.7.0"
 dependencies = [
@@ -1419,19 +1432,6 @@ dependencies = [
 
 [[package]]
 name = "carbon-solayer-restaking-program-decoder"
-version = "0.7.0"
-dependencies = [
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
- "serde",
- "solana-account",
- "solana-instruction",
- "solana-pubkey",
-]
-
-[[package]]
-name = "carbon-spl-associated-token-account-decoder"
 version = "0.7.0"
 dependencies = [
  "carbon-core",

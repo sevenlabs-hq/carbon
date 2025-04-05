@@ -1,5 +1,6 @@
 use {
     crate::types::*,
+    alloc::vec::Vec,
     carbon_core::{borsh, CarbonDeserialize},
 };
 #[derive(
