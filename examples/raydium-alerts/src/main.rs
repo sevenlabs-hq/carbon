@@ -4,7 +4,7 @@ use {
         account::{AccountMetadata, DecodedAccount},
         deserialize::ArrangeAccounts,
         error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstruction},
+        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
         metrics::MetricsCollection,
         processor::Processor,
     },
@@ -85,7 +85,7 @@ impl Processor for RaydiumAmmV4InstructionProcessor {
     type InputType = (
         InstructionMetadata,
         DecodedInstruction<RaydiumAmmV4Instruction>,
-        Vec<NestedInstruction>,
+        NestedInstructions,
     );
 
     async fn process(

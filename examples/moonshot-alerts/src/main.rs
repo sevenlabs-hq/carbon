@@ -3,7 +3,7 @@ use {
     carbon_core::{
         deserialize::ArrangeAccounts,
         error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstruction},
+        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
         metrics::MetricsCollection,
         processor::Processor,
     },
@@ -59,7 +59,7 @@ impl Processor for MoonshotInstructionProcessor {
     type InputType = (
         InstructionMetadata,
         DecodedInstruction<MoonshotInstruction>,
-        Vec<NestedInstruction>,
+        NestedInstructions,
     );
 
     async fn process(
