@@ -39,6 +39,7 @@ pub fn process_codama_accounts(program: &ProgramNode) -> Vec<AccountData> {
             fields.push(AccountFieldData {
                 name: field.name.to_snake_case(),
                 rust_type: rust_type.0,
+                attributes: None,
             });
         }
 
