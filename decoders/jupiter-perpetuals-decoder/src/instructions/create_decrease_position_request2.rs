@@ -11,31 +11,31 @@ pub struct CreateDecreasePositionRequest2 {
 }
 
 pub struct CreateDecreasePositionRequest2InstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub receiving_account: solana_sdk::pubkey::Pubkey,
-    pub perpetuals: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub position: solana_sdk::pubkey::Pubkey,
-    pub position_request: solana_sdk::pubkey::Pubkey,
-    pub position_request_ata: solana_sdk::pubkey::Pubkey,
-    pub custody: solana_sdk::pubkey::Pubkey,
-    pub custody_doves_price_account: solana_sdk::pubkey::Pubkey,
-    pub custody_pythnet_price_account: solana_sdk::pubkey::Pubkey,
-    pub collateral_custody: solana_sdk::pubkey::Pubkey,
-    pub desired_mint: solana_sdk::pubkey::Pubkey,
-    pub referral: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub receiving_account: solana_pubkey::Pubkey,
+    pub perpetuals: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub position: solana_pubkey::Pubkey,
+    pub position_request: solana_pubkey::Pubkey,
+    pub position_request_ata: solana_pubkey::Pubkey,
+    pub custody: solana_pubkey::Pubkey,
+    pub custody_doves_price_account: solana_pubkey::Pubkey,
+    pub custody_pythnet_price_account: solana_pubkey::Pubkey,
+    pub collateral_custody: solana_pubkey::Pubkey,
+    pub desired_mint: solana_pubkey::Pubkey,
+    pub referral: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CreateDecreasePositionRequest2 {
     type ArrangedAccounts = CreateDecreasePositionRequest2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, receiving_account, perpetuals, pool, position, position_request, position_request_ata, custody, custody_doves_price_account, custody_pythnet_price_account, collateral_custody, desired_mint, referral, token_program, associated_token_program, system_program, event_authority, program, _remaining @ ..] =
             accounts

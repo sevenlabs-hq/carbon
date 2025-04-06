@@ -10,21 +10,21 @@ pub struct Refill {
 }
 
 pub struct RefillInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub user_base_account: solana_sdk::pubkey::Pubkey,
-    pub user_quote_account: solana_sdk::pubkey::Pubkey,
-    pub open_orders_account: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub market_base_vault: solana_sdk::pubkey::Pubkey,
-    pub market_quote_vault: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub user_base_account: solana_pubkey::Pubkey,
+    pub user_quote_account: solana_pubkey::Pubkey,
+    pub open_orders_account: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub market_base_vault: solana_pubkey::Pubkey,
+    pub market_quote_vault: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Refill {
     type ArrangedAccounts = RefillInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, user_base_account, user_quote_account, open_orders_account, market, market_base_vault, market_quote_vault, token_program, _remaining @ ..] =
             accounts

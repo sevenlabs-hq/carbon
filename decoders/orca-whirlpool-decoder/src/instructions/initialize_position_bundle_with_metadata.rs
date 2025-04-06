@@ -7,25 +7,25 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct InitializePositionBundleWithMetadata {}
 
 pub struct InitializePositionBundleWithMetadataInstructionAccounts {
-    pub position_bundle: solana_sdk::pubkey::Pubkey,
-    pub position_bundle_mint: solana_sdk::pubkey::Pubkey,
-    pub position_bundle_metadata: solana_sdk::pubkey::Pubkey,
-    pub position_bundle_token_account: solana_sdk::pubkey::Pubkey,
-    pub position_bundle_owner: solana_sdk::pubkey::Pubkey,
-    pub funder: solana_sdk::pubkey::Pubkey,
-    pub metadata_update_auth: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
-    pub metadata_program: solana_sdk::pubkey::Pubkey,
+    pub position_bundle: solana_pubkey::Pubkey,
+    pub position_bundle_mint: solana_pubkey::Pubkey,
+    pub position_bundle_metadata: solana_pubkey::Pubkey,
+    pub position_bundle_token_account: solana_pubkey::Pubkey,
+    pub position_bundle_owner: solana_pubkey::Pubkey,
+    pub funder: solana_pubkey::Pubkey,
+    pub metadata_update_auth: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub metadata_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializePositionBundleWithMetadata {
     type ArrangedAccounts = InitializePositionBundleWithMetadataInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [position_bundle, position_bundle_mint, position_bundle_metadata, position_bundle_token_account, position_bundle_owner, funder, metadata_update_auth, token_program, system_program, rent, associated_token_program, metadata_program, _remaining @ ..] =
             accounts

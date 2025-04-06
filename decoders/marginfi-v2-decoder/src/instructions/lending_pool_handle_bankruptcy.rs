@@ -7,21 +7,21 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct LendingPoolHandleBankruptcy {}
 
 pub struct LendingPoolHandleBankruptcyInstructionAccounts {
-    pub marginfi_group: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub bank: solana_sdk::pubkey::Pubkey,
-    pub marginfi_account: solana_sdk::pubkey::Pubkey,
-    pub liquidity_vault: solana_sdk::pubkey::Pubkey,
-    pub insurance_vault: solana_sdk::pubkey::Pubkey,
-    pub insurance_vault_authority: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub marginfi_group: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub bank: solana_pubkey::Pubkey,
+    pub marginfi_account: solana_pubkey::Pubkey,
+    pub liquidity_vault: solana_pubkey::Pubkey,
+    pub insurance_vault: solana_pubkey::Pubkey,
+    pub insurance_vault_authority: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for LendingPoolHandleBankruptcy {
     type ArrangedAccounts = LendingPoolHandleBankruptcyInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [marginfi_group, admin, bank, marginfi_account, liquidity_vault, insurance_vault, insurance_vault_authority, token_program, _remaining @ ..] =
             accounts

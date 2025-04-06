@@ -7,20 +7,20 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct InitializeZetaTreasuryWallet {}
 
 pub struct InitializeZetaTreasuryWalletInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub treasury_wallet: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub usdc_mint: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub treasury_wallet: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub usdc_mint: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeZetaTreasuryWallet {
     type ArrangedAccounts = InitializeZetaTreasuryWalletInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, treasury_wallet, rent, system_program, token_program, usdc_mint, admin, _remaining @ ..] =
             accounts

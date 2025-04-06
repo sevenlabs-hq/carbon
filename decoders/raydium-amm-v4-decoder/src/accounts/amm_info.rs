@@ -3,7 +3,7 @@ use {
     carbon_core::{borsh, CarbonDeserialize},
 };
 
-pub const AMM_INFO_SIZE: usize = std::mem::size_of::<AmmInfo>();
+pub const AMM_INFO_SIZE: usize = core::mem::size_of::<AmmInfo>();
 
 #[derive(CarbonDeserialize, Debug)]
 pub struct AmmInfo {
@@ -25,18 +25,18 @@ pub struct AmmInfo {
     pub sys_decimal_value: u64,
     pub fees: Fees,
     pub out_put: OutPutData,
-    pub token_coin: solana_sdk::pubkey::Pubkey,
-    pub token_pc: solana_sdk::pubkey::Pubkey,
-    pub coin_mint: solana_sdk::pubkey::Pubkey,
-    pub pc_mint: solana_sdk::pubkey::Pubkey,
-    pub lp_mint: solana_sdk::pubkey::Pubkey,
-    pub open_orders: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub serum_dex: solana_sdk::pubkey::Pubkey,
-    pub target_orders: solana_sdk::pubkey::Pubkey,
-    pub withdraw_queue: solana_sdk::pubkey::Pubkey,
-    pub token_temp_lp: solana_sdk::pubkey::Pubkey,
-    pub amm_owner: solana_sdk::pubkey::Pubkey,
+    pub token_coin: solana_pubkey::Pubkey,
+    pub token_pc: solana_pubkey::Pubkey,
+    pub coin_mint: solana_pubkey::Pubkey,
+    pub pc_mint: solana_pubkey::Pubkey,
+    pub lp_mint: solana_pubkey::Pubkey,
+    pub open_orders: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub serum_dex: solana_pubkey::Pubkey,
+    pub target_orders: solana_pubkey::Pubkey,
+    pub withdraw_queue: solana_pubkey::Pubkey,
+    pub token_temp_lp: solana_pubkey::Pubkey,
+    pub amm_owner: solana_pubkey::Pubkey,
     pub lp_amount: u64,
     pub client_order_id: u64,
     pub padding: [u64; 2],

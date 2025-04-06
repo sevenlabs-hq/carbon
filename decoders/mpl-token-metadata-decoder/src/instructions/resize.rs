@@ -7,20 +7,20 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct Resize {}
 
 pub struct ResizeInstructionAccounts {
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub edition: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub token: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub edition: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub token: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Resize {
     type ArrangedAccounts = ResizeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [metadata, edition, mint, payer, authority, token, system_program, _remaining @ ..] =
             accounts

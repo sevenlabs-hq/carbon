@@ -119,12 +119,12 @@ pub enum MarinadeFinanceInstruction {
     WithdrawStakeAccountEvent(withdraw_stake_account_event::WithdrawStakeAccountEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for MarinadeFinanceDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for MarinadeFinanceDecoder {
     type InstructionType = MarinadeFinanceInstruction;
 
     fn decode_instruction(
         &self,
-        instruction: &solana_sdk::instruction::Instruction,
+        instruction: &solana_instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         if !instruction.program_id.eq(&PROGRAM_ID) {
             return None;

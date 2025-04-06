@@ -15,9 +15,9 @@ pub struct GlobalConfig {
     pub pda_authority_previous_lamports_balance: u64,
     pub total_tip_amount: u64,
     pub host_tip_amount: u64,
-    pub pda_authority: solana_sdk::pubkey::Pubkey,
+    pub pda_authority: solana_pubkey::Pubkey,
     pub pda_authority_bump: u64,
-    pub admin_authority: solana_sdk::pubkey::Pubkey,
-    pub admin_authority_cached: solana_sdk::pubkey::Pubkey,
+    pub admin_authority: solana_pubkey::Pubkey,
+    pub admin_authority_cached: solana_pubkey::Pubkey,
     pub padding2: [u64; 243],
 }

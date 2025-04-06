@@ -4,5 +4,5 @@ use carbon_core::{borsh, CarbonDeserialize};
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub struct PythConfiguration {
-    pub price: solana_sdk::pubkey::Pubkey,
+    pub price: solana_pubkey::Pubkey,
 }

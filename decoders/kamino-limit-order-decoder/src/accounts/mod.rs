@@ -7,15 +7,15 @@ pub mod global_config;
 pub mod order;
 
 pub enum KaminoLimitOrderAccount {
-    Order(order::Order),
-    GlobalConfig(global_config::GlobalConfig),
+    Order(Box<order::Order>),
+    GlobalConfig(Box<global_config::GlobalConfig>),
 }
 
-impl<'a> AccountDecoder<'a> for KaminoLimitOrderDecoder {
+impl AccountDecoder<'_> for KaminoLimitOrderDecoder {
     type AccountType = KaminoLimitOrderAccount;
     fn decode_account(
         &self,
-        account: &solana_sdk::account::Account,
+        account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;
@@ -23,7 +23,7 @@ impl<'a> AccountDecoder<'a> for KaminoLimitOrderDecoder {
         if let Some(decoded_account) = order::Order::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: KaminoLimitOrderAccount::Order(decoded_account),
+                data: KaminoLimitOrderAccount::Order(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -35,7 +35,7 @@ impl<'a> AccountDecoder<'a> for KaminoLimitOrderDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: KaminoLimitOrderAccount::GlobalConfig(decoded_account),
+                data: KaminoLimitOrderAccount::GlobalConfig(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

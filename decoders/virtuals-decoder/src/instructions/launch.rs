@@ -1,3 +1,4 @@
+use alloc::string::String;
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
@@ -11,25 +12,25 @@ pub struct Launch {
 }
 
 pub struct LaunchInstructionAccounts {
-    pub creator: solana_sdk::pubkey::Pubkey,
-    pub creator_virtuals_ata: solana_sdk::pubkey::Pubkey,
-    pub token_mint: solana_sdk::pubkey::Pubkey,
-    pub platform_prototype: solana_sdk::pubkey::Pubkey,
-    pub platform_prototype_virtuals_ata: solana_sdk::pubkey::Pubkey,
-    pub vpool: solana_sdk::pubkey::Pubkey,
-    pub token_metadata: solana_sdk::pubkey::Pubkey,
-    pub metadata_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub creator: solana_pubkey::Pubkey,
+    pub creator_virtuals_ata: solana_pubkey::Pubkey,
+    pub token_mint: solana_pubkey::Pubkey,
+    pub platform_prototype: solana_pubkey::Pubkey,
+    pub platform_prototype_virtuals_ata: solana_pubkey::Pubkey,
+    pub vpool: solana_pubkey::Pubkey,
+    pub token_metadata: solana_pubkey::Pubkey,
+    pub metadata_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Launch {
     type ArrangedAccounts = LaunchInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [creator, creator_virtuals_ata, token_mint, platform_prototype, platform_prototype_virtuals_ata, vpool, token_metadata, metadata_program, token_program, associated_token_program, system_program, rent, _remaining @ ..] =
             accounts

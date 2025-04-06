@@ -4,9 +4,9 @@ use carbon_core::{borsh, CarbonDeserialize};
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub struct RewardInfo {
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub vault: solana_sdk::pubkey::Pubkey,
-    pub funder: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub vault: solana_pubkey::Pubkey,
+    pub funder: solana_pubkey::Pubkey,
     pub reward_duration: u64,
     pub reward_duration_end: u64,
     pub reward_rate: u128,

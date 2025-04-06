@@ -9,16 +9,16 @@ pub struct Claim {
 }
 
 pub struct ClaimInstructionAccounts {
-    pub wallet: solana_sdk::pubkey::Pubkey,
-    pub program_authority: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub wallet: solana_pubkey::Pubkey,
+    pub program_authority: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Claim {
     type ArrangedAccounts = ClaimInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [wallet, program_authority, system_program, _remaining @ ..] = accounts else {
             return None;

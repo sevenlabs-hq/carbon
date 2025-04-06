@@ -9,18 +9,18 @@ pub struct InitializeSignedMsgUserOrders {
 }
 
 pub struct InitializeSignedMsgUserOrdersInstructionAccounts {
-    pub signed_msg_user_orders: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub signed_msg_user_orders: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeSignedMsgUserOrders {
     type ArrangedAccounts = InitializeSignedMsgUserOrdersInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [signed_msg_user_orders, authority, payer, rent, system_program, _remaining @ ..] =
             accounts

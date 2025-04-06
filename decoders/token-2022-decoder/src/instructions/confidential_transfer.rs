@@ -17,21 +17,21 @@ pub struct ConfidentialTransfer {
 }
 
 pub struct ConfidentialTransferInstructionAccounts {
-    pub source_token: solana_sdk::pubkey::Pubkey,
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub destination_token: solana_sdk::pubkey::Pubkey,
-    pub instructions_sysvar: solana_sdk::pubkey::Pubkey,
-    pub equality_record: solana_sdk::pubkey::Pubkey,
-    pub ciphertext_validity_record: solana_sdk::pubkey::Pubkey,
-    pub range_record: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub source_token: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub destination_token: solana_pubkey::Pubkey,
+    pub instructions_sysvar: solana_pubkey::Pubkey,
+    pub equality_record: solana_pubkey::Pubkey,
+    pub ciphertext_validity_record: solana_pubkey::Pubkey,
+    pub range_record: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ConfidentialTransfer {
     type ArrangedAccounts = ConfidentialTransferInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [source_token, mint, destination_token, instructions_sysvar, equality_record, ciphertext_validity_record, range_record, authority, _remaining @ ..] =
             accounts

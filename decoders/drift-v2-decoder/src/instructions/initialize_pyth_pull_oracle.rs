@@ -9,18 +9,18 @@ pub struct InitializePythPullOracle {
 }
 
 pub struct InitializePythPullOracleInstructionAccounts {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub pyth_solana_receiver: solana_sdk::pubkey::Pubkey,
-    pub price_feed: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub pyth_solana_receiver: solana_pubkey::Pubkey,
+    pub price_feed: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializePythPullOracle {
     type ArrangedAccounts = InitializePythPullOracleInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, pyth_solana_receiver, price_feed, system_program, state, _remaining @ ..] =
             accounts

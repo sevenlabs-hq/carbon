@@ -8,15 +8,15 @@ pub mod market_header;
 pub mod seat;
 
 pub enum PhoenixAccount {
-    MarketHeader(market_header::MarketHeader),
+    MarketHeader(Box<market_header::MarketHeader>),
     Seat(seat::Seat),
 }
 
-impl<'a> AccountDecoder<'a> for PhoenixDecoder {
+impl AccountDecoder<'_> for PhoenixDecoder {
     type AccountType = PhoenixAccount;
     fn decode_account(
         &self,
-        account: &solana_sdk::account::Account,
+        account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;
@@ -27,7 +27,7 @@ impl<'a> AccountDecoder<'a> for PhoenixDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: PhoenixAccount::MarketHeader(decoded_account),
+                data: PhoenixAccount::MarketHeader(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

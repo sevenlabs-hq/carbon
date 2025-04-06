@@ -7,5 +7,5 @@ pub enum Authority {
     None,
     Owner,
     UpdateAuthority,
-    Address { address: solana_sdk::pubkey::Pubkey },
+    Address { address: solana_pubkey::Pubkey },
 }

@@ -11,7 +11,7 @@ use {
         Cluster, RpcTransactionsConfig, TransactionCommitment, TransactionDetails,
         TransactionSubscribeFilter, TransactionSubscribeOptions, UiEnhancedTransactionEncoding,
     },
-    solana_sdk::native_token::LAMPORTS_PER_SOL,
+    solana_native_token::LAMPORTS_PER_SOL,
     std::{collections::HashSet, sync::Arc},
     tokio::sync::RwLock,
 };
@@ -72,15 +72,15 @@ impl Processor for PumpfunInstructionProcessor {
 
         match pumpfun_instruction {
             PumpfunInstruction::CreateEvent(create_event) => {
-                println!("\nNew token created: {:#?}", create_event);
+                log::info!("New token created: {:#?}", create_event);
             }
             PumpfunInstruction::TradeEvent(trade_event) => {
                 if trade_event.sol_amount > 10 * LAMPORTS_PER_SOL {
-                    println!("\nBig trade occured: {:#?}", trade_event);
+                    log::info!("Big trade occured: {:#?}", trade_event);
                 }
             }
             PumpfunInstruction::CompleteEvent(complete_event) => {
-                println!("\nBonded: {:#?}", complete_event);
+                log::info!("Bonded: {:#?}", complete_event);
             }
             _ => {}
         };

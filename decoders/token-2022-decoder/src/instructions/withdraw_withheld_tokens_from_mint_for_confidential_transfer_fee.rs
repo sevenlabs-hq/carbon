@@ -15,11 +15,11 @@ pub struct WithdrawWithheldTokensFromMintForConfidentialTransferFee {
 }
 
 pub struct WithdrawWithheldTokensFromMintForConfidentialTransferFeeInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
-    pub destination: solana_sdk::pubkey::Pubkey,
-    pub instructions_sysvar_or_context_state: solana_sdk::pubkey::Pubkey,
-    pub record: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
+    pub destination: solana_pubkey::Pubkey,
+    pub instructions_sysvar_or_context_state: solana_pubkey::Pubkey,
+    pub record: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts
@@ -29,7 +29,7 @@ impl carbon_core::deserialize::ArrangeAccounts
         WithdrawWithheldTokensFromMintForConfidentialTransferFeeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [mint, destination, instructions_sysvar_or_context_state, record, authority, _remaining @ ..] =
             accounts

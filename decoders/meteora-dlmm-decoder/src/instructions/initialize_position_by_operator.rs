@@ -7,29 +7,29 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct InitializePositionByOperator {
     pub lower_bin_id: i32,
     pub width: i32,
-    pub fee_owner: solana_sdk::pubkey::Pubkey,
+    pub fee_owner: solana_pubkey::Pubkey,
     pub lock_release_point: u64,
 }
 
 pub struct InitializePositionByOperatorInstructionAccounts {
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub base: solana_sdk::pubkey::Pubkey,
-    pub position: solana_sdk::pubkey::Pubkey,
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub operator: solana_sdk::pubkey::Pubkey,
-    pub operator_token_x: solana_sdk::pubkey::Pubkey,
-    pub owner_token_x: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub base: solana_pubkey::Pubkey,
+    pub position: solana_pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub operator: solana_pubkey::Pubkey,
+    pub operator_token_x: solana_pubkey::Pubkey,
+    pub owner_token_x: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializePositionByOperator {
     type ArrangedAccounts = InitializePositionByOperatorInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, base, position, lb_pair, owner, operator, operator_token_x, owner_token_x, system_program, event_authority, program, _remaining @ ..] =
             accounts

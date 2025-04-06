@@ -13,16 +13,16 @@ pub struct ConfigInit {
 
 #[derive(Debug)]
 pub struct ConfigInitInstructionAccounts {
-    pub config_authority: solana_sdk::pubkey::Pubkey,
-    pub config_account: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub config_authority: solana_pubkey::Pubkey,
+    pub config_account: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ConfigInit {
     type ArrangedAccounts = ConfigInitInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [config_authority, config_account, system_program, _remaining @ ..] = accounts else {
             return None;

@@ -9,16 +9,16 @@ pub struct GiveUpPendingFees {
 }
 
 pub struct GiveUpPendingFeesInstructionAccounts {
-    pub admin_authority: solana_sdk::pubkey::Pubkey,
-    pub vault_state: solana_sdk::pubkey::Pubkey,
-    pub klend_program: solana_sdk::pubkey::Pubkey,
+    pub admin_authority: solana_pubkey::Pubkey,
+    pub vault_state: solana_pubkey::Pubkey,
+    pub klend_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for GiveUpPendingFees {
     type ArrangedAccounts = GiveUpPendingFeesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin_authority, vault_state, klend_program, _remaining @ ..] = accounts else {
             return None;

@@ -12,23 +12,23 @@ pub struct Initialize {
 }
 
 pub struct InitializeInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub reserve_pda: solana_sdk::pubkey::Pubkey,
-    pub stake_list: solana_sdk::pubkey::Pubkey,
-    pub validator_list: solana_sdk::pubkey::Pubkey,
-    pub msol_mint: solana_sdk::pubkey::Pubkey,
-    pub operational_sol_account: solana_sdk::pubkey::Pubkey,
-    pub liq_pool: solana_sdk::pubkey::Pubkey,
-    pub treasury_msol_account: solana_sdk::pubkey::Pubkey,
-    pub clock: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub reserve_pda: solana_pubkey::Pubkey,
+    pub stake_list: solana_pubkey::Pubkey,
+    pub validator_list: solana_pubkey::Pubkey,
+    pub msol_mint: solana_pubkey::Pubkey,
+    pub operational_sol_account: solana_pubkey::Pubkey,
+    pub liq_pool: solana_pubkey::Pubkey,
+    pub treasury_msol_account: solana_pubkey::Pubkey,
+    pub clock: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Initialize {
     type ArrangedAccounts = InitializeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, reserve_pda, stake_list, validator_list, msol_mint, operational_sol_account, liq_pool, treasury_msol_account, clock, rent, _remaining @ ..] =
             accounts

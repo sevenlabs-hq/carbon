@@ -9,20 +9,20 @@ pub struct Deposit {
 }
 
 pub struct DepositInstructionAccounts {
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub dca: solana_sdk::pubkey::Pubkey,
-    pub in_ata: solana_sdk::pubkey::Pubkey,
-    pub user_in_ata: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub dca: solana_pubkey::Pubkey,
+    pub in_ata: solana_pubkey::Pubkey,
+    pub user_in_ata: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Deposit {
     type ArrangedAccounts = DepositInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [user, dca, in_ata, user_in_ata, token_program, event_authority, program, _remaining @ ..] =
             accounts

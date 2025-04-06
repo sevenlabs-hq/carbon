@@ -6,8 +6,8 @@ use {
 #[derive(CarbonDeserialize, Debug)]
 #[carbon(discriminator = "0xffc24e7b1069d0a5")]
 pub struct OpenOrdersAccount {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
     pub name: [u8; 32],
     pub delegate: NonZeroPubkeyOption,
     pub account_num: u32,

@@ -7,15 +7,15 @@ pub struct StubOracleSet {
 }
 
 pub struct StubOracleSetInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for StubOracleSet {
     type ArrangedAccounts = StubOracleSetInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, oracle, _remaining @ ..] = accounts else {
             return None;

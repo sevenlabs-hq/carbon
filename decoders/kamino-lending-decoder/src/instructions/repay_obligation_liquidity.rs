@@ -9,22 +9,22 @@ pub struct RepayObligationLiquidity {
 }
 
 pub struct RepayObligationLiquidityInstructionAccounts {
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub obligation: solana_sdk::pubkey::Pubkey,
-    pub lending_market: solana_sdk::pubkey::Pubkey,
-    pub repay_reserve: solana_sdk::pubkey::Pubkey,
-    pub reserve_liquidity_mint: solana_sdk::pubkey::Pubkey,
-    pub reserve_destination_liquidity: solana_sdk::pubkey::Pubkey,
-    pub user_source_liquidity: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub instruction_sysvar_account: solana_sdk::pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub obligation: solana_pubkey::Pubkey,
+    pub lending_market: solana_pubkey::Pubkey,
+    pub repay_reserve: solana_pubkey::Pubkey,
+    pub reserve_liquidity_mint: solana_pubkey::Pubkey,
+    pub reserve_destination_liquidity: solana_pubkey::Pubkey,
+    pub user_source_liquidity: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub instruction_sysvar_account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RepayObligationLiquidity {
     type ArrangedAccounts = RepayObligationLiquidityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [owner, obligation, lending_market, repay_reserve, reserve_liquidity_mint, reserve_destination_liquidity, user_source_liquidity, token_program, instruction_sysvar_account, _remaining @ ..] =
             accounts

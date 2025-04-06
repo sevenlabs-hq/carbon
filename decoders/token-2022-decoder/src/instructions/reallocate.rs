@@ -1,5 +1,6 @@
 use {
     super::super::types::*,
+    alloc::vec::Vec,
     carbon_core::{borsh, CarbonDeserialize},
 };
 
@@ -12,17 +13,17 @@ pub struct Reallocate {
 }
 
 pub struct ReallocateInstructionAccounts {
-    pub token: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
+    pub token: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Reallocate {
     type ArrangedAccounts = ReallocateInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [token, payer, system_program, owner, _remaining @ ..] = accounts else {
             return None;

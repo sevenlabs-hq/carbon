@@ -9,18 +9,18 @@ pub struct CancelTriggerOrder {
 }
 
 pub struct CancelTriggerOrderInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub trigger_order: solana_sdk::pubkey::Pubkey,
-    pub margin_account: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub trigger_order: solana_pubkey::Pubkey,
+    pub margin_account: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CancelTriggerOrder {
     type ArrangedAccounts = CancelTriggerOrderInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, admin, payer, trigger_order, margin_account, _remaining @ ..] = accounts else {
             return None;

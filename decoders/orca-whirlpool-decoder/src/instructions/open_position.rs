@@ -14,23 +14,23 @@ pub struct OpenPosition {
 }
 
 pub struct OpenPositionInstructionAccounts {
-    pub funder: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub position: solana_sdk::pubkey::Pubkey,
-    pub position_mint: solana_sdk::pubkey::Pubkey,
-    pub position_token_account: solana_sdk::pubkey::Pubkey,
-    pub whirlpool: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
+    pub funder: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub position: solana_pubkey::Pubkey,
+    pub position_mint: solana_pubkey::Pubkey,
+    pub position_token_account: solana_pubkey::Pubkey,
+    pub whirlpool: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for OpenPosition {
     type ArrangedAccounts = OpenPositionInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [funder, owner, position, position_mint, position_token_account, whirlpool, token_program, system_program, rent, associated_token_program, _remaining @ ..] =
             accounts

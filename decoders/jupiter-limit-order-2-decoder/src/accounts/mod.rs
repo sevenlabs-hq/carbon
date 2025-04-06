@@ -7,7 +7,7 @@ pub mod fee;
 pub mod order;
 
 pub enum JupiterLimitOrder2Account {
-    Order(order::Order),
+    Order(Box<order::Order>),
     Fee(fee::Fee),
 }
 
@@ -15,7 +15,7 @@ impl AccountDecoder<'_> for JupiterLimitOrder2Decoder {
     type AccountType = JupiterLimitOrder2Account;
     fn decode_account(
         &self,
-        account: &solana_sdk::account::Account,
+        account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;
@@ -24,7 +24,7 @@ impl AccountDecoder<'_> for JupiterLimitOrder2Decoder {
         if let Some(decoded_account) = order::Order::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: JupiterLimitOrder2Account::Order(decoded_account),
+                data: JupiterLimitOrder2Account::Order(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

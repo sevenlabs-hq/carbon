@@ -4,8 +4,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x48b155f94ca7ba7e")]
 pub struct UserState {
     pub user_id: u64,
-    pub farm_state: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
+    pub farm_state: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
     pub is_farm_delegated: u8,
     pub padding0: [u8; 7],
     pub rewards_tally_scaled: [u128; 10],
@@ -17,7 +17,7 @@ pub struct UserState {
     pub pending_withdrawal_unstake_scaled: u128,
     pub pending_withdrawal_unstake_ts: u64,
     pub bump: u64,
-    pub delegatee: solana_sdk::pubkey::Pubkey,
+    pub delegatee: solana_pubkey::Pubkey,
     pub last_stake_ts: u64,
     pub padding1: [u64; 50],
 }

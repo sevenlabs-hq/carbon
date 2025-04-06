@@ -9,17 +9,17 @@ pub struct InitializeBinArray {
 }
 
 pub struct InitializeBinArrayInstructionAccounts {
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
-    pub bin_array: solana_sdk::pubkey::Pubkey,
-    pub funder: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
+    pub bin_array: solana_pubkey::Pubkey,
+    pub funder: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeBinArray {
     type ArrangedAccounts = InitializeBinArrayInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [lb_pair, bin_array, funder, system_program, _remaining @ ..] = accounts else {
             return None;

@@ -4,8 +4,8 @@ use carbon_core::{borsh, CarbonDeserialize};
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub struct AccountEventHeader {
-    pub signer: Option<solana_sdk::pubkey::Pubkey>,
-    pub marginfi_account: solana_sdk::pubkey::Pubkey,
-    pub marginfi_account_authority: solana_sdk::pubkey::Pubkey,
-    pub marginfi_group: solana_sdk::pubkey::Pubkey,
+    pub signer: Option<solana_pubkey::Pubkey>,
+    pub marginfi_account: solana_pubkey::Pubkey,
+    pub marginfi_account_authority: solana_pubkey::Pubkey,
+    pub marginfi_group: solana_pubkey::Pubkey,
 }

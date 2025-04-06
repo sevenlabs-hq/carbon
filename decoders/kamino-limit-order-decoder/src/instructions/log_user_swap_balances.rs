@@ -7,20 +7,20 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct LogUserSwapBalances {}
 
 pub struct LogUserSwapBalancesInstructionAccounts {
-    pub maker: solana_sdk::pubkey::Pubkey,
-    pub input_mint: solana_sdk::pubkey::Pubkey,
-    pub output_mint: solana_sdk::pubkey::Pubkey,
-    pub input_ta: solana_sdk::pubkey::Pubkey,
-    pub output_ta: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub maker: solana_pubkey::Pubkey,
+    pub input_mint: solana_pubkey::Pubkey,
+    pub output_mint: solana_pubkey::Pubkey,
+    pub input_ta: solana_pubkey::Pubkey,
+    pub output_ta: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for LogUserSwapBalances {
     type ArrangedAccounts = LogUserSwapBalancesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [maker, input_mint, output_mint, input_ta, output_ta, event_authority, program, _remaining @ ..] =
             accounts

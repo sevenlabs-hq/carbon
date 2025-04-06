@@ -22,7 +22,7 @@ use {
         nonblocking::rpc_client::RpcClient,
         rpc_config::{RpcAccountInfoConfig, RpcProgramAccountsConfig},
     },
-    solana_sdk::pubkey::Pubkey,
+    solana_pubkey::Pubkey,
     std::{env, sync::Arc},
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
@@ -85,7 +85,7 @@ impl Datasource for GpaBackfillDatasource {
                 account,
                 slot,
             })) {
-                println!("\nFailed to send account update: {:?}", e);
+                log::error!("Failed to send account update: {:?}", e);
             }
         }
 
@@ -112,10 +112,10 @@ impl Processor for SharkyAccountProcessor {
 
         match account.data {
             SharkyAccount::OrderBook(order_book) => {
-                println!("Orderbook: {:?}", &order_book);
+                log::info!("Orderbook: {:?}", &order_book);
             }
             SharkyAccount::Loan(loan) => {
-                println!("Loan: {:?}", &loan);
+                log::info!("Loan: {:?}", &loan);
             }
             _ => {}
         }

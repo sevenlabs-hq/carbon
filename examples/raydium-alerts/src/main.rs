@@ -4,7 +4,7 @@ use {
         account::{AccountMetadata, DecodedAccount},
         deserialize::ArrangeAccounts,
         error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstruction},
+        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
         metrics::MetricsCollection,
         processor::Processor,
     },
@@ -85,7 +85,7 @@ impl Processor for RaydiumAmmV4InstructionProcessor {
     type InputType = (
         InstructionMetadata,
         DecodedInstruction<RaydiumAmmV4Instruction>,
-        Vec<NestedInstruction>,
+        NestedInstructions,
     );
 
     async fn process(
@@ -197,10 +197,10 @@ impl Processor for RaydiumAmmV4AccountProcessor {
 
         match account.data {
             RaydiumAmmV4Account::AmmInfo(pool) => {
-                println!("\nAccount: {:#?}\nPool: {:#?}", data.0.pubkey, pool);
+                log::info!("Account: {:#?}\nPool: {:#?}", data.0.pubkey, pool);
             }
             _ => {
-                println!("\nUnnecessary Account: {:#?}", data.0.pubkey);
+                log::warn!("Unnecessary Account: {:#?}", data.0.pubkey);
             }
         };
 

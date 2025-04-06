@@ -7,19 +7,19 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct DelegateStake {}
 
 pub struct DelegateStakeInstructionAccounts {
-    pub stake: solana_sdk::pubkey::Pubkey,
-    pub vote: solana_sdk::pubkey::Pubkey,
-    pub clock: solana_sdk::pubkey::Pubkey,
-    pub stake_history: solana_sdk::pubkey::Pubkey,
-    pub stake_config: solana_sdk::pubkey::Pubkey,
-    pub stake_authority: solana_sdk::pubkey::Pubkey,
+    pub stake: solana_pubkey::Pubkey,
+    pub vote: solana_pubkey::Pubkey,
+    pub clock: solana_pubkey::Pubkey,
+    pub stake_history: solana_pubkey::Pubkey,
+    pub stake_config: solana_pubkey::Pubkey,
+    pub stake_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for DelegateStake {
     type ArrangedAccounts = DelegateStakeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [stake, vote, clock, stake_history, stake_config, stake_authority, _remaining @ ..] =
             accounts

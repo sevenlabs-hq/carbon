@@ -7,16 +7,16 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct UpdateMaTypeAdmin {}
 
 pub struct UpdateMaTypeAdminInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub new_admin: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub new_admin: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateMaTypeAdmin {
     type ArrangedAccounts = UpdateMaTypeAdminInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, admin, new_admin, _remaining @ ..] = accounts else {
             return None;

@@ -1,6 +1,7 @@
 use {
     super::RaydiumClmmDecoder,
     crate::PROGRAM_ID,
+    alloc::boxed::Box,
     carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
 };
 pub mod amm_config;
@@ -15,20 +16,20 @@ pub mod tick_array_state;
 #[derive(Debug)]
 pub enum RaydiumClmmAccount {
     AmmConfig(amm_config::AmmConfig),
-    OperationState(operation_state::OperationState),
-    ObservationState(observation_state::ObservationState),
+    OperationState(Box<operation_state::OperationState>),
+    ObservationState(Box<observation_state::ObservationState>),
     PersonalPositionState(personal_position_state::PersonalPositionState),
-    PoolState(pool_state::PoolState),
+    PoolState(Box<pool_state::PoolState>),
     ProtocolPositionState(protocol_position_state::ProtocolPositionState),
-    TickArrayState(tick_array_state::TickArrayState),
-    TickArrayBitmapExtension(tick_array_bitmap_extension::TickArrayBitmapExtension),
+    TickArrayState(Box<tick_array_state::TickArrayState>),
+    TickArrayBitmapExtension(Box<tick_array_bitmap_extension::TickArrayBitmapExtension>),
 }
 
 impl AccountDecoder<'_> for RaydiumClmmDecoder {
     type AccountType = RaydiumClmmAccount;
     fn decode_account(
         &self,
-        account: &solana_sdk::account::Account,
+        account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;
@@ -49,7 +50,7 @@ impl AccountDecoder<'_> for RaydiumClmmDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: RaydiumClmmAccount::OperationState(decoded_account),
+                data: RaydiumClmmAccount::OperationState(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -61,7 +62,7 @@ impl AccountDecoder<'_> for RaydiumClmmDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: RaydiumClmmAccount::ObservationState(decoded_account),
+                data: RaydiumClmmAccount::ObservationState(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -83,7 +84,7 @@ impl AccountDecoder<'_> for RaydiumClmmDecoder {
         if let Some(decoded_account) = pool_state::PoolState::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: RaydiumClmmAccount::PoolState(decoded_account),
+                data: RaydiumClmmAccount::PoolState(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -107,7 +108,7 @@ impl AccountDecoder<'_> for RaydiumClmmDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: RaydiumClmmAccount::TickArrayState(decoded_account),
+                data: RaydiumClmmAccount::TickArrayState(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -121,7 +122,7 @@ impl AccountDecoder<'_> for RaydiumClmmDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: RaydiumClmmAccount::TickArrayBitmapExtension(decoded_account),
+                data: RaydiumClmmAccount::TickArrayBitmapExtension(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

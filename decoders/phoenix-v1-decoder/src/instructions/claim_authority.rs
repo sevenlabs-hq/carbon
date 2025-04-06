@@ -7,17 +7,17 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct ClaimAuthority {}
 
 pub struct ClaimAuthorityInstructionAccounts {
-    pub phoenix_program: solana_sdk::pubkey::Pubkey,
-    pub log_authority: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub successor: solana_sdk::pubkey::Pubkey,
+    pub phoenix_program: solana_pubkey::Pubkey,
+    pub log_authority: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub successor: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ClaimAuthority {
     type ArrangedAccounts = ClaimAuthorityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [phoenix_program, log_authority, market, successor, _remaining @ ..] = accounts else {
             return None;

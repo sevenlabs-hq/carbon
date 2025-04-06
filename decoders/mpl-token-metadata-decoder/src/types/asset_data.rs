@@ -18,5 +18,5 @@ pub struct AssetData {
     pub collection: Option<Collection>,
     pub uses: Option<Uses>,
     pub collection_details: Option<CollectionDetails>,
-    pub rule_set: Option<solana_sdk::pubkey::Pubkey>,
+    pub rule_set: Option<solana_pubkey::Pubkey>,
 }

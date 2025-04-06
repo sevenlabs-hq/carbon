@@ -11,19 +11,19 @@ pub mod open_orders_indexer;
 pub mod stub_oracle;
 
 pub enum OpenbookV2Account {
-    Market(market::Market),
-    OpenOrdersAccount(open_orders_account::OpenOrdersAccount),
+    Market(Box<market::Market>),
+    OpenOrdersAccount(Box<open_orders_account::OpenOrdersAccount>),
     OpenOrdersIndexer(open_orders_indexer::OpenOrdersIndexer),
     StubOracle(stub_oracle::StubOracle),
-    BookSide(book_side::BookSide),
-    EventHeap(event_heap::EventHeap),
+    BookSide(Box<book_side::BookSide>),
+    EventHeap(Box<event_heap::EventHeap>),
 }
 
 impl AccountDecoder<'_> for OpenbookV2Decoder {
     type AccountType = OpenbookV2Account;
     fn decode_account(
         &self,
-        account: &solana_sdk::account::Account,
+        account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;
@@ -32,7 +32,7 @@ impl AccountDecoder<'_> for OpenbookV2Decoder {
         if let Some(decoded_account) = market::Market::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: OpenbookV2Account::Market(decoded_account),
+                data: OpenbookV2Account::Market(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -44,7 +44,7 @@ impl AccountDecoder<'_> for OpenbookV2Decoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: OpenbookV2Account::OpenOrdersAccount(decoded_account),
+                data: OpenbookV2Account::OpenOrdersAccount(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -77,7 +77,7 @@ impl AccountDecoder<'_> for OpenbookV2Decoder {
         if let Some(decoded_account) = book_side::BookSide::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: OpenbookV2Account::BookSide(decoded_account),
+                data: OpenbookV2Account::BookSide(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -87,7 +87,7 @@ impl AccountDecoder<'_> for OpenbookV2Decoder {
         if let Some(decoded_account) = event_heap::EventHeap::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: OpenbookV2Account::EventHeap(decoded_account),
+                data: OpenbookV2Account::EventHeap(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

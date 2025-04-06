@@ -12,28 +12,28 @@ pub struct InitializeOrder {
 }
 
 pub struct InitializeOrderInstructionAccounts {
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub maker: solana_sdk::pubkey::Pubkey,
-    pub order: solana_sdk::pubkey::Pubkey,
-    pub input_mint_reserve: solana_sdk::pubkey::Pubkey,
-    pub maker_input_mint_account: solana_sdk::pubkey::Pubkey,
-    pub fee: solana_sdk::pubkey::Pubkey,
-    pub referral: solana_sdk::pubkey::Pubkey,
-    pub input_mint: solana_sdk::pubkey::Pubkey,
-    pub output_mint: solana_sdk::pubkey::Pubkey,
-    pub input_token_program: solana_sdk::pubkey::Pubkey,
-    pub output_token_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub maker: solana_pubkey::Pubkey,
+    pub order: solana_pubkey::Pubkey,
+    pub input_mint_reserve: solana_pubkey::Pubkey,
+    pub maker_input_mint_account: solana_pubkey::Pubkey,
+    pub fee: solana_pubkey::Pubkey,
+    pub referral: solana_pubkey::Pubkey,
+    pub input_mint: solana_pubkey::Pubkey,
+    pub output_mint: solana_pubkey::Pubkey,
+    pub input_token_program: solana_pubkey::Pubkey,
+    pub output_token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeOrder {
     type ArrangedAccounts = InitializeOrderInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, maker, order, input_mint_reserve, maker_input_mint_account, fee, referral, input_mint, output_mint, input_token_program, output_token_program, system_program, associated_token_program, event_authority, program, _remaining @ ..] =
             accounts

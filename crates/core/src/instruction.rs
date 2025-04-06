@@ -28,7 +28,11 @@ use {
     serde::Deserialize,
     solana_instruction::AccountMeta,
     solana_pubkey::Pubkey,
-    std::{ops::Deref, sync::Arc},
+    std::{
+        collections::HashMap,
+        ops::{Deref, DerefMut},
+        sync::Arc,
+    },
 };
 
 /// Metadata associated with a specific instruction, including transaction-level
@@ -43,7 +47,7 @@ use {
 /// - `transaction_metadata`: Metadata providing details of the entire
 ///   transaction.
 /// - `stack_height`: Represents the instruction’s depth within the stack, where
-///   0 is the root level.
+///   1 is the root level.
 /// - `index`: The index of the instruction in the transaction. The index is
 ///   relative within stack height and is 1-based. Note that the inner instruction indexes are grouped into one vector,
 ///   so different inner instructions that have different stack heights may have continuous indexes.
@@ -112,7 +116,7 @@ pub trait InstructionDecoder<'a> {
 pub type InstructionProcessorInputType<T> = (
     InstructionMetadata,
     DecodedInstruction<T>,
-    Vec<NestedInstruction>,
+    NestedInstructions,
 );
 
 /// A processing pipeline for instructions, using a decoder and processor.
@@ -208,15 +212,19 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
 pub struct NestedInstruction {
     pub metadata: InstructionMetadata,
     pub instruction: solana_instruction::Instruction,
-    pub inner_instructions: Vec<NestedInstruction>,
+    pub inner_instructions: NestedInstructions,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct NestedInstructions(pub Vec<NestedInstruction>);
 
 impl NestedInstructions {
     pub fn iter(&self) -> std::slice::Iter<NestedInstruction> {
         self.0.iter()
+    }
+
+    pub fn push(&mut self, nested_instruction: NestedInstruction) {
+        self.0.push(nested_instruction);
     }
 }
 
@@ -228,6 +236,17 @@ impl Deref for NestedInstructions {
     }
 }
 
+impl DerefMut for NestedInstructions {
+    fn deref_mut(&mut self) -> &mut [NestedInstruction] {
+        &mut self.0[..]
+    }
+}
+
+impl Clone for NestedInstructions {
+    fn clone(&self) -> Self {
+        NestedInstructions(self.0.clone())
+    }
+}
 /// Nests instructions based on stack height, producing a hierarchy of
 /// `NestedInstruction`.
 ///
@@ -247,39 +266,132 @@ impl Deref for NestedInstructions {
 impl From<InstructionsWithMetadata> for NestedInstructions {
     fn from(instructions: InstructionsWithMetadata) -> Self {
         log::trace!("from(instructions: {:?})", instructions);
-        let mut result = Vec::<NestedInstruction>::new();
-        let mut stack = Vec::<(Vec<usize>, usize)>::new();
+        let mut nested_ixs = NestedInstructions::default();
 
         for (metadata, instruction) in instructions {
             let nested_instruction = NestedInstruction {
                 metadata: metadata.clone(),
                 instruction,
-                inner_instructions: Vec::new(),
+                inner_instructions: NestedInstructions::default(),
             };
 
-            while let Some((_, parent_stack_height)) = stack.last() {
-                if metadata.stack_height as usize > *parent_stack_height {
-                    break;
-                }
-                stack.pop();
+            // compose root level of ixs
+            if metadata.stack_height == 1 {
+                nested_ixs.push(nested_instruction);
+                continue;
             }
-
-            if let Some((path_to_parent, _)) = stack.last() {
-                let mut current_instructions = &mut result;
-                for &index in path_to_parent {
-                    current_instructions = &mut current_instructions[index].inner_instructions;
-                }
-                current_instructions.push(nested_instruction);
-                let mut new_path = path_to_parent.clone();
-                new_path.push(current_instructions.len() - 1);
-                stack.push((new_path, metadata.stack_height as usize));
-            } else {
-                result.push(nested_instruction);
-                let new_path = vec![result.len() - 1];
-                stack.push((new_path, metadata.stack_height as usize));
-            }
+            nested_ixs[metadata.index as usize]
+                .inner_instructions
+                .push(nested_instruction);
         }
 
-        NestedInstructions(result)
+        nested_ixs
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use solana_sdk::instruction::Instruction;
+
+    use super::*;
+
+    fn create_instruction_with_metadata(
+        stack_height: u32,
+        index: u32,
+    ) -> (InstructionMetadata, Instruction) {
+        let metadata = InstructionMetadata {
+            transaction_metadata: TransactionMetadata::default(),
+            stack_height,
+            index,
+        };
+        let instruction = Instruction {
+            program_id: Pubkey::new_unique(),
+            accounts: vec![AccountMeta::new(Pubkey::new_unique(), false)],
+            data: vec![],
+        };
+        (metadata, instruction)
+    }
+
+    #[test]
+    fn test_nested_instructions_single_level() {
+        let instructions = vec![
+            create_instruction_with_metadata(0, 1),
+            create_instruction_with_metadata(0, 2),
+        ];
+        let nested_instructions: NestedInstructions = instructions.into();
+        assert_eq!(nested_instructions.0.len(), 2);
+        assert!(nested_instructions.0[0].inner_instructions.is_empty());
+        assert!(nested_instructions.0[1].inner_instructions.is_empty());
+    }
+
+    #[test]
+    fn test_nested_instructions_two_levels() {
+        let instructions = vec![
+            create_instruction_with_metadata(0, 1),
+            create_instruction_with_metadata(1, 2),
+            create_instruction_with_metadata(1, 3),
+        ];
+        let nested_instructions: NestedInstructions = instructions.into();
+        assert_eq!(nested_instructions.0.len(), 1);
+        assert_eq!(nested_instructions.0[0].inner_instructions.len(), 2);
+    }
+
+    #[test]
+    fn test_nested_instructions_three_levels() {
+        let instructions = vec![
+            create_instruction_with_metadata(0, 1),
+            create_instruction_with_metadata(1, 2),
+            create_instruction_with_metadata(2, 3),
+        ];
+        let nested_instructions: NestedInstructions = instructions.into();
+        assert_eq!(nested_instructions.0.len(), 1);
+        assert_eq!(nested_instructions.0[0].inner_instructions.len(), 1);
+        assert_eq!(
+            nested_instructions.0[0].inner_instructions[0]
+                .inner_instructions
+                .len(),
+            1
+        );
+    }
+
+    #[test]
+    fn test_nested_instructions_multiple_roots() {
+        let instructions = vec![
+            create_instruction_with_metadata(0, 1),
+            create_instruction_with_metadata(1, 2),
+            create_instruction_with_metadata(0, 3),
+        ];
+        let nested_instructions: NestedInstructions = instructions.into();
+        assert_eq!(nested_instructions.0.len(), 2);
+        assert_eq!(nested_instructions.0[0].inner_instructions.len(), 1);
+        assert!(nested_instructions.0[1].inner_instructions.is_empty());
+    }
+
+    #[test]
+    fn test_nested_instructions_empty() {
+        let instructions: InstructionsWithMetadata = vec![];
+        let nested_instructions: NestedInstructions = instructions.into();
+        assert!(nested_instructions.0.is_empty());
+    }
+
+    #[test]
+    fn test_nested_instructions_complex_hierarchy() {
+        let instructions = vec![
+            create_instruction_with_metadata(0, 1),
+            create_instruction_with_metadata(1, 2),
+            create_instruction_with_metadata(1, 3),
+            create_instruction_with_metadata(2, 4),
+            create_instruction_with_metadata(0, 5),
+        ];
+        let nested_instructions: NestedInstructions = instructions.into();
+        assert_eq!(nested_instructions.0.len(), 2);
+        assert_eq!(nested_instructions.0[0].inner_instructions.len(), 2);
+        assert_eq!(
+            nested_instructions.0[0].inner_instructions[1]
+                .inner_instructions
+                .len(),
+            1
+        );
+        assert!(nested_instructions.0[1].inner_instructions.is_empty());
     }
 }

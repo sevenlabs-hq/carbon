@@ -5,9 +5,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0xe445a52e51cb9a1dd399583e953cb146")]
 pub struct InitializeRewardEvent {
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
-    pub reward_mint: solana_sdk::pubkey::Pubkey,
-    pub funder: solana_sdk::pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
+    pub reward_mint: solana_pubkey::Pubkey,
+    pub funder: solana_pubkey::Pubkey,
     pub reward_index: u64,
     pub reward_duration: u64,
 }

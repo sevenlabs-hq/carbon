@@ -7,16 +7,16 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct MigrateToCrossMarginAccount {}
 
 pub struct MigrateToCrossMarginAccountInstructionAccounts {
-    pub cross_margin_account: solana_sdk::pubkey::Pubkey,
-    pub pricing: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub cross_margin_account: solana_pubkey::Pubkey,
+    pub pricing: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for MigrateToCrossMarginAccount {
     type ArrangedAccounts = MigrateToCrossMarginAccountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [cross_margin_account, pricing, authority, _remaining @ ..] = accounts else {
             return None;

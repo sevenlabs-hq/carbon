@@ -6,7 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub struct AMM {
-    pub oracle: solana_sdk::pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
     pub historical_oracle_data: HistoricalOracleData,
     pub base_asset_amount_per_lp: i128,
     pub quote_asset_amount_per_lp: i128,

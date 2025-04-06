@@ -1,7 +1,8 @@
 use {
     crate::TokenProgramDecoder,
     carbon_core::account::{AccountDecoder, DecodedAccount},
-    solana_sdk::{account::ReadableAccount, program_pack::Pack},
+    solana_account::ReadableAccount,
+    solana_program_pack::Pack,
 };
 
 pub enum TokenProgramAccount {
@@ -15,7 +16,7 @@ impl AccountDecoder<'_> for TokenProgramDecoder {
 
     fn decode_account(
         &self,
-        account: &solana_sdk::account::Account,
+        account: &solana_account::Account,
     ) -> Option<DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&spl_token::id()) {
             return None;

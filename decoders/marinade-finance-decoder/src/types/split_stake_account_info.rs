@@ -4,6 +4,6 @@ use carbon_core::{borsh, CarbonDeserialize};
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub struct SplitStakeAccountInfo {
-    pub account: solana_sdk::pubkey::Pubkey,
+    pub account: solana_pubkey::Pubkey,
     pub index: u32,
 }

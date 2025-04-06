@@ -12,18 +12,18 @@ pub struct BubblegumSetCollectionSize {
 }
 
 pub struct BubblegumSetCollectionSizeInstructionAccounts {
-    pub collection_metadata: solana_sdk::pubkey::Pubkey,
-    pub collection_authority: solana_sdk::pubkey::Pubkey,
-    pub collection_mint: solana_sdk::pubkey::Pubkey,
-    pub bubblegum_signer: solana_sdk::pubkey::Pubkey,
-    pub collection_authority_record: solana_sdk::pubkey::Pubkey,
+    pub collection_metadata: solana_pubkey::Pubkey,
+    pub collection_authority: solana_pubkey::Pubkey,
+    pub collection_mint: solana_pubkey::Pubkey,
+    pub bubblegum_signer: solana_pubkey::Pubkey,
+    pub collection_authority_record: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for BubblegumSetCollectionSize {
     type ArrangedAccounts = BubblegumSetCollectionSizeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [collection_metadata, collection_authority, collection_mint, bubblegum_signer, collection_authority_record, _remaining @ ..] =
             accounts

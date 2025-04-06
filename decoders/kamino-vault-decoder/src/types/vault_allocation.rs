@@ -7,8 +7,8 @@ use {
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub struct VaultAllocation {
-    pub reserve: solana_sdk::pubkey::Pubkey,
-    pub ctoken_vault: solana_sdk::pubkey::Pubkey,
+    pub reserve: solana_pubkey::Pubkey,
+    pub ctoken_vault: solana_pubkey::Pubkey,
     pub target_allocation_weight: u64,
     pub token_allocation_cap: u64,
     #[serde(with = "BigArray")]

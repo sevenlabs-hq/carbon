@@ -12,16 +12,16 @@ pub struct LendingPoolConfigureBank {
 }
 
 pub struct LendingPoolConfigureBankInstructionAccounts {
-    pub marginfi_group: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub bank: solana_sdk::pubkey::Pubkey,
+    pub marginfi_group: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub bank: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for LendingPoolConfigureBank {
     type ArrangedAccounts = LendingPoolConfigureBankInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [marginfi_group, admin, bank, _remaining @ ..] = accounts else {
             return None;

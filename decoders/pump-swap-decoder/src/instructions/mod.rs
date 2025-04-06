@@ -55,12 +55,12 @@ pub enum PumpSwapInstruction {
     WithdrawEvent(withdraw_event::WithdrawEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for PumpSwapDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for PumpSwapDecoder {
     type InstructionType = PumpSwapInstruction;
 
     fn decode_instruction(
         &self,
-        instruction: &solana_sdk::instruction::Instruction,
+        instruction: &solana_instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         if !instruction.program_id.eq(&PROGRAM_ID) {
             return None;

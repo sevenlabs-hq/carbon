@@ -11,26 +11,26 @@ pub struct InitializeZetaSpecificMarketVaults {
 }
 
 pub struct InitializeZetaSpecificMarketVaultsInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub market_indexes: solana_sdk::pubkey::Pubkey,
-    pub pricing: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub base_mint: solana_sdk::pubkey::Pubkey,
-    pub quote_mint: solana_sdk::pubkey::Pubkey,
-    pub zeta_base_vault: solana_sdk::pubkey::Pubkey,
-    pub zeta_quote_vault: solana_sdk::pubkey::Pubkey,
-    pub serum_authority: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub market_indexes: solana_pubkey::Pubkey,
+    pub pricing: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub base_mint: solana_pubkey::Pubkey,
+    pub quote_mint: solana_pubkey::Pubkey,
+    pub zeta_base_vault: solana_pubkey::Pubkey,
+    pub zeta_quote_vault: solana_pubkey::Pubkey,
+    pub serum_authority: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeZetaSpecificMarketVaults {
     type ArrangedAccounts = InitializeZetaSpecificMarketVaultsInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, market_indexes, pricing, admin, market, base_mint, quote_mint, zeta_base_vault, zeta_quote_vault, serum_authority, system_program, token_program, rent, _remaining @ ..] =
             accounts

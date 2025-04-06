@@ -15,23 +15,23 @@ pub struct RouteWithTokenLedger {
 }
 
 pub struct RouteWithTokenLedgerInstructionAccounts {
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub user_transfer_authority: solana_sdk::pubkey::Pubkey,
-    pub user_source_token_account: solana_sdk::pubkey::Pubkey,
-    pub user_destination_token_account: solana_sdk::pubkey::Pubkey,
-    pub destination_token_account: solana_sdk::pubkey::Pubkey,
-    pub destination_mint: solana_sdk::pubkey::Pubkey,
-    pub platform_fee_account: solana_sdk::pubkey::Pubkey,
-    pub token_ledger: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub user_transfer_authority: solana_pubkey::Pubkey,
+    pub user_source_token_account: solana_pubkey::Pubkey,
+    pub user_destination_token_account: solana_pubkey::Pubkey,
+    pub destination_token_account: solana_pubkey::Pubkey,
+    pub destination_mint: solana_pubkey::Pubkey,
+    pub platform_fee_account: solana_pubkey::Pubkey,
+    pub token_ledger: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RouteWithTokenLedger {
     type ArrangedAccounts = RouteWithTokenLedgerInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [token_program, user_transfer_authority, user_source_token_account, user_destination_token_account, destination_token_account, destination_mint, platform_fee_account, token_ledger, event_authority, program, _remaining @ ..] =
             accounts

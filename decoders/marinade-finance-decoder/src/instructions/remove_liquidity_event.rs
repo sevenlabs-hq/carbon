@@ -5,7 +5,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0xe445a52e51cb9a1d8dc7b67b9f5ed766")]
 pub struct RemoveLiquidityEvent {
-    pub state: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
     pub sol_leg_balance: u64,
     pub msol_leg_balance: u64,
     pub user_lp_balance: u64,

@@ -5,5 +5,5 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 pub struct UpdateIndex {
     pub index: u32,
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
 }

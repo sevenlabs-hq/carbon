@@ -1,5 +1,6 @@
 use {
     super::*,
+    alloc::{string::String, vec::Vec},
     carbon_core::{borsh, CarbonDeserialize},
 };
 
@@ -9,8 +10,8 @@ use {
 pub enum Extension {
     Uninitialized,
     TransferFeeConfig {
-        transfer_fee_config_authority: solana_sdk::pubkey::Pubkey,
-        withdraw_withheld_authority: solana_sdk::pubkey::Pubkey,
+        transfer_fee_config_authority: solana_pubkey::Pubkey,
+        withdraw_withheld_authority: solana_pubkey::Pubkey,
         withheld_amount: u64,
         older_transfer_fee: TransferFee,
         newer_transfer_fee: TransferFee,
@@ -19,16 +20,16 @@ pub enum Extension {
         withheld_amount: u64,
     },
     MintCloseAuthority {
-        close_authority: solana_sdk::pubkey::Pubkey,
+        close_authority: solana_pubkey::Pubkey,
     },
     ConfidentialTransferMint {
-        authority: Option<solana_sdk::pubkey::Pubkey>,
+        authority: Option<solana_pubkey::Pubkey>,
         auto_approve_new_accounts: bool,
-        auditor_elgamal_pubkey: Option<solana_sdk::pubkey::Pubkey>,
+        auditor_elgamal_pubkey: Option<solana_pubkey::Pubkey>,
     },
     ConfidentialTransferAccount {
         approved: bool,
-        elgamal_pubkey: solana_sdk::pubkey::Pubkey,
+        elgamal_pubkey: solana_pubkey::Pubkey,
         #[serde(with = "BigArray")]
         pending_balance_low: [u8; 64],
         #[serde(with = "BigArray")]
@@ -53,7 +54,7 @@ pub enum Extension {
     },
     NonTransferable {},
     InterestBearingConfig {
-        rate_authority: solana_sdk::pubkey::Pubkey,
+        rate_authority: solana_pubkey::Pubkey,
         initialization_timestamp: u64,
         pre_update_average_rate: i16,
         last_update_timestamp: u64,
@@ -63,19 +64,19 @@ pub enum Extension {
         lock_cpi: bool,
     },
     PermanentDelegate {
-        delegate: solana_sdk::pubkey::Pubkey,
+        delegate: solana_pubkey::Pubkey,
     },
     NonTransferableAccount {},
     TransferHook {
-        authority: solana_sdk::pubkey::Pubkey,
-        program_id: solana_sdk::pubkey::Pubkey,
+        authority: solana_pubkey::Pubkey,
+        program_id: solana_pubkey::Pubkey,
     },
     TransferHookAccount {
         transferring: bool,
     },
     ConfidentialTransferFee {
-        authority: Option<solana_sdk::pubkey::Pubkey>,
-        elgamal_pubkey: solana_sdk::pubkey::Pubkey,
+        authority: Option<solana_pubkey::Pubkey>,
+        elgamal_pubkey: solana_pubkey::Pubkey,
         harvest_to_mint_enabled: bool,
         #[serde(with = "BigArray")]
         withheld_amount: [u8; 64],
@@ -85,34 +86,34 @@ pub enum Extension {
         withheld_amount: [u8; 64],
     },
     MetadataPointer {
-        authority: Option<solana_sdk::pubkey::Pubkey>,
-        metadata_address: Option<solana_sdk::pubkey::Pubkey>,
+        authority: Option<solana_pubkey::Pubkey>,
+        metadata_address: Option<solana_pubkey::Pubkey>,
     },
     TokenMetadata {
-        update_authority: Option<solana_sdk::pubkey::Pubkey>,
-        mint: solana_sdk::pubkey::Pubkey,
+        update_authority: Option<solana_pubkey::Pubkey>,
+        mint: solana_pubkey::Pubkey,
         name: String,
         symbol: String,
         uri: String,
         additional_metadata: Vec<(String, String)>,
     },
     GroupPointer {
-        authority: Option<solana_sdk::pubkey::Pubkey>,
-        group_address: Option<solana_sdk::pubkey::Pubkey>,
+        authority: Option<solana_pubkey::Pubkey>,
+        group_address: Option<solana_pubkey::Pubkey>,
     },
     TokenGroup {
-        update_authority: Option<solana_sdk::pubkey::Pubkey>,
-        mint: solana_sdk::pubkey::Pubkey,
+        update_authority: Option<solana_pubkey::Pubkey>,
+        mint: solana_pubkey::Pubkey,
         size: u64,
         max_size: u64,
     },
     GroupMemberPointer {
-        authority: Option<solana_sdk::pubkey::Pubkey>,
-        member_address: Option<solana_sdk::pubkey::Pubkey>,
+        authority: Option<solana_pubkey::Pubkey>,
+        member_address: Option<solana_pubkey::Pubkey>,
     },
     TokenGroupMember {
-        mint: solana_sdk::pubkey::Pubkey,
-        group: solana_sdk::pubkey::Pubkey,
+        mint: solana_pubkey::Pubkey,
+        group: solana_pubkey::Pubkey,
         member_number: u64,
     },
 }

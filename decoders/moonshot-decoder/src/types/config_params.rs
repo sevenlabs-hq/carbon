@@ -4,11 +4,11 @@ use carbon_core::{borsh, CarbonDeserialize};
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub struct ConfigParams {
-    pub migration_authority: Option<solana_sdk::pubkey::Pubkey>,
-    pub backend_authority: Option<solana_sdk::pubkey::Pubkey>,
-    pub config_authority: Option<solana_sdk::pubkey::Pubkey>,
-    pub helio_fee: Option<solana_sdk::pubkey::Pubkey>,
-    pub dex_fee: Option<solana_sdk::pubkey::Pubkey>,
+    pub migration_authority: Option<solana_pubkey::Pubkey>,
+    pub backend_authority: Option<solana_pubkey::Pubkey>,
+    pub config_authority: Option<solana_pubkey::Pubkey>,
+    pub helio_fee: Option<solana_pubkey::Pubkey>,
+    pub dex_fee: Option<solana_pubkey::Pubkey>,
     pub fee_bps: Option<u16>,
     pub dex_fee_share: Option<u8>,
     pub migration_fee: Option<u64>,

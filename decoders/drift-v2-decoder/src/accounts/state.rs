@@ -5,11 +5,11 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(CarbonDeserialize, Debug)]
 #[carbon(discriminator = "0xd8926b5e684bb6b1")]
 pub struct State {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub whitelist_mint: solana_sdk::pubkey::Pubkey,
-    pub discount_mint: solana_sdk::pubkey::Pubkey,
-    pub signer: solana_sdk::pubkey::Pubkey,
-    pub srm_vault: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub whitelist_mint: solana_pubkey::Pubkey,
+    pub discount_mint: solana_pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
+    pub srm_vault: solana_pubkey::Pubkey,
     pub perp_fee_structure: FeeStructure,
     pub spot_fee_structure: FeeStructure,
     pub oracle_guard_rails: OracleGuardRails,

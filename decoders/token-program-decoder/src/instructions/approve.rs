@@ -1,3 +1,4 @@
+use alloc::vec::Vec;
 use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -8,17 +9,17 @@ pub struct Approve {
 }
 
 pub struct ApproveAccounts {
-    pub source: solana_sdk::pubkey::Pubkey,
-    pub delegate: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    pub source: solana_pubkey::Pubkey,
+    pub delegate: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub remaining_accounts: Vec<solana_instruction::AccountMeta>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Approve {
     type ArrangedAccounts = ApproveAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [source, delegate, owner, remaining_accounts @ ..] = accounts else {
             return None;

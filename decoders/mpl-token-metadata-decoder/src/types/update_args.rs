@@ -8,7 +8,7 @@ use {
 )]
 pub enum UpdateArgs {
     V1 {
-        new_update_authority: Option<solana_sdk::pubkey::Pubkey>,
+        new_update_authority: Option<solana_pubkey::Pubkey>,
         data: Option<Data>,
         primary_sale_happened: Option<bool>,
         is_mutable: Option<bool>,
@@ -19,7 +19,7 @@ pub enum UpdateArgs {
         authorization_data: Option<AuthorizationData>,
     },
     AsUpdateAuthorityV2 {
-        new_update_authority: Option<solana_sdk::pubkey::Pubkey>,
+        new_update_authority: Option<solana_pubkey::Pubkey>,
         data: Option<Data>,
         primary_sale_happened: Option<bool>,
         is_mutable: Option<bool>,
@@ -31,7 +31,7 @@ pub enum UpdateArgs {
         authorization_data: Option<AuthorizationData>,
     },
     AsAuthorityItemDelegateV2 {
-        new_update_authority: Option<solana_sdk::pubkey::Pubkey>,
+        new_update_authority: Option<solana_pubkey::Pubkey>,
         primary_sale_happened: Option<bool>,
         is_mutable: Option<bool>,
         token_standard: Option<TokenStandard>,

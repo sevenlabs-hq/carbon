@@ -12,22 +12,22 @@ pub struct InitObligation {
 }
 
 pub struct InitObligationInstructionAccounts {
-    pub obligation_owner: solana_sdk::pubkey::Pubkey,
-    pub fee_payer: solana_sdk::pubkey::Pubkey,
-    pub obligation: solana_sdk::pubkey::Pubkey,
-    pub lending_market: solana_sdk::pubkey::Pubkey,
-    pub seed1_account: solana_sdk::pubkey::Pubkey,
-    pub seed2_account: solana_sdk::pubkey::Pubkey,
-    pub owner_user_metadata: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub obligation_owner: solana_pubkey::Pubkey,
+    pub fee_payer: solana_pubkey::Pubkey,
+    pub obligation: solana_pubkey::Pubkey,
+    pub lending_market: solana_pubkey::Pubkey,
+    pub seed1_account: solana_pubkey::Pubkey,
+    pub seed2_account: solana_pubkey::Pubkey,
+    pub owner_user_metadata: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitObligation {
     type ArrangedAccounts = InitObligationInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [obligation_owner, fee_payer, obligation, lending_market, seed1_account, seed2_account, owner_user_metadata, rent, system_program, _remaining @ ..] =
             accounts

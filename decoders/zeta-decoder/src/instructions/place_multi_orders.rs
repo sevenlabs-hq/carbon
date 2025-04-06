@@ -1,5 +1,6 @@
 use super::super::types::*;
 
+use alloc::vec::Vec;
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
@@ -14,38 +15,38 @@ pub struct PlaceMultiOrders {
 }
 
 pub struct PlaceMultiOrdersInstructionAccounts {
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub pricing: solana_sdk::pubkey::Pubkey,
-    pub margin_account: solana_sdk::pubkey::Pubkey,
-    pub dex_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub serum_authority: solana_sdk::pubkey::Pubkey,
-    pub open_orders: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub request_queue: solana_sdk::pubkey::Pubkey,
-    pub event_queue: solana_sdk::pubkey::Pubkey,
-    pub bids: solana_sdk::pubkey::Pubkey,
-    pub asks: solana_sdk::pubkey::Pubkey,
-    pub market_base_vault: solana_sdk::pubkey::Pubkey,
-    pub market_quote_vault: solana_sdk::pubkey::Pubkey,
-    pub zeta_base_vault: solana_sdk::pubkey::Pubkey,
-    pub zeta_quote_vault: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_feed: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_program: solana_sdk::pubkey::Pubkey,
-    pub market_base_mint: solana_sdk::pubkey::Pubkey,
-    pub market_quote_mint: solana_sdk::pubkey::Pubkey,
-    pub mint_authority: solana_sdk::pubkey::Pubkey,
-    pub perp_sync_queue: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub pricing: solana_pubkey::Pubkey,
+    pub margin_account: solana_pubkey::Pubkey,
+    pub dex_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub serum_authority: solana_pubkey::Pubkey,
+    pub open_orders: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub request_queue: solana_pubkey::Pubkey,
+    pub event_queue: solana_pubkey::Pubkey,
+    pub bids: solana_pubkey::Pubkey,
+    pub asks: solana_pubkey::Pubkey,
+    pub market_base_vault: solana_pubkey::Pubkey,
+    pub market_quote_vault: solana_pubkey::Pubkey,
+    pub zeta_base_vault: solana_pubkey::Pubkey,
+    pub zeta_quote_vault: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub oracle_backup_feed: solana_pubkey::Pubkey,
+    pub oracle_backup_program: solana_pubkey::Pubkey,
+    pub market_base_mint: solana_pubkey::Pubkey,
+    pub market_quote_mint: solana_pubkey::Pubkey,
+    pub mint_authority: solana_pubkey::Pubkey,
+    pub perp_sync_queue: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for PlaceMultiOrders {
     type ArrangedAccounts = PlaceMultiOrdersInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [authority, state, pricing, margin_account, dex_program, token_program, serum_authority, open_orders, rent, market, request_queue, event_queue, bids, asks, market_base_vault, market_quote_vault, zeta_base_vault, zeta_quote_vault, oracle, oracle_backup_feed, oracle_backup_program, market_base_mint, market_quote_mint, mint_authority, perp_sync_queue, _remaining @ ..] =
             accounts

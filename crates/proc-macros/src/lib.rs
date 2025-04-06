@@ -42,7 +42,6 @@
 //! Contributions are welcome! If you have ideas for improving or expanding the
 //! functionality of `carbon_macros`, please consider submitting a pull request
 //! or opening an issue on the project’s GitHub repository.
-
 use {
     borsh_derive_internal::*,
     proc_macro::TokenStream,
@@ -677,7 +676,7 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
             type InstructionType = #instruction_types_enum_name;
 
             fn parse_instruction(
-                instruction: &solana_sdk::instruction::Instruction
+                instruction: &solana_instruction::Instruction
             ) -> Option<carbon_core::instruction::DecodedInstruction<Self>> {
                 #(#parse_instruction_arms)*
                 None

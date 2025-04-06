@@ -8,14 +8,14 @@ pub mod ticket_account_data;
 
 pub enum MarinadeFinanceAccount {
     TicketAccountData(ticket_account_data::TicketAccountData),
-    State(state::State),
+    State(Box<state::State>),
 }
 
-impl<'a> AccountDecoder<'a> for MarinadeFinanceDecoder {
+impl AccountDecoder<'_> for MarinadeFinanceDecoder {
     type AccountType = MarinadeFinanceAccount;
     fn decode_account(
         &self,
-        account: &solana_sdk::account::Account,
+        account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;
@@ -35,7 +35,7 @@ impl<'a> AccountDecoder<'a> for MarinadeFinanceDecoder {
         if let Some(decoded_account) = state::State::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: MarinadeFinanceAccount::State(decoded_account),
+                data: MarinadeFinanceAccount::State(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

@@ -10,15 +10,15 @@ pub struct UpdateUserCustomMarginRatio {
 }
 
 pub struct UpdateUserCustomMarginRatioInstructionAccounts {
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateUserCustomMarginRatio {
     type ArrangedAccounts = UpdateUserCustomMarginRatioInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [user, authority, _remaining @ ..] = accounts else {
             return None;

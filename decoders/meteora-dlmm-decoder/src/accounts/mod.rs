@@ -12,12 +12,12 @@ pub mod position_v2;
 pub mod preset_parameter;
 
 pub enum MeteoraDlmmAccount {
-    BinArrayBitmapExtension(bin_array_bitmap_extension::BinArrayBitmapExtension),
-    BinArray(bin_array::BinArray),
-    LbPair(lb_pair::LbPair),
+    BinArrayBitmapExtension(Box<bin_array_bitmap_extension::BinArrayBitmapExtension>),
+    BinArray(Box<bin_array::BinArray>),
+    LbPair(Box<lb_pair::LbPair>),
     Oracle(oracle::Oracle),
-    Position(position::Position),
-    PositionV2(position_v2::PositionV2),
+    Position(Box<position::Position>),
+    PositionV2(Box<position_v2::PositionV2>),
     PresetParameter(preset_parameter::PresetParameter),
 }
 
@@ -25,7 +25,7 @@ impl AccountDecoder<'_> for MeteoraDlmmDecoder {
     type AccountType = MeteoraDlmmAccount;
     fn decode_account(
         &self,
-        account: &solana_sdk::account::Account,
+        account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;
@@ -38,7 +38,7 @@ impl AccountDecoder<'_> for MeteoraDlmmDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: MeteoraDlmmAccount::BinArrayBitmapExtension(decoded_account),
+                data: MeteoraDlmmAccount::BinArrayBitmapExtension(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -48,7 +48,7 @@ impl AccountDecoder<'_> for MeteoraDlmmDecoder {
         if let Some(decoded_account) = bin_array::BinArray::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: MeteoraDlmmAccount::BinArray(decoded_account),
+                data: MeteoraDlmmAccount::BinArray(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -58,7 +58,7 @@ impl AccountDecoder<'_> for MeteoraDlmmDecoder {
         if let Some(decoded_account) = lb_pair::LbPair::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: MeteoraDlmmAccount::LbPair(decoded_account),
+                data: MeteoraDlmmAccount::LbPair(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -78,7 +78,7 @@ impl AccountDecoder<'_> for MeteoraDlmmDecoder {
         if let Some(decoded_account) = position::Position::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: MeteoraDlmmAccount::Position(decoded_account),
+                data: MeteoraDlmmAccount::Position(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -89,7 +89,7 @@ impl AccountDecoder<'_> for MeteoraDlmmDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: MeteoraDlmmAccount::PositionV2(decoded_account),
+                data: MeteoraDlmmAccount::PositionV2(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

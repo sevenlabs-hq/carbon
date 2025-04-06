@@ -1,3 +1,4 @@
+use alloc::vec::Vec;
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
@@ -10,20 +11,20 @@ pub struct SwapRouterBaseIn {
 }
 
 pub struct SwapRouterBaseInInstructionAccounts {
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub input_token_account: solana_sdk::pubkey::Pubkey,
-    pub input_token_mint: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub token_program2022: solana_sdk::pubkey::Pubkey,
-    pub memo_program: solana_sdk::pubkey::Pubkey,
-    pub remaining_accounts: Vec<solana_sdk::instruction::AccountMeta>,
+    pub payer: solana_pubkey::Pubkey,
+    pub input_token_account: solana_pubkey::Pubkey,
+    pub input_token_mint: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub token_program2022: solana_pubkey::Pubkey,
+    pub memo_program: solana_pubkey::Pubkey,
+    pub remaining_accounts: Vec<solana_instruction::AccountMeta>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SwapRouterBaseIn {
     type ArrangedAccounts = SwapRouterBaseInInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [payer, input_token_account, input_token_mint, token_program, token_program2022, memo_program, remaining_accounts @ ..] =
             accounts

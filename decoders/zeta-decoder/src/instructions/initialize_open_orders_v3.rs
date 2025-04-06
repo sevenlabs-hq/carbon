@@ -11,24 +11,24 @@ pub struct InitializeOpenOrdersV3 {
 }
 
 pub struct InitializeOpenOrdersV3InstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub dex_program: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub open_orders: solana_sdk::pubkey::Pubkey,
-    pub cross_margin_account: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub serum_authority: solana_sdk::pubkey::Pubkey,
-    pub open_orders_map: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub dex_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub open_orders: solana_pubkey::Pubkey,
+    pub cross_margin_account: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub serum_authority: solana_pubkey::Pubkey,
+    pub open_orders_map: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeOpenOrdersV3 {
     type ArrangedAccounts = InitializeOpenOrdersV3InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, dex_program, system_program, open_orders, cross_margin_account, authority, payer, market, serum_authority, open_orders_map, rent, _remaining @ ..] =
             accounts

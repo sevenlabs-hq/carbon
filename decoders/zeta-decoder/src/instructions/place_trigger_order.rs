@@ -1,5 +1,6 @@
 use super::super::types::*;
 
+use alloc::string::String;
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
@@ -21,22 +22,22 @@ pub struct PlaceTriggerOrder {
 }
 
 pub struct PlaceTriggerOrderInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub open_orders: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub margin_account: solana_sdk::pubkey::Pubkey,
-    pub pricing: solana_sdk::pubkey::Pubkey,
-    pub trigger_order: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub dex_program: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub open_orders: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub margin_account: solana_pubkey::Pubkey,
+    pub pricing: solana_pubkey::Pubkey,
+    pub trigger_order: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub dex_program: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for PlaceTriggerOrder {
     type ArrangedAccounts = PlaceTriggerOrderInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, open_orders, authority, margin_account, pricing, trigger_order, system_program, dex_program, market, _remaining @ ..] =
             accounts

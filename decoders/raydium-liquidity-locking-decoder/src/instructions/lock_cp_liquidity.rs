@@ -10,32 +10,32 @@ pub struct LockCpLiquidity {
 }
 
 pub struct LockCpLiquidityInstructionAccounts {
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub liquidity_owner: solana_sdk::pubkey::Pubkey,
-    pub fee_nft_owner: solana_sdk::pubkey::Pubkey,
-    pub fee_nft_mint: solana_sdk::pubkey::Pubkey,
-    pub fee_nft_account: solana_sdk::pubkey::Pubkey,
-    pub pool_state: solana_sdk::pubkey::Pubkey,
-    pub locked_liquidity: solana_sdk::pubkey::Pubkey,
-    pub lp_mint: solana_sdk::pubkey::Pubkey,
-    pub liquidity_owner_lp: solana_sdk::pubkey::Pubkey,
-    pub locked_lp_vault: solana_sdk::pubkey::Pubkey,
-    pub token0_vault: solana_sdk::pubkey::Pubkey,
-    pub token1_vault: solana_sdk::pubkey::Pubkey,
-    pub metadata_account: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub associated_token_program: solana_sdk::pubkey::Pubkey,
-    pub metadata_program: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub liquidity_owner: solana_pubkey::Pubkey,
+    pub fee_nft_owner: solana_pubkey::Pubkey,
+    pub fee_nft_mint: solana_pubkey::Pubkey,
+    pub fee_nft_account: solana_pubkey::Pubkey,
+    pub pool_state: solana_pubkey::Pubkey,
+    pub locked_liquidity: solana_pubkey::Pubkey,
+    pub lp_mint: solana_pubkey::Pubkey,
+    pub liquidity_owner_lp: solana_pubkey::Pubkey,
+    pub locked_lp_vault: solana_pubkey::Pubkey,
+    pub token0_vault: solana_pubkey::Pubkey,
+    pub token1_vault: solana_pubkey::Pubkey,
+    pub metadata_account: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub metadata_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for LockCpLiquidity {
     type ArrangedAccounts = LockCpLiquidityInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [authority, payer, liquidity_owner, fee_nft_owner, fee_nft_mint, fee_nft_account, pool_state, locked_liquidity, lp_mint, liquidity_owner_lp, locked_lp_vault, token0_vault, token1_vault, metadata_account, rent, system_program, token_program, associated_token_program, metadata_program, _remaining @ ..] =
             accounts

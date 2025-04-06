@@ -11,19 +11,19 @@ pub struct TestInit {
 }
 
 pub struct TestInitInstructionAccounts {
-    pub upgrade_authority: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub transfer_authority: solana_sdk::pubkey::Pubkey,
-    pub perpetuals: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
+    pub upgrade_authority: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub transfer_authority: solana_pubkey::Pubkey,
+    pub perpetuals: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for TestInit {
     type ArrangedAccounts = TestInitInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [upgrade_authority, admin, transfer_authority, perpetuals, system_program, token_program, _remaining @ ..] =
             accounts

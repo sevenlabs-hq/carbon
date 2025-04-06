@@ -1,3 +1,4 @@
+use alloc::boxed::Box;
 use carbon_core::account::AccountDecoder;
 use carbon_core::deserialize::CarbonDeserialize;
 
@@ -29,8 +30,8 @@ pub mod whitelist_trading_fees_account;
 pub mod zeta_group;
 
 pub enum ZetaAccount {
-    Pricing(pricing::Pricing),
-    Greeks(greeks::Greeks),
+    Pricing(Box<pricing::Pricing>),
+    Greeks(Box<greeks::Greeks>),
     MarketIndexes(market_indexes::MarketIndexes),
     OpenOrdersMap(open_orders_map::OpenOrdersMap),
     CrossOpenOrdersMap(cross_open_orders_map::CrossOpenOrdersMap),
@@ -54,11 +55,11 @@ pub enum ZetaAccount {
     ReferrerPubkeyAccount(referrer_pubkey_account::ReferrerPubkeyAccount),
 }
 
-impl<'a> AccountDecoder<'a> for ZetaDecoder {
+impl AccountDecoder<'_> for ZetaDecoder {
     type AccountType = ZetaAccount;
     fn decode_account(
         &self,
-        account: &solana_sdk::account::Account,
+        account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;
@@ -67,7 +68,7 @@ impl<'a> AccountDecoder<'a> for ZetaDecoder {
         if let Some(decoded_account) = pricing::Pricing::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: ZetaAccount::Pricing(decoded_account),
+                data: ZetaAccount::Pricing(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -77,7 +78,7 @@ impl<'a> AccountDecoder<'a> for ZetaDecoder {
         if let Some(decoded_account) = greeks::Greeks::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: ZetaAccount::Greeks(decoded_account),
+                data: ZetaAccount::Greeks(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

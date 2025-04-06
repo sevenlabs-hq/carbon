@@ -7,17 +7,17 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct UpdateSpotMarketCumulativeInterest {}
 
 pub struct UpdateSpotMarketCumulativeInterestInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub spot_market: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub spot_market_vault: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub spot_market: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub spot_market_vault: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdateSpotMarketCumulativeInterest {
     type ArrangedAccounts = UpdateSpotMarketCumulativeInterestInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, spot_market, oracle, spot_market_vault, _remaining @ ..] = accounts else {
             return None;

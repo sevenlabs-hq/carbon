@@ -12,26 +12,26 @@ pub struct TransferOutOfEscrow {
 }
 
 pub struct TransferOutOfEscrowInstructionAccounts {
-    pub escrow: solana_sdk::pubkey::Pubkey,
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub payer: solana_sdk::pubkey::Pubkey,
-    pub attribute_mint: solana_sdk::pubkey::Pubkey,
-    pub attribute_src: solana_sdk::pubkey::Pubkey,
-    pub attribute_dst: solana_sdk::pubkey::Pubkey,
-    pub escrow_mint: solana_sdk::pubkey::Pubkey,
-    pub escrow_account: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
-    pub ata_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub sysvar_instructions: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub escrow: solana_pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub payer: solana_pubkey::Pubkey,
+    pub attribute_mint: solana_pubkey::Pubkey,
+    pub attribute_src: solana_pubkey::Pubkey,
+    pub attribute_dst: solana_pubkey::Pubkey,
+    pub escrow_mint: solana_pubkey::Pubkey,
+    pub escrow_account: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
+    pub ata_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub sysvar_instructions: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for TransferOutOfEscrow {
     type ArrangedAccounts = TransferOutOfEscrowInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [escrow, metadata, payer, attribute_mint, attribute_src, attribute_dst, escrow_mint, escrow_account, system_program, ata_program, token_program, sysvar_instructions, authority, _remaining @ ..] =
             accounts

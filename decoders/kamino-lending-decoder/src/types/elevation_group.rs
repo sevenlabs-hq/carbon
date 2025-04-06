@@ -11,6 +11,6 @@ pub struct ElevationGroup {
     pub allow_new_loans: u8,
     pub max_reserves_as_collateral: u8,
     pub padding0: u8,
-    pub debt_reserve: solana_sdk::pubkey::Pubkey,
+    pub debt_reserve: solana_pubkey::Pubkey,
     pub padding1: [u64; 4],
 }

@@ -13,19 +13,19 @@ pub struct PlaceAndMakeSpotOrder {
 }
 
 pub struct PlaceAndMakeSpotOrderInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub user_stats: solana_sdk::pubkey::Pubkey,
-    pub taker: solana_sdk::pubkey::Pubkey,
-    pub taker_stats: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub user_stats: solana_pubkey::Pubkey,
+    pub taker: solana_pubkey::Pubkey,
+    pub taker_stats: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for PlaceAndMakeSpotOrder {
     type ArrangedAccounts = PlaceAndMakeSpotOrderInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, user, user_stats, taker, taker_stats, authority, _remaining @ ..] = accounts
         else {

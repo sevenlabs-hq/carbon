@@ -11,24 +11,24 @@ pub struct IncreasePositionPreSwap {
 }
 
 pub struct IncreasePositionPreSwapInstructionAccounts {
-    pub keeper: solana_sdk::pubkey::Pubkey,
-    pub keeper_ata: solana_sdk::pubkey::Pubkey,
-    pub position_request: solana_sdk::pubkey::Pubkey,
-    pub position_request_ata: solana_sdk::pubkey::Pubkey,
-    pub position: solana_sdk::pubkey::Pubkey,
-    pub collateral_custody: solana_sdk::pubkey::Pubkey,
-    pub collateral_custody_token_account: solana_sdk::pubkey::Pubkey,
-    pub instruction: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub keeper: solana_pubkey::Pubkey,
+    pub keeper_ata: solana_pubkey::Pubkey,
+    pub position_request: solana_pubkey::Pubkey,
+    pub position_request_ata: solana_pubkey::Pubkey,
+    pub position: solana_pubkey::Pubkey,
+    pub collateral_custody: solana_pubkey::Pubkey,
+    pub collateral_custody_token_account: solana_pubkey::Pubkey,
+    pub instruction: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for IncreasePositionPreSwap {
     type ArrangedAccounts = IncreasePositionPreSwapInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [keeper, keeper_ata, position_request, position_request_ata, position, collateral_custody, collateral_custody_token_account, instruction, token_program, event_authority, program, _remaining @ ..] =
             accounts

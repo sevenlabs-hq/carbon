@@ -10,18 +10,18 @@ pub struct RequestRemoveInsuranceFundStake {
 }
 
 pub struct RequestRemoveInsuranceFundStakeInstructionAccounts {
-    pub spot_market: solana_sdk::pubkey::Pubkey,
-    pub insurance_fund_stake: solana_sdk::pubkey::Pubkey,
-    pub user_stats: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub insurance_fund_vault: solana_sdk::pubkey::Pubkey,
+    pub spot_market: solana_pubkey::Pubkey,
+    pub insurance_fund_stake: solana_pubkey::Pubkey,
+    pub user_stats: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub insurance_fund_vault: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RequestRemoveInsuranceFundStake {
     type ArrangedAccounts = RequestRemoveInsuranceFundStakeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [spot_market, insurance_fund_stake, user_stats, authority, insurance_fund_vault, _remaining @ ..] =
             accounts

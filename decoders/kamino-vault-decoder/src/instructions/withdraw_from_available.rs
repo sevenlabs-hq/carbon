@@ -9,24 +9,24 @@ pub struct WithdrawFromAvailable {
 }
 
 pub struct WithdrawFromAvailableInstructionAccounts {
-    pub user: solana_sdk::pubkey::Pubkey,
-    pub vault_state: solana_sdk::pubkey::Pubkey,
-    pub token_vault: solana_sdk::pubkey::Pubkey,
-    pub base_vault_authority: solana_sdk::pubkey::Pubkey,
-    pub user_token_ata: solana_sdk::pubkey::Pubkey,
-    pub token_mint: solana_sdk::pubkey::Pubkey,
-    pub user_shares_ata: solana_sdk::pubkey::Pubkey,
-    pub shares_mint: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub shares_token_program: solana_sdk::pubkey::Pubkey,
-    pub klend_program: solana_sdk::pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
+    pub vault_state: solana_pubkey::Pubkey,
+    pub token_vault: solana_pubkey::Pubkey,
+    pub base_vault_authority: solana_pubkey::Pubkey,
+    pub user_token_ata: solana_pubkey::Pubkey,
+    pub token_mint: solana_pubkey::Pubkey,
+    pub user_shares_ata: solana_pubkey::Pubkey,
+    pub shares_mint: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub shares_token_program: solana_pubkey::Pubkey,
+    pub klend_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawFromAvailable {
     type ArrangedAccounts = WithdrawFromAvailableInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [user, vault_state, token_vault, base_vault_authority, user_token_ata, token_mint, user_shares_ata, shares_mint, token_program, shares_token_program, klend_program, _remaining @ ..] =
             accounts

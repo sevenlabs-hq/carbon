@@ -7,24 +7,24 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0xb6716fa043ae59bf")]
 pub struct UpdatePerpMarketOracle {
-    pub oracle: solana_sdk::pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
     pub oracle_source: OracleSource,
     pub skip_invariant_check: bool,
 }
 
 pub struct UpdatePerpMarketOracleInstructionAccounts {
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub perp_market: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub old_oracle: solana_sdk::pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub perp_market: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub old_oracle: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UpdatePerpMarketOracle {
     type ArrangedAccounts = UpdatePerpMarketOracleInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [admin, state, perp_market, oracle, old_oracle, _remaining @ ..] = accounts else {
             return None;

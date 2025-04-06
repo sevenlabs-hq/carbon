@@ -9,6 +9,6 @@ pub struct BinArray {
     pub index: i64,
     pub version: u8,
     pub padding: [u8; 7],
-    pub lb_pair: solana_sdk::pubkey::Pubkey,
+    pub lb_pair: solana_pubkey::Pubkey,
     pub bins: [Bin; 70],
 }

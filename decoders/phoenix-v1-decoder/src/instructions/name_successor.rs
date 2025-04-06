@@ -5,21 +5,21 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0x66")]
 pub struct NameSuccessor {
-    pub successor: solana_sdk::pubkey::Pubkey,
+    pub successor: solana_pubkey::Pubkey,
 }
 
 pub struct NameSuccessorInstructionAccounts {
-    pub phoenix_program: solana_sdk::pubkey::Pubkey,
-    pub log_authority: solana_sdk::pubkey::Pubkey,
-    pub market: solana_sdk::pubkey::Pubkey,
-    pub market_authority: solana_sdk::pubkey::Pubkey,
+    pub phoenix_program: solana_pubkey::Pubkey,
+    pub log_authority: solana_pubkey::Pubkey,
+    pub market: solana_pubkey::Pubkey,
+    pub market_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for NameSuccessor {
     type ArrangedAccounts = NameSuccessorInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [phoenix_program, log_authority, market, market_authority, _remaining @ ..] = accounts
         else {

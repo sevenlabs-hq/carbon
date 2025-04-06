@@ -5,23 +5,23 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0xd07f1501c2bec446")]
 pub struct InitializeConfig {
-    pub fee_authority: solana_sdk::pubkey::Pubkey,
-    pub collect_protocol_fees_authority: solana_sdk::pubkey::Pubkey,
-    pub reward_emissions_super_authority: solana_sdk::pubkey::Pubkey,
+    pub fee_authority: solana_pubkey::Pubkey,
+    pub collect_protocol_fees_authority: solana_pubkey::Pubkey,
+    pub reward_emissions_super_authority: solana_pubkey::Pubkey,
     pub default_protocol_fee_rate: u16,
 }
 
 pub struct InitializeConfigInstructionAccounts {
-    pub config: solana_sdk::pubkey::Pubkey,
-    pub funder: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub config: solana_pubkey::Pubkey,
+    pub funder: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for InitializeConfig {
     type ArrangedAccounts = InitializeConfigInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [config, funder, system_program, _remaining @ ..] = accounts else {
             return None;

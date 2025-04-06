@@ -11,15 +11,15 @@ pub struct AddPerpMarketIndex {
 }
 
 pub struct AddPerpMarketIndexInstructionAccounts {
-    pub market_indexes: solana_sdk::pubkey::Pubkey,
-    pub pricing: solana_sdk::pubkey::Pubkey,
+    pub market_indexes: solana_pubkey::Pubkey,
+    pub pricing: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for AddPerpMarketIndex {
     type ArrangedAccounts = AddPerpMarketIndexInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [market_indexes, pricing, _remaining @ ..] = accounts else {
             return None;

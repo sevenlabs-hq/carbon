@@ -1,5 +1,6 @@
 use super::super::types::*;
 
+use alloc::vec::Vec;
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
@@ -11,7 +12,7 @@ pub struct PlaceMultiOrdersEvent {
     pub order_ids: Vec<u128>,
     pub expiry_tss: Vec<u64>,
     pub asset: Asset,
-    pub margin_account: solana_sdk::pubkey::Pubkey,
+    pub margin_account: solana_pubkey::Pubkey,
     pub client_order_ids: Vec<u64>,
-    pub user: solana_sdk::pubkey::Pubkey,
+    pub user: solana_pubkey::Pubkey,
 }

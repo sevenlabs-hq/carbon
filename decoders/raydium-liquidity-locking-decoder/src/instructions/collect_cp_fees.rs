@@ -9,31 +9,31 @@ pub struct CollectCpFees {
 }
 
 pub struct CollectCpFeesInstructionAccounts {
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub fee_nft_owner: solana_sdk::pubkey::Pubkey,
-    pub fee_nft_account: solana_sdk::pubkey::Pubkey,
-    pub locked_liquidity: solana_sdk::pubkey::Pubkey,
-    pub cp_swap_program: solana_sdk::pubkey::Pubkey,
-    pub cp_authority: solana_sdk::pubkey::Pubkey,
-    pub pool_state: solana_sdk::pubkey::Pubkey,
-    pub lp_mint: solana_sdk::pubkey::Pubkey,
-    pub recipient_token0_account: solana_sdk::pubkey::Pubkey,
-    pub recipient_token1_account: solana_sdk::pubkey::Pubkey,
-    pub token0_vault: solana_sdk::pubkey::Pubkey,
-    pub token1_vault: solana_sdk::pubkey::Pubkey,
-    pub vault0_mint: solana_sdk::pubkey::Pubkey,
-    pub vault1_mint: solana_sdk::pubkey::Pubkey,
-    pub locked_lp_vault: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub token_program2022: solana_sdk::pubkey::Pubkey,
-    pub memo_program: solana_sdk::pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub fee_nft_owner: solana_pubkey::Pubkey,
+    pub fee_nft_account: solana_pubkey::Pubkey,
+    pub locked_liquidity: solana_pubkey::Pubkey,
+    pub cp_swap_program: solana_pubkey::Pubkey,
+    pub cp_authority: solana_pubkey::Pubkey,
+    pub pool_state: solana_pubkey::Pubkey,
+    pub lp_mint: solana_pubkey::Pubkey,
+    pub recipient_token0_account: solana_pubkey::Pubkey,
+    pub recipient_token1_account: solana_pubkey::Pubkey,
+    pub token0_vault: solana_pubkey::Pubkey,
+    pub token1_vault: solana_pubkey::Pubkey,
+    pub vault0_mint: solana_pubkey::Pubkey,
+    pub vault1_mint: solana_pubkey::Pubkey,
+    pub locked_lp_vault: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub token_program2022: solana_pubkey::Pubkey,
+    pub memo_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CollectCpFees {
     type ArrangedAccounts = CollectCpFeesInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [authority, fee_nft_owner, fee_nft_account, locked_liquidity, cp_swap_program, cp_authority, pool_state, lp_mint, recipient_token0_account, recipient_token1_account, token0_vault, token1_vault, vault0_mint, vault1_mint, locked_lp_vault, token_program, token_program2022, memo_program, _remaining @ ..] =
             accounts

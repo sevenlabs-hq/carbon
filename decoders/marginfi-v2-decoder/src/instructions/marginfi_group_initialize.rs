@@ -7,16 +7,16 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct MarginfiGroupInitialize {}
 
 pub struct MarginfiGroupInitializeInstructionAccounts {
-    pub marginfi_group: solana_sdk::pubkey::Pubkey,
-    pub admin: solana_sdk::pubkey::Pubkey,
-    pub system_program: solana_sdk::pubkey::Pubkey,
+    pub marginfi_group: solana_pubkey::Pubkey,
+    pub admin: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for MarginfiGroupInitialize {
     type ArrangedAccounts = MarginfiGroupInitializeInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [marginfi_group, admin, system_program, _remaining @ ..] = accounts else {
             return None;

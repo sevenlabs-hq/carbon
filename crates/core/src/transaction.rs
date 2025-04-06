@@ -40,10 +40,11 @@ use {
         transformers,
     },
     async_trait::async_trait,
+    core::convert::TryFrom,
     serde::de::DeserializeOwned,
     solana_pubkey::Pubkey,
     solana_signature::Signature,
-    std::{convert::TryFrom, sync::Arc},
+    std::sync::Arc,
 };
 /// Contains metadata about a transaction, including its slot, signature, fee
 /// payer, transaction status metadata, the version transaction message and its
@@ -68,6 +69,20 @@ pub struct TransactionMetadata {
     pub block_time: Option<i64>,
 }
 
+impl Default for TransactionMetadata {
+    fn default() -> Self {
+        Self {
+            slot: 0,
+            signature: Signature::new_unique(),
+            fee_payer: Pubkey::new_unique(),
+            meta: solana_transaction_status::TransactionStatusMeta::default(),
+            message: solana_sdk::message::VersionedMessage::Legacy(
+                solana_sdk::message::Message::default(),
+            ),
+            block_time: None,
+        }
+    }
+}
 /// Tries convert transaction update into the metadata.
 ///
 /// This function retrieves core metadata such as the transaction's slot,
@@ -173,40 +188,6 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
         }
     }
 
-    /// Parses nested instructions into a list of `ParsedInstruction`.
-    ///
-    /// This method recursively traverses the nested instructions and parses
-    /// each one, creating a structured representation of the instructions.
-    ///
-    /// # Parameters
-    ///
-    /// - `instructions`: A slice of `NestedInstruction` representing the
-    ///   instructions to be parsed.
-    ///
-    /// # Returns
-    ///
-    /// A `Box<Vec<ParsedInstruction<T>>>` containing the parsed instructions.
-    fn parse_instructions(&self, instructions: &[NestedInstruction]) -> Vec<ParsedInstruction<T>> {
-        log::trace!(
-            "TransactionPipe::parse_instructions(instructions: {:?})",
-            instructions
-        );
-
-        let mut parsed_instructions: Vec<ParsedInstruction<T>> = vec![];
-
-        instructions.iter().for_each(|nested_instr| {
-            if let Some(parsed) = T::parse_instruction(&nested_instr.instruction) {
-                parsed_instructions.push(ParsedInstruction {
-                    program_id: nested_instr.instruction.program_id,
-                    instruction: parsed,
-                    inner_instructions: self.parse_instructions(&nested_instr.inner_instructions),
-                });
-            }
-        });
-
-        parsed_instructions
-    }
-
     /// Matches parsed instructions against the schema and returns the data as
     /// type `U`.
     ///
@@ -231,6 +212,38 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
             None => None,
         }
     }
+}
+
+/// Parses nested instructions into a list of `ParsedInstruction`.
+///
+/// This method recursively traverses the nested instructions and parses
+/// each one, creating a structured representation of the instructions.
+///
+/// # Parameters
+///
+/// - `nested_ixs`: A slice of `NestedInstruction` representing the
+///   instructions to be parsed.
+///
+/// # Returns
+///
+/// A `Box<Vec<ParsedInstruction<T>>>` containing the parsed instructions.
+pub fn parse_instructions<T: InstructionDecoderCollection>(
+    nested_ixs: &[NestedInstruction],
+) -> Vec<ParsedInstruction<T>> {
+    log::trace!("parse_instructions(nested_ixs: {:?})", nested_ixs);
+
+    nested_ixs
+        .iter()
+        .filter_map(|nested_ix| {
+            let instruction = T::parse_instruction(&nested_ix.instruction)?;
+
+            Some(ParsedInstruction {
+                program_id: nested_ix.instruction.program_id,
+                instruction,
+                inner_instructions: parse_instructions(&nested_ix.inner_instructions),
+            })
+        })
+        .collect()
 }
 
 /// Defines an asynchronous trait for processing transactions.
@@ -279,7 +292,7 @@ where
             instructions,
         );
 
-        let parsed_instructions = self.parse_instructions(instructions);
+        let parsed_instructions = parse_instructions(instructions);
 
         let matched_data = self.matches_schema(&parsed_instructions);
 

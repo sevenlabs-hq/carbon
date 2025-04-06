@@ -1,5 +1,6 @@
 use super::super::types::*;
 
+use alloc::string::String;
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
@@ -17,30 +18,30 @@ pub struct PlacePerpOrderV2 {
 }
 
 pub struct PlacePerpOrderV2InstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub zeta_group: solana_sdk::pubkey::Pubkey,
-    pub margin_account: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub dex_program: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub serum_authority: solana_sdk::pubkey::Pubkey,
-    pub greeks: solana_sdk::pubkey::Pubkey,
-    pub open_orders: solana_sdk::pubkey::Pubkey,
-    pub rent: solana_sdk::pubkey::Pubkey,
-    pub market_accounts: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_feed: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_program: solana_sdk::pubkey::Pubkey,
-    pub market_mint: solana_sdk::pubkey::Pubkey,
-    pub mint_authority: solana_sdk::pubkey::Pubkey,
-    pub perp_sync_queue: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub zeta_group: solana_pubkey::Pubkey,
+    pub margin_account: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub dex_program: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub serum_authority: solana_pubkey::Pubkey,
+    pub greeks: solana_pubkey::Pubkey,
+    pub open_orders: solana_pubkey::Pubkey,
+    pub rent: solana_pubkey::Pubkey,
+    pub market_accounts: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub oracle_backup_feed: solana_pubkey::Pubkey,
+    pub oracle_backup_program: solana_pubkey::Pubkey,
+    pub market_mint: solana_pubkey::Pubkey,
+    pub mint_authority: solana_pubkey::Pubkey,
+    pub perp_sync_queue: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for PlacePerpOrderV2 {
     type ArrangedAccounts = PlacePerpOrderV2InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, zeta_group, margin_account, authority, dex_program, token_program, serum_authority, greeks, open_orders, rent, market_accounts, oracle, oracle_backup_feed, oracle_backup_program, market_mint, mint_authority, perp_sync_queue, _remaining @ ..] =
             accounts

@@ -5,9 +5,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 )]
 #[carbon(discriminator = "0xe445a52e51cb9a1d641e57f9c4df9ace")]
 pub struct CreatePersonalPositionEvent {
-    pub pool_state: solana_sdk::pubkey::Pubkey,
-    pub minter: solana_sdk::pubkey::Pubkey,
-    pub nft_owner: solana_sdk::pubkey::Pubkey,
+    pub pool_state: solana_pubkey::Pubkey,
+    pub minter: solana_pubkey::Pubkey,
+    pub nft_owner: solana_pubkey::Pubkey,
     pub tick_lower_index: i32,
     pub tick_upper_index: i32,
     pub liquidity: u128,

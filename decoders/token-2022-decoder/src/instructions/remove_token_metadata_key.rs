@@ -1,3 +1,4 @@
+use alloc::string::String;
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
@@ -10,15 +11,15 @@ pub struct RemoveTokenMetadataKey {
 }
 
 pub struct RemoveTokenMetadataKeyInstructionAccounts {
-    pub metadata: solana_sdk::pubkey::Pubkey,
-    pub update_authority: solana_sdk::pubkey::Pubkey,
+    pub metadata: solana_pubkey::Pubkey,
+    pub update_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RemoveTokenMetadataKey {
     type ArrangedAccounts = RemoveTokenMetadataKeyInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [metadata, update_authority, _remaining @ ..] = accounts else {
             return None;

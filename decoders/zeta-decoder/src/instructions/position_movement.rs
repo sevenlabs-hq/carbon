@@ -1,5 +1,6 @@
 use super::super::types::*;
 
+use alloc::vec::Vec;
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
@@ -12,22 +13,22 @@ pub struct PositionMovement {
 }
 
 pub struct PositionMovementInstructionAccounts {
-    pub state: solana_sdk::pubkey::Pubkey,
-    pub zeta_group: solana_sdk::pubkey::Pubkey,
-    pub margin_account: solana_sdk::pubkey::Pubkey,
-    pub spread_account: solana_sdk::pubkey::Pubkey,
-    pub authority: solana_sdk::pubkey::Pubkey,
-    pub greeks: solana_sdk::pubkey::Pubkey,
-    pub oracle: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_feed: solana_sdk::pubkey::Pubkey,
-    pub oracle_backup_program: solana_sdk::pubkey::Pubkey,
+    pub state: solana_pubkey::Pubkey,
+    pub zeta_group: solana_pubkey::Pubkey,
+    pub margin_account: solana_pubkey::Pubkey,
+    pub spread_account: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub greeks: solana_pubkey::Pubkey,
+    pub oracle: solana_pubkey::Pubkey,
+    pub oracle_backup_feed: solana_pubkey::Pubkey,
+    pub oracle_backup_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for PositionMovement {
     type ArrangedAccounts = PositionMovementInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [state, zeta_group, margin_account, spread_account, authority, greeks, oracle, oracle_backup_feed, oracle_backup_program, _remaining @ ..] =
             accounts

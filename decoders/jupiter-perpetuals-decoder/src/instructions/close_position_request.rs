@@ -11,23 +11,23 @@ pub struct ClosePositionRequest {
 }
 
 pub struct ClosePositionRequestInstructionAccounts {
-    pub keeper: solana_sdk::pubkey::Pubkey,
-    pub owner: solana_sdk::pubkey::Pubkey,
-    pub owner_ata: solana_sdk::pubkey::Pubkey,
-    pub pool: solana_sdk::pubkey::Pubkey,
-    pub position_request: solana_sdk::pubkey::Pubkey,
-    pub position_request_ata: solana_sdk::pubkey::Pubkey,
-    pub position: solana_sdk::pubkey::Pubkey,
-    pub token_program: solana_sdk::pubkey::Pubkey,
-    pub event_authority: solana_sdk::pubkey::Pubkey,
-    pub program: solana_sdk::pubkey::Pubkey,
+    pub keeper: solana_pubkey::Pubkey,
+    pub owner: solana_pubkey::Pubkey,
+    pub owner_ata: solana_pubkey::Pubkey,
+    pub pool: solana_pubkey::Pubkey,
+    pub position_request: solana_pubkey::Pubkey,
+    pub position_request_ata: solana_pubkey::Pubkey,
+    pub position: solana_pubkey::Pubkey,
+    pub token_program: solana_pubkey::Pubkey,
+    pub event_authority: solana_pubkey::Pubkey,
+    pub program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ClosePositionRequest {
     type ArrangedAccounts = ClosePositionRequestInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [keeper, owner, owner_ata, pool, position_request, position_request_ata, position, token_program, event_authority, program, _remaining @ ..] =
             accounts

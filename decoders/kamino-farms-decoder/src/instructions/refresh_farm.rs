@@ -7,15 +7,15 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct RefreshFarm {}
 
 pub struct RefreshFarmInstructionAccounts {
-    pub farm_state: solana_sdk::pubkey::Pubkey,
-    pub scope_prices: solana_sdk::pubkey::Pubkey,
+    pub farm_state: solana_pubkey::Pubkey,
+    pub scope_prices: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for RefreshFarm {
     type ArrangedAccounts = RefreshFarmInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [farm_state, scope_prices, _remaining @ ..] = accounts else {
             return None;

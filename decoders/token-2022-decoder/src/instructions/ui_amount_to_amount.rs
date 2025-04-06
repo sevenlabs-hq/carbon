@@ -1,3 +1,4 @@
+use alloc::string::String;
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
@@ -9,14 +10,14 @@ pub struct UiAmountToAmount {
 }
 
 pub struct UiAmountToAmountInstructionAccounts {
-    pub mint: solana_sdk::pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for UiAmountToAmount {
     type ArrangedAccounts = UiAmountToAmountInstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_sdk::instruction::AccountMeta],
+        accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let [mint, _remaining @ ..] = accounts else {
             return None;

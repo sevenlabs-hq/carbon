@@ -7,10 +7,10 @@ use {
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 pub enum ExternalPluginAdapterKey {
-    LifecycleHook(solana_sdk::pubkey::Pubkey),
-    Oracle(solana_sdk::pubkey::Pubkey),
+    LifecycleHook(solana_pubkey::Pubkey),
+    Oracle(solana_pubkey::Pubkey),
     AppData(Authority),
-    LinkedLifecycleHook(solana_sdk::pubkey::Pubkey),
+    LinkedLifecycleHook(solana_pubkey::Pubkey),
     LinkedAppData(Authority),
     DataSection(LinkedDataKey),
 }
