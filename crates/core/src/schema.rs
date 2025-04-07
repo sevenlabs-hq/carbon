@@ -37,6 +37,7 @@
 //! - **Data Conversion**: The `match_schema` method returns data as a
 //!   deserialized type using `serde_json`. Ensure that your expected output
 //!   type implements `DeserializeOwned`.
+#![allow(clippy::arithmetic_side_effects)]
 
 use {
     crate::{collection::InstructionDecoderCollection, instruction::DecodedInstruction},
@@ -169,6 +170,7 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
                 node
             );
 
+            
             if let SchemaNode::Any = node {
                 log::trace!("Schema::match_nodes: Any node detected, skipping");
                 any = true;

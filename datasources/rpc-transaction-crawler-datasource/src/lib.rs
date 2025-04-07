@@ -339,13 +339,10 @@ fn task_processor(
                     let start = Instant::now();
                     let transaction = fetched_transaction.transaction;
 
-                    let meta_original = if let Some(meta) = transaction.clone().meta {
-                        meta
-                    } else {
+                    let Some(meta_original) = transaction.clone().meta else {
                         log::warn!("Meta is malformed for transaction: {:?}", signature);
                         continue;
                     };
-
                     if meta_original.status.is_err() {
                         continue;
                     }

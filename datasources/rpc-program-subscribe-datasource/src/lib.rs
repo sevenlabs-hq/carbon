@@ -1,3 +1,5 @@
+#![allow(clippy::arithmetic_side_effects)]
+
 use {
     async_trait::async_trait,
     carbon_core::{
@@ -26,7 +28,10 @@ pub struct Filters {
 }
 
 impl Filters {
-    pub const fn new(pubkey: Pubkey, program_subscribe_config: Option<RpcProgramAccountsConfig>) -> Self {
+    pub const fn new(
+        pubkey: Pubkey,
+        program_subscribe_config: Option<RpcProgramAccountsConfig>,
+    ) -> Self {
         Filters {
             pubkey,
             program_subscribe_config,

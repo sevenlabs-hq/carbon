@@ -29,7 +29,6 @@ use {
     solana_instruction::AccountMeta,
     solana_pubkey::Pubkey,
     std::{
-        collections::HashMap,
         ops::{Deref, DerefMut},
         sync::Arc,
     },

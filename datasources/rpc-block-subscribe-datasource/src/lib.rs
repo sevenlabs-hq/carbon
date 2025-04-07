@@ -1,3 +1,4 @@
+#![allow(clippy::arithmetic_side_effects)]
 use {
     async_trait::async_trait,
     carbon_core::{
@@ -126,9 +127,7 @@ impl Datasource for RpcBlockSubscribe {
                                         for encoded_transaction_with_status_meta in transactions {
                                             let start_time = std::time::Instant::now();
 
-                                            let meta_original = if let Some(meta) = encoded_transaction_with_status_meta.clone().meta {
-                                                meta
-                                            } else {
+                                            let Some(meta_original) = encoded_transaction_with_status_meta.clone().meta else {
                                                 continue;
                                             };
 
