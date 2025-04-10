@@ -10,6 +10,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "{{account.discriminator }}")] 
 pub struct {{ account.struct_name }} { 
     {%- for field in account.fields %} 
+        {%- if let Some(attributes) = field.attributes %}
+        {{ attributes }}
+        {%- endif %}
         pub {{ field.name }}: {{ field.rust_type }}, 
     {%- endfor %} 
 }
