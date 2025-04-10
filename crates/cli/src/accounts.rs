@@ -1,5 +1,9 @@
 use {
-    crate::{idl::Idl, legacy_idl::LegacyIdl, util::idl_type_to_rust_type},
+    crate::{
+        idl::Idl,
+        legacy_idl::LegacyIdl,
+        util::{idl_type_to_rust_type, is_big_array},
+    },
     askama::Template,
     heck::{ToSnakeCase, ToUpperCamelCase},
     sha2::{Digest, Sha256},
@@ -20,6 +24,7 @@ pub struct AccountData {
 pub struct FieldData {
     pub name: String,
     pub rust_type: String,
+    pub attributes: Option<String>,
 }
 
 #[derive(Template)]
@@ -55,9 +60,15 @@ pub fn legacy_process_accounts(idl: &LegacyIdl) -> Vec<AccountData> {
                 if rust_type.1 {
                     requires_imports = true;
                 }
+                let attributes = if is_big_array(&rust_type.0) {
+                    Some("#[serde(with = \"serde_big_array::BigArray\")]".to_string())
+                } else {
+                    None
+                };
                 fields.push(FieldData {
                     name: field.name.to_snake_case(),
                     rust_type: rust_type.0,
+                    attributes,
                 });
             }
         }
@@ -93,9 +104,15 @@ pub fn process_accounts(idl: &Idl) -> Vec<AccountData> {
                         if rust_type.1 {
                             requires_imports = true;
                         }
+                        let attributes = if is_big_array(&rust_type.0) {
+                            Some("#[serde(with = \"serde_big_array::BigArray\")]".to_string())
+                        } else {
+                            None
+                        };
                         account_fields.push(FieldData {
                             name: field.name.to_snake_case(),
                             rust_type: rust_type.0,
+                            attributes,
                         });
                     }
                 }
