@@ -1523,6 +1523,7 @@ dependencies = [
  "serde-big-array",
  "solana-account",
  "solana-instruction",
+ "solana-program",
  "solana-pubkey",
 ]
 

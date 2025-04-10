@@ -9,6 +9,7 @@ pub struct TransferChecked {
     pub decimals: u8,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize,)]
 pub struct TransferCheckedInstructionAccounts {
     pub source: solana_pubkey::Pubkey,
     pub mint: solana_pubkey::Pubkey,
