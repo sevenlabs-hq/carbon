@@ -1,3 +1,4 @@
+#![allow(clippy::arithmetic_side_effects)]
 use {
     async_trait::async_trait,
     carbon_core::{
@@ -171,15 +172,11 @@ impl Datasource for HeliusWebsocket {
                 let metrics_clone = Arc::clone(&metrics);
 
                 let handle = tokio::spawn(async move {
-                    let ws = match helius_clone.ws() {
-                        Some(ws) => ws,
-                        None => {
-                            log::error!("Helius Websocket not available for Clock subscription");
-                            iteration_cancellation_clock.cancel();
-                            return;
-                        }
+                    let Some(ws) = helius_clone.ws() else {
+                        log::error!("Helius Websocket not available for Clock subscription");
+                        iteration_cancellation_clock.cancel();
+                        return;
                     };
-
                     let (mut stream, _unsub) = match ws
                         .account_subscribe(&solana_program::sysvar::clock::ID, None)
                         .await
@@ -218,10 +215,10 @@ impl Datasource for HeliusWebsocket {
                                             if let Ok(clock) = bincode::deserialize::<Clock>(&clock_data.data) {
                                                 let current_slot = clock.slot;
 
-                                                if last_slot > 0 && current_slot > last_slot + MAX_MISSED_BLOCKS {
+                                                if last_slot > 0 && current_slot > last_slot.saturating_add(MAX_MISSED_BLOCKS) {
                                                     log::warn!(
                                                         "Detected large slot gap: last_slot={}, current_slot={}, gap={}",
-                                                        last_slot, current_slot, current_slot - last_slot
+                                                        last_slot, current_slot, current_slot.saturating_sub(last_slot)
                                                     );
                                                     iteration_cancellation_clock.cancel();
                                                     return;
@@ -262,14 +259,10 @@ impl Datasource for HeliusWebsocket {
                         let metrics = metrics.clone();
 
                         let handle = tokio::spawn(async move {
-                            let ws = match helius_clone.ws() {
-                                Some(ws) => ws,
-                                None => {
-                                    log::error!("Helius Websocket not available");
-                                    return;
-                                }
+                            let Some(ws) = helius_clone.ws() else {
+                                log::error!("Helius Websocket not available");
+                                return;
                             };
-
                             let (mut stream, _unsub) =
                                 match ws.account_subscribe(&account, None).await {
                                     Ok(subscription) => subscription,
@@ -366,14 +359,10 @@ impl Datasource for HeliusWebsocket {
                     let helius_clone = Arc::clone(&helius);
 
                     let handle = tokio::spawn(async move {
-                        let ws = match helius_clone.ws() {
-                            Some(ws) => ws,
-                            None => {
-                                log::error!("Helius Websocket not available");
-                                return;
-                            }
+                        let Some(ws) = helius_clone.ws() else {
+                            log::error!("Helius Websocket not available");
+                            return;
                         };
-
                         let (mut stream, _unsub) =
                             match ws.transaction_subscribe(config.clone()).await {
                                 Ok(subscription) => subscription,
@@ -404,9 +393,7 @@ impl Datasource for HeliusWebsocket {
                                                 continue;
                                             };
 
-                                            let meta_original = if let Some(meta) = encoded_transaction_with_status_meta.clone().meta {
-                                                meta
-                                            } else {
+                                            let Some(meta_original) = encoded_transaction_with_status_meta.clone().meta else {
                                                 log::warn!("Meta is malformed for transaction: {:?}", signature_str);
                                                 continue;
                                             };
