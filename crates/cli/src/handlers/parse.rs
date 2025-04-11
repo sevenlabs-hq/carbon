@@ -206,7 +206,8 @@ crate-type = ["rlib"]
 carbon-core = {{ workspace = true }}
 carbon-proc-macros = {{ workspace = true }}
 carbon-macros = {{ workspace = true }}
-solana-sdk = {{ workspace = true }}
+solana-account = {{ workspace = true }}
+solana-instruction = {{ workspace = true }}
 solana-pubkey = {{ workspace = true }}
 serde = {{ workspace = true }}
 {big_array}

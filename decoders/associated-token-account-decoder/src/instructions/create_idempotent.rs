@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x01")]
 pub struct CreateIdempotent {}
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct CreateIdempotentInstructionAccounts {
     pub funding_address: solana_pubkey::Pubkey,
     pub associated_account_address: solana_pubkey::Pubkey,
