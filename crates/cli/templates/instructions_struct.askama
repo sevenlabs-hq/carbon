@@ -13,6 +13,7 @@ pub struct {{ instruction.struct_name }}{
     {%- endfor %}
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct {{ instruction.struct_name }}InstructionAccounts {
     {%- for account in instruction.accounts %}
     pub {{ account.name }}: solana_pubkey::Pubkey,
