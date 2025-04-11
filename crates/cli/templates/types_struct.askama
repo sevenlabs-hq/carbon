@@ -9,7 +9,7 @@ use carbon_core::{CarbonDeserialize, borsh};
 
 {%- when TypeKind::Struct %}
 
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(CarbonDeserialize, borsh::BorshSerialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 pub struct {{ type_data.name }} {
     {%- for field in type_data.fields %}
     {%- if let Some(attributes) = field.attributes %}
@@ -21,7 +21,7 @@ pub struct {{ type_data.name }} {
 
 {%- when TypeKind::Enum with (variants) %}
 
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(CarbonDeserialize, borsh::BorshSerialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 pub enum {{ type_data.name }} {
     {%- for variant in variants %}
     {{ variant.name -}}
