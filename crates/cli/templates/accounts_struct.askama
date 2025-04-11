@@ -4,7 +4,7 @@ use super::super::types::*;
 {% raw %} 
 use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize)] 
+#[derive(CarbonDeserialize, borsh::BorshSerialize, Debug, serde::Serialize, serde::Deserialize)] 
 {% endraw %} 
 
 #[carbon(discriminator = "{{account.discriminator }}")] 
