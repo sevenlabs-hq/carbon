@@ -113,7 +113,7 @@ pub fn extract_instructions_with_metadata(
                     InstructionMetadata {
                         transaction_metadata: transaction_metadata.clone(),
                         stack_height: 1,
-                        index: i as u32 + 1,
+                        index: i.checked_add(1).unwrap_or(1) as u32,
                     },
                     solana_instruction::Instruction {
                         program_id,
@@ -203,7 +203,7 @@ pub fn extract_instructions_with_metadata(
                     InstructionMetadata {
                         transaction_metadata: transaction_metadata.clone(),
                         stack_height: 1,
-                        index: i as u32 + 1,
+                        index: i.checked_add(1).unwrap_or(1) as u32,
                     },
                     solana_instruction::Instruction {
                         program_id,
@@ -352,18 +352,20 @@ pub fn unnest_parsed_instructions<T: InstructionDecoderCollection>(
     let mut result = Vec::new();
 
     for (ix_idx, parsed_instruction) in instructions.into_iter().enumerate() {
+        let index = ix_idx.checked_add(1).unwrap_or(0) as u32;
+        let next_stack = stack_height.checked_add(1).unwrap_or(1);
         result.push((
             InstructionMetadata {
                 transaction_metadata: transaction_metadata.clone(),
                 stack_height,
-                index: ix_idx as u32 + 1,
+                index,
             },
             parsed_instruction.instruction,
         ));
         result.extend(unnest_parsed_instructions(
             transaction_metadata.clone(),
             parsed_instruction.inner_instructions,
-            stack_height + 1,
+            next_stack,
         ));
     }
 
