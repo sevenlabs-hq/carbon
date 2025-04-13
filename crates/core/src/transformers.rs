@@ -113,7 +113,7 @@ pub fn extract_instructions_with_metadata(
                     InstructionMetadata {
                         transaction_metadata: transaction_metadata.clone(),
                         stack_height: 1,
-                        index: i as u32 + 1,
+                        index: i as u32,
                     },
                     solana_instruction::Instruction {
                         program_id,
@@ -203,7 +203,7 @@ pub fn extract_instructions_with_metadata(
                     InstructionMetadata {
                         transaction_metadata: transaction_metadata.clone(),
                         stack_height: 1,
-                        index: i as u32 + 1,
+                        index: i as u32,
                     },
                     solana_instruction::Instruction {
                         program_id,
