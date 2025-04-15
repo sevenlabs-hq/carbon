@@ -19,6 +19,7 @@ carbon-test-utils = { path = "crates/test-utils", version = "0.7.0" }
 
 # datasources
 carbon-helius-atlas-ws-datasource = { path = "datasources/helius-atlas-ws-datasource", version = "0.7.0" }
+carbon-jito-shredstream-grpc-datasource = { path = "datasources/jito-shredstream-grpc-datasource", version = "0.7.0" }
 carbon-rpc-block-crawler-datasource = { path = "datasources/rpc-block-crawler-datasource", version = "0.7.0" }
 carbon-rpc-block-subscribe-datasource = { path = "datasources/rpc-block-subscribe-datasource", version = "0.7.0" }
 carbon-rpc-program-subscribe-datasource = { path = "datasources/rpc-program-subscribe-datasource", version = "0.7.0" }
