@@ -1,0 +1,31 @@
+[package]
+name = "carbon-jito-shredstream-grpc-datasource"
+description = "Jito Shredstream gRPC Datasource"
+license = { workspace = true }
+version = "0.7.0"
+edition = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "indexer", "shredstream", "datasource"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+solana-client = { workspace = true }
+solana-entry = "2.1.16"
+solana-sdk = { workspace = true }
+solana-transaction-status = { workspace = true }
+
+carbon-core = { workspace = true }
+
+async-trait = { workspace = true }
+bincode = { workspace = true }
+env_logger = { workspace = true }
+futures = { workspace = true }
+futures-util = { workspace = true }
+jito-protos = { git = "https://github.com/jito-labs/shredstream-proxy", rev = "68d882e12297c2577255d2e03f1c542ae708c112" }
+log = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tokio-util = { workspace = true }
