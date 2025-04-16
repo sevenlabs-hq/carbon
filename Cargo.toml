@@ -59,6 +59,7 @@ carbon-phoenix-v1-decoder = { path = "decoders/phoenix-v1-decoder", version = "0
 carbon-pump-swap-decoder = { path = "decoders/pump-swap-decoder", version = "0.7.0" }
 carbon-pumpfun-decoder = { path = "decoders/pumpfun-decoder", version = "0.7.0" }
 carbon-raydium-amm-v4-decoder = { path = "decoders/raydium-amm-v4-decoder", version = "0.7.0" }
+carbon-raydium-launchpad-decoder = { path = "decoders/raydium-launchpad-decoder", version = "0.7.0" }
 carbon-raydium-clmm-decoder = { path = "decoders/raydium-clmm-decoder", version = "0.7.0" }
 carbon-raydium-cpmm-decoder = { path = "decoders/raydium-cpmm-decoder", version = "0.7.0" }
 carbon-raydium-liquidity-locking-decoder = { path = "decoders/carbon-raydium-liquidity-locking-decoder", version = "0.7.0" }
