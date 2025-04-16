@@ -1401,6 +1401,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-raydium-launchpad-decoder"
+version = "0.7.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "serde-big-array",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey",
+]
+
+[[package]]
 name = "carbon-raydium-liquidity-locking-decoder"
 version = "0.7.0"
 dependencies = [
