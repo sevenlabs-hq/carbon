@@ -13,6 +13,7 @@ workspace_crates=(
     carbon-rpc-block-subscribe-datasource
     carbon-rpc-program-subscribe-datasource
     carbon-rpc-transaction-crawler-datasource
+    carbon-jito-shredstream-grpc-datasource
     carbon-yellowstone-grpc-datasource
 
     carbon-log-metrics
@@ -48,6 +49,7 @@ workspace_crates=(
     carbon-raydium-amm-v4-decoder
     carbon-raydium-clmm-decoder
     carbon-raydium-cpmm-decoder
+    carbon-raydium-launchpad-decoder
     carbon-raydium-liquidity-locking-decoder
     carbon-sharky-decoder
     carbon-solayer-restaking-program-decoder
