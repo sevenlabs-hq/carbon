@@ -26,7 +26,10 @@ pub struct Filters {
 }
 
 impl Filters {
-    pub const fn new(pubkey: Pubkey, program_subscribe_config: Option<RpcProgramAccountsConfig>) -> Self {
+    pub const fn new(
+        pubkey: Pubkey,
+        program_subscribe_config: Option<RpcProgramAccountsConfig>,
+    ) -> Self {
         Filters {
             pubkey,
             program_subscribe_config,
