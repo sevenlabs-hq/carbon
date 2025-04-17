@@ -216,7 +216,7 @@ fn signature_fetcher(
                                     }
                                 }
                             }
-                            
+
                             for sig_info in signatures.iter() {
                                 let signature = match Signature::from_str(&sig_info.signature) {
                                     Ok(sig) => sig,
