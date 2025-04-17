@@ -1,6 +1,6 @@
 [package]
 name = "carbon-core"
-version = "0.7.0"
+version = "0.8.0"
 edition = { workspace = true }
 description = "Core library for Carbon"
 license = { workspace = true }
@@ -44,4 +44,3 @@ crate-type = ["rlib"]
 [dev-dependencies]
 carbon-test-utils = { workspace = true }
 solana-account-decoder-client-types = { workspace = true }
-
