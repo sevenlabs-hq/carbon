@@ -25,7 +25,7 @@ use {
         transaction::TransactionMetadata,
     },
     async_trait::async_trait,
-    serde::Deserialize,
+    serde::{Deserialize, Serialize},
     solana_instruction::AccountMeta,
     solana_pubkey::Pubkey,
     std::{
@@ -45,7 +45,7 @@ use {
 ///
 /// - `transaction_metadata`: Metadata providing details of the entire
 ///   transaction.
-/// - `stack_height`: Represents the instruction’s depth within the stack, where
+/// - `stack_height`: Represents the instruction's depth within the stack, where
 ///   1 is the root level.
 /// - `index`: The index of the instruction in the transaction. The index is
 ///   relative within stack height and is 1-based. Note that the inner instruction indexes are grouped into one vector,
@@ -78,7 +78,7 @@ pub type InstructionsWithMetadata = Vec<(InstructionMetadata, solana_instruction
 /// - `accounts`: A vector of `AccountMeta`, representing the accounts involved
 ///   in the instruction.
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct DecodedInstruction<T> {
     pub program_id: Pubkey,
     pub data: T,
