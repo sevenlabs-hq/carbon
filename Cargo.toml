@@ -74,20 +74,24 @@ carbon-token-program-decoder = { path = "decoders/token-program-decoder", versio
 carbon-virtuals-decoder = { path = "decoders/virtuals-decoder", version = "0.8.0" }
 carbon-zeta-decoder = { path = "decoders/zeta-decoder", version = "0.8.0" }
 
+# misc
+carbon-jito-protos = { path = "misc/jito-protos" }
+
 # solana
-solana-account = "2.1.16"
-solana-account-decoder = "2.1.16"
-solana-account-decoder-client-types = "2.1.16"
-solana-client = "2.1.16"
-solana-clock = "2.1.16"
-solana-instruction = { version = "2.1.16", default-features = false }
-solana-native-token = "2.1.16"
-solana-program = "2.1.16"
-solana-program-pack = "2.1.16"
-solana-pubkey = "2.1.16"
-solana-sdk = "2.1.16"
-solana-signature = "2.1.16"
-solana-transaction-status = "2.1.16"
+solana-account = "2.2"
+solana-account-decoder = "2.2"
+solana-account-decoder-client-types = "2.2"
+solana-client = "2.2"
+solana-clock = "2.2"
+solana-entry = "2.2"
+solana-instruction = { version = "2.2", default-features = false }
+solana-native-token = "2.2"
+solana-program = "2.2"
+solana-program-pack = "2.2"
+solana-pubkey = "2.2"
+solana-sdk = "2.2"
+solana-signature = "2.2"
+solana-transaction-status = "2.2"
 spl-memo = "5.0.0"
 spl-token = "6.0.0"
 
@@ -110,7 +114,7 @@ flate2 = "1.0.35"
 futures = "0.3.30"
 futures-util = "0.3.31"
 heck = "0.5.0"
-helius = { version = "0.2.4", git = "https://github.com/helius-labs/helius-rust-sdk.git" }
+helius = { version = "0.2.6", git = "https://github.com/helius-labs/helius-rust-sdk.git" }
 hex = "0.4.3"
 indicatif = "0.17.8"
 inquire = "0.7.5"
@@ -119,6 +123,8 @@ metrics = "0.24.1"
 metrics-exporter-prometheus = "0.16.0"
 paste = "1.0.15"
 proc-macro2 = "1"
+prost = "0.12"
+prost-types = "0.12"
 quote = "1.0"
 retry = "2.0.0"
 serde = { version = "1.0.208", features = ["derive"] }
@@ -130,9 +136,11 @@ thiserror = { version = "2.0.12", default-features = false }
 tokio = { version = "1.43.0" }
 tokio-retry = "0.3.0"
 tokio-util = "0.7.13"
+tonic = { version = "0.10", features = ["tls", "tls-roots", "tls-webpki-roots"] }
+tonic-build = "0.10"
 unicode-xid = "0.2"
-yellowstone-grpc-client = { version = "5.0.0" }
-yellowstone-grpc-proto = { version = "5.0.0" }
+yellowstone-grpc-client = { version = "6.0.0" }
+yellowstone-grpc-proto = { version = "6.0.0" }
 
 [patch.crates-io.curve25519-dalek]
 git = "https://github.com/anza-xyz/curve25519-dalek.git"

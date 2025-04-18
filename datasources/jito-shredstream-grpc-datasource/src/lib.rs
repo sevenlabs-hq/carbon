@@ -6,7 +6,7 @@ use {
         metrics::MetricsCollection,
     },
     futures::{stream::try_unfold, TryStreamExt},
-    jito_protos::shredstream::{
+    carbon_jito_protos::shredstream::{
         shredstream_proxy_client::ShredstreamProxyClient, SubscribeEntriesRequest,
     },
     solana_client::rpc_client::SerializableTransaction,
