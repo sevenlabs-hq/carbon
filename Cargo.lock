@@ -1013,6 +1013,7 @@ dependencies = [
  "futures-util",
  "jito-protos",
  "log",
+ "quick_cache",
  "solana-client",
  "solana-entry",
  "solana-sdk",
@@ -4563,6 +4564,18 @@ dependencies = [
  "wasi 0.11.0+wasi-snapshot-preview1",
  "web-sys",
  "winapi",
+]
+
+[[package]]
+name = "quick_cache"
+version = "0.6.13"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "287e56aac5a2b4fb25a6fb050961d157635924c8696305a5c937a76f29841a0f"
+dependencies = [
+ "ahash",
+ "equivalent",
+ "hashbrown 0.15.2",
+ "parking_lot",
 ]
 
 [[package]]

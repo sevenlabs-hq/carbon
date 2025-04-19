@@ -9,8 +9,10 @@ use {
     jito_protos::shredstream::{
         shredstream_proxy_client::ShredstreamProxyClient, SubscribeEntriesRequest,
     },
+    quick_cache::sync::Cache,
     solana_client::rpc_client::SerializableTransaction,
     solana_entry::entry::Entry,
+    solana_sdk::hash::Hash,
     solana_transaction_status::TransactionStatusMeta,
     std::{
         sync::Arc,
@@ -20,14 +22,22 @@ use {
     tokio_util::sync::CancellationToken,
 };
 
+const DEFAULT_DEDUP_CACHE_CAPACITY: usize = 1000;
+
 #[derive(Debug)]
 pub struct JitoShredstreamGrpcClient {
     pub endpoint: String,
+    dedup_cache: Arc<Cache<Hash, ()>>,
 }
 
 impl JitoShredstreamGrpcClient {
-    pub fn new(endpoint: String) -> Self {
-        JitoShredstreamGrpcClient { endpoint }
+    pub fn new(endpoint: String, dedup_cache_capacity: Option<usize>) -> Self {
+        JitoShredstreamGrpcClient {
+            endpoint,
+            dedup_cache: Arc::new(Cache::new(
+                dedup_cache_capacity.unwrap_or(DEFAULT_DEDUP_CACHE_CAPACITY),
+            )),
+        }
     }
 }
 
@@ -46,6 +56,7 @@ impl Datasource for JitoShredstreamGrpcClient {
             .await
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?;
 
+        let dedup_cache = self.dedup_cache.clone();
         tokio::spawn(async move {
             let result = tokio::select! {
                 _ = cancellation_token.cancelled() => {
@@ -86,6 +97,7 @@ impl Datasource for JitoShredstreamGrpcClient {
                 .try_for_each_concurrent(None, |message| {
                     let metrics = metrics.clone();
                     let sender = sender.clone();
+                    let dedup_cache = dedup_cache.clone();
 
                     async move {
                         let start_time = SystemTime::now();
@@ -98,14 +110,23 @@ impl Datasource for JitoShredstreamGrpcClient {
                             }
                         };
 
+                        let total_entries = entries.len();
+                        let mut duplicate_entries = 0;
+
                         for entry in entries {
+                            if dedup_cache.contains_key(&entry.hash) {
+                                duplicate_entries += 1;
+                                continue;
+                            }
+                            dedup_cache.insert(entry.hash.clone(), ());
+
                             for transaction in entry.transactions {
                                 let signature = *transaction.get_signature();
                                 let is_vote = transaction.message.instructions().len() == 1
                                     && solana_sdk::vote::program::id()
                                         .eq(transaction.message.instructions()[0]
                                             .program_id(transaction.message.static_account_keys()));
-                              
+
                                 let update = Update::Transaction(Box::new(TransactionUpdate {
                                     signature,
                                     is_vote,
@@ -137,7 +158,14 @@ impl Datasource for JitoShredstreamGrpcClient {
                             .unwrap();
 
                         metrics
-                            .increment_counter("jito_shredstream_grpc_entry_updates_received", 1)
+                            .increment_counter("jito_shredstream_grpc_entry_updates_received", total_entries as u64)
+                            .await
+                            .unwrap_or_else(|value| {
+                                log::error!("Error recording metric: {}", value)
+                            });
+
+                        metrics
+                            .increment_counter("jito_shredstream_grpc_duplicate_entries", duplicate_entries)
                             .await
                             .unwrap_or_else(|value| {
                                 log::error!("Error recording metric: {}", value)

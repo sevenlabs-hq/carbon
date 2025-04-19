@@ -29,3 +29,4 @@ jito-protos = { git = "https://github.com/jito-labs/shredstream-proxy", rev = "6
 log = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tokio-util = { workspace = true }
+quick_cache = "0.6.13"
