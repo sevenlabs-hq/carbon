@@ -101,14 +101,10 @@ impl Datasource for JitoShredstreamGrpcClient {
                         for entry in entries {
                             for transaction in entry.transactions {
                                 let signature = *transaction.get_signature();
-                                let is_vote = transaction.message.instructions().len() == 1
-                                    && solana_sdk::vote::program::id()
-                                        .eq(transaction.message.instructions()[0]
-                                            .program_id(transaction.message.static_account_keys()));
                               
                                 let update = Update::Transaction(Box::new(TransactionUpdate {
                                     signature,
-                                    is_vote,
+                                    is_vote: false,
                                     transaction,
                                     meta: TransactionStatusMeta {
                                         status: Ok(()),
