@@ -18,3 +18,8 @@ env_logger = { workspace = true }
 log = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 yellowstone-grpc-proto = { workspace = true }
+
+[dependencies.rustls]
+default-features = false
+features = ["std"]
+version = "0.23.0"

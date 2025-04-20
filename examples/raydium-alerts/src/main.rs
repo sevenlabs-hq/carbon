@@ -32,6 +32,11 @@ pub async fn main() -> CarbonResult<()> {
     env_logger::init();
     dotenv::dotenv().ok();
 
+    // NOTE: Workaround, that solving issue https://github.com/rustls/rustls/issues/1877
+    rustls::crypto::aws_lc_rs::default_provider()
+        .install_default()
+        .expect("Can't set crypto provider to aws_lc_rs");
+
     let mut account_filters: HashMap<String, SubscribeRequestFilterAccounts> = HashMap::new();
     account_filters.insert(
         "raydium_account_filter".to_string(),
