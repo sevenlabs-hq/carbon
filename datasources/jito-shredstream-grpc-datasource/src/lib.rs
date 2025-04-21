@@ -9,6 +9,7 @@ use {
     jito_protos::shredstream::{
         shredstream_proxy_client::ShredstreamProxyClient, SubscribeEntriesRequest,
     },
+    scc::HashCache,
     solana_client::rpc_client::SerializableTransaction,
     solana_entry::entry::Entry,
     solana_transaction_status::TransactionStatusMeta,
@@ -21,13 +22,11 @@ use {
 };
 
 #[derive(Debug)]
-pub struct JitoShredstreamGrpcClient {
-    pub endpoint: String,
-}
+pub struct JitoShredstreamGrpcClient(String);
 
 impl JitoShredstreamGrpcClient {
     pub fn new(endpoint: String) -> Self {
-        JitoShredstreamGrpcClient { endpoint }
+        JitoShredstreamGrpcClient(endpoint)
     }
 }
 
@@ -40,7 +39,7 @@ impl Datasource for JitoShredstreamGrpcClient {
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let sender = sender.clone();
-        let endpoint = self.endpoint.clone();
+        let endpoint = self.0.clone();
 
         let mut client = ShredstreamProxyClient::connect(endpoint)
             .await
@@ -82,15 +81,20 @@ impl Datasource for JitoShredstreamGrpcClient {
                 },
             );
 
+            let dedup_cache = Arc::new(HashCache::with_capacity(1024, 4096));
+
             if let Err(e) = stream
                 .try_for_each_concurrent(None, |message| {
                     let metrics = metrics.clone();
                     let sender = sender.clone();
+                    let dedup_cache = dedup_cache.clone();
 
                     async move {
                         let start_time = SystemTime::now();
+                        let block_time =
+                            Some(start_time.duration_since(UNIX_EPOCH).unwrap().as_millis() as i64);
 
-                        let entries = match bincode::deserialize::<Vec<Entry>>(&message.entries) {
+                        let entries: Vec<Entry> = match bincode::deserialize(&message.entries) {
                             Ok(e) => e,
                             Err(e) => {
                                 log::error!("Failed to deserialize entries: {:?}", e);
@@ -98,10 +102,19 @@ impl Datasource for JitoShredstreamGrpcClient {
                             }
                         };
 
+                        let total_entries = entries.len();
+                        let mut duplicate_entries = 0;
+
                         for entry in entries {
+                            if dedup_cache.contains(&entry.hash) {
+                                duplicate_entries += 1;
+                                continue;
+                            }
+                            let _ = dedup_cache.put(entry.hash, ());
+
                             for transaction in entry.transactions {
                                 let signature = *transaction.get_signature();
-                              
+
                                 let update = Update::Transaction(Box::new(TransactionUpdate {
                                     signature,
                                     is_vote: false,
@@ -111,10 +124,7 @@ impl Datasource for JitoShredstreamGrpcClient {
                                         ..Default::default()
                                     },
                                     slot: message.slot,
-                                    block_time: Some(
-                                        start_time.duration_since(UNIX_EPOCH).unwrap().as_secs()
-                                            as i64,
-                                    ),
+                                    block_time,
                                 }));
 
                                 if let Err(e) = sender.try_send(update) {
@@ -133,7 +143,20 @@ impl Datasource for JitoShredstreamGrpcClient {
                             .unwrap();
 
                         metrics
-                            .increment_counter("jito_shredstream_grpc_entry_updates_received", 1)
+                            .increment_counter(
+                                "jito_shredstream_grpc_entry_updates_received",
+                                total_entries as u64,
+                            )
+                            .await
+                            .unwrap_or_else(|value| {
+                                log::error!("Error recording metric: {}", value)
+                            });
+
+                        metrics
+                            .increment_counter(
+                                "jito_shredstream_grpc_duplicate_entries",
+                                duplicate_entries,
+                            )
                             .await
                             .unwrap_or_else(|value| {
                                 log::error!("Error recording metric: {}", value)
