@@ -48,13 +48,14 @@ use {
 /// - `stack_height`: Represents the instruction's depth within the stack, where
 ///   1 is the root level.
 /// - `index`: The index of the instruction in the transaction. The index is
-///   relative within stack height and is 1-based. Note that the inner instruction indexes are grouped into one vector,
-///   so different inner instructions that have different stack heights may have continuous indexes.
-///
+///   relative within stack height and is 1-based. Note that the inner
+///   instruction indexes are grouped into one vector, so different inner
+///   instructions that have different stack heights may have continuous
+///   indexes.
 
 #[derive(Debug, Clone)]
 pub struct InstructionMetadata {
-    pub transaction_metadata: TransactionMetadata,
+    pub transaction_metadata: Arc<TransactionMetadata>,
     pub stack_height: u32,
     pub index: u32,
 }
@@ -298,16 +299,14 @@ impl From<InstructionsWithMetadata> for NestedInstructions {
 #[cfg(test)]
 mod tests {
 
-    use solana_instruction::Instruction;
-
-    use super::*;
+    use {super::*, solana_instruction::Instruction};
 
     fn create_instruction_with_metadata(
         index: u32,
         stack_height: u32,
     ) -> (InstructionMetadata, Instruction) {
         let metadata = InstructionMetadata {
-            transaction_metadata: TransactionMetadata::default(),
+            transaction_metadata: Arc::default(),
             stack_height,
             index,
         };
