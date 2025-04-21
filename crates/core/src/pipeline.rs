@@ -165,13 +165,13 @@ pub const DEFAULT_CHANNEL_BUFFER_SIZE: usize = 1_000;
 /// - `metrics_flush_interval`: An optional interval, in seconds, defining how
 ///   frequently metrics should be flushed. If `None`, the default interval is
 ///   used.
-/// - `channel_buffer_size`: The size of the channel buffer for the pipeline.
-///   If not set, a default size of 10_000 will be used.
+/// - `channel_buffer_size`: The size of the channel buffer for the pipeline. If
+///   not set, a default size of 10_000 will be used.
 ///
 /// ## Example
 ///
 /// ```rust
-///
+/// 
 /// carbon_core::pipeline::Pipeline::builder()
 /// .datasource(transaction_crawler)
 /// .metrics(Arc::new(LogMetrics::new()))
@@ -509,11 +509,11 @@ impl Pipeline {
                     .await?;
             }
             Update::Transaction(transaction_update) => {
-                let transaction_metadata = &(*transaction_update).clone().try_into()?;
+                let transaction_metadata = Arc::new((*transaction_update).clone().try_into()?);
 
                 let instructions_with_metadata: InstructionsWithMetadata =
                     transformers::extract_instructions_with_metadata(
-                        transaction_metadata,
+                        &transaction_metadata,
                         &transaction_update,
                     )?;
 
@@ -612,9 +612,10 @@ impl Pipeline {
 /// - `metrics_flush_interval`: An optional interval (in seconds) for flushing
 ///   metrics data. If not set, a default flush interval will be used.
 /// - `datasource_cancellation_token`: An optional `CancellationToken` for
-///   canceling datasource. If not set, a default `CancellationToken` will be used.
-/// - `channel_buffer_size`: The size of the channel buffer for the pipeline.
-///   If not set, a default size of 10_000 will be used.
+///   canceling datasource. If not set, a default `CancellationToken` will be
+///   used.
+/// - `channel_buffer_size`: The size of the channel buffer for the pipeline. If
+///   not set, a default size of 10_000 will be used.
 ///
 /// # Returns
 ///
