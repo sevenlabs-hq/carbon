@@ -1,6 +1,6 @@
-#![no_std]
+// #![no_std]
 
-extern crate alloc;
+// extern crate alloc;
 
 pub struct TokenProgramDecoder;
 
@@ -9,4 +9,4 @@ pub mod instructions;
 pub mod types;
 
 #[cfg(feature = "postgres")]
-pub use postgres_client::*;
+pub mod queries;

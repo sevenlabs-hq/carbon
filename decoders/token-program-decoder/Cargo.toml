@@ -13,17 +13,18 @@ categories = ["encoding"]
 crate-type = ["rlib"]
 
 [features]
-default = []
-postgres = ["dep:postgres", "dep:postgres-types", "dep:chrono"]
+default = ['postgres']
+postgres = ["dep:sqlx", "dep:carbon-postgres-client", "dep:chrono"]
 
 [dependencies]
+async-trait = { workspace = true }
 carbon-core = { workspace = true }
+carbon-postgres-client = { workspace = true, optional = true }
 chrono = { workspace = true, optional = true }
-postgres = { workspace = true, optional = true }
-postgres-types = { workspace = true, optional = true }
 serde = { workspace = true }
 solana-account = { workspace = true }
 solana-instruction = { workspace = true, default-features = false }
 solana-program-pack = { workspace = true }
 solana-pubkey = { workspace = true }
 spl-token = { workspace = true }
+sqlx = { workspace = true, optional = true }
