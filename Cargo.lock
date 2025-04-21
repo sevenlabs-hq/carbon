@@ -4760,6 +4760,7 @@ version = "0.2.1"
 dependencies = [
  "async-trait",
  "carbon-core",
+ "carbon-log-metrics",
  "carbon-raydium-amm-v4-decoder",
  "carbon-yellowstone-grpc-datasource",
  "dotenv",

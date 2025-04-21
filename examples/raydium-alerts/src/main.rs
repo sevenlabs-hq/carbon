@@ -8,6 +8,7 @@ use {
         metrics::MetricsCollection,
         processor::Processor,
     },
+    carbon_log_metrics::LogMetrics,
     carbon_raydium_amm_v4_decoder::{
         accounts::RaydiumAmmV4Account,
         instructions::{
@@ -73,6 +74,8 @@ pub async fn main() -> CarbonResult<()> {
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(yellowstone_grpc)
+        .metrics(Arc::new(LogMetrics::new()))
+        .metrics_flush_interval(3)
         .instruction(RaydiumAmmV4Decoder, RaydiumAmmV4InstructionProcessor)
         .account(RaydiumAmmV4Decoder, RaydiumAmmV4AccountProcessor)
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)

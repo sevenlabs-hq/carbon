@@ -5,6 +5,7 @@ edition = { workspace = true }
 
 [dependencies]
 carbon-core = { workspace = true }
+carbon-log-metrics = { workspace = true }
 carbon-raydium-amm-v4-decoder = { workspace = true }
 carbon-yellowstone-grpc-datasource = { workspace = true }
 solana-client = { workspace = true }
@@ -21,5 +22,5 @@ yellowstone-grpc-proto = { workspace = true }
 
 [dependencies.rustls]
 default-features = false
-features = ["std"]
+features = ["std", "aws_lc_rs"]
 version = "0.23.0"
