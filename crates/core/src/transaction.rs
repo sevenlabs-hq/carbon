@@ -235,18 +235,23 @@ pub fn parse_instructions<T: InstructionDecoderCollection>(
 ) -> Vec<ParsedInstruction<T>> {
     log::trace!("parse_instructions(nested_ixs: {:?})", nested_ixs);
 
-    nested_ixs
-        .iter()
-        .filter_map(|nested_ix| {
-            let instruction = T::parse_instruction(&nested_ix.instruction)?;
+    let mut parsed_instructions: Vec<ParsedInstruction<T>> = Vec::new();
 
-            Some(ParsedInstruction {
+    for nested_ix in nested_ixs {
+        if let Some(instruction) = T::parse_instruction(&nested_ix.instruction) {
+            parsed_instructions.push(ParsedInstruction {
                 program_id: nested_ix.instruction.program_id,
                 instruction,
                 inner_instructions: parse_instructions(&nested_ix.inner_instructions),
-            })
-        })
-        .collect()
+            });
+        } else {
+            for inner_ix in nested_ix.inner_instructions.iter() {
+                parsed_instructions.extend(parse_instructions(&[inner_ix.clone()]));
+            }
+        }
+    }
+
+    parsed_instructions
 }
 
 /// Defines an asynchronous trait for processing transactions.
