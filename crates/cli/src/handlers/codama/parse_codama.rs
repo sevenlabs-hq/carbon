@@ -183,7 +183,7 @@ pub fn parse_codama(
         let cargo_toml_content = format!(
             r#"[package]
 name = "{decoder_name_kebab}-decoder"
-version = "0.7.0"
+version = "0.8.0"
 edition = {{ workspace = true }}
 
 [lib]
@@ -193,7 +193,8 @@ crate-type = ["rlib"]
 carbon-core = {{ workspace = true }}
 carbon-proc-macros = {{ workspace = true }}
 carbon-macros = {{ workspace = true }}
-solana-sdk = {{ workspace = true }}
+solana-account = {{ workspace = true }}
+solana-instruction = {{ workspace = true }}
 solana-pubkey = {{ workspace = true }}
 serde = {{ workspace = true }}
 {big_array}

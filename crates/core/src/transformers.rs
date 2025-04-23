@@ -40,14 +40,16 @@ use {
     solana_pubkey::Pubkey,
     solana_sdk::{
         reserved_account_keys::ReservedAccountKeys,
-        transaction_context::TransactionReturnData, // TODO: replace with solana_transaction_context after release of 2.2.0
+        transaction_context::TransactionReturnData, /* TODO: replace with
+                                                    * solana_transaction_context after release
+                                                    * of 2.2.0 */
     },
     solana_transaction_status::{
         option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
         TransactionStatusMeta, TransactionTokenBalance, UiInstruction, UiLoadedAddresses,
         UiTransactionStatusMeta,
     },
-    std::{collections::HashSet, str::FromStr},
+    std::{collections::HashSet, str::FromStr, sync::Arc},
 };
 
 /// Extracts instructions with metadata from a transaction update.
@@ -74,7 +76,7 @@ use {
 /// Returns an error if any account metadata required for instruction processing
 /// is missing.
 pub fn extract_instructions_with_metadata(
-    transaction_metadata: &TransactionMetadata,
+    transaction_metadata: &Arc<TransactionMetadata>,
     transaction_update: &TransactionUpdate,
 ) -> CarbonResult<Vec<(InstructionMetadata, solana_instruction::Instruction)>> {
     log::trace!(
@@ -113,7 +115,7 @@ pub fn extract_instructions_with_metadata(
                     InstructionMetadata {
                         transaction_metadata: transaction_metadata.clone(),
                         stack_height: 1,
-                        index: i as u32 + 1,
+                        index: i as u32,
                     },
                     solana_instruction::Instruction {
                         program_id,
@@ -203,7 +205,7 @@ pub fn extract_instructions_with_metadata(
                     InstructionMetadata {
                         transaction_metadata: transaction_metadata.clone(),
                         stack_height: 1,
-                        index: i as u32 + 1,
+                        index: i as u32,
                     },
                     solana_instruction::Instruction {
                         program_id,
@@ -340,7 +342,7 @@ pub fn extract_account_metas(
 /// A vector of `(InstructionMetadata, DecodedInstruction<T>)` tuples
 /// representing the unnested instructions.
 pub fn unnest_parsed_instructions<T: InstructionDecoderCollection>(
-    transaction_metadata: TransactionMetadata,
+    transaction_metadata: Arc<TransactionMetadata>,
     instructions: Vec<ParsedInstruction<T>>,
     stack_height: u32,
 ) -> Vec<(InstructionMetadata, DecodedInstruction<T>)> {
@@ -543,24 +545,23 @@ pub fn transaction_metadata_from_original_meta(
 
 #[cfg(test)]
 mod tests {
-    use std::vec;
-
-    use carbon_test_utils::base58_deserialize;
-    use solana_account_decoder_client_types::token::UiTokenAmount;
-    use solana_sdk::{
-        hash::Hash,
-        message::{
-            legacy::Message,
-            v0::{self, MessageAddressTableLookup},
-            MessageHeader,
+    use {
+        super::*,
+        crate::instruction::{InstructionsWithMetadata, NestedInstructions},
+        carbon_test_utils::base58_deserialize,
+        solana_account_decoder_client_types::token::UiTokenAmount,
+        solana_sdk::{
+            hash::Hash,
+            message::{
+                legacy::Message,
+                v0::{self, MessageAddressTableLookup},
+                MessageHeader,
+            },
+            transaction::VersionedTransaction,
         },
-        transaction::VersionedTransaction,
+        solana_signature::Signature,
+        std::vec,
     };
-    use solana_signature::Signature;
-
-    use crate::instruction::{InstructionsWithMetadata, NestedInstructions};
-
-    use super::*;
 
     #[test]
     fn test_transaction_metadata_from_original_meta_simple() {
@@ -796,8 +797,11 @@ mod tests {
             .try_into()
             .expect("transaction metadata");
         let instructions_with_metadata: InstructionsWithMetadata =
-            extract_instructions_with_metadata(&transaction_metadata, &transaction_update)
-                .expect("extract instructions with metadata");
+            extract_instructions_with_metadata(
+                &Arc::new(transaction_metadata),
+                &transaction_update,
+            )
+            .expect("extract instructions with metadata");
 
         let nested_instructions: NestedInstructions = instructions_with_metadata.into();
 
@@ -1220,8 +1224,11 @@ mod tests {
             .try_into()
             .expect("transaction metadata");
         let instructions_with_metadata: InstructionsWithMetadata =
-            extract_instructions_with_metadata(&transaction_metadata, &transaction_update)
-                .expect("extract instructions with metadata");
+            extract_instructions_with_metadata(
+                &Arc::new(transaction_metadata),
+                &transaction_update,
+            )
+            .expect("extract instructions with metadata");
         let nested_instructions: NestedInstructions = instructions_with_metadata.into();
 
         // Assert

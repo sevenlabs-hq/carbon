@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x00")]
 pub struct Create {}
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct CreateInstructionAccounts {
     pub funding_address: solana_pubkey::Pubkey,
     pub associated_account_address: solana_pubkey::Pubkey,
