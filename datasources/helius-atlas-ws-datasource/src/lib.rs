@@ -110,7 +110,7 @@ impl Datasource for HeliusWebsocket {
                 break;
             }
 
-            let mut helius = match Helius::new_with_ws(&self.api_key, self.cluster.clone()).await {
+            let mut helius = match Helius::new(&self.api_key, self.cluster.clone()) {
                 Ok(client) => client,
                 Err(err) => {
                     log::error!("Failed to create Helius client: {}", err);
