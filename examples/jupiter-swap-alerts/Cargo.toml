@@ -1,0 +1,26 @@
+[package]
+name = "jupiter-swap-alerts-carbon-example"
+version = "0.2.1"
+edition = { workspace = true }
+
+[dependencies]
+carbon-core = { workspace = true }
+carbon-jupiter-swap-decoder = { workspace = true }
+carbon-log-metrics = { workspace = true }
+carbon-yellowstone-grpc-datasource = { workspace = true }
+solana-client = { workspace = true }
+solana-pubkey = { workspace = true }
+solana-sdk = { workspace = true }
+solana-transaction-status = { workspace = true }
+
+async-trait = { workspace = true }
+dotenv = { workspace = true }
+env_logger = { workspace = true }
+log = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+yellowstone-grpc-proto = { workspace = true }
+
+[dependencies.rustls]
+default-features = false
+features = ["std", "aws_lc_rs"]
+version = "0.23.0"

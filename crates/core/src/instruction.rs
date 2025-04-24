@@ -274,28 +274,79 @@ impl Clone for NestedInstructions {
 impl From<InstructionsWithMetadata> for NestedInstructions {
     fn from(instructions: InstructionsWithMetadata) -> Self {
         log::trace!("from(instructions: {:?})", instructions);
-        let mut nested_ixs = NestedInstructions::default();
 
+        // To avoid reallocations that result in dangling pointers.
+        // Therefore the number of "push"s must be calculated to set the capacity
+        let estimated_capacity = instructions
+            .iter()
+            .filter(|(meta, _)| meta.stack_height == 1)
+            .count();
+
+        UnsafeNestedBuilder::new(estimated_capacity).build(instructions)
+    }
+}
+
+pub struct UnsafeNestedBuilder {
+    nested_ixs: Vec<NestedInstruction>,
+    level_ptrs: [Option<*mut NestedInstruction>; Self::MAX_INSTRUCTION_STACK_DEPTH],
+}
+
+impl UnsafeNestedBuilder {
+    // https://github.com/anza-xyz/agave/blob/master/program-runtime/src/execution_budget.rs#L7
+    const MAX_INSTRUCTION_STACK_DEPTH: usize = 5;
+
+    /// ## SAFETY:
+    /// Make sure `capacity` is large enough to avoid capacity expansion caused
+    /// by `push`
+    pub fn new(capacity: usize) -> Self {
+        Self {
+            nested_ixs: Vec::with_capacity(capacity),
+            level_ptrs: [None; Self::MAX_INSTRUCTION_STACK_DEPTH],
+        }
+    }
+
+    pub fn build(mut self, instructions: InstructionsWithMetadata) -> NestedInstructions {
         for (metadata, instruction) in instructions {
-            let nested_instruction = NestedInstruction {
-                metadata: metadata.clone(),
+            let stack_height = metadata.stack_height as usize;
+
+            assert!(stack_height > 0);
+            assert!(stack_height <= Self::MAX_INSTRUCTION_STACK_DEPTH);
+
+            for ptr in &mut self.level_ptrs[stack_height..] {
+                *ptr = None;
+            }
+
+            let new_instruction = NestedInstruction {
+                metadata,
                 instruction,
                 inner_instructions: NestedInstructions::default(),
             };
 
-            // compose root level of ixs
-            if metadata.stack_height == 1 || metadata.index == 0 {
-                nested_ixs.push(nested_instruction);
-                continue;
+            // SAFETY:The following operation is safe.
+            // because:
+            // 1. All pointers come from pre-allocated Vec (no extension)
+            // 2. level_ptr does not guarantee any aliasing
+            // 3. Lifecycle is limited to the build() method
+            unsafe {
+                if stack_height == 1 {
+                    self.nested_ixs.push(new_instruction);
+                    let ptr = self.nested_ixs.last_mut().unwrap_unchecked() as *mut _;
+                    self.level_ptrs[0] = Some(ptr);
+                } else if let Some(parent_ptr) = self.level_ptrs[stack_height - 2] {
+                    (*parent_ptr).inner_instructions.push(new_instruction);
+                    let ptr = (*parent_ptr)
+                        .inner_instructions
+                        .last_mut()
+                        .unwrap_unchecked() as *mut _;
+                    self.level_ptrs[stack_height - 1] = Some(ptr);
+                }
             }
-            nested_ixs[metadata.index as usize]
-                .inner_instructions
-                .push(nested_instruction);
         }
 
-        nested_ixs
+        NestedInstructions(self.nested_ixs)
     }
 }
+
 #[cfg(test)]
 mod tests {
 

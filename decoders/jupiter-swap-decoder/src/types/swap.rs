@@ -117,4 +117,37 @@ pub enum Swap {
     Obric {
         x_to_y: bool,
     },
+    FoxBuyFromEstimatedCost,
+
+    //FoxClaimPartial [{"name":"is_y","type":"bool"}]
+    FoxClaimPartial {
+        is_y: bool,
+    },
+
+    // SolFi [{"name":"is_quote_to_base","type":"bool"}]
+    SolFi {
+        is_quote_to_base: bool,
+    },
+    SolayerDelegateNoInit,
+    SolayerUndelegateNoInit,
+
+    // TokenMill [{"name":"side","type":{"defined":{"name":"Side"}}}]
+    TokenMill {
+        side: Side,
+    },
+    DaosFunBuy,
+    DaosFunSell,
+    ZeroFi,
+    StakeDexWithdrawWrappedSol,
+    VirtualsBuy,
+    VirtualsSell,
+
+    // Perena [{"name":"in_index","type":"u8"},{"name":"out_index","type":"u8"}]
+    Perena {
+        in_index: u8,
+        out_index: u8,
+    },
+    PumpdotfunAmmBuy,
+    PumpdotfunAmmSell,
+    Gamma,
 }
