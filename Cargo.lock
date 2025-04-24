@@ -940,6 +940,7 @@ dependencies = [
  "solana-client",
  "solana-instruction",
  "solana-program",
+ "solana-program-pack",
  "solana-pubkey",
  "solana-sdk",
  "solana-signature",
@@ -3487,6 +3488,27 @@ dependencies = [
  "serde",
  "serde_derive",
  "serde_json",
+]
+
+[[package]]
+name = "jupiter-swap-alerts-carbon-example"
+version = "0.2.1"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "carbon-jupiter-swap-decoder",
+ "carbon-log-metrics",
+ "carbon-yellowstone-grpc-datasource",
+ "dotenv",
+ "env_logger",
+ "log",
+ "rustls 0.23.26",
+ "solana-client",
+ "solana-pubkey",
+ "solana-sdk",
+ "solana-transaction-status",
+ "tokio",
+ "yellowstone-grpc-proto",
 ]
 
 [[package]]
