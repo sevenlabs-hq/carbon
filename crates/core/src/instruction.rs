@@ -309,6 +309,7 @@ impl UnsafeNestedBuilder {
         for (metadata, instruction) in instructions {
             let stack_height = metadata.stack_height as usize;
 
+            assert!(stack_height > 0);
             assert!(stack_height <= Self::MAX_INSTRUCTION_STACK_DEPTH);
 
             for ptr in &mut self.level_ptrs[stack_height..] {
@@ -329,11 +330,14 @@ impl UnsafeNestedBuilder {
             unsafe {
                 if stack_height == 1 {
                     self.nested_ixs.push(new_instruction);
-                    let ptr = self.nested_ixs.last_mut().unwrap() as *mut _;
+                    let ptr = self.nested_ixs.last_mut().unwrap_unchecked() as *mut _;
                     self.level_ptrs[0] = Some(ptr);
                 } else if let Some(parent_ptr) = self.level_ptrs[stack_height - 2] {
-                    (*parent_ptr).inner_instructions.0.push(new_instruction);
-                    let ptr = (*parent_ptr).inner_instructions.0.last_mut().unwrap() as *mut _;
+                    (*parent_ptr).inner_instructions.push(new_instruction);
+                    let ptr = (*parent_ptr)
+                        .inner_instructions
+                        .last_mut()
+                        .unwrap_unchecked() as *mut _;
                     self.level_ptrs[stack_height - 1] = Some(ptr);
                 }
             }
