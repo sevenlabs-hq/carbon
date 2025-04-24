@@ -289,7 +289,6 @@ impl From<InstructionsWithMetadata> for NestedInstructions {
 pub struct UnsafeNestedBuilder {
     nested_ixs: Vec<NestedInstruction>,
     level_ptrs: [Option<*mut NestedInstruction>; Self::MAX_INSTRUCTION_STACK_DEPTH],
-    cursor: usize,
 }
 
 impl UnsafeNestedBuilder {
@@ -303,7 +302,6 @@ impl UnsafeNestedBuilder {
         Self {
             nested_ixs: Vec::with_capacity(capacity),
             level_ptrs: [None; Self::MAX_INSTRUCTION_STACK_DEPTH],
-            cursor: 0,
         }
     }
 
@@ -316,8 +314,6 @@ impl UnsafeNestedBuilder {
             for ptr in &mut self.level_ptrs[stack_height..] {
                 *ptr = None;
             }
-
-            self.cursor = stack_height.saturating_sub(1);
 
             let new_instruction = NestedInstruction {
                 metadata,

@@ -940,7 +940,6 @@ dependencies = [
  "solana-client",
  "solana-instruction",
  "solana-program",
- "solana-program-pack",
  "solana-pubkey",
  "solana-sdk",
  "solana-signature",
