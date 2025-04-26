@@ -9299,6 +9299,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
 
 [[package]]
+name = "token-indexing-example"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "carbon-log-metrics",
+ "carbon-postgres-client",
+ "carbon-rpc-block-subscribe-datasource",
+ "carbon-token-program-decoder",
+ "dotenv",
+ "env_logger 0.11.8",
+ "log",
+ "solana-client",
+ "solana-pubkey",
+ "solana-transaction-status",
+ "spl-token 6.0.0",
+ "tokio",
+]
+
+[[package]]
 name = "tokio"
 version = "1.44.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -13,7 +13,6 @@ categories = ["encoding"]
 crate-type = ["rlib"]
 
 [features]
-default = ['postgres']
 postgres = ["dep:sqlx", "dep:carbon-postgres-client", "dep:chrono"]
 
 [dependencies]

@@ -1,0 +1,21 @@
+[package]
+name = "token-indexing-example"
+version = "0.1.0"
+edition = { workspace = true }
+
+[dependencies]
+carbon-core = { workspace = true }
+carbon-log-metrics = { workspace = true }
+carbon-postgres-client = { workspace = true }
+carbon-rpc-block-subscribe-datasource = { workspace = true }
+carbon-token-program-decoder = { workspace = true, features = ["postgres"] }
+solana-client = { workspace = true }
+solana-pubkey = { workspace = true }
+solana-transaction-status = { workspace = true }
+spl-token = { workspace = true }
+
+async-trait = { workspace = true }
+dotenv = { workspace = true }
+env_logger = { workspace = true }
+log = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
