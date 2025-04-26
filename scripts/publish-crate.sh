@@ -3,6 +3,8 @@
 set -ex
 
 workspace_crates=(
+    carbon-jito-protos
+    
     carbon-macros
     carbon-proc-macros
     carbon-core
