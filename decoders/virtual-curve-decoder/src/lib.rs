@@ -11,4 +11,4 @@ pub mod instructions;
 pub mod types;
 
 pub const PROGRAM_ID: Pubkey =
-    Pubkey::from_str_const("virEFLZsQm1iFAs8py1XnziJ67gTzW2bfCWhxNPfccD");
+    Pubkey::from_str_const("dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN");
