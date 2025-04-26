@@ -14,7 +14,7 @@ crate-type = ["rlib"]
 
 [dependencies]
 solana-client = { workspace = true }
-solana-entry = "2.1.16"
+solana-entry = { workspace = true }
 solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 
@@ -25,7 +25,7 @@ bincode = { workspace = true }
 env_logger = { workspace = true }
 futures = { workspace = true }
 futures-util = { workspace = true }
-jito-protos = { git = "https://github.com/jito-labs/shredstream-proxy", rev = "68d882e12297c2577255d2e03f1c542ae708c112" }
+carbon-jito-protos = { workspace = true }
 log = { workspace = true }
 scc = "2.3.4"
 tokio = { workspace = true, features = ["full"] }
