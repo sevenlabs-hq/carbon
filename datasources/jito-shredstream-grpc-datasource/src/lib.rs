@@ -34,6 +34,7 @@ impl JitoShredstreamGrpcClient {
 impl Datasource for JitoShredstreamGrpcClient {
     async fn consume(
         &self,
+        name: String,
         sender: &Sender<Update>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
@@ -88,6 +89,7 @@ impl Datasource for JitoShredstreamGrpcClient {
                     let metrics = metrics.clone();
                     let sender = sender.clone();
                     let dedup_cache = dedup_cache.clone();
+                    let name = name.clone();
 
                     async move {
                         let start_time = SystemTime::now();
@@ -126,6 +128,7 @@ impl Datasource for JitoShredstreamGrpcClient {
                                     slot: message.slot,
                                     block_time,
                                     block_hash: None,
+                                    source: name.clone(),
                                 }));
 
                                 if let Err(e) = sender.try_send(update) {
