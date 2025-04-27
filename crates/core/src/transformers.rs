@@ -114,8 +114,8 @@ pub fn extract_instructions_with_metadata(
                 &meta.inner_instructions,
                 transaction_metadata,
                 &mut instructions_with_metadata,
-                |keys, idx| meta.loaded_addresses.writable.contains(&keys[idx]),
-                |keys, idx| meta.loaded_addresses.readonly.contains(&keys[idx]),
+                |key, _| meta.loaded_addresses.writable.contains(key),
+                |_, idx| idx < v0.header.num_required_signatures as usize,
             );
         }
     }
@@ -132,8 +132,8 @@ fn process_instructions<F1, F2>(
     is_writable: F1,
     is_signer: F2,
 ) where
-    F1: Fn(&[Pubkey], usize) -> bool,
-    F2: Fn(&[Pubkey], usize) -> bool,
+    F1: Fn(&Pubkey, usize) -> bool,
+    F2: Fn(&Pubkey, usize) -> bool,
 {
     for (i, compiled_instruction) in instructions.iter().enumerate() {
         result.push((
@@ -176,8 +176,8 @@ fn build_instruction<F1, F2>(
     is_signer: &F2,
 ) -> solana_instruction::Instruction
 where
-    F1: Fn(&[Pubkey], usize) -> bool,
-    F2: Fn(&[Pubkey], usize) -> bool,
+    F1: Fn(&Pubkey, usize) -> bool,
+    F2: Fn(&Pubkey, usize) -> bool,
 {
     let program_id = *account_keys
         .get(instruction.program_id_index as usize)
@@ -191,8 +191,8 @@ where
                 .get(*account_idx as usize)
                 .map(|key| AccountMeta {
                     pubkey: *key,
-                    is_writable: is_writable(account_keys, *account_idx as usize),
-                    is_signer: is_signer(account_keys, *account_idx as usize),
+                    is_writable: is_writable(key, *account_idx as usize),
+                    is_signer: is_signer(key, *account_idx as usize),
                 })
         })
         .collect();
