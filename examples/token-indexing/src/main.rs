@@ -11,7 +11,10 @@ use {
     },
     carbon_log_metrics::LogMetrics,
     carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
-    carbon_token_program_decoder::{instructions::TokenProgramInstruction, TokenProgramDecoder},
+    carbon_token_program_decoder::{
+        instructions::TokenProgramInstruction, storage::migrations::FirstMigration,
+        TokenProgramDecoder,
+    },
     solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
     std::{env, sync::Arc},
 };
@@ -20,6 +23,12 @@ use {
 pub async fn main() -> CarbonResult<()> {
     env_logger::init();
     dotenv::dotenv().ok();
+
+    let db_uri = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    let pg_client = carbon_postgres_client::PgClient::new(&db_uri, 1, 10)
+        .await
+        .expect("Failed to create Postgres client");
+
 
     let filters = Filters::new(
         RpcBlockSubscribeFilter::MentionsAccountOrProgram(spl_token::id().to_string()),

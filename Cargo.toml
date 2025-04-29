@@ -130,11 +130,13 @@ prost = "0.12"
 prost-types = "0.12"
 quote = "1.0"
 retry = "2.0.0"
+rust_decimal = { version = "1.36.0", features = ["db-postgres"] }
 serde = { version = "1.0.208", features = ["derive"] }
 serde-big-array = "0.5.1"
 serde_json = "1.0.138"
 sha2 = "0.10.8"
 sqlx = { version = "0.8.5", features = ["macros", "runtime-tokio-rustls", "postgres", "json", "chrono"] }
+sqlx_migrator = { version = "0.17.0", features = ["postgres"] }
 syn = { version = "1.0", features = ["full"] }
 thiserror = { version = "2.0.12", default-features = false }
 tokio = { version = "1.43.0" }

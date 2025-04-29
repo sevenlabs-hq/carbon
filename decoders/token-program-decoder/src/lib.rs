@@ -5,4 +5,4 @@ pub mod instructions;
 pub mod types;
 
 #[cfg(feature = "postgres")]
-pub mod queries;
+pub mod storage;

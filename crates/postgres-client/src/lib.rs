@@ -1,7 +1,7 @@
-use sqlx::{
-    migrate::Migrator,
-    postgres::{PgConnectOptions, PgPoolOptions},
-    ConnectOptions, Error, Executor, PgPool, Postgres, QueryBuilder, Row, Transaction,
+use sqlx::{postgres::PgPoolOptions, Error, PgPool, Postgres};
+use sqlx_migrator::{
+    migrator::{Info, Migrate, Migrator},
+    Migration, Plan,
 };
 
 #[derive(Clone)]
@@ -18,5 +18,23 @@ impl PgClient {
             .await?;
 
         Ok(Self { pool })
+    }
+
+    pub async fn migrate(
+        &self,
+        migrations: Vec<Box<dyn Migration<Postgres>>>,
+    ) -> Result<(), Error> {
+        let mut migrator = Migrator::<Postgres>::default();
+        migrator
+            .add_migrations(migrations)
+            .expect("Failed to add migrations");
+
+        let mut conn = self.pool.acquire().await?;
+        migrator
+            .run(&mut *conn, &Plan::apply_all())
+            .await
+            .expect("Failed to run migrations");
+
+        Ok(())
     }
 }

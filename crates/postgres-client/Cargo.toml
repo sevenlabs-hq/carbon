@@ -9,6 +9,7 @@ categories = ["encoding"]
 
 [dependencies]
 sqlx = { workspace = true }
+sqlx_migrator = { workspace = true }
 chrono = { workspace = true }
 
 [lib]
