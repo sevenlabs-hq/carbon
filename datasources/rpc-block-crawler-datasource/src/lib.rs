@@ -268,6 +268,7 @@ fn task_processor(
                             log::error!("Error recording metric: {}", value)
                         });
                     let block_start_time = Instant::now();
+                    let block_hash = block.blockhash;
                     if let Some(transactions) = block.transactions {
                         for encoded_transaction_with_status_meta in transactions {
                             let start_time = std::time::Instant::now();
@@ -299,6 +300,7 @@ fn task_processor(
                                 is_vote: false,
                                 slot,
                                 block_time: block.block_time,
+                                block_hash: Some(block_hash.clone()),
                             }));
 
                             metrics

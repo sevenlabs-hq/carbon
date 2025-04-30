@@ -122,6 +122,7 @@ impl Datasource for RpcBlockSubscribe {
 
                                 if let Some(block) = tx_event.value.block {
                                     let block_start_time = std::time::Instant::now();
+                                    let block_hash = block.blockhash;
                                     if let Some(transactions) = block.transactions {
                                         for encoded_transaction_with_status_meta in transactions {
                                             let start_time = std::time::Instant::now();
@@ -153,6 +154,7 @@ impl Datasource for RpcBlockSubscribe {
                                                 is_vote: false,
                                                 slot,
                                                 block_time: block.block_time,
+                                                block_hash: Some(block_hash.clone()),
                                             }));
 
                                             metrics
