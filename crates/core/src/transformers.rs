@@ -728,7 +728,7 @@ mod tests {
             is_vote: false,
             slot: 123,
             block_time: Some(123),
-            block_hash: Some(Signature::new_unique().to_string()),
+            block_hash: Some("9bit9vXNX9HyHwL89aGDNmk3vbyAM96nvb6F4SaoM1CU".to_owned()),
         };
         let transaction_metadata = transaction_update
             .clone()
