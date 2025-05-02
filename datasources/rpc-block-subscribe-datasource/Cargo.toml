@@ -12,6 +12,7 @@ categories = ["encoding"]
 [dependencies]
 solana-client = { workspace = true }
 solana-pubkey = { workspace = true }
+solana-sdk = { workspace = true }
 
 carbon-core = { workspace = true }
 
