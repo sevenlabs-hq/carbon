@@ -432,6 +432,7 @@ fn task_processor(
                         is_vote: false,
                         slot: fetched_transaction.slot,
                         block_time: fetched_transaction.block_time,
+                        block_hash: None,
                     }));
 
 

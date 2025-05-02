@@ -583,6 +583,7 @@ impl Datasource for HeliusWebsocket {
                                                 is_vote: config.filter.vote.is_some_and(|is_vote| is_vote),
                                                 slot: tx_event.slot,
                                                 block_time: None,
+                                                block_hash: None,
                                             }));
 
                                             metrics
