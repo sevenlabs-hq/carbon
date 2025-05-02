@@ -8,7 +8,7 @@ impl Operation<sqlx::Postgres> for InitOperation {
     // Up function runs apply migration
     async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), Error> {
         sqlx::query(
-            "CREATE TYPE IF NOT EXISTS \"AccountState\" AS ENUM (
+            "CREATE TYPE account_state AS ENUM (
                         'Uninitialized',
                         'Initialized',
                         'Frozen'
@@ -17,24 +17,25 @@ impl Operation<sqlx::Postgres> for InitOperation {
         .execute(&mut *connection)
         .await?;
         sqlx::query(
-            "CREATE TABLE IF NOT EXISTS  token (
+            "CREATE TABLE IF NOT EXISTS  tokens (
                         mint BYTEA PRIMARY KEY,
                         owner BYTEA NOT NULL,
-                        amount BIGINT NOT NULL,
+                        amount NUMERIC NOT NULL,
                         delegate BYTEA,
-                        state AccountState,
-                        is_native BIGINT,
-                        delegated_amount BIGINT,
+                        state account_state,
+                        is_native NUMERIC,
+                        delegated_amount NUMERIC,
                         close_authority BYTEA
                     )",
         )
         .execute(&mut *connection)
         .await?;
         sqlx::query(
-            "CREATE TABLE IF NOT EXISTS mint (
+            "CREATE TABLE IF NOT EXISTS mints (
+                            mint BYTEA PRIMARY KEY,
                             mint_authority BYTEA,
-                            supply BIGINT NOT NULL,
-                            decimals INT NOT NULL,
+                            supply NUMERIC NOT NULL,
+                            decimals SMALLINT NOT NULL,
                             is_initialized BOOLEAN NOT NULL,
                             freeze_authority BYTEA
                         )",

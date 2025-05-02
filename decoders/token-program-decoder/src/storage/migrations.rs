@@ -3,9 +3,9 @@ use sqlx_migrator::operation::Operation;
 
 use crate::storage::operations::InitOperation;
 
-pub struct FirstMigration;
+pub struct InitMigration;
 
-impl Migration<sqlx::Postgres> for FirstMigration {
+impl Migration<sqlx::Postgres> for InitMigration {
     fn app(&self) -> &str {
         "main"
     }

@@ -7,8 +7,8 @@ edition = { workspace = true }
 carbon-core = { workspace = true }
 carbon-log-metrics = { workspace = true }
 carbon-postgres-client = { workspace = true }
-carbon-rpc-block-subscribe-datasource = { workspace = true }
 carbon-token-program-decoder = { workspace = true, features = ["postgres"] }
+carbon-yellowstone-grpc-datasource = { workspace = true }
 solana-client = { workspace = true }
 solana-pubkey = { workspace = true }
 solana-transaction-status = { workspace = true }
@@ -19,3 +19,9 @@ dotenv = { workspace = true }
 env_logger = { workspace = true }
 log = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
+yellowstone-grpc-proto = { workspace = true }
+
+[dependencies.rustls]
+default-features = false
+features = ["std", "aws_lc_rs"]
+version = "0.23.0"

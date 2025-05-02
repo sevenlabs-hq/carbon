@@ -1,54 +1,101 @@
 use {
     async_trait::async_trait,
     carbon_core::{
+        account::{AccountMetadata, DecodedAccount},
         error::CarbonResult,
-        instruction::{
-            DecodedInstruction, InstructionMetadata, InstructionProcessorInputType,
-            NestedInstructions,
-        },
+        instruction::InstructionProcessorInputType,
         metrics::MetricsCollection,
         processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
-    carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
+    carbon_postgres_client::PgClient,
     carbon_token_program_decoder::{
-        instructions::TokenProgramInstruction, storage::migrations::FirstMigration,
+        accounts::TokenProgramAccount,
+        instructions::TokenProgramInstruction,
+        storage::{migrations::InitMigration, queries::TokenQueries},
         TokenProgramDecoder,
     },
-    solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
-    std::{env, sync::Arc},
+    carbon_yellowstone_grpc_datasource::YellowstoneGrpcGeyserClient,
+    spl_token::state::Mint,
+    std::{
+        collections::{HashMap, HashSet},
+        env,
+        sync::Arc,
+    },
+    tokio::sync::RwLock,
+    yellowstone_grpc_proto::geyser::{
+        CommitmentLevel, SubscribeRequestFilterAccounts, SubscribeRequestFilterTransactions,
+    },
 };
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
     env_logger::init();
     dotenv::dotenv().ok();
+    // NOTE: Workaround, that solving issue https://github.com/rustls/rustls/issues/1877
+    rustls::crypto::aws_lc_rs::default_provider()
+        .install_default()
+        .expect("Can't set crypto provider to aws_lc_rs");
 
+    let mut account_filters: HashMap<String, SubscribeRequestFilterAccounts> = HashMap::new();
+    account_filters.insert(
+        "raydium_account_filter".to_string(),
+        SubscribeRequestFilterAccounts {
+            account: vec![],
+            owner: vec![spl_token::id().to_string()],
+            filters: vec![],
+            nonempty_txn_signature: None,
+        },
+    );
     let db_uri = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
-    let pg_client = carbon_postgres_client::PgClient::new(&db_uri, 1, 10)
+    let pg_client = PgClient::new(&db_uri, 1, 10)
         .await
         .expect("Failed to create Postgres client");
 
+    pg_client
+        .migrate(vec![Box::new(InitMigration)])
+        .await
+        .expect("Failed to migrate");
 
-    let filters = Filters::new(
-        RpcBlockSubscribeFilter::MentionsAccountOrProgram(spl_token::id().to_string()),
-        Some(RpcBlockSubscribeConfig {
-            max_supported_transaction_version: Some(0),
-            ..RpcBlockSubscribeConfig::default()
-        }),
+    let transaction_filter = SubscribeRequestFilterTransactions {
+        vote: Some(false),
+        failed: Some(false),
+        account_include: vec![],
+        account_exclude: vec![],
+        account_required: vec![spl_token::id().to_string()],
+        signature: None,
+    };
+
+    let mut transaction_filters: HashMap<String, SubscribeRequestFilterTransactions> =
+        HashMap::new();
+
+    transaction_filters.insert("raydium_transaction_filter".to_string(), transaction_filter);
+
+    let yellowstone_grpc = YellowstoneGrpcGeyserClient::new(
+        env::var("GEYSER_URL").unwrap_or_default(),
+        env::var("X_TOKEN").ok(),
+        Some(CommitmentLevel::Confirmed),
+        account_filters,
+        transaction_filters,
+        Arc::new(RwLock::new(HashSet::new())),
     );
 
-    let rpc_ws_url =
-        env::var("RPC_WS_URL").unwrap_or("wss://api.mainnet-beta.solana.com/".to_string());
-
-    log::info!("Starting with RPC: {}", rpc_ws_url);
-    let block_subscribe = RpcBlockSubscribe::new(rpc_ws_url, filters);
-
     carbon_core::pipeline::Pipeline::builder()
-        .datasource(block_subscribe)
+        .datasource(yellowstone_grpc)
         .metrics(Arc::new(LogMetrics::new()))
         .metrics_flush_interval(3)
-        .instruction(TokenProgramDecoder, TokenProgramInstructionProcessor)
+        .instruction(
+            TokenProgramDecoder,
+            TokenProgramInstructionProcessor {
+                pg_client: pg_client.clone(),
+            },
+        )
+        .account(
+            TokenProgramDecoder,
+            TokenProgramAccountProcessor {
+                pg_client: pg_client.clone(),
+            },
+        )
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
         .build()?
         .run()
@@ -57,7 +104,43 @@ pub async fn main() -> CarbonResult<()> {
     Ok(())
 }
 
-pub struct TokenProgramInstructionProcessor;
+pub struct TokenProgramAccountProcessor {
+    pub pg_client: PgClient,
+}
+
+#[async_trait]
+impl Processor for TokenProgramAccountProcessor {
+    type InputType = (AccountMetadata, DecodedAccount<TokenProgramAccount>);
+
+    async fn process(
+        &mut self,
+        data: Self::InputType,
+        _metrics: Arc<MetricsCollection>,
+    ) -> CarbonResult<()> {
+        let account = data.1;
+
+        match account.data {
+            TokenProgramAccount::Account(account) => {
+                log::info!("Token Account: {:#?}", account);
+                if let Err(e) = self.pg_client.save_token(account).await {
+                    log::error!("Failed to save token account: {}", e);
+                };
+            }
+            TokenProgramAccount::Mint(mint) => {
+                log::info!("Token Mint: {:#?}", mint);
+            }
+            TokenProgramAccount::Multisig(multisig) => {
+                log::info!("Token Multisig: {:#?}", multisig);
+            }
+        };
+
+        Ok(())
+    }
+}
+
+pub struct TokenProgramInstructionProcessor {
+    pub pg_client: PgClient,
+}
 
 #[async_trait]
 impl Processor for TokenProgramInstructionProcessor {
@@ -69,86 +152,37 @@ impl Processor for TokenProgramInstructionProcessor {
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let token_program_instruction: TokenProgramInstruction = data.1.data;
+        let accounts = data.1.accounts;
 
         match token_program_instruction {
-            TokenProgramInstruction::AmountToUiAmount(amount_to_ui_amount) => {
-                log::info!("Amount to UI Amount: {:#?}", amount_to_ui_amount);
-            }
-            TokenProgramInstruction::ApproveChecked(approve_checked) => {
-                log::info!("Approve Checked: {:#?}", approve_checked);
-            }
-            TokenProgramInstruction::Approve(approve) => {
-                log::info!("Approve: {:#?}", approve);
-            }
-            TokenProgramInstruction::BurnChecked(burn_checked) => {
-                log::info!("Burn Checked: {:#?}", burn_checked);
-            }
-            TokenProgramInstruction::Burn(burn) => {
-                log::info!("Burn: {:#?}", burn);
-            }
-            TokenProgramInstruction::CloseAccount(close_account) => {
-                log::info!("Close Account: {:#?}", close_account);
-            }
-            TokenProgramInstruction::FreezeAccount(freeze_account) => {
-                log::info!("Freeze Account: {:#?}", freeze_account);
-            }
-            TokenProgramInstruction::GetAccountDataSize(get_account_data_size) => {
-                log::info!("Get Account Data Size: {:#?}", get_account_data_size);
-            }
-            TokenProgramInstruction::InitializeAccount(initialize_account) => {
-                log::info!("Initialize Account: {:#?}", initialize_account);
-            }
-            TokenProgramInstruction::InitializeAccount2(initialize_account2) => {
-                log::info!("Initialize Account 2: {:#?}", initialize_account2);
-            }
-            TokenProgramInstruction::InitializeAccount3(initialize_account3) => {
-                log::info!("Initialize Account 3: {:#?}", initialize_account3);
-            }
-            TokenProgramInstruction::InitializeImmutableOwner(initialize_immutable_owner) => {
-                log::info!(
-                    "Initialize Immutable Owner: {:#?}",
-                    initialize_immutable_owner
-                );
-            }
             TokenProgramInstruction::InitializeMint(initialize_mint) => {
                 log::info!("Initialize Mint: {:#?}", initialize_mint);
+                let mint = Mint {
+                    mint_authority: Some(initialize_mint.mint_authority).into(),
+                    supply: 0,
+                    decimals: initialize_mint.decimals,
+                    is_initialized: true,
+                    freeze_authority: initialize_mint.freeze_authority.into(),
+                };
+                if let Err(e) = self.pg_client.save_mint(mint, &accounts[0].pubkey).await {
+                    log::error!("Failed to save mint: {}", e);
+                };
             }
             TokenProgramInstruction::InitializeMint2(initialize_mint2) => {
                 log::info!("Initialize Mint 2: {:#?}", initialize_mint2);
+                let mint = Mint {
+                    mint_authority: Some(initialize_mint2.mint_authority).into(),
+                    supply: 0,
+                    decimals: initialize_mint2.decimals,
+                    is_initialized: true,
+                    freeze_authority: initialize_mint2.freeze_authority.into(),
+                };
+
+                if let Err(e) = self.pg_client.save_mint(mint, &accounts[0].pubkey).await {
+                    log::error!("Failed to save mint: {}", e);
+                };
             }
-            TokenProgramInstruction::InitializeMultisig(initialize_multisig) => {
-                log::info!("Initialize Multisig: {:#?}", initialize_multisig);
-            }
-            TokenProgramInstruction::InitializeMultisig2(initialize_multisig2) => {
-                log::info!("Initialize Multisig 2: {:#?}", initialize_multisig2);
-            }
-            TokenProgramInstruction::MintToChecked(mint_to_checked) => {
-                log::info!("Mint To Checked: {:#?}", mint_to_checked);
-            }
-            TokenProgramInstruction::MintTo(mint_to) => {
-                log::info!("Mint To: {:#?}", mint_to);
-            }
-            TokenProgramInstruction::Revoke(revoke) => {
-                log::info!("Revoke: {:#?}", revoke);
-            }
-            TokenProgramInstruction::SetAuthority(set_authority) => {
-                log::info!("Set Authority: {:#?}", set_authority);
-            }
-            TokenProgramInstruction::SyncNative(sync_native) => {
-                log::info!("Sync Native: {:#?}", sync_native);
-            }
-            TokenProgramInstruction::ThawAccount(thaw_account) => {
-                log::info!("Thaw Account: {:#?}", thaw_account);
-            }
-            TokenProgramInstruction::Transfer(transfer) => {
-                log::info!("Transfer: {:#?}", transfer);
-            }
-            TokenProgramInstruction::TransferChecked(transfer_checked) => {
-                log::info!("Transfer Checked: {:#?}", transfer_checked);
-            }
-            TokenProgramInstruction::UiAmountToAmount(ui_amount_to_amount) => {
-                log::info!("UI Amount to Amount: {:#?}", ui_amount_to_amount);
-            }
+            _ => {}
         };
 
         Ok(())
