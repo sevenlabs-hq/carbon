@@ -33,6 +33,7 @@
 //! - Ensure implementations handle errors gracefully, especially when fetching
 //!   data and sending updates to the pipeline.
 
+use solana_program::hash::Hash;
 use {
     crate::{error::CarbonResult, metrics::MetricsCollection},
     async_trait::async_trait,
@@ -175,6 +176,7 @@ pub struct AccountDeletion {
 /// - `is_vote`: A boolean indicating whether the transaction is a vote.
 /// - `slot`: The slot number in which the transaction was recorded.
 /// - `block_time`: The Unix timestamp of when the transaction was processed.
+/// - `block_hash`: Block hash that can be used to detect a fork.
 ///
 /// Note: The `block_time` field may not be returned in all scenarios.
 #[derive(Debug, Clone)]
@@ -185,4 +187,5 @@ pub struct TransactionUpdate {
     pub is_vote: bool,
     pub slot: u64,
     pub block_time: Option<i64>,
+    pub block_hash: Option<Hash>,
 }

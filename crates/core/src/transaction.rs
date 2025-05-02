@@ -29,6 +29,7 @@
 //!   instructions against the provided schema, only processing the data if it
 //!   conforms to the schema.
 
+use solana_program::hash::Hash;
 use {
     crate::{
         collection::InstructionDecoderCollection,
@@ -70,6 +71,7 @@ pub struct TransactionMetadata {
     pub meta: solana_transaction_status::TransactionStatusMeta,
     pub message: solana_program::message::VersionedMessage,
     pub block_time: Option<i64>,
+    pub block_hash: Option<Hash>,
 }
 
 impl Default for TransactionMetadata {
@@ -83,6 +85,7 @@ impl Default for TransactionMetadata {
                 solana_sdk::message::Message::default(),
             ),
             block_time: None,
+            block_hash: None
         }
     }
 }
@@ -122,6 +125,7 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
             meta: value.meta.clone(),
             message: value.transaction.message.clone(),
             block_time: value.block_time,
+            block_hash: value.block_hash,
         })
     }
 }

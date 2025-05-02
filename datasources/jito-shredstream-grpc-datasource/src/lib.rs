@@ -125,6 +125,7 @@ impl Datasource for JitoShredstreamGrpcClient {
                                     },
                                     slot: message.slot,
                                     block_time,
+                                    block_hash: None,
                                 }));
 
                                 if let Err(e) = sender.try_send(update) {

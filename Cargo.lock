@@ -1491,6 +1491,7 @@ dependencies = [
  "log",
  "solana-client",
  "solana-pubkey",
+ "solana-sdk",
  "tokio",
  "tokio-util",
 ]
