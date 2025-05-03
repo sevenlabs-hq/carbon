@@ -33,6 +33,7 @@ carbon-prometheus-metrics = { path = "metrics/prometheus-metrics", version = "0.
 
 # decoders
 carbon-associated-token-account-decoder = { path = "decoders/associated-token-account-decoder", version = "0.8.0" }
+carbon-boop-decoder = { path = "decoders/boop-decoder", version = "0.8.0" }
 carbon-drift-v2-decoder = { path = "decoders/drift-v2-decoder", version = "0.8.0" }
 carbon-fluxbeam-decoder = { path = "decoders/fluxbeam-decoder", version = "0.8.0" }
 carbon-jupiter-dca-decoder = { path = "decoders/jupiter-dca-decoder", version = "0.8.0" }
