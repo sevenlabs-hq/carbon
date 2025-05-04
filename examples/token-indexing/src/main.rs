@@ -39,7 +39,7 @@ pub async fn main() -> CarbonResult<()> {
 
     let mut account_filters: HashMap<String, SubscribeRequestFilterAccounts> = HashMap::new();
     account_filters.insert(
-        "raydium_account_filter".to_string(),
+        "spl_token_account_filter".to_string(),
         SubscribeRequestFilterAccounts {
             account: vec![],
             owner: vec![spl_token::id().to_string()],
@@ -69,7 +69,7 @@ pub async fn main() -> CarbonResult<()> {
     let mut transaction_filters: HashMap<String, SubscribeRequestFilterTransactions> =
         HashMap::new();
 
-    transaction_filters.insert("raydium_transaction_filter".to_string(), transaction_filter);
+    transaction_filters.insert("spl_token_transaction_filter".to_string(), transaction_filter);
 
     let yellowstone_grpc = YellowstoneGrpcGeyserClient::new(
         env::var("GEYSER_URL").unwrap_or_default(),
