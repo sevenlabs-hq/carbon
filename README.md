@@ -277,9 +277,8 @@ Decoders for most popular Solana programs are published and maintained:
 
 ## Test
 
-TODO: use `cargo test` instead, after fixing doc tests
 ```sh
-cargo test -p carbon-moonshot-decoder
+cargo test
 ```
 
 ## License
