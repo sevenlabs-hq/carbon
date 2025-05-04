@@ -125,6 +125,8 @@ pub mod processor;
 pub mod schema;
 pub mod transaction;
 pub mod transformers;
+mod block_details;
+
 pub use borsh;
 #[cfg(feature = "macros")]
 pub use carbon_macros::*;

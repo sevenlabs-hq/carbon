@@ -1,0 +1,18 @@
+[package]
+name = "block-finality-alerts-carbon-example"
+version = "0.1.0"
+edition = { workspace = true }
+
+[dependencies]
+carbon-core = { workspace = true }
+carbon-log-metrics = { workspace = true }
+carbon-rpc-block-subscribe-datasource = { workspace = true }
+solana-client = { workspace = true }
+solana-sdk = { workspace = true }
+solana-transaction-status = { workspace = true }
+
+async-trait = { workspace = true }
+dotenv = { workspace = true }
+env_logger = { workspace = true }
+log = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
