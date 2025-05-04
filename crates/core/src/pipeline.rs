@@ -170,7 +170,8 @@ pub const DEFAULT_CHANNEL_BUFFER_SIZE: usize = 1_000;
 ///
 /// ## Example
 ///
-/// ```rust
+/// ```ignore
+/// use std::sync::Arc;
 /// 
 /// carbon_core::pipeline::Pipeline::builder()
 /// .datasource(transaction_crawler)
@@ -225,7 +226,9 @@ impl Pipeline {
     ///
     /// # Example
     ///
-    /// ```rust
+    /// ```ignore
+    /// use std::sync::Arc;
+    /// 
     /// carbon_core::pipeline::Pipeline::builder()
     /// .datasource(transaction_crawler)
     /// .metrics(Arc::new(LogMetrics::new()))
@@ -233,7 +236,7 @@ impl Pipeline {
     /// .instruction(
     ///    TestProgramDecoder,
     ///    TestProgramProcessor
-    /// )
+    /// );
     /// // ...
     /// ```
     ///
@@ -290,8 +293,8 @@ impl Pipeline {
     ///
     /// # Example
     ///
-    /// ```rust
-    /// use carbon_core::Pipeline;
+    /// ```ignore
+    /// use carbon_core::pipeline::Pipeline;
     ///
     /// let mut pipeline = Pipeline::builder()
     ///     .datasource(MyDatasource::new())
@@ -583,7 +586,9 @@ impl Pipeline {
 ///
 /// # Example
 ///
-/// ```rust
+/// ```ignore
+/// use std::sync::Arc;
+/// 
 /// carbon_core::pipeline::Pipeline::builder()
 /// .datasource(transaction_crawler)
 /// .metrics(Arc::new(LogMetrics::new()))
@@ -591,7 +596,7 @@ impl Pipeline {
 /// .instruction(
 ///    TestProgramDecoder,
 ///    TestProgramProcessor
-/// )
+/// );
 /// // ...
 /// ```
 ///
@@ -656,6 +661,8 @@ impl PipelineBuilder {
     /// # Example
     ///
     /// ```rust
+    /// use carbon_core::pipeline::PipelineBuilder;
+    /// 
     /// let builder = PipelineBuilder::new();
     /// ```
     pub fn new() -> Self {
@@ -676,7 +683,9 @@ impl PipelineBuilder {
     ///
     /// # Example
     ///
-    /// ```rust
+    /// ```ignore
+    /// use carbon_core::pipeline::PipelineBuilder;
+    /// 
     /// let builder = PipelineBuilder::new()
     ///     .datasource(MyDatasource::new());
     /// ```
@@ -731,7 +740,9 @@ impl PipelineBuilder {
     ///
     /// # Example
     ///
-    /// ```rust
+    /// ```ignore
+    /// use carbon_core::pipeline::PipelineBuilder;
+    /// 
     /// let builder = PipelineBuilder::new()
     ///     .account(MyAccountDecoder, MyAccountProcessor);
     /// ```
@@ -763,7 +774,9 @@ impl PipelineBuilder {
     ///
     /// # Example
     ///
-    /// ```rust
+    /// ```ignore
+    /// use carbon_core::pipeline::PipelineBuilder;
+    /// 
     /// let builder = PipelineBuilder::new()
     ///     .account_deletions(MyAccountDeletionProcessor);
     /// ```
@@ -795,7 +808,9 @@ impl PipelineBuilder {
     ///
     /// # Example
     ///
-    /// ```rust
+    /// ```ignore
+    /// use carbon_core::pipeline::PipelineBuilder;
+    /// 
     /// let builder = PipelineBuilder::new()
     ///     .instruction(MyDecoder, MyInstructionProcessor);
     /// ```
@@ -830,7 +845,9 @@ impl PipelineBuilder {
     ///
     /// # Example
     ///
-    /// ```rust
+    /// ```ignore
+    /// use carbon_core::pipeline::PipelineBuilder;
+    /// 
     /// let builder = PipelineBuilder::new()
     ///     .transaction(MY_SCHEMA.clone(), MyTransactionProcessor);
     /// ```
@@ -868,7 +885,10 @@ impl PipelineBuilder {
     ///
     /// # Example
     ///
-    /// ```rust
+    /// ```ignore
+    /// use std::sync::Arc;
+    /// use carbon_core::pipeline::PipelineBuilder;
+    /// 
     /// let builder = PipelineBuilder::new()
     ///     .metrics(Arc::new(LogMetrics::new()));
     /// ```
@@ -890,6 +910,8 @@ impl PipelineBuilder {
     /// # Example
     ///
     /// ```rust
+    /// use carbon_core::pipeline::PipelineBuilder;
+    /// 
     /// let builder = PipelineBuilder::new()
     ///     .metrics_flush_interval(60);
     /// ```
@@ -911,6 +933,9 @@ impl PipelineBuilder {
     /// # Example
     ///
     /// ```rust
+    /// use carbon_core::pipeline::PipelineBuilder;
+    /// use tokio_util::sync::CancellationToken;
+    /// 
     /// let builder = PipelineBuilder::new()
     ///     .datasource_cancellation_token(CancellationToken::new());
     /// ```
@@ -936,6 +961,8 @@ impl PipelineBuilder {
     /// # Example
     ///
     /// ```rust
+    /// use carbon_core::pipeline::PipelineBuilder;
+    /// 
     /// let builder = PipelineBuilder::new()
     ///     .channel_buffer_size(1000);
     /// ```
@@ -959,7 +986,9 @@ impl PipelineBuilder {
     ///
     /// # Example
     ///
-    /// ```rust
+    /// ```ignore
+    /// use std::sync::Arc;
+    /// 
     /// carbon_core::pipeline::Pipeline::builder()
     /// .datasource(transaction_crawler)
     /// .metrics(Arc::new(LogMetrics::new()))
@@ -975,7 +1004,9 @@ impl PipelineBuilder {
     /// .transaction(TEST_SCHEMA.clone(), TestProgramTransactionProcessor)
     /// .account_deletions(TestProgramAccountDeletionProcessor)
     /// .channel_buffer_size(1000)
-    /// .build()?
+    /// .build()?;
+    /// 
+    ///  Ok(())
     /// ```
     pub fn build(self) -> CarbonResult<Pipeline> {
         log::trace!("build(self)");

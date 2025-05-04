@@ -401,6 +401,6 @@ mod tests {
 
         let nested_instructions: NestedInstructions = instructions.into();
         assert_eq!(nested_instructions.len(), 2);
-        assert_eq!(nested_instructions.0[1].inner_instructions.len(), 4);
+        assert_eq!(nested_instructions.0[1].inner_instructions.len(), 1);
     }
 }

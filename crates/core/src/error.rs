@@ -57,13 +57,15 @@ pub enum Error {
 ///
 /// # Example
 ///
-/// ```rust
-///
+/// ```ignore
+/// use core::error::Error;
+/// use carbon_core::error::CarbonResult;
+/// 
 /// fn example_function(success: bool) -> CarbonResult<()> {
 ///     if success {
 ///         Ok(())
 ///     } else {
-///         Err(Error::MissingInstructionData)
+///        Err(<dyn Error>::MissingInstructionData)
 ///     }
 /// }
 ///

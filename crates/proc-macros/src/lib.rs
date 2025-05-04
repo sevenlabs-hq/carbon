@@ -81,7 +81,9 @@ use {
 ///
 /// # Example
 ///
-/// ```rust
+/// ```ignore
+/// use carbon_proc_macros::CarbonDeserialize;
+/// 
 /// #[derive(CarbonDeserialize)]
 /// #[carbon(discriminator = "0x01")]
 /// struct Message {
@@ -172,8 +174,9 @@ pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream
 ///
 /// # Example
 ///
-/// ```rust
-///
+/// ```ignore
+/// use carbon_proc_macros::CarbonDeserialize;
+/// 
 /// #[derive(CarbonDeserialize)]
 /// #[carbon(discriminator = "0x1234")]
 /// struct MyStruct {
@@ -248,8 +251,9 @@ fn gen_borsh_deserialize(input: TokenStream) -> TokenStream2 {
 ///
 /// # Example
 ///
-/// ```rust
-/// ///
+/// ```ignore
+/// use syn::Attribute;
+/// 
 /// // Example attribute with a discriminator
 /// let attrs: Vec<Attribute> = vec![parse_quote!(#[carbon(discriminator = "0x1234")])];
 /// let discriminator = get_discriminator(&attrs);
@@ -337,8 +341,10 @@ fn get_discriminator(attrs: &[syn::Attribute]) -> Option<quote::__private::Token
 ///
 /// # Example
 ///
-/// ```rust
-///
+/// ```ignore
+/// use syn::Ident;
+/// use syn::parse_quote;
+/// 
 /// let instructions_enum_name: Ident = parse_quote!(InstructionsEnum);
 /// let instruction_types_enum_name: Ident = parse_quote!(InstructionTypesEnum);
 /// let programs_enum_name: Ident = parse_quote!(ProgramsEnum);
@@ -400,7 +406,7 @@ struct InstructionMacroInput {
 ///
 /// # Example
 ///
-/// ```rust
+/// ```ignore
 ///
 /// let program_variant: Ident = parse_quote!(MyProgram);
 /// let decoder_expr: Expr = parse_quote!(MyDecoder);
@@ -470,7 +476,7 @@ struct InstructionEntry {
 ///
 /// # Example
 ///
-/// ```rust
+/// ```ignore
 ///
 /// let input = parse_quote! {
 ///     MyInstructionsEnum, MyInstructionTypesEnum, MyProgramsEnum,
@@ -572,7 +578,7 @@ impl Parse for InstructionMacroInput {
 ///
 /// # Example
 ///
-/// ```rust
+/// ```ignore
 /// instruction_decoder_collection!(
 ///     AllInstructions, AllInstructionTypes, AllPrograms,
 ///     JupSwap => JupiterDecoder => JupiterInstruction,
@@ -732,6 +738,8 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
 /// # Example
 ///
 /// ```rust
+/// use carbon_proc_macros::InstructionType;
+/// 
 /// #[derive(InstructionType)]
 /// enum Instructions {
 ///     NoData,

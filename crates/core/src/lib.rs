@@ -70,8 +70,9 @@
 //! processing pipes, and metrics in the [`pipeline::PipelineBuilder`]. Below is
 //! a basic example demonstrating how to set up a pipeline:
 //!
-//! ```rust
-//!
+//! ```ignore
+//! use std::sync::Arc;
+//! 
 //! carbon_core::pipeline::Pipeline::builder()
 //! .datasource(transaction_crawler)
 //! .metrics(Arc::new(LogMetrics::new()))

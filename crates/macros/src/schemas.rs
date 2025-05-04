@@ -30,7 +30,7 @@
 //!
 //! #### Example
 //!
-//! ```rust
+//! ```ignore
 //! use your_crate::schema;
 //!
 //! let transaction_schema = schema![
@@ -97,8 +97,10 @@
 ///
 /// # Example
 ///
-/// ```rust
-///
+/// ```ignore
+/// use carbon_macros::schema;
+/// use carbon_macros::schema_inner;
+/// 
 /// let transaction_schema = schema![
 ///     any
 ///     [

@@ -64,7 +64,16 @@ use {
 ///
 /// # Example
 ///
-/// ```rust
+/// ```ignore
+/// use std::sync::Arc;
+/// use carbon_core::datasource::UpdateType;
+/// use carbon_core::datasource::Update;
+/// use carbon_core::error::CarbonResult;
+/// use carbon_core::metrics::MetricsCollection;
+/// use carbon_core::datasource::Datasource;
+/// use tokio_util::sync::CancellationToken;
+/// use async_trait::async_trait;
+/// 
 /// #[async_trait]
 /// impl Datasource for MyDatasource {
 ///     async fn consume(

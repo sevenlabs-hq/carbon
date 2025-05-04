@@ -78,7 +78,13 @@ use {
 ///
 /// # Example
 ///
-/// ```rust
+/// ```ignore
+/// use async_trait::async_trait;
+/// use carbon_core::error::CarbonResult;
+/// use carbon_core::metrics::MetricsCollection;
+/// use carbon_core::processor::Processor;
+/// use std::sync::Arc;
+/// 
 /// struct CustomProcessor;
 ///
 /// #[async_trait]

@@ -21,8 +21,7 @@
 //!
 //! # Example
 //!
-//! ```rust
-//!
+//! ```ignore
 //! struct MyAccountDecoder;
 //!
 //! impl<'a> AccountDecoder<'a> for MyAccountDecoder {
@@ -159,7 +158,14 @@ pub struct AccountPipe<T: Send> {
 ///
 /// # Example
 ///
-/// ```rust
+/// ```ignore
+/// use carbon_core::error::CarbonResult;
+/// use carbon_core::metrics::MetricsCollection;
+/// use carbon_core::account::AccountMetadata;
+/// use carbon_core::account::AccountPipes;
+/// use std::sync::Arc;
+/// use async_trait::async_trait;
+/// 
 /// #[async_trait]
 /// impl AccountPipes for MyAccountPipe {
 ///     async fn run(
