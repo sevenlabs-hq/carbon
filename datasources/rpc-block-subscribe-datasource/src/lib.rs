@@ -1,6 +1,5 @@
 use carbon_core::datasource::BlockDetails;
 use solana_sdk::hash::Hash;
-use solana_transaction_status::TransactionDetails;
 use std::str::FromStr;
 
 use {
