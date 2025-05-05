@@ -843,6 +843,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "block-finality-alerts-carbon-example"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "carbon-log-metrics",
+ "carbon-rpc-block-subscribe-datasource",
+ "dotenv",
+ "env_logger 0.11.8",
+ "log",
+ "solana-client",
+ "solana-sdk",
+ "solana-transaction-status",
+ "tokio",
+]
+
+[[package]]
 name = "borsh"
 version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1611,12 +1628,11 @@ version = "0.8.0"
 dependencies = [
  "async-trait",
  "carbon-core",
- "env_logger 0.11.8",
  "futures",
  "log",
  "solana-client",
- "solana-pubkey",
  "solana-sdk",
+ "solana-transaction-status",
  "tokio",
  "tokio-util",
 ]
