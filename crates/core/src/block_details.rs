@@ -1,5 +1,4 @@
-use crate::account_deletion::{AccountDeletionPipe, AccountDeletionPipes};
-use crate::datasource::{AccountDeletion, BlockDetails};
+use crate::datasource::BlockDetails;
 use crate::error::CarbonResult;
 use crate::metrics::MetricsCollection;
 use crate::processor::Processor;
@@ -18,7 +17,6 @@ use std::sync::Arc;
 pub struct BlockDetailsPipe {
     pub processor: Box<dyn Processor<InputType = BlockDetails> + Send + Sync>,
 }
-
 
 /// A trait for handling block details updates in the pipeline.
 ///

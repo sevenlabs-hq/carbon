@@ -85,7 +85,7 @@ impl Default for TransactionMetadata {
                 solana_sdk::message::Message::default(),
             ),
             block_time: None,
-            block_hash: None
+            block_hash: None,
         }
     }
 }

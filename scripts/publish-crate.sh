@@ -22,6 +22,7 @@ workspace_crates=(
     carbon-prometheus-metrics
 
     carbon-associated-token-account-decoder
+    carbon-boop-decoder
     carbon-drift-v2-decoder
     carbon-fluxbeam-decoder
     carbon-jupiter-dca-decoder

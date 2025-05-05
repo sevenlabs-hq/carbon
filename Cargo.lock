@@ -1051,6 +1051,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-boop-decoder"
+version = "0.8.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey",
+]
+
+[[package]]
 name = "carbon-cli"
 version = "0.8.0"
 dependencies = [

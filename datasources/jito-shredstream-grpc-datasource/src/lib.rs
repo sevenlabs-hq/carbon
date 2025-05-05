@@ -5,10 +5,10 @@ use {
         error::CarbonResult,
         metrics::MetricsCollection,
     },
-    futures::{stream::try_unfold, TryStreamExt},
     carbon_jito_protos::shredstream::{
         shredstream_proxy_client::ShredstreamProxyClient, SubscribeEntriesRequest,
     },
+    futures::{stream::try_unfold, TryStreamExt},
     scc::HashCache,
     solana_client::rpc_client::SerializableTransaction,
     solana_entry::entry::Entry,
