@@ -1,0 +1,17 @@
+[package]
+name = "carbon-gql-server"
+version = "0.8.0"
+edition = { workspace = true }
+description = "GraphQL Server for Carbon"
+license = { workspace = true }
+keywords = ["solana", "indexer", "gql", "graphql"]
+categories = ["encoding"]
+
+[dependencies]
+juniper = { workspace = true }
+juniper_codegen = { workspace = true }
+serde = { workspace = true }
+solana-pubkey = { workspace = true }
+
+[lib]
+crate-type = ["rlib"]
