@@ -1,6 +1,6 @@
-use std::str::FromStr;
 pub use solana_client::rpc_config::RpcBlockConfig;
 use solana_sdk::hash::Hash;
+use std::str::FromStr;
 use {
     async_trait::async_trait,
     carbon_core::{
