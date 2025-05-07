@@ -9,6 +9,8 @@ pub struct PgClient {
     pub pool: PgPool,
 }
 
+impl juniper::Context for PgClient {}
+
 impl PgClient {
     pub async fn new(url: &str, min_connections: u32, max_connections: u32) -> Result<Self, Error> {
         let pool = PgPoolOptions::new()
