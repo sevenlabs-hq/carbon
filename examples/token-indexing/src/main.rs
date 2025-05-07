@@ -1,28 +1,41 @@
 use {
     async_trait::async_trait,
+    axum::{
+        response::Html,
+        routing::{get, on, MethodFilter},
+        Extension, Router,
+    },
     carbon_core::{
         account::{AccountMetadata, DecodedAccount},
+        borsh::schema,
         error::CarbonResult,
         instruction::InstructionProcessorInputType,
         metrics::MetricsCollection,
         processor::Processor,
     },
+    carbon_gql_server::server,
     carbon_log_metrics::LogMetrics,
     carbon_postgres_client::PgClient,
     carbon_token_program_decoder::{
         accounts::TokenProgramAccount,
+        api::{TokenProgramSchema, TokenQuery},
         instructions::TokenProgramInstruction,
         storage::{migrations::InitMigration, queries::TokenQueries},
         TokenProgramDecoder,
     },
     carbon_yellowstone_grpc_datasource::YellowstoneGrpcGeyserClient,
+    juniper::{EmptyMutation, EmptySubscription, RootNode},
+    juniper_axum::{graphiql, graphql, playground},
+    juniper_graphql_ws::Schema,
     spl_token::state::Mint,
     std::{
         collections::{HashMap, HashSet},
         env,
+        net::SocketAddr,
         sync::Arc,
+        time::Duration,
     },
-    tokio::sync::RwLock,
+    tokio::{net::TcpListener, sync::RwLock},
     yellowstone_grpc_proto::geyser::{
         CommitmentLevel, SubscribeRequestFilterAccounts, SubscribeRequestFilterTransactions,
     },
@@ -30,7 +43,6 @@ use {
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
-    env_logger::init();
     dotenv::dotenv().ok();
     // NOTE: Workaround, that solving issue https://github.com/rustls/rustls/issues/1877
     rustls::crypto::aws_lc_rs::default_provider()
@@ -47,11 +59,20 @@ pub async fn main() -> CarbonResult<()> {
             nonempty_txn_signature: None,
         },
     );
+
+    // Connect to database
     let db_uri = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let pg_client = PgClient::new(&db_uri, 1, 10)
         .await
         .expect("Failed to create Postgres client");
+    let schema =
+        TokenProgramSchema::new(TokenQuery, EmptyMutation::new(), EmptySubscription::new());
 
+    let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
+
+    server::run(addr, pg_client, Arc::new(schema)).await;
+
+    // Run Migrations
     pg_client
         .migrate(vec![Box::new(InitMigration)])
         .await
