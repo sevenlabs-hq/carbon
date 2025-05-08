@@ -219,10 +219,6 @@ pub struct NestedInstruction {
 pub struct NestedInstructions(pub Vec<NestedInstruction>);
 
 impl NestedInstructions {
-    pub fn iter(&self) -> std::slice::Iter<NestedInstruction> {
-        self.0.iter()
-    }
-
     pub fn len(&self) -> usize {
         self.0.len()
     }
@@ -255,6 +251,16 @@ impl Clone for NestedInstructions {
         NestedInstructions(self.0.clone())
     }
 }
+
+impl IntoIterator for NestedInstructions {
+    type Item = NestedInstruction;
+    type IntoIter = std::vec::IntoIter<NestedInstruction>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
+    }
+}
+
 /// Nests instructions based on stack height, producing a hierarchy of
 /// `NestedInstruction`.
 ///
