@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = { workspace = true }
 
 [dependencies]
-axum = { workspace = true }
 carbon-core = { workspace = true }
 carbon-gql-server = { workspace = true }
 carbon-log-metrics = { workspace = true }
@@ -12,8 +11,6 @@ carbon-postgres-client = { workspace = true }
 carbon-token-program-decoder = { workspace = true, features = ["postgres", "graphql"] }
 carbon-yellowstone-grpc-datasource = { workspace = true }
 juniper = { workspace = true }
-juniper_axum = { workspace = true }
-juniper_graphql_ws = { workspace = true }
 solana-client = { workspace = true }
 solana-pubkey = { workspace = true }
 solana-transaction-status = { workspace = true }

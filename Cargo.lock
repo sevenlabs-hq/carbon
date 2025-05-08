@@ -1590,6 +1590,7 @@ version = "0.8.0"
 dependencies = [
  "chrono",
  "juniper",
+ "juniper_graphql_ws",
  "sqlx",
  "sqlx_migrator",
 ]
@@ -9755,7 +9756,6 @@ name = "token-indexing-example"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "axum 0.8.4",
  "carbon-core",
  "carbon-gql-server",
  "carbon-log-metrics",
@@ -9765,8 +9765,6 @@ dependencies = [
  "dotenv",
  "env_logger 0.11.8",
  "juniper",
- "juniper_axum",
- "juniper_graphql_ws",
  "log",
  "rustls 0.23.26",
  "solana-client",

@@ -1,13 +1,7 @@
 use {
     async_trait::async_trait,
-    axum::{
-        response::Html,
-        routing::{get, on, MethodFilter},
-        Extension, Router,
-    },
     carbon_core::{
         account::{AccountMetadata, DecodedAccount},
-        borsh::schema,
         error::CarbonResult,
         instruction::InstructionProcessorInputType,
         metrics::MetricsCollection,
@@ -24,18 +18,15 @@ use {
         TokenProgramDecoder,
     },
     carbon_yellowstone_grpc_datasource::YellowstoneGrpcGeyserClient,
-    juniper::{EmptyMutation, EmptySubscription, RootNode},
-    juniper_axum::{graphiql, graphql, playground},
-    juniper_graphql_ws::Schema,
+    juniper::{EmptyMutation, EmptySubscription},
     spl_token::state::Mint,
     std::{
         collections::{HashMap, HashSet},
         env,
         net::SocketAddr,
         sync::Arc,
-        time::Duration,
     },
-    tokio::{net::TcpListener, sync::RwLock},
+    tokio::sync::RwLock,
     yellowstone_grpc_proto::geyser::{
         CommitmentLevel, SubscribeRequestFilterAccounts, SubscribeRequestFilterTransactions,
     },
@@ -62,21 +53,26 @@ pub async fn main() -> CarbonResult<()> {
 
     // Connect to database
     let db_uri = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    println!("Connecting to database: {}", db_uri);
     let pg_client = PgClient::new(&db_uri, 1, 10)
         .await
         .expect("Failed to create Postgres client");
-    let schema =
-        TokenProgramSchema::new(TokenQuery, EmptyMutation::new(), EmptySubscription::new());
-
-    let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
-
-    server::run(addr, pg_client, Arc::new(schema)).await;
 
     // Run Migrations
     pg_client
         .migrate(vec![Box::new(InitMigration)])
         .await
         .expect("Failed to migrate");
+
+    let schema =
+        TokenProgramSchema::new(TokenQuery, EmptyMutation::new(), EmptySubscription::new());
+
+    let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
+
+    let pg_clone = pg_client.clone();
+    tokio::spawn(async move {
+        server::run(addr, pg_clone, Arc::new(schema)).await;
+    });
 
     let transaction_filter = SubscribeRequestFilterTransactions {
         vote: Some(false),
