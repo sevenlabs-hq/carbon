@@ -32,7 +32,7 @@ carbon-log-metrics = { path = "metrics/log-metrics", version = "0.8.0" }
 carbon-prometheus-metrics = { path = "metrics/prometheus-metrics", version = "0.8.0" }
 
 # decoders
-address-lookup_table-decoder = { path = "decoders/address-lookup_table-decoder", version = "0.8.0" }
+carbon-address-lookup_table-decoder = { path = "decoders/address-lookup_table-decoder", version = "0.8.0" }
 carbon-associated-token-account-decoder = { path = "decoders/associated-token-account-decoder", version = "0.8.0" }
 carbon-boop-decoder = { path = "decoders/boop-decoder", version = "0.8.0" }
 carbon-drift-v2-decoder = { path = "decoders/drift-v2-decoder", version = "0.8.0" }
