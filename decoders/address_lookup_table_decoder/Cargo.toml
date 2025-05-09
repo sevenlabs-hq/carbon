@@ -1,0 +1,21 @@
+[package]
+name = "address_lookup_table_decoder"
+version = "0.8.0"
+description = "Address lookup table program decoder"
+edition = { workspace = true }
+license = { workspace = true }
+readme = "README.md"
+keywords = ["solana", "decoder", "associated-token", "ata"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+carbon-core = { workspace = true }
+carbon-macros = { workspace = true }
+carbon-proc-macros = { workspace = true }
+serde = { workspace = true }
+solana-account = { workspace = true }
+solana-instruction = { workspace = true, default-features = false }
+solana-pubkey = { workspace = true }

@@ -22,6 +22,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "address_lookup_table_decoder"
+version = "0.8.0"
+dependencies = [
+ "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey",
+]
+
+[[package]]
 name = "adler2"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
