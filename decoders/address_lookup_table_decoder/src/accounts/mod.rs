@@ -1,5 +1,6 @@
 use {
     super::AddressLookupTableDecoder,
+    crate::PROGRAM_ID,
     carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
 };
 pub mod address_lookup_table;
@@ -12,10 +13,15 @@ pub enum AddressLookupTableAccount {
 
 impl AccountDecoder<'_> for AddressLookupTableDecoder {
     type AccountType = AddressLookupTableAccount;
+
     fn decode_account(
         &self,
         account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
+        if !account.owner.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         if let Some(decoded_account) =
             uninitialized::Uninitialized::deserialize(account.data.as_slice())
         {
