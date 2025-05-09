@@ -1038,7 +1038,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "carbon-address_lookup_table_decoder"
+name = "carbon-address-lookup-table-decoder"
 version = "0.8.0"
 dependencies = [
  "carbon-core",
