@@ -165,7 +165,7 @@ pub struct AccountPipe<T: Send> {
 /// use carbon_core::account::AccountPipes;
 /// use std::sync::Arc;
 /// use async_trait::async_trait;
-/// 
+///
 /// #[async_trait]
 /// impl AccountPipes for MyAccountPipe {
 ///     async fn run(
