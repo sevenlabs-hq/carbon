@@ -3,7 +3,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x03")]
+#[carbon(discriminator = "0x03000000")]
 pub struct DeactivateLookupTable {}
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]

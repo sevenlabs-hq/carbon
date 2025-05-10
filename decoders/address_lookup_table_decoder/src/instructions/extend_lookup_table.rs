@@ -3,7 +3,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x02")]
+#[carbon(discriminator = "0x02000000")]
 pub struct ExtendLookupTable {
     pub new_addresses: Vec<solana_pubkey::Pubkey>,
 }

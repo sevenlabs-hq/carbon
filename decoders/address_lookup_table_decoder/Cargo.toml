@@ -12,6 +12,8 @@ categories = ["encoding"]
 crate-type = ["rlib"]
 
 [dependencies]
+bincode = { workspace = true }
+bytemuck = "1.23.0"
 carbon-core = { workspace = true }
 carbon-macros = { workspace = true }
 carbon-proc-macros = { workspace = true }

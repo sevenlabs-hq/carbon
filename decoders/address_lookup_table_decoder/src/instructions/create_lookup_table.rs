@@ -1,14 +1,11 @@
-use {
-    super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x00")]
+#[carbon(discriminator = "0x00000000")]
 pub struct CreateLookupTable {
-    pub recent_slot: Slot,
+    pub recent_slot: u64,
     pub bump_seed: u8,
 }
 

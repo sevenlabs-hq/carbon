@@ -1,9 +1,6 @@
-use {
-    super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use super::super::types::*;
 
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize)]
+#[derive(Debug)]
 pub struct AddressLookupTable {
     pub meta: LookupTableMeta,
     pub addresses: LookupTableAddresses,

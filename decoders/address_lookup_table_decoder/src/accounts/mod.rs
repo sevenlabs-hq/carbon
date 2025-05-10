@@ -1,13 +1,17 @@
 use {
     super::AddressLookupTableDecoder,
-    crate::PROGRAM_ID,
-    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+    crate::{
+        types::{LookupTableAddresses, ProgramState},
+        PROGRAM_ID,
+    },
+    address_lookup_table::AddressLookupTable,
+    carbon_core::account::AccountDecoder,
+    solana_pubkey::Pubkey,
 };
 pub mod address_lookup_table;
-pub mod uninitialized;
 
+#[derive(Debug)]
 pub enum AddressLookupTableAccount {
-    Uninitialized(uninitialized::Uninitialized),
     AddressLookupTable(address_lookup_table::AddressLookupTable),
 }
 
@@ -22,30 +26,25 @@ impl AccountDecoder<'_> for AddressLookupTableDecoder {
             return None;
         }
 
-        if let Some(decoded_account) =
-            uninitialized::Uninitialized::deserialize(account.data.as_slice())
-        {
-            return Some(carbon_core::account::DecodedAccount {
-                lamports: account.lamports,
-                data: AddressLookupTableAccount::Uninitialized(decoded_account),
-                owner: account.owner,
-                executable: account.executable,
-                rent_epoch: account.rent_epoch,
-            });
-        }
+        let (meta, raw_data) = account.data.split_at(56);
+        let program_data: ProgramState = bincode::deserialize(meta).ok()?;
+        let ProgramState::LookupTable(meta) = program_data else {
+            return None;
+        };
 
-        if let Some(decoded_account) =
-            address_lookup_table::AddressLookupTable::deserialize(account.data.as_slice())
-        {
-            return Some(carbon_core::account::DecodedAccount {
-                lamports: account.lamports,
-                data: AddressLookupTableAccount::AddressLookupTable(decoded_account),
-                owner: account.owner,
-                executable: account.executable,
-                rent_epoch: account.rent_epoch,
-            });
-        }
+        let addresses: &[Pubkey] = bytemuck::try_cast_slice(raw_data).ok()?;
 
-        None
+        Some(carbon_core::account::DecodedAccount {
+            lamports: account.lamports,
+            data: AddressLookupTableAccount::AddressLookupTable(AddressLookupTable {
+                meta,
+                addresses: LookupTableAddresses {
+                    addresses: addresses.to_vec(),
+                },
+            }),
+            owner: account.owner,
+            executable: account.executable,
+            rent_epoch: account.rent_epoch,
+        })
     }
 }

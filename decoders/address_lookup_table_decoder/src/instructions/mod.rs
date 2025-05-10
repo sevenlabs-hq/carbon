@@ -34,13 +34,43 @@ impl carbon_core::instruction::InstructionDecoder<'_> for AddressLookupTableDeco
         if !instruction.program_id.eq(&PROGRAM_ID) {
             return None;
         }
+        if instruction.data.len() < 4 {
+            return None;
+        }
+        let (discriminator, data) = instruction.data.split_at(4);
+        let entry = match discriminator {
+            [0, 0, 0, 0] => {
+                let args: create_lookup_table::CreateLookupTable =
+                    bincode::deserialize(data).ok()?;
+                AddressLookupTableInstruction::CreateLookupTable(args)
+            }
+            [1, 0, 0, 0] => {
+                let args: freeze_lookup_table::FreezeLookupTable =
+                    bincode::deserialize(data).ok()?;
+                AddressLookupTableInstruction::FreezeLookupTable(args)
+            }
+            [2, 0, 0, 0] => {
+                let args: extend_lookup_table::ExtendLookupTable =
+                    bincode::deserialize(data).ok()?;
+                AddressLookupTableInstruction::ExtendLookupTable(args)
+            }
+            [3, 0, 0, 0] => {
+                let args: deactivate_lookup_table::DeactivateLookupTable =
+                    bincode::deserialize(data).ok()?;
 
-        carbon_core::try_decode_instructions!(instruction,
-            AddressLookupTableInstruction::CreateLookupTable => create_lookup_table::CreateLookupTable,
-            AddressLookupTableInstruction::FreezeLookupTable => freeze_lookup_table::FreezeLookupTable,
-            AddressLookupTableInstruction::ExtendLookupTable => extend_lookup_table::ExtendLookupTable,
-            AddressLookupTableInstruction::DeactivateLookupTable => deactivate_lookup_table::DeactivateLookupTable,
-            AddressLookupTableInstruction::CloseLookupTable => close_lookup_table::CloseLookupTable,
-        )
+                AddressLookupTableInstruction::DeactivateLookupTable(args)
+            }
+            [4, 0, 0, 0] => {
+                let args: close_lookup_table::CloseLookupTable = bincode::deserialize(data).ok()?;
+                AddressLookupTableInstruction::CloseLookupTable(args)
+            }
+            _ => return None,
+        };
+
+        Some(carbon_core::instruction::DecodedInstruction {
+            program_id: instruction.program_id,
+            accounts: instruction.accounts.clone(),
+            data: entry,
+        })
     }
 }
