@@ -132,3 +132,6 @@ pub use borsh;
 pub use carbon_macros::*;
 #[cfg(feature = "macros")]
 pub use carbon_proc_macros::*;
+#[cfg(feature = "macros")]
+#[doc(hidden)]
+pub use log;
