@@ -128,27 +128,29 @@ pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream
     let input = parse_macro_input!(derive_input as DeriveInput);
     let name = &input.ident;
 
-    let discriminator = get_discriminator(&input.attrs).unwrap_or(quote! { &[] });
+    let discriminator = get_discriminator(name, &input.attrs).unwrap_or(quote! {
+      impl #name { pub fn discriminator() -> [u8; 0] { [] } }
+    });
     let deser = gen_borsh_deserialize(input_token_stream);
 
     let expanded = quote! {
+        #discriminator
         #deser
 
         #[automatically_derived]
         impl carbon_core::deserialize::CarbonDeserialize for #name {
             fn deserialize(data: &[u8]) -> Option<Self> {
-                let discriminator: &[u8] = #discriminator;
+                let discriminator = #name::discriminator();
                 if data.len() < discriminator.len() {
                     return None;
                 }
 
-
                 let (disc, rest) = data.split_at(discriminator.len());
-                if disc != discriminator {
+                if disc != discriminator.as_slice() {
                     return None;
                 }
 
-                 carbon_core::borsh::BorshDeserialize::try_from_slice(rest).ok()
+                carbon_core::borsh::BorshDeserialize::try_from_slice(rest).ok()
             }
         }
     };
@@ -286,7 +288,10 @@ fn gen_borsh_deserialize(input: TokenStream) -> TokenStream2 {
 /// - The `discriminator` value must be a hexadecimal string prefixed with "0x".
 /// - If the hex string is invalid, an error will be raised; consider adding
 ///   further error handling if required for your application.
-fn get_discriminator(attrs: &[syn::Attribute]) -> Option<quote::__private::TokenStream> {
+fn get_discriminator(
+    struct_name: &Ident,
+    attrs: &[syn::Attribute],
+) -> Option<quote::__private::TokenStream> {
     attrs.iter().find_map(|attr| {
         if attr.path.is_ident("carbon") {
             attr.parse_meta().ok().and_then(|meta| {
@@ -298,8 +303,15 @@ fn get_discriminator(attrs: &[syn::Attribute]) -> Option<quote::__private::Token
                                     let disc_str = lit_str.value();
                                     let disc_bytes = hex::decode(disc_str.trim_start_matches("0x"))
                                         .expect("Invalid hex string");
-                                    let disc_array = disc_bytes.as_slice();
-                                    return Some(quote! { &[#(#disc_array),*] });
+                                    let len = disc_bytes.len();
+                                    let tokens = quote! {
+                                        impl #struct_name {
+                                            pub fn discriminator() -> [u8; #len] {
+                                                [#(#disc_bytes),*]
+                                            }
+                                        }
+                                    };
+                                    return Some(tokens);
                                 }
                             }
                         }
@@ -407,7 +419,7 @@ struct InstructionMacroInput {
 /// # Example
 ///
 /// ```ignore
-///
+/// 
 /// let program_variant: Ident = parse_quote!(MyProgram);
 /// let decoder_expr: Expr = parse_quote!(MyDecoder);
 /// let instruction_type: TypePath = parse_quote!(MyInstructionType);
@@ -477,7 +489,7 @@ struct InstructionEntry {
 /// # Example
 ///
 /// ```ignore
-///
+/// 
 /// let input = parse_quote! {
 ///     MyInstructionsEnum, MyInstructionTypesEnum, MyProgramsEnum,
 ///     MyProgram => my_decoder => MyInstruction,
