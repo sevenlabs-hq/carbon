@@ -21,8 +21,8 @@
 
 use {
     crate::{
-        error::CarbonResult, metrics::MetricsCollection, processor::Processor,
-        transaction::TransactionMetadata,
+        datasource::TransactionUpdate, error::CarbonResult, metrics::MetricsCollection,
+        processor::Processor, transaction::TransactionMetadata,
     },
     async_trait::async_trait,
     serde::{Deserialize, Serialize},
@@ -119,6 +119,11 @@ pub type InstructionProcessorInputType<T> = (
     NestedInstructions,
 );
 
+#[derive(Default, Clone, Debug)]
+pub struct InstructionPipeFilters {
+    pub sources: Vec<String>,
+}
+
 /// A processing pipeline for instructions, using a decoder and processor.
 ///
 /// The `InstructionPipe` structure enables the processing of decoded
@@ -134,6 +139,7 @@ pub type InstructionProcessorInputType<T> = (
 /// - `decoder`: The decoder used for parsing instructions.
 /// - `processor`: The processor that handles decoded instructions.
 pub struct InstructionPipe<T: Send> {
+    pub filters: InstructionPipeFilters,
     pub decoder:
         Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
     pub processor:
@@ -157,6 +163,8 @@ pub trait InstructionPipes<'a>: Send + Sync {
         nested_instruction: &NestedInstruction,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
+
+    fn filter(&mut self, update: &TransactionUpdate) -> bool;
 }
 
 #[async_trait]
@@ -192,6 +200,10 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
         }
 
         Ok(())
+    }
+
+    fn filter(&mut self, update: &TransactionUpdate) -> bool {
+        self.filters.sources.is_empty() || self.filters.sources.contains(&update.source)
     }
 }
 
