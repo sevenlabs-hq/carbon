@@ -151,7 +151,7 @@ pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream
                  match carbon_core::borsh::BorshDeserialize::deserialize(&mut rest) {
                     Ok(res) => {
                         if !rest.is_empty() {
-                            log::warn!(
+                            carbon_core::log::warn!(
                                 "Not all bytes were read when deserializing {}: {} bytes remaining",
                                 stringify!(#name),
                                 rest.len(),
