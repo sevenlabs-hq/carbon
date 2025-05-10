@@ -143,12 +143,24 @@ pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream
                 }
 
 
-                let (disc, rest) = data.split_at(discriminator.len());
+                let (disc, mut rest) = data.split_at(discriminator.len());
                 if disc != discriminator {
                     return None;
                 }
 
-                 carbon_core::borsh::BorshDeserialize::try_from_slice(rest).ok()
+                 match carbon_core::borsh::BorshDeserialize::deserialize(&mut rest) {
+                    Ok(res) => {
+                        if !rest.is_empty() {
+                            log::warn!(
+                                "Not all bytes were read when deserializing {}: {} bytes remaining",
+                                stringify!(#name),
+                                rest.len(),
+                            );
+                        }
+                        Some(res)
+                    }
+                    Err(_) => None,
+                }
             }
         }
     };
