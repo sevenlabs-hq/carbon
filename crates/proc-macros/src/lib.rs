@@ -152,7 +152,7 @@ pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream
                     Ok(res) => {
                         if !rest.is_empty() {
                             log::warn!(
-                                "Not all bytes were read when deserializing `{}`: {} bytes remaining,
+                                "Not all bytes were read when deserializing `{}`: {} bytes remaining",
                                 stringify!(#name),
                                 rest.len(),
                             );
