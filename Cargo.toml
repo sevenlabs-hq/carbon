@@ -13,6 +13,7 @@ repository = "https://github.com/sevenlabs-hq/carbon"
 # main
 carbon-cli = { path = "crates/cli", version = "0.8.0" }
 carbon-core = { path = "crates/core", version = "0.8.0" }
+carbon-gql-server = { path = "crates/gql-server", version = "0.8.0" }
 carbon-macros = { path = "crates/macros", version = "0.8.0" }
 carbon-postgres-client = { path = "crates/postgres-client", version = "0.8.0" }
 carbon-proc-macros = { path = "crates/proc-macros", version = "0.8.0" }
@@ -123,12 +124,17 @@ helius = { version = "0.2.6", git = "https://github.com/helius-labs/helius-rust-
 hex = "0.4.3"
 indicatif = "0.17.8"
 inquire = "0.7.5"
+juniper = { version = "0.16.1", features = ["uuid"] }
+juniper_codegen = { version = "0.16.0" }
+juniper_axum = { version = "0.2.0" }
+juniper_graphql_ws = { version = "0.4.0" }
 log = "0.4.25"
 metrics = "0.24.1"
 metrics-exporter-prometheus = "0.16.0"
 paste = "1.0.15"
 proc-macro2 = "1"
 prost = "0.12"
+axum = "0.8.4"
 prost-types = "0.12"
 quote = "1.0"
 retry = "2.0.0"
@@ -154,6 +160,7 @@ tokio-util = "0.7.13"
 tonic = { version = "0.10", features = ["tls", "tls-roots", "tls-webpki-roots"] }
 tonic-build = "0.10"
 unicode-xid = "0.2"
+uuid = { version = "1.6.1", features = ["serde", "v7"] }
 yellowstone-grpc-client = { version = "6.0.0" }
 yellowstone-grpc-proto = { version = "6.0.0" }
 
