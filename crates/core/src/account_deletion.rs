@@ -42,7 +42,7 @@ use {
 /// use carbon_core::processor::Processor;
 /// use async_trait::async_trait;
 /// use std::sync::Arc;
-/// 
+///
 /// struct MyAccountDeletionProcessor;
 ///
 /// #[async_trait]
@@ -102,7 +102,7 @@ pub struct AccountDeletionPipe {
 /// use carbon_core::datasource::AccountDeletion;
 /// use carbon_core::account_deletion::AccountDeletionPipe;
 /// use async_trait::async_trait;
-/// 
+///
 /// struct MyAccountDeletionPipe;
 ///
 /// #[async_trait]

@@ -37,7 +37,7 @@
 ///
 /// ```ignore
 ///use carbon_macros::try_decode_instructions;
-/// 
+///
 /// let instruction = Instruction { /* initialize with program_id, accounts, and data */ };
 ///
 /// let decoded = try_decode_instructions!(

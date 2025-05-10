@@ -32,6 +32,7 @@ carbon-log-metrics = { path = "metrics/log-metrics", version = "0.8.0" }
 carbon-prometheus-metrics = { path = "metrics/prometheus-metrics", version = "0.8.0" }
 
 # decoders
+carbon-address-lookup-table-decoder = { path = "decoders/address-lookup-table-decoder", version = "0.8.0" }
 carbon-associated-token-account-decoder = { path = "decoders/associated-token-account-decoder", version = "0.8.0" }
 carbon-boop-decoder = { path = "decoders/boop-decoder", version = "0.8.0" }
 carbon-drift-v2-decoder = { path = "decoders/drift-v2-decoder", version = "0.8.0" }
@@ -137,12 +138,12 @@ serde-big-array = "0.5.1"
 serde_json = "1.0.138"
 sha2 = "0.10.8"
 sqlx = { version = "0.8.5", features = [
-    "macros",
-    "runtime-tokio-rustls",
-    "postgres",
-    "uuid",
-    "chrono",
-    "rust_decimal",
+  "macros",
+  "runtime-tokio-rustls",
+  "postgres",
+  "uuid",
+  "chrono",
+  "rust_decimal",
 ] }
 sqlx_migrator = { version = "0.17.0", features = ["postgres"] }
 syn = { version = "1.0", features = ["full"] }

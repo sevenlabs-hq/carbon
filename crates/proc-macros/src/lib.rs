@@ -83,7 +83,7 @@ use {
 ///
 /// ```ignore
 /// use carbon_proc_macros::CarbonDeserialize;
-/// 
+///
 /// #[derive(CarbonDeserialize)]
 /// #[carbon(discriminator = "0x01")]
 /// struct Message {
@@ -176,7 +176,7 @@ pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream
 ///
 /// ```ignore
 /// use carbon_proc_macros::CarbonDeserialize;
-/// 
+///
 /// #[derive(CarbonDeserialize)]
 /// #[carbon(discriminator = "0x1234")]
 /// struct MyStruct {
@@ -253,7 +253,7 @@ fn gen_borsh_deserialize(input: TokenStream) -> TokenStream2 {
 ///
 /// ```ignore
 /// use syn::Attribute;
-/// 
+///
 /// // Example attribute with a discriminator
 /// let attrs: Vec<Attribute> = vec![parse_quote!(#[carbon(discriminator = "0x1234")])];
 /// let discriminator = get_discriminator(&attrs);
@@ -344,7 +344,7 @@ fn get_discriminator(attrs: &[syn::Attribute]) -> Option<quote::__private::Token
 /// ```ignore
 /// use syn::Ident;
 /// use syn::parse_quote;
-/// 
+///
 /// let instructions_enum_name: Ident = parse_quote!(InstructionsEnum);
 /// let instruction_types_enum_name: Ident = parse_quote!(InstructionTypesEnum);
 /// let programs_enum_name: Ident = parse_quote!(ProgramsEnum);
@@ -739,7 +739,7 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
 ///
 /// ```rust
 /// use carbon_proc_macros::InstructionType;
-/// 
+///
 /// #[derive(InstructionType)]
 /// enum Instructions {
 ///     NoData,

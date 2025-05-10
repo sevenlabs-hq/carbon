@@ -21,6 +21,7 @@ workspace_crates=(
     carbon-log-metrics
     carbon-prometheus-metrics
 
+    address-lookup-table-decoder
     carbon-associated-token-account-decoder
     carbon-boop-decoder
     carbon-drift-v2-decoder

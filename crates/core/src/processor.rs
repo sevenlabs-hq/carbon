@@ -84,7 +84,7 @@ use {
 /// use carbon_core::metrics::MetricsCollection;
 /// use carbon_core::processor::Processor;
 /// use std::sync::Arc;
-/// 
+///
 /// struct CustomProcessor;
 ///
 /// #[async_trait]
