@@ -9,6 +9,8 @@ workspace_crates=(
     carbon-proc-macros
     carbon-core
     carbon-test-utils
+    carbon-postgres-client
+    carbon-gql-server
 
     carbon-helius-atlas-ws-datasource
     carbon-rpc-block-crawler-datasource
