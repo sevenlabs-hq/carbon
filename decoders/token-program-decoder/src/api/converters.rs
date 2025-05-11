@@ -1,4 +1,4 @@
-use carbon_gql_server::types::{u64::U64, u8::U8, pubkey::Pubkey};
+use carbon_gql_server::types::{pubkey::Pubkey, u64::U64, u8::U8};
 use juniper::{GraphQLEnum, GraphQLObject};
 use spl_token::{
     solana_program::program_option::COption,

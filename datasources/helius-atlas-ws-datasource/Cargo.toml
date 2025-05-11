@@ -2,7 +2,7 @@
 name = "carbon-helius-atlas-ws-datasource"
 description = "Helius Atlas WebSocket Datasource"
 license = { workspace = true }
-version = "0.8.0"
+version = "0.8.1"
 edition = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }

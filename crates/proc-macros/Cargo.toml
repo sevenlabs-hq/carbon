@@ -1,6 +1,6 @@
 [package]
 name = "carbon-proc-macros"
-version = "0.8.0"
+version = "0.8.1"
 edition = { workspace = true }
 description = "Procedural macros for Carbon"
 license = { workspace = true }
