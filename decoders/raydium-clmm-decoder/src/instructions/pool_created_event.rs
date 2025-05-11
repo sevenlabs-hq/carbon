@@ -3,7 +3,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0xe445a52e51cb9a1d195e4b2f7063353f")]
+#[carbon(discriminator = "0x195e4b2f7063353f")]
 pub struct PoolCreatedEvent {
     pub token_mint0: solana_pubkey::Pubkey,
     pub token_mint1: solana_pubkey::Pubkey,

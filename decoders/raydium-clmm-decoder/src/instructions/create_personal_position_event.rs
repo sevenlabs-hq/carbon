@@ -3,7 +3,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0xe445a52e51cb9a1d641e57f9c4df9ace")]
+#[carbon(discriminator = "0x641e57f9c4df9ace")]
 pub struct CreatePersonalPositionEvent {
     pub pool_state: solana_pubkey::Pubkey,
     pub minter: solana_pubkey::Pubkey,
