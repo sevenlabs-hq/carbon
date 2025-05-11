@@ -58,6 +58,7 @@ pub struct InstructionMetadata {
     pub transaction_metadata: Arc<TransactionMetadata>,
     pub stack_height: u32,
     pub index: u32,
+    pub absolute_path: Vec<u8>,
 }
 
 pub type InstructionsWithMetadata = Vec<(InstructionMetadata, solana_instruction::Instruction)>;
@@ -292,22 +293,22 @@ impl From<InstructionsWithMetadata> for NestedInstructions {
     }
 }
 
+// https://github.com/anza-xyz/agave/blob/master/program-runtime/src/execution_budget.rs#L7
+pub const MAX_INSTRUCTION_STACK_DEPTH: usize = 5;
+
 pub struct UnsafeNestedBuilder {
     nested_ixs: Vec<NestedInstruction>,
     level_ptrs: [Option<*mut NestedInstruction>; Self::MAX_INSTRUCTION_STACK_DEPTH],
 }
 
 impl UnsafeNestedBuilder {
-    // https://github.com/anza-xyz/agave/blob/master/program-runtime/src/execution_budget.rs#L7
-    const MAX_INSTRUCTION_STACK_DEPTH: usize = 5;
-
     /// ## SAFETY:
     /// Make sure `capacity` is large enough to avoid capacity expansion caused
     /// by `push`
     pub fn new(capacity: usize) -> Self {
         Self {
             nested_ixs: Vec::with_capacity(capacity),
-            level_ptrs: [None; Self::MAX_INSTRUCTION_STACK_DEPTH],
+            level_ptrs: [None; MAX_INSTRUCTION_STACK_DEPTH],
         }
     }
 
@@ -316,7 +317,7 @@ impl UnsafeNestedBuilder {
             let stack_height = metadata.stack_height as usize;
 
             assert!(stack_height > 0);
-            assert!(stack_height <= Self::MAX_INSTRUCTION_STACK_DEPTH);
+            assert!(stack_height <= MAX_INSTRUCTION_STACK_DEPTH);
 
             for ptr in &mut self.level_ptrs[stack_height..] {
                 *ptr = None;
@@ -366,6 +367,7 @@ mod tests {
             transaction_metadata: Arc::default(),
             stack_height,
             index,
+            absolute_path: vec![],
         };
         let instruction = Instruction {
             program_id: Pubkey::new_unique(),
