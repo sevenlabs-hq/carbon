@@ -1,3 +1,3 @@
-pub mod amount;
-pub mod decimals;
 pub mod pubkey;
+pub mod u64;
+pub mod u8;

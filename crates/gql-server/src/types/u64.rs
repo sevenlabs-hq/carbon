@@ -4,9 +4,9 @@ use std::str::FromStr;
 
 #[derive(Clone, Debug, Serialize, Deserialize, Eq, GraphQLScalar, PartialEq)]
 #[graphql(parse_token(String))]
-pub struct Amount(pub u64);
+pub struct U64(pub u64);
 
-impl Amount {
+impl U64 {
     fn to_output<S: ScalarValue>(&self) -> Value<S> {
         Value::scalar(self.0.to_string())
     }
@@ -16,8 +16,8 @@ impl Amount {
             .ok_or_else(|| "Expected a string".to_string())
             .and_then(|s| {
                 u64::from_str(s)
-                    .map(Amount)
-                    .map_err(|_| "Invalid amount".to_string())
+                    .map(U64)
+                    .map_err(|_| "Invalid u64".to_string())
             })
     }
 }

@@ -4,9 +4,9 @@ use std::str::FromStr;
 
 #[derive(Clone, Debug, Serialize, Deserialize, Eq, GraphQLScalar, PartialEq)]
 #[graphql(parse_token(String))]
-pub struct Decimals(pub u8);
+pub struct U8(pub u8);
 
-impl Decimals {
+impl U8 {
     fn to_output<S: ScalarValue>(&self) -> Value<S> {
         Value::scalar(self.0.to_string())
     }
@@ -16,8 +16,8 @@ impl Decimals {
             .ok_or_else(|| "Expected a string".to_string())
             .and_then(|s| {
                 u8::from_str(s)
-                    .map(Decimals)
-                    .map_err(|_| "Invalid decimals".to_string())
+                    .map(U8)
+                    .map_err(|_| "Invalid u8".to_string())
             })
     }
 }

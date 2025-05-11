@@ -1,4 +1,4 @@
-use carbon_gql_server::types::{amount::Amount, decimals::Decimals, pubkey::Pubkey};
+use carbon_gql_server::types::{u64::U64, u8::U8, pubkey::Pubkey};
 use juniper::{GraphQLEnum, GraphQLObject};
 use spl_token::{
     solana_program::program_option::COption,
@@ -8,8 +8,8 @@ use spl_token::{
 #[derive(GraphQLObject)]
 pub struct GQLMint {
     pub mint_authority: Option<Pubkey>,
-    pub supply: Amount,
-    pub decimals: Decimals,
+    pub supply: U64,
+    pub decimals: U8,
     pub is_initialized: bool,
     pub freeze_authority: Option<Pubkey>,
 }
@@ -25,11 +25,11 @@ pub enum GQLAccountState {
 pub struct GQLAccount {
     pub mint: Pubkey,
     pub owner: Pubkey,
-    pub amount: Amount,
+    pub amount: U64,
     pub delegate: Option<Pubkey>,
     pub state: GQLAccountState,
-    pub is_native: Option<Amount>,
-    pub delegated_amount: Amount,
+    pub is_native: Option<U64>,
+    pub delegated_amount: U64,
     pub close_authority: Option<Pubkey>,
 }
 
@@ -40,8 +40,8 @@ impl From<Mint> for GQLMint {
                 COption::Some(mint_authority) => Some(Pubkey(mint_authority)),
                 COption::None => None,
             },
-            supply: Amount(mint.supply),
-            decimals: Decimals(mint.decimals),
+            supply: U64(mint.supply),
+            decimals: U8(mint.decimals),
             is_initialized: mint.is_initialized,
             freeze_authority: match mint.freeze_authority {
                 COption::Some(freeze_authority) => Some(Pubkey(freeze_authority)),
@@ -66,17 +66,17 @@ impl From<Account> for GQLAccount {
         Self {
             mint: Pubkey(account.mint),
             owner: Pubkey(account.owner),
-            amount: Amount(account.amount),
+            amount: U64(account.amount),
             delegate: match account.delegate {
                 COption::Some(delegate) => Some(Pubkey(delegate)),
                 COption::None => None,
             },
             state: account.state.into(),
             is_native: match account.is_native {
-                COption::Some(is_native) => Some(Amount(is_native)),
+                COption::Some(is_native) => Some(U64(is_native)),
                 COption::None => None,
             },
-            delegated_amount: Amount(account.delegated_amount),
+            delegated_amount: U64(account.delegated_amount),
             close_authority: match account.close_authority {
                 COption::Some(close_authority) => Some(Pubkey(close_authority)),
                 COption::None => None,
