@@ -2,7 +2,7 @@
 name = "carbon-jito-shredstream-grpc-datasource"
 description = "Jito Shredstream gRPC Datasource"
 license = { workspace = true }
-version = "0.8.0"
+version = "0.8.1"
 edition = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
@@ -22,10 +22,10 @@ carbon-core = { workspace = true }
 
 async-trait = { workspace = true }
 bincode = { workspace = true }
+carbon-jito-protos = { workspace = true }
 env_logger = { workspace = true }
 futures = { workspace = true }
 futures-util = { workspace = true }
-carbon-jito-protos = { workspace = true }
 log = { workspace = true }
 scc = "2.3.4"
 tokio = { workspace = true, features = ["full"] }

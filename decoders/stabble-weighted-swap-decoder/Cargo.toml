@@ -1,6 +1,6 @@
 [package]
 name = "carbon-stabble-weighted-swap-decoder"
-version = "0.8.0"
+version = "0.8.1"
 description = "Stabble Weighted Swap Decoder"
 edition = { workspace = true }
 license = { workspace = true }
