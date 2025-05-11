@@ -9,6 +9,7 @@ pub struct SwapExactOut {
     pub out_amount: u64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct SwapExactOutInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
     pub bin_array_bitmap_extension: solana_pubkey::Pubkey,

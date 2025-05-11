@@ -9,6 +9,7 @@ pub struct InitializePosition {
     pub width: i32,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct InitializePositionInstructionAccounts {
     pub payer: solana_pubkey::Pubkey,
     pub position: solana_pubkey::Pubkey,

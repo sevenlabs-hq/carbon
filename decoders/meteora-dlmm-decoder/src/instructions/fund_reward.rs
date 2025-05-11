@@ -10,6 +10,7 @@ pub struct FundReward {
     pub carry_forward: bool,
 }
 
+#[derive(PartialEq, Debug)]
 pub struct FundRewardInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
     pub reward_vault: solana_pubkey::Pubkey,

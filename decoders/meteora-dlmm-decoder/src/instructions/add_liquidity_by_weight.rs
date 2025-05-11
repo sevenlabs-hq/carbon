@@ -11,6 +11,7 @@ pub struct AddLiquidityByWeight {
     pub liquidity_parameter: LiquidityParameterByWeight,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct AddLiquidityByWeightInstructionAccounts {
     pub position: solana_pubkey::Pubkey,
     pub lb_pair: solana_pubkey::Pubkey,

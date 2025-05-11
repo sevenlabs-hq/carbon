@@ -8,7 +8,7 @@ pub struct Swap {
     pub amount_in: u64,
     pub min_amount_out: u64,
 }
-
+#[derive(Debug, PartialEq)]
 pub struct SwapInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
     pub bin_array_bitmap_extension: solana_pubkey::Pubkey,

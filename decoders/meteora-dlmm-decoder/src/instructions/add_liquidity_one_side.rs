@@ -11,6 +11,7 @@ pub struct AddLiquidityOneSide {
     pub liquidity_parameter: LiquidityOneSideParameter,
 }
 
+#[derive(PartialEq, Debug)]
 pub struct AddLiquidityOneSideInstructionAccounts {
     pub position: solana_pubkey::Pubkey,
     pub lb_pair: solana_pubkey::Pubkey,

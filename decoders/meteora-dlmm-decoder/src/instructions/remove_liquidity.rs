@@ -11,6 +11,7 @@ pub struct RemoveLiquidity {
     pub bin_liquidity_removal: Vec<BinLiquidityReduction>,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct RemoveLiquidityInstructionAccounts {
     pub position: solana_pubkey::Pubkey,
     pub lb_pair: solana_pubkey::Pubkey,
