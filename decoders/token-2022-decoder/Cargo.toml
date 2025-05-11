@@ -1,6 +1,6 @@
 [package]
 name = "carbon-token-2022-decoder"
-version = "0.8.0"
+version = "0.8.1"
 description = "Carbon Token 2022 Decoder"
 edition = { workspace = true }
 license = { workspace = true }

@@ -1,6 +1,6 @@
 [package]
 name = "carbon-address-lookup-table-decoder"
-version = "0.8.0"
+version = "0.8.1"
 description = "Address lookup table program decoder"
 edition = { workspace = true }
 license = { workspace = true }
