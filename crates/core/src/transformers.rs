@@ -137,7 +137,7 @@ fn process_instructions<F1, F2>(
                 transaction_metadata: transaction_metadata.clone(),
                 stack_height: 1,
                 index: i as u32,
-                absolute_path: vec![i],
+                absolute_path: vec![i as u8],
             },
             build_instruction(account_keys, compiled_instruction, &is_writable, &is_signer),
         ));
@@ -146,12 +146,12 @@ fn process_instructions<F1, F2>(
     if let Some(inner_instructions) = inner {
         for inner_tx in inner_instructions {
             let mut path_stack = vec![0; MAX_INSTRUCTION_STACK_DEPTH];
-            path_stack[0] = x.index;
+            path_stack[0] = inner_tx.index;
             let mut prev_height = 0;
 
             for inner_inst in &inner_tx.instructions {
-                let stack_height = instr.stack_height.unwrap_or(1) as usize;
-                if h1 > prev_height {
+                let stack_height = inner_inst.stack_height.unwrap_or(1) as usize;
+                if stack_height > prev_height {
                     path_stack[stack_height - 1] = 0;
                 } else {
                     path_stack[stack_height - 1] += 1;

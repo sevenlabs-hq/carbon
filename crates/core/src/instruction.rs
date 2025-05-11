@@ -298,7 +298,7 @@ pub const MAX_INSTRUCTION_STACK_DEPTH: usize = 5;
 
 pub struct UnsafeNestedBuilder {
     nested_ixs: Vec<NestedInstruction>,
-    level_ptrs: [Option<*mut NestedInstruction>; Self::MAX_INSTRUCTION_STACK_DEPTH],
+    level_ptrs: [Option<*mut NestedInstruction>; MAX_INSTRUCTION_STACK_DEPTH],
 }
 
 impl UnsafeNestedBuilder {
