@@ -3,6 +3,7 @@ use crate::PROGRAM_ID;
 use super::MeteoraDlmmDecoder;
 pub mod add_liquidity;
 pub mod add_liquidity_by_strategy;
+pub mod add_liquidity_by_strategy2;
 pub mod add_liquidity_by_strategy_one_side;
 pub mod add_liquidity_by_weight;
 pub mod add_liquidity_event;
@@ -86,6 +87,7 @@ pub enum MeteoraDlmmInstruction {
     AddLiquidity(add_liquidity::AddLiquidity),
     AddLiquidityByWeight(add_liquidity_by_weight::AddLiquidityByWeight),
     AddLiquidityByStrategy(add_liquidity_by_strategy::AddLiquidityByStrategy),
+    AddLiquidityByStrategy2(add_liquidity_by_strategy2::AddLiquidityByStrategy2),
     AddLiquidityByStrategyOneSide(
         add_liquidity_by_strategy_one_side::AddLiquidityByStrategyOneSide,
     ),
@@ -165,6 +167,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDlmmDecoder {
             MeteoraDlmmInstruction::AddLiquidity => add_liquidity::AddLiquidity,
             MeteoraDlmmInstruction::AddLiquidityByWeight => add_liquidity_by_weight::AddLiquidityByWeight,
             MeteoraDlmmInstruction::AddLiquidityByStrategy => add_liquidity_by_strategy::AddLiquidityByStrategy,
+            MeteoraDlmmInstruction::AddLiquidityByStrategy2 => add_liquidity_by_strategy2::AddLiquidityByStrategy2,
             MeteoraDlmmInstruction::AddLiquidityByStrategyOneSide => add_liquidity_by_strategy_one_side::AddLiquidityByStrategyOneSide,
             MeteoraDlmmInstruction::AddLiquidityOneSide => add_liquidity_one_side::AddLiquidityOneSide,
             MeteoraDlmmInstruction::RemoveLiquidity => remove_liquidity::RemoveLiquidity,
