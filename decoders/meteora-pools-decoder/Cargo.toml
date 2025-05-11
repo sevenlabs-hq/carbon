@@ -1,6 +1,6 @@
 [package]
 name = "carbon-meteora-pools-decoder"
-version = "0.8.0"
+version = "0.8.1"
 description = "Meteora Pools Program Decoder"
 license = { workspace = true }
 edition = { workspace = true }

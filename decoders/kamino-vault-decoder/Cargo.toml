@@ -1,6 +1,6 @@
 [package]
 name = "carbon-kamino-vault-decoder"
-version = "0.8.0"
+version = "0.8.1"
 description = "Kamino Vault Decoder"
 license = { workspace = true }
 edition = { workspace = true }

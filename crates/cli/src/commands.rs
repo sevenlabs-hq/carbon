@@ -6,7 +6,7 @@ use {
 #[derive(Parser)]
 #[command(name = "IDL Parser CLI")]
 #[command(about = "Generate Program Parsers for Carbon.")]
-#[command(version = "0.8.0", author = "aimbot-labs")]
+#[command(version = "0.8.1", author = "aimbot-labs")]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
