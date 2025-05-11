@@ -128,7 +128,7 @@ inquire = "0.7.5"
 juniper = { version = "0.16.1", features = ["uuid"] }
 juniper_axum = { version = "0.2.0" }
 juniper_codegen = { version = "0.16.0" }
-juniper_graphql_ws = { version = "0.4.0" }
+juniper_graphql_ws = { version = "0.4.0", features = ["graphql-transport-ws"] }
 log = "0.4.25"
 metrics = "0.24.1"
 metrics-exporter-prometheus = "0.16.0"
@@ -144,12 +144,12 @@ serde-big-array = "0.5.1"
 serde_json = "1.0.138"
 sha2 = "0.10.8"
 sqlx = { version = "0.8.5", features = [
-  "macros",
-  "runtime-tokio-rustls",
-  "postgres",
-  "uuid",
-  "chrono",
-  "rust_decimal",
+    "macros",
+    "runtime-tokio-rustls",
+    "postgres",
+    "uuid",
+    "chrono",
+    "rust_decimal",
 ] }
 sqlx_migrator = { version = "0.17.0", features = ["postgres"] }
 syn = { version = "1.0", features = ["full"] }
