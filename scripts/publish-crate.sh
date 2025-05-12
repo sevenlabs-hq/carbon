@@ -3,12 +3,10 @@
 set -ex
 
 workspace_crates=(
-    carbon-jito-protos
-    
     carbon-macros
     carbon-proc-macros
-    carbon-core
     carbon-test-utils
+    carbon-core
     carbon-postgres-client
     carbon-gql-server
 
@@ -23,7 +21,7 @@ workspace_crates=(
     carbon-log-metrics
     carbon-prometheus-metrics
 
-    address-lookup-table-decoder
+    carbon-address-lookup-table-decoder
     carbon-associated-token-account-decoder
     carbon-boop-decoder
     carbon-drift-v2-decoder
