@@ -33,9 +33,11 @@ use solana_program::hash::Hash;
 use {
     crate::{
         collection::InstructionDecoderCollection,
+        datasource::TransactionUpdate,
         error::CarbonResult,
         instruction::{DecodedInstruction, InstructionMetadata, NestedInstruction},
         metrics::MetricsCollection,
+        pipeline::GENERIC_DATASOURCE_NAME,
         processor::Processor,
         schema::{ParsedInstruction, TransactionSchema},
         transformers,
@@ -72,6 +74,7 @@ pub struct TransactionMetadata {
     pub message: solana_program::message::VersionedMessage,
     pub block_time: Option<i64>,
     pub block_hash: Option<Hash>,
+    pub source: String,
 }
 
 impl Default for TransactionMetadata {
@@ -86,6 +89,7 @@ impl Default for TransactionMetadata {
             ),
             block_time: None,
             block_hash: None,
+            source: GENERIC_DATASOURCE_NAME.into(),
         }
     }
 }
@@ -126,6 +130,7 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
             message: value.transaction.message.clone(),
             block_time: value.block_time,
             block_hash: value.block_hash,
+            source: value.source,
         })
     }
 }
@@ -141,6 +146,11 @@ pub type TransactionProcessorInputType<T, U = ()> = (
     Option<U>,
 );
 
+#[derive(Default, Clone, Debug)]
+pub struct TransactionPipeFilters {
+    pub sources: Vec<String>,
+}
+
 /// A pipe for processing transactions based on a defined schema and processor.
 ///
 /// The `TransactionPipe` parses a transaction's instructions, optionally checks
@@ -154,6 +164,7 @@ pub type TransactionProcessorInputType<T, U = ()> = (
 /// - `U`: The output type for the matched data, if schema-matching,
 ///   implementing `DeserializeOwned`.
 pub struct TransactionPipe<T: InstructionDecoderCollection, U> {
+    filters: TransactionPipeFilters,
     schema: Option<TransactionSchema<T>>,
     processor: Box<dyn Processor<InputType = TransactionProcessorInputType<T, U>> + Send + Sync>,
 }
@@ -183,6 +194,7 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
             + Send
             + Sync
             + 'static,
+        filters: TransactionPipeFilters,
     ) -> Self {
         log::trace!(
             "TransactionPipe::new(schema: {:?}, processor: {:?})",
@@ -190,6 +202,7 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
             stringify!(processor)
         );
         Self {
+            filters,
             schema,
             processor: Box::new(processor),
         }
@@ -285,6 +298,8 @@ pub trait TransactionPipes<'a>: Send + Sync {
         instructions: &[NestedInstruction],
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
+
+    fn filter(&mut self, update: &TransactionUpdate) -> bool;
 }
 
 #[async_trait]
@@ -322,5 +337,9 @@ where
             .await?;
 
         Ok(())
+    }
+
+    fn filter(&mut self, update: &TransactionUpdate) -> bool {
+        self.filters.sources.is_empty() || self.filters.sources.contains(&update.source)
     }
 }

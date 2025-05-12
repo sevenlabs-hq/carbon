@@ -65,6 +65,7 @@ impl YellowstoneGrpcGeyserClient {
 impl Datasource for YellowstoneGrpcGeyserClient {
     async fn consume(
         &self,
+        name: String,
         sender: &Sender<Update>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
@@ -154,6 +155,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                             let account_deletion = AccountDeletion {
                                                                 pubkey: account_pubkey,
                                                                 slot: account_update.slot,
+                                                                source: name.clone(),
                                                             };
                                                             if let Err(e) = sender.try_send(
                                                                 Update::AccountDeletion(account_deletion),
@@ -166,6 +168,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                             pubkey: account_pubkey,
                                                             account,
                                                             slot: account_update.slot,
+                                                            source: name.clone(),
                                                         });
 
                                                         if let Err(e) = sender.try_send(update) {
@@ -233,6 +236,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                         slot: transaction_update.slot,
                                                         block_time: None,
                                                         block_hash: None,
+                                                        source: name.clone(),
                                                     }));
                                                     if let Err(e) = sender.try_send(update) {
                                                         log::error!("Failed to send transaction update with signature {:?} at slot {}: {:?}", signature, transaction_update.slot, e);
