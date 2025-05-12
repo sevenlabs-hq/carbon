@@ -80,7 +80,7 @@ carbon-virtuals-decoder = { path = "decoders/virtuals-decoder", version = "0.8.1
 carbon-zeta-decoder = { path = "decoders/zeta-decoder", version = "0.8.1" }
 
 # misc
-carbon-jito-protos = { path = "misc/jito-protos" }
+carbon-jito-protos = { path = "misc/jito-protos", version = "0.2.4" }
 
 # solana
 solana-account = "2.2"
