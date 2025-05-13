@@ -6,8 +6,27 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub struct InitializeMint {
     pub decimals: u8,
     pub mint_authority: solana_pubkey::Pubkey,
-    // TODO: It's COPTION on github so don't know
+    #[serde(with = "coption_as_option")]
     pub freeze_authority: Option<solana_pubkey::Pubkey>,
+}
+
+mod coption_as_option {
+    use serde::{self, Serializer, Deserializer, Serialize, Deserialize};
+    use solana_program::pubkey::Pubkey;
+
+    pub fn serialize<S>(val: &Option<Pubkey>, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: Serializer,
+    {
+        val.serialize(serializer)
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<Pubkey>, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        Option::<Pubkey>::deserialize(deserializer)
+    }
 }
 
 pub struct InitializeMintAccounts {
