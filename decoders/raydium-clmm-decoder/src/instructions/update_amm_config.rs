@@ -9,6 +9,7 @@ pub struct UpdateAmmConfig {
     pub value: u32,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct UpdateAmmConfigInstructionAccounts {
     pub owner: solana_pubkey::Pubkey,
     pub amm_config: solana_pubkey::Pubkey,

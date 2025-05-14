@@ -16,6 +16,7 @@ pub struct OpenPositionWithToken22Nft {
     pub base_flag: Option<bool>,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct OpenPositionWithToken22NftInstructionAccounts {
     pub payer: solana_pubkey::Pubkey,
     pub position_nft_owner: solana_pubkey::Pubkey,

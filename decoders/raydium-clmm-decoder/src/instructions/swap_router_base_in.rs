@@ -10,6 +10,7 @@ pub struct SwapRouterBaseIn {
     pub amount_out_minimum: u64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct SwapRouterBaseInInstructionAccounts {
     pub payer: solana_pubkey::Pubkey,
     pub input_token_account: solana_pubkey::Pubkey,
