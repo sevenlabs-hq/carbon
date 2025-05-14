@@ -7,16 +7,10 @@ edition = { workspace = true }
 carbon-core = { workspace = true }
 carbon-log-metrics = { workspace = true }
 carbon-meteora-dlmm-decoder = { workspace = true }
-carbon-pumpfun-decoder = { workspace = true }
 carbon-rpc-transaction-crawler-datasource = { workspace = true }
-solana-client = { workspace = true }
-solana-pubkey = { workspace = true }
-solana-sdk = { workspace = true }
-solana-transaction-status = { workspace = true }
+solana-commitment-config = { workspace = true }
 
 async-trait = { workspace = true }
 dotenv = { workspace = true }
 env_logger = { workspace = true }
-log = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
-yellowstone-grpc-proto = { workspace = true }

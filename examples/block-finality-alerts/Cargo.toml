@@ -8,7 +8,7 @@ carbon-core = { workspace = true }
 carbon-log-metrics = { workspace = true }
 carbon-rpc-block-subscribe-datasource = { workspace = true }
 solana-client = { workspace = true }
-solana-sdk = { workspace = true }
+solana-commitment-config = { workspace = true }
 solana-transaction-status = { workspace = true }
 
 async-trait = { workspace = true }

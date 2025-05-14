@@ -9,8 +9,6 @@ carbon-log-metrics = { workspace = true }
 carbon-raydium-cpmm-decoder = { workspace = true }
 carbon-rpc-block-subscribe-datasource = { workspace = true }
 solana-client = { workspace = true }
-solana-pubkey = { workspace = true }
-solana-transaction-status = { workspace = true }
 
 async-trait = { workspace = true }
 dotenv = { workspace = true }

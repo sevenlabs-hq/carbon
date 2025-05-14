@@ -81,9 +81,7 @@ impl Default for TransactionMetadata {
             signature: Signature::new_unique(),
             fee_payer: Pubkey::new_unique(),
             meta: solana_transaction_status::TransactionStatusMeta::default(),
-            message: solana_sdk::message::VersionedMessage::Legacy(
-                solana_sdk::message::Message::default(),
-            ),
+            message: solana_message::VersionedMessage::Legacy(solana_message::Message::default()),
             block_time: None,
             block_hash: None,
         }

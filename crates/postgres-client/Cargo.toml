@@ -8,9 +8,7 @@ keywords = ["solana", "indexer", "postgres", "db"]
 categories = ["encoding"]
 
 [dependencies]
-chrono = { workspace = true }
 juniper = { workspace = true }
-juniper_graphql_ws = { workspace = true }
 sqlx = { workspace = true }
 sqlx_migrator = { workspace = true }
 

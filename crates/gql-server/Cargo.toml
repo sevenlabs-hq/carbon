@@ -12,7 +12,6 @@ axum = { workspace = true }
 carbon-postgres-client = { workspace = true }
 juniper = { workspace = true }
 juniper_axum = { workspace = true }
-juniper_codegen = { workspace = true }
 juniper_graphql_ws = { workspace = true }
 serde = { workspace = true }
 solana-pubkey = { workspace = true }

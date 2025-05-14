@@ -1,5 +1,5 @@
 use carbon_core::datasource::BlockDetails;
-use solana_sdk::commitment_config::CommitmentConfig;
+use solana_commitment_config::CommitmentConfig;
 use solana_transaction_status::TransactionDetails;
 use {
     async_trait::async_trait,

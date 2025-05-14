@@ -1,5 +1,5 @@
 pub use solana_client::rpc_config::RpcBlockConfig;
-use solana_sdk::hash::Hash;
+use solana_hash::Hash;
 use std::str::FromStr;
 use {
     async_trait::async_trait,
@@ -11,7 +11,7 @@ use {
     },
     futures::StreamExt,
     solana_client::{nonblocking::rpc_client::RpcClient, rpc_client::SerializableTransaction},
-    solana_sdk::commitment_config::CommitmentConfig,
+    solana_commitment_config::CommitmentConfig,
     solana_transaction_status::UiConfirmedBlock,
     std::{
         sync::Arc,

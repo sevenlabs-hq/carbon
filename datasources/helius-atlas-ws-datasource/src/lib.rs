@@ -17,8 +17,8 @@ use {
     solana_clock::Clock,
     solana_program::{instruction::CompiledInstruction, message::v0::LoadedAddresses},
     solana_pubkey::Pubkey,
-    solana_sdk::transaction_context::TransactionReturnData,
     solana_signature::Signature,
+    solana_transaction_context::TransactionReturnData,
     solana_transaction_status::{
         option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
         TransactionStatusMeta, TransactionTokenBalance, UiInstruction, UiLoadedAddresses,
