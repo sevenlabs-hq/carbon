@@ -8,10 +8,6 @@ license = { workspace = true }
 carbon-core = { workspace = true }
 carbon-kamino-lending-decoder = { workspace = true }
 carbon-yellowstone-grpc-datasource = { workspace = true }
-solana-client = { workspace = true }
-solana-pubkey = { workspace = true }
-solana-sdk = { workspace = true }
-solana-transaction-status = { workspace = true }
 
 async-trait = { workspace = true }
 dotenv = { workspace = true }

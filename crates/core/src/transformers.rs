@@ -35,11 +35,7 @@ use {
         message::{v0::LoadedAddresses, VersionedMessage},
     },
     solana_pubkey::Pubkey,
-    solana_sdk::{
-        transaction_context::TransactionReturnData, /* TODO: replace with
-                                                    * solana_transaction_context after release
-                                                    * of 2.2.0 */
-    },
+    solana_transaction_context::TransactionReturnData,
     solana_transaction_status::{
         option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
         TransactionStatusMeta, TransactionTokenBalance, UiInstruction, UiLoadedAddresses,
@@ -487,16 +483,14 @@ mod tests {
         crate::instruction::{InstructionsWithMetadata, NestedInstructions},
         carbon_test_utils::base58_deserialize,
         solana_account_decoder_client_types::token::UiTokenAmount,
-        solana_sdk::{
-            hash::Hash,
-            message::{
-                legacy::Message,
-                v0::{self, MessageAddressTableLookup},
-                MessageHeader,
-            },
-            transaction::VersionedTransaction,
+        solana_hash::Hash,
+        solana_message::{
+            legacy::Message,
+            v0::{self, MessageAddressTableLookup},
+            MessageHeader,
         },
         solana_signature::Signature,
+        solana_transaction::versioned::VersionedTransaction,
         std::vec,
     };
 
