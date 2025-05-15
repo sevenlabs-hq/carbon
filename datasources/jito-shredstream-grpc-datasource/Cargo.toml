@@ -15,7 +15,6 @@ crate-type = ["rlib"]
 [dependencies]
 solana-client = { workspace = true }
 solana-entry = { workspace = true }
-solana-sdk = { workspace = true }
 solana-transaction-status = { workspace = true }
 
 carbon-core = { workspace = true }
@@ -23,9 +22,7 @@ carbon-core = { workspace = true }
 async-trait = { workspace = true }
 bincode = { workspace = true }
 carbon-jito-protos = { workspace = true }
-env_logger = { workspace = true }
 futures = { workspace = true }
-futures-util = { workspace = true }
 log = { workspace = true }
 scc = "2.3.4"
 tokio = { workspace = true, features = ["full"] }

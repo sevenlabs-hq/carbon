@@ -11,7 +11,7 @@ use {
         instructions::MeteoraDlmmInstruction, MeteoraDlmmDecoder, PROGRAM_ID as METEORA_PROGRAM_ID,
     },
     carbon_rpc_transaction_crawler_datasource::{Filters, RpcTransactionCrawler},
-    solana_sdk::commitment_config::CommitmentConfig,
+    solana_commitment_config::CommitmentConfig,
     std::{env, sync::Arc, time::Duration},
 };
 
