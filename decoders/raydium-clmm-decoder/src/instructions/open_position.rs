@@ -14,6 +14,7 @@ pub struct OpenPosition {
     pub amount1_max: u64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct OpenPositionInstructionAccounts {
     pub payer: solana_pubkey::Pubkey,
     pub position_nft_owner: solana_pubkey::Pubkey,

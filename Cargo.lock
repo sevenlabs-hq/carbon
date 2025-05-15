@@ -1613,6 +1613,9 @@ name = "carbon-raydium-clmm-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "carbon-test-utils",
  "serde",
  "solana-account",
  "solana-instruction",

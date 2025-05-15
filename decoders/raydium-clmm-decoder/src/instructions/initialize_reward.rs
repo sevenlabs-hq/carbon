@@ -11,6 +11,7 @@ pub struct InitializeReward {
     pub param: InitializeRewardParam,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct InitializeRewardInstructionAccounts {
     pub reward_funder: solana_pubkey::Pubkey,
     pub funder_token_account: solana_pubkey::Pubkey,

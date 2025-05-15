@@ -12,6 +12,7 @@ pub struct CreateAmmConfig {
     pub fund_fee_rate: u32,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct CreateAmmConfigInstructionAccounts {
     pub owner: solana_pubkey::Pubkey,
     pub amm_config: solana_pubkey::Pubkey,

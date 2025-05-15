@@ -10,6 +10,7 @@ pub struct DecreaseLiquidity {
     pub amount1_min: u64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct DecreaseLiquidityInstructionAccounts {
     pub nft_owner: solana_pubkey::Pubkey,
     pub nft_account: solana_pubkey::Pubkey,

@@ -12,6 +12,7 @@ pub struct Swap {
     pub is_base_input: bool,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct SwapInstructionAccounts {
     pub payer: solana_pubkey::Pubkey,
     pub amm_config: solana_pubkey::Pubkey,

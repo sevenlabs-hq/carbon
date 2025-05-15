@@ -11,6 +11,7 @@ pub struct SetRewardParams {
     pub end_time: u64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct SetRewardParamsInstructionAccounts {
     pub authority: solana_pubkey::Pubkey,
     pub amm_config: solana_pubkey::Pubkey,

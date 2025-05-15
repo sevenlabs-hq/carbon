@@ -9,6 +9,7 @@ pub struct CollectProtocolFee {
     pub amount1_requested: u64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct CollectProtocolFeeInstructionAccounts {
     pub owner: solana_pubkey::Pubkey,
     pub pool_state: solana_pubkey::Pubkey,

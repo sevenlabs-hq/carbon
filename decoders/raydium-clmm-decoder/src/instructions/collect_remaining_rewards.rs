@@ -8,6 +8,7 @@ pub struct CollectRemainingRewards {
     pub reward_index: u8,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct CollectRemainingRewardsInstructionAccounts {
     pub reward_funder: solana_pubkey::Pubkey,
     pub funder_token_account: solana_pubkey::Pubkey,

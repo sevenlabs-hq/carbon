@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x7b86510031446262")]
 pub struct ClosePosition {}
 
+#[derive(Debug, PartialEq)]
 pub struct ClosePositionInstructionAccounts {
     pub nft_owner: solana_pubkey::Pubkey,
     pub position_nft_mint: solana_pubkey::Pubkey,

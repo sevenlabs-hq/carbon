@@ -8,6 +8,7 @@ pub struct UpdatePoolStatus {
     pub status: u8,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct UpdatePoolStatusInstructionAccounts {
     pub authority: solana_pubkey::Pubkey,
     pub pool_state: solana_pubkey::Pubkey,

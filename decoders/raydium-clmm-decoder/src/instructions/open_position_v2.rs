@@ -16,6 +16,7 @@ pub struct OpenPositionV2 {
     pub base_flag: Option<bool>,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct OpenPositionV2InstructionAccounts {
     pub payer: solana_pubkey::Pubkey,
     pub position_nft_owner: solana_pubkey::Pubkey,
