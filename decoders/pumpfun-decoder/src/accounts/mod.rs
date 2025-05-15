@@ -6,17 +6,15 @@ use crate::PROGRAM_ID;
 use super::PumpfunDecoder;
 pub mod bonding_curve;
 pub mod global;
-pub mod last_withdraw;
 
 #[allow(clippy::large_enum_variant)]
-pub enum PumpAccount {
+pub enum PumpfunAccount {
     BondingCurve(bonding_curve::BondingCurve),
     Global(global::Global),
-    LastWithdraw(last_withdraw::LastWithdraw),
 }
 
 impl AccountDecoder<'_> for PumpfunDecoder {
-    type AccountType = PumpAccount;
+    type AccountType = PumpfunAccount;
     fn decode_account(
         &self,
         account: &solana_account::Account,
@@ -30,7 +28,7 @@ impl AccountDecoder<'_> for PumpfunDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: PumpAccount::BondingCurve(decoded_account),
+                data: PumpfunAccount::BondingCurve(decoded_account),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -40,19 +38,7 @@ impl AccountDecoder<'_> for PumpfunDecoder {
         if let Some(decoded_account) = global::Global::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: PumpAccount::Global(decoded_account),
-                owner: account.owner,
-                executable: account.executable,
-                rent_epoch: account.rent_epoch,
-            });
-        }
-
-        if let Some(decoded_account) =
-            last_withdraw::LastWithdraw::deserialize(account.data.as_slice())
-        {
-            return Some(carbon_core::account::DecodedAccount {
-                lamports: account.lamports,
-                data: PumpAccount::LastWithdraw(decoded_account),
+                data: PumpfunAccount::Global(decoded_account),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -65,7 +51,7 @@ impl AccountDecoder<'_> for PumpfunDecoder {
 
 #[cfg(test)]
 mod tests {
-    use solana_pubkey::Pubkey;
+    use solana_pubkey::pubkey;
 
     use super::*;
 
@@ -73,10 +59,10 @@ mod tests {
     fn test_decode_bonding_curve_account() {
         // Arrange
         let expected_bonding_curve = bonding_curve::BondingCurve {
-            virtual_token_reserves: 1072906494066221,
-            virtual_sol_reserves: 30002615555,
-            real_token_reserves: 793006494066221,
-            real_sol_reserves: 2615555,
+            virtual_token_reserves: 1072911112000000,
+            virtual_sol_reserves: 30002485430,
+            real_token_reserves: 793011112000000,
+            real_sol_reserves: 2485430,
             token_total_supply: 1000000000000000,
             complete: false,
         };
@@ -89,7 +75,7 @@ mod tests {
 
         // Assert
         match decoded_account.data {
-            PumpAccount::BondingCurve(bonding_curve) => {
+            PumpfunAccount::BondingCurve(bonding_curve) => {
                 assert_eq!(
                     expected_bonding_curve.virtual_token_reserves,
                     bonding_curve.virtual_token_reserves
@@ -121,26 +107,24 @@ mod tests {
         // Arrange
         let expected_global_account = global::Global {
             initialized: true,
-            authority: Pubkey::from_str_const("FFWtrEQ4B4PKQoVuHYzZq8FabGkVatYzDpEVHsK5rrhF"),
-            withdraw_authority: Pubkey::from_str_const(
-                "39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg",
-            ),
-            fee_recipient: Pubkey::from_str_const("62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV"),
+            authority: pubkey!("FFWtrEQ4B4PKQoVuHYzZq8FabGkVatYzDpEVHsK5rrhF"),
+            withdraw_authority: pubkey!("39azUYFWPz3VHgKCf3VChUwbpURdCHRxjWVowf5jUJjg"),
+            fee_recipient: pubkey!("62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV"),
             initial_virtual_token_reserves: 1073000000000000,
             initial_virtual_sol_reserves: 30000000000,
             initial_real_token_reserves: 793100000000000,
             token_total_supply: 1000000000000000,
-            fee_basis_points: 100,
+            fee_basis_points: 95,
             pool_migration_fee: 15000001,
             enable_migrate: true,
             fee_recipients: [
-                Pubkey::from_str_const("7VtfL8fvgNfhz17qKRMjzQEXgbdpnHHHQRh54R9jP2RJ"),
-                Pubkey::from_str_const("7hTckgnGnLQR6sdH7YkqFTAA7VwTfYFaZ6EhEsU3saCX"),
-                Pubkey::from_str_const("9rPYyANsfQZw3DnDmKE3YCQF5E8oD89UXoHn9JFEhJUz"),
-                Pubkey::from_str_const("AVmoTthdrX6tKt4nDjco2D775W2YK3sDhxPcMmzUAmTY"),
-                Pubkey::from_str_const("CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM"),
-                Pubkey::from_str_const("FWsW1xNtWscwNmKv6wVsU1iTzRN6wmmk3MjxRP5tT7hz"),
-                Pubkey::from_str_const("G5UZAVbAf46s7cKWoyKu8kYTip9DGTpbLZ2qa9Aq69dP"),
+                pubkey!("7VtfL8fvgNfhz17qKRMjzQEXgbdpnHHHQRh54R9jP2RJ"),
+                pubkey!("7hTckgnGnLQR6sdH7YkqFTAA7VwTfYFaZ6EhEsU3saCX"),
+                pubkey!("9rPYyANsfQZw3DnDmKE3YCQF5E8oD89UXoHn9JFEhJUz"),
+                pubkey!("AVmoTthdrX6tKt4nDjco2D775W2YK3sDhxPcMmzUAmTY"),
+                pubkey!("CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM"),
+                pubkey!("FWsW1xNtWscwNmKv6wVsU1iTzRN6wmmk3MjxRP5tT7hz"),
+                pubkey!("G5UZAVbAf46s7cKWoyKu8kYTip9DGTpbLZ2qa9Aq69dP"),
             ],
             ..Default::default()
         };
@@ -153,7 +137,7 @@ mod tests {
 
         // Assert
         match decoded_account.data {
-            PumpAccount::Global(global_account) => {
+            PumpfunAccount::Global(global_account) => {
                 assert_eq!(
                     expected_global_account.initialized,
                     global_account.initialized
@@ -185,31 +169,6 @@ mod tests {
                 );
             }
             _ => panic!("Expected Global"),
-        }
-    }
-
-    #[test]
-    fn test_decode_last_withdraw_account() {
-        // Arrange
-        let expected_last_withdraw_account = last_withdraw::LastWithdraw {
-            last_withdraw_timestamp: 1741550682,
-        };
-
-        // Act
-        let decoder = PumpfunDecoder;
-        let account = carbon_test_utils::read_account("tests/fixtures/last_withdraw_account.json")
-            .expect("read fixture");
-        let decoded_account = decoder.decode_account(&account).expect("decode fixture");
-
-        // Assert
-        match decoded_account.data {
-            PumpAccount::LastWithdraw(last_withdraw) => {
-                assert_eq!(
-                    expected_last_withdraw_account.last_withdraw_timestamp,
-                    last_withdraw.last_withdraw_timestamp
-                );
-            }
-            _ => panic!("Expected LastWithdraw"),
         }
     }
 }

@@ -1,8 +1,9 @@
-use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+
+use carbon_core::{CarbonDeserialize, borsh};
+
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 pub struct CreatePoolEvent {
     pub timestamp: i64,
     pub index: u16,
@@ -23,4 +24,5 @@ pub struct CreatePoolEvent {
     pub lp_mint: solana_pubkey::Pubkey,
     pub user_base_token_account: solana_pubkey::Pubkey,
     pub user_quote_token_account: solana_pubkey::Pubkey,
+    pub coin_creator: solana_pubkey::Pubkey,
 }

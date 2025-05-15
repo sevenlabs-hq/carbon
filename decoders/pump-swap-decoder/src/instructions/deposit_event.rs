@@ -1,10 +1,11 @@
+
+
 use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 #[carbon(discriminator = "0xe445a52e51cb9a1d78f83d531f8e6b90")]
-pub struct DepositEvent {
+pub struct DepositEvent{
     pub timestamp: i64,
     pub lp_token_amount_out: u64,
     pub max_base_amount_in: u64,
