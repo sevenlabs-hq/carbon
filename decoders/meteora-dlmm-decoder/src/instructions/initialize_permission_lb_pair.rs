@@ -11,6 +11,7 @@ pub struct InitializePermissionLbPair {
     pub ix_data: InitPermissionPairIx,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct InitializePermissionLbPairInstructionAccounts {
     pub base: solana_pubkey::Pubkey,
     pub lb_pair: solana_pubkey::Pubkey,

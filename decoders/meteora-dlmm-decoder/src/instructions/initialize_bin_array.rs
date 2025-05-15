@@ -8,6 +8,7 @@ pub struct InitializeBinArray {
     pub index: i64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct InitializeBinArrayInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
     pub bin_array: solana_pubkey::Pubkey,

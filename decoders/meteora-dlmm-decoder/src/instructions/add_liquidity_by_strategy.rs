@@ -11,6 +11,7 @@ pub struct AddLiquidityByStrategy {
     pub liquidity_parameter: LiquidityParameterByStrategy,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct AddLiquidityByStrategyInstructionAccounts {
     pub position: solana_pubkey::Pubkey,
     pub lb_pair: solana_pubkey::Pubkey,

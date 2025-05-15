@@ -10,6 +10,7 @@ pub struct SwapWithPriceImpact {
     pub max_price_impact_bps: u16,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct SwapWithPriceImpactInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
     pub bin_array_bitmap_extension: solana_pubkey::Pubkey,

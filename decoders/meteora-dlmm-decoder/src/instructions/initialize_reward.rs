@@ -10,6 +10,7 @@ pub struct InitializeReward {
     pub funder: solana_pubkey::Pubkey,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct InitializeRewardInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
     pub reward_vault: solana_pubkey::Pubkey,

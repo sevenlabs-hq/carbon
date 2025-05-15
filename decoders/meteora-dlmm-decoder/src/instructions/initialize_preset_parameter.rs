@@ -11,6 +11,7 @@ pub struct InitializePresetParameter {
     pub ix: InitPresetParametersIx,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct InitializePresetParameterInstructionAccounts {
     pub preset_parameter: solana_pubkey::Pubkey,
     pub admin: solana_pubkey::Pubkey,

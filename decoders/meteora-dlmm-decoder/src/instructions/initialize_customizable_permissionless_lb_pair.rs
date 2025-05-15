@@ -11,6 +11,7 @@ pub struct InitializeCustomizablePermissionlessLbPair {
     pub params: CustomizableParams,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct InitializeCustomizablePermissionlessLbPairInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
     pub bin_array_bitmap_extension: solana_pubkey::Pubkey,
