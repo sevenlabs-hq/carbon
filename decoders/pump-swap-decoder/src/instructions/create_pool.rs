@@ -1,15 +1,18 @@
-use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+
+use carbon_core::{CarbonDeserialize, borsh};
+
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 #[carbon(discriminator = "0xe992d18ecf6840bc")]
-pub struct CreatePool {
+pub struct CreatePool{
     pub index: u16,
     pub base_amount_in: u64,
     pub quote_amount_in: u64,
+    pub coin_creator: solana_pubkey::Pubkey,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct CreatePoolInstructionAccounts {
     pub pool: solana_pubkey::Pubkey,
     pub global_config: solana_pubkey::Pubkey,
@@ -34,14 +37,31 @@ pub struct CreatePoolInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CreatePool {
     type ArrangedAccounts = CreatePoolInstructionAccounts;
 
-    fn arrange_accounts(
-        accounts: &[solana_instruction::AccountMeta],
-    ) -> Option<Self::ArrangedAccounts> {
-        let [pool, global_config, creator, base_mint, quote_mint, lp_mint, user_base_token_account, user_quote_token_account, user_pool_token_account, pool_base_token_account, pool_quote_token_account, system_program, token_2022_program, base_token_program, quote_token_program, associated_token_program, event_authority, program, _remaining @ ..] =
-            accounts
-        else {
+    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
+        let [
+            pool,
+            global_config,
+            creator,
+            base_mint,
+            quote_mint,
+            lp_mint,
+            user_base_token_account,
+            user_quote_token_account,
+            user_pool_token_account,
+            pool_base_token_account,
+            pool_quote_token_account,
+            system_program,
+            token_2022_program,
+            base_token_program,
+            quote_token_program,
+            associated_token_program,
+            event_authority,
+            program,
+            _remaining @ ..
+        ] = accounts else {
             return None;
         };
+       
 
         Some(CreatePoolInstructionAccounts {
             pool: pool.pubkey,

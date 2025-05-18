@@ -1,11 +1,14 @@
-use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+
+use carbon_core::{CarbonDeserialize, borsh};
+
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 #[carbon(discriminator = "0xea66c2cb96483ee5")]
-pub struct ExtendAccount {}
+pub struct ExtendAccount{
+}
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct ExtendAccountInstructionAccounts {
     pub account: solana_pubkey::Pubkey,
     pub user: solana_pubkey::Pubkey,
@@ -17,13 +20,18 @@ pub struct ExtendAccountInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for ExtendAccount {
     type ArrangedAccounts = ExtendAccountInstructionAccounts;
 
-    fn arrange_accounts(
-        accounts: &[solana_instruction::AccountMeta],
-    ) -> Option<Self::ArrangedAccounts> {
-        let [account, user, system_program, event_authority, program, _remaining @ ..] = accounts
-        else {
+    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
+        let [
+            account,
+            user,
+            system_program,
+            event_authority,
+            program,
+            _remaining @ ..
+        ] = accounts else {
             return None;
         };
+       
 
         Some(ExtendAccountInstructionAccounts {
             account: account.pubkey,

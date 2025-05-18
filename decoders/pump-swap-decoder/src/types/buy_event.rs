@@ -1,8 +1,9 @@
-use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+
+use carbon_core::{CarbonDeserialize, borsh};
+
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 pub struct BuyEvent {
     pub timestamp: i64,
     pub base_amount_out: u64,
@@ -24,4 +25,7 @@ pub struct BuyEvent {
     pub user_quote_token_account: solana_pubkey::Pubkey,
     pub protocol_fee_recipient: solana_pubkey::Pubkey,
     pub protocol_fee_recipient_token_account: solana_pubkey::Pubkey,
+    pub coin_creator: solana_pubkey::Pubkey,
+    pub coin_creator_fee_basis_points: u64,
+    pub coin_creator_fee: u64,
 }
