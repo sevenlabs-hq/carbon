@@ -1,8 +1,9 @@
-use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+
+use carbon_core::{CarbonDeserialize, borsh};
+
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 pub struct Global {
     pub initialized: bool,
     pub authority: solana_pubkey::Pubkey,
@@ -15,6 +16,7 @@ pub struct Global {
     pub withdraw_authority: solana_pubkey::Pubkey,
     pub enable_migrate: bool,
     pub pool_migration_fee: u64,
-    pub creator_fee: u64,
+    pub creator_fee_basis_points: u64,
     pub fee_recipients: [solana_pubkey::Pubkey; 7],
+    pub set_creator_authority: solana_pubkey::Pubkey,
 }
