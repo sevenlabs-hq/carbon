@@ -40,14 +40,17 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: true
-      - name: Install stable
-        uses: dtolnay/rust-toolchain@stable
+
+      - name: Stable Rust
+        uses: actions-rs/toolchain@v1
         with:
-          components: clippy
+          toolchain: stable
+
+      - name: Install `clippy`
+        run: rustup component add  clippy --toolchain 1.84.1
+
       - name: cargo clippy
-        uses: actions-rs/clippy-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+        run: cargo clippy --all-targets --all-features -- -D warnings
 
   cargo_sort:
     runs-on: ubuntu-latest
