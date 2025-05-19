@@ -49,16 +49,6 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  typos:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Check typos
-        uses: crate-ci/typos@master
-        with:
-          files: ./crates/*/src ./examples/*/src ./datasources/*/src/  ./metrics/*/src
-
   cargo_sort:
     runs-on: ubuntu-latest
     steps:

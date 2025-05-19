@@ -288,7 +288,6 @@ The following checks will be performed:
 
 - fmt: Checks code formatting using `cargo fmt --check`.
 - clippy: Runs `clippy` on the codebase to catch potential issues.
-- typos: Uses the `typos` tool to check for typos in specific directories.
 - cargo_sort: Utilizes `cargo-sort` to ensure Cargo.toml files are sorted correctly.
 - machete: Checks for unused Cargo dependencies using `cargo-machete`.
 

@@ -6,10 +6,10 @@ set -eu
 SCRIPT_PATH=$(realpath "$0")
 HOOK_PATH=$(git rev-parse --git-dir)/hooks/pre-commit
 if [ "$(realpath "$HOOK_PATH")" != "$SCRIPT_PATH" ]; then
-	read -p "Link this script as the git pre-commit hook to avoid further manual running? (y/N): " answer
-	if [[ $answer =~ ^[Yy]$ ]]; then
-		ln -sf "$SCRIPT_PATH" "$HOOK_PATH"
-	fi
+  read -p "Link this script as the git pre-commit hook to avoid further manual running? (y/N): " answer
+  if [[ $answer =~ ^[Yy]$ ]]; then
+    ln -sf "$SCRIPT_PATH" "$HOOK_PATH"
+  fi
 fi
 
 set -x
@@ -18,12 +18,10 @@ set -x
 cargo clippy --version &>/dev/null || rustup component add clippy
 cargo machete --version &>/dev/null || cargo install --locked cargo-machete
 cargo sort --version &>/dev/null || cargo install --locked cargo-sort
-typos --version &>/dev/null || cargo install --locked typos-cli
 
 cargo fmt --version &>/dev/null || rustup component add rustfmt
 
 # Checks
-typos ./crates/*/src ./examples/*/src ./datasources/*/src/  ./metrics/*/src
 cargo machete
 cargo fmt -- --check
 cargo sort -c

@@ -1,11 +1,10 @@
-
-
 use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xe445a52e51cb9a1d1609851aa02c47c0")]
-pub struct WithdrawEvent{
+pub struct WithdrawEvent {
     pub timestamp: i64,
     pub lp_token_amount_in: u64,
     pub min_base_amount_out: u64,

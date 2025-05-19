@@ -30,4 +30,3 @@ impl carbon_core::deserialize::ArrangeAccounts for Initialize {
         })
     }
 }
-

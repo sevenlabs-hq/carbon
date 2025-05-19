@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xa039592ab58b2b42")]
-pub struct CollectCoinCreatorFee{
-}
+pub struct CollectCoinCreatorFee {}
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct CollectCoinCreatorFeeInstructionAccounts {
@@ -23,21 +21,14 @@ pub struct CollectCoinCreatorFeeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CollectCoinCreatorFee {
     type ArrangedAccounts = CollectCoinCreatorFeeInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            quote_mint,
-            quote_token_program,
-            coin_creator,
-            coin_creator_vault_authority,
-            coin_creator_vault_ata,
-            coin_creator_token_account,
-            event_authority,
-            program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [quote_mint, quote_token_program, coin_creator, coin_creator_vault_authority, coin_creator_vault_ata, coin_creator_token_account, event_authority, program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(CollectCoinCreatorFeeInstructionAccounts {
             quote_mint: quote_mint.pubkey,
