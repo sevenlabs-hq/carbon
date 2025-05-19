@@ -8,7 +8,7 @@ use {
 };
 
 pub fn legacy_read_idl(idl_path: &str) -> Result<LegacyIdl> {
-    let file = File::open(idl_path).unwrap();
+    let file = File::open(idl_path).expect("Failed to open file");
 
     match serde_json::from_reader(file) {
         Ok(idl) => Ok(idl),
@@ -20,7 +20,7 @@ pub fn legacy_read_idl(idl_path: &str) -> Result<LegacyIdl> {
 }
 
 pub fn read_idl(idl_path: &str) -> Result<Idl> {
-    let file = File::open(idl_path).unwrap();
+    let file = File::open(idl_path).expect("Failed to open file");
     match serde_json::from_reader(file) {
         Ok(idl) => Ok(idl),
         Err(e) => {

@@ -210,7 +210,7 @@ pub fn get_event_discriminator(event_name: &str) -> String {
 }
 
 pub fn read_codama_idl(idl_path: &str) -> Result<RootNode> {
-    let file = File::open(idl_path).unwrap();
+    let file = File::open(idl_path).expect("Failed to open file");
     match serde_json::from_reader(file) {
         Ok(idl) => Ok(idl),
         Err(e) => {

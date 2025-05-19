@@ -145,7 +145,7 @@ fn process_instructions<F1, F2>(
         if let Some(inner_instructions) = inner {
             for inner_tx in inner_instructions {
                 if inner_tx.index as usize == i {
-                    let mut path_stack = vec![0; MAX_INSTRUCTION_STACK_DEPTH];
+                    let mut path_stack = [0; MAX_INSTRUCTION_STACK_DEPTH];
                     path_stack[0] = inner_tx.index;
                     let mut prev_height = 0;
 
