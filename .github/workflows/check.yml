@@ -85,3 +85,17 @@ jobs:
 
       - name: Check unused Cargo dependencies
         run: cargo machete
+
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Stable Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Check test
+        run: cargo test --all-targets --all-features
