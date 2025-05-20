@@ -38,8 +38,11 @@ impl Metrics for PrometheusMetrics {
 
         let mut result = Ok(());
         INIT.call_once(|| {
-            let builder = PrometheusBuilder::new()
-                .with_http_listener("127.0.0.1:9100".parse::<SocketAddrV4>().unwrap());
+            let builder = PrometheusBuilder::new().with_http_listener(
+                "127.0.0.1:9100"
+                    .parse::<SocketAddrV4>()
+                    .expect("Failed to parse address"),
+            );
 
             match builder.install() {
                 Ok(_handle) => {

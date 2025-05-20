@@ -22,4 +22,3 @@ pub mod trade_event;
 pub use trade_event::*;
 pub mod update_global_authority_event;
 pub use update_global_authority_event::*;
-

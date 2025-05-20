@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xb712469c946da122")]
-pub struct Withdraw{
+pub struct Withdraw {
     pub lp_token_amount_in: u64,
     pub min_base_amount_out: u64,
     pub min_quote_amount_out: u64,
@@ -33,28 +32,14 @@ pub struct WithdrawInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Withdraw {
     type ArrangedAccounts = WithdrawInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            pool,
-            global_config,
-            user,
-            base_mint,
-            quote_mint,
-            lp_mint,
-            user_base_token_account,
-            user_quote_token_account,
-            user_pool_token_account,
-            pool_base_token_account,
-            pool_quote_token_account,
-            token_program,
-            token_2022_program,
-            event_authority,
-            program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [pool, global_config, user, base_mint, quote_mint, lp_mint, user_base_token_account, user_quote_token_account, user_pool_token_account, pool_base_token_account, pool_quote_token_account, token_program, token_2022_program, event_authority, program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(WithdrawInstructionAccounts {
             pool: pool.pubkey,

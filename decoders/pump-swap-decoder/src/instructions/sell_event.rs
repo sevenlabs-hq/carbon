@@ -1,11 +1,10 @@
-
-
 use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xe445a52e51cb9a1d3e2f370aa503dc2a")]
-pub struct SellEvent{
+pub struct SellEvent {
     pub timestamp: i64,
     pub base_amount_in: u64,
     pub min_quote_amount_out: u64,

@@ -34,12 +34,12 @@ pub fn map_type(type_node: &TypeNode) -> (String, bool) {
         TypeNode::PublicKeyTypeNode => ("solana_pubkey::Pubkey".to_string(), false),
         TypeNode::BooleanTypeNode { .. } => ("bool".to_string(), false),
         TypeNode::FixedSizeTypeNode { size, r#type } => {
-            let (rust_type, requres_import) = map_type(r#type);
-            (format!("[{}; {}]", rust_type, size), requres_import)
+            let (rust_type, requires_import) = map_type(r#type);
+            (format!("[{}; {}]", rust_type, size), requires_import)
         }
         TypeNode::OptionTypeNode { item, .. } => {
-            let (rust_type, requres_import) = map_type(item);
-            (format!("Option<{}>", rust_type), requres_import)
+            let (rust_type, requires_import) = map_type(item);
+            (format!("Option<{}>", rust_type), requires_import)
         }
         TypeNode::DefinedTypeLinkNode { name } => (name.to_upper_camel_case().clone(), true),
         TypeNode::BytesTypeNode => ("u8".to_string(), false),
@@ -210,7 +210,7 @@ pub fn get_event_discriminator(event_name: &str) -> String {
 }
 
 pub fn read_codama_idl(idl_path: &str) -> Result<RootNode> {
-    let file = File::open(idl_path).unwrap();
+    let file = File::open(idl_path).expect("Failed to open file");
     match serde_json::from_reader(file) {
         Ok(idl) => Ok(idl),
         Err(e) => {

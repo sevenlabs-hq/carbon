@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x68b867f258976b14")]
-pub struct UpdateFeeConfig{
+pub struct UpdateFeeConfig {
     pub lp_fee_basis_points: u64,
     pub protocol_fee_basis_points: u64,
     pub protocol_fee_recipients: [solana_pubkey::Pubkey; 8],
@@ -23,17 +22,12 @@ pub struct UpdateFeeConfigInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UpdateFeeConfig {
     type ArrangedAccounts = UpdateFeeConfigInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            admin,
-            global_config,
-            event_authority,
-            program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [admin, global_config, event_authority, program, _remaining @ ..] = accounts else {
             return None;
         };
-       
 
         Some(UpdateFeeConfigInstructionAccounts {
             admin: admin.pubkey,

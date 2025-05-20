@@ -53,6 +53,7 @@ pub struct StructFieldTypeNode {
     pub default_value: Option<ValueNode>,
 }
 
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(rename_all = "camelCase", tag = "kind")]
 pub enum TypeNode {
@@ -132,6 +133,7 @@ pub enum TypeNode {
     },
 }
 
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(rename_all = "camelCase", tag = "kind")]
 pub enum CountNode {
@@ -140,6 +142,7 @@ pub enum CountNode {
     RemainderCountNode,
 }
 
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(rename_all = "camelCase", tag = "kind")]
 pub enum ValueNode {
@@ -150,6 +153,7 @@ pub enum ValueNode {
     BooleanValueNode { boolean: bool },
 }
 
+#[allow(clippy::enum_variant_names)]
 #[derive(Debug, Deserialize, Serialize, Clone)]
 #[serde(rename_all = "camelCase", tag = "kind")]
 pub enum EnumVariantTypeNode {

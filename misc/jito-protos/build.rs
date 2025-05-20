@@ -16,5 +16,5 @@ fn main() {
             ],
             &["protos"],
         )
-        .unwrap();
+        .expect("Failed to compile protos");
 }

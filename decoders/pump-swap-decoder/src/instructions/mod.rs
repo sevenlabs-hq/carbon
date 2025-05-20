@@ -106,4 +106,3 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpSwapDecoder {
         )
     }
 }
-
