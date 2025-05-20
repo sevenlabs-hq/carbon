@@ -122,12 +122,12 @@ impl Metrics for LogMetrics {
             };
             let min = histogram_values
                 .iter()
-                .min_by(|a, b| a.partial_cmp(b).unwrap())
+                .min_by(|a, b| a.partial_cmp(b).expect("Failed to compare"))
                 .copied()
                 .unwrap_or(0.0);
             let max = histogram_values
                 .iter()
-                .max_by(|a, b| a.partial_cmp(b).unwrap())
+                .max_by(|a, b| a.partial_cmp(b).expect("Failed to compare"))
                 .copied()
                 .unwrap_or(0.0);
 

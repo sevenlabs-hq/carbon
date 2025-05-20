@@ -20,7 +20,6 @@ pub struct Global {
     pub set_creator_authority: solana_pubkey::Pubkey,
 }
 
-
 /*
 use carbon_core::{borsh, CarbonDeserialize};
 
@@ -45,4 +44,3 @@ pub struct Global {
         pub set_creator_authority: solana_pubkey::Pubkey,
 }
 */
-

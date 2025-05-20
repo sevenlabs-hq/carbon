@@ -229,7 +229,7 @@ pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream
 fn gen_borsh_deserialize(input: TokenStream) -> TokenStream2 {
     let cratename = Ident::new("borsh", Span::call_site());
 
-    let item: Item = syn::parse(input).unwrap();
+    let item: Item = syn::parse(input).expect("Failed to parse input");
     let res = match item {
         Item::Struct(item) => struct_de(&item, cratename),
         Item::Enum(item) => enum_de(&item, cratename),
@@ -644,7 +644,12 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
         let decoder_expr = entry.decoder_expr;
         let instruction_type = entry.instruction_type;
 
-        let instruction_enum_ident = &instruction_type.path.segments.last().unwrap().ident;
+        let instruction_enum_ident = &instruction_type
+            .path
+            .segments
+            .last()
+            .expect("segment")
+            .ident;
         let instruction_type_ident = format_ident!("{}Type", instruction_enum_ident);
 
         instruction_variants.push(quote! {

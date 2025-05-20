@@ -2,6 +2,8 @@
 name = "sharky-offers-carbon-example"
 version = "0.2.1"
 edition = { workspace = true }
+[package.metadata.cargo-machete]
+ignored = ["serde", "solana-instruction"]
 
 [dependencies]
 carbon-core = { workspace = true }

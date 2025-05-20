@@ -305,7 +305,7 @@ fn transaction_fetcher(
                                         time_taken as f64,
                                     )
                                     .await
-                                    .unwrap();
+                                    .expect("Error recording metric");
 
                                 Some((signature, tx))
                             }

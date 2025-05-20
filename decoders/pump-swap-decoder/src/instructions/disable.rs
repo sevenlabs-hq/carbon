@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xb9adbb5ad80feee9")]
-pub struct Disable{
+pub struct Disable {
     pub disable_create_pool: bool,
     pub disable_deposit: bool,
     pub disable_withdraw: bool,
@@ -24,17 +23,12 @@ pub struct DisableInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Disable {
     type ArrangedAccounts = DisableInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            admin,
-            global_config,
-            event_authority,
-            program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [admin, global_config, event_authority, program, _remaining @ ..] = accounts else {
             return None;
         };
-       
 
         Some(DisableInstructionAccounts {
             admin: admin.pubkey,

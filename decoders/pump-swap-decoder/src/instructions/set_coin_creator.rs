@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xd295802dbc3a4eaf")]
-pub struct SetCoinCreator{
-}
+pub struct SetCoinCreator {}
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct SetCoinCreatorInstructionAccounts {
@@ -20,18 +18,13 @@ pub struct SetCoinCreatorInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SetCoinCreator {
     type ArrangedAccounts = SetCoinCreatorInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            pool,
-            metadata,
-            bonding_curve,
-            event_authority,
-            program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [pool, metadata, bonding_curve, event_authority, program, _remaining @ ..] = accounts
+        else {
             return None;
         };
-       
 
         Some(SetCoinCreatorInstructionAccounts {
             pool: pool.pubkey,
