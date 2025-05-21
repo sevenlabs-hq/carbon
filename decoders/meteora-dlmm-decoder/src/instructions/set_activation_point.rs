@@ -8,6 +8,7 @@ pub struct SetActivationPoint {
     pub activation_point: u64,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct SetActivationPointInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
     pub admin: solana_pubkey::Pubkey,

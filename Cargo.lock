@@ -920,7 +920,7 @@ dependencies = [
  "env_logger 0.11.8",
  "log",
  "solana-client",
- "solana-sdk",
+ "solana-commitment-config",
  "solana-transaction-status",
  "tokio",
 ]
@@ -1110,8 +1110,6 @@ dependencies = [
  "bincode",
  "bytemuck",
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1123,8 +1121,6 @@ name = "carbon-associated-token-account-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1136,8 +1132,6 @@ name = "carbon-boop-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1151,6 +1145,67 @@ dependencies = [
  "anyhow",
  "askama",
  "borsh 1.5.7",
+ "clap",
+ "flate2",
+ "heck",
+ "hex",
+ "inquire",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "solana-client",
+ "solana-commitment-config",
+ "solana-pubkey",
+]
+
+[[package]]
+name = "carbon-core"
+version = "0.8.1"
+dependencies = [
+ "async-trait",
+ "borsh 0.10.4",
+ "bs58",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "carbon-test-utils",
+ "log",
+ "serde",
+ "serde_json",
+ "solana-account",
+ "solana-account-decoder-client-types",
+ "solana-hash",
+ "solana-instruction",
+ "solana-message",
+ "solana-program",
+ "solana-pubkey",
+ "solana-signature",
+ "solana-transaction",
+ "solana-transaction-context",
+ "solana-transaction-status",
+ "thiserror 2.0.12",
+ "tokio",
+ "tokio-util",
+]
+
+[[package]]
+name = "carbon-drift-v2-decoder"
+version = "0.8.1"
+dependencies = [
+ "carbon-core",
+ "serde",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey",
+]
+
+[[package]]
+name = "carbon-fetch-ix"
+version = "0.8.1"
+dependencies = [
+ "anyhow",
+ "askama",
+ "borsh 1.5.7",
+ "bs58",
  "carbon-core",
  "clap",
  "console",
@@ -1164,50 +1219,10 @@ dependencies = [
  "serde_json",
  "sha2 0.10.9",
  "solana-client",
+ "solana-commitment-config",
  "solana-pubkey",
- "solana-sdk",
- "solana-transaction-status",
-]
-
-[[package]]
-name = "carbon-core"
-version = "0.8.1"
-dependencies = [
- "async-trait",
- "borsh 0.10.4",
- "bs58",
- "carbon-macros",
- "carbon-proc-macros",
- "carbon-test-utils",
- "futures",
- "log",
- "serde",
- "serde_json",
- "solana-account",
- "solana-account-decoder-client-types",
- "solana-client",
- "solana-instruction",
- "solana-program",
- "solana-pubkey",
- "solana-sdk",
  "solana-signature",
  "solana-transaction-status",
- "thiserror 2.0.12",
- "tokio",
- "tokio-util",
-]
-
-[[package]]
-name = "carbon-drift-v2-decoder"
-version = "0.8.1"
-dependencies = [
- "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
- "serde",
- "solana-account",
- "solana-instruction",
- "solana-pubkey",
 ]
 
 [[package]]
@@ -1215,8 +1230,6 @@ name = "carbon-fluxbeam-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "carbon-test-utils",
  "serde",
  "solana-account",
@@ -1232,7 +1245,6 @@ dependencies = [
  "carbon-postgres-client",
  "juniper",
  "juniper_axum",
- "juniper_codegen",
  "juniper_graphql_ws",
  "serde",
  "solana-pubkey",
@@ -1247,18 +1259,15 @@ dependencies = [
  "bincode",
  "bs58",
  "carbon-core",
- "env_logger 0.11.8",
  "futures",
  "helius",
  "log",
  "solana-account",
- "solana-account-decoder",
- "solana-client",
  "solana-clock",
  "solana-program",
  "solana-pubkey",
- "solana-sdk",
  "solana-signature",
+ "solana-transaction-context",
  "solana-transaction-status",
  "tokio",
  "tokio-util",
@@ -1283,14 +1292,11 @@ dependencies = [
  "bincode",
  "carbon-core",
  "carbon-jito-protos",
- "env_logger 0.11.8",
  "futures",
- "futures-util",
  "log",
  "scc",
  "solana-client",
  "solana-entry",
- "solana-sdk",
  "solana-transaction-status",
  "tokio",
  "tokio-util",
@@ -1335,8 +1341,6 @@ name = "carbon-jupiter-perpetuals-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1359,8 +1363,6 @@ name = "carbon-kamino-farms-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1396,8 +1398,6 @@ name = "carbon-lifinity-amm-v2-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "carbon-test-utils",
  "serde",
  "solana-account",
@@ -1418,21 +1418,12 @@ dependencies = [
 [[package]]
 name = "carbon-macros"
 version = "0.8.1"
-dependencies = [
- "hex",
- "paste",
- "solana-client",
- "solana-pubkey",
- "solana-transaction-status",
-]
 
 [[package]]
 name = "carbon-marginfi-v2-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1444,8 +1435,6 @@ name = "carbon-marinade-finance-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1458,11 +1447,8 @@ version = "0.8.1"
 dependencies = [
  "carbon-core",
  "serde",
- "solana-account",
  "solana-instruction",
- "solana-pubkey",
  "spl-memo 5.0.0",
- "spl-token 6.0.0",
 ]
 
 [[package]]
@@ -1531,8 +1517,6 @@ name = "carbon-name-service-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1578,8 +1562,6 @@ name = "carbon-phoenix-v1-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1590,9 +1572,7 @@ dependencies = [
 name = "carbon-postgres-client"
 version = "0.8.1"
 dependencies = [
- "chrono",
  "juniper",
- "juniper_graphql_ws",
  "sqlx",
  "sqlx_migrator",
 ]
@@ -1603,15 +1583,10 @@ version = "0.8.1"
 dependencies = [
  "borsh-derive-internal",
  "hex",
- "paste",
  "proc-macro2",
  "quote",
  "serde",
- "solana-client",
- "solana-pubkey",
- "solana-transaction-status",
  "syn 1.0.109",
- "unicode-xid",
 ]
 
 [[package]]
@@ -1667,8 +1642,7 @@ name = "carbon-raydium-clmm-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
+ "carbon-test-utils",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1680,8 +1654,6 @@ name = "carbon-raydium-cpmm-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1693,8 +1665,6 @@ name = "carbon-raydium-launchpad-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -1707,8 +1677,6 @@ name = "carbon-raydium-liquidity-locking-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1722,16 +1690,13 @@ dependencies = [
  "async-stream",
  "async-trait",
  "carbon-core",
- "env_logger 0.11.8",
  "futures",
  "log",
- "retry",
  "solana-client",
- "solana-pubkey",
- "solana-sdk",
+ "solana-commitment-config",
+ "solana-hash",
  "solana-transaction-status",
  "tokio",
- "tokio-retry",
  "tokio-util",
 ]
 
@@ -1744,8 +1709,7 @@ dependencies = [
  "futures",
  "log",
  "solana-client",
- "solana-sdk",
- "solana-transaction-status",
+ "solana-hash",
  "tokio",
  "tokio-util",
 ]
@@ -1756,7 +1720,6 @@ version = "0.8.1"
 dependencies = [
  "async-trait",
  "carbon-core",
- "env_logger 0.11.8",
  "futures",
  "log",
  "solana-account",
@@ -1773,17 +1736,14 @@ dependencies = [
  "async-stream",
  "async-trait",
  "carbon-core",
- "env_logger 0.11.8",
  "futures",
  "log",
- "retry",
  "solana-client",
+ "solana-commitment-config",
  "solana-pubkey",
- "solana-sdk",
  "solana-signature",
  "solana-transaction-status",
  "tokio",
- "tokio-retry",
  "tokio-util",
 ]
 
@@ -1796,7 +1756,6 @@ dependencies = [
  "solana-account",
  "solana-instruction",
  "solana-pubkey",
- "spl-token 6.0.0",
 ]
 
 [[package]]
@@ -1804,8 +1763,6 @@ name = "carbon-solayer-restaking-program-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1817,8 +1774,6 @@ name = "carbon-stabble-stable-swap-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1830,8 +1785,6 @@ name = "carbon-stabble-weighted-swap-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -1860,7 +1813,6 @@ dependencies = [
  "solana-instruction",
  "solana-program",
  "solana-pubkey",
- "spl-token 6.0.0",
 ]
 
 [[package]]
@@ -1884,13 +1836,10 @@ name = "carbon-token-2022-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "serde-big-array",
  "solana-account",
  "solana-instruction",
- "solana-program",
  "solana-pubkey",
 ]
 
@@ -1902,7 +1851,6 @@ dependencies = [
  "carbon-core",
  "carbon-gql-server",
  "carbon-postgres-client",
- "chrono",
  "juniper",
  "rust_decimal",
  "serde",
@@ -1920,8 +1868,6 @@ name = "carbon-virtual-curve-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -1934,10 +1880,7 @@ name = "carbon-virtuals-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
- "serde-big-array",
  "solana-account",
  "solana-instruction",
  "solana-pubkey",
@@ -1949,16 +1892,12 @@ version = "0.8.1"
 dependencies = [
  "async-trait",
  "carbon-core",
- "env_logger 0.11.8",
  "futures",
- "futures-util",
  "log",
  "solana-account",
- "solana-client",
  "solana-program",
  "solana-pubkey",
  "solana-signature",
- "solana-transaction-status",
  "tokio",
  "tokio-util",
  "yellowstone-grpc-client",
@@ -1970,8 +1909,6 @@ name = "carbon-zeta-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -4004,10 +3941,6 @@ dependencies = [
  "env_logger 0.11.8",
  "log",
  "rustls 0.23.27",
- "solana-client",
- "solana-pubkey",
- "solana-sdk",
- "solana-transaction-status",
  "tokio",
  "yellowstone-grpc-proto",
 ]
@@ -4023,10 +3956,6 @@ dependencies = [
  "dotenv",
  "env_logger 0.11.8",
  "log",
- "solana-client",
- "solana-pubkey",
- "solana-sdk",
- "solana-transaction-status",
  "tokio",
  "yellowstone-grpc-proto",
 ]
@@ -4036,8 +3965,6 @@ name = "kamino-limit-order-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "serde-big-array",
  "solana-account",
@@ -4267,17 +4194,11 @@ dependencies = [
  "carbon-core",
  "carbon-log-metrics",
  "carbon-meteora-dlmm-decoder",
- "carbon-pumpfun-decoder",
  "carbon-rpc-transaction-crawler-datasource",
  "dotenv",
  "env_logger 0.11.8",
- "log",
- "solana-client",
- "solana-pubkey",
- "solana-sdk",
- "solana-transaction-status",
+ "solana-commitment-config",
  "tokio",
- "yellowstone-grpc-proto",
 ]
 
 [[package]]
@@ -4394,8 +4315,6 @@ dependencies = [
  "env_logger 0.11.8",
  "log",
  "solana-client",
- "solana-pubkey",
- "solana-transaction-status",
  "tokio",
 ]
 
@@ -4414,9 +4333,9 @@ dependencies = [
 
 [[package]]
 name = "multimap"
-version = "0.10.0"
+version = "0.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "defc4c55412d89136f966bbb339008b474350e5e6e78d2714439c386b3137a03"
+checksum = "1d87ecb2933e8aeadb3e3a02b828fed80a7528047e68b4f424523a0981a3a084"
 
 [[package]]
 name = "native-tls"
@@ -4691,8 +4610,6 @@ dependencies = [
  "env_logger 0.11.8",
  "log",
  "solana-client",
- "solana-pubkey",
- "solana-transaction-status",
  "tokio",
 ]
 
@@ -5211,10 +5128,7 @@ dependencies = [
  "env_logger 0.11.8",
  "helius",
  "log",
- "solana-client",
  "solana-native-token",
- "solana-pubkey",
- "solana-transaction-status",
  "tokio",
 ]
 
@@ -5462,10 +5376,6 @@ dependencies = [
  "env_logger 0.11.8",
  "log",
  "rustls 0.23.27",
- "solana-client",
- "solana-pubkey",
- "solana-sdk",
- "solana-transaction-status",
  "tokio",
  "yellowstone-grpc-proto",
 ]
@@ -5483,8 +5393,6 @@ dependencies = [
  "env_logger 0.11.8",
  "log",
  "solana-client",
- "solana-pubkey",
- "solana-transaction-status",
  "tokio",
 ]
 
@@ -5501,8 +5409,6 @@ dependencies = [
  "env_logger 0.11.8",
  "log",
  "solana-client",
- "solana-pubkey",
- "solana-transaction-status",
  "tokio",
 ]
 
@@ -5633,15 +5539,6 @@ dependencies = [
  "serde",
  "task-local-extensions",
  "thiserror 1.0.69",
-]
-
-[[package]]
-name = "retry"
-version = "2.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a1e211f878258887b3e65dd3c8ff9f530fe109f441a117ee0cdc27f341355032"
-dependencies = [
- "rand 0.9.1",
 ]
 
 [[package]]
@@ -9635,9 +9532,9 @@ dependencies = [
 
 [[package]]
 name = "tempfile"
-version = "3.19.1"
+version = "3.20.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7437ac7763b9b123ccf33c338a5cc1bac6f69b45a136c19bdd8a65e3916435bf"
+checksum = "e8a64e3985349f2441a1a9ef0b853f869006c3855f2cda6862a94d26ebb9d6a1"
 dependencies = [
  "fastrand",
  "getrandom 0.3.3",
@@ -9773,13 +9670,9 @@ dependencies = [
  "carbon-token-program-decoder",
  "carbon-yellowstone-grpc-datasource",
  "dotenv",
- "env_logger 0.11.8",
  "juniper",
  "log",
  "rustls 0.23.27",
- "solana-client",
- "solana-pubkey",
- "solana-transaction-status",
  "spl-token 6.0.0",
  "tokio",
  "yellowstone-grpc-proto",
@@ -9831,17 +9724,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbae76ab933c85776efabc971569dd6119c580d8f5d448769dec1764bf796ef2"
 dependencies = [
  "native-tls",
- "tokio",
-]
-
-[[package]]
-name = "tokio-retry"
-version = "0.3.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f57eb36ecbe0fc510036adff84824dd3c24bb781e21bfa67b69d556aa85214f"
-dependencies = [
- "pin-project",
- "rand 0.8.5",
  "tokio",
 ]
 
@@ -10979,9 +10861,9 @@ dependencies = [
 
 [[package]]
 name = "yellowstone-grpc-client"
-version = "6.0.0"
+version = "6.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7504e16bd8edc6af4ba11be0b42fba24ffb42b383b1373c5d26dc644a327070a"
+checksum = "9cd33c93a1f521fa586f5fdf7772b846b61c8434dd803ba991e63c235c64690a"
 dependencies = [
  "bytes",
  "futures",
@@ -10993,9 +10875,9 @@ dependencies = [
 
 [[package]]
 name = "yellowstone-grpc-proto"
-version = "6.0.0"
+version = "6.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0a19211525073ab3811f57f30056633011f836fd61781a1f3b24ed4404a4c214"
+checksum = "e48021fc734917bb7d0891dd9fccfacc4dfeec533d6bcd130fcbc934dd2b4429"
 dependencies = [
  "anyhow",
  "bincode",

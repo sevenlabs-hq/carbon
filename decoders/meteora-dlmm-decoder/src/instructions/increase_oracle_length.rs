@@ -8,6 +8,7 @@ pub struct IncreaseOracleLength {
     pub length_to_add: u64,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct IncreaseOracleLengthInstructionAccounts {
     pub oracle: solana_pubkey::Pubkey,
     pub funder: solana_pubkey::Pubkey,

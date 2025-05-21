@@ -10,6 +10,7 @@ pub struct Withdraw {
     pub min_quote_amount_out: u64,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct WithdrawInstructionAccounts {
     pub pool: solana_pubkey::Pubkey,
     pub global_config: solana_pubkey::Pubkey,

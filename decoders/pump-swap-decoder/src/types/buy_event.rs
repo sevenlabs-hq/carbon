@@ -24,4 +24,7 @@ pub struct BuyEvent {
     pub user_quote_token_account: solana_pubkey::Pubkey,
     pub protocol_fee_recipient: solana_pubkey::Pubkey,
     pub protocol_fee_recipient_token_account: solana_pubkey::Pubkey,
+    pub coin_creator: solana_pubkey::Pubkey,
+    pub coin_creator_fee_basis_points: u64,
+    pub coin_creator_fee: u64,
 }

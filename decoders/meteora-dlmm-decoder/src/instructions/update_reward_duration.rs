@@ -9,6 +9,7 @@ pub struct UpdateRewardDuration {
     pub new_duration: u64,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct UpdateRewardDurationInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
     pub admin: solana_pubkey::Pubkey,

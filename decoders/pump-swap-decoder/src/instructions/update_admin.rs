@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0xa1b028d53cb8b3e4")]
 pub struct UpdateAdmin {}
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct UpdateAdminInstructionAccounts {
     pub admin: solana_pubkey::Pubkey,
     pub global_config: solana_pubkey::Pubkey,

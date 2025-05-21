@@ -74,11 +74,14 @@ impl TryFrom<DBTokenAccount> for Account {
                 .map(|d| {
                     Pubkey::try_from(d)
                         .map_err(|_| "parse delegate".to_string())
-                        .unwrap()
+                        .expect("Failed to parse delegate")
                 })
                 .into(),
             state: db_token.state.into(),
-            is_native: db_token.is_native.map(|n| n.to_u64().unwrap()).into(),
+            is_native: db_token
+                .is_native
+                .map(|n| n.to_u64().expect("Failed to parse is native"))
+                .into(),
             delegated_amount: db_token
                 .delegated_amount
                 .to_u64()
@@ -88,7 +91,7 @@ impl TryFrom<DBTokenAccount> for Account {
                 .map(|ca| {
                     Pubkey::try_from(ca)
                         .map_err(|_| "parse close authority".to_string())
-                        .unwrap()
+                        .expect("Failed to parse close authority")
                 })
                 .into(),
         })
@@ -127,7 +130,7 @@ impl TryFrom<DBMint> for Mint {
                 .map(|d| {
                     Pubkey::try_from(d)
                         .map_err(|_| "parse mint authority".to_string())
-                        .unwrap()
+                        .expect("Failed to parse mint authority")
                 })
                 .into(),
             decimals: db_mint.decimals as u8,
@@ -137,7 +140,7 @@ impl TryFrom<DBMint> for Mint {
                 .map(|d| {
                     Pubkey::try_from(d)
                         .map_err(|_| "parse freeze authority".to_string())
-                        .unwrap()
+                        .expect("Failed to parse freeze authority")
                 })
                 .into(),
         })

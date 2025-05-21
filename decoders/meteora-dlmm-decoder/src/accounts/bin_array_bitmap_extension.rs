@@ -1,6 +1,6 @@
 use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize)]
 #[carbon(discriminator = "0x506f7c7137ed1205")]
 pub struct BinArrayBitmapExtension {
     pub lb_pair: solana_pubkey::Pubkey,

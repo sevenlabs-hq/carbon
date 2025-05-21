@@ -14,4 +14,10 @@ pub struct TradeEvent {
     pub virtual_token_reserves: u64,
     pub real_sol_reserves: u64,
     pub real_token_reserves: u64,
+    pub fee_recipient: solana_pubkey::Pubkey,
+    pub fee_basis_points: u64,
+    pub fee: u64,
+    pub creator: solana_pubkey::Pubkey,
+    pub creator_fee_basis_points: u64,
+    pub creator_fee: u64,
 }

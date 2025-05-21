@@ -10,6 +10,7 @@ pub struct Deposit {
     pub max_quote_amount_in: u64,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct DepositInstructionAccounts {
     pub pool: solana_pubkey::Pubkey,
     pub global_config: solana_pubkey::Pubkey,

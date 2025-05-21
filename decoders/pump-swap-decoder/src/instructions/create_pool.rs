@@ -8,8 +8,10 @@ pub struct CreatePool {
     pub index: u16,
     pub base_amount_in: u64,
     pub quote_amount_in: u64,
+    pub coin_creator: solana_pubkey::Pubkey,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct CreatePoolInstructionAccounts {
     pub pool: solana_pubkey::Pubkey,
     pub global_config: solana_pubkey::Pubkey,

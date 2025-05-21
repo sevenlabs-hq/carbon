@@ -119,7 +119,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                             Some(UpdateOneof::Account(account_update)) => {
                                                 let start_time = std::time::Instant::now();
 
-                                                metrics.increment_counter("yellowstone_grpc_account_updates_received", 1).await.unwrap();
+                                                metrics.increment_counter("yellowstone_grpc_account_updates_received", 1).await.expect("Failed to increment counter");
 
 
                                                 if let Some(account_info) = account_update.account {
@@ -179,7 +179,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                                 start_time.elapsed().as_nanos() as f64
                                                             )
                                                             .await
-                                                            .unwrap();
+                                                            .expect("Failed to record histogram");
 
                                                     metrics.increment_counter("yellowstone_grpc_account_updates_received", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
@@ -248,7 +248,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                             start_time.elapsed().as_nanos() as f64
                                                         )
                                                         .await
-                                                        .unwrap();
+                                                        .expect("Failed to record histogram");
 
                                                 metrics.increment_counter("yellowstone_grpc_transaction_updates_received", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 

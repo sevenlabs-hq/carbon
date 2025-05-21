@@ -8,8 +8,10 @@ pub struct CreateConfig {
     pub lp_fee_basis_points: u64,
     pub protocol_fee_basis_points: u64,
     pub protocol_fee_recipients: [solana_pubkey::Pubkey; 8],
+    pub coin_creator_fee_basis_points: u64,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct CreateConfigInstructionAccounts {
     pub admin: solana_pubkey::Pubkey,
     pub global_config: solana_pubkey::Pubkey,

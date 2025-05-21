@@ -25,7 +25,7 @@ use {
         collection::InstructionDecoderCollection,
         datasource::TransactionUpdate,
         error::{CarbonResult, Error},
-        instruction::{DecodedInstruction, InstructionMetadata},
+        instruction::{DecodedInstruction, InstructionMetadata, MAX_INSTRUCTION_STACK_DEPTH},
         schema::ParsedInstruction,
         transaction::TransactionMetadata,
     },
@@ -35,11 +35,7 @@ use {
         message::{v0::LoadedAddresses, VersionedMessage},
     },
     solana_pubkey::Pubkey,
-    solana_sdk::{
-        transaction_context::TransactionReturnData, /* TODO: replace with
-                                                    * solana_transaction_context after release
-                                                    * of 2.2.0 */
-    },
+    solana_transaction_context::TransactionReturnData,
     solana_transaction_status::{
         option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
         TransactionStatusMeta, TransactionTokenBalance, UiInstruction, UiLoadedAddresses,
@@ -141,6 +137,7 @@ fn process_instructions<F1, F2>(
                 transaction_metadata: transaction_metadata.clone(),
                 stack_height: 1,
                 index: i as u32,
+                absolute_path: vec![i as u8],
             },
             build_instruction(account_keys, compiled_instruction, &is_writable, &is_signer),
         ));
@@ -148,12 +145,24 @@ fn process_instructions<F1, F2>(
         if let Some(inner_instructions) = inner {
             for inner_tx in inner_instructions {
                 if inner_tx.index as usize == i {
+                    let mut path_stack = [0; MAX_INSTRUCTION_STACK_DEPTH];
+                    path_stack[0] = inner_tx.index;
+                    let mut prev_height = 0;
+
                     for inner_inst in &inner_tx.instructions {
+                        let stack_height = inner_inst.stack_height.unwrap_or(1) as usize;
+                        if stack_height > prev_height {
+                            path_stack[stack_height - 1] = 0;
+                        } else {
+                            path_stack[stack_height - 1] += 1;
+                        }
+
                         result.push((
                             InstructionMetadata {
                                 transaction_metadata: transaction_metadata.clone(),
-                                stack_height: inner_inst.stack_height.unwrap_or(1),
+                                stack_height: stack_height as u32,
                                 index: inner_tx.index as u32,
+                                absolute_path: path_stack[..stack_height].into(),
                             },
                             build_instruction(
                                 account_keys,
@@ -162,6 +171,8 @@ fn process_instructions<F1, F2>(
                                 &is_signer,
                             ),
                         ));
+
+                        prev_height = stack_height;
                     }
                 }
             }
@@ -296,6 +307,7 @@ pub fn unnest_parsed_instructions<T: InstructionDecoderCollection>(
                 transaction_metadata: transaction_metadata.clone(),
                 stack_height,
                 index: ix_idx as u32 + 1,
+                absolute_path: vec![],
             },
             parsed_instruction.instruction,
         ));
@@ -487,16 +499,14 @@ mod tests {
         crate::instruction::{InstructionsWithMetadata, NestedInstructions},
         carbon_test_utils::base58_deserialize,
         solana_account_decoder_client_types::token::UiTokenAmount,
-        solana_sdk::{
-            hash::Hash,
-            message::{
-                legacy::Message,
-                v0::{self, MessageAddressTableLookup},
-                MessageHeader,
-            },
-            transaction::VersionedTransaction,
+        solana_hash::Hash,
+        solana_message::{
+            legacy::Message,
+            v0::{self, MessageAddressTableLookup},
+            MessageHeader,
         },
         solana_signature::Signature,
+        solana_transaction::versioned::VersionedTransaction,
         std::vec,
     };
 

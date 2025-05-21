@@ -15,6 +15,7 @@ pub struct Global {
     pub withdraw_authority: solana_pubkey::Pubkey,
     pub enable_migrate: bool,
     pub pool_migration_fee: u64,
-    pub creator_fee: u64,
+    pub creator_fee_basis_points: u64,
     pub fee_recipients: [solana_pubkey::Pubkey; 7],
+    pub set_creator_authority: solana_pubkey::Pubkey,
 }

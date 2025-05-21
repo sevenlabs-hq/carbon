@@ -1,0 +1,38 @@
+[package]
+name = "carbon-fetch-ix"
+version = "0.8.1"
+edition = { workspace = true }
+description = "Fetch IX for Carbon tests"
+license = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "cli"]
+categories = ["command-line-utilities"]
+
+[[bin]]
+name = "carbon-fetch-ix-cli"
+path = "src/main.rs"
+
+[dependencies]
+carbon-core = { workspace = true }
+solana-client = { workspace = true }
+solana-commitment-config = { workspace = true }
+solana-pubkey = { workspace = true }
+solana-signature = { workspace = true }
+solana-transaction-status = { workspace = true }
+
+anyhow = { workspace = true }
+askama = { workspace = true }
+borsh = { workspace = true, features = ["derive"] }
+bs58 = { workspace = true }
+clap = { workspace = true, features = ["derive"] }
+console = { workspace = true }
+dialoguer = { workspace = true, default-features = false, features = ["editor"] }
+flate2 = { workspace = true }
+heck = { workspace = true }
+hex = { workspace = true }
+indicatif = { workspace = true }
+inquire = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+sha2 = { workspace = true }

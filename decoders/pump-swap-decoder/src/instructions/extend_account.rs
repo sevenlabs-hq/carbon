@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0xea66c2cb96483ee5")]
 pub struct ExtendAccount {}
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct ExtendAccountInstructionAccounts {
     pub account: solana_pubkey::Pubkey,
     pub user: solana_pubkey::Pubkey,
