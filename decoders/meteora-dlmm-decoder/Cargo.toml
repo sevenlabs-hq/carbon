@@ -19,3 +19,5 @@ serde-big-array = { workspace = true }
 solana-account = { workspace = true }
 solana-instruction = { workspace = true, default-features = false }
 solana-pubkey = { workspace = true }
+solana-sdk = { workspace = true }
+carbon-test-utils = { workspace = true }
