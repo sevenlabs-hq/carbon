@@ -16,8 +16,9 @@ path = "src/main.rs"
 [dependencies]
 carbon-core = { workspace = true }
 solana-client = { workspace = true }
+solana-commitment-config = { workspace = true }
 solana-pubkey = { workspace = true }
-solana-sdk = { workspace = true }
+solana-signature = { workspace = true }
 solana-transaction-status = { workspace = true }
 
 anyhow = { workspace = true }

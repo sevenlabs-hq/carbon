@@ -1,6 +1,7 @@
 use serde::Serialize;
 use solana_client::{rpc_client::RpcClient, rpc_config::RpcTransactionConfig};
-use solana_sdk::{commitment_config::CommitmentConfig, signature::Signature};
+use solana_commitment_config::CommitmentConfig;
+use solana_signature::Signature;
 use solana_transaction_status::{
     EncodedConfirmedTransactionWithStatusMeta, EncodedTransaction, UiInstruction, UiMessage,
     UiParsedInstruction, UiParsedMessage, UiTransactionEncoding,
