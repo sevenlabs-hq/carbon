@@ -1,6 +1,6 @@
 [package]
 name = "carbon-virtual-curve-decoder"
-version = "0.8.0"
+version = "0.8.1"
 description = "Meteora Virtual Curve Program Decoder"
 edition = { workspace = true }
 license = { workspace = true }

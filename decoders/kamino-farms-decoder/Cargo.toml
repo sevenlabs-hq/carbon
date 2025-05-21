@@ -1,6 +1,6 @@
 [package]
 name = "carbon-kamino-farms-decoder"
-version = "0.8.0"
+version = "0.8.1"
 edition = { workspace = true }
 description = "Kamino Farms Decoder"
 license = { workspace = true }

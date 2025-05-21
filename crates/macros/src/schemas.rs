@@ -100,7 +100,7 @@
 /// ```ignore
 /// use carbon_macros::schema;
 /// use carbon_macros::schema_inner;
-/// 
+///
 /// let transaction_schema = schema![
 ///     any
 ///     [

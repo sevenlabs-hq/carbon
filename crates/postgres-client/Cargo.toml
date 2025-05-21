@@ -1,6 +1,6 @@
 [package]
 name = "carbon-postgres-client"
-version = "0.8.0"
+version = "0.8.1"
 edition = { workspace = true }
 description = "PostgreSQL Client for Carbon"
 license = { workspace = true }
@@ -8,9 +8,11 @@ keywords = ["solana", "indexer", "postgres", "db"]
 categories = ["encoding"]
 
 [dependencies]
+chrono = { workspace = true }
+juniper = { workspace = true }
+juniper_graphql_ws = { workspace = true }
 sqlx = { workspace = true }
 sqlx_migrator = { workspace = true }
-chrono = { workspace = true }
 
 [lib]
 crate-type = ["rlib"]
