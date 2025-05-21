@@ -1,7 +1,6 @@
-use {
-    super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use super::super::types::*;
+
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -9,8 +8,10 @@ use {
 #[carbon(discriminator = "0x03dd95da6f8d76d5")]
 pub struct AddLiquidityByStrategy2 {
     pub liquidity_parameter: LiquidityParameterByStrategy,
+    pub remaining_accounts_info: RemainingAccountsInfo,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, serde::Serialize, serde::Deserialize)]
 pub struct AddLiquidityByStrategy2InstructionAccounts {
     pub position: solana_pubkey::Pubkey,
     pub lb_pair: solana_pubkey::Pubkey,

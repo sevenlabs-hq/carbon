@@ -1,6 +1,6 @@
 use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize)]
 #[carbon(discriminator = "0xf23ef422b5703aaa")]
 pub struct PresetParameter {
     pub bin_step: u16,

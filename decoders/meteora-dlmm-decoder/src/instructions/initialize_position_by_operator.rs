@@ -11,6 +11,7 @@ pub struct InitializePositionByOperator {
     pub lock_release_point: u64,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct InitializePositionByOperatorInstructionAccounts {
     pub payer: solana_pubkey::Pubkey,
     pub base: solana_pubkey::Pubkey,

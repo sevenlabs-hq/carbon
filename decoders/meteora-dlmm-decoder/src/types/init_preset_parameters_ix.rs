@@ -11,7 +11,5 @@ pub struct InitPresetParametersIx {
     pub reduction_factor: u16,
     pub variable_fee_control: u32,
     pub max_volatility_accumulator: u32,
-    pub min_bin_id: i32,
-    pub max_bin_id: i32,
     pub protocol_share: u16,
 }
