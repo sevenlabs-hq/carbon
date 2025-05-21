@@ -8,6 +8,7 @@ pub struct SetPreActivationSwapAddress {
     pub pre_activation_swap_address: solana_pubkey::Pubkey,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct SetPreActivationSwapAddressInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
     pub creator: solana_pubkey::Pubkey,

@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0xa9204f8988e84689")]
 pub struct ClaimFee {}
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct ClaimFeeInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
     pub position: solana_pubkey::Pubkey,

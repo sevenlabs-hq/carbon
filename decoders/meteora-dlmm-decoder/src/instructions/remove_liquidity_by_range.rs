@@ -10,6 +10,7 @@ pub struct RemoveLiquidityByRange {
     pub bps_to_remove: u16,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct RemoveLiquidityByRangeInstructionAccounts {
     pub position: solana_pubkey::Pubkey,
     pub lb_pair: solana_pubkey::Pubkey,

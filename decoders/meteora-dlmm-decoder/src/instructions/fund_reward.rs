@@ -1,3 +1,5 @@
+use super::super::types::*;
+
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
@@ -8,8 +10,10 @@ pub struct FundReward {
     pub reward_index: u64,
     pub amount: u64,
     pub carry_forward: bool,
+    pub remaining_accounts_info: RemainingAccountsInfo,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct FundRewardInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
     pub reward_vault: solana_pubkey::Pubkey,

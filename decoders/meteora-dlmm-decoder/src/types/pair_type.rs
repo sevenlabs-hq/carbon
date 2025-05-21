@@ -7,4 +7,5 @@ pub enum PairType {
     Permissionless,
     Permission,
     CustomizablePermissionless,
+    PermissionlessV2,
 }

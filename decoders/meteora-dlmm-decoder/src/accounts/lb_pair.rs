@@ -1,9 +1,8 @@
-use {
-    super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use super::super::types::*;
 
-#[derive(CarbonDeserialize, Debug)]
+use carbon_core::{borsh, CarbonDeserialize};
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize)]
 #[carbon(discriminator = "0x210b3162b565b10d")]
 pub struct LbPair {
     pub parameters: StaticParameters,
@@ -17,7 +16,7 @@ pub struct LbPair {
     pub require_base_factor_seed: u8,
     pub base_factor_seed: [u8; 2],
     pub activation_type: u8,
-    pub padding0: u8,
+    pub creator_pool_on_off_control: u8,
     pub token_x_mint: solana_pubkey::Pubkey,
     pub token_y_mint: solana_pubkey::Pubkey,
     pub reserve_x: solana_pubkey::Pubkey,
@@ -36,5 +35,7 @@ pub struct LbPair {
     pub padding3: [u8; 8],
     pub padding4: u64,
     pub creator: solana_pubkey::Pubkey,
-    pub reserved: [u8; 24],
+    pub token_mint_x_program_flag: u8,
+    pub token_mint_y_program_flag: u8,
+    pub reserved: [u8; 22],
 }

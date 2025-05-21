@@ -8,6 +8,7 @@ pub struct ClaimReward {
     pub reward_index: u64,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct ClaimRewardInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
     pub position: solana_pubkey::Pubkey,

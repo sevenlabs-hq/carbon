@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x04949164861ab53d")]
 pub struct ClosePresetParameter {}
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct ClosePresetParameterInstructionAccounts {
     pub preset_parameter: solana_pubkey::Pubkey,
     pub admin: solana_pubkey::Pubkey,

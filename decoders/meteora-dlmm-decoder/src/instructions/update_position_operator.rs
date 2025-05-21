@@ -8,6 +8,7 @@ pub struct UpdatePositionOperator {
     pub operator: solana_pubkey::Pubkey,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct UpdatePositionOperatorInstructionAccounts {
     pub position: solana_pubkey::Pubkey,
     pub owner: solana_pubkey::Pubkey,

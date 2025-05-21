@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x0a333d2370691855")]
 pub struct RemoveAllLiquidity {}
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct RemoveAllLiquidityInstructionAccounts {
     pub position: solana_pubkey::Pubkey,
     pub lb_pair: solana_pubkey::Pubkey,

@@ -1,7 +1,6 @@
-use {
-    super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use super::super::types::*;
+
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -11,6 +10,7 @@ pub struct InitializeCustomizablePermissionlessLbPair {
     pub params: CustomizableParams,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct InitializeCustomizablePermissionlessLbPairInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
     pub bin_array_bitmap_extension: solana_pubkey::Pubkey,
@@ -23,7 +23,7 @@ pub struct InitializeCustomizablePermissionlessLbPairInstructionAccounts {
     pub funder: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
-    pub rent: solana_pubkey::Pubkey,
+    pub user_token_y: solana_pubkey::Pubkey,
     pub event_authority: solana_pubkey::Pubkey,
     pub program: solana_pubkey::Pubkey,
 }
@@ -34,7 +34,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeCustomizablePermiss
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [lb_pair, bin_array_bitmap_extension, token_mint_x, token_mint_y, reserve_x, reserve_y, oracle, user_token_x, funder, token_program, system_program, rent, event_authority, program, _remaining @ ..] =
+        let [lb_pair, bin_array_bitmap_extension, token_mint_x, token_mint_y, reserve_x, reserve_y, oracle, user_token_x, funder, token_program, system_program, user_token_y, event_authority, program, _remaining @ ..] =
             accounts
         else {
             return None;
@@ -53,7 +53,7 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeCustomizablePermiss
                 funder: funder.pubkey,
                 token_program: token_program.pubkey,
                 system_program: system_program.pubkey,
-                rent: rent.pubkey,
+                user_token_y: user_token_y.pubkey,
                 event_authority: event_authority.pubkey,
                 program: program.pubkey,
             },

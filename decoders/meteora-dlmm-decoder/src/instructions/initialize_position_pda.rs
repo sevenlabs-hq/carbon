@@ -9,6 +9,7 @@ pub struct InitializePositionPda {
     pub width: i32,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct InitializePositionPdaInstructionAccounts {
     pub payer: solana_pubkey::Pubkey,
     pub base: solana_pubkey::Pubkey,

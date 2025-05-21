@@ -1,7 +1,6 @@
-use {
-    super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use super::super::types::*;
+
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -11,6 +10,7 @@ pub struct RemoveLiquidity {
     pub bin_liquidity_removal: Vec<BinLiquidityReduction>,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct RemoveLiquidityInstructionAccounts {
     pub position: solana_pubkey::Pubkey,
     pub lb_pair: solana_pubkey::Pubkey,

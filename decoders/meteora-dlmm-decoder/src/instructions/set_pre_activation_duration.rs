@@ -8,6 +8,7 @@ pub struct SetPreActivationDuration {
     pub pre_activation_duration: u64,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct SetPreActivationDurationInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
     pub creator: solana_pubkey::Pubkey,

@@ -13,5 +13,6 @@ pub struct StaticParameters {
     pub min_bin_id: i32,
     pub max_bin_id: i32,
     pub protocol_share: u16,
-    pub padding: [u8; 6],
+    pub base_fee_power_factor: u8,
+    pub padding: [u8; 5],
 }
