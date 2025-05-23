@@ -22,6 +22,10 @@
 //! - **[`collection`]**: Defines collections for instruction decoding, allowing
 //!   for customized instruction parsers that handle specific instruction sets.
 //!
+//! - **[`datasink`]**: Provides data sink capabilities, enabling the
+//!   integration of external data sinks into the pipeline. Supports
+//!   Solana-specific data structures.
+//!
 //! - **[`datasource`]**: Provides data ingestion capabilities, enabling the
 //!   integration of external data sources into the pipeline. Supports
 //!   Solana-specific data structures.
@@ -116,6 +120,7 @@ pub mod account;
 pub mod account_deletion;
 mod block_details;
 pub mod collection;
+pub mod datasink;
 pub mod datasource;
 pub mod deserialize;
 pub mod error;

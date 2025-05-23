@@ -1576,6 +1576,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-postgres-datasink"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "base64 0.22.1",
+ "bincode",
+ "carbon-core",
+ "carbon-postgres-client",
+ "serde_json",
+ "solana-transaction-status",
+ "sqlx",
+ "tokio",
+]
+
+[[package]]
 name = "carbon-proc-macros"
 version = "0.8.1"
 dependencies = [
