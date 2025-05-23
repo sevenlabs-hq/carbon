@@ -1,0 +1,103 @@
+name: Cargo Check
+
+on:
+  push:
+    branches:
+      - master
+      - ci
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  rustfmt:
+    runs-on: ubuntu-latest
+    name: fmt
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Stable Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Install `rustfmt`
+        run: rustup component add  rustfmt --toolchain 1.84.1
+
+      - name: cargo fmt --check
+        run: cargo fmt --check
+
+  clippy:
+    runs-on: ubuntu-latest
+    name: clippy
+    permissions:
+      contents: read
+      checks: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Stable Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Install `clippy`
+        run: rustup component add  clippy --toolchain 1.84.1
+
+      - name: cargo clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+  cargo_sort:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Stable Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Install cargo-sort
+        run: cargo install --locked cargo-sort
+
+      - name: Check `Cargo.toml` sort
+        run: cargo sort -c
+
+  machete:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Stable Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Install `cargo-machete`
+        run: cargo install --locked cargo-machete@0.7.0
+
+      - name: Check unused Cargo dependencies
+        run: cargo machete
+
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Stable Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+
+      - name: Check test
+        run: cargo test --all-targets --all-features

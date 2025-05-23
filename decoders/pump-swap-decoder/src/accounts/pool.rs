@@ -1,6 +1,6 @@
 use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize)]
 #[carbon(discriminator = "0xf19a6d0411b16dbc")]
 pub struct Pool {
     pub pool_bump: u8,
@@ -12,4 +12,5 @@ pub struct Pool {
     pub pool_base_token_account: solana_pubkey::Pubkey,
     pub pool_quote_token_account: solana_pubkey::Pubkey,
     pub lp_supply: u64,
+    pub coin_creator: solana_pubkey::Pubkey,
 }

@@ -1,6 +1,6 @@
 [package]
 name = "kamino-limit-order-decoder"
-version = "0.8.0"
+version = "0.8.1"
 description = "Kamino Limit Order Decoder"
 edition = { workspace = true }
 license = { workspace = true }
@@ -14,8 +14,6 @@ crate-type = ["rlib"]
 
 [dependencies]
 carbon-core = { workspace = true }
-carbon-macros = { workspace = true }
-carbon-proc-macros = { workspace = true }
 serde = { workspace = true }
 serde-big-array = { workspace = true }
 solana-account = { workspace = true }

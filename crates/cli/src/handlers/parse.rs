@@ -102,7 +102,9 @@ pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
 
     for type_data in &types_data {
         let template = TypeStructTemplate { type_data };
-        let rendered = template.render().unwrap();
+        let rendered = template
+            .render()
+            .expect("Failed to render type struct template");
         let filename = format!("{}/{}.rs", types_dir, type_data.name.to_snake_case());
         fs::write(&filename, rendered).expect("Failed to write type struct file");
         println!("Generated {}", filename);
@@ -131,7 +133,9 @@ pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
 
     for account in &accounts_data {
         let template = AccountsStructTemplate { account };
-        let rendered = template.render().unwrap();
+        let rendered = template
+            .render()
+            .expect("Failed to render account struct template");
         let filename = format!("{}/{}.rs", accounts_dir, account.module_name);
         fs::write(&filename, rendered).expect("Failed to write account struct file");
         println!("Generated {}", filename);
@@ -142,7 +146,9 @@ pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
         decoder_name: decoder_name.clone(),
         program_struct_name: program_struct_name.clone(),
     };
-    let accounts_mod_rendered = accounts_mod_template.render().unwrap();
+    let accounts_mod_rendered = accounts_mod_template
+        .render()
+        .expect("Failed to render mod file");
     let accounts_mod_filename = format!("{}/mod.rs", accounts_dir);
 
     fs::write(&accounts_mod_filename, accounts_mod_rendered)
@@ -156,7 +162,9 @@ pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
 
     for instruction in &instructions_data {
         let template = InstructionsStructTemplate { instruction };
-        let rendered = template.render().unwrap();
+        let rendered = template
+            .render()
+            .expect("Failed to render instruction struct template");
         let filename = format!("{}/{}.rs", instructions_dir, instruction.module_name);
         fs::write(&filename, rendered).expect("Failed to write instruction struct file");
         println!("Generated {}", filename);
@@ -164,7 +172,9 @@ pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
 
     for event in &events_data {
         let template = EventsStructTemplate { event };
-        let rendered = template.render().unwrap();
+        let rendered = template
+            .render()
+            .expect("Failed to render event struct template");
         let filename = format!("{}/{}.rs", instructions_dir, event.module_name);
         fs::write(&filename, rendered).expect("Failed to write event struct file");
         println!("Generated {}", filename);
@@ -176,7 +186,9 @@ pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
         program_instruction_enum: program_instruction_enum.clone(),
         events: &events_data,
     };
-    let instructions_mod_rendered = instructions_mod_template.render().unwrap();
+    let instructions_mod_rendered = instructions_mod_template
+        .render()
+        .expect("Failed to render instruction mod file");
     let instructions_mod_filename = format!("{}/mod.rs", instructions_dir);
 
     fs::write(&instructions_mod_filename, instructions_mod_rendered)
@@ -196,7 +208,7 @@ pub fn parse(path: String, output: String, as_crate: bool) -> Result<()> {
         let cargo_toml_content = format!(
             r#"[package]
 name = "{decoder_name_kebab}-decoder"
-version = "0.8.0"
+version = "0.8.1"
 edition = {{ workspace = true }}
 
 [lib]
@@ -259,7 +271,7 @@ pub fn scaffold(
     fs::create_dir_all(&src_dir).expect("Failed to create src directory");
 
     // Generate Cargo.toml
-    let (carbon_deps_version, sol_deps_version) = ("0.8.0", "=2.1.15");
+    let (carbon_deps_version, sol_deps_version) = ("0.8.1", "=2.1.15");
     let datasource_dep = format!(
         "carbon-{}-datasource = \"{}\"",
         data_source.to_kebab_case(),
@@ -359,13 +371,15 @@ X_TOKEN=your-x-token-here
                     .split("-")
                     .collect::<Vec<_>>()
                     .first()
-                    .unwrap()
+                    .expect("Failed to get decoder name")
                     .to_string(),
                 module_name: decoder.to_snake_case(),
             })
             .collect::<Vec<_>>(),
     };
-    let main_rs_content = main_rs_template.render().unwrap();
+    let main_rs_content = main_rs_template
+        .render()
+        .expect("Failed to render main.rs template");
 
     fs::write(&main_rs_filename, main_rs_content).expect("Failed to write Cargo.toml file");
 

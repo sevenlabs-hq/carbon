@@ -1,6 +1,6 @@
 [package]
 name = "carbon-sharky-decoder"
-version = "0.8.0"
+version = "0.8.1"
 description = "Sharky Decoder"
 license = { workspace = true }
 edition = { workspace = true }
@@ -18,4 +18,3 @@ serde = { workspace = true }
 solana-account = { workspace = true }
 solana-instruction = { workspace = true, default-features = false }
 solana-pubkey = { workspace = true }
-spl-token = { workspace = true }

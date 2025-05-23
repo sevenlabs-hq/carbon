@@ -5,18 +5,16 @@ edition = { workspace = true }
 
 [dependencies]
 carbon-core = { workspace = true }
+carbon-gql-server = { workspace = true }
 carbon-log-metrics = { workspace = true }
 carbon-postgres-client = { workspace = true }
-carbon-token-program-decoder = { workspace = true, features = ["postgres"] }
+carbon-token-program-decoder = { workspace = true, features = ["postgres", "graphql"] }
 carbon-yellowstone-grpc-datasource = { workspace = true }
-solana-client = { workspace = true }
-solana-pubkey = { workspace = true }
-solana-transaction-status = { workspace = true }
+juniper = { workspace = true }
 spl-token = { workspace = true }
 
 async-trait = { workspace = true }
 dotenv = { workspace = true }
-env_logger = { workspace = true }
 log = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 yellowstone-grpc-proto = { workspace = true }

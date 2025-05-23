@@ -26,6 +26,7 @@ Process specific updates:
 Collect and report on pipeline performance and operational data.
 
 Our premade metrics crates assist with common use cases:
+
 | Crate Name                  | Description                                                                   | Ease of Setup |
 | --------------------------- | ----------------------------------------------------------------------------- | ------------- |
 | `carbon-log-metrics`        | Logs useful program info to the terminal                                      | Easy          |
@@ -93,7 +94,7 @@ sudo mv carbon-cli-macos-amd64 /usr/local/bin/carbon-cli
 
 ##### Windows
 
-1. Download the latest release from https://github.com/sevenlabs-hq/carbon/releases/latest/download/carbon-cli-windows-amd64.exe
+1. Download the latest release from <https://github.com/sevenlabs-hq/carbon/releases/latest/download/carbon-cli-windows-amd64.exe>
 2. Rename the downloaded file to `carbon-cli.exe`
 3. Move the file to a directory in your PATH
 
@@ -106,7 +107,7 @@ cargo install --git https://github.com/sevenlabs-hq/carbon.git carbon-cli
 #### CLI Usage
 
 ```sh
-$ carbon-cli parse [OPTIONS] --idl <IDL> --output <OUTPUT>
+carbon-cli parse [OPTIONS] --idl <IDL> --output <OUTPUT>
 ```
 
 #### Options
@@ -126,7 +127,7 @@ $ carbon-cli parse [OPTIONS] --idl <IDL> --output <OUTPUT>
 1. To generate a decoder from an Anchor IDL file:
 
 ```sh
-$ carbon-cli parse --idl my_program.json --output ./src/decoders
+carbon-cli parse --idl my_program.json --output ./src/decoders
 ```
 
 or with interactive mode:
@@ -138,7 +139,7 @@ This will parse the my_program.json Anchor IDL file and generate the correspondi
 2. To generate a decoder from an Anchor PDA IDL, specify a program address (Meteora DLMM program in this case):
 
 ```sh
-$ carbon-cli parse --idl LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo -u mainnet-beta --output ./src/decoders
+carbon-cli parse --idl LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo -u mainnet-beta --output ./src/decoders
 ```
 
 This will fetch Meteora DLMM program's IDL from chain and generate the corresponding decoder code in the ./src/decoders directory.
@@ -146,7 +147,7 @@ This will fetch Meteora DLMM program's IDL from chain and generate the correspon
 3. To generate a decoder from a Codama IDL:
 
 ```sh
-$ carbon-cli parse --idl my_program_codama.json --output ./src/decoders --standard codama
+carbon-cli parse --idl my_program_codama.json --output ./src/decoders --standard codama
 ```
 
 This will parse the my_program_codama.json Codama IDL file and generate the corresponding decoder code in the ./src/decoders directory.
@@ -154,13 +155,13 @@ This will parse the my_program_codama.json Codama IDL file and generate the corr
 **Note**: in order to parse CPI Events for a provided Codama IDL, add `--event-hints` option with comma-separated names of corresponding defined Codama types:
 
 ```sh
-$ carbon-cli parse --idl my_program_codama.json --output ./src/decoders --standard codama --event-hints event1,event2,event3
+carbon-cli parse --idl my_program_codama.json --output ./src/decoders --standard codama --event-hints event1,event2,event3
 ```
 
 ##### Scaffold Project
 
 ```sh
-$ carbon-cli scaffold --name degen-paradize --output ./desired-folder --decoders pumpfun,moonshot,raydium-amm-v4 --data-source yellowstone-grpc
+carbon-cli scaffold --name degen-paradize --output ./desired-folder --decoders pumpfun,moonshot,raydium-amm-v4 --data-source yellowstone-grpc
 ```
 
 or with interactive mode:
@@ -192,6 +193,7 @@ impl Processor for MyAccountProcessor {
 ### Implementing a Datasource
 
 For most use cases, we recommend choosing from one of our datasource crates:
+
 | Crate Name                     | Description                                                                                                           | Affordability               | Ease of Setup |
 | ------------------------------ | --------------------------------------------------------------------------------------------------------------------- | --------------------------- | ------------- |
 | `carbon-block-subscribe`       | Uses `blockSubscribe` with Solana WS JSON RPC to listen to real-time on-chain transactions                            | Cheap (just RPC)            | Easy          |
@@ -230,6 +232,7 @@ Decoders for most popular Solana programs are published and maintained:
 
 | Crate Name                                 | Description                               | Program ID                                   |
 | ------------------------------------------ | ----------------------------------------- | -------------------------------------------- |
+| `carbon-address-lookup-table-decoder`  | Address Lookup Table Decoder          | AddressLookupTab1e1111111111111111111111111 |
 | `carbon-associated-token-account-decoder`  | Associated Token Account Decoder          | ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL |
 | `carbon-boop-decoder`                      | Boop Decoder                              | boop8hVGQGqehUK2iVEMEnMrL5RbjywRzHKBmBE7ry4  |
 | `carbon-drift-v2-decoder`                  | Drift V2 Program Decoder                  | dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH  |
@@ -275,6 +278,18 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-virtual-curve-decoder`             | Meteora Virtual Curve Program Decoder     | dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN  |
 | `carbon-virtuals-decoder`                  | Virtuals Program Decoder                  | 5U3EU2ubXtK84QcRjWVmYt9RaDyA8gKxdUrPFXmZyaki |
 | `carbon-zeta-decoder`                      | Zeta Program Decoder                      | ZETAxsqBRek56DhiGXrn75yj2NHU3aYUnxvHXpkf3aD  |
+
+## Pre-commit hooks
+
+To activate the pre-commit hook, run `./.pre-commit.sh` once.
+This will cause the following rules to be registered and called at the next `git commit`.
+
+The following checks will be performed:
+
+- fmt: Checks code formatting using `cargo fmt --check`.
+- clippy: Runs `clippy` on the codebase to catch potential issues.
+- cargo_sort: Utilizes `cargo-sort` to ensure Cargo.toml files are sorted correctly.
+- machete: Checks for unused Cargo dependencies using `cargo-machete`.
 
 ## Test
 

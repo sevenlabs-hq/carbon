@@ -9,6 +9,7 @@ pub struct Buy {
     pub max_quote_amount_in: u64,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct BuyInstructionAccounts {
     pub pool: solana_pubkey::Pubkey,
     pub user: solana_pubkey::Pubkey,
@@ -27,6 +28,8 @@ pub struct BuyInstructionAccounts {
     pub associated_token_program: solana_pubkey::Pubkey,
     pub event_authority: solana_pubkey::Pubkey,
     pub program: solana_pubkey::Pubkey,
+    pub coin_creator_vault_ata: solana_pubkey::Pubkey,
+    pub coin_creator_vault_authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Buy {
@@ -35,7 +38,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Buy {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [pool, user, global_config, base_mint, quote_mint, user_base_token_account, user_quote_token_account, pool_base_token_account, pool_quote_token_account, protocol_fee_recipient, protocol_fee_recipient_token_account, base_token_program, quote_token_program, system_program, associated_token_program, event_authority, program, _remaining @ ..] =
+        let [pool, user, global_config, base_mint, quote_mint, user_base_token_account, user_quote_token_account, pool_base_token_account, pool_quote_token_account, protocol_fee_recipient, protocol_fee_recipient_token_account, base_token_program, quote_token_program, system_program, associated_token_program, event_authority, program, coin_creator_vault_ata, coin_creator_vault_authority, _remaining @ ..] =
             accounts
         else {
             return None;
@@ -59,6 +62,8 @@ impl carbon_core::deserialize::ArrangeAccounts for Buy {
             associated_token_program: associated_token_program.pubkey,
             event_authority: event_authority.pubkey,
             program: program.pubkey,
+            coin_creator_vault_ata: coin_creator_vault_ata.pubkey,
+            coin_creator_vault_authority: coin_creator_vault_authority.pubkey,
         })
     }
 }

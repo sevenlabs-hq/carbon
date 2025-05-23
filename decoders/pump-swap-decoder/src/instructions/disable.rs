@@ -12,6 +12,7 @@ pub struct Disable {
     pub disable_sell: bool,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct DisableInstructionAccounts {
     pub admin: solana_pubkey::Pubkey,
     pub global_config: solana_pubkey::Pubkey,

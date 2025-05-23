@@ -8,6 +8,7 @@ pub struct GoToABin {
     pub bin_id: i32,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct GoToABinInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
     pub bin_array_bitmap_extension: solana_pubkey::Pubkey,

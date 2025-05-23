@@ -1,6 +1,6 @@
 [package]
 name = "carbon-cli"
-version = "0.8.0"
+version = "0.8.1"
 edition = { workspace = true }
 description = "CLI for Carbon"
 license = { workspace = true }
@@ -14,22 +14,17 @@ name = "carbon-cli"
 path = "src/main.rs"
 
 [dependencies]
-carbon-core = { workspace = true }
 solana-client = { workspace = true }
+solana-commitment-config = { workspace = true }
 solana-pubkey = { workspace = true }
-solana-sdk = { workspace = true }
-solana-transaction-status = { workspace = true }
 
 anyhow = { workspace = true }
 askama = { workspace = true }
 borsh = { workspace = true, features = ["derive"] }
 clap = { workspace = true, features = ["derive"] }
-console = { workspace = true }
-dialoguer = { workspace = true, default-features = false, features = ["editor"] }
 flate2 = { workspace = true }
 heck = { workspace = true }
 hex = { workspace = true }
-indicatif = { workspace = true }
 inquire = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }

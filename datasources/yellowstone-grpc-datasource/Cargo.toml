@@ -2,7 +2,7 @@
 name = "carbon-yellowstone-grpc-datasource"
 description = "Yellowstone gRPC Datasource"
 license = { workspace = true }
-version = "0.8.0"
+version = "0.8.1"
 edition = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
@@ -14,18 +14,14 @@ crate-type = ["rlib"]
 
 [dependencies]
 solana-account = { workspace = true }
-solana-client = { workspace = true }
 solana-program = { workspace = true }
 solana-pubkey = { workspace = true }
 solana-signature = { workspace = true }
-solana-transaction-status = { workspace = true }
 
 carbon-core = { workspace = true }
 
 async-trait = { workspace = true }
-env_logger = { workspace = true }
 futures = { workspace = true }
-futures-util = { workspace = true }
 log = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tokio-util = { workspace = true }

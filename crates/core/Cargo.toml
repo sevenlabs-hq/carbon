@@ -1,6 +1,6 @@
 [package]
 name = "carbon-core"
-version = "0.8.0"
+version = "0.8.1"
 edition = { workspace = true }
 description = "Core library for Carbon"
 license = { workspace = true }
@@ -15,18 +15,19 @@ macros = ["carbon-macros", "carbon-proc-macros"]
 
 [dependencies]
 solana-account = { workspace = true }
-solana-client = { workspace = true }
+solana-hash = { workspace = true }
 solana-instruction = { workspace = true, default-features = false }
+solana-message = { workspace = true }
 solana-program = { workspace = true }
 solana-pubkey = { workspace = true }
-solana-sdk = { workspace = true }
 solana-signature = { workspace = true }
+solana-transaction = { workspace = true }
+solana-transaction-context = { workspace = true }
 solana-transaction-status = { workspace = true }
 
 async-trait = { workspace = true }
 borsh = { version = "0.10.4" }
 bs58 = { workspace = true }
-futures = { workspace = true }
 log = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

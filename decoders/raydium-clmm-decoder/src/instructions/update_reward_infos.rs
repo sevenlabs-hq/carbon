@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0xa3ace0340b9a6adf")]
 pub struct UpdateRewardInfos {}
 
+#[derive(Debug, PartialEq)]
 pub struct UpdateRewardInfosInstructionAccounts {
     pub pool_state: solana_pubkey::Pubkey,
 }

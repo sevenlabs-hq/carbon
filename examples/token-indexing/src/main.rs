@@ -7,19 +7,23 @@ use {
         metrics::MetricsCollection,
         processor::Processor,
     },
+    carbon_gql_server::server,
     carbon_log_metrics::LogMetrics,
     carbon_postgres_client::PgClient,
     carbon_token_program_decoder::{
         accounts::TokenProgramAccount,
+        api::{TokenProgramSchema, TokenQuery},
         instructions::TokenProgramInstruction,
         storage::{migrations::InitMigration, queries::TokenQueries},
         TokenProgramDecoder,
     },
     carbon_yellowstone_grpc_datasource::YellowstoneGrpcGeyserClient,
+    juniper::{EmptyMutation, EmptySubscription},
     spl_token::state::Mint,
     std::{
         collections::{HashMap, HashSet},
         env,
+        net::SocketAddr,
         sync::Arc,
     },
     tokio::sync::RwLock,
@@ -30,7 +34,6 @@ use {
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
-    env_logger::init();
     dotenv::dotenv().ok();
     // NOTE: Workaround, that solving issue https://github.com/rustls/rustls/issues/1877
     rustls::crypto::aws_lc_rs::default_provider()
@@ -47,15 +50,29 @@ pub async fn main() -> CarbonResult<()> {
             nonempty_txn_signature: None,
         },
     );
+
+    // Connect to database
     let db_uri = std::env::var("DATABASE_URL").expect("DATABASE_URL must be set");
+    println!("Connecting to database: {}", db_uri);
     let pg_client = PgClient::new(&db_uri, 1, 10)
         .await
         .expect("Failed to create Postgres client");
 
+    // Run Migrations
     pg_client
         .migrate(vec![Box::new(InitMigration)])
         .await
         .expect("Failed to migrate");
+
+    let schema =
+        TokenProgramSchema::new(TokenQuery, EmptyMutation::new(), EmptySubscription::new());
+
+    let addr = SocketAddr::from(([127, 0, 0, 1], 8080));
+
+    let pg_clone = pg_client.clone();
+    tokio::spawn(async move {
+        server::run(addr, pg_clone, Arc::new(schema)).await;
+    });
 
     let transaction_filter = SubscribeRequestFilterTransactions {
         vote: Some(false),
@@ -69,7 +86,10 @@ pub async fn main() -> CarbonResult<()> {
     let mut transaction_filters: HashMap<String, SubscribeRequestFilterTransactions> =
         HashMap::new();
 
-    transaction_filters.insert("spl_token_transaction_filter".to_string(), transaction_filter);
+    transaction_filters.insert(
+        "spl_token_transaction_filter".to_string(),
+        transaction_filter,
+    );
 
     let yellowstone_grpc = YellowstoneGrpcGeyserClient::new(
         env::var("GEYSER_URL").unwrap_or_default(),

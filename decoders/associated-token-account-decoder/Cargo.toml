@@ -1,6 +1,6 @@
 [package]
 name = "carbon-associated-token-account-decoder"
-version = "0.8.0"
+version = "0.8.1"
 description = "Associated Token Account program decoder"
 edition = { workspace = true }
 license = { workspace = true }
@@ -13,8 +13,6 @@ crate-type = ["rlib"]
 
 [dependencies]
 carbon-core = { workspace = true }
-carbon-macros = { workspace = true }
-carbon-proc-macros = { workspace = true }
 serde = { workspace = true }
 solana-account = { workspace = true }
 solana-instruction = { workspace = true, default-features = false }

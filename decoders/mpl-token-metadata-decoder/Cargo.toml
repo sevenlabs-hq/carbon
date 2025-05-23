@@ -1,6 +1,6 @@
 [package]
 name = "carbon-mpl-token-metadata-decoder"
-version = "0.8.0"
+version = "0.8.1"
 description = "MPL Token Metadata Decoder"
 license = { workspace = true }
 edition = { workspace = true }

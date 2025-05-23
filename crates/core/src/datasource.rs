@@ -40,8 +40,8 @@ use {
     async_trait::async_trait,
     solana_account::Account,
     solana_pubkey::Pubkey,
-    solana_sdk::transaction::VersionedTransaction,
     solana_signature::Signature,
+    solana_transaction::versioned::VersionedTransaction,
     solana_transaction_status::TransactionStatusMeta,
     std::sync::Arc,
     tokio_util::sync::CancellationToken,
@@ -74,7 +74,7 @@ use {
 /// use carbon_core::datasource::Datasource;
 /// use tokio_util::sync::CancellationToken;
 /// use async_trait::async_trait;
-/// 
+///
 /// #[async_trait]
 /// impl Datasource for MyDatasource {
 ///     async fn consume(
@@ -122,7 +122,7 @@ pub enum Update {
     Account(AccountUpdate),
     Transaction(Box<TransactionUpdate>),
     AccountDeletion(AccountDeletion),
-    BlockDetails(BlockDetails)
+    BlockDetails(BlockDetails),
 }
 
 /// Enumerates the types of updates a datasource can provide.
@@ -158,7 +158,7 @@ pub struct AccountUpdate {
 
 /// Represents the details of a Solana block, including its slot, hashes, rewards, and timing information.
 ///
-/// The `BlockDetails` struct encapsulates the essential information for a block, 
+/// The `BlockDetails` struct encapsulates the essential information for a block,
 /// providing details about its slot, blockhashes, rewards, and other metadata.
 ///
 /// - `slot`: The slot number in which this block was recorded.

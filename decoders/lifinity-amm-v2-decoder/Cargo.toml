@@ -1,6 +1,6 @@
 [package]
 name = "carbon-lifinity-amm-v2-decoder"
-version = "0.8.0"
+version = "0.8.1"
 description = "Lifinity AMM V2 Decoder"
 edition = { workspace = true }
 license = { workspace = true }
@@ -14,8 +14,6 @@ crate-type = ["rlib"]
 
 [dependencies]
 carbon-core = { workspace = true }
-carbon-macros = { workspace = true }
-carbon-proc-macros = { workspace = true }
 serde = { workspace = true }
 solana-account = { workspace = true }
 solana-instruction = { workspace = true, default-features = false }

@@ -9,4 +9,5 @@ pub struct GlobalConfig {
     pub protocol_fee_basis_points: u64,
     pub disable_flags: u8,
     pub protocol_fee_recipients: [solana_pubkey::Pubkey; 8],
+    pub coin_creator_fee_basis_points: u64,
 }

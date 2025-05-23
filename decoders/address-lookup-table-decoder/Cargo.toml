@@ -1,0 +1,21 @@
+[package]
+name = "carbon-address-lookup-table-decoder"
+version = "0.8.1"
+description = "Address lookup table program decoder"
+edition = { workspace = true }
+license = { workspace = true }
+readme = "README.md"
+keywords = ["solana", "decoder", "address-lookup-table", "alt"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+bincode = { workspace = true }
+bytemuck = "1.23.0"
+carbon-core = { workspace = true }
+serde = { workspace = true }
+solana-account = { workspace = true }
+solana-instruction = { workspace = true, default-features = false }
+solana-pubkey = { workspace = true }

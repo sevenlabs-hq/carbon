@@ -72,7 +72,7 @@
 //!
 //! ```ignore
 //! use std::sync::Arc;
-//! 
+//!
 //! carbon_core::pipeline::Pipeline::builder()
 //! .datasource(transaction_crawler)
 //! .metrics(Arc::new(LogMetrics::new()))
@@ -114,6 +114,7 @@
 
 pub mod account;
 pub mod account_deletion;
+mod block_details;
 pub mod collection;
 pub mod datasource;
 pub mod deserialize;
@@ -125,10 +126,12 @@ pub mod processor;
 pub mod schema;
 pub mod transaction;
 pub mod transformers;
-mod block_details;
 
 pub use borsh;
 #[cfg(feature = "macros")]
 pub use carbon_macros::*;
 #[cfg(feature = "macros")]
 pub use carbon_proc_macros::*;
+#[cfg(feature = "macros")]
+#[doc(hidden)]
+pub use log;

@@ -1,6 +1,6 @@
 [package]
 name = "carbon-token-2022-decoder"
-version = "0.8.0"
+version = "0.8.1"
 description = "Carbon Token 2022 Decoder"
 edition = { workspace = true }
 license = { workspace = true }
@@ -14,11 +14,8 @@ crate-type = ["rlib"]
 
 [dependencies]
 carbon-core = { workspace = true }
-carbon-macros = { workspace = true }
-carbon-proc-macros = { workspace = true }
 serde = { workspace = true }
 serde-big-array = { workspace = true }
 solana-account = { workspace = true }
 solana-instruction = { workspace = true, default-features = false }
-solana-program = { workspace = true }
 solana-pubkey = { workspace = true }

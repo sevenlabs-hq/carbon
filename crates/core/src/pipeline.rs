@@ -1,4 +1,4 @@
-//! Deprocess(ines the `Pipeline` struct and related components for processing
+//! Defines the `Pipeline` struct and related components for processing
 //! blockchain data updates.
 //!
 //! The `Pipeline` module is central to the `carbon-core` framework, offering a

@@ -2,7 +2,7 @@
 name = "carbon-rpc-transaction-crawler-datasource"
 description = "RPC Transaction Crawler Datasource"
 license = { workspace = true }
-version = "0.8.0"
+version = "0.8.1"
 edition = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
@@ -14,8 +14,8 @@ crate-type = ["rlib"]
 
 [dependencies]
 solana-client = { workspace = true }
+solana-commitment-config = { workspace = true }
 solana-pubkey = { workspace = true }
-solana-sdk = { workspace = true }
 solana-signature = { workspace = true }
 solana-transaction-status = { workspace = true }
 
@@ -23,10 +23,7 @@ carbon-core = { workspace = true }
 
 async-stream = { workspace = true }
 async-trait = { workspace = true }
-env_logger = { workspace = true }
 futures = { workspace = true }
 log = { workspace = true }
-retry = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
-tokio-retry = { workspace = true }
 tokio-util = { workspace = true }

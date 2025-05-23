@@ -2,7 +2,7 @@
 name = "carbon-helius-atlas-ws-datasource"
 description = "Helius Atlas WebSocket Datasource"
 license = { workspace = true }
-version = "0.8.0"
+version = "0.8.1"
 edition = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
@@ -17,19 +17,16 @@ bincode = { workspace = true }
 bs58 = { workspace = true }
 helius = { workspace = true }
 solana-account = { workspace = true }
-solana-account-decoder = { workspace = true }
-solana-client = { workspace = true }
 solana-clock = { workspace = true }
 solana-program = { workspace = true }
 solana-pubkey = { workspace = true }
-solana-sdk = { workspace = true }
 solana-signature = { workspace = true }
+solana-transaction-context = { workspace = true }
 solana-transaction-status = { workspace = true }
 
 carbon-core = { workspace = true }
 
 async-trait = { workspace = true }
-env_logger = { workspace = true }
 futures = { workspace = true }
 log = { workspace = true }
 tokio = { workspace = true, features = ["full"] }

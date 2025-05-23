@@ -10,6 +10,7 @@ pub struct IncreaseLiquidity {
     pub amount1_max: u64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct IncreaseLiquidityInstructionAccounts {
     pub nft_owner: solana_pubkey::Pubkey,
     pub nft_account: solana_pubkey::Pubkey,

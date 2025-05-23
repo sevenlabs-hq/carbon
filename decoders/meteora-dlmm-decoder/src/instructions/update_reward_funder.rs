@@ -9,6 +9,7 @@ pub struct UpdateRewardFunder {
     pub new_funder: solana_pubkey::Pubkey,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct UpdateRewardFunderInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
     pub admin: solana_pubkey::Pubkey,

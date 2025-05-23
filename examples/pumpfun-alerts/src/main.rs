@@ -22,7 +22,7 @@ pub async fn main() -> CarbonResult<()> {
     env_logger::init();
 
     let helius_websocket = carbon_helius_atlas_ws_datasource::HeliusWebsocket::new(
-        std::env::var("API_KEY").unwrap(),
+        std::env::var("API_KEY").expect("API_KEY must be set"),
         carbon_helius_atlas_ws_datasource::Filters {
             accounts: vec![],
             transactions: Some(RpcTransactionsConfig {

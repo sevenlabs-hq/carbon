@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x11179fd365b829f1")]
 pub struct MigrateBinArray {}
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct MigrateBinArrayInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
 }

@@ -13,10 +13,11 @@ pub struct SetParams {
     pub withdraw_authority: solana_pubkey::Pubkey,
     pub enable_migrate: bool,
     pub pool_migration_fee: u64,
-    pub creator_fee: u64,
+    pub creator_fee_basis_points: u64,
+    pub set_creator_authority: solana_pubkey::Pubkey,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct SetParamsInstructionAccounts {
     pub global: solana_pubkey::Pubkey,
     pub authority: solana_pubkey::Pubkey,

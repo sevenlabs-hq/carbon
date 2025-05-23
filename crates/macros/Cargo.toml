@@ -1,6 +1,6 @@
 [package]
 name = "carbon-macros"
-version = "0.8.0"
+version = "0.8.1"
 edition = { workspace = true }
 description = "Macros for Carbon"
 license = { workspace = true }
@@ -10,12 +10,6 @@ keywords = ["solana", "indexer", "macros"]
 categories = ["encoding"]
 
 [dependencies]
-solana-client = { workspace = true }
-solana-pubkey = { workspace = true }
-solana-transaction-status = { workspace = true }
-
-hex = { workspace = true }
-paste = { workspace = true }
 
 [lib]
 crate-type = ["rlib"]

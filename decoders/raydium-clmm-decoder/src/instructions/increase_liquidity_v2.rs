@@ -11,6 +11,7 @@ pub struct IncreaseLiquidityV2 {
     pub base_flag: Option<bool>,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct IncreaseLiquidityV2InstructionAccounts {
     pub nft_owner: solana_pubkey::Pubkey,
     pub nft_account: solana_pubkey::Pubkey,
