@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/*", "datasources/*", "decoders/*", "examples/*", "metrics/*"]
+members = ["crates/*", "datasources/*", "datasinks/*", "decoders/*", "examples/*", "metrics/*"]
 resolver = "2"
 
 [workspace.package]
@@ -27,6 +27,9 @@ carbon-rpc-block-subscribe-datasource = { path = "datasources/rpc-block-subscrib
 carbon-rpc-program-subscribe-datasource = { path = "datasources/rpc-program-subscribe-datasource", version = "0.8.1" }
 carbon-rpc-transaction-crawler-datasource = { path = "datasources/rpc-transaction-crawler-datasource", version = "0.8.1" }
 carbon-yellowstone-grpc-datasource = { path = "datasources/yellowstone-grpc-datasource", version = "0.8.1" }
+
+# datasinks
+carbon-postgres-datasink = { path = "datasinks/postgres-datasink", version = "0.8.1" }
 
 # metrics
 carbon-log-metrics = { path = "metrics/log-metrics", version = "0.8.1" }

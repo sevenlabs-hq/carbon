@@ -51,6 +51,7 @@
 //!   pipeline performance, especially in production environments.
 
 use crate::block_details::{BlockDetailsPipe, BlockDetailsPipes};
+use crate::datasink::{DataSink, PeriodicFlush};
 use crate::datasource::BlockDetails;
 use {
     crate::{
@@ -208,6 +209,7 @@ pub const DEFAULT_CHANNEL_BUFFER_SIZE: usize = 1_000;
 ///   used.
 pub struct Pipeline {
     pub datasources: Vec<Arc<dyn Datasource + Send + Sync>>,
+    pub datasinks: Vec<Arc<dyn DataSink + Send + Sync>>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
@@ -254,6 +256,7 @@ impl Pipeline {
         log::trace!("Pipeline::builder()");
         PipelineBuilder {
             datasources: Vec::new(),
+            datasinks: Vec::new(),
             account_pipes: Vec::new(),
             account_deletion_pipes: Vec::new(),
             block_details_pipes: Vec::new(),
@@ -653,6 +656,7 @@ impl Pipeline {
 #[derive(Default)]
 pub struct PipelineBuilder {
     pub datasources: Vec<Arc<dyn Datasource + Send + Sync>>,
+    pub datasinks: Vec<Arc<dyn DataSink + Send + Sync>>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
@@ -709,6 +713,33 @@ impl PipelineBuilder {
     pub fn datasource(mut self, datasource: impl Datasource + 'static) -> Self {
         log::trace!("datasource(self, datasource: {:?})", stringify!(datasource));
         self.datasources.push(Arc::new(datasource));
+        self
+    }
+
+    /// Adds a datasink to the pipeline.
+    ///
+    /// The datasink is responsible for writing data to a destination, such as
+    /// a database or a file. Multiple datasinks can be added to handle various
+    /// types of data.
+    ///
+    /// # Parameters
+    ///
+    /// - `datasink`: The data sink to add, implementing the `DataSink` trait.
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// use carbon_core::pipeline::PipelineBuilder;
+    ///
+    /// let builder = PipelineBuilder::new()
+    ///     .datasink(MyDatasink::new());
+    /// ```
+    pub fn datasink(mut self, datasink: impl DataSink + PeriodicFlush + 'static) -> Self {
+        log::trace!("datasink(self, datasink: {:?})", stringify!(datasink));
+        // Clean up, either make this a separate method of make it clear that this is where
+        // the periodic flush is started...
+        //datasink.start_periodic_flush().await;
+        self.datasinks.push(Arc::new(datasink));
         self
     }
 
@@ -1060,6 +1091,7 @@ impl PipelineBuilder {
         log::trace!("build(self)");
         Ok(Pipeline {
             datasources: self.datasources,
+            datasinks: self.datasinks,
             account_pipes: self.account_pipes,
             account_deletion_pipes: self.account_deletion_pipes,
             block_details_pipes: self.block_details_pipes,

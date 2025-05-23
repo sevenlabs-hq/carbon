@@ -1,3 +1,4 @@
+use carbon_postgres_datasink::PostgresWriter;
 use {
     async_trait::async_trait,
     carbon_core::{
@@ -32,8 +33,14 @@ pub async fn main() -> CarbonResult<()> {
         5,                                       // Max Concurrent Requests
     );
 
+    let postgres_writer =
+        PostgresWriter::new(&env::var("POSTGRES_URL").unwrap_or_default(), 1000, 3)
+            .await
+            .unwrap();
+
     carbon_core::pipeline::Pipeline::builder()
         .datasource(transaction_crawler)
+        .datasink(postgres_writer)
         .metrics(Arc::new(LogMetrics::new()))
         .metrics_flush_interval(3)
         .instruction(MeteoraDlmmDecoder, MeteoraInstructionProcessor)
