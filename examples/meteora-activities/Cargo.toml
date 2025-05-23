@@ -7,6 +7,7 @@ edition = { workspace = true }
 carbon-core = { workspace = true }
 carbon-log-metrics = { workspace = true }
 carbon-meteora-dlmm-decoder = { workspace = true }
+carbon-postgres-datasink = { workspace = true }
 carbon-rpc-transaction-crawler-datasource = { workspace = true }
 solana-commitment-config = { workspace = true }
 

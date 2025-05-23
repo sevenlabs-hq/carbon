@@ -1577,7 +1577,7 @@ dependencies = [
 
 [[package]]
 name = "carbon-postgres-datasink"
-version = "0.1.0"
+version = "0.8.1"
 dependencies = [
  "async-trait",
  "base64 0.22.1",
@@ -4207,6 +4207,7 @@ dependencies = [
  "carbon-core",
  "carbon-log-metrics",
  "carbon-meteora-dlmm-decoder",
+ "carbon-postgres-datasink",
  "carbon-rpc-transaction-crawler-datasource",
  "dotenv",
  "env_logger 0.11.8",
