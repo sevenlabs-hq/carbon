@@ -1,11 +1,10 @@
 use async_trait::async_trait;
-use base64;
-use bincode;
+use base64::Engine as _;
 use carbon_core::datasink::{DataSink, PeriodicFlush};
 use carbon_core::datasource::{AccountUpdate, TransactionUpdate};
 use carbon_postgres_client::PgClient;
 use serde_json;
-use solana_transaction_status::{UiTransactionEncoding, UiTransactionStatusMeta};
+use solana_transaction_status::UiTransactionStatusMeta;
 use std::collections::VecDeque;
 use std::sync::Arc;
 use tokio::sync::Mutex;
@@ -149,7 +148,7 @@ impl DataSink for PostgresWriter {
 
             transactions.push((
                 update.signature.as_ref().to_vec(),
-                base64::encode(tx_bytes),
+                base64::engine::general_purpose::STANDARD.encode(tx_bytes),
                 meta_json,
                 update.is_vote,
                 update.slot as i64,
