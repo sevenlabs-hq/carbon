@@ -1128,6 +1128,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-block-crawler-example"
+version = "0.2.1"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "carbon-pumpfun-decoder",
+ "carbon-rpc-block-crawler-datasource",
+ "clap",
+ "dotenv",
+ "env_logger 0.11.8",
+ "log",
+ "solana-transaction-status",
+ "tokio",
+]
+
+[[package]]
 name = "carbon-boop-decoder"
 version = "0.8.1"
 dependencies = [
@@ -1202,25 +1218,12 @@ dependencies = [
 name = "carbon-fetch-ix"
 version = "0.8.1"
 dependencies = [
- "anyhow",
- "askama",
- "borsh 1.5.7",
  "bs58",
- "carbon-core",
- "clap",
- "console",
- "dialoguer",
- "flate2",
- "heck",
  "hex",
- "indicatif",
- "inquire",
  "serde",
  "serde_json",
- "sha2 0.10.9",
  "solana-client",
  "solana-commitment-config",
- "solana-pubkey",
  "solana-signature",
  "solana-transaction-status",
 ]
@@ -2483,18 +2486,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.101",
-]
-
-[[package]]
-name = "dialoguer"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "658bce805d770f407bc62102fca7c2c64ceef2fbcb2b8bd19d2765ce093980de"
-dependencies = [
- "console",
- "shell-words",
- "tempfile",
- "thiserror 1.0.69",
 ]
 
 [[package]]
@@ -6119,12 +6110,6 @@ dependencies = [
  "tokio",
  "tokio-util",
 ]
-
-[[package]]
-name = "shell-words"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "24188a676b6ae68c3b2cb3a01be17fbf7240ce009799bb56d5b1409051e78fde"
 
 [[package]]
 name = "shlex"

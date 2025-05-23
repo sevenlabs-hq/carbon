@@ -354,7 +354,7 @@ impl Pipeline {
             tokio::spawn(async move {
                 if let Err(e) = datasource_clone
                     .consume(
-                        &sender_clone,
+                        sender_clone,
                         datasource_cancellation_token_clone,
                         metrics_collection,
                     )
@@ -364,6 +364,7 @@ impl Pipeline {
                 }
             });
         }
+        drop(update_sender);
 
         let mut interval = tokio::time::interval(time::Duration::from_secs(
             self.metrics_flush_interval.unwrap_or(5),

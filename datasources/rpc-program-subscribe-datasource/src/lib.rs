@@ -55,7 +55,7 @@ impl RpcProgramSubscribe {
 impl Datasource for RpcProgramSubscribe {
     async fn consume(
         &self,
-        sender: &Sender<Update>,
+        sender: Sender<Update>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {

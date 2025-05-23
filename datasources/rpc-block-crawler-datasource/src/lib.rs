@@ -66,7 +66,7 @@ impl RpcBlockCrawler {
 impl Datasource for RpcBlockCrawler {
     async fn consume(
         &self,
-        sender: &Sender<Update>,
+        sender: Sender<Update>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -76,7 +76,6 @@ impl Datasource for RpcBlockCrawler {
                 .commitment
                 .unwrap_or(CommitmentConfig::confirmed()),
         ));
-        let sender = sender.clone();
         let (block_sender, block_receiver) = mpsc::channel(self.channel_buffer_size);
 
         let block_fetcher = block_fetcher(
@@ -234,6 +233,7 @@ fn block_fetcher(
                     }
                 })
                 .await;
+            log::warn!("RPC Crawler block fetcher completed.");
         };
 
         tokio::select! {
@@ -241,7 +241,8 @@ fn block_fetcher(
                 log::info!("Cancelling RPC Crawler block fetcher...");
             }
             _ = fetch_stream_task => {}
-        }
+        };
+        log::info!("RPC Crawler block fetcher completed.");
     })
 }
 
@@ -253,7 +254,6 @@ fn task_processor(
     metrics: Arc<MetricsCollection>,
 ) -> JoinHandle<()> {
     let mut block_receiver = block_receiver;
-    let sender = sender.clone();
 
     tokio::spawn(async move {
         loop {
