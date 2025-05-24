@@ -364,6 +364,7 @@ impl Pipeline {
                 }
             });
         }
+
         drop(update_sender);
 
         let mut interval = tokio::time::interval(time::Duration::from_secs(
