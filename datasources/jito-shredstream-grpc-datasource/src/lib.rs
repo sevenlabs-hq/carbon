@@ -34,11 +34,10 @@ impl JitoShredstreamGrpcClient {
 impl Datasource for JitoShredstreamGrpcClient {
     async fn consume(
         &self,
-        sender: &Sender<Update>,
+        sender: Sender<Update>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let sender = sender.clone();
         let endpoint = self.0.clone();
 
         let mut client = ShredstreamProxyClient::connect(endpoint)
