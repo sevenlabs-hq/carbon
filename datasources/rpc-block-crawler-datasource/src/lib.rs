@@ -66,7 +66,7 @@ impl RpcBlockCrawler {
 impl Datasource for RpcBlockCrawler {
     async fn consume(
         &self,
-        sender: &Sender<Update>,
+        sender: Sender<Update>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -76,7 +76,6 @@ impl Datasource for RpcBlockCrawler {
                 .commitment
                 .unwrap_or(CommitmentConfig::confirmed()),
         ));
-        let sender = sender.clone();
         let (block_sender, block_receiver) = mpsc::channel(self.channel_buffer_size);
 
         let block_fetcher = block_fetcher(
@@ -253,89 +252,95 @@ fn task_processor(
     metrics: Arc<MetricsCollection>,
 ) -> JoinHandle<()> {
     let mut block_receiver = block_receiver;
-    let sender = sender.clone();
 
     tokio::spawn(async move {
         loop {
             tokio::select! {
-                _ = cancellation_token.cancelled() => {
-                    log::info!("Cancelling RPC Crawler task processor...");
-                    break;
-                }
-                Some((slot, block)) = block_receiver.recv() => {
-                    metrics
-                        .increment_counter("block_crawler_blocks_received", 1)
-                        .await
-                        .unwrap_or_else(|value| {
-                            log::error!("Error recording metric: {}", value)
-                        });
-                    let block_start_time = Instant::now();
-                    let block_hash = Hash::from_str(&block.blockhash).ok();
-                    if let Some(transactions) = block.transactions {
-                        for encoded_transaction_with_status_meta in transactions {
-                            let start_time = std::time::Instant::now();
+            _ = cancellation_token.cancelled() => {
+                log::info!("Cancelling RPC Crawler task processor...");
+                break;
+            }
+            maybe_block = block_receiver.recv() => {
+                match maybe_block {
+                    Some((slot, block)) => {
 
-                            let meta_original = if let Some(meta) = encoded_transaction_with_status_meta.clone().meta {
-                                meta
-                            } else {
-                                continue;
-                            };
+                        metrics
+                            .increment_counter("block_crawler_blocks_received", 1)
+                            .await
+                            .unwrap_or_else(|value| {
+                                log::error!("Error recording metric: {}", value)
+                            });
+                        let block_start_time = Instant::now();
+                        let block_hash = Hash::from_str(&block.blockhash).ok();
+                        if let Some(transactions) = block.transactions {
+                            for encoded_transaction_with_status_meta in transactions {
+                                let start_time = std::time::Instant::now();
 
-                            if meta_original.status.is_err() {
-                                continue;
-                            }
+                                let meta_original = if let Some(meta) = encoded_transaction_with_status_meta.clone().meta {
+                                    meta
+                                } else {
+                                    continue;
+                                };
 
-                            let Some(decoded_transaction) = encoded_transaction_with_status_meta.transaction.decode() else {
-                                log::error!("Failed to decode transaction: {:?}", encoded_transaction_with_status_meta);
-                                continue;
-                            };
+                                if meta_original.status.is_err() {
+                                    continue;
+                                }
 
-                            let Ok(meta_needed) = transaction_metadata_from_original_meta(meta_original) else {
-                                log::error!("Error getting metadata from transaction original meta.");
-                                continue;
-                            };
+                                let Some(decoded_transaction) = encoded_transaction_with_status_meta.transaction.decode() else {
+                                    log::error!("Failed to decode transaction: {:?}", encoded_transaction_with_status_meta);
+                                    continue;
+                                };
 
-                            let update = Update::Transaction(Box::new(TransactionUpdate {
-                                signature: *decoded_transaction.get_signature(),
-                                transaction: decoded_transaction.clone(),
-                                meta: meta_needed,
-                                is_vote: false,
-                                slot,
-                                block_time: block.block_time,
-                                block_hash,
-                            }));
+                                let Ok(meta_needed) = transaction_metadata_from_original_meta(meta_original) else {
+                                    log::error!("Error getting metadata from transaction original meta.");
+                                    continue;
+                                };
 
-                            metrics
-                                .record_histogram(
-                                    "block_crawler_transaction_process_time_nanoseconds",
-                                    start_time.elapsed().as_nanos() as f64
-                                )
-                                .await
-                                .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                                let update = Update::Transaction(Box::new(TransactionUpdate {
+                                    signature: *decoded_transaction.get_signature(),
+                                    transaction: decoded_transaction.clone(),
+                                    meta: meta_needed,
+                                    is_vote: false,
+                                    slot,
+                                    block_time: block.block_time,
+                                    block_hash,
+                                }));
 
-                            metrics.increment_counter("block_crawler_transactions_processed", 1)
-                                .await
-                                .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                                metrics
+                                    .record_histogram(
+                                        "block_crawler_transaction_process_time_nanoseconds",
+                                        start_time.elapsed().as_nanos() as f64
+                                    )
+                                    .await
+                                    .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
-                            if let Err(err) = sender.try_send(update) {
-                                log::error!("Error sending transaction update: {:?}", err);
-                                break;
+                                metrics.increment_counter("block_crawler_transactions_processed", 1)
+                                    .await
+                                    .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+
+                                if let Err(err) = sender.try_send(update) {
+                                    log::error!("Error sending transaction update: {:?}", err);
+                                    break;
+                                }
                             }
                         }
-                    }
-                    metrics
-                        .record_histogram(
-                            "block_crawler_block_process_time_nanoseconds",
-                            block_start_time.elapsed().as_nanos() as f64
-                        ).await
-                        .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                        metrics
+                            .record_histogram(
+                                "block_crawler_block_process_time_nanoseconds",
+                                block_start_time.elapsed().as_nanos() as f64
+                            ).await
+                            .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
-                    metrics
-                        .increment_counter("block_crawler_blocks_processed", 1)
-                        .await
-                        .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                        metrics
+                            .increment_counter("block_crawler_blocks_processed", 1)
+                            .await
+                            .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                    }
+                    None => {
+                        break;
+                    }
                 }
-            }
+            }}
         }
     })
 }
