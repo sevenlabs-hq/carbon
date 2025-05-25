@@ -3,9 +3,7 @@ use carbon_core::{borsh, CarbonDeserialize};
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 #[carbon(discriminator = "0x01")]
-pub struct InitializeAccount {
-    pub amount: u64,
-}
+pub struct InitializeAccount {}
 
 pub struct InitializeAccountAccounts {
     pub account: solana_pubkey::Pubkey,
