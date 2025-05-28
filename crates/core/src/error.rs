@@ -44,6 +44,8 @@ pub enum Error {
     MissingInstructionData,
     #[error("Failed to consume datasource ({0})")]
     FailedToConsumeDatasource(String),
+    #[error("Pre-processing error: {0}")]
+    PreProcessingError(String),
     #[error("Custom error: {0}")]
     Custom(String),
 }

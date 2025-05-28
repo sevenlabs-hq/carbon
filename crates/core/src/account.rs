@@ -127,6 +127,43 @@ pub trait AccountDecoder<'a> {
 /// - `T`: The account type, as determined by the decoder.
 pub type AccountProcessorInputType<T> = (AccountMetadata, DecodedAccount<T>);
 
+/// A trait for preprocessing Solana accounts before decoding.
+///
+/// `PreProcessor` allows for preprocessing of account data before it
+/// goes through the decoder. This can be useful for data transformation,
+/// validation, or filtering of accounts before they are decoded.
+///
+/// # Example
+///
+/// ```ignore
+/// struct MyPreProcessor;
+///
+/// impl PreProcessor for MyPreProcessor {
+///     type Error = MyCustomError;
+///
+///     fn pre_process(&self, account: &mut solana_account::Account) -> Result<(), Self::Error> {
+///         // Custom preprocessing logic here
+///         Ok(())
+///     }
+/// }
+/// ```
+pub trait PreProcessor: Send + Sync {
+    /// The error type that can be returned during preprocessing
+    type Error: std::error::Error + Send + Sync;
+
+    /// Preprocesses the account data before decoding.
+    /// For example, dump it to a DB if you like.
+    ///
+    /// # Parameters
+    ///
+    /// - `account`: A mutable reference to the Solana account to preprocess
+    ///
+    /// # Returns
+    ///
+    /// Returns `Ok(())` if preprocessing was successful, or an error if preprocessing failed
+    fn pre_process(&self, account: &mut solana_account::Account) -> Result<(), Self::Error>;
+}
+
 /// A processing pipe that decodes and processes Solana account updates.
 ///
 /// `AccountPipe` combines an `AccountDecoder` and a `Processor` to manage
@@ -138,6 +175,7 @@ pub type AccountProcessorInputType<T> = (AccountMetadata, DecodedAccount<T>);
 ///
 /// - `T`: The data type of the decoded account information, as determined by
 ///   the decoder.
+/// - `P`: The type of the preprocessor.
 ///
 /// # Fields
 ///
@@ -145,9 +183,12 @@ pub type AccountProcessorInputType<T> = (AccountMetadata, DecodedAccount<T>);
 ///   structured form.
 /// - `processor`: A `Processor` that handles the processing logic for decoded
 ///   accounts.
-pub struct AccountPipe<T: Send> {
+/// - `pre_processor`: An optional `PreProcessor` for preprocessing account data
+///   before decoding.
+pub struct AccountPipe<T: Send, P: PreProcessor> {
     pub decoder: Box<dyn for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static>,
     pub processor: Box<dyn Processor<InputType = AccountProcessorInputType<T>> + Send + Sync>,
+    pub pre_processor: P,
 }
 
 /// A trait for processing account updates in the pipeline asynchronously.
@@ -194,16 +235,21 @@ pub trait AccountPipes: Send + Sync {
 }
 
 #[async_trait]
-impl<T: Send> AccountPipes for AccountPipe<T> {
+impl<T: Send, P: PreProcessor> AccountPipes for AccountPipe<T, P> {
     async fn run(
         &mut self,
-        account_with_metadata: (AccountMetadata, solana_account::Account),
+        mut account_with_metadata: (AccountMetadata, solana_account::Account),
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         log::trace!(
             "AccountPipe::run(account_with_metadata: {:?}, metrics)",
             account_with_metadata,
         );
+
+        // Run pre-processor
+        self.pre_processor
+            .pre_process(&mut account_with_metadata.1)
+            .map_err(|e| crate::error::Error::PreProcessingError(e.to_string()))?;
 
         if let Some(decoded_account) = self.decoder.decode_account(&account_with_metadata.1) {
             self.processor

@@ -50,6 +50,7 @@
 //! - Proper metric collection and flushing are essential for monitoring
 //!   pipeline performance, especially in production environments.
 
+use crate::account::PreProcessor;
 use crate::block_details::{BlockDetailsPipe, BlockDetailsPipes};
 use crate::datasource::BlockDetails;
 use {
@@ -769,6 +770,7 @@ impl PipelineBuilder {
         mut self,
         decoder: impl for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
         processor: impl Processor<InputType = AccountProcessorInputType<T>> + Send + Sync + 'static,
+        pre_processor: impl PreProcessor + Send + Sync + 'static,
     ) -> Self {
         log::trace!(
             "account(self, decoder: {:?}, processor: {:?})",
@@ -778,6 +780,7 @@ impl PipelineBuilder {
         self.account_pipes.push(Box::new(AccountPipe {
             decoder: Box::new(decoder),
             processor: Box::new(processor),
+            pre_processor: pre_processor,
         }));
         self
     }
