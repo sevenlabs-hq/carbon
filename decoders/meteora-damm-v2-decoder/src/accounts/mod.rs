@@ -1,7 +1,7 @@
 use carbon_core::account::AccountDecoder;
 use carbon_core::deserialize::CarbonDeserialize;
 
-use super::CpAmmDecoder;
+use super::MeteoraDammV2Decoder;
 pub mod claim_fee_operator;
 pub mod config;
 pub mod pool;
@@ -9,7 +9,7 @@ pub mod position;
 pub mod token_badge;
 pub mod vesting;
 
-pub enum CpAmmAccount {
+pub enum MeteoraDammV2Account {
     ClaimFeeOperator(claim_fee_operator::ClaimFeeOperator),
     Config(config::Config),
     Pool(pool::Pool),
@@ -18,8 +18,8 @@ pub enum CpAmmAccount {
     Vesting(vesting::Vesting),
 }
 
-impl<'a> AccountDecoder<'a> for CpAmmDecoder {
-    type AccountType = CpAmmAccount;
+impl<'a> AccountDecoder<'a> for MeteoraDammV2Decoder {
+    type AccountType = MeteoraDammV2Account;
     fn decode_account(
         &self,
         account: &solana_account::Account,
@@ -29,7 +29,7 @@ impl<'a> AccountDecoder<'a> for CpAmmDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: CpAmmAccount::ClaimFeeOperator(decoded_account),
+                data: MeteoraDammV2Account::ClaimFeeOperator(decoded_account),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -39,7 +39,7 @@ impl<'a> AccountDecoder<'a> for CpAmmDecoder {
         if let Some(decoded_account) = config::Config::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: CpAmmAccount::Config(decoded_account),
+                data: MeteoraDammV2Account::Config(decoded_account),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -49,7 +49,7 @@ impl<'a> AccountDecoder<'a> for CpAmmDecoder {
         if let Some(decoded_account) = pool::Pool::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: CpAmmAccount::Pool(decoded_account),
+                data: MeteoraDammV2Account::Pool(decoded_account),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -59,7 +59,7 @@ impl<'a> AccountDecoder<'a> for CpAmmDecoder {
         if let Some(decoded_account) = position::Position::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: CpAmmAccount::Position(decoded_account),
+                data: MeteoraDammV2Account::Position(decoded_account),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -70,7 +70,7 @@ impl<'a> AccountDecoder<'a> for CpAmmDecoder {
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: CpAmmAccount::TokenBadge(decoded_account),
+                data: MeteoraDammV2Account::TokenBadge(decoded_account),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
@@ -80,7 +80,7 @@ impl<'a> AccountDecoder<'a> for CpAmmDecoder {
         if let Some(decoded_account) = vesting::Vesting::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: CpAmmAccount::Vesting(decoded_account),
+                data: MeteoraDammV2Account::Vesting(decoded_account),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
