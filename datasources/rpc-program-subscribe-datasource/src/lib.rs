@@ -55,6 +55,7 @@ impl RpcProgramSubscribe {
 impl Datasource for RpcProgramSubscribe {
     async fn consume(
         &self,
+        name: String,
         sender: Sender<Update>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
@@ -134,6 +135,7 @@ impl Datasource for RpcProgramSubscribe {
                                     pubkey: account_pubkey,
                                     account: decoded_account,
                                     slot: acc_event.context.slot,
+                                    source: name.clone(),
                                 });
 
                                 metrics

@@ -61,6 +61,7 @@ impl RpcBlockSubscribe {
 impl Datasource for RpcBlockSubscribe {
     async fn consume(
         &self,
+        name: String,
         sender: Sender<Update>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
@@ -176,6 +177,7 @@ impl Datasource for RpcBlockSubscribe {
                                                 slot,
                                                 block_time: block.block_time,
                                                 block_hash,
+                                                source: name.clone(),
                                             }));
 
                                             metrics

@@ -52,6 +52,7 @@ impl GpaBackfillDatasource {
 impl Datasource for GpaBackfillDatasource {
     async fn consume(
         &self,
+        name: String,
         sender: Sender<Update>,
         _cancellation_token: CancellationToken,
         _metrics: Arc<MetricsCollection>,
@@ -84,6 +85,7 @@ impl Datasource for GpaBackfillDatasource {
                 pubkey,
                 account,
                 slot,
+                source: name.clone(),
             })) {
                 log::error!("Failed to send account update: {:?}", e);
             }

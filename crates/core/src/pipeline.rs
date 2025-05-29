@@ -55,20 +55,26 @@ use crate::datasource::BlockDetails;
 use {
     crate::{
         account::{
-            AccountDecoder, AccountMetadata, AccountPipe, AccountPipes, AccountProcessorInputType,
+            AccountDecoder, AccountMetadata, AccountPipe, AccountPipeFilters, AccountPipes,
+            AccountProcessorInputType,
         },
-        account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
+        account_deletion::{
+            AccountDeletionPipe, AccountDeletionPipes, AccountDeletionsPipeFilters,
+        },
         collection::InstructionDecoderCollection,
         datasource::{AccountDeletion, Datasource, Update},
         error::CarbonResult,
         instruction::{
-            InstructionDecoder, InstructionPipe, InstructionPipes, InstructionProcessorInputType,
-            InstructionsWithMetadata, NestedInstructions,
+            InstructionDecoder, InstructionPipe, InstructionPipeFilters, InstructionPipes,
+            InstructionProcessorInputType, InstructionsWithMetadata, NestedInstructions,
         },
         metrics::{Metrics, MetricsCollection},
         processor::Processor,
         schema::TransactionSchema,
-        transaction::{TransactionPipe, TransactionPipes, TransactionProcessorInputType},
+        transaction::{
+            TransactionPipe, TransactionPipeFilters, TransactionPipes,
+            TransactionProcessorInputType,
+        },
         transformers,
     },
     core::time,
@@ -76,6 +82,8 @@ use {
     std::{convert::TryInto, sync::Arc, time::Instant},
     tokio_util::sync::CancellationToken,
 };
+
+pub const GENERIC_DATASOURCE_NAME: &'static str = "";
 
 /// Defines the shutdown behavior for the pipeline.
 ///
@@ -207,7 +215,7 @@ pub const DEFAULT_CHANNEL_BUFFER_SIZE: usize = 1_000;
 ///   metrics are flushed. If `None`, a default interval (usually 5 seconds) is
 ///   used.
 pub struct Pipeline {
-    pub datasources: Vec<Arc<dyn Datasource + Send + Sync>>,
+    pub datasources: Vec<(String, Arc<dyn Datasource + Send + Sync>)>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
@@ -346,14 +354,16 @@ impl Pipeline {
             .unwrap_or_default();
 
         for datasource in &self.datasources {
+            let name = datasource.0.clone();
+            let datasource_clone = datasource.1.clone();
             let datasource_cancellation_token_clone = datasource_cancellation_token.clone();
             let sender_clone = update_sender.clone();
-            let datasource_clone = Arc::clone(datasource);
             let metrics_collection = self.metrics.clone();
 
             tokio::spawn(async move {
                 if let Err(e) = datasource_clone
                     .consume(
+                        name,
                         sender_clone,
                         datasource_cancellation_token_clone,
                         metrics_collection,
@@ -505,14 +515,17 @@ impl Pipeline {
                 let account_metadata = AccountMetadata {
                     slot: account_update.slot,
                     pubkey: account_update.pubkey,
+                    source: account_update.source.clone(),
                 };
 
                 for pipe in self.account_pipes.iter_mut() {
-                    pipe.run(
-                        (account_metadata.clone(), account_update.account.clone()),
-                        self.metrics.clone(),
-                    )
-                    .await?;
+                    if pipe.filter(&account_update) {
+                        pipe.run(
+                            (account_metadata.clone(), account_update.account.clone()),
+                            self.metrics.clone(),
+                        )
+                        .await?;
+                    }
                 }
 
                 self.metrics
@@ -531,18 +544,22 @@ impl Pipeline {
                 let nested_instructions: NestedInstructions = instructions_with_metadata.into();
 
                 for pipe in self.instruction_pipes.iter_mut() {
-                    for nested_instruction in nested_instructions.iter() {
-                        pipe.run(nested_instruction, self.metrics.clone()).await?;
+                    if pipe.filter(&transaction_update) {
+                        for nested_instruction in nested_instructions.iter() {
+                            pipe.run(nested_instruction, self.metrics.clone()).await?;
+                        }
                     }
                 }
 
                 for pipe in self.transaction_pipes.iter_mut() {
-                    pipe.run(
-                        transaction_metadata.clone(),
-                        &nested_instructions,
-                        self.metrics.clone(),
-                    )
-                    .await?;
+                    if pipe.filter(&transaction_update) {
+                        pipe.run(
+                            transaction_metadata.clone(),
+                            &nested_instructions,
+                            self.metrics.clone(),
+                        )
+                        .await?;
+                    }
                 }
 
                 self.metrics
@@ -551,8 +568,10 @@ impl Pipeline {
             }
             Update::AccountDeletion(account_deletion) => {
                 for pipe in self.account_deletion_pipes.iter_mut() {
-                    pipe.run(account_deletion.clone(), self.metrics.clone())
-                        .await?;
+                    if pipe.filter(&account_deletion) {
+                        pipe.run(account_deletion.clone(), self.metrics.clone())
+                            .await?;
+                    }
                 }
 
                 self.metrics
@@ -654,7 +673,7 @@ impl Pipeline {
 ///   your application.
 #[derive(Default)]
 pub struct PipelineBuilder {
-    pub datasources: Vec<Arc<dyn Datasource + Send + Sync>>,
+    pub datasources: Vec<(String, Arc<dyn Datasource + Send + Sync>)>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
@@ -710,7 +729,46 @@ impl PipelineBuilder {
     /// ```
     pub fn datasource(mut self, datasource: impl Datasource + 'static) -> Self {
         log::trace!("datasource(self, datasource: {:?})", stringify!(datasource));
-        self.datasources.push(Arc::new(datasource));
+        self.datasources
+            .push((GENERIC_DATASOURCE_NAME.into(), Arc::new(datasource)));
+        self
+    }
+
+    /// Adds a datasource to the pipeline.
+    ///
+    /// The datasource is responsible for providing updates, such as account and
+    /// transaction data, to the pipeline. Multiple datasources can be added
+    /// to handle various types of updates.
+    ///
+    /// # Parameters
+    ///
+    /// - `datasource`: The data source to add, implementing the `Datasource`
+    ///   trait.
+    ///
+    /// - `name`: A name for the datasource to identify it within the pipeline.
+    ///
+    /// # Example
+    ///
+    /// ```rust
+    /// let builder = PipelineBuilder::new()
+    ///     .datasource(MyDatasource::new(), "my_datasource");
+    /// ```
+    pub fn named_datasource(
+        mut self,
+        datasource: impl Datasource + 'static,
+        name: impl Into<String>,
+    ) -> Self {
+        let name = name.into();
+        assert_ne!(
+            &name, GENERIC_DATASOURCE_NAME,
+            "Datasource name cannot be empty"
+        );
+        log::trace!(
+            "named_datasource(self, datasource: {:?}, name: {})",
+            stringify!(datasource),
+            name
+        );
+        self.datasources.push((name, Arc::new(datasource)));
         self
     }
 
@@ -766,9 +824,18 @@ impl PipelineBuilder {
     ///     .account(MyAccountDecoder, MyAccountProcessor);
     /// ```
     pub fn account<T: Send + Sync + 'static>(
+        self,
+        decoder: impl for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
+        processor: impl Processor<InputType = AccountProcessorInputType<T>> + Send + Sync + 'static,
+    ) -> Self {
+        self.account_with_filters(decoder, processor, AccountPipeFilters::default())
+    }
+
+    pub fn account_with_filters<T: Send + Sync + 'static>(
         mut self,
         decoder: impl for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
         processor: impl Processor<InputType = AccountProcessorInputType<T>> + Send + Sync + 'static,
+        filters: AccountPipeFilters,
     ) -> Self {
         log::trace!(
             "account(self, decoder: {:?}, processor: {:?})",
@@ -776,6 +843,7 @@ impl PipelineBuilder {
             stringify!(processor)
         );
         self.account_pipes.push(Box::new(AccountPipe {
+            filters,
             decoder: Box::new(decoder),
             processor: Box::new(processor),
         }));
@@ -800,8 +868,16 @@ impl PipelineBuilder {
     ///     .account_deletions(MyAccountDeletionProcessor);
     /// ```
     pub fn account_deletions(
+        self,
+        processor: impl Processor<InputType = AccountDeletion> + Send + Sync + 'static,
+    ) -> Self {
+        self.account_deletions_with_filters(processor, AccountDeletionsPipeFilters::default())
+    }
+
+    pub fn account_deletions_with_filters(
         mut self,
         processor: impl Processor<InputType = AccountDeletion> + Send + Sync + 'static,
+        filters: AccountDeletionsPipeFilters,
     ) -> Self {
         log::trace!(
             "account_deletions(self, processor: {:?})",
@@ -809,6 +885,7 @@ impl PipelineBuilder {
         );
         self.account_deletion_pipes
             .push(Box::new(AccountDeletionPipe {
+                filters,
                 processor: Box::new(processor),
             }));
         self
@@ -865,9 +942,18 @@ impl PipelineBuilder {
     ///     .instruction(MyDecoder, MyInstructionProcessor);
     /// ```
     pub fn instruction<T: Send + Sync + 'static>(
+        self,
+        decoder: impl for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
+        processor: impl Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static,
+    ) -> Self {
+        self.instruction_with_filters(decoder, processor, InstructionPipeFilters::default())
+    }
+
+    pub fn instruction_with_filters<T: Send + Sync + 'static>(
         mut self,
         decoder: impl for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
         processor: impl Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static,
+        filters: InstructionPipeFilters,
     ) -> Self {
         log::trace!(
             "instruction(self, decoder: {:?}, processor: {:?})",
@@ -875,6 +961,7 @@ impl PipelineBuilder {
             stringify!(processor)
         );
         self.instruction_pipes.push(Box::new(InstructionPipe {
+            filters,
             decoder: Box::new(decoder),
             processor: Box::new(processor),
         }));
@@ -902,12 +989,28 @@ impl PipelineBuilder {
     ///     .transaction(MY_SCHEMA.clone(), MyTransactionProcessor);
     /// ```
     pub fn transaction<T, U>(
+        self,
+        processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
+            + Send
+            + Sync
+            + 'static,
+        schema: Option<TransactionSchema<T>>,
+    ) -> Self
+    where
+        T: InstructionDecoderCollection + 'static,
+        U: DeserializeOwned + Send + Sync + 'static,
+    {
+        self.transaction_with_filters(processor, schema, TransactionPipeFilters::default())
+    }
+
+    pub fn transaction_with_filters<T, U>(
         mut self,
         processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
             + Send
             + Sync
             + 'static,
         schema: Option<TransactionSchema<T>>,
+        filters: TransactionPipeFilters,
     ) -> Self
     where
         T: InstructionDecoderCollection + 'static,
@@ -919,7 +1022,9 @@ impl PipelineBuilder {
             stringify!(processor)
         );
         self.transaction_pipes
-            .push(Box::new(TransactionPipe::<T, U>::new(schema, processor)));
+            .push(Box::new(TransactionPipe::<T, U>::new(
+                schema, processor, filters,
+            )));
         self
     }
 
