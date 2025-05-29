@@ -1,0 +1,15 @@
+[package]
+name = "carbon-meteora-damm-v2-decoder"
+version = "0.8.1"
+edition = { workspace = true }
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+carbon-core = { workspace = true }
+serde = { workspace = true }
+serde-big-array = { workspace = true }
+solana-account = { workspace = true }
+solana-instruction = { workspace = true, default-features = false }
+solana-pubkey = { workspace = true }
