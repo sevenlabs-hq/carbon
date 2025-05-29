@@ -54,6 +54,7 @@ pub async fn main() -> CarbonResult<()> {
         Some(CommitmentLevel::Confirmed),
         HashMap::default(),
         transaction_filters,
+        Default::default(),
         Arc::new(RwLock::new(HashSet::new())),
     );
 
