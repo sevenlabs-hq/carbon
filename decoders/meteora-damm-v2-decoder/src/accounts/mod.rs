@@ -1,6 +1,8 @@
 use carbon_core::account::AccountDecoder;
 use carbon_core::deserialize::CarbonDeserialize;
 
+use crate::PROGRAM_ID;
+
 use super::MeteoraDammV2Decoder;
 pub mod claim_fee_operator;
 pub mod config;
@@ -24,6 +26,10 @@ impl AccountDecoder<'_> for MeteoraDammV2Decoder {
         &self,
         account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
+        if !account.owner.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         if let Some(decoded_account) =
             claim_fee_operator::ClaimFeeOperator::deserialize(account.data.as_slice())
         {

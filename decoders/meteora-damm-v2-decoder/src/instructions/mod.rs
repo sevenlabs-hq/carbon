@@ -1,3 +1,5 @@
+use crate::PROGRAM_ID;
+
 use super::MeteoraDammV2Decoder;
 pub mod add_liquidity;
 pub mod claim_partner_fee;
@@ -132,6 +134,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDammV2Decoder {
         &self,
         instruction: &solana_instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
         carbon_core::try_decode_instructions!(instruction,
             MeteoraDammV2Instruction::AddLiquidity => add_liquidity::AddLiquidity,
             MeteoraDammV2Instruction::ClaimPartnerFee => claim_partner_fee::ClaimPartnerFee,
