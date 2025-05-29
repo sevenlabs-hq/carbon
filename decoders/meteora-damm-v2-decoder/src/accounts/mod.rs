@@ -12,13 +12,13 @@ pub mod vesting;
 pub enum MeteoraDammV2Account {
     ClaimFeeOperator(claim_fee_operator::ClaimFeeOperator),
     Config(config::Config),
-    Pool(pool::Pool),
+    Pool(Box<pool::Pool>),
     Position(position::Position),
     TokenBadge(token_badge::TokenBadge),
     Vesting(vesting::Vesting),
 }
 
-impl<'a> AccountDecoder<'a> for MeteoraDammV2Decoder {
+impl AccountDecoder<'_> for MeteoraDammV2Decoder {
     type AccountType = MeteoraDammV2Account;
     fn decode_account(
         &self,
@@ -49,7 +49,7 @@ impl<'a> AccountDecoder<'a> for MeteoraDammV2Decoder {
         if let Some(decoded_account) = pool::Pool::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: MeteoraDammV2Account::Pool(decoded_account),
+                data: MeteoraDammV2Account::Pool(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

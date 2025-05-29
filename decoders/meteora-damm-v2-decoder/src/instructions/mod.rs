@@ -125,7 +125,7 @@ pub enum MeteoraDammV2Instruction {
     ),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for MeteoraDammV2Decoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDammV2Decoder {
     type InstructionType = MeteoraDammV2Instruction;
 
     fn decode_instruction(
