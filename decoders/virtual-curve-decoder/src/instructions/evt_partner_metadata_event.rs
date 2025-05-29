@@ -4,4 +4,7 @@ use carbon_core::{borsh, CarbonDeserialize};
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 #[carbon(discriminator = "0xe445a52e51cb9a1dc87f06370d200896")]
-pub struct EvtPartnerMetadataEvent {}
+pub struct EvtPartnerMetadataEvent {
+    pub partner_metadata: solana_pubkey::Pubkey,
+    pub fee_claimer: solana_pubkey::Pubkey,
+}
