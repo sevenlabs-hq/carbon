@@ -1465,7 +1465,6 @@ dependencies = [
  "solana-account",
  "solana-instruction",
  "solana-pubkey",
- "solana-sdk",
 ]
 
 [[package]]
