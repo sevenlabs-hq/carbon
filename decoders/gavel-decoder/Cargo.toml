@@ -1,0 +1,23 @@
+[package]
+name = "carbon-gavel-decoder"
+version = "0.8.1"
+description = "Gavel Pool Decoder"
+edition = { workspace = true }
+license = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "decoder", "gavel"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+carbon-core = { workspace = true }
+serde = { workspace = true }
+solana-account = { workspace = true }
+solana-instruction = { workspace = true, default-features = false }
+solana-pubkey = { workspace = true }
+
+[dev-dependencies]
+carbon-test-utils = { workspace = true }
