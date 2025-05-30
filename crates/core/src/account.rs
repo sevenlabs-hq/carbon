@@ -122,6 +122,12 @@ pub trait AccountDecoder<'a> {
     ) -> Option<DecodedAccount<Self::AccountType>>;
 }
 
+/// The input type for the account processor with the raw account data.
+///
+/// - `T`: The account type, as determined by the decoder.
+pub type AccountProcessorInputTypeWithRawAccount<T> =
+    (AccountMetadata, DecodedAccount<T>, solana_account::Account);
+
 /// The input type for the account processor.
 ///
 /// - `T`: The account type, as determined by the decoder.
@@ -147,7 +153,11 @@ pub type AccountProcessorInputType<T> = (AccountMetadata, DecodedAccount<T>);
 ///   accounts.
 pub struct AccountPipe<T: Send> {
     pub decoder: Box<dyn for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static>,
-    pub processor: Box<dyn Processor<InputType = AccountProcessorInputType<T>> + Send + Sync>,
+    pub processor:
+        Option<Box<dyn Processor<InputType = AccountProcessorInputType<T>> + Send + Sync>>,
+    pub processor_with_raw: Option<
+        Box<dyn Processor<InputType = AccountProcessorInputTypeWithRawAccount<T>> + Send + Sync>,
+    >,
 }
 
 /// A trait for processing account updates in the pipeline asynchronously.
@@ -205,11 +215,32 @@ impl<T: Send> AccountPipes for AccountPipe<T> {
             account_with_metadata,
         );
 
-        if let Some(decoded_account) = self.decoder.decode_account(&account_with_metadata.1) {
-            self.processor
-                .process((account_with_metadata.0, decoded_account), metrics)
-                .await?;
+        if let Some(processor) = &mut self.processor {
+            if let Some(decoded_account) = self.decoder.decode_account(&account_with_metadata.1) {
+                processor
+                    .process(
+                        (account_with_metadata.0.clone(), decoded_account),
+                        metrics.clone(),
+                    )
+                    .await?;
+            }
         }
+
+        if let Some(processor_with_raw) = &mut self.processor_with_raw {
+            if let Some(decoded_account) = self.decoder.decode_account(&account_with_metadata.1) {
+                processor_with_raw
+                    .process(
+                        (
+                            account_with_metadata.0,
+                            decoded_account,
+                            account_with_metadata.1,
+                        ),
+                        metrics,
+                    )
+                    .await?;
+            }
+        }
+
         Ok(())
     }
 }
