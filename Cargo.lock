@@ -1241,6 +1241,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-gavel-decoder"
+version = "0.8.1"
+dependencies = [
+ "carbon-core",
+ "carbon-test-utils",
+ "serde",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey",
+]
+
+[[package]]
 name = "carbon-gql-server"
 version = "0.8.1"
 dependencies = [

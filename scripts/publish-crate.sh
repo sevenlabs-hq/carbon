@@ -26,6 +26,7 @@ workspace_crates=(
     carbon-boop-decoder
     carbon-drift-v2-decoder
     carbon-fluxbeam-decoder
+    carbon-gavel-decoder
     carbon-jupiter-dca-decoder
     carbon-jupiter-limit-order-2-decoder
     carbon-jupiter-limit-order-decoder
