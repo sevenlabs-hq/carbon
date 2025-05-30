@@ -111,7 +111,11 @@ impl Processor for KaminoLendingInstructionProcessor {
 pub struct KaminoLendingAccountProcessor;
 #[async_trait]
 impl Processor for KaminoLendingAccountProcessor {
-    type InputType = (AccountMetadata, DecodedAccount<KaminoLendingAccount>);
+    type InputType = (
+        AccountMetadata,
+        DecodedAccount<KaminoLendingAccount>,
+        solana_account::Account,
+    );
 
     async fn process(
         &mut self,

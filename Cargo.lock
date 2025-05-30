@@ -3956,6 +3956,7 @@ dependencies = [
  "dotenv",
  "env_logger 0.11.8",
  "log",
+ "solana-account",
  "tokio",
  "yellowstone-grpc-proto",
 ]
@@ -5382,6 +5383,7 @@ dependencies = [
  "env_logger 0.11.8",
  "log",
  "rustls 0.23.27",
+ "solana-account",
  "tokio",
  "yellowstone-grpc-proto",
 ]
@@ -9672,6 +9674,7 @@ dependencies = [
  "juniper",
  "log",
  "rustls 0.23.27",
+ "solana-account",
  "spl-token 6.0.0",
  "tokio",
  "yellowstone-grpc-proto",

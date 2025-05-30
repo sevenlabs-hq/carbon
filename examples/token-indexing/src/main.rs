@@ -131,7 +131,11 @@ pub struct TokenProgramAccountProcessor {
 
 #[async_trait]
 impl Processor for TokenProgramAccountProcessor {
-    type InputType = (AccountMetadata, DecodedAccount<TokenProgramAccount>);
+    type InputType = (
+        AccountMetadata,
+        DecodedAccount<TokenProgramAccount>,
+        solana_account::Account,
+    );
 
     async fn process(
         &mut self,

@@ -195,7 +195,11 @@ impl Processor for RaydiumAmmV4InstructionProcessor {
 pub struct RaydiumAmmV4AccountProcessor;
 #[async_trait]
 impl Processor for RaydiumAmmV4AccountProcessor {
-    type InputType = (AccountMetadata, DecodedAccount<RaydiumAmmV4Account>);
+    type InputType = (
+        AccountMetadata,
+        DecodedAccount<RaydiumAmmV4Account>,
+        solana_account::Account,
+    );
 
     async fn process(
         &mut self,
