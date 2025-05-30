@@ -2,7 +2,7 @@ use {
     async_trait::async_trait,
     carbon_core::{
         error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
+        instruction::{DecodedInstruction, NestedInstruction},
         metrics::MetricsCollection,
         processor::Processor,
     },
@@ -53,17 +53,16 @@ pub struct RaydiumCpmmInstructionProcessor;
 #[async_trait]
 impl Processor for RaydiumCpmmInstructionProcessor {
     type InputType = (
-        InstructionMetadata,
+        NestedInstruction,
         DecodedInstruction<RaydiumCpmmInstruction>,
-        NestedInstructions,
     );
 
     async fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions): Self::InputType,
+        (nested_instruction, instruction): Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let signature = metadata.transaction_metadata.signature;
+        let signature = nested_instruction.metadata.transaction_metadata.signature;
 
         match instruction.data {
             RaydiumCpmmInstruction::CreateAmmConfig(create_amm_config) => {
