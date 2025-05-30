@@ -1,7 +1,7 @@
 {
   "accounts": [
     {
-      "pubkey": "Em94tW6wo3K15z7mM6wW926QRamuLKhiRe52tvk92ARs",
+      "pubkey": "8ookeFtaPGhyi3dSJY9ULjzePWfAe1cykRr7xtoSbgfz",
       "is_signer": false,
       "is_writable": true,
       "label": "lbPair"
@@ -13,52 +13,70 @@
       "label": "binArrayBitmapExtension"
     },
     {
-      "pubkey": "BSJUzBQfPe7snyjxJxAJG183yYhDtLUEi3c8LGW7DCVw",
+      "pubkey": "FCjQFN49K5ufVnXkLHMPSMvtbyo8jMB1tdrGQ8QHtfnD",
       "is_signer": false,
       "is_writable": false,
       "label": "tokenMintX"
     },
     {
-      "pubkey": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+      "pubkey": "So11111111111111111111111111111111111111112",
       "is_signer": false,
       "is_writable": false,
       "label": "tokenMintY"
     },
     {
-      "pubkey": "5Lbm1X6oYcSUcscMmvWqmg7sz2Qh3XJ3ydBy2v8cTrTV",
+      "pubkey": "8k6Cwds2WbD9cx4hTfZubaSLpzniL8Vs8ZKo5ZQAsfQW",
       "is_signer": false,
       "is_writable": true,
       "label": "reserveX"
     },
     {
-      "pubkey": "Fov1U4FMX8u4Ln5gM9LHsZcWgwHAeZ526usUjaYza2BR",
+      "pubkey": "8994hrKpj7aoZocJvbV59Z9o4ah1se1HjW4Wsi6wSiMu",
       "is_signer": false,
       "is_writable": true,
       "label": "reserveY"
     },
     {
-      "pubkey": "AG47v72cfwRUwdk9M2AfE691wzsETrjo8iieH3gAWsTX",
+      "pubkey": "HMCCePCcK1jizjz4MJx3VYb9f9uHXY4UJPcaaRtwATVZ",
       "is_signer": false,
       "is_writable": true,
       "label": "oracle"
     },
     {
-      "pubkey": "8dn7co13une6bT7dt7caCFj5E8cCuH5wzCZLaTncL3D2",
+      "pubkey": "CjGtuik6GHKbTh9xuDHCzq2reGtMcJtTMqHjkBcbCMNX",
       "is_signer": false,
       "is_writable": false,
       "label": "userTokenX"
     },
     {
-      "pubkey": "3A2f4jax9vQRsaxDpocDKA3MhHdibwwZBSsBFcgfgkLw",
+      "pubkey": "GMtwcuktJfrRcnyGktWW4Vab8cfjPcBy3xbuZgRegw6E",
       "is_signer": true,
       "is_writable": true,
       "label": "funder"
     },
     {
+      "pubkey": "LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo",
+      "is_signer": false,
+      "is_writable": false,
+      "label": "tokenBadgeX"
+    },
+    {
+      "pubkey": "LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo",
+      "is_signer": false,
+      "is_writable": false,
+      "label": "tokenBadgeY"
+    },
+    {
       "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
       "is_signer": false,
       "is_writable": false,
-      "label": "tokenProgram"
+      "label": "tokenProgramX"
+    },
+    {
+      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+      "is_signer": false,
+      "is_writable": false,
+      "label": "tokenProgramY"
     },
     {
       "pubkey": "11111111111111111111111111111111",
@@ -67,7 +85,7 @@
       "label": "systemProgram"
     },
     {
-      "pubkey": "SysvarRent111111111111111111111111111111111",
+      "pubkey": "23s7qdnDSVxFqGUURKMdTz8Pte1pf3T92kGmXWrWi8vS",
       "is_signer": false,
       "is_writable": false,
       "label": "userTokenY"
@@ -85,6 +103,6 @@
       "label": "program"
     }
   ],
-  "data": "2e2729876fb7c840010000000200881300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+  "data": "f349817e3313f16b7bfbffff64001027010101588d3968000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
   "program_id": "LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"
 }

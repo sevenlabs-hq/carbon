@@ -293,7 +293,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDlmmDecoder {
 mod tests {
     use carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder};
     use solana_instruction::AccountMeta;
-    use solana_sdk::pubkey;
+    use solana_pubkey::pubkey;
 
     use crate::{
         instructions::{
@@ -317,7 +317,6 @@ mod tests {
             close_preset_parameter::{
                 ClosePresetParameter, ClosePresetParameterInstructionAccounts,
             },
-            fund_reward::{FundReward, FundRewardInstructionAccounts},
             go_to_a_bin::{GoToABin, GoToABinInstructionAccounts},
             initialize_bin_array::{InitializeBinArray, InitializeBinArrayInstructionAccounts},
             initialize_bin_array_bitmap_extension::{
@@ -327,6 +326,10 @@ mod tests {
             initialize_customizable_permissionless_lb_pair::{
                 InitializeCustomizablePermissionlessLbPair,
                 InitializeCustomizablePermissionlessLbPairInstructionAccounts,
+            },
+            initialize_customizable_permissionless_lb_pair2::{
+                InitializeCustomizablePermissionlessLbPair2,
+                InitializeCustomizablePermissionlessLbPair2InstructionAccounts,
             },
             initialize_lb_pair::{InitializeLbPair, InitializeLbPairInstructionAccounts},
             initialize_permission_lb_pair::{
@@ -339,10 +342,6 @@ mod tests {
             initialize_position_pda::{
                 InitializePositionPda, InitializePositionPdaInstructionAccounts,
             },
-            initialize_preset_parameter::{
-                InitializePresetParameter, InitializePresetParameterInstructionAccounts,
-            },
-            initialize_reward::{InitializeReward, InitializeRewardInstructionAccounts},
             migrate_position::{MigratePosition, MigratePositionInstructionAccounts},
             remove_all_liquidity::{RemoveAllLiquidity, RemoveAllLiquidityInstructionAccounts},
             remove_liquidity::{RemoveLiquidity, RemoveLiquidityInstructionAccounts},
@@ -351,8 +350,6 @@ mod tests {
             },
             swap::{Swap, SwapInstructionAccounts},
             swap_exact_out::{SwapExactOut, SwapExactOutInstructionAccounts},
-            swap_with_price_impact::{SwapWithPriceImpact, SwapWithPriceImpactInstructionAccounts},
-            update_fee_parameters::{UpdateFeeParameters, UpdateFeeParametersInstructionAccounts},
             update_fees_and_rewards::{
                 UpdateFeesAndRewards, UpdateFeesAndRewardsInstructionAccounts,
             },
@@ -360,10 +357,9 @@ mod tests {
         types::{
             AddLiquiditySingleSidePreciseParameter, BinLiquidityDistribution,
             BinLiquidityDistributionByWeight, BinLiquidityReduction, CompressedBinDepositAmount,
-            CustomizableParams, FeeParameter, InitPermissionPairIx, InitPresetParametersIx,
-            LiquidityOneSideParameter, LiquidityParameter, LiquidityParameterByStrategy,
-            LiquidityParameterByStrategyOneSide, LiquidityParameterByWeight, StrategyParameters,
-            StrategyType,
+            CustomizableParams, InitPermissionPairIx, LiquidityOneSideParameter,
+            LiquidityParameter, LiquidityParameterByStrategy, LiquidityParameterByStrategyOneSide,
+            LiquidityParameterByWeight, StrategyParameters, StrategyType,
         },
     };
 
@@ -1466,81 +1462,6 @@ mod tests {
     }
 
     #[test]
-    fn test_decode_fund_reward_ix() {
-        // Arrange
-        let expected_ix = MeteoraDlmmInstruction::FundReward(FundReward {
-            amount: 50000000000,
-            carry_forward: Default::default(),
-            reward_index: 0,
-        });
-        let expected_accounts = vec![
-            AccountMeta::new(
-                pubkey!("J5BwKjUTKLdYQf9sexskHgHLyVWHtmG7gPxf3sGUfJLJ"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("A4kyhECGSMiKoP5DDQa4xqN3QQwwpmkNW5X1vdYDVyGk"),
-                false,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("5V1RFYBKBZ78zG6cYJ5ssGLQmttLC1KSM6bSdSpgSV5i"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
-                true,
-            ),
-            AccountMeta::new(
-                pubkey!("AnDCpj7VxG72LvXdaCn7zsHjaVruSBDWTbpVcdSGiFkK"),
-                false,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-                false,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
-                false,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-                false,
-            ),
-        ];
-        let expected_arranged_accounts = FundRewardInstructionAccounts {
-            lb_pair: pubkey!("J5BwKjUTKLdYQf9sexskHgHLyVWHtmG7gPxf3sGUfJLJ"),
-            reward_vault: pubkey!("A4kyhECGSMiKoP5DDQa4xqN3QQwwpmkNW5X1vdYDVyGk"),
-            reward_mint: pubkey!("HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr"),
-            funder_token_account: pubkey!("5V1RFYBKBZ78zG6cYJ5ssGLQmttLC1KSM6bSdSpgSV5i"),
-            funder: pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
-            bin_array: pubkey!("AnDCpj7VxG72LvXdaCn7zsHjaVruSBDWTbpVcdSGiFkK"),
-            token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-            event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
-            program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-        };
-
-        // Act
-        let decoder = MeteoraDlmmDecoder;
-        let instruction = carbon_test_utils::read_instruction("tests/fixtures/fund_reward_ix.json")
-            .expect("read fixture");
-        let decoded = decoder
-            .decode_instruction(&instruction)
-            .expect("decode instruction");
-        let decoded_arranged_accounts =
-            FundReward::arrange_accounts(&instruction.accounts).expect("arrange accounts");
-
-        // Assert
-        assert_eq!(decoded.data, expected_ix);
-        assert_eq!(decoded.accounts, expected_accounts);
-        assert_eq!(decoded.program_id, PROGRAM_ID);
-        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
-    }
-
-    #[test]
     fn test_decode_go_to_a_bin_ix() {
         // Arrange
         let expected_ix = MeteoraDlmmInstruction::GoToABin(GoToABin { bin_id: -11653 });
@@ -1700,19 +1621,21 @@ mod tests {
         let expected_ix = MeteoraDlmmInstruction::InitializeCustomizablePermissionlessLbPair(
             InitializeCustomizablePermissionlessLbPair {
                 params: CustomizableParams {
-                    activation_point: Some(1741610419),
-                    activation_type: 1,
-                    active_id: -813,
-                    base_factor: 10000,
-                    bin_step: 200,
+                    activation_point: None,
+                    activation_type: 0,
+                    active_id: 1,
+                    base_factor: 5000,
+                    bin_step: 2,
                     has_alpha_vault: false,
-                    padding: [0; 64],
+                    creator_pool_on_off_control: false,
+                    base_fee_power_factor: 0,
+                    padding: [0; 62],
                 },
             },
         );
         let expected_accounts = vec![
             AccountMeta::new(
-                pubkey!("E7fHCw9G6KuCA2jg3uxvJn1MWL8ySD68kDLPyGDvcStT"),
+                pubkey!("Em94tW6wo3K15z7mM6wW926QRamuLKhiRe52tvk92ARs"),
                 false,
             ),
             AccountMeta::new_readonly(
@@ -1720,7 +1643,7 @@ mod tests {
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("fiSpHY8vkjABpAKGCaLs3pDnkZpeqNiYrADp4GZLYZY"),
+                pubkey!("BSJUzBQfPe7snyjxJxAJG183yYhDtLUEi3c8LGW7DCVw"),
                 false,
             ),
             AccountMeta::new_readonly(
@@ -1736,15 +1659,15 @@ mod tests {
                 false,
             ),
             AccountMeta::new(
-                pubkey!("nJuXpHhaM9nNtY8XKiCfrsYAojRFEmrw33DYbiKqkAW"),
+                pubkey!("AG47v72cfwRUwdk9M2AfE691wzsETrjo8iieH3gAWsTX"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("DujguCjLgZhVT7oTZ8XhDUYNgVYXn3EhqHGciXxKNLJ1"),
+                pubkey!("8dn7co13une6bT7dt7caCFj5E8cCuH5wzCZLaTncL3D2"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("7CNXNAdUDBDYvZPGhRx8MG6nMeCxHC9B1iBVPY4H1gTU"),
+                pubkey!("3A2f4jax9vQRsaxDpocDKA3MhHdibwwZBSsBFcgfgkLw"),
                 true,
             ),
             AccountMeta::new_readonly(
@@ -1753,7 +1676,7 @@ mod tests {
             ),
             AccountMeta::new_readonly(pubkey!("11111111111111111111111111111111"), false),
             AccountMeta::new_readonly(
-                pubkey!("Z7bkDerKzHpy5XtLYfNvtLq6PttYpxWmhXAeEFhCHff"),
+                pubkey!("SysvarRent111111111111111111111111111111111"),
                 false,
             ),
             AccountMeta::new_readonly(
@@ -1767,18 +1690,18 @@ mod tests {
         ];
         let expected_arranged_accounts =
             InitializeCustomizablePermissionlessLbPairInstructionAccounts {
-                lb_pair: pubkey!("E7fHCw9G6KuCA2jg3uxvJn1MWL8ySD68kDLPyGDvcStT"),
+                lb_pair: pubkey!("Em94tW6wo3K15z7mM6wW926QRamuLKhiRe52tvk92ARs"),
                 bin_array_bitmap_extension: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-                token_mint_x: pubkey!("fiSpHY8vkjABpAKGCaLs3pDnkZpeqNiYrADp4GZLYZY"),
+                token_mint_x: pubkey!("BSJUzBQfPe7snyjxJxAJG183yYhDtLUEi3c8LGW7DCVw"),
                 token_mint_y: pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
                 reserve_x: pubkey!("5Lbm1X6oYcSUcscMmvWqmg7sz2Qh3XJ3ydBy2v8cTrTV"),
                 reserve_y: pubkey!("Fov1U4FMX8u4Ln5gM9LHsZcWgwHAeZ526usUjaYza2BR"),
-                oracle: pubkey!("nJuXpHhaM9nNtY8XKiCfrsYAojRFEmrw33DYbiKqkAW"),
-                user_token_x: pubkey!("DujguCjLgZhVT7oTZ8XhDUYNgVYXn3EhqHGciXxKNLJ1"),
-                funder: pubkey!("7CNXNAdUDBDYvZPGhRx8MG6nMeCxHC9B1iBVPY4H1gTU"),
+                oracle: pubkey!("AG47v72cfwRUwdk9M2AfE691wzsETrjo8iieH3gAWsTX"),
+                user_token_x: pubkey!("8dn7co13une6bT7dt7caCFj5E8cCuH5wzCZLaTncL3D2"),
+                funder: pubkey!("3A2f4jax9vQRsaxDpocDKA3MhHdibwwZBSsBFcgfgkLw"),
                 token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
                 system_program: pubkey!("11111111111111111111111111111111"),
-                rent: pubkey!("Z7bkDerKzHpy5XtLYfNvtLq6PttYpxWmhXAeEFhCHff"),
+                user_token_y: pubkey!("SysvarRent111111111111111111111111111111111"),
                 event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
                 program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
             };
@@ -1794,6 +1717,132 @@ mod tests {
             .expect("decode instruction");
         let decoded_arranged_accounts =
             InitializeCustomizablePermissionlessLbPair::arrange_accounts(&instruction.accounts)
+                .expect("arrange accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_initialize_customizable_permissionless_lb_pair2_ix() {
+        // Arrange
+        let expected_ix = MeteoraDlmmInstruction::InitializeCustomizablePermissionlessLbPair2(
+            InitializeCustomizablePermissionlessLbPair2 {
+                params: CustomizableParams {
+                    active_id: -1157,
+                    bin_step: 100,
+                    base_factor: 10000,
+                    activation_type: 1,
+                    has_alpha_vault: true,
+                    activation_point: Some(1748602200),
+                    creator_pool_on_off_control: false,
+                    base_fee_power_factor: 0,
+                    padding: [0; 62],
+                },
+            },
+        );
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("8ookeFtaPGhyi3dSJY9ULjzePWfAe1cykRr7xtoSbgfz"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("FCjQFN49K5ufVnXkLHMPSMvtbyo8jMB1tdrGQ8QHtfnD"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("So11111111111111111111111111111111111111112"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("8k6Cwds2WbD9cx4hTfZubaSLpzniL8Vs8ZKo5ZQAsfQW"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("8994hrKpj7aoZocJvbV59Z9o4ah1se1HjW4Wsi6wSiMu"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("HMCCePCcK1jizjz4MJx3VYb9f9uHXY4UJPcaaRtwATVZ"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("CjGtuik6GHKbTh9xuDHCzq2reGtMcJtTMqHjkBcbCMNX"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("GMtwcuktJfrRcnyGktWW4Vab8cfjPcBy3xbuZgRegw6E"),
+                true,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(pubkey!("11111111111111111111111111111111"), false),
+            AccountMeta::new_readonly(
+                pubkey!("23s7qdnDSVxFqGUURKMdTz8Pte1pf3T92kGmXWrWi8vS"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+        ];
+        let expected_arranged_accounts =
+            InitializeCustomizablePermissionlessLbPair2InstructionAccounts {
+                lb_pair: pubkey!("8ookeFtaPGhyi3dSJY9ULjzePWfAe1cykRr7xtoSbgfz"),
+                bin_array_bitmap_extension: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                token_mint_x: pubkey!("FCjQFN49K5ufVnXkLHMPSMvtbyo8jMB1tdrGQ8QHtfnD"),
+                token_mint_y: pubkey!("So11111111111111111111111111111111111111112"),
+                reserve_x: pubkey!("8k6Cwds2WbD9cx4hTfZubaSLpzniL8Vs8ZKo5ZQAsfQW"),
+                reserve_y: pubkey!("8994hrKpj7aoZocJvbV59Z9o4ah1se1HjW4Wsi6wSiMu"),
+                oracle: pubkey!("HMCCePCcK1jizjz4MJx3VYb9f9uHXY4UJPcaaRtwATVZ"),
+                user_token_x: pubkey!("CjGtuik6GHKbTh9xuDHCzq2reGtMcJtTMqHjkBcbCMNX"),
+                funder: pubkey!("GMtwcuktJfrRcnyGktWW4Vab8cfjPcBy3xbuZgRegw6E"),
+                token_badge_x: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                token_badge_y: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                token_program_x: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                token_program_y: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                system_program: pubkey!("11111111111111111111111111111111"),
+                user_token_y: pubkey!("23s7qdnDSVxFqGUURKMdTz8Pte1pf3T92kGmXWrWi8vS"),
+                event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+                program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+            };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let instruction = carbon_test_utils::read_instruction(
+            "tests/fixtures/initialize_customizable_permissionless_lb_pair2_ix.json",
+        )
+        .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            InitializeCustomizablePermissionlessLbPair2::arrange_accounts(&instruction.accounts)
                 .expect("arrange accounts");
 
         // Assert
@@ -1906,22 +1955,53 @@ mod tests {
         let expected_ix =
             MeteoraDlmmInstruction::InitializePermissionLbPair(InitializePermissionLbPair {
                 ix_data: InitPermissionPairIx {
+                    active_id: -48930,
+                    bin_step: 1,
+                    base_factor: 10000,
+                    base_fee_power_factor: 0,
                     activation_type: 1,
-                    active_id: -1595,
-                    base_factor: 37500,
-                    bin_step: 80,
-                    max_bin_id: 5480,
-                    min_bin_id: -5480,
-                    lock_duration: 0,
+                    protocol_share: 500,
                 },
             });
         let expected_accounts = vec![
             AccountMeta::new_readonly(
-                pubkey!("AeSLQ4ty9qfhEkzBpQAKypptur3giRDLWm3QGP1mze26"),
+                pubkey!("5FtFfp6KyxmTzb4if6FkFDTZqMN6FMdMd6A2eAkuhwNN"),
                 true,
             ),
             AccountMeta::new(
-                pubkey!("DgSVNgNofqZyhmkSdUwuqvyTjHNYmq799RYMcadKnb2q"),
+                pubkey!("Ex3x6Two22ypWzvfXM8hdeJq6CWGG74k7wi4ZSafeyGj"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("BvNQqUt9NwKb9nBrmpAH6mqvxXM6Uno6eC4cewD1PhwV"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("HUMA1821qVDKta3u2ovmfDQeW2fSQouSKE8fkF44wvGw"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("EiNhNKD4nR5zZm6YkAKpWHE2wWGSof5LZ7uSGfG3star"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("EoW2xdPSyDeRyGiATyZ58sPuchPfvQnNudLq1dLKYX8o"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("sUiZ2rXZyD2B5aGVZeK9XXrsgCAgvhNPedTuePVpkA2"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
+                true,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
                 false,
             ),
             AccountMeta::new_readonly(
@@ -1929,28 +2009,8 @@ mod tests {
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("DVYtHdaDc77W1oYTtAYd6kz9QVTj8wPWwiUTbkqzgN4n"),
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
                 false,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("8VJNVtvL5JcCrCgkb3gEjYT8NtA5rqen9YztcPhiwVCP"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("31Hx85DFuKr15Xr5XKse5tdWLTRQrEXCkKsoeipTHCfi"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("E55HFtp5AgG4hXK1ELbv9LD7V6872ZxW7tetuADJN5iC"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("B3EUUmEF4h4ZLmnYKbqP8LKYdLjoCmWH7j7JLcxsFfQc"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
-                true,
             ),
             AccountMeta::new_readonly(
                 pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
@@ -1971,16 +2031,19 @@ mod tests {
             ),
         ];
         let expected_arranged_accounts = InitializePermissionLbPairInstructionAccounts {
-            base: pubkey!("AeSLQ4ty9qfhEkzBpQAKypptur3giRDLWm3QGP1mze26"),
-            lb_pair: pubkey!("DgSVNgNofqZyhmkSdUwuqvyTjHNYmq799RYMcadKnb2q"),
-            bin_array_bitmap_extension: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-            token_mint_x: pubkey!("DVYtHdaDc77W1oYTtAYd6kz9QVTj8wPWwiUTbkqzgN4n"),
-            token_mint_y: pubkey!("8VJNVtvL5JcCrCgkb3gEjYT8NtA5rqen9YztcPhiwVCP"),
-            reserve_x: pubkey!("31Hx85DFuKr15Xr5XKse5tdWLTRQrEXCkKsoeipTHCfi"),
-            reserve_y: pubkey!("E55HFtp5AgG4hXK1ELbv9LD7V6872ZxW7tetuADJN5iC"),
-            oracle: pubkey!("B3EUUmEF4h4ZLmnYKbqP8LKYdLjoCmWH7j7JLcxsFfQc"),
+            base: pubkey!("5FtFfp6KyxmTzb4if6FkFDTZqMN6FMdMd6A2eAkuhwNN"),
+            lb_pair: pubkey!("Ex3x6Two22ypWzvfXM8hdeJq6CWGG74k7wi4ZSafeyGj"),
+            bin_array_bitmap_extension: pubkey!("BvNQqUt9NwKb9nBrmpAH6mqvxXM6Uno6eC4cewD1PhwV"),
+            token_mint_x: pubkey!("HUMA1821qVDKta3u2ovmfDQeW2fSQouSKE8fkF44wvGw"),
+            token_mint_y: pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
+            reserve_x: pubkey!("EiNhNKD4nR5zZm6YkAKpWHE2wWGSof5LZ7uSGfG3star"),
+            reserve_y: pubkey!("EoW2xdPSyDeRyGiATyZ58sPuchPfvQnNudLq1dLKYX8o"),
+            oracle: pubkey!("sUiZ2rXZyD2B5aGVZeK9XXrsgCAgvhNPedTuePVpkA2"),
             admin: pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
-            token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            token_badge_x: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+            token_badge_y: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+            token_program_x: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            token_program_y: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
             system_program: pubkey!("11111111111111111111111111111111"),
             rent: pubkey!("SysvarRent111111111111111111111111111111111"),
             event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
@@ -2010,8 +2073,6 @@ mod tests {
     #[test]
     fn test_decode_initialize_position_by_operator_ix() {
         // Arrange
-        // left: InitializePositionByOperator(InitializePositionByOperator { lower_bin_id: -2022, width: 1, fee_owner: 2yRC3SXXh8dUpHfKYXyWwn1b1QJPrJwuJ7UKtLU4Usmu, lock_release_point: 0 })
-        // right: InitializePositionByOperator(InitializePositionByOperator { lower_bin_id: -2022, width: 1, fee_owner: 11111111111111111111111111111111, lock_release_point: 0 })
         let expected_ix =
             MeteoraDlmmInstruction::InitializePositionByOperator(InitializePositionByOperator {
                 fee_owner: pubkey!("2yRC3SXXh8dUpHfKYXyWwn1b1QJPrJwuJ7UKtLU4Usmu"),
@@ -2228,139 +2289,6 @@ mod tests {
         let decoded_arranged_accounts =
             InitializePositionPda::arrange_accounts(&instruction.accounts)
                 .expect("arrange accounts");
-
-        // Assert
-        assert_eq!(decoded.data, expected_ix);
-        assert_eq!(decoded.accounts, expected_accounts);
-        assert_eq!(decoded.program_id, PROGRAM_ID);
-        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
-    }
-
-    #[test]
-    fn test_decode_initialize_preset_parameter_ix() {
-        // Arrange
-        let expected_ix =
-            MeteoraDlmmInstruction::InitializePresetParameter(InitializePresetParameter {
-                ix: InitPresetParametersIx {
-                    base_factor: 1250,
-                    bin_step: 8,
-                    decay_period: 600,
-                    filter_period: 30,
-                    max_bin_id: 54607,
-                    max_volatility_accumulator: 300000,
-                    min_bin_id: -54607,
-                    protocol_share: 500,
-                    reduction_factor: 5000,
-                    variable_fee_control: 120000,
-                },
-            });
-        let expected_accounts = vec![
-            AccountMeta::new(
-                pubkey!("Axsuoe5peu6xPnxB4eAzsgWwpgqymjQT5aJ4KE8NgQei"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
-                true,
-            ),
-            AccountMeta::new_readonly(pubkey!("11111111111111111111111111111111"), false),
-            AccountMeta::new_readonly(
-                pubkey!("SysvarRent111111111111111111111111111111111"),
-                false,
-            ),
-        ];
-        let expected_arranged_accounts = InitializePresetParameterInstructionAccounts {
-            preset_parameter: pubkey!("Axsuoe5peu6xPnxB4eAzsgWwpgqymjQT5aJ4KE8NgQei"),
-            admin: pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
-            system_program: pubkey!("11111111111111111111111111111111"),
-            rent: pubkey!("SysvarRent111111111111111111111111111111111"),
-        };
-
-        // Act
-        let decoder = MeteoraDlmmDecoder;
-        let instruction = carbon_test_utils::read_instruction(
-            "tests/fixtures/initialize_preset_parameter_ix.json",
-        )
-        .expect("read fixture");
-        let decoded = decoder
-            .decode_instruction(&instruction)
-            .expect("decode instruction");
-        let decoded_arranged_accounts =
-            InitializePresetParameter::arrange_accounts(&instruction.accounts)
-                .expect("arrange accounts");
-
-        // Assert
-        assert_eq!(decoded.data, expected_ix);
-        assert_eq!(decoded.accounts, expected_accounts);
-        assert_eq!(decoded.program_id, PROGRAM_ID);
-        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
-    }
-
-    #[test]
-    fn test_decode_initialize_reward_ix() {
-        // Arrange
-        let expected_ix = MeteoraDlmmInstruction::InitializeReward(InitializeReward {
-            funder: pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
-            reward_duration: 2419200,
-            reward_index: 0,
-        });
-        let expected_accounts = vec![
-            AccountMeta::new(
-                pubkey!("J5BwKjUTKLdYQf9sexskHgHLyVWHtmG7gPxf3sGUfJLJ"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("A4kyhECGSMiKoP5DDQa4xqN3QQwwpmkNW5X1vdYDVyGk"),
-                false,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
-                true,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-                false,
-            ),
-            AccountMeta::new_readonly(pubkey!("11111111111111111111111111111111"), false),
-            AccountMeta::new_readonly(
-                pubkey!("SysvarRent111111111111111111111111111111111"),
-                false,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
-                false,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-                false,
-            ),
-        ];
-        let expected_arranged_accounts = InitializeRewardInstructionAccounts {
-            lb_pair: pubkey!("J5BwKjUTKLdYQf9sexskHgHLyVWHtmG7gPxf3sGUfJLJ"),
-            reward_vault: pubkey!("A4kyhECGSMiKoP5DDQa4xqN3QQwwpmkNW5X1vdYDVyGk"),
-            reward_mint: pubkey!("HzwqbKZw8HxMN6bF2yFZNrht3c2iXXzpKcFu7uBEDKtr"),
-            admin: pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
-            token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-            system_program: pubkey!("11111111111111111111111111111111"),
-            rent: pubkey!("SysvarRent111111111111111111111111111111111"),
-            event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
-            program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-        };
-
-        // Act
-        let decoder = MeteoraDlmmDecoder;
-        let instruction =
-            carbon_test_utils::read_instruction("tests/fixtures/initialize_reward_ix.json")
-                .expect("read fixture");
-        let decoded = decoder
-            .decode_instruction(&instruction)
-            .expect("decode instruction");
-        let decoded_arranged_accounts =
-            InitializeReward::arrange_accounts(&instruction.accounts).expect("arrange accounts");
 
         // Assert
         assert_eq!(decoded.data, expected_ix);
@@ -2869,11 +2797,11 @@ mod tests {
         // Arrange
         let expected_ix = MeteoraDlmmInstruction::SwapExactOut(SwapExactOut {
             max_in_amount: 18446744073709551615,
-            out_amount: 4604710206,
+            out_amount: 5950000,
         });
         let expected_accounts = vec![
             AccountMeta::new(
-                pubkey!("Cwwiuxix6vHJRUhYVt5Hn1wD3Dpsg23TGdnhraTKNdwp"),
+                pubkey!("8gJ7UWboMeQ6z6AQwFP3cAZwSYG8udVS2UesyCbH79r7"),
                 false,
             ),
             AccountMeta::new_readonly(
@@ -2881,39 +2809,39 @@ mod tests {
                 false,
             ),
             AccountMeta::new(
-                pubkey!("8QveFxtVeRUYGmrnCpAMMFTbQH4KWCgFtirAynrnWpHu"),
+                pubkey!("chM5ZB1uPZxvJJAK4D1Z4KHAYjWKvwuQTy6fFAeWQ1T"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("8rV6fY14TBcNt7t27rMG4qY4sPyCtYbZx3MxNuJt7DN8"),
+                pubkey!("FGFaiYjXTVuLsKvzn6ueckraNTeqUGHeYqrQPQCpd7kH"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("2tNZcU1rd3hN5nLGQNVm86mSLvuRGGpgsSF3stBaDDLo"),
+                pubkey!("BF9S5Kvygv3Qf4aSnjyG98aoij11k3yiSLBHcxTa53h3"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("EJeYX6pHEkQTPR6gu7jvB6NCdorNDKg37vgeCVVwg185"),
-                false,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("h5NciPdMZ5QCB5BYETJMYBMpVx9ZuitR6HcVjyBhood"),
+                pubkey!("He2uhHBU7uE9BiSe2QLRzQd9U3fWwjZY5anmC9k84nzd"),
                 false,
             ),
             AccountMeta::new_readonly(
                 pubkey!("So11111111111111111111111111111111111111112"),
                 false,
             ),
-            AccountMeta::new(
-                pubkey!("7uF53ew4nfPo6fqzrpCWkiojLTGYBcqoXoH5Snq1Riyv"),
-                false,
-            ),
             AccountMeta::new_readonly(
-                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("GqvpRMaYKYRYon1BBEGSDFfqsuwX1zcP5zMVGHD78P2K"),
+                pubkey!("DoBNfRox1ZjEsZq6QPY4jpN8hN4Fu9JVkAxJQro164VR"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("BF9S5Kvygv3Qf4aSnjyG98aoij11k3yiSLBHcxTa53h3"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("HuTshmtwcQkWBLzgW3m4uwcmik7Lmz4YFpYcTqMJpXiP"),
                 true,
             ),
             AccountMeta::new_readonly(
@@ -2933,40 +2861,30 @@ mod tests {
                 false,
             ),
             AccountMeta::new(
-                pubkey!("7L5XySdengRtraWSk63c3RUSwDS3QDUzK8iGAyfswe72"),
+                pubkey!("FXrrHPdrSodRZWXNMf8DRXCogkX1vSzLWNS7zonYHiSw"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("6fiDSc65xS2hx86D8shtURZEH184eGA6RtSY36vUNByY"),
+                pubkey!("8A6sET38nPh6VX6bs9df6HjcvvQ14bNJvxhGRJ5eHGbh"),
                 false,
             ),
         ];
         let expected_arranged_accounts = SwapExactOutInstructionAccounts {
-            lb_pair: pubkey!("Cwwiuxix6vHJRUhYVt5Hn1wD3Dpsg23TGdnhraTKNdwp"),
+            lb_pair: pubkey!("8gJ7UWboMeQ6z6AQwFP3cAZwSYG8udVS2UesyCbH79r7"),
             bin_array_bitmap_extension: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-            reserve_x: pubkey!("8QveFxtVeRUYGmrnCpAMMFTbQH4KWCgFtirAynrnWpHu"),
-            reserve_y: pubkey!("8rV6fY14TBcNt7t27rMG4qY4sPyCtYbZx3MxNuJt7DN8"),
-            user_token_in: pubkey!("2tNZcU1rd3hN5nLGQNVm86mSLvuRGGpgsSF3stBaDDLo"),
-            user_token_out: pubkey!("EJeYX6pHEkQTPR6gu7jvB6NCdorNDKg37vgeCVVwg185"),
-            token_x_mint: pubkey!("h5NciPdMZ5QCB5BYETJMYBMpVx9ZuitR6HcVjyBhood"),
-            token_y_mint: pubkey!("So11111111111111111111111111111111111111112"),
-            oracle: pubkey!("7uF53ew4nfPo6fqzrpCWkiojLTGYBcqoXoH5Snq1Riyv"),
-            host_fee_in: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-            user: pubkey!("GqvpRMaYKYRYon1BBEGSDFfqsuwX1zcP5zMVGHD78P2K"),
+            reserve_x: pubkey!("chM5ZB1uPZxvJJAK4D1Z4KHAYjWKvwuQTy6fFAeWQ1T"),
+            reserve_y: pubkey!("FGFaiYjXTVuLsKvzn6ueckraNTeqUGHeYqrQPQCpd7kH"),
+            user_token_in: pubkey!("BF9S5Kvygv3Qf4aSnjyG98aoij11k3yiSLBHcxTa53h3"),
+            user_token_out: pubkey!("He2uhHBU7uE9BiSe2QLRzQd9U3fWwjZY5anmC9k84nzd"),
+            token_x_mint: pubkey!("So11111111111111111111111111111111111111112"),
+            token_y_mint: pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
+            oracle: pubkey!("DoBNfRox1ZjEsZq6QPY4jpN8hN4Fu9JVkAxJQro164VR"),
+            host_fee_in: pubkey!("BF9S5Kvygv3Qf4aSnjyG98aoij11k3yiSLBHcxTa53h3"),
+            user: pubkey!("HuTshmtwcQkWBLzgW3m4uwcmik7Lmz4YFpYcTqMJpXiP"),
             token_x_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
             token_y_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
             event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
             program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-            remaining_accounts: vec![
-                AccountMeta::new(
-                    pubkey!("7L5XySdengRtraWSk63c3RUSwDS3QDUzK8iGAyfswe72"),
-                    false,
-                ),
-                AccountMeta::new(
-                    pubkey!("6fiDSc65xS2hx86D8shtURZEH184eGA6RtSY36vUNByY"),
-                    false,
-                ),
-            ],
         };
 
         // Act
@@ -2991,12 +2909,12 @@ mod tests {
     fn test_decode_swap_ix() {
         // Arrange
         let expected_ix = MeteoraDlmmInstruction::Swap(Swap {
-            amount_in: 864821960,
+            amount_in: 60165522,
             min_amount_out: 0,
         });
         let expected_accounts = vec![
             AccountMeta::new(
-                pubkey!("HAb26kxRVZBLAeVokuhSyfhTes7YLiD6GMT8X2c8DmH2"),
+                pubkey!("FwwjuDSCZGRqB4ngwZd4zqjvLdbykU7PQaFTzocSAxmt"),
                 false,
             ),
             AccountMeta::new_readonly(
@@ -3004,23 +2922,23 @@ mod tests {
                 false,
             ),
             AccountMeta::new(
-                pubkey!("HJEHtafejeXa1zkjtrMu6s8mUk3EN7ZQSFErzP1hoQSB"),
+                pubkey!("CWBe4vsnqxK87NzFRnhoXH4Pi2mDhLAfpmZZVw7rmtDr"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("9yG1b2qLCDMdLMM1C8UnAxwEXsCG628joitnJTfL3YaH"),
+                pubkey!("7u9JUmEDLbF4FAQmybpbYwUXHtSFP7HsESMsop6yHtBR"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("7x4VcEX8aLd3kFsNWULTp1qFgVtDwyWSxpTGQkoMM6XX"),
+                pubkey!("GjxJ1KCKU6tduWpgJKXA81spVK5mHZHbXNFTSvFELqgN"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("FqACg6svfqZqqnMuoYNgcd8xw6fJvFtjBANFMG321BHq"),
+                pubkey!("7sfqR1grUb5jCTrpYm31cc1HA4quapJ8ur8ZdkUwUqtS"),
                 false,
             ),
             AccountMeta::new_readonly(
-                pubkey!("DvjbEsdca43oQcw2h3HW1CT7N3x5vRcr3QrvTUHnXvgV"),
+                pubkey!("Cy1GS2FqefgaMbi45UunrUzin1rfEmTUYnomddzBpump"),
                 false,
             ),
             AccountMeta::new_readonly(
@@ -3028,7 +2946,7 @@ mod tests {
                 false,
             ),
             AccountMeta::new(
-                pubkey!("CBpCNLKUmFfRTvuuksBNivDrewaYrc4S3mMv6C4o7Ldq"),
+                pubkey!("GJiUHhpg1E2asD4iHhVd8sGPryxg8uiyjmRygieRNkVr"),
                 false,
             ),
             AccountMeta::new_readonly(
@@ -3036,8 +2954,8 @@ mod tests {
                 false,
             ),
             AccountMeta::new(
-                pubkey!("6U91aKa8pmMxkJwBCfPTmUEfZi6dHe7DcFq2ALvB2tbB"),
-                false,
+                pubkey!("CfKSQ1DbJa79XGp3fieJJwnskHBbWkgrpC3DmL6rTzQH"),
+                true,
             ),
             AccountMeta::new_readonly(
                 pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
@@ -3056,48 +2974,34 @@ mod tests {
                 false,
             ),
             AccountMeta::new(
-                pubkey!("Dt7EriabLX5HCJkbTqtxF7ziDFWnJTKCirekGccMFMYk"),
+                pubkey!("9d9WZ5dUB8AfQ7LkBoe4NjKwZRDjFaBhzRvw5DoWtTk6"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("8Nbdb3SPofvda3ZBjvjTKZrXUmqkcRXqhVRck1vnwJXm"),
+                pubkey!("HiSfB3uFcPENZABoE94VJ8YzhdeuQucFT1N5dbfquWeQ"),
                 false,
             ),
             AccountMeta::new(
-                pubkey!("5Er6ukkyhmzAyz44h7hcDrtMKzVsSMNnt3vAn233HCcD"),
+                pubkey!("GXx6rxy44GrxWYqKmiLUgoAw5WPX6zaK7RzhifJzH29M"),
                 false,
             ),
         ];
         let expected_arranged_accounts = SwapInstructionAccounts {
-            lb_pair: pubkey!("HAb26kxRVZBLAeVokuhSyfhTes7YLiD6GMT8X2c8DmH2"),
+            lb_pair: pubkey!("FwwjuDSCZGRqB4ngwZd4zqjvLdbykU7PQaFTzocSAxmt"),
             bin_array_bitmap_extension: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-            reserve_x: pubkey!("HJEHtafejeXa1zkjtrMu6s8mUk3EN7ZQSFErzP1hoQSB"),
-            reserve_y: pubkey!("9yG1b2qLCDMdLMM1C8UnAxwEXsCG628joitnJTfL3YaH"),
-            user_token_in: pubkey!("7x4VcEX8aLd3kFsNWULTp1qFgVtDwyWSxpTGQkoMM6XX"),
-            user_token_out: pubkey!("FqACg6svfqZqqnMuoYNgcd8xw6fJvFtjBANFMG321BHq"),
-            token_x_mint: pubkey!("DvjbEsdca43oQcw2h3HW1CT7N3x5vRcr3QrvTUHnXvgV"),
+            reserve_x: pubkey!("CWBe4vsnqxK87NzFRnhoXH4Pi2mDhLAfpmZZVw7rmtDr"),
+            reserve_y: pubkey!("7u9JUmEDLbF4FAQmybpbYwUXHtSFP7HsESMsop6yHtBR"),
+            user_token_in: pubkey!("GjxJ1KCKU6tduWpgJKXA81spVK5mHZHbXNFTSvFELqgN"),
+            user_token_out: pubkey!("7sfqR1grUb5jCTrpYm31cc1HA4quapJ8ur8ZdkUwUqtS"),
+            token_x_mint: pubkey!("Cy1GS2FqefgaMbi45UunrUzin1rfEmTUYnomddzBpump"),
             token_y_mint: pubkey!("So11111111111111111111111111111111111111112"),
-            oracle: pubkey!("CBpCNLKUmFfRTvuuksBNivDrewaYrc4S3mMv6C4o7Ldq"),
+            oracle: pubkey!("GJiUHhpg1E2asD4iHhVd8sGPryxg8uiyjmRygieRNkVr"),
             host_fee_in: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-            user: pubkey!("6U91aKa8pmMxkJwBCfPTmUEfZi6dHe7DcFq2ALvB2tbB"),
+            user: pubkey!("CfKSQ1DbJa79XGp3fieJJwnskHBbWkgrpC3DmL6rTzQH"),
             token_x_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
             token_y_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
             event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
             program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-            remaining_accounts: vec![
-                AccountMeta::new(
-                    pubkey!("Dt7EriabLX5HCJkbTqtxF7ziDFWnJTKCirekGccMFMYk"),
-                    false,
-                ),
-                AccountMeta::new(
-                    pubkey!("8Nbdb3SPofvda3ZBjvjTKZrXUmqkcRXqhVRck1vnwJXm"),
-                    false,
-                ),
-                AccountMeta::new(
-                    pubkey!("5Er6ukkyhmzAyz44h7hcDrtMKzVsSMNnt3vAn233HCcD"),
-                    false,
-                ),
-            ],
         };
 
         // Act
@@ -3109,190 +3013,6 @@ mod tests {
             .expect("decode instruction");
         let decoded_arranged_accounts =
             Swap::arrange_accounts(&instruction.accounts).expect("arrange accounts");
-
-        // Assert
-        assert_eq!(decoded.data, expected_ix);
-        assert_eq!(decoded.accounts, expected_accounts);
-        assert_eq!(decoded.program_id, PROGRAM_ID);
-        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
-    }
-
-    #[test]
-    fn test_decode_swap_with_price_impact_ix() {
-        // Arrange
-        let expected_ix = MeteoraDlmmInstruction::SwapWithPriceImpact(SwapWithPriceImpact {
-            active_id: Some(-5212),
-            amount_in: 3265416567,
-            max_price_impact_bps: 11,
-        });
-        let expected_accounts = vec![
-            AccountMeta::new(
-                pubkey!("5rCf1DM8LjKTw4YqhnoLcngyZYeNnQqztScTogYHAS6"),
-                false,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("EYj9xKw6ZszwpyNibHY7JD5o3QgTVrSdcBp1fMJhrR9o"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("CoaxzEh8p5YyGLcj36Eo3cUThVJxeKCs7qvLAGDYwBcz"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("yuJDeF4EpH6a3yrU99877vUckzoySSUBQXdMQsKBH9S"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("nWzG3iVBEJw5kWV3V8GjbnGvHX9uoMVrrsiS6XMBViG"),
-                false,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("So11111111111111111111111111111111111111112"),
-                false,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("59YuGWPunbchD2mbi9U7qvjWQKQReGeepn4ZSr9zz9Li"),
-                false,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("BsWvqrgcaKZcZsXKawDJTGpYbHsDjjFQRo35wob7DvUv"),
-                true,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-                false,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-                false,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
-                false,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("Ehkf9XQLVnY8HV6jbbDU25fTxF1qQ3NuScWfawSb79pu"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("G9QNw5nwv6JMkLSQ8ignWWEXybUfwBoJm4z5goGbU7d"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("CU8ZSJ7nxD3aqsk6mJYreN4gXWqnrw8jJtNM3yeBAejo"),
-                false,
-            ),
-        ];
-        let expected_arranged_accounts = SwapWithPriceImpactInstructionAccounts {
-            lb_pair: pubkey!("5rCf1DM8LjKTw4YqhnoLcngyZYeNnQqztScTogYHAS6"),
-            bin_array_bitmap_extension: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-            reserve_x: pubkey!("EYj9xKw6ZszwpyNibHY7JD5o3QgTVrSdcBp1fMJhrR9o"),
-            reserve_y: pubkey!("CoaxzEh8p5YyGLcj36Eo3cUThVJxeKCs7qvLAGDYwBcz"),
-            user_token_in: pubkey!("yuJDeF4EpH6a3yrU99877vUckzoySSUBQXdMQsKBH9S"),
-            user_token_out: pubkey!("nWzG3iVBEJw5kWV3V8GjbnGvHX9uoMVrrsiS6XMBViG"),
-            token_x_mint: pubkey!("So11111111111111111111111111111111111111112"),
-            token_y_mint: pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
-            oracle: pubkey!("59YuGWPunbchD2mbi9U7qvjWQKQReGeepn4ZSr9zz9Li"),
-            host_fee_in: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-            user: pubkey!("BsWvqrgcaKZcZsXKawDJTGpYbHsDjjFQRo35wob7DvUv"),
-            token_x_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-            token_y_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-            event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
-            program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-            remaining_accounts: vec![
-                AccountMeta::new(
-                    pubkey!("Ehkf9XQLVnY8HV6jbbDU25fTxF1qQ3NuScWfawSb79pu"),
-                    false,
-                ),
-                AccountMeta::new(
-                    pubkey!("G9QNw5nwv6JMkLSQ8ignWWEXybUfwBoJm4z5goGbU7d"),
-                    false,
-                ),
-                AccountMeta::new(
-                    pubkey!("CU8ZSJ7nxD3aqsk6mJYreN4gXWqnrw8jJtNM3yeBAejo"),
-                    false,
-                ),
-            ],
-        };
-
-        // Act
-        let decoder = MeteoraDlmmDecoder;
-        let instruction =
-            carbon_test_utils::read_instruction("tests/fixtures/swap_with_price_impact_ix.json")
-                .expect("read fixture");
-        let decoded = decoder
-            .decode_instruction(&instruction)
-            .expect("decode instruction");
-        let decoded_arranged_accounts =
-            SwapWithPriceImpact::arrange_accounts(&instruction.accounts).expect("arrange accounts");
-
-        // Assert
-        assert_eq!(decoded.data, expected_ix);
-        assert_eq!(decoded.accounts, expected_accounts);
-        assert_eq!(decoded.program_id, PROGRAM_ID);
-        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
-    }
-
-    #[test]
-    fn test_decode_update_fee_parameters_ix() {
-        // Arrange
-        let expected_ix = MeteoraDlmmInstruction::UpdateFeeParameters(UpdateFeeParameters {
-            fee_parameter: FeeParameter {
-                base_factor: 20000,
-                protocol_share: 500,
-            },
-        });
-        let expected_accounts = vec![
-            AccountMeta::new(
-                pubkey!("A9KUjKXwqajsGrCRZSnQBkrvJ6iBoQ4Yjs49dVLruDBV"),
-                false,
-            ),
-            AccountMeta::new(
-                pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
-                true,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
-                false,
-            ),
-            AccountMeta::new_readonly(
-                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-                false,
-            ),
-        ];
-        let expected_arranged_accounts = UpdateFeeParametersInstructionAccounts {
-            lb_pair: pubkey!("A9KUjKXwqajsGrCRZSnQBkrvJ6iBoQ4Yjs49dVLruDBV"),
-            admin: pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
-            event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
-            program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
-        };
-
-        // Act
-        let decoder = MeteoraDlmmDecoder;
-        let instruction =
-            carbon_test_utils::read_instruction("tests/fixtures/update_fee_parameters_ix.json")
-                .expect("read fixture");
-        let decoded = decoder
-            .decode_instruction(&instruction)
-            .expect("decode instruction");
-        let decoded_arranged_accounts =
-            UpdateFeeParameters::arrange_accounts(&instruction.accounts).expect("arrange accounts");
 
         // Assert
         assert_eq!(decoded.data, expected_ix);
