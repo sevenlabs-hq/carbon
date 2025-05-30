@@ -125,7 +125,8 @@ pub trait AccountDecoder<'a> {
 /// The input type for the account processor.
 ///
 /// - `T`: The account type, as determined by the decoder.
-pub type AccountProcessorInputType<T> = (AccountMetadata, DecodedAccount<T>);
+pub type AccountProcessorInputType<T> =
+    (AccountMetadata, DecodedAccount<T>, solana_account::Account);
 
 /// A processing pipe that decodes and processes Solana account updates.
 ///
@@ -207,7 +208,14 @@ impl<T: Send> AccountPipes for AccountPipe<T> {
 
         if let Some(decoded_account) = self.decoder.decode_account(&account_with_metadata.1) {
             self.processor
-                .process((account_with_metadata.0, decoded_account), metrics)
+                .process(
+                    (
+                        account_with_metadata.0.clone(),
+                        decoded_account,
+                        account_with_metadata.1,
+                    ),
+                    metrics.clone(),
+                )
                 .await?;
         }
         Ok(())

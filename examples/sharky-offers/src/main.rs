@@ -108,7 +108,7 @@ impl Processor for SharkyAccountProcessor {
         update: Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let (_metadata, account) = update;
+        let (_metadata, account, _raw_account) = update;
 
         match account.data {
             SharkyAccount::OrderBook(order_book) => {
