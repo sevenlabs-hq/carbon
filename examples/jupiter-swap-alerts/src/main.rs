@@ -2,7 +2,7 @@ use {
     async_trait::async_trait,
     carbon_core::{
         error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
+        instruction::{DecodedInstruction, NestedInstruction},
         metrics::MetricsCollection,
         processor::Processor,
     },
@@ -76,16 +76,15 @@ pub struct JupiterSwapInstructionProcessor;
 #[async_trait]
 impl Processor for JupiterSwapInstructionProcessor {
     type InputType = (
-        InstructionMetadata,
+        NestedInstruction,
         DecodedInstruction<JupiterSwapInstruction>,
-        NestedInstructions,
     );
     async fn process(
         &mut self,
-        (metadata, instruction, nested_instructions): Self::InputType,
+        (nested_instruction, instruction): Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let signature = metadata.transaction_metadata.signature;
+        let signature = nested_instruction.metadata.transaction_metadata.signature;
 
         match instruction.data {
             JupiterSwapInstruction::Claim(claim) => {
@@ -105,7 +104,7 @@ impl Processor for JupiterSwapInstructionProcessor {
             }
             JupiterSwapInstruction::ExactOutRoute(exact_out_route) => {
                 assert!(
-                    !nested_instructions.is_empty(),
+                    !nested_instruction.inner_instructions.is_empty(),
                     "nested instructions empty: {} ",
                     signature
                 );
@@ -115,7 +114,7 @@ impl Processor for JupiterSwapInstructionProcessor {
             }
             JupiterSwapInstruction::Route(route) => {
                 assert!(
-                    !nested_instructions.is_empty(),
+                    !nested_instruction.inner_instructions.is_empty(),
                     "nested instructions empty: {} ",
                     signature
                 );
@@ -123,7 +122,7 @@ impl Processor for JupiterSwapInstructionProcessor {
             }
             JupiterSwapInstruction::RouteWithTokenLedger(route_with_token_ledger) => {
                 assert!(
-                    !nested_instructions.is_empty(),
+                    !nested_instruction.inner_instructions.is_empty(),
                     "nested instructions empty: {} ",
                     signature
                 );
@@ -136,7 +135,7 @@ impl Processor for JupiterSwapInstructionProcessor {
                 shared_accounts_exact_out_route,
             ) => {
                 assert!(
-                    !nested_instructions.is_empty(),
+                    !nested_instruction.inner_instructions.is_empty(),
                     "nested instructions empty: {} ",
                     signature
                 );
@@ -144,7 +143,7 @@ impl Processor for JupiterSwapInstructionProcessor {
             }
             JupiterSwapInstruction::SharedAccountsRoute(shared_accounts_route) => {
                 assert!(
-                    !nested_instructions.is_empty(),
+                    !nested_instruction.inner_instructions.is_empty(),
                     "nested instructions empty: {} ",
                     signature
                 );
@@ -154,7 +153,7 @@ impl Processor for JupiterSwapInstructionProcessor {
                 shared_accounts_route_with_token_ledger,
             ) => {
                 assert!(
-                    !nested_instructions.is_empty(),
+                    !nested_instruction.inner_instructions.is_empty(),
                     "nested instructions empty: {} ",
                     signature
                 );

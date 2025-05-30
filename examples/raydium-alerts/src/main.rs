@@ -4,7 +4,7 @@ use {
         account::{AccountMetadata, DecodedAccount},
         deserialize::ArrangeAccounts,
         error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
+        instruction::{DecodedInstruction, NestedInstruction},
         metrics::MetricsCollection,
         processor::Processor,
     },
@@ -92,17 +92,16 @@ pub struct RaydiumAmmV4InstructionProcessor;
 #[async_trait]
 impl Processor for RaydiumAmmV4InstructionProcessor {
     type InputType = (
-        InstructionMetadata,
+        NestedInstruction,
         DecodedInstruction<RaydiumAmmV4Instruction>,
-        NestedInstructions,
     );
 
     async fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions): Self::InputType,
+        (nested_instruction, instruction): Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let signature = metadata.transaction_metadata.signature;
+        let signature = nested_instruction.metadata.transaction_metadata.signature;
         let accounts = instruction.accounts;
 
         match instruction.data {
