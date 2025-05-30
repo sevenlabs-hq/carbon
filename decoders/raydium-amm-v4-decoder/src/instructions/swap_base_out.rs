@@ -26,8 +26,8 @@ pub struct SwapBaseOutInstructionAccounts {
     pub serum_coin_vault_account: solana_pubkey::Pubkey,
     pub serum_pc_vault_account: solana_pubkey::Pubkey,
     pub serum_vault_signer: solana_pubkey::Pubkey,
-    pub uer_source_token_account: solana_pubkey::Pubkey,
-    pub uer_destination_token_account: solana_pubkey::Pubkey,
+    pub user_source_token_account: solana_pubkey::Pubkey,
+    pub user_destination_token_account: solana_pubkey::Pubkey,
     pub user_source_owner: solana_pubkey::Pubkey,
 }
 
@@ -39,7 +39,7 @@ impl carbon_core::deserialize::ArrangeAccounts for SwapBaseOut {
     ) -> Option<Self::ArrangedAccounts> {
         match accounts.len() {
             17 => {
-                let [token_program, amm, amm_authority, amm_open_orders, pool_coin_token_account, pool_pc_token_account, serum_program, serum_market, serum_bids, serum_asks, serum_event_queue, serum_coin_vault_account, serum_pc_vault_account, serum_vault_signer, uer_source_token_account, uer_destination_token_account, user_source_owner, _remaining @ ..] =
+                let [token_program, amm, amm_authority, amm_open_orders, pool_coin_token_account, pool_pc_token_account, serum_program, serum_market, serum_bids, serum_asks, serum_event_queue, serum_coin_vault_account, serum_pc_vault_account, serum_vault_signer, user_source_token_account, user_destination_token_account, user_source_owner, _remaining @ ..] =
                     accounts
                 else {
                     return None;
@@ -61,13 +61,13 @@ impl carbon_core::deserialize::ArrangeAccounts for SwapBaseOut {
                     serum_coin_vault_account: serum_coin_vault_account.pubkey,
                     serum_pc_vault_account: serum_pc_vault_account.pubkey,
                     serum_vault_signer: serum_vault_signer.pubkey,
-                    uer_source_token_account: uer_source_token_account.pubkey,
-                    uer_destination_token_account: uer_destination_token_account.pubkey,
+                    user_source_token_account: user_source_token_account.pubkey,
+                    user_destination_token_account: user_destination_token_account.pubkey,
                     user_source_owner: user_source_owner.pubkey,
                 })
             }
             18 => {
-                let [token_program, amm, amm_authority, amm_open_orders, amm_target_orders, pool_coin_token_account, pool_pc_token_account, serum_program, serum_market, serum_bids, serum_asks, serum_event_queue, serum_coin_vault_account, serum_pc_vault_account, serum_vault_signer, uer_source_token_account, uer_destination_token_account, user_source_owner, _remaining @ ..] =
+                let [token_program, amm, amm_authority, amm_open_orders, amm_target_orders, pool_coin_token_account, pool_pc_token_account, serum_program, serum_market, serum_bids, serum_asks, serum_event_queue, serum_coin_vault_account, serum_pc_vault_account, serum_vault_signer, user_source_token_account, user_destination_token_account, user_source_owner, _remaining @ ..] =
                     accounts
                 else {
                     return None;
@@ -89,8 +89,8 @@ impl carbon_core::deserialize::ArrangeAccounts for SwapBaseOut {
                     serum_coin_vault_account: serum_coin_vault_account.pubkey,
                     serum_pc_vault_account: serum_pc_vault_account.pubkey,
                     serum_vault_signer: serum_vault_signer.pubkey,
-                    uer_source_token_account: uer_source_token_account.pubkey,
-                    uer_destination_token_account: uer_destination_token_account.pubkey,
+                    user_source_token_account: user_source_token_account.pubkey,
+                    user_destination_token_account: user_destination_token_account.pubkey,
                     user_source_owner: user_source_owner.pubkey,
                 })
             }

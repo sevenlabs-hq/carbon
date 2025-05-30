@@ -65,11 +65,10 @@ impl YellowstoneGrpcGeyserClient {
 impl Datasource for YellowstoneGrpcGeyserClient {
     async fn consume(
         &self,
-        sender: &Sender<Update>,
+        sender: Sender<Update>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let sender = sender.clone();
         let endpoint = self.endpoint.clone();
         let x_token = self.x_token.clone();
         let commitment = self.commitment;

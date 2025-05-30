@@ -52,7 +52,7 @@ impl GpaBackfillDatasource {
 impl Datasource for GpaBackfillDatasource {
     async fn consume(
         &self,
-        sender: &Sender<Update>,
+        sender: Sender<Update>,
         _cancellation_token: CancellationToken,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
