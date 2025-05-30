@@ -50,7 +50,6 @@
 //! - Proper metric collection and flushing are essential for monitoring
 //!   pipeline performance, especially in production environments.
 
-use crate::account::AccountProcessorInputTypeWithRawAccount;
 use crate::block_details::{BlockDetailsPipe, BlockDetailsPipes};
 use crate::datasource::BlockDetails;
 use {
@@ -779,49 +778,7 @@ impl PipelineBuilder {
         );
         self.account_pipes.push(Box::new(AccountPipe {
             decoder: Box::new(decoder),
-            processor: Some(Box::new(processor)),
-            processor_with_raw: None,
-        }));
-        self
-    }
-
-    /// Adds an account pipe to process account updates with the raw account data.
-    ///
-    /// Account pipes decode and process updates to accounts within the
-    /// pipeline. This method requires both an `AccountDecoder` and a
-    /// `Processor` to handle decoded account data.
-    ///
-    /// # Parameters
-    ///
-    /// - `decoder`: An `AccountDecoder` that decodes the account data.
-    /// - `processor`: A `Processor` that processes the decoded account data.
-    /// - `processor_with_raw`: A `Processor` that processes decoded account data with the raw account data.
-    ///
-    /// # Example
-    ///
-    /// ```ignore
-    /// use carbon_core::pipeline::PipelineBuilder;
-    ///
-    /// let builder = PipelineBuilder::new()
-    ///     .account_with_raw(MyAccountDecoder, MyAccountProcessor);
-    /// ```
-    pub fn account_with_raw<T: Send + Sync + 'static>(
-        mut self,
-        decoder: impl for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
-        processor_with_raw: impl Processor<InputType = AccountProcessorInputTypeWithRawAccount<T>>
-            + Send
-            + Sync
-            + 'static,
-    ) -> Self {
-        log::trace!(
-            "account_with_raw(self, decoder: {:?}, processor: {:?})",
-            stringify!(decoder),
-            stringify!(processor)
-        );
-        self.account_pipes.push(Box::new(AccountPipe {
-            decoder: Box::new(decoder),
-            processor: None,
-            processor_with_raw: Some(Box::new(processor_with_raw)),
+            processor: Box::new(processor),
         }));
         self
     }
