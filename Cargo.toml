@@ -56,6 +56,7 @@ carbon-macros = { path = "crates/macros", version = "0.8.1" }
 carbon-marginfi-v2-decoder = { path = "decoders/marginfi-v2-decoder", version = "0.8.1" }
 carbon-marinade-finance-decoder = { path = "decoders/marinade-finance-decoder", version = "0.8.1" }
 carbon-memo-program-decoder = { path = "decoders/memo-program-decoder", version = "0.8.1" }
+carbon-meteora-damm-v2-decoder = { path = "decoders/meteora-damm-v2-decoder", version = "0.8.1" }
 carbon-meteora-dlmm-decoder = { path = "decoders/meteora-dlmm-decoder", version = "0.8.1" }
 carbon-meteora-pools-decoder = { path = "decoders/meteora-pools-decoder", version = "0.8.1" }
 carbon-moonshot-decoder = { path = "decoders/moonshot-decoder", version = "0.8.1" }
@@ -141,7 +142,7 @@ solana-native-token = "2.2"
 solana-program = "2.2"
 solana-program-pack = "2.2"
 solana-pubkey = { version = "2.2", features = ["serde"] }
-solana-signature = "2.2"
+solana-signature = { version = "2.2", features = ["rand"] }
 solana-transaction = "2.2"
 solana-transaction-context = "2.2"
 solana-transaction-status = "2.2"
@@ -158,7 +159,7 @@ sqlx = { version = "0.8.5", features = [
 sqlx_migrator = { version = "0.17.0", features = ["postgres"] }
 syn = { version = "1.0", features = ["full"] }
 thiserror = { version = "2.0.12", default-features = false }
-tokio = { version = "1.43.0" }
+tokio = { version = "1.43.0", features = ["rt", "time", "signal", "macros"] }
 tokio-retry = "0.3.0"
 tokio-util = "0.7.13"
 tonic = { version = "0.10", features = ["tls", "tls-roots", "tls-webpki-roots"] }
