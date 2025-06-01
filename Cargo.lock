@@ -1483,6 +1483,7 @@ name = "carbon-meteora-dlmm-decoder"
 version = "0.8.1"
 dependencies = [
  "carbon-core",
+ "carbon-test-utils",
  "serde",
  "serde-big-array",
  "solana-account",
