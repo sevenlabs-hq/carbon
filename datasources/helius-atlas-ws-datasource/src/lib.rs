@@ -94,6 +94,7 @@ impl HeliusWebsocket {
 impl Datasource for HeliusWebsocket {
     async fn consume(
         &self,
+        name: String,
         sender: Sender<Update>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
@@ -161,6 +162,7 @@ impl Datasource for HeliusWebsocket {
 
             let main_cancellation = cancellation_token.clone();
 
+            let name = name.clone();
             let handle = tokio::spawn(async move {
                 let mut handles = vec![];
 
@@ -261,6 +263,7 @@ impl Datasource for HeliusWebsocket {
                         let account_deletions_tracked = Arc::clone(&account_deletions_tracked);
                         let metrics = metrics.clone();
 
+                        let name = name.clone();
                         let handle = tokio::spawn(async move {
                             let ws = match helius_clone.ws() {
                                 Some(ws) => ws,
@@ -312,6 +315,7 @@ impl Datasource for HeliusWebsocket {
                                                         let account_deletion = AccountDeletion {
                                                             pubkey: account,
                                                             slot: acc_event.context.slot,
+                                                            source: name.clone(),
                                                         };
 
                                                         metrics.record_histogram("helius_atlas_ws_account_deletion_process_time_nanoseconds", start_time.elapsed().as_nanos() as f64).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
@@ -331,6 +335,7 @@ impl Datasource for HeliusWebsocket {
                                                         pubkey: account,
                                                         account: decoded_account,
                                                         slot: acc_event.context.slot,
+                                                        source: name.clone(),
                                                     });
 
                                                     metrics.record_histogram("helius_atlas_ws_account_process_time_nanoseconds", start_time.elapsed().as_nanos() as f64).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
@@ -584,6 +589,7 @@ impl Datasource for HeliusWebsocket {
                                                 slot: tx_event.slot,
                                                 block_time: None,
                                                 block_hash: None,
+                                                source: name.clone(),
                                             }));
 
                                             metrics

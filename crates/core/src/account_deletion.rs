@@ -17,6 +17,11 @@ use {
     std::sync::Arc,
 };
 
+#[derive(Default, Clone, Debug)]
+pub struct AccountDeletionsPipeFilters {
+    pub sources: Vec<String>,
+}
+
 /// A processing pipe for handling account deletions.
 ///
 /// The `AccountDeletionPipe` struct encapsulates the logic needed to process
@@ -70,6 +75,7 @@ use {
 /// - This struct is typically used within the broader pipeline structure for
 ///   managing updates.
 pub struct AccountDeletionPipe {
+    pub filters: AccountDeletionsPipeFilters,
     pub processor: Box<dyn Processor<InputType = AccountDeletion> + Send + Sync>,
 }
 
@@ -161,6 +167,8 @@ pub trait AccountDeletionPipes: Send + Sync {
         account_deletion: AccountDeletion,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
+
+    fn filter(&mut self, update: &AccountDeletion) -> bool;
 }
 
 #[async_trait]
@@ -178,5 +186,9 @@ impl AccountDeletionPipes for AccountDeletionPipe {
         self.processor.process(account_deletion, metrics).await?;
 
         Ok(())
+    }
+
+    fn filter(&mut self, update: &AccountDeletion) -> bool {
+        self.filters.sources.is_empty() || self.filters.sources.contains(&update.source)
     }
 }
