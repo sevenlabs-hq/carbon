@@ -163,7 +163,9 @@ mod tests {
     };
     use solana_pubkey::pubkey;
 
-    use super::{lb_pair::LbPair, position::Position, preset_parameter::PresetParameter, *};
+    use super::{
+        lb_pair::LbPair, oracle::Oracle, position::Position, preset_parameter::PresetParameter, *,
+    };
 
     #[test]
     fn test_decode_lb_pair_account() {
@@ -846,6 +848,32 @@ mod tests {
                 );
             }
             _ => panic!("Expected PresetParameterAccount"),
+        }
+    }
+
+    #[test]
+    fn test_decode_oracle_account() {
+        // Arrange
+        let expected_account = Oracle {
+            active_size: 1,
+            idx: 0,
+            length: 100,
+        };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let account = carbon_test_utils::read_account("tests/fixtures/oracle_account.json")
+            .expect("read fixture");
+        let decoded_account = decoder.decode_account(&account).expect("decode fixture");
+
+        // Assert
+        match decoded_account.data {
+            MeteoraDlmmAccount::Oracle(account) => {
+                assert_eq!(expected_account.active_size, account.active_size);
+                assert_eq!(expected_account.idx, account.idx);
+                assert_eq!(expected_account.length, account.length);
+            }
+            _ => panic!("Expected OracleAccount"),
         }
     }
 }

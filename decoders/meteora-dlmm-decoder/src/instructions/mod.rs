@@ -312,8 +312,14 @@ mod tests {
                 AddLiquidityOneSidePrecise, AddLiquidityOneSidePreciseInstructionAccounts,
             },
             claim_fee::{ClaimFee, ClaimFeeInstructionAccounts},
+            claim_fee2::{ClaimFee2, ClaimFee2InstructionAccounts},
             claim_reward::{ClaimReward, ClaimRewardInstructionAccounts},
+            claim_reward2::{ClaimReward2, ClaimReward2InstructionAccounts},
             close_position::{ClosePosition, ClosePositionInstructionAccounts},
+            close_position2::{ClosePosition2, ClosePosition2InstructionAccounts},
+            close_position_if_empty::{
+                ClosePositionIfEmpty, ClosePositionIfEmptyInstructionAccounts,
+            },
             close_preset_parameter::{
                 ClosePresetParameter, ClosePresetParameterInstructionAccounts,
             },
@@ -332,6 +338,7 @@ mod tests {
                 InitializeCustomizablePermissionlessLbPair2InstructionAccounts,
             },
             initialize_lb_pair::{InitializeLbPair, InitializeLbPairInstructionAccounts},
+            initialize_lb_pair2::{InitializeLbPair2, InitializeLbPair2InstructionAccounts},
             initialize_permission_lb_pair::{
                 InitializePermissionLbPair, InitializePermissionLbPairInstructionAccounts,
             },
@@ -342,24 +349,50 @@ mod tests {
             initialize_position_pda::{
                 InitializePositionPda, InitializePositionPdaInstructionAccounts,
             },
+            migrate_bin_array::{MigrateBinArray, MigrateBinArrayInstructionAccounts},
             migrate_position::{MigratePosition, MigratePositionInstructionAccounts},
             remove_all_liquidity::{RemoveAllLiquidity, RemoveAllLiquidityInstructionAccounts},
             remove_liquidity::{RemoveLiquidity, RemoveLiquidityInstructionAccounts},
+            remove_liquidity2::{RemoveLiquidity2, RemoveLiquidity2InstructionAccounts},
             remove_liquidity_by_range::{
                 RemoveLiquidityByRange, RemoveLiquidityByRangeInstructionAccounts,
             },
+            remove_liquidity_by_range2::{
+                RemoveLiquidityByRange2, RemoveLiquidityByRange2InstructionAccounts,
+            },
+            set_activation_point::{SetActivationPoint, SetActivationPointInstructionAccounts},
+            set_pair_status::{SetPairStatus, SetPairStatusInstructionAccounts},
+            set_pair_status_permissionless::{
+                SetPairStatusPermissionless, SetPairStatusPermissionlessInstructionAccounts,
+            },
+            set_pre_activation_duration::{
+                SetPreActivationDuration, SetPreActivationDurationInstructionAccounts,
+            },
+            set_pre_activation_swap_address::{
+                SetPreActivationSwapAddress, SetPreActivationSwapAddressInstructionAccounts,
+            },
             swap::{Swap, SwapInstructionAccounts},
+            swap2::{Swap2, Swap2InstructionAccounts},
             swap_exact_out::{SwapExactOut, SwapExactOutInstructionAccounts},
+            swap_exact_out2::{SwapExactOut2, SwapExactOut2InstructionAccounts},
+            swap_with_price_impact2::{
+                SwapWithPriceImpact2, SwapWithPriceImpact2InstructionAccounts,
+            },
+            update_base_fee_parameters::{
+                UpdateBaseFeeParameters, UpdateBaseFeeParametersInstructionAccounts,
+            },
             update_fees_and_rewards::{
                 UpdateFeesAndRewards, UpdateFeesAndRewardsInstructionAccounts,
             },
         },
         types::{
-            AddLiquiditySingleSidePreciseParameter, BinLiquidityDistribution,
-            BinLiquidityDistributionByWeight, BinLiquidityReduction, CompressedBinDepositAmount,
-            CustomizableParams, InitPermissionPairIx, LiquidityOneSideParameter,
-            LiquidityParameter, LiquidityParameterByStrategy, LiquidityParameterByStrategyOneSide,
-            LiquidityParameterByWeight, StrategyParameters, StrategyType,
+            AccountsType, AddLiquiditySingleSidePreciseParameter, BaseFeeParameter,
+            BinLiquidityDistribution, BinLiquidityDistributionByWeight, BinLiquidityReduction,
+            CompressedBinDepositAmount, CustomizableParams, InitPermissionPairIx,
+            InitializeLbPair2Params, LiquidityOneSideParameter, LiquidityParameter,
+            LiquidityParameterByStrategy, LiquidityParameterByStrategyOneSide,
+            LiquidityParameterByWeight, RemainingAccountsInfo, RemainingAccountsSlice,
+            StrategyParameters, StrategyType,
         },
     };
 
@@ -3066,6 +3099,1282 @@ mod tests {
         let decoded_arranged_accounts =
             UpdateFeesAndRewards::arrange_accounts(&instruction.accounts)
                 .expect("arrange accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_close_position_if_empty_ix() {
+        // Arrange
+        let expected_ix = MeteoraDlmmInstruction::ClosePositionIfEmpty(ClosePositionIfEmpty {});
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("5zasWBT9q3SxnY5nnCYXX6f95f35Jd99f7b6e41Ld8iQ"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("4R1YbARsv2PjznvXFfPG9tGzHXZnDjP9gHhGQuKGnXi1"),
+                true,
+            ),
+            AccountMeta::new(
+                pubkey!("4R1YbARsv2PjznvXFfPG9tGzHXZnDjP9gHhGQuKGnXi1"),
+                true,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+        ];
+        let expected_arranged_accounts = ClosePositionIfEmptyInstructionAccounts {
+            position: pubkey!("5zasWBT9q3SxnY5nnCYXX6f95f35Jd99f7b6e41Ld8iQ"),
+            sender: pubkey!("4R1YbARsv2PjznvXFfPG9tGzHXZnDjP9gHhGQuKGnXi1"),
+            rent_receiver: pubkey!("4R1YbARsv2PjznvXFfPG9tGzHXZnDjP9gHhGQuKGnXi1"),
+            event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+            program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+        };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let instruction =
+            carbon_test_utils::read_instruction("tests/fixtures/close_position_if_empty_ix.json")
+                .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            ClosePositionIfEmpty::arrange_accounts(&instruction.accounts)
+                .expect("arrange accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_close_position2_ix() {
+        // Arrange
+        let expected_ix = MeteoraDlmmInstruction::ClosePosition2(ClosePosition2 {});
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("DYrwi3FjL9i87kRPq9Sex7i1qVBPTqwvjjCLJmR2fRGz"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("3Fki2gTbdT3YQQzGkE3nJA2djU3ijsfCw7EYprqroBGP"),
+                true,
+            ),
+            AccountMeta::new(
+                pubkey!("3Fki2gTbdT3YQQzGkE3nJA2djU3ijsfCw7EYprqroBGP"),
+                true,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+        ];
+        let expected_arranged_accounts = ClosePosition2InstructionAccounts {
+            position: pubkey!("DYrwi3FjL9i87kRPq9Sex7i1qVBPTqwvjjCLJmR2fRGz"),
+            sender: pubkey!("3Fki2gTbdT3YQQzGkE3nJA2djU3ijsfCw7EYprqroBGP"),
+            rent_receiver: pubkey!("3Fki2gTbdT3YQQzGkE3nJA2djU3ijsfCw7EYprqroBGP"),
+            event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+            program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+        };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let instruction =
+            carbon_test_utils::read_instruction("tests/fixtures/close_position2_ix.json")
+                .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            ClosePosition2::arrange_accounts(&instruction.accounts).expect("arrange accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_migrate_bin_array_ix() {
+        // Arrange
+        let expected_ix = MeteoraDlmmInstruction::MigrateBinArray(MigrateBinArray {});
+        let expected_accounts = vec![AccountMeta::new_readonly(
+            pubkey!("zNLqkEXHxVDAbyjSSA8E17e1ksw5XEGrAA2Jha6e3FH"),
+            false,
+        )];
+        let expected_arranged_accounts = MigrateBinArrayInstructionAccounts {
+            lb_pair: pubkey!("zNLqkEXHxVDAbyjSSA8E17e1ksw5XEGrAA2Jha6e3FH"),
+        };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let instruction =
+            carbon_test_utils::read_instruction("tests/fixtures/migrate_bin_array_ix.json")
+                .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            MigrateBinArray::arrange_accounts(&instruction.accounts).expect("arrange accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_remove_liquidity_by_range2_ix() {
+        // Arrange
+        let expected_ix =
+            MeteoraDlmmInstruction::RemoveLiquidityByRange2(RemoveLiquidityByRange2 {
+                bps_to_remove: 10000,
+                from_bin_id: -3567,
+                remaining_accounts_info: RemainingAccountsInfo {
+                    slices: vec![
+                        RemainingAccountsSlice {
+                            accounts_type: AccountsType::TransferHookX,
+                            length: 0,
+                        },
+                        RemainingAccountsSlice {
+                            accounts_type: AccountsType::TransferHookY,
+                            length: 0,
+                        },
+                    ],
+                },
+                to_bin_id: -3499,
+            });
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("Cz3nviU2HQofE4cnZGDPTgt9q3T6eMEQbmuaGZB9noXg"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("AjM8Qn62EhR4ikJ1rvyeezB1NyvrSsb4zwJiFUFs9ycs"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("2MEBV4deAZ8P2E9ZwKZji9RmQFh4y266hoDh7zRcGjcf"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("3EY5CVGgCKc5EEfdv5b1aVe2GMevERW69644nLJ4Er6K"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("DfWWLJvVHDM9byp6y7Rpw5Rx4mGizSwB5GEoUMegi3z8"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("6qxaasNgXsfVp8tKkoJavp29hZYiDrcEirsS3oAsYCLc"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("Ey59PH7Z4BFU4HjyKnyMdWt5GGN76KazTAwQihoUXRnk"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("So11111111111111111111111111111111111111112"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("7urKMjRZKVt5z2vKRt6tV1xHFQWH3227g6KngnhkFidL"),
+                true,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+        ];
+        let expected_arranged_accounts = RemoveLiquidityByRange2InstructionAccounts {
+            position: pubkey!("Cz3nviU2HQofE4cnZGDPTgt9q3T6eMEQbmuaGZB9noXg"),
+            lb_pair: pubkey!("AjM8Qn62EhR4ikJ1rvyeezB1NyvrSsb4zwJiFUFs9ycs"),
+            bin_array_bitmap_extension: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+            user_token_x: pubkey!("2MEBV4deAZ8P2E9ZwKZji9RmQFh4y266hoDh7zRcGjcf"),
+            user_token_y: pubkey!("3EY5CVGgCKc5EEfdv5b1aVe2GMevERW69644nLJ4Er6K"),
+            reserve_x: pubkey!("DfWWLJvVHDM9byp6y7Rpw5Rx4mGizSwB5GEoUMegi3z8"),
+            reserve_y: pubkey!("6qxaasNgXsfVp8tKkoJavp29hZYiDrcEirsS3oAsYCLc"),
+            token_x_mint: pubkey!("Ey59PH7Z4BFU4HjyKnyMdWt5GGN76KazTAwQihoUXRnk"),
+            token_y_mint: pubkey!("So11111111111111111111111111111111111111112"),
+            sender: pubkey!("7urKMjRZKVt5z2vKRt6tV1xHFQWH3227g6KngnhkFidL"),
+            token_x_program: pubkey!("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
+            token_y_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            memo_program: pubkey!("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+            event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+            program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+        };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let instruction = carbon_test_utils::read_instruction(
+            "tests/fixtures/remove_liquidity_by_range2_ix.json",
+        )
+        .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            RemoveLiquidityByRange2::arrange_accounts(&instruction.accounts)
+                .expect("arrange accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_remove_liquidity2_ix() {
+        // Arrange
+        let expected_ix = MeteoraDlmmInstruction::RemoveLiquidity2(RemoveLiquidity2 {
+            bin_liquidity_removal: vec![BinLiquidityReduction {
+                bin_id: -560,
+                bps_to_remove: 10000,
+            }],
+            remaining_accounts_info: RemainingAccountsInfo {
+                slices: vec![
+                    RemainingAccountsSlice {
+                        accounts_type: AccountsType::TransferHookX,
+                        length: 0,
+                    },
+                    RemainingAccountsSlice {
+                        accounts_type: AccountsType::TransferHookY,
+                        length: 0,
+                    },
+                ],
+            },
+        });
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("3gWKqojAWeJRgdSe3bPyzNwjAdjeyaYJuraTEbFkEn9x"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("FvgJNjvU1swX8roYZpJ3BpjwVDqcrM2tEt18nhTNLCfd"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("Eurd4K4mrUypp3EhXxvBPhUm3e9WLoLyAwkzNDXv4shW"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("EgJsiHQDTfxXH6EkNTqLE6jd1H9Q1GZJPRMzVDfZKPGn"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("2u8ZyhXETPLkTGFhgtFm3zjpD1PosF7VySFoc9PdQQ7K"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("4UN3pAUqsM1X73zPTG1iLaxAWxy5vzg8kspBbqfPEq2n"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("dHNnE3a7aJpwmfGhh5QssrPUj4gAMNdkaCvUwyTwest"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("So11111111111111111111111111111111111111112"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("9NQ5D4CjcTa4AsXZ37j7gAjEJiqjSgn5SSTftryMwest"),
+                true,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+        ];
+        let expected_arranged_accounts = RemoveLiquidity2InstructionAccounts {
+            position: pubkey!("3gWKqojAWeJRgdSe3bPyzNwjAdjeyaYJuraTEbFkEn9x"),
+            lb_pair: pubkey!("FvgJNjvU1swX8roYZpJ3BpjwVDqcrM2tEt18nhTNLCfd"),
+            bin_array_bitmap_extension: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+            user_token_x: pubkey!("Eurd4K4mrUypp3EhXxvBPhUm3e9WLoLyAwkzNDXv4shW"),
+            user_token_y: pubkey!("EgJsiHQDTfxXH6EkNTqLE6jd1H9Q1GZJPRMzVDfZKPGn"),
+            reserve_x: pubkey!("2u8ZyhXETPLkTGFhgtFm3zjpD1PosF7VySFoc9PdQQ7K"),
+            reserve_y: pubkey!("4UN3pAUqsM1X73zPTG1iLaxAWxy5vzg8kspBbqfPEq2n"),
+            token_x_mint: pubkey!("dHNnE3a7aJpwmfGhh5QssrPUj4gAMNdkaCvUwyTwest"),
+            token_y_mint: pubkey!("So11111111111111111111111111111111111111112"),
+            sender: pubkey!("9NQ5D4CjcTa4AsXZ37j7gAjEJiqjSgn5SSTftryMwest"),
+            token_x_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            token_y_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            memo_program: pubkey!("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+            event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+            program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+        };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let instruction =
+            carbon_test_utils::read_instruction("tests/fixtures/remove_liquidity2_ix.json")
+                .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            RemoveLiquidity2::arrange_accounts(&instruction.accounts).expect("arrange accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_set_activation_point_ix() {
+        // Arrange
+        let expected_ix = MeteoraDlmmInstruction::SetActivationPoint(SetActivationPoint {
+            activation_point: 1748178300,
+        });
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("Ex3x6Two22ypWzvfXM8hdeJq6CWGG74k7wi4ZSafeyGj"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
+                true,
+            ),
+        ];
+        let expected_arranged_accounts = SetActivationPointInstructionAccounts {
+            lb_pair: pubkey!("Ex3x6Two22ypWzvfXM8hdeJq6CWGG74k7wi4ZSafeyGj"),
+            admin: pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
+        };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let instruction =
+            carbon_test_utils::read_instruction("tests/fixtures/set_activation_point_ix.json")
+                .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            SetActivationPoint::arrange_accounts(&instruction.accounts).expect("arrange accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_set_pair_status_ix() {
+        // Arrange
+        let expected_ix = MeteoraDlmmInstruction::SetPairStatus(SetPairStatus { status: 1 });
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("Ex3x6Two22ypWzvfXM8hdeJq6CWGG74k7wi4ZSafeyGj"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
+                true,
+            ),
+        ];
+        let expected_arranged_accounts = SetPairStatusInstructionAccounts {
+            lb_pair: pubkey!("Ex3x6Two22ypWzvfXM8hdeJq6CWGG74k7wi4ZSafeyGj"),
+            admin: pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
+        };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let instruction =
+            carbon_test_utils::read_instruction("tests/fixtures/set_pair_status_ix.json")
+                .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            SetPairStatus::arrange_accounts(&instruction.accounts).expect("arrange accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_set_pair_status_permissionless_ix() {
+        // Arrange
+        let expected_ix =
+            MeteoraDlmmInstruction::SetPairStatusPermissionless(SetPairStatusPermissionless {
+                status: 0,
+            });
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("C6881xvUWFRBFgDX8TrdiuQzHf6gBrmrh6DRzGa5B3Ft"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("E4PmHc6Hmsf5soqFsz9ZjsGwTwNjkWd9pw5MZfRctP6e"),
+                true,
+            ),
+        ];
+        let expected_arranged_accounts = SetPairStatusPermissionlessInstructionAccounts {
+            lb_pair: pubkey!("C6881xvUWFRBFgDX8TrdiuQzHf6gBrmrh6DRzGa5B3Ft"),
+            creator: pubkey!("E4PmHc6Hmsf5soqFsz9ZjsGwTwNjkWd9pw5MZfRctP6e"),
+        };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let instruction = carbon_test_utils::read_instruction(
+            "tests/fixtures/set_pair_status_permissionless_ix.json",
+        )
+        .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            SetPairStatusPermissionless::arrange_accounts(&instruction.accounts)
+                .expect("arrange accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_set_pre_activation_duration_ix() {
+        // Arrange
+        let expected_ix =
+            MeteoraDlmmInstruction::SetPreActivationDuration(SetPreActivationDuration {
+                pre_activation_duration: 3600,
+            });
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("Ex3x6Two22ypWzvfXM8hdeJq6CWGG74k7wi4ZSafeyGj"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
+                true,
+            ),
+        ];
+        let expected_arranged_accounts = SetPreActivationDurationInstructionAccounts {
+            lb_pair: pubkey!("Ex3x6Two22ypWzvfXM8hdeJq6CWGG74k7wi4ZSafeyGj"),
+            creator: pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
+        };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let instruction = carbon_test_utils::read_instruction(
+            "tests/fixtures/set_pre_activation_duration_ix.json",
+        )
+        .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            SetPreActivationDuration::arrange_accounts(&instruction.accounts)
+                .expect("arrange accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_set_pre_activation_swap_address_ix() {
+        // Arrange
+        let expected_ix =
+            MeteoraDlmmInstruction::SetPreActivationSwapAddress(SetPreActivationSwapAddress {
+                pre_activation_swap_address: pubkey!(
+                    "8gCqHrCcP5PxUf2fPR1nre5B9t2HjWQu6StujDCor4oW"
+                ),
+            });
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("Ex3x6Two22ypWzvfXM8hdeJq6CWGG74k7wi4ZSafeyGj"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
+                true,
+            ),
+        ];
+        let expected_arranged_accounts = SetPreActivationSwapAddressInstructionAccounts {
+            lb_pair: pubkey!("Ex3x6Two22ypWzvfXM8hdeJq6CWGG74k7wi4ZSafeyGj"),
+            creator: pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
+        };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let instruction = carbon_test_utils::read_instruction(
+            "tests/fixtures/set_pre_activation_swap_address_ix.json",
+        )
+        .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            SetPreActivationSwapAddress::arrange_accounts(&instruction.accounts)
+                .expect("arrange accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_swap_exact_out2_ix() {
+        // Arrange
+        let expected_ix = MeteoraDlmmInstruction::SwapExactOut2(SwapExactOut2 {
+            max_in_amount: 3826290145,
+            out_amount: 4891000000000,
+            remaining_accounts_info: RemainingAccountsInfo { slices: vec![] },
+        });
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("AjM8Qn62EhR4ikJ1rvyeezB1NyvrSsb4zwJiFUFs9ycs"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("DfWWLJvVHDM9byp6y7Rpw5Rx4mGizSwB5GEoUMegi3z8"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("6qxaasNgXsfVp8tKkoJavp29hZYiDrcEirsS3oAsYCLc"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("GShxvtESt69624EjwvbLBTHmQYcBUn6KKce3Wm7fCqmL"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("8y1KDhsqTqi9poaExmnGJ9mUaNa8K1Y5fi6M1LsXZwYi"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("Ey59PH7Z4BFU4HjyKnyMdWt5GGN76KazTAwQihoUXRnk"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("So11111111111111111111111111111111111111112"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("AFH1UXkECQwYoWkkCSydxU8UGciH8jxqB9EebV1NJVHs"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("G3ztVULQTspy6wBwKVtGHMfX3GBi1FtsfQHzz3RU2bon"),
+                true,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+        ];
+        let expected_arranged_accounts = SwapExactOut2InstructionAccounts {
+            lb_pair: pubkey!("AjM8Qn62EhR4ikJ1rvyeezB1NyvrSsb4zwJiFUFs9ycs"),
+            bin_array_bitmap_extension: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+            reserve_x: pubkey!("DfWWLJvVHDM9byp6y7Rpw5Rx4mGizSwB5GEoUMegi3z8"),
+            reserve_y: pubkey!("6qxaasNgXsfVp8tKkoJavp29hZYiDrcEirsS3oAsYCLc"),
+            user_token_in: pubkey!("GShxvtESt69624EjwvbLBTHmQYcBUn6KKce3Wm7fCqmL"),
+            user_token_out: pubkey!("8y1KDhsqTqi9poaExmnGJ9mUaNa8K1Y5fi6M1LsXZwYi"),
+            token_x_mint: pubkey!("Ey59PH7Z4BFU4HjyKnyMdWt5GGN76KazTAwQihoUXRnk"),
+            token_y_mint: pubkey!("So11111111111111111111111111111111111111112"),
+            oracle: pubkey!("AFH1UXkECQwYoWkkCSydxU8UGciH8jxqB9EebV1NJVHs"),
+            host_fee_in: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+            user: pubkey!("G3ztVULQTspy6wBwKVtGHMfX3GBi1FtsfQHzz3RU2bon"),
+            token_x_program: pubkey!("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
+            token_y_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            memo_program: pubkey!("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+            event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+            program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+        };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let instruction =
+            carbon_test_utils::read_instruction("tests/fixtures/swap_exact_out2_ix.json")
+                .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            SwapExactOut2::arrange_accounts(&instruction.accounts).expect("arrange accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_swap_with_price_impact2_ix() {
+        // Arrange
+        let expected_ix = MeteoraDlmmInstruction::SwapWithPriceImpact2(SwapWithPriceImpact2 {
+            active_id: Some(-533),
+            amount_in: 58823,
+            max_price_impact_bps: 1000,
+            remaining_accounts_info: RemainingAccountsInfo { slices: vec![] },
+        });
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("D4ARLASjg2Suy7M6vQtHAvx5NZEECuR7SFzWXhp41hfY"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("6RPeoQaz4aCCLY92qiF22eymiu8HtXfi6o96PCHro85R"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("Eq7wrmK1m4DpvihrnGwzBPccbsdP8u4nxi3obZ4325MC"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("2YGA6ogjCtCJGg5HaPpreiH7qeiQEWsboiV1UhNVk8LB"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("J1aRY8W75LHRoTrQjKri9ZrnZWVwH6b9pMYAJYLCxQk1"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("7VnT8zHzorYS92snKC4CZU2veigEVnVVBSxTw7G1pump"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("So11111111111111111111111111111111111111112"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("CS4LtXuwrM5Z7UcS1GsA9KdSzo6d2yzsaVcJ3YkUvwzj"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("6ZgXjkSmcAqV2ELiRv33D16CQV5GAkFpL8jmuBg5QfPY"),
+                true,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+        ];
+        let expected_arranged_accounts = SwapWithPriceImpact2InstructionAccounts {
+            lb_pair: pubkey!("D4ARLASjg2Suy7M6vQtHAvx5NZEECuR7SFzWXhp41hfY"),
+            bin_array_bitmap_extension: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+            reserve_x: pubkey!("6RPeoQaz4aCCLY92qiF22eymiu8HtXfi6o96PCHro85R"),
+            reserve_y: pubkey!("Eq7wrmK1m4DpvihrnGwzBPccbsdP8u4nxi3obZ4325MC"),
+            user_token_in: pubkey!("2YGA6ogjCtCJGg5HaPpreiH7qeiQEWsboiV1UhNVk8LB"),
+            user_token_out: pubkey!("J1aRY8W75LHRoTrQjKri9ZrnZWVwH6b9pMYAJYLCxQk1"),
+            token_x_mint: pubkey!("7VnT8zHzorYS92snKC4CZU2veigEVnVVBSxTw7G1pump"),
+            token_y_mint: pubkey!("So11111111111111111111111111111111111111112"),
+            oracle: pubkey!("CS4LtXuwrM5Z7UcS1GsA9KdSzo6d2yzsaVcJ3YkUvwzj"),
+            host_fee_in: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+            user: pubkey!("6ZgXjkSmcAqV2ELiRv33D16CQV5GAkFpL8jmuBg5QfPY"),
+            token_x_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            token_y_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            memo_program: pubkey!("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+            event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+            program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+        };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let instruction =
+            carbon_test_utils::read_instruction("tests/fixtures/swap_with_price_impact2_ix.json")
+                .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            SwapWithPriceImpact2::arrange_accounts(&instruction.accounts)
+                .expect("arrange accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_swap2_ix() {
+        // Arrange
+        let expected_ix = MeteoraDlmmInstruction::Swap2(Swap2 {
+            amount_in: 217206901,
+            min_amount_out: 0,
+            remaining_accounts_info: RemainingAccountsInfo { slices: vec![] },
+        });
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("5cuy7pMhTPhVZN9xuhgSbykRb986siGJb6vnEtkuBrSU"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("9wbTcHco8daQYxVPWn1eqDQe2YPY3ak3gPfQuYAcZ4PJ"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("Cpwo6h4koL8pC87R17g1dX8zfEQ6Pnv3AHXGPpNJqBuf"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("CPVAAuzZGX4nBk1o42qLVSZf9PQEVGdh6wcpxw8bF6Ar"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("53mNdjYekY37E5JQ9vXB57seaTxt2j6degVmcXLVr77r"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("27G8MtK7VtTcCHkpASjSDdkWWYfoqT6ggEuKidVJidD4"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("2NBaawB9aeYocWvyiECcDxSSwcyJd1B8oaHzpyEFbapc"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("AmZaQwdMRKNC5JzRUujZfrVFyjmoUuvrRmc6iKnQHEv6"),
+                true,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+        ];
+        let expected_arranged_accounts = Swap2InstructionAccounts {
+            lb_pair: pubkey!("5cuy7pMhTPhVZN9xuhgSbykRb986siGJb6vnEtkuBrSU"),
+            bin_array_bitmap_extension: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+            reserve_x: pubkey!("9wbTcHco8daQYxVPWn1eqDQe2YPY3ak3gPfQuYAcZ4PJ"),
+            reserve_y: pubkey!("Cpwo6h4koL8pC87R17g1dX8zfEQ6Pnv3AHXGPpNJqBuf"),
+            user_token_in: pubkey!("CPVAAuzZGX4nBk1o42qLVSZf9PQEVGdh6wcpxw8bF6Ar"),
+            user_token_out: pubkey!("53mNdjYekY37E5JQ9vXB57seaTxt2j6degVmcXLVr77r"),
+            token_x_mint: pubkey!("27G8MtK7VtTcCHkpASjSDdkWWYfoqT6ggEuKidVJidD4"),
+            token_y_mint: pubkey!("EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"),
+            oracle: pubkey!("2NBaawB9aeYocWvyiECcDxSSwcyJd1B8oaHzpyEFbapc"),
+            host_fee_in: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+            user: pubkey!("AmZaQwdMRKNC5JzRUujZfrVFyjmoUuvrRmc6iKnQHEv6"),
+            token_x_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            token_y_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            memo_program: pubkey!("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+            event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+            program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+        };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let instruction = carbon_test_utils::read_instruction("tests/fixtures/swap2_ix.json")
+            .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            Swap2::arrange_accounts(&instruction.accounts).expect("arrange accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_update_base_fee_parameters_ix() {
+        // Arrange
+        let expected_ix =
+            MeteoraDlmmInstruction::UpdateBaseFeeParameters(UpdateBaseFeeParameters {
+                fee_parameter: BaseFeeParameter {
+                    base_factor: 3125,
+                    base_fee_power_factor: 0,
+                    protocol_share: 2000,
+                },
+            });
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("4uPKbdiUTdLWjTMGwUQb2tiw1HYhy6FLSmZU5tx85vBZ"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
+                true,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+        ];
+        let expected_arranged_accounts = UpdateBaseFeeParametersInstructionAccounts {
+            lb_pair: pubkey!("4uPKbdiUTdLWjTMGwUQb2tiw1HYhy6FLSmZU5tx85vBZ"),
+            admin: pubkey!("5unTfT2kssBuNvHPY6LbJfJpLqEcdMxGYLWHwShaeTLi"),
+            event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+            program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+        };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let instruction = carbon_test_utils::read_instruction(
+            "tests/fixtures/update_base_fee_parameters_ix.json",
+        )
+        .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            UpdateBaseFeeParameters::arrange_accounts(&instruction.accounts)
+                .expect("arrange accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_claim_fee2_ix() {
+        // Arrange
+        let expected_ix = MeteoraDlmmInstruction::ClaimFee2(ClaimFee2 {
+            max_bin_id: -3601,
+            min_bin_id: -3669,
+            remaining_accounts_info: RemainingAccountsInfo {
+                slices: vec![
+                    RemainingAccountsSlice {
+                        accounts_type: AccountsType::TransferHookX,
+                        length: 0,
+                    },
+                    RemainingAccountsSlice {
+                        accounts_type: AccountsType::TransferHookY,
+                        length: 0,
+                    },
+                ],
+            },
+        });
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("AjM8Qn62EhR4ikJ1rvyeezB1NyvrSsb4zwJiFUFs9ycs"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("JBgwd6QqY1QANj5mY6ccBRuVxsfvoJkLVeSWDxvNT2bw"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("ACwQDp4FqpvMaYbCDQomDPYTawGbfi49cdZqUABjCqTm"),
+                true,
+            ),
+            AccountMeta::new(
+                pubkey!("DfWWLJvVHDM9byp6y7Rpw5Rx4mGizSwB5GEoUMegi3z8"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("6qxaasNgXsfVp8tKkoJavp29hZYiDrcEirsS3oAsYCLc"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("CgB7w527GSoFjQc5p8E3jn93eVj7ByNb6TjTKArU45vs"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("EZizF1NkMtyQavZy4E5NK6SN8wnJFdukgPhMRVbpPZ6i"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("Ey59PH7Z4BFU4HjyKnyMdWt5GGN76KazTAwQihoUXRnk"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("So11111111111111111111111111111111111111112"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+        ];
+        let expected_arranged_accounts = ClaimFee2InstructionAccounts {
+            lb_pair: pubkey!("AjM8Qn62EhR4ikJ1rvyeezB1NyvrSsb4zwJiFUFs9ycs"),
+            position: pubkey!("JBgwd6QqY1QANj5mY6ccBRuVxsfvoJkLVeSWDxvNT2bw"),
+            sender: pubkey!("ACwQDp4FqpvMaYbCDQomDPYTawGbfi49cdZqUABjCqTm"),
+            reserve_x: pubkey!("DfWWLJvVHDM9byp6y7Rpw5Rx4mGizSwB5GEoUMegi3z8"),
+            reserve_y: pubkey!("6qxaasNgXsfVp8tKkoJavp29hZYiDrcEirsS3oAsYCLc"),
+            user_token_x: pubkey!("CgB7w527GSoFjQc5p8E3jn93eVj7ByNb6TjTKArU45vs"),
+            user_token_y: pubkey!("EZizF1NkMtyQavZy4E5NK6SN8wnJFdukgPhMRVbpPZ6i"),
+            token_x_mint: pubkey!("Ey59PH7Z4BFU4HjyKnyMdWt5GGN76KazTAwQihoUXRnk"),
+            token_y_mint: pubkey!("So11111111111111111111111111111111111111112"),
+            token_program_x: pubkey!("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb"),
+            token_program_y: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            memo_program: pubkey!("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+            event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+            program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+        };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let instruction = carbon_test_utils::read_instruction("tests/fixtures/claim_fee2_ix.json")
+            .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            ClaimFee2::arrange_accounts(&instruction.accounts).expect("arrange accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_claim_reward2_ix() {
+        // Arrange
+        let expected_ix = MeteoraDlmmInstruction::ClaimReward2(ClaimReward2 {
+            max_bin_id: 4,
+            min_bin_id: 4,
+            remaining_accounts_info: RemainingAccountsInfo {
+                slices: vec![RemainingAccountsSlice {
+                    accounts_type: AccountsType::TransferHookReward,
+                    length: 0,
+                }],
+            },
+            reward_index: 0,
+        });
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("4wM3eJMduZBFytW6VqV5DC2CaSovRrM2RJG8bJkroqLD"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("5qeKgwuWULUacKHQxeTyJH1hzr4xXEDS6PwCfuSC8ntf"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("GKELxnW2LL2aHXe61pCoCFyko2UjZKKwRgHg8kCyGNzv"),
+                true,
+            ),
+            AccountMeta::new(
+                pubkey!("DLuW6nRywCBG5BssbaFpLfLsMSoXoXRiuzUtH6VJb12c"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("AuQaustGiaqxRvj2gtCdrd22PBzTn8kM3kEPEkZCtuDw"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("Co1sWgvQ3KvTgsGcHZy9YNA9s7oNjDL6xH2RNJbWxDPC"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+        ];
+        let expected_arranged_accounts = ClaimReward2InstructionAccounts {
+            lb_pair: pubkey!("4wM3eJMduZBFytW6VqV5DC2CaSovRrM2RJG8bJkroqLD"),
+            position: pubkey!("5qeKgwuWULUacKHQxeTyJH1hzr4xXEDS6PwCfuSC8ntf"),
+            sender: pubkey!("GKELxnW2LL2aHXe61pCoCFyko2UjZKKwRgHg8kCyGNzv"),
+            reward_vault: pubkey!("DLuW6nRywCBG5BssbaFpLfLsMSoXoXRiuzUtH6VJb12c"),
+            reward_mint: pubkey!("AuQaustGiaqxRvj2gtCdrd22PBzTn8kM3kEPEkZCtuDw"),
+            user_token_account: pubkey!("Co1sWgvQ3KvTgsGcHZy9YNA9s7oNjDL6xH2RNJbWxDPC"),
+            token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            memo_program: pubkey!("MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr"),
+            event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+            program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+        };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let instruction =
+            carbon_test_utils::read_instruction("tests/fixtures/claim_reward2_ix.json")
+                .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            ClaimReward2::arrange_accounts(&instruction.accounts).expect("arrange accounts");
+
+        // Assert
+        assert_eq!(decoded.data, expected_ix);
+        assert_eq!(decoded.accounts, expected_accounts);
+        assert_eq!(decoded.program_id, PROGRAM_ID);
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+
+    #[test]
+    fn test_decode_initialize_lb_pair2_ix() {
+        // Arrange
+        let expected_ix = MeteoraDlmmInstruction::InitializeLbPair2(InitializeLbPair2 {
+            params: InitializeLbPair2Params {
+                active_id: -341,
+                padding: [0; 96],
+            },
+        });
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("AythiR24hnGBjPq6FK6ADiVGqXHTbBpydkBPfNC1ndgg"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("B7zNKphr8fjczB71oi9uF9pCd5XSNJvBn78TVF7kpump"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("So11111111111111111111111111111111111111112"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("7PMC89FyUXvjoK5V1ZZJQWWGXbXt6h9n3qS4dBVg7Yn4"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("2EPCtbGKWKeFnpdevbRAthgGqpA6WRqYMSjfEBMZH5oZ"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("Dnfpn4ZCRSCxtoYFcbNowGP215dsed2N45SS693GTY5W"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("CrZUmJzkSs4TWg8GpCq5UGRX4ryRYHYYVQQ4dNMYo1GW"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("EaeLcEeKz3XoN9xn99kjJhmWZzdVx2dJ4uYxqRYxRWhG"),
+                true,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+                false,
+            ),
+            AccountMeta::new_readonly(pubkey!("11111111111111111111111111111111"), false),
+            AccountMeta::new_readonly(
+                pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+                false,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+                false,
+            ),
+        ];
+        let expected_arranged_accounts = InitializeLbPair2InstructionAccounts {
+            lb_pair: pubkey!("AythiR24hnGBjPq6FK6ADiVGqXHTbBpydkBPfNC1ndgg"),
+            bin_array_bitmap_extension: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+            token_mint_x: pubkey!("B7zNKphr8fjczB71oi9uF9pCd5XSNJvBn78TVF7kpump"),
+            token_mint_y: pubkey!("So11111111111111111111111111111111111111112"),
+            reserve_x: pubkey!("7PMC89FyUXvjoK5V1ZZJQWWGXbXt6h9n3qS4dBVg7Yn4"),
+            reserve_y: pubkey!("2EPCtbGKWKeFnpdevbRAthgGqpA6WRqYMSjfEBMZH5oZ"),
+            oracle: pubkey!("Dnfpn4ZCRSCxtoYFcbNowGP215dsed2N45SS693GTY5W"),
+            preset_parameter: pubkey!("CrZUmJzkSs4TWg8GpCq5UGRX4ryRYHYYVQQ4dNMYo1GW"),
+            funder: pubkey!("EaeLcEeKz3XoN9xn99kjJhmWZzdVx2dJ4uYxqRYxRWhG"),
+            token_badge_x: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+            token_badge_y: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+            token_program_x: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            token_program_y: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
+            system_program: pubkey!("11111111111111111111111111111111"),
+            event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
+            program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
+        };
+
+        // Act
+        let decoder = MeteoraDlmmDecoder;
+        let instruction =
+            carbon_test_utils::read_instruction("tests/fixtures/initialize_lb_pair2_ix.json")
+                .expect("read fixture");
+        let decoded = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+        let decoded_arranged_accounts =
+            InitializeLbPair2::arrange_accounts(&instruction.accounts).expect("arrange accounts");
 
         // Assert
         assert_eq!(decoded.data, expected_ix);
