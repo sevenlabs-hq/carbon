@@ -11,6 +11,7 @@ pub struct UpdateFeeParameters {
     pub fee_parameter: FeeParameter,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct UpdateFeeParametersInstructionAccounts {
     pub lb_pair: solana_pubkey::Pubkey,
     pub admin: solana_pubkey::Pubkey,
