@@ -3,7 +3,7 @@ use {
     carbon_core::{
         account::{AccountMetadata, DecodedAccount},
         error::CarbonResult,
-        instruction::{DecodedInstruction, NestedInstruction},
+        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
         metrics::MetricsCollection,
         processor::Processor,
     },
@@ -80,16 +80,17 @@ pub struct KaminoLendingInstructionProcessor;
 #[async_trait]
 impl Processor for KaminoLendingInstructionProcessor {
     type InputType = (
-        NestedInstruction,
+        InstructionMetadata,
         DecodedInstruction<KaminoLendingInstruction>,
+        NestedInstructions,
     );
 
     async fn process(
         &mut self,
-        (nested_instruction, instruction): Self::InputType,
+        (metadata, instruction, _nested_instructions): Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let signature = nested_instruction.metadata.transaction_metadata.signature;
+        let signature = metadata.transaction_metadata.signature;
 
         let signature = format!(
             "{}...{}",

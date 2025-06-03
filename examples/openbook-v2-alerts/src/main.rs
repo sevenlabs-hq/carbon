@@ -2,7 +2,7 @@ use {
     async_trait::async_trait,
     carbon_core::{
         error::CarbonResult,
-        instruction::{DecodedInstruction, NestedInstruction},
+        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
         metrics::MetricsCollection,
         processor::Processor,
     },
@@ -52,14 +52,18 @@ pub struct OpenbookV2InstructionProcessor;
 
 #[async_trait]
 impl Processor for OpenbookV2InstructionProcessor {
-    type InputType = (NestedInstruction, DecodedInstruction<OpenbookV2Instruction>);
+    type InputType = (
+        InstructionMetadata,
+        DecodedInstruction<OpenbookV2Instruction>,
+        NestedInstructions,
+    );
 
     async fn process(
         &mut self,
-        (nested_instruction, instruction): Self::InputType,
+        (metadata, instruction, _nested_instructions): Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let signature = nested_instruction.metadata.transaction_metadata.signature;
+        let signature = metadata.transaction_metadata.signature;
 
         match instruction.data {
             OpenbookV2Instruction::CreateMarket(create_market) => {

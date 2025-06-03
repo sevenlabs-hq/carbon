@@ -3,7 +3,7 @@ use {
     carbon_core::{
         deserialize::ArrangeAccounts,
         error::CarbonResult,
-        instruction::{DecodedInstruction, NestedInstruction},
+        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
         metrics::MetricsCollection,
         processor::Processor,
     },
@@ -54,16 +54,17 @@ pub struct RaydiumClmmInstructionProcessor;
 #[async_trait]
 impl Processor for RaydiumClmmInstructionProcessor {
     type InputType = (
-        NestedInstruction,
+        InstructionMetadata,
         DecodedInstruction<RaydiumClmmInstruction>,
+        NestedInstructions,
     );
 
     async fn process(
         &mut self,
-        (nested_instruction, instruction): Self::InputType,
+        (metadata, instruction, _nested_instructions): Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let signature = nested_instruction.metadata.transaction_metadata.signature;
+        let signature = metadata.transaction_metadata.signature;
         let accounts = instruction.accounts;
 
         match instruction.data {

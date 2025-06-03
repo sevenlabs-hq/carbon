@@ -114,7 +114,11 @@ pub trait InstructionDecoder<'a> {
 /// The input type for the instruction processor.
 ///
 /// - `T`: The instruction type
-pub type InstructionProcessorInputType<T> = (NestedInstruction, DecodedInstruction<T>);
+pub type InstructionProcessorInputType<T> = (
+    InstructionMetadata,
+    DecodedInstruction<T>,
+    NestedInstructions,
+);
 
 /// A processing pipeline for instructions, using a decoder and processor.
 ///
@@ -174,7 +178,11 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
         {
             self.processor
                 .process(
-                    (nested_instruction.clone(), decoded_instruction),
+                    (
+                        nested_instruction.metadata.clone(),
+                        decoded_instruction,
+                        nested_instruction.inner_instructions.clone(),
+                    ),
                     metrics.clone(),
                 )
                 .await?;
