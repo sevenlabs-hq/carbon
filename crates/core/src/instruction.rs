@@ -118,6 +118,7 @@ pub type InstructionProcessorInputType<T> = (
     InstructionMetadata,
     DecodedInstruction<T>,
     NestedInstructions,
+    solana_instruction::Instruction,
 );
 
 /// A processing pipeline for instructions, using a decoder and processor.
@@ -182,6 +183,7 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
                         nested_instruction.metadata.clone(),
                         decoded_instruction,
                         nested_instruction.inner_instructions.clone(),
+                        nested_instruction.instruction.clone(),
                     ),
                     metrics.clone(),
                 )

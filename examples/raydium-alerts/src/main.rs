@@ -95,11 +95,12 @@ impl Processor for RaydiumAmmV4InstructionProcessor {
         InstructionMetadata,
         DecodedInstruction<RaydiumAmmV4Instruction>,
         NestedInstructions,
+        solana_instruction::Instruction,
     );
 
     async fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions): Self::InputType,
+        (metadata, instruction, _nested_instructions, _): Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let signature = metadata.transaction_metadata.signature;
@@ -195,7 +196,11 @@ impl Processor for RaydiumAmmV4InstructionProcessor {
 pub struct RaydiumAmmV4AccountProcessor;
 #[async_trait]
 impl Processor for RaydiumAmmV4AccountProcessor {
-    type InputType = (AccountMetadata, DecodedAccount<RaydiumAmmV4Account>);
+    type InputType = (
+        AccountMetadata,
+        DecodedAccount<RaydiumAmmV4Account>,
+        solana_account::Account,
+    );
 
     async fn process(
         &mut self,
