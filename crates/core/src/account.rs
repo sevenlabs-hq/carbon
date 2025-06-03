@@ -51,7 +51,10 @@
 //!   handling in the pipeline.
 
 use {
-    crate::{error::CarbonResult, metrics::MetricsCollection, processor::Processor},
+    crate::{
+        datasource::AccountUpdate, error::CarbonResult, metrics::MetricsCollection,
+        processor::Processor,
+    },
     async_trait::async_trait,
     solana_pubkey::Pubkey,
     std::sync::Arc,
@@ -72,6 +75,7 @@ use {
 pub struct AccountMetadata {
     pub slot: u64,
     pub pubkey: Pubkey,
+    pub source: String,
 }
 
 /// Represents the decoded data of a Solana account, including account-specific
@@ -128,6 +132,11 @@ pub trait AccountDecoder<'a> {
 pub type AccountProcessorInputType<T> =
     (AccountMetadata, DecodedAccount<T>, solana_account::Account);
 
+#[derive(Default, Clone, Debug)]
+pub struct AccountPipeFilters {
+    pub sources: Vec<String>,
+}
+
 /// A processing pipe that decodes and processes Solana account updates.
 ///
 /// `AccountPipe` combines an `AccountDecoder` and a `Processor` to manage
@@ -147,6 +156,7 @@ pub type AccountProcessorInputType<T> =
 /// - `processor`: A `Processor` that handles the processing logic for decoded
 ///   accounts.
 pub struct AccountPipe<T: Send> {
+    pub filters: AccountPipeFilters,
     pub decoder: Box<dyn for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static>,
     pub processor: Box<dyn Processor<InputType = AccountProcessorInputType<T>> + Send + Sync>,
 }
@@ -192,6 +202,8 @@ pub trait AccountPipes: Send + Sync {
         account_with_metadata: (AccountMetadata, solana_account::Account),
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
+
+    fn filter(&mut self, update: &AccountUpdate) -> bool;
 }
 
 #[async_trait]
@@ -219,5 +231,9 @@ impl<T: Send> AccountPipes for AccountPipe<T> {
                 .await?;
         }
         Ok(())
+    }
+
+    fn filter(&mut self, update: &AccountUpdate) -> bool {
+        self.filters.sources.is_empty() || self.filters.sources.contains(&update.source)
     }
 }

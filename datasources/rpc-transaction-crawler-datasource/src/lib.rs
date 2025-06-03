@@ -83,6 +83,7 @@ impl RpcTransactionCrawler {
 impl Datasource for RpcTransactionCrawler {
     async fn consume(
         &self,
+        name: String,
         sender: Sender<Update>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
@@ -125,6 +126,7 @@ impl Datasource for RpcTransactionCrawler {
         );
 
         let task_processor = task_processor(
+            name,
             transaction_receiver,
             sender,
             filters,
@@ -345,6 +347,7 @@ fn transaction_fetcher(
 }
 
 fn task_processor(
+    name: String,
     transaction_receiver: Receiver<(Signature, EncodedConfirmedTransactionWithStatusMeta)>,
     sender: Sender<Update>,
     filters: Filters,
@@ -433,6 +436,7 @@ fn task_processor(
                         slot: fetched_transaction.slot,
                         block_time: fetched_transaction.block_time,
                         block_hash: None,
+                        source: name.clone(),
                     }));
 
 
