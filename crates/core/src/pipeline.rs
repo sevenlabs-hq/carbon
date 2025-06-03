@@ -756,7 +756,6 @@ impl PipelineBuilder {
     ///
     /// - `decoder`: An `AccountDecoder` that decodes the account data.
     /// - `processor`: A `Processor` that processes the decoded account data.
-    /// - `processor_with_raw`: A `Processor` that processes decoded account data with the raw account data.
     ///
     /// # Example
     ///
