@@ -2,7 +2,7 @@ use {
     async_trait::async_trait,
     carbon_core::{
         error::CarbonResult,
-        instruction::{DecodedInstruction, NestedInstruction},
+        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
         metrics::MetricsCollection,
         processor::Processor,
     },
@@ -49,8 +49,9 @@ pub struct MeteoraInstructionProcessor;
 #[async_trait]
 impl Processor for MeteoraInstructionProcessor {
     type InputType = (
-        NestedInstruction,
+        InstructionMetadata,
         DecodedInstruction<MeteoraDlmmInstruction>,
+        NestedInstructions,
     );
 
     async fn process(
@@ -58,7 +59,7 @@ impl Processor for MeteoraInstructionProcessor {
         data: Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let (_, decoded_instruction) = data;
+        let (_instruction_metadata, decoded_instruction, _nested_instructions) = data;
 
         // Process all Meteora Events and add each to DB
         match decoded_instruction.data {

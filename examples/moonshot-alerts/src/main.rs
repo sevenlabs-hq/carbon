@@ -3,7 +3,7 @@ use {
     carbon_core::{
         deserialize::ArrangeAccounts,
         error::CarbonResult,
-        instruction::{DecodedInstruction, NestedInstruction},
+        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
         metrics::MetricsCollection,
         processor::Processor,
     },
@@ -56,15 +56,19 @@ pub struct MoonshotInstructionProcessor;
 
 #[async_trait]
 impl Processor for MoonshotInstructionProcessor {
-    type InputType = (NestedInstruction, DecodedInstruction<MoonshotInstruction>);
+    type InputType = (
+        InstructionMetadata,
+        DecodedInstruction<MoonshotInstruction>,
+        NestedInstructions,
+    );
 
     async fn process(
         &mut self,
-        (nested_instruction, instruction): Self::InputType,
+        (metadata, instruction, _nested_instructions): Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let signature = nested_instruction.metadata.transaction_metadata.signature;
-        let accounts = nested_instruction.instruction.accounts;
+        let signature = metadata.transaction_metadata.signature;
+        let accounts = instruction.accounts;
 
         match instruction.data {
             MoonshotInstruction::TokenMint(token_mint) => {

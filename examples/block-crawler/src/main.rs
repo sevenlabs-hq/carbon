@@ -66,8 +66,7 @@ impl Processor for PumpfunInstructionProcessor {
         data: Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let (nested_instruction, pumpfun_instruction) = data;
-        let metadata = nested_instruction.metadata;
+        let (metadata, pumpfun_instruction, _) = data;
 
         match pumpfun_instruction.data {
             PumpfunInstruction::CreateEvent(create_event) => {
