@@ -13,4 +13,5 @@ solana-commitment-config = { workspace = true }
 async-trait = { workspace = true }
 dotenv = { workspace = true }
 env_logger = { workspace = true }
+solana-instruction = { workspace = true }
 tokio = { workspace = true, features = ["full"] }

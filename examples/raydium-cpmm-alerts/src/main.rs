@@ -56,11 +56,12 @@ impl Processor for RaydiumCpmmInstructionProcessor {
         InstructionMetadata,
         DecodedInstruction<RaydiumCpmmInstruction>,
         NestedInstructions,
+        solana_instruction::Instruction,
     );
 
     async fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions): Self::InputType,
+        (metadata, instruction, _nested_instructions, _): Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let signature = metadata.transaction_metadata.signature;
