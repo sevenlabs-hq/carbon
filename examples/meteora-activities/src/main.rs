@@ -52,6 +52,7 @@ impl Processor for MeteoraInstructionProcessor {
         InstructionMetadata,
         DecodedInstruction<MeteoraDlmmInstruction>,
         NestedInstructions,
+        solana_instruction::Instruction,
     );
 
     async fn process(
@@ -59,7 +60,7 @@ impl Processor for MeteoraInstructionProcessor {
         data: Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let (_instruction_metadata, decoded_instruction, _nested_instructions) = data;
+        let (_instruction_metadata, decoded_instruction, _nested_instructions, _) = data;
 
         // Process all Meteora Events and add each to DB
         match decoded_instruction.data {
