@@ -79,10 +79,11 @@ impl Processor for JupiterSwapInstructionProcessor {
         InstructionMetadata,
         DecodedInstruction<JupiterSwapInstruction>,
         NestedInstructions,
+        solana_instruction::Instruction,
     );
     async fn process(
         &mut self,
-        (metadata, instruction, nested_instructions): Self::InputType,
+        (metadata, instruction, nested_instructions, _): Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let signature = metadata.transaction_metadata.signature;

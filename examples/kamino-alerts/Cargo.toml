@@ -14,5 +14,6 @@ dotenv = { workspace = true }
 env_logger = { workspace = true }
 log = { workspace = true }
 solana-account = { workspace = true }
+solana-instruction = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 yellowstone-grpc-proto = { workspace = true }

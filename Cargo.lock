@@ -1139,6 +1139,7 @@ dependencies = [
  "dotenv",
  "env_logger 0.11.8",
  "log",
+ "solana-instruction",
  "solana-transaction-status",
  "tokio",
 ]
@@ -3941,6 +3942,7 @@ dependencies = [
  "env_logger 0.11.8",
  "log",
  "rustls 0.23.27",
+ "solana-instruction",
  "tokio",
  "yellowstone-grpc-proto",
 ]
@@ -3957,6 +3959,7 @@ dependencies = [
  "env_logger 0.11.8",
  "log",
  "solana-account",
+ "solana-instruction",
  "tokio",
  "yellowstone-grpc-proto",
 ]
@@ -4199,6 +4202,7 @@ dependencies = [
  "dotenv",
  "env_logger 0.11.8",
  "solana-commitment-config",
+ "solana-instruction",
  "tokio",
 ]
 
@@ -4316,6 +4320,7 @@ dependencies = [
  "env_logger 0.11.8",
  "log",
  "solana-client",
+ "solana-instruction",
  "tokio",
 ]
 
@@ -4617,6 +4622,7 @@ dependencies = [
  "env_logger 0.11.8",
  "log",
  "solana-client",
+ "solana-instruction",
  "tokio",
 ]
 
@@ -5384,6 +5390,7 @@ dependencies = [
  "log",
  "rustls 0.23.27",
  "solana-account",
+ "solana-instruction",
  "tokio",
  "yellowstone-grpc-proto",
 ]
@@ -5401,6 +5408,7 @@ dependencies = [
  "env_logger 0.11.8",
  "log",
  "solana-client",
+ "solana-instruction",
  "tokio",
 ]
 
@@ -5417,6 +5425,7 @@ dependencies = [
  "env_logger 0.11.8",
  "log",
  "solana-client",
+ "solana-instruction",
  "tokio",
 ]
 
