@@ -17,8 +17,8 @@ use {
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
-    env_logger::init();
     dotenv::dotenv().ok();
+    env_logger::init();
 
     let filters = Filters::new(None, None, None);
 

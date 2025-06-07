@@ -19,6 +19,7 @@ Create a `.env` file in the root of your project and set the following environme
 
 ```env
 RPC_URL=...
+RUST_LOG=...
 ```
 
 - `RPC_URL` should point to the Solana RPC URL you want to use for Solana program accounts crawling and live updates.

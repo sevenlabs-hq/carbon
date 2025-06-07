@@ -30,8 +30,8 @@ use {
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
-    env_logger::init();
     dotenv::dotenv().ok();
+    env_logger::init();
 
     // NOTE: Workaround, that solving issue https://github.com/rustls/rustls/issues/1877
     rustls::crypto::aws_lc_rs::default_provider()
