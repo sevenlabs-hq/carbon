@@ -10,7 +10,7 @@ use {
     carbon_meteora_dlmm_decoder::{
         instructions::MeteoraDlmmInstruction, MeteoraDlmmDecoder, PROGRAM_ID as METEORA_PROGRAM_ID,
     },
-    carbon_rpc_transaction_crawler_datasource::{Filters, RpcTransactionCrawler},
+    carbon_rpc_transaction_crawler_datasource::{Filters, RetryConfig, RpcTransactionCrawler},
     solana_commitment_config::CommitmentConfig,
     std::{env, sync::Arc, time::Duration},
 };
@@ -30,6 +30,7 @@ pub async fn main() -> CarbonResult<()> {
         filters,                                 // Filters
         Some(CommitmentConfig::finalized()),     // Commitment config
         5,                                       // Max Concurrent Requests
+        RetryConfig::no_retry(),                 // Retry config
     );
 
     carbon_core::pipeline::Pipeline::builder()
