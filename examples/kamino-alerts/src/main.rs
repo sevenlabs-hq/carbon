@@ -25,8 +25,8 @@ use {
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
-    env_logger::init();
     dotenv::dotenv().ok();
+    env_logger::init();
 
     let mut account_filters: HashMap<String, SubscribeRequestFilterAccounts> = HashMap::new();
     account_filters.insert(
