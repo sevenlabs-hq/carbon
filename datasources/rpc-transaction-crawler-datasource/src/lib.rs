@@ -78,6 +78,15 @@ impl RetryConfig {
             backoff_multiplier: 2.0,
         }
     }
+
+    pub const fn no_retry() -> Self {
+        RetryConfig {
+            max_retries: 0,
+            initial_backoff_ms: 0,
+            max_backoff_ms: 0,
+            backoff_multiplier: 0.0,
+        }
+    }
 }
 
 pub struct RpcTransactionCrawler {
