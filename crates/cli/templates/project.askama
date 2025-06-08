@@ -80,14 +80,19 @@ pub async fn main() -> CarbonResult<()> {
     {%- endif %}
 
     {%- if data_source.module_name == "rpc_transaction_crawler" %}
+    let connection_config = ConnectionConfig::new(
+        100,                                                                 // Batch limit
+        Duration::from_secs(5),                                              // Polling interval
+        5,                                                                   // Max Concurrent Requests
+        RetryConfig::default(),                                              // Retry config
+    );
+
     let datasource = RpcTransactionCrawler::new(
         env::var("RPC_URL").unwrap_or_default(),                             // RPC URL
         METEORA_PROGRAM_ID,                                                  // The test account
-        100,                                                                 // Batch limit
-        Duration::from_secs(5),                                              // Polling interval
+        connection_config,                                                    // Connection config
         filters,                                                             // Filters
         Some(solana_sdk::commitment_config::CommitmentConfig::finalized()),  // Commitment config
-        5,                                                                   // Max Concurrent Requests
     );
     {%- endif %}
 
