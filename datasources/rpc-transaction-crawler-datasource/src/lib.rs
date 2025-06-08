@@ -89,37 +89,61 @@ impl RetryConfig {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct ConnectionConfig {
+    pub batch_limit: usize,
+    pub polling_interval: Duration,
+    pub max_concurrent_requests: usize,
+    pub retry_config: RetryConfig,
+}
+
+impl ConnectionConfig {
+    pub const fn new(
+        batch_limit: usize,
+        polling_interval: Duration,
+        max_concurrent_requests: usize,
+        retry_config: RetryConfig,
+    ) -> Self {
+        ConnectionConfig {
+            batch_limit,
+            polling_interval,
+            max_concurrent_requests,
+            retry_config,
+        }
+    }
+
+    pub const fn default() -> Self {
+        ConnectionConfig {
+            batch_limit: 100,
+            polling_interval: Duration::from_secs(5),
+            max_concurrent_requests: 5,
+            retry_config: RetryConfig::default(),
+        }
+    }
+}
+
 pub struct RpcTransactionCrawler {
     pub rpc_url: String,
     pub account: Pubkey,
-    pub batch_limit: usize,
-    pub polling_interval: Duration,
+    pub connection_config: ConnectionConfig,
     pub filters: Filters,
     pub commitment: Option<CommitmentConfig>,
-    pub max_concurrent_requests: usize,
-    pub retry_config: RetryConfig,
 }
 
 impl RpcTransactionCrawler {
     pub const fn new(
         rpc_url: String,
         account: Pubkey,
-        batch_limit: usize,
-        polling_interval: Duration,
+        connection_config: ConnectionConfig,
         filters: Filters,
         commitment: Option<CommitmentConfig>,
-        max_concurrent_requests: usize,
-        retry_config: RetryConfig,
     ) -> Self {
         RpcTransactionCrawler {
             rpc_url,
             account,
-            batch_limit,
-            polling_interval,
+            connection_config,
             filters,
             commitment,
-            max_concurrent_requests,
-            retry_config,
         }
     }
 }
@@ -137,12 +161,9 @@ impl Datasource for RpcTransactionCrawler {
             self.commitment.unwrap_or(CommitmentConfig::confirmed()),
         ));
         let account = self.account;
-        let batch_limit = self.batch_limit;
-        let polling_interval = self.polling_interval;
         let filters = self.filters.clone();
         let sender = sender.clone();
         let commitment = self.commitment;
-        let max_concurrent_requests = self.max_concurrent_requests;
 
         let (signature_sender, signature_receiver) = mpsc::channel(1000);
         let (transaction_sender, transaction_receiver) = mpsc::channel(1000);
@@ -150,25 +171,22 @@ impl Datasource for RpcTransactionCrawler {
         let signature_fetcher = signature_fetcher(
             rpc_client.clone(),
             account,
-            batch_limit,
-            polling_interval,
+            self.connection_config.clone(),
             signature_sender,
             filters.clone(),
             commitment,
             cancellation_token.clone(),
             metrics.clone(),
-            self.retry_config.clone(),
         );
 
         let transaction_fetcher = transaction_fetcher(
             rpc_client,
             signature_receiver,
             transaction_sender,
+            self.connection_config.clone(),
             commitment,
-            max_concurrent_requests,
             cancellation_token.clone(),
             metrics.clone(),
-            self.retry_config.clone(),
         );
 
         let task_processor = task_processor(
@@ -199,14 +217,12 @@ impl Datasource for RpcTransactionCrawler {
 fn signature_fetcher(
     rpc_client: Arc<RpcClient>,
     account: Pubkey,
-    batch_limit: usize,
-    polling_interval: Duration,
+    connection_config: ConnectionConfig,
     signature_sender: Sender<Signature>,
     filters: Filters,
     commitment: Option<CommitmentConfig>,
     cancellation_token: CancellationToken,
     metrics: Arc<MetricsCollection>,
-    retry_config: RetryConfig,
 ) -> JoinHandle<()> {
     let rpc_client = Arc::clone(&rpc_client);
     let filters = filters.clone();
@@ -224,7 +240,7 @@ fn signature_fetcher(
                 }
                 _ = async {
                     let mut retries = 0;
-                    let mut backoff = retry_config.initial_backoff_ms;
+                    let mut backoff = connection_config.retry_config.initial_backoff_ms;
 
                     loop {
                         match rpc_client.get_signatures_for_address_with_config(
@@ -232,7 +248,7 @@ fn signature_fetcher(
                             GetConfirmedSignaturesForAddress2Config {
                                 before: last_fetched_signature,
                                 until: until_signature,
-                                limit: Some(batch_limit),
+                                limit: Some(connection_config.batch_limit),
                                 commitment: Some(commitment.unwrap_or(CommitmentConfig::confirmed())),
                             }
                         ).await {
@@ -246,7 +262,7 @@ fn signature_fetcher(
                                         most_recent_signature = None;
                                     }
 
-                                    tokio::time::sleep(polling_interval).await;
+                                    tokio::time::sleep(connection_config.polling_interval).await;
                                     break;
                                 }
 
@@ -289,7 +305,7 @@ fn signature_fetcher(
                                 break;
                             }
                             Err(e) => {
-                                if retries >= retry_config.max_retries {
+                                if retries >= connection_config.retry_config.max_retries {
                                     log::error!("Failed to fetch signatures after {} retries: {:?}", retries, e);
                                     break;
                                 }
@@ -297,15 +313,15 @@ fn signature_fetcher(
                                 log::warn!(
                                     "Failed to fetch signatures (attempt {}/{}), retrying in {}ms: {:?}",
                                     retries + 1,
-                                    retry_config.max_retries,
+                                    connection_config.retry_config.max_retries,
                                     backoff,
                                     e
                                 );
 
                                 tokio::time::sleep(Duration::from_millis(backoff)).await;
                                 retries += 1;
-                                backoff = (backoff as f64 * retry_config.backoff_multiplier) as u64;
-                                backoff = backoff.min(retry_config.max_backoff_ms);
+                                backoff = (backoff as f64 * connection_config.retry_config.backoff_multiplier) as u64;
+                                backoff = backoff.min(connection_config.retry_config.max_backoff_ms);
                             }
                         }
                     }
@@ -319,11 +335,10 @@ fn transaction_fetcher(
     rpc_client: Arc<RpcClient>,
     signature_receiver: Receiver<Signature>,
     transaction_sender: Sender<(Signature, EncodedConfirmedTransactionWithStatusMeta)>,
+    connection_config: ConnectionConfig,
     commitment: Option<CommitmentConfig>,
-    max_concurrent_requests: usize,
     cancellation_token: CancellationToken,
     metrics: Arc<MetricsCollection>,
-    retry_config: RetryConfig,
 ) -> JoinHandle<()> {
     let rpc_client = Arc::clone(&rpc_client);
     let transaction_sender = transaction_sender.clone();
@@ -340,12 +355,12 @@ fn transaction_fetcher(
             fetch_stream
                 .map(|signature| {
                     let metrics = metrics.clone();
-                    let retry_config = retry_config.clone();
+                    let connection_config = connection_config.clone();
                     let rpc_client = Arc::clone(&rpc_client);
                     async move {
                         let start = Instant::now();
                         let mut retries = 0;
-                        let mut backoff = retry_config.initial_backoff_ms;
+                        let mut backoff = connection_config.retry_config.initial_backoff_ms;
 
                         loop {
                             match rpc_client.get_transaction_with_config(
@@ -372,7 +387,7 @@ fn transaction_fetcher(
                                     return Some((signature, tx));
                                 }
                                 Err(e) => {
-                                    if retries >= retry_config.max_retries {
+                                    if retries >= connection_config.retry_config.max_retries {
                                         log::error!("Failed to fetch transaction {} after {} retries: {:?}", signature, retries, e);
                                         return None;
                                     }
@@ -381,21 +396,21 @@ fn transaction_fetcher(
                                         "Failed to fetch transaction {} (attempt {}/{}), retrying in {}ms: {:?}",
                                         signature,
                                         retries + 1,
-                                        retry_config.max_retries,
+                                        connection_config.retry_config.max_retries,
                                         backoff,
                                         e
                                     );
 
                                     tokio::time::sleep(Duration::from_millis(backoff)).await;
                                     retries += 1;
-                                    backoff = (backoff as f64 * retry_config.backoff_multiplier) as u64;
-                                    backoff = backoff.min(retry_config.max_backoff_ms);
+                                    backoff = (backoff as f64 * connection_config.retry_config.backoff_multiplier) as u64;
+                                    backoff = backoff.min(connection_config.retry_config.max_backoff_ms);
                                 }
                             }
                         }
                     }
                 })
-                .buffer_unordered(max_concurrent_requests)
+                .buffer_unordered(connection_config.max_concurrent_requests)
                 .for_each(|result| async {
                     metrics
                         .increment_counter("transaction_crawler_transactions_fetched", 1)

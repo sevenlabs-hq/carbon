@@ -10,7 +10,9 @@ use {
     carbon_meteora_dlmm_decoder::{
         instructions::MeteoraDlmmInstruction, MeteoraDlmmDecoder, PROGRAM_ID as METEORA_PROGRAM_ID,
     },
-    carbon_rpc_transaction_crawler_datasource::{Filters, RetryConfig, RpcTransactionCrawler},
+    carbon_rpc_transaction_crawler_datasource::{
+        ConnectionConfig, Filters, RetryConfig, RpcTransactionCrawler,
+    },
     solana_commitment_config::CommitmentConfig,
     std::{env, sync::Arc, time::Duration},
 };
@@ -21,16 +23,19 @@ pub async fn main() -> CarbonResult<()> {
     dotenv::dotenv().ok();
 
     let filters = Filters::new(None, None, None);
+    let connection_config = ConnectionConfig::new(
+        100,                     // Batch limit
+        Duration::from_secs(5),  // Polling interval
+        5,                       // Max Concurrent Requests
+        RetryConfig::no_retry(), // Retry config
+    );
 
     let transaction_crawler = RpcTransactionCrawler::new(
         env::var("RPC_URL").unwrap_or_default(), // RPC URL
         METEORA_PROGRAM_ID,                      // The test account
-        100,                                     // Batch limit
-        Duration::from_secs(5),                  // Polling interval
+        connection_config,                       // Connection config
         filters,                                 // Filters
         Some(CommitmentConfig::finalized()),     // Commitment config
-        5,                                       // Max Concurrent Requests
-        RetryConfig::no_retry(),                 // Retry config
     );
 
     carbon_core::pipeline::Pipeline::builder()
