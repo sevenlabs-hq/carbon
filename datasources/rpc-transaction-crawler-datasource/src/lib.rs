@@ -47,34 +47,103 @@ impl Filters {
     }
 }
 
+#[derive(Debug, Clone)]
+pub struct RetryConfig {
+    pub max_retries: u32,
+    pub initial_backoff_ms: u64,
+    pub max_backoff_ms: u64,
+    pub backoff_multiplier: f64,
+}
+
+impl RetryConfig {
+    pub const fn new(
+        max_retries: u32,
+        initial_backoff_ms: u64,
+        max_backoff_ms: u64,
+        backoff_multiplier: f64,
+    ) -> Self {
+        RetryConfig {
+            max_retries,
+            initial_backoff_ms,
+            max_backoff_ms,
+            backoff_multiplier,
+        }
+    }
+
+    pub const fn default() -> Self {
+        RetryConfig {
+            max_retries: 3,
+            initial_backoff_ms: 1000,
+            max_backoff_ms: 10000,
+            backoff_multiplier: 2.0,
+        }
+    }
+
+    pub const fn no_retry() -> Self {
+        RetryConfig {
+            max_retries: 0,
+            initial_backoff_ms: 0,
+            max_backoff_ms: 0,
+            backoff_multiplier: 0.0,
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct ConnectionConfig {
+    pub batch_limit: usize,
+    pub polling_interval: Duration,
+    pub max_concurrent_requests: usize,
+    pub retry_config: RetryConfig,
+}
+
+impl ConnectionConfig {
+    pub const fn new(
+        batch_limit: usize,
+        polling_interval: Duration,
+        max_concurrent_requests: usize,
+        retry_config: RetryConfig,
+    ) -> Self {
+        ConnectionConfig {
+            batch_limit,
+            polling_interval,
+            max_concurrent_requests,
+            retry_config,
+        }
+    }
+
+    pub const fn default() -> Self {
+        ConnectionConfig {
+            batch_limit: 100,
+            polling_interval: Duration::from_secs(5),
+            max_concurrent_requests: 5,
+            retry_config: RetryConfig::default(),
+        }
+    }
+}
+
 pub struct RpcTransactionCrawler {
     pub rpc_url: String,
     pub account: Pubkey,
-    pub batch_limit: usize,
-    pub polling_interval: Duration,
+    pub connection_config: ConnectionConfig,
     pub filters: Filters,
     pub commitment: Option<CommitmentConfig>,
-    pub max_concurrent_requests: usize,
 }
 
 impl RpcTransactionCrawler {
     pub const fn new(
         rpc_url: String,
         account: Pubkey,
-        batch_limit: usize,
-        polling_interval: Duration,
+        connection_config: ConnectionConfig,
         filters: Filters,
         commitment: Option<CommitmentConfig>,
-        max_concurrent_requests: usize,
     ) -> Self {
         RpcTransactionCrawler {
             rpc_url,
             account,
-            batch_limit,
-            polling_interval,
+            connection_config,
             filters,
             commitment,
-            max_concurrent_requests,
         }
     }
 }
@@ -92,12 +161,9 @@ impl Datasource for RpcTransactionCrawler {
             self.commitment.unwrap_or(CommitmentConfig::confirmed()),
         ));
         let account = self.account;
-        let batch_limit = self.batch_limit;
-        let polling_interval = self.polling_interval;
         let filters = self.filters.clone();
         let sender = sender.clone();
         let commitment = self.commitment;
-        let max_concurrent_requests = self.max_concurrent_requests;
 
         let (signature_sender, signature_receiver) = mpsc::channel(1000);
         let (transaction_sender, transaction_receiver) = mpsc::channel(1000);
@@ -105,8 +171,7 @@ impl Datasource for RpcTransactionCrawler {
         let signature_fetcher = signature_fetcher(
             rpc_client.clone(),
             account,
-            batch_limit,
-            polling_interval,
+            self.connection_config.clone(),
             signature_sender,
             filters.clone(),
             commitment,
@@ -118,8 +183,8 @@ impl Datasource for RpcTransactionCrawler {
             rpc_client,
             signature_receiver,
             transaction_sender,
+            self.connection_config.clone(),
             commitment,
-            max_concurrent_requests,
             cancellation_token.clone(),
             metrics.clone(),
         );
@@ -152,8 +217,7 @@ impl Datasource for RpcTransactionCrawler {
 fn signature_fetcher(
     rpc_client: Arc<RpcClient>,
     account: Pubkey,
-    batch_limit: usize,
-    polling_interval: Duration,
+    connection_config: ConnectionConfig,
     signature_sender: Sender<Signature>,
     filters: Filters,
     commitment: Option<CommitmentConfig>,
@@ -174,82 +238,94 @@ fn signature_fetcher(
                     log::info!("Cancelling RPC Crawler signature fetcher...");
                     break;
                 }
-                result = rpc_client.get_signatures_for_address_with_config(
-                    &account,
-                    GetConfirmedSignaturesForAddress2Config {
-                        before: last_fetched_signature,
-                        until: until_signature,
-                        limit: Some(batch_limit),
-                        commitment: Some(commitment.unwrap_or(CommitmentConfig::confirmed())),
-                    }
-                ) => {
-                    match result {
-                        Ok(signatures) => {
-                            let start = Instant::now();
+                _ = async {
+                    let mut retries = 0;
+                    let mut backoff = connection_config.retry_config.initial_backoff_ms;
 
-                            if signatures.is_empty() {
-                                // no more signatures to fetch, so we've gone through
-                                // all transactions that have been sent up until we started polling for signatures
-                                // update `last_fetched_signature` to None so we can detect newly sent transactions
-                                last_fetched_signature = None;
-                                if most_recent_signature.is_some() {
-                                        // set the `until` signature to the most recent signature
-                                        // this will prevent reindexing old transactions
+                    loop {
+                        match rpc_client.get_signatures_for_address_with_config(
+                            &account,
+                            GetConfirmedSignaturesForAddress2Config {
+                                before: last_fetched_signature,
+                                until: until_signature,
+                                limit: Some(connection_config.batch_limit),
+                                commitment: Some(commitment.unwrap_or(CommitmentConfig::confirmed())),
+                            }
+                        ).await {
+                            Ok(signatures) => {
+                                let start = Instant::now();
+
+                                if signatures.is_empty() {
+                                    last_fetched_signature = None;
+                                    if most_recent_signature.is_some() {
                                         until_signature = most_recent_signature;
-                                        // set the most recent signature to None
-                                        // this will prevent reindexing old transactions
-                                        // after we run out of new
                                         most_recent_signature = None;
-                                }
-
-                                tokio::time::sleep(polling_interval).await;
-                                continue;
-                            }
-
-                            // if we have not seen a signature, then update the most recent signature
-                            // on subsequent loop's, this will prevent us from reindexing already seen transactions
-                            if most_recent_signature.is_none() {
-                                match Signature::from_str(&signatures[0].signature) {
-                                    Ok(sig) => most_recent_signature = Some(sig),
-                                    Err(e) => {
-                                        log::error!("Invalid signature: {:?}", e);
                                     }
-                                }
-                            }
 
-                            for sig_info in signatures.iter() {
-                                let signature = match Signature::from_str(&sig_info.signature) {
-                                    Ok(sig) => sig,
-                                    Err(e) => {
-                                        log::error!("Invalid signature: {:?}", e);
-                                        continue;
-                                    }
-                                };
-
-                                if let Err(e) = signature_sender.send(signature).await {
-                                    log::error!("Failed to send signature: {:?}", e);
+                                    tokio::time::sleep(connection_config.polling_interval).await;
                                     break;
                                 }
+
+                                if most_recent_signature.is_none() {
+                                    match Signature::from_str(&signatures[0].signature) {
+                                        Ok(sig) => most_recent_signature = Some(sig),
+                                        Err(e) => {
+                                            log::error!("Invalid signature: {:?}", e);
+                                        }
+                                    }
+                                }
+
+                                for sig_info in signatures.iter() {
+                                    let signature = match Signature::from_str(&sig_info.signature) {
+                                        Ok(sig) => sig,
+                                        Err(e) => {
+                                            log::error!("Invalid signature: {:?}", e);
+                                            continue;
+                                        }
+                                    };
+
+                                    if let Err(e) = signature_sender.send(signature).await {
+                                        log::error!("Failed to send signature: {:?}", e);
+                                        break;
+                                    }
+                                }
+
+                                last_fetched_signature = signatures
+                                    .last()
+                                    .and_then(|s| Signature::from_str(&s.signature).ok());
+
+                                let time_taken = start.elapsed().as_millis();
+
+                                metrics.record_histogram("transaction_crawler_signatures_fetch_times_milliseconds", time_taken as f64)
+                                    .await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+
+                                metrics.increment_counter("transaction_crawler_signatures_fetched", signatures.len() as u64)
+                                    .await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+
+                                break;
                             }
+                            Err(e) => {
+                                if retries >= connection_config.retry_config.max_retries {
+                                    log::error!("Failed to fetch signatures after {} retries: {:?}", retries, e);
+                                    break;
+                                }
 
-                            last_fetched_signature = signatures
-                                .last()
-                                .and_then(|s| Signature::from_str(&s.signature).ok());
+                                log::warn!(
+                                    "Failed to fetch signatures (attempt {}/{}), retrying in {}ms: {:?}",
+                                    retries + 1,
+                                    connection_config.retry_config.max_retries,
+                                    backoff,
+                                    e
+                                );
 
-                            let time_taken = start.elapsed().as_millis();
-
-                            metrics.record_histogram("transaction_crawler_signatures_fetch_times_milliseconds",   time_taken as f64)
-                                .await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
-
-                            metrics.increment_counter("transaction_crawler_signatures_fetched", signatures.len() as u64).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
-
-                        }
-                        Err(e) => {
-                            log::error!("Error fetching signatures: {:?}", e);
-                            tokio::time::sleep(Duration::from_secs(1)).await;
+                                tokio::time::sleep(Duration::from_millis(backoff)).await;
+                                retries += 1;
+                                backoff = (backoff as f64 * connection_config.retry_config.backoff_multiplier) as u64;
+                                backoff = backoff.min(connection_config.retry_config.max_backoff_ms);
+                            }
                         }
                     }
-                }
+                } => {}
             }
         }
     })
@@ -259,8 +335,8 @@ fn transaction_fetcher(
     rpc_client: Arc<RpcClient>,
     signature_receiver: Receiver<Signature>,
     transaction_sender: Sender<(Signature, EncodedConfirmedTransactionWithStatusMeta)>,
+    connection_config: ConnectionConfig,
     commitment: Option<CommitmentConfig>,
-    max_concurrent_requests: usize,
     cancellation_token: CancellationToken,
     metrics: Arc<MetricsCollection>,
 ) -> JoinHandle<()> {
@@ -278,13 +354,16 @@ fn transaction_fetcher(
 
             fetch_stream
                 .map(|signature| {
-                    let rpc_client = Arc::clone(&rpc_client);
                     let metrics = metrics.clone();
+                    let connection_config = connection_config.clone();
+                    let rpc_client = Arc::clone(&rpc_client);
                     async move {
                         let start = Instant::now();
+                        let mut retries = 0;
+                        let mut backoff = connection_config.retry_config.initial_backoff_ms;
 
-                        match rpc_client
-                            .get_transaction_with_config(
+                        loop {
+                            match rpc_client.get_transaction_with_config(
                                 &signature,
                                 RpcTransactionConfig {
                                     encoding: Some(UiTransactionEncoding::Base64),
@@ -293,30 +372,45 @@ fn transaction_fetcher(
                                     ),
                                     max_supported_transaction_version: Some(0),
                                 },
-                            )
-                            .await
-                        {
-                            Ok(tx) => {
-                                let time_taken = start.elapsed().as_millis();
+                            ).await {
+                                Ok(tx) => {
+                                    let time_taken = start.elapsed().as_millis();
 
-                                metrics
-                                    .record_histogram(
-                                        "transaction_crawler_transaction_fetch_times_milliseconds",
-                                        time_taken as f64,
-                                    )
-                                    .await
-                                    .expect("Error recording metric");
+                                    metrics
+                                        .record_histogram(
+                                            "transaction_crawler_transaction_fetch_times_milliseconds",
+                                            time_taken as f64,
+                                        )
+                                        .await
+                                        .expect("Error recording metric");
 
-                                Some((signature, tx))
-                            }
-                            Err(e) => {
-                                log::error!("Error fetching transaction {}: {:?}", signature, e);
-                                None
+                                    return Some((signature, tx));
+                                }
+                                Err(e) => {
+                                    if retries >= connection_config.retry_config.max_retries {
+                                        log::error!("Failed to fetch transaction {} after {} retries: {:?}", signature, retries, e);
+                                        return None;
+                                    }
+
+                                    log::warn!(
+                                        "Failed to fetch transaction {} (attempt {}/{}), retrying in {}ms: {:?}",
+                                        signature,
+                                        retries + 1,
+                                        connection_config.retry_config.max_retries,
+                                        backoff,
+                                        e
+                                    );
+
+                                    tokio::time::sleep(Duration::from_millis(backoff)).await;
+                                    retries += 1;
+                                    backoff = (backoff as f64 * connection_config.retry_config.backoff_multiplier) as u64;
+                                    backoff = backoff.min(connection_config.retry_config.max_backoff_ms);
+                                }
                             }
                         }
                     }
                 })
-                .buffer_unordered(max_concurrent_requests)
+                .buffer_unordered(connection_config.max_concurrent_requests)
                 .for_each(|result| async {
                     metrics
                         .increment_counter("transaction_crawler_transactions_fetched", 1)
