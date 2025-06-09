@@ -28,6 +28,8 @@ pub async fn main() -> CarbonResult<()> {
         Duration::from_secs(5),  // Polling interval
         5,                       // Max Concurrent Requests
         RetryConfig::no_retry(), // Retry config
+        None,                    // Max Signature Channel Size
+        None,                    // Max Transaction Channel Size
     );
 
     let transaction_crawler = RpcTransactionCrawler::new(
