@@ -94,6 +94,8 @@ pub struct ConnectionConfig {
     pub batch_limit: usize,
     pub polling_interval: Duration,
     pub max_concurrent_requests: usize,
+    pub max_signature_channel_size: Option<usize>,
+    pub max_transaction_channel_size: Option<usize>,
     pub retry_config: RetryConfig,
 }
 
@@ -103,12 +105,16 @@ impl ConnectionConfig {
         polling_interval: Duration,
         max_concurrent_requests: usize,
         retry_config: RetryConfig,
+        max_signature_channel_size: Option<usize>, // None will default to 1000
+        max_transaction_channel_size: Option<usize>, // None will default to 1000
     ) -> Self {
         ConnectionConfig {
             batch_limit,
             polling_interval,
             max_concurrent_requests,
             retry_config,
+            max_signature_channel_size,
+            max_transaction_channel_size,
         }
     }
 
@@ -118,6 +124,8 @@ impl ConnectionConfig {
             polling_interval: Duration::from_secs(5),
             max_concurrent_requests: 5,
             retry_config: RetryConfig::default(),
+            max_signature_channel_size: None,
+            max_transaction_channel_size: None,
         }
     }
 }
@@ -165,8 +173,16 @@ impl Datasource for RpcTransactionCrawler {
         let sender = sender.clone();
         let commitment = self.commitment;
 
-        let (signature_sender, signature_receiver) = mpsc::channel(1000);
-        let (transaction_sender, transaction_receiver) = mpsc::channel(1000);
+        let (signature_sender, signature_receiver) = mpsc::channel(
+            self.connection_config
+                .max_signature_channel_size
+                .unwrap_or(1000),
+        );
+        let (transaction_sender, transaction_receiver) = mpsc::channel(
+            self.connection_config
+                .max_transaction_channel_size
+                .unwrap_or(1000),
+        );
 
         let signature_fetcher = signature_fetcher(
             rpc_client.clone(),
