@@ -25,7 +25,7 @@ DATABASE_URL=...
 
 - `GEYSER_URL` should point to the Yellowstone Geyser RPC URL you want to use for Solana transaction crawling.
 - `X_TOKEN` is optional and can be used if your Geyser endpoint requires an authentication token.
-- `DATABASE_URL` postgres connection url 
+- `DATABASE_URL` postgres connection url
 
 ### Step 3: Build the Project
 
