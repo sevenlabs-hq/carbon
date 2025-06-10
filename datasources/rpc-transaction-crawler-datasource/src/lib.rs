@@ -556,7 +556,9 @@ fn task_processor(
 
 
                     if let Err(e) = sender.try_send(update) {
-                        log::error!("Failed to send update: {:?}", e);
+                        if !cancellation_token.is_cancelled() {
+                            log::error!("Failed to send update: {:?}", e);
+                        }
                         continue;
                     }
                 }
