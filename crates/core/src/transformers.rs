@@ -494,6 +494,7 @@ pub fn transaction_metadata_from_original_meta(
 
 #[cfg(test)]
 mod tests {
+    use solana_signature::Signature;
     use {
         super::*,
         crate::instruction::{InstructionsWithMetadata, NestedInstructions},
@@ -505,10 +506,11 @@ mod tests {
             v0::{self, MessageAddressTableLookup},
             MessageHeader,
         },
-        solana_signature::Signature,
         solana_transaction::versioned::VersionedTransaction,
         std::vec,
     };
+
+    use crate::pipeline::GENERIC_DATASOURCE_NAME;
 
     #[test]
     fn test_transaction_metadata_from_original_meta_simple() {
@@ -691,6 +693,7 @@ mod tests {
         let original_tx_meta = transaction_metadata_from_original_meta(tx_meta_status)
             .expect("transaction metadata from original meta");
         let transaction_update = TransactionUpdate {
+            source: GENERIC_DATASOURCE_NAME.into(),
             signature: Signature::default(),
             transaction: VersionedTransaction {
                 signatures: vec![Signature::default()],
@@ -1092,6 +1095,7 @@ mod tests {
         let original_tx_meta = transaction_metadata_from_original_meta(tx_meta_status)
             .expect("transaction metadata from original meta");
         let transaction_update = TransactionUpdate {
+            source: GENERIC_DATASOURCE_NAME.into(),
             signature: Signature::default(),
             transaction: VersionedTransaction {
                 signatures: vec![Signature::default()],

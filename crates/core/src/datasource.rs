@@ -102,6 +102,7 @@ use {
 pub trait Datasource: Send + Sync {
     async fn consume(
         &self,
+        name: String,
         sender: tokio::sync::mpsc::Sender<Update>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
@@ -149,11 +150,13 @@ pub enum UpdateType {
 /// - `pubkey`: The public key of the account being updated.
 /// - `account`: The new state of the account.
 /// - `slot`: The slot number in which this account update was recorded.
+/// - `source`: A string identifying the datasource that produced this update.
 #[derive(Debug, Clone)]
 pub struct AccountUpdate {
     pub pubkey: Pubkey,
     pub account: Account,
     pub slot: u64,
+    pub source: String,
 }
 
 /// Represents the details of a Solana block, including its slot, hashes, rewards, and timing information.
@@ -192,6 +195,7 @@ pub struct BlockDetails {
 pub struct AccountDeletion {
     pub pubkey: Pubkey,
     pub slot: u64,
+    pub source: String,
 }
 
 /// Represents a transaction update in the Solana network, including transaction
@@ -222,4 +226,5 @@ pub struct TransactionUpdate {
     pub slot: u64,
     pub block_time: Option<i64>,
     pub block_hash: Option<Hash>,
+    pub source: String,
 }
