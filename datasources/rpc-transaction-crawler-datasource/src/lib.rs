@@ -246,7 +246,7 @@ fn signature_fetcher(
 
     tokio::spawn(async move {
         let mut last_fetched_signature = filters.before_signature;
-        let mut until_signature = filters.until_signature;
+        let until_signature = filters.until_signature;
         let mut most_recent_signature: Option<Signature> = None;
         loop {
             tokio::select! {
@@ -272,13 +272,9 @@ fn signature_fetcher(
                                 let start = Instant::now();
 
                                 if signatures.is_empty() {
-                                    last_fetched_signature = None;
-                                    if most_recent_signature.is_some() {
-                                        until_signature = most_recent_signature;
-                                        most_recent_signature = None;
+                                    if last_fetched_signature.is_none() {
+                                        tokio::time::sleep(connection_config.polling_interval).await;
                                     }
-
-                                    tokio::time::sleep(connection_config.polling_interval).await;
                                     break;
                                 }
 
