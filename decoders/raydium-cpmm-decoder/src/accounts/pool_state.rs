@@ -24,5 +24,6 @@ pub struct PoolState {
     pub fund_fees_token0: u64,
     pub fund_fees_token1: u64,
     pub open_time: u64,
-    pub padding: [u64; 32],
+    pub recent_epoch: u64,
+    pub padding: [u64; 31],
 }
