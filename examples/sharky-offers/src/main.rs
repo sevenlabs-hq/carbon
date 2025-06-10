@@ -131,8 +131,8 @@ instruction_decoder_collection!(
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    env_logger::init();
     dotenv::dotenv().ok();
+    env_logger::init();
 
     Pipeline::builder()
         .datasource(GpaBackfillDatasource::new(
