@@ -558,11 +558,12 @@ fn task_processor(
 
 
                     if connection_config.blocking_send {
-                        if let Err(e) = sender.send(update).await {
+                        if let Err(e) = sender.send(update.clone()).await {
                             log::warn!("Failed to send update: {:?}", e);
                             continue;
                         }
-                    } else {
+                    }
+                    if !connection_config.blocking_send {
                         if let Err(e) = sender.try_send(update) {
                             log::warn!("Failed to send update: {:?}", e);
                             continue;
