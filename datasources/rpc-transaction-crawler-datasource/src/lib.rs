@@ -97,6 +97,7 @@ pub struct ConnectionConfig {
     pub max_signature_channel_size: Option<usize>,
     pub max_transaction_channel_size: Option<usize>,
     pub retry_config: RetryConfig,
+    pub blocking_send: bool,
 }
 
 impl ConnectionConfig {
@@ -107,6 +108,7 @@ impl ConnectionConfig {
         retry_config: RetryConfig,
         max_signature_channel_size: Option<usize>, // None will default to 1000
         max_transaction_channel_size: Option<usize>, // None will default to 1000
+        blocking_send: bool,
     ) -> Self {
         ConnectionConfig {
             batch_limit,
@@ -115,6 +117,7 @@ impl ConnectionConfig {
             retry_config,
             max_signature_channel_size,
             max_transaction_channel_size,
+            blocking_send,
         }
     }
 
@@ -126,6 +129,7 @@ impl ConnectionConfig {
             retry_config: RetryConfig::default(),
             max_signature_channel_size: None,
             max_transaction_channel_size: None,
+            blocking_send: false,
         }
     }
 }
@@ -211,6 +215,7 @@ impl Datasource for RpcTransactionCrawler {
             filters,
             cancellation_token.clone(),
             metrics.clone(),
+            self.connection_config.clone(),
         );
 
         tokio::spawn(async move {
@@ -456,6 +461,7 @@ fn task_processor(
     filters: Filters,
     cancellation_token: CancellationToken,
     metrics: Arc<MetricsCollection>,
+    connection_config: ConnectionConfig,
 ) -> JoinHandle<()> {
     let mut transaction_receiver = transaction_receiver;
     let sender = sender.clone();
@@ -551,9 +557,16 @@ fn task_processor(
                             .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
 
-                    if let Err(e) = sender.try_send(update) {
+                    if connection_config.blocking_send {
+                        if let Err(e) = sender.send(update).await {
                             log::warn!("Failed to send update: {:?}", e);
-                        continue;
+                            continue;
+                        }
+                    } else {
+                        if let Err(e) = sender.try_send(update) {
+                            log::warn!("Failed to send update: {:?}", e);
+                            continue;
+                        }
                     }
                 }
             }
