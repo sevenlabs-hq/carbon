@@ -10,6 +10,7 @@ pub struct IncreaseLiquidity {
     pub token_max_b: u64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct IncreaseLiquidityInstructionAccounts {
     pub whirlpool: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,

@@ -13,6 +13,7 @@ pub struct OpenPosition {
     pub tick_upper_index: i32,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct OpenPositionInstructionAccounts {
     pub funder: solana_pubkey::Pubkey,
     pub owner: solana_pubkey::Pubkey,

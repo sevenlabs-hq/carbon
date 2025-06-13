@@ -11,6 +11,7 @@ pub struct CollectProtocolFeesV2 {
     pub remaining_accounts_info: Option<RemainingAccountsInfo>,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct CollectProtocolFeesV2InstructionAccounts {
     pub whirlpools_config: solana_pubkey::Pubkey,
     pub whirlpool: solana_pubkey::Pubkey,

@@ -16,6 +16,7 @@ pub struct SwapV2 {
     pub remaining_accounts_info: Option<RemainingAccountsInfo>,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct SwapV2InstructionAccounts {
     pub token_program_a: solana_pubkey::Pubkey,
     pub token_program_b: solana_pubkey::Pubkey,

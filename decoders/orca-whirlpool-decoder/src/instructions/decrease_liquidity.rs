@@ -10,6 +10,7 @@ pub struct DecreaseLiquidity {
     pub token_min_b: u64,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct DecreaseLiquidityInstructionAccounts {
     pub whirlpool: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,

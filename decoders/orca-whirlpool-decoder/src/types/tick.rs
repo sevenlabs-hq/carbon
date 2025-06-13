@@ -1,7 +1,7 @@
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash, Copy,
 )]
 pub struct Tick {
     pub initialized: bool,
