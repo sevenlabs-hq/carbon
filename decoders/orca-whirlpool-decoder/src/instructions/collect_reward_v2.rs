@@ -12,6 +12,7 @@ pub struct CollectRewardV2 {
     pub remaining_accounts_info: Option<RemainingAccountsInfo>,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct CollectRewardV2InstructionAccounts {
     pub whirlpool: solana_pubkey::Pubkey,
     pub position_authority: solana_pubkey::Pubkey,

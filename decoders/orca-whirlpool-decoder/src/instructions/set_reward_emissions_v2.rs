@@ -9,6 +9,7 @@ pub struct SetRewardEmissionsV2 {
     pub emissions_per_second_x64: u128,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct SetRewardEmissionsV2InstructionAccounts {
     pub whirlpool: solana_pubkey::Pubkey,
     pub reward_authority: solana_pubkey::Pubkey,

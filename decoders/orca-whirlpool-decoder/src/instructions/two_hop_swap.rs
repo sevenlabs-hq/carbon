@@ -14,6 +14,7 @@ pub struct TwoHopSwap {
     pub sqrt_price_limit_two: u128,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct TwoHopSwapInstructionAccounts {
     pub token_program: solana_pubkey::Pubkey,
     pub token_authority: solana_pubkey::Pubkey,

@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x1643176296b246dc")]
 pub struct CollectProtocolFees {}
 
+#[derive(Debug, PartialEq)]
 pub struct CollectProtocolFeesInstructionAccounts {
     pub whirlpools_config: solana_pubkey::Pubkey,
     pub whirlpool: solana_pubkey::Pubkey,

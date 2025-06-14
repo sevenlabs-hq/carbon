@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x5d7c10b3f98373f5")]
 pub struct InitializePositionBundleWithMetadata {}
 
+#[derive(Debug, PartialEq)]
 pub struct InitializePositionBundleWithMetadataInstructionAccounts {
     pub position_bundle: solana_pubkey::Pubkey,
     pub position_bundle_mint: solana_pubkey::Pubkey,

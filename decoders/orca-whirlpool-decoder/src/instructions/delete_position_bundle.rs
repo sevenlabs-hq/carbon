@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x64196302d9ef7cad")]
 pub struct DeletePositionBundle {}
 
+#[derive(Debug, PartialEq)]
 pub struct DeletePositionBundleInstructionAccounts {
     pub position_bundle: solana_pubkey::Pubkey,
     pub position_bundle_mint: solana_pubkey::Pubkey,

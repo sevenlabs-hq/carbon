@@ -18,6 +18,7 @@ pub struct TwoHopSwapV2 {
     pub remaining_accounts_info: Option<RemainingAccountsInfo>,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct TwoHopSwapV2InstructionAccounts {
     pub whirlpool_one: solana_pubkey::Pubkey,
     pub whirlpool_two: solana_pubkey::Pubkey,
