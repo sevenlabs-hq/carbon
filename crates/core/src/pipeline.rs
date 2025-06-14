@@ -373,6 +373,12 @@ impl Pipeline {
 
         loop {
             tokio::select! {
+                _ = datasource_cancellation_token.cancelled() => {
+                    log::trace!("datasource cancellation token cancelled, shutting down.");
+                    self.metrics.flush_metrics().await?;
+                    self.metrics.shutdown_metrics().await?;
+                    break;
+                }
                 _ = tokio::signal::ctrl_c() => {
                     log::trace!("received SIGINT, shutting down.");
                     datasource_cancellation_token.cancel();
