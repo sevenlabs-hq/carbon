@@ -14,6 +14,7 @@ pub struct IncreaseLiquidityV2 {
     pub remaining_accounts_info: Option<RemainingAccountsInfo>,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct IncreaseLiquidityV2InstructionAccounts {
     pub whirlpool: solana_pubkey::Pubkey,
     pub token_program_a: solana_pubkey::Pubkey,

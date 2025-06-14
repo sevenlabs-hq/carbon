@@ -10,6 +10,7 @@ pub struct OpenBundledPosition {
     pub tick_upper_index: i32,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct OpenBundledPositionInstructionAccounts {
     pub bundled_position: solana_pubkey::Pubkey,
     pub position_bundle: solana_pubkey::Pubkey,

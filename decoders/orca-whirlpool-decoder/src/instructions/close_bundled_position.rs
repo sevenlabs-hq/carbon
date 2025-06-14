@@ -8,6 +8,7 @@ pub struct CloseBundledPosition {
     pub bundle_index: u16,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct CloseBundledPositionInstructionAccounts {
     pub bundled_position: solana_pubkey::Pubkey,
     pub position_bundle: solana_pubkey::Pubkey,

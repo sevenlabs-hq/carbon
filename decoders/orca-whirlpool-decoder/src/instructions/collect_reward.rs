@@ -8,6 +8,7 @@ pub struct CollectReward {
     pub reward_index: u8,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct CollectRewardInstructionAccounts {
     pub whirlpool: solana_pubkey::Pubkey,
     pub position_authority: solana_pubkey::Pubkey,

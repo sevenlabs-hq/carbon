@@ -8,6 +8,7 @@ pub struct InitializeRewardV2 {
     pub reward_index: u8,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct InitializeRewardV2InstructionAccounts {
     pub reward_authority: solana_pubkey::Pubkey,
     pub funder: solana_pubkey::Pubkey,

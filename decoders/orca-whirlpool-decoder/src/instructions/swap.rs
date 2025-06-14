@@ -12,6 +12,7 @@ pub struct Swap {
     pub a_to_b: bool,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct SwapInstructionAccounts {
     pub token_program: solana_pubkey::Pubkey,
     pub token_authority: solana_pubkey::Pubkey,

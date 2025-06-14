@@ -8,6 +8,7 @@ pub struct InitializeTickArray {
     pub start_tick_index: i32,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct InitializeTickArrayInstructionAccounts {
     pub whirlpool: solana_pubkey::Pubkey,
     pub funder: solana_pubkey::Pubkey,

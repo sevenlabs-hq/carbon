@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0xfd4dcd5f1be059df")]
 pub struct InitializeTokenBadge {}
 
+#[derive(Debug, PartialEq)]
 pub struct InitializeTokenBadgeInstructionAccounts {
     pub whirlpools_config: solana_pubkey::Pubkey,
     pub whirlpools_config_extension: solana_pubkey::Pubkey,

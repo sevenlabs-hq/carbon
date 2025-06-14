@@ -9,6 +9,7 @@ pub struct InitializeFeeTier {
     pub default_fee_rate: u16,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct InitializeFeeTierInstructionAccounts {
     pub config: solana_pubkey::Pubkey,
     pub fee_tier: solana_pubkey::Pubkey,

@@ -13,6 +13,7 @@ pub struct InitializePool {
     pub initial_sqrt_price: u128,
 }
 
+#[derive(Debug, PartialEq)]
 pub struct InitializePoolInstructionAccounts {
     pub whirlpools_config: solana_pubkey::Pubkey,
     pub token_mint_a: solana_pubkey::Pubkey,
