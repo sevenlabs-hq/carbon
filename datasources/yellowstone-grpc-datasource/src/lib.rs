@@ -75,6 +75,7 @@ impl YellowstoneGrpcGeyserClient {
 impl Datasource for YellowstoneGrpcGeyserClient {
     async fn consume(
         &self,
+        name: String,
         sender: Sender<Update>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
@@ -135,6 +136,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                     account_update.account,
                                                     &metrics,
                                                     &sender,
+                                                    &name,
                                                     account_update.slot,
                                                     &account_deletions_tracked,
                                                 )
@@ -142,14 +144,14 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                             }
 
                                             Some(UpdateOneof::Transaction(transaction_update)) => {
-                                                send_subscribe_update_transaction_info(transaction_update.transaction, &metrics, &sender, transaction_update.slot, None).await
+                                                send_subscribe_update_transaction_info(transaction_update.transaction, &metrics, &sender, &name, transaction_update.slot, None).await
                                             }
                                             Some(UpdateOneof::Block(block_update)) => {
                                                 let block_time = block_update.block_time.map(|ts| ts.timestamp);
 
                                                 for transaction_update in block_update.transactions {
                                                     if retain_block_failed_transactions || transaction_update.meta.as_ref().map(|meta| meta.err.is_none()).unwrap_or(false) {
-                                                        send_subscribe_update_transaction_info(Some(transaction_update), &metrics, &sender, block_update.slot, block_time).await
+                                                        send_subscribe_update_transaction_info(Some(transaction_update), &metrics, &sender, &name, block_update.slot, block_time).await
                                                     }
                                                 }
 
@@ -158,6 +160,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                         Some(account_info),
                                                         &metrics,
                                                         &sender,
+                                                        &name,
                                                         block_update.slot,
                                                         &account_deletions_tracked,
                                                     )
@@ -214,6 +217,7 @@ async fn send_subscribe_account_update_info(
     account_update_info: Option<SubscribeUpdateAccountInfo>,
     metrics: &MetricsCollection,
     sender: &Sender<Update>,
+    name: &String,
     slot: u64,
     account_deletions_tracked: &RwLock<HashSet<Pubkey>>,
 ) {
@@ -245,6 +249,7 @@ async fn send_subscribe_account_update_info(
                 let account_deletion = AccountDeletion {
                     pubkey: account_pubkey,
                     slot,
+                    source: name.clone(),
                 };
                 if let Err(e) = sender.try_send(Update::AccountDeletion(account_deletion)) {
                     log::error!(
@@ -260,6 +265,7 @@ async fn send_subscribe_account_update_info(
                 pubkey: account_pubkey,
                 account,
                 slot,
+                source: name.clone(),
             });
 
             if let Err(e) = sender.try_send(update) {
@@ -293,6 +299,7 @@ async fn send_subscribe_update_transaction_info(
     transaction_info: Option<SubscribeUpdateTransactionInfo>,
     metrics: &MetricsCollection,
     sender: &Sender<Update>,
+    name: &String,
     slot: u64,
     block_time: Option<i64>,
 ) {
@@ -324,6 +331,7 @@ async fn send_subscribe_update_transaction_info(
             meta: meta_original,
             is_vote: transaction_info.is_vote,
             slot,
+            source: name.clone(),
             block_time,
             block_hash: None,
         }));

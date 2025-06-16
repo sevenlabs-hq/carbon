@@ -66,6 +66,7 @@ impl RpcBlockCrawler {
 impl Datasource for RpcBlockCrawler {
     async fn consume(
         &self,
+        name: String,
         sender: Sender<Update>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
@@ -91,6 +92,7 @@ impl Datasource for RpcBlockCrawler {
         );
 
         let task_processor = task_processor(
+            name,
             block_receiver,
             sender,
             cancellation_token.clone(),
@@ -246,6 +248,7 @@ fn block_fetcher(
 
 /// Process the block and send the transactions to the sender
 fn task_processor(
+    name: String,
     block_receiver: Receiver<(u64, UiConfirmedBlock)>,
     sender: Sender<Update>,
     cancellation_token: CancellationToken,
@@ -304,6 +307,7 @@ fn task_processor(
                                     slot,
                                     block_time: block.block_time,
                                     block_hash,
+                                    source: name.clone(),
                                 }));
 
                                 metrics
