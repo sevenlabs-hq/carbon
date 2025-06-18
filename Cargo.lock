@@ -1711,6 +1711,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-raydium-stable-swap-decoder"
+version = "0.8.1"
+dependencies = [
+ "carbon-core",
+ "serde",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey",
+]
+
+[[package]]
 name = "carbon-rpc-block-crawler-datasource"
 version = "0.8.1"
 dependencies = [
