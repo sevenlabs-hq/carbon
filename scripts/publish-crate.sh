@@ -57,6 +57,7 @@ workspace_crates=(
     carbon-raydium-cpmm-decoder
     carbon-raydium-launchpad-decoder
     carbon-raydium-liquidity-locking-decoder
+    carbon-raydium-stable-swap-decoder
     carbon-sharky-decoder
     carbon-solayer-restaking-program-decoder
     carbon-stabble-stable-swap-decoder
@@ -71,7 +72,7 @@ workspace_crates=(
 )
 
 for crate in "${workspace_crates[@]}"; do
-   echo "--- $crate"
-   cargo package -p $crate
-   cargo publish -p $crate
+    echo "--- $crate"
+    cargo package -p $crate
+    cargo publish -p $crate
 done
