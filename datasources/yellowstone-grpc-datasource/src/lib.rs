@@ -128,6 +128,10 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                         match result {
                             Ok((mut subscribe_tx, mut stream)) => {
                                 while let Some(message) = stream.next().await {
+                                    if cancellation_token.is_cancelled() {
+                                        break;
+                                    }
+
                                     match message {
                                         Ok(msg) => match msg.update_oneof {
                                             Some(UpdateOneof::Account(account_update)) => {
