@@ -1,3 +1,4 @@
+use std::net::SocketAddr;
 use {
     async_trait::async_trait,
     carbon_core::{
@@ -6,7 +7,7 @@ use {
     },
     metrics::{counter, gauge, histogram},
     metrics_exporter_prometheus::PrometheusBuilder,
-    std::{collections::HashMap, net::SocketAddrV4, sync::Once},
+    std::{collections::HashMap, sync::Once},
     tokio::sync::RwLock,
 };
 
@@ -14,6 +15,7 @@ pub struct PrometheusMetrics {
     pub counters: RwLock<HashMap<String, metrics::Counter>>,
     pub gauges: RwLock<HashMap<String, metrics::Gauge>>,
     pub histograms: RwLock<HashMap<String, metrics::Histogram>>,
+    pub listen_port: u16,
 }
 
 impl Default for PrometheusMetrics {
@@ -22,12 +24,22 @@ impl Default for PrometheusMetrics {
             counters: RwLock::new(HashMap::new()),
             gauges: RwLock::new(HashMap::new()),
             histograms: RwLock::new(HashMap::new()),
+            listen_port: 9100,
         }
     }
 }
 impl PrometheusMetrics {
     pub fn new() -> Self {
         Self::default()
+    }
+
+    pub fn new_with_port(listen_port: u16) -> Self {
+        Self {
+            gauges: RwLock::new(HashMap::new()),
+            counters: RwLock::new(HashMap::new()),
+            histograms: RwLock::new(HashMap::new()),
+            listen_port,
+        }
     }
 }
 
@@ -38,15 +50,15 @@ impl Metrics for PrometheusMetrics {
 
         let mut result = Ok(());
         INIT.call_once(|| {
-            let builder = PrometheusBuilder::new().with_http_listener(
-                "127.0.0.1:9100"
-                    .parse::<SocketAddrV4>()
-                    .expect("Failed to parse address"),
-            );
+            let addr = format!("127.0.0.1:{}", self.listen_port)
+                .parse::<SocketAddr>()
+                .expect("Failed to parse address");
+
+            let builder = PrometheusBuilder::new().with_http_listener(addr);
 
             match builder.install() {
                 Ok(_handle) => {
-                    log::info!("Prometheus exporter installed and listening on 127.0.0.1:9100");
+                    log::info!("Prometheus exporter installed and listening on {}", addr);
                 }
                 Err(e) => {
                     result = Err(Error::Custom(format!(
