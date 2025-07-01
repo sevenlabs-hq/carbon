@@ -63,7 +63,7 @@ use {
 /// - `block_time`: The Unix timestamp of when the transaction was processed.
 ///
 /// Note: The `block_time` field may not be returned in all scenarios.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct TransactionMetadata {
     pub slot: u64,
     pub signature: Signature,
@@ -74,19 +74,6 @@ pub struct TransactionMetadata {
     pub block_hash: Option<Hash>,
 }
 
-impl Default for TransactionMetadata {
-    fn default() -> Self {
-        Self {
-            slot: 0,
-            signature: Signature::new_unique(),
-            fee_payer: Pubkey::new_unique(),
-            meta: solana_transaction_status::TransactionStatusMeta::default(),
-            message: solana_message::VersionedMessage::Legacy(solana_message::Message::default()),
-            block_time: None,
-            block_hash: None,
-        }
-    }
-}
 /// Tries convert transaction update into the metadata.
 ///
 /// This function retrieves core metadata such as the transaction's slot,
