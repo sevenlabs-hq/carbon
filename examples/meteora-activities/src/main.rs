@@ -30,6 +30,7 @@ pub async fn main() -> CarbonResult<()> {
         RetryConfig::no_retry(), // Retry config
         None,                    // Max Signature Channel Size
         None,                    // Max Transaction Channel Size
+        true,                    // Blocking send
     );
 
     let transaction_crawler = RpcTransactionCrawler::new(
