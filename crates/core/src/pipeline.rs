@@ -51,7 +51,8 @@
 //!   pipeline performance, especially in production environments.
 
 use crate::block_details::{BlockDetailsPipe, BlockDetailsPipes};
-use crate::datasource::BlockDetails;
+use crate::datasource::{BlockDetails, DatasourceId};
+use crate::filter::Filter;
 use {
     crate::{
         account::{
@@ -149,8 +150,9 @@ pub const DEFAULT_CHANNEL_BUFFER_SIZE: usize = 1_000;
 /// ## Fields
 ///
 /// - `datasources`: A vector of data sources (`Datasource` implementations)
-///   that provide the data for processing. Each data source must be wrapped in
-///   an `Arc` for safe, concurrent access.
+///   that provide the data for processing. Each data source is paired with a
+///   unique `DatasourceId` for identification and filtering purposes. Each data
+///   source must be wrapped in an `Arc` for safe, concurrent access.
 /// - `account_pipes`: A vector of `AccountPipes`, each responsible for handling
 ///   account updates.
 /// - `account_deletion_pipes`: A vector of `AccountDeletionPipes` to handle
@@ -207,7 +209,7 @@ pub const DEFAULT_CHANNEL_BUFFER_SIZE: usize = 1_000;
 ///   metrics are flushed. If `None`, a default interval (usually 5 seconds) is
 ///   used.
 pub struct Pipeline {
-    pub datasources: Vec<Arc<dyn Datasource + Send + Sync>>,
+    pub datasources: Vec<(DatasourceId, Arc<dyn Datasource + Send + Sync>)>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
@@ -270,7 +272,7 @@ impl Pipeline {
     /// Runs the `Pipeline`, processing updates from data sources and handling
     /// metrics.
     ///
-    /// The `run` method initializes the pipeline’s metrics system and starts
+    /// The `run` method initializes the pipeline's metrics system and starts
     /// listening for updates from the configured data sources. It checks
     /// the types of updates provided by each data source to ensure that the
     /// required data types are available for processing. The method then
@@ -338,7 +340,7 @@ impl Pipeline {
 
         self.metrics.initialize_metrics().await?;
         let (update_sender, mut update_receiver) =
-            tokio::sync::mpsc::channel::<Update>(self.channel_buffer_size);
+            tokio::sync::mpsc::channel::<(Update, DatasourceId)>(self.channel_buffer_size);
 
         let datasource_cancellation_token = self
             .datasource_cancellation_token
@@ -348,12 +350,14 @@ impl Pipeline {
         for datasource in &self.datasources {
             let datasource_cancellation_token_clone = datasource_cancellation_token.clone();
             let sender_clone = update_sender.clone();
-            let datasource_clone = Arc::clone(datasource);
+            let datasource_clone = Arc::clone(&datasource.1);
+            let datasource_id = datasource.0.clone();
             let metrics_collection = self.metrics.clone();
 
             tokio::spawn(async move {
                 if let Err(e) = datasource_clone
                     .consume(
+                        datasource_id,
                         sender_clone,
                         datasource_cancellation_token_clone,
                         metrics_collection,
@@ -397,13 +401,13 @@ impl Pipeline {
                 }
                 update = update_receiver.recv() => {
                     match update {
-                        Some(update) => {
+                        Some((update, datasource_id)) => {
                             self
                                 .metrics.increment_counter("updates_received", 1)
                                 .await?;
 
                             let start = Instant::now();
-                            let process_result = self.process(update.clone()).await;
+                            let process_result = self.process(update.clone(), datasource_id.clone()).await;
                             let time_taken_nanoseconds = start.elapsed().as_nanos();
                             let time_taken_milliseconds = time_taken_nanoseconds / 1_000_000;
 
@@ -483,6 +487,9 @@ impl Pipeline {
     /// - `update`: An `Update` variant representing the type of data received.
     ///   This can be an `Account`, `Transaction`, or `AccountDeletion`, each
     ///   triggering different processing logic within the pipeline.
+    /// - `datasource_id`: The ID of the datasource that produced this update.
+    ///   This is used by filters to determine whether the update should be
+    ///   processed by specific pipes.
     ///
     /// # Returns
     ///
@@ -498,14 +505,20 @@ impl Pipeline {
     ///   based on the data types expected from the data sources.
     /// - Metrics are recorded after each successful processing stage to track
     ///   processing volumes and identify potential bottlenecks in real-time.
+    /// - Filters are applied to each pipe before processing, allowing for
+    ///   selective update processing based on datasource ID and other criteria.
     ///
     /// # Errors
     ///
     /// Returns an error if any of the pipes fail during processing, or if an
     /// issue arises while incrementing counters or updating metrics. Handle
     /// errors gracefully to ensure continuous pipeline operation.
-    async fn process(&mut self, update: Update) -> CarbonResult<()> {
-        log::trace!("process(self, update: {:?})", update);
+    async fn process(&mut self, update: Update, datasource_id: DatasourceId) -> CarbonResult<()> {
+        log::trace!(
+            "process(self, update: {:?}, datasource_id: {:?})",
+            update,
+            datasource_id
+        );
         match update {
             Update::Account(account_update) => {
                 let account_metadata = AccountMetadata {
@@ -514,11 +527,19 @@ impl Pipeline {
                 };
 
                 for pipe in self.account_pipes.iter_mut() {
-                    pipe.run(
-                        (account_metadata.clone(), account_update.account.clone()),
-                        self.metrics.clone(),
-                    )
-                    .await?;
+                    if pipe.filters().iter().all(|filter| {
+                        filter.filter_account(
+                            &datasource_id,
+                            &account_metadata,
+                            &account_update.account,
+                        )
+                    }) {
+                        pipe.run(
+                            (account_metadata.clone(), account_update.account.clone()),
+                            self.metrics.clone(),
+                        )
+                        .await?;
+                    }
                 }
 
                 self.metrics
@@ -538,17 +559,29 @@ impl Pipeline {
 
                 for pipe in self.instruction_pipes.iter_mut() {
                     for nested_instruction in nested_instructions.iter() {
-                        pipe.run(nested_instruction, self.metrics.clone()).await?;
+                        if pipe.filters().iter().all(|filter| {
+                            filter.filter_instruction(&datasource_id, &nested_instruction)
+                        }) {
+                            pipe.run(nested_instruction, self.metrics.clone()).await?;
+                        }
                     }
                 }
 
                 for pipe in self.transaction_pipes.iter_mut() {
-                    pipe.run(
-                        transaction_metadata.clone(),
-                        &nested_instructions,
-                        self.metrics.clone(),
-                    )
-                    .await?;
+                    if pipe.filters().iter().all(|filter| {
+                        filter.filter_transaction(
+                            &datasource_id,
+                            &transaction_metadata,
+                            &nested_instructions,
+                        )
+                    }) {
+                        pipe.run(
+                            transaction_metadata.clone(),
+                            &nested_instructions,
+                            self.metrics.clone(),
+                        )
+                        .await?;
+                    }
                 }
 
                 self.metrics
@@ -557,8 +590,12 @@ impl Pipeline {
             }
             Update::AccountDeletion(account_deletion) => {
                 for pipe in self.account_deletion_pipes.iter_mut() {
-                    pipe.run(account_deletion.clone(), self.metrics.clone())
-                        .await?;
+                    if pipe.filters().iter().all(|filter| {
+                        filter.filter_account_deletion(&datasource_id, &account_deletion)
+                    }) {
+                        pipe.run(account_deletion.clone(), self.metrics.clone())
+                            .await?;
+                    }
                 }
 
                 self.metrics
@@ -567,8 +604,14 @@ impl Pipeline {
             }
             Update::BlockDetails(block_details) => {
                 for pipe in self.block_details_pipes.iter_mut() {
-                    pipe.run(block_details.clone(), self.metrics.clone())
-                        .await?;
+                    if pipe
+                        .filters()
+                        .iter()
+                        .all(|filter| filter.filter_block_details(&datasource_id, &block_details))
+                    {
+                        pipe.run(block_details.clone(), self.metrics.clone())
+                            .await?;
+                    }
                 }
 
                 self.metrics
@@ -660,7 +703,7 @@ impl Pipeline {
 ///   your application.
 #[derive(Default)]
 pub struct PipelineBuilder {
-    pub datasources: Vec<Arc<dyn Datasource + Send + Sync>>,
+    pub datasources: Vec<(DatasourceId, Arc<dyn Datasource + Send + Sync>)>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
     pub account_deletion_pipes: Vec<Box<dyn AccountDeletionPipes>>,
     pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
@@ -716,7 +759,43 @@ impl PipelineBuilder {
     /// ```
     pub fn datasource(mut self, datasource: impl Datasource + 'static) -> Self {
         log::trace!("datasource(self, datasource: {:?})", stringify!(datasource));
-        self.datasources.push(Arc::new(datasource));
+        self.datasources
+            .push((DatasourceId::new_unique(), Arc::new(datasource)));
+        self
+    }
+
+    /// Adds a datasource to the pipeline with a specific ID.
+    ///
+    /// This method allows you to assign a custom ID to a datasource, which is
+    /// useful for filtering updates based on their source. The ID can be used
+    /// with filters to selectively process updates from specific datasources.
+    ///
+    /// # Parameters
+    ///
+    /// - `datasource`: The data source to add, implementing the `Datasource`
+    ///   trait
+    /// - `id`: The `DatasourceId` to assign to this datasource
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// use carbon_core::{pipeline::PipelineBuilder, datasource::DatasourceId};
+    ///
+    /// let mainnet_id = DatasourceId::named("mainnet");
+    /// let builder = PipelineBuilder::new()
+    ///     .datasource_with_id(mainnet_id, MyDatasource::new());
+    /// ```
+    pub fn datasource_with_id(
+        mut self,
+        datasource: impl Datasource + 'static,
+        id: DatasourceId,
+    ) -> Self {
+        log::trace!(
+            "datasource_with_id(self, id: {:?}, datasource: {:?})",
+            id,
+            stringify!(datasource)
+        );
+        self.datasources.push((id, Arc::new(datasource)));
         self
     }
 
@@ -784,6 +863,57 @@ impl PipelineBuilder {
         self.account_pipes.push(Box::new(AccountPipe {
             decoder: Box::new(decoder),
             processor: Box::new(processor),
+            filters: vec![],
+        }));
+        self
+    }
+
+    /// Adds an account pipe with filters to process account updates selectively.
+    ///
+    /// This method creates an account pipe that only processes updates that pass
+    /// all the specified filters. Filters can be used to selectively process
+    /// updates based on criteria such as datasource ID, account properties, or
+    /// other custom logic.
+    ///
+    /// # Parameters
+    ///
+    /// - `decoder`: An `AccountDecoder` that decodes the account data
+    /// - `processor`: A `Processor` that processes the decoded account data
+    /// - `filters`: A collection of filters that determine which account updates
+    ///   should be processed
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// use carbon_core::{
+    ///     pipeline::PipelineBuilder,
+    ///     datasource::DatasourceId,
+    ///     filter::DatasourceFilter,
+    /// };
+    ///
+    /// let mainnet_id = DatasourceId::named("mainnet");
+    /// let filter = DatasourceFilter::new(mainnet_id);
+    /// let filters = vec![Box::new(filter) as Box<dyn carbon_core::filter::Filter>];
+    ///
+    /// let builder = PipelineBuilder::new()
+    ///     .account_with_filters(MyAccountDecoder, MyAccountProcessor, filters);
+    /// ```
+    pub fn account_with_filters<T: Send + Sync + 'static>(
+        mut self,
+        decoder: impl for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
+        processor: impl Processor<InputType = AccountProcessorInputType<T>> + Send + Sync + 'static,
+        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+    ) -> Self {
+        log::trace!(
+            "account_with_filters(self, decoder: {:?}, processor: {:?}, filters: {:?})",
+            stringify!(decoder),
+            stringify!(processor),
+            stringify!(filters)
+        );
+        self.account_pipes.push(Box::new(AccountPipe {
+            decoder: Box::new(decoder),
+            processor: Box::new(processor),
+            filters,
         }));
         self
     }
@@ -816,6 +946,54 @@ impl PipelineBuilder {
         self.account_deletion_pipes
             .push(Box::new(AccountDeletionPipe {
                 processor: Box::new(processor),
+                filters: vec![],
+            }));
+        self
+    }
+
+    /// Adds an account deletion pipe with filters to handle account deletion events selectively.
+    ///
+    /// This method creates an account deletion pipe that only processes deletion
+    /// events that pass all the specified filters. Filters can be used to
+    /// selectively process deletions based on criteria such as datasource ID or
+    /// other custom logic.
+    ///
+    /// # Parameters
+    ///
+    /// - `processor`: A `Processor` that processes account deletion events
+    /// - `filters`: A collection of filters that determine which account deletion
+    ///   events should be processed
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// use carbon_core::{
+    ///     pipeline::PipelineBuilder,
+    ///     datasource::DatasourceId,
+    ///     filter::DatasourceFilter,
+    /// };
+    ///
+    /// let mainnet_id = DatasourceId::named("mainnet");
+    /// let filter = DatasourceFilter::new(mainnet_id);
+    /// let filters = vec![Box::new(filter) as Box<dyn carbon_core::filter::Filter>];
+    ///
+    /// let builder = PipelineBuilder::new()
+    ///     .account_deletions_with_filters(MyAccountDeletionProcessor, filters);
+    /// ```
+    pub fn account_deletions_with_filters(
+        mut self,
+        processor: impl Processor<InputType = AccountDeletion> + Send + Sync + 'static,
+        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+    ) -> Self {
+        log::trace!(
+            "account_deletions_with_filters(self, processor: {:?}, filters: {:?})",
+            stringify!(processor),
+            stringify!(filters)
+        );
+        self.account_deletion_pipes
+            .push(Box::new(AccountDeletionPipe {
+                processor: Box::new(processor),
+                filters,
             }));
         self
     }
@@ -847,6 +1025,53 @@ impl PipelineBuilder {
         );
         self.block_details_pipes.push(Box::new(BlockDetailsPipe {
             processor: Box::new(processor),
+            filters: vec![],
+        }));
+        self
+    }
+
+    /// Adds a block details pipe with filters to handle block details updates selectively.
+    ///
+    /// This method creates a block details pipe that only processes updates that
+    /// pass all the specified filters. Filters can be used to selectively process
+    /// block details updates based on criteria such as datasource ID, block height,
+    /// or other custom logic.
+    ///
+    /// # Parameters
+    ///
+    /// - `processor`: A `Processor` that processes block details updates
+    /// - `filters`: A collection of filters that determine which block details
+    ///   updates should be processed
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// use carbon_core::{
+    ///     pipeline::PipelineBuilder,
+    ///     datasource::DatasourceId,
+    ///     filter::DatasourceFilter,
+    /// };
+    ///
+    /// let mainnet_id = DatasourceId::named("mainnet");
+    /// let filter = DatasourceFilter::new(mainnet_id);
+    /// let filters = vec![Box::new(filter) as Box<dyn carbon_core::filter::Filter>];
+    ///
+    /// let builder = PipelineBuilder::new()
+    ///     .block_details_with_filters(MyBlockDetailsProcessor, filters);
+    /// ```
+    pub fn block_details_with_filters(
+        mut self,
+        processor: impl Processor<InputType = BlockDetails> + Send + Sync + 'static,
+        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+    ) -> Self {
+        log::trace!(
+            "block_details_with_filters(self, processor: {:?}, filters: {:?})",
+            stringify!(processor),
+            stringify!(filters)
+        );
+        self.block_details_pipes.push(Box::new(BlockDetailsPipe {
+            processor: Box::new(processor),
+            filters,
         }));
         self
     }
@@ -883,6 +1108,58 @@ impl PipelineBuilder {
         self.instruction_pipes.push(Box::new(InstructionPipe {
             decoder: Box::new(decoder),
             processor: Box::new(processor),
+            filters: vec![],
+        }));
+        self
+    }
+
+    /// Adds an instruction pipe with filters to process instructions selectively.
+    ///
+    /// This method creates an instruction pipe that only processes instructions
+    /// that pass all the specified filters. Filters can be used to selectively
+    /// process instructions based on criteria such as datasource ID, instruction
+    /// type, or other custom logic.
+    ///
+    /// # Parameters
+    ///
+    /// - `decoder`: An `InstructionDecoder` for decoding instructions from
+    ///   transaction data
+    /// - `processor`: A `Processor` that processes decoded instruction data
+    /// - `filters`: A collection of filters that determine which instructions
+    ///   should be processed
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// use carbon_core::{
+    ///     pipeline::PipelineBuilder,
+    ///     datasource::DatasourceId,
+    ///     filter::DatasourceFilter,
+    /// };
+    ///
+    /// let mainnet_id = DatasourceId::named("mainnet");
+    /// let filter = DatasourceFilter::new(mainnet_id);
+    /// let filters = vec![Box::new(filter) as Box<dyn carbon_core::filter::Filter>];
+    ///
+    /// let builder = PipelineBuilder::new()
+    ///     .instruction_with_filters(MyDecoder, MyInstructionProcessor, filters);
+    /// ```
+    pub fn instruction_with_filters<T: Send + Sync + 'static>(
+        mut self,
+        decoder: impl for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
+        processor: impl Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static,
+        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+    ) -> Self {
+        log::trace!(
+            "instruction_with_filters(self, decoder: {:?}, processor: {:?}, filters: {:?})",
+            stringify!(decoder),
+            stringify!(processor),
+            stringify!(filters)
+        );
+        self.instruction_pipes.push(Box::new(InstructionPipe {
+            decoder: Box::new(decoder),
+            processor: Box::new(processor),
+            filters,
         }));
         self
     }
@@ -925,7 +1202,68 @@ impl PipelineBuilder {
             stringify!(processor)
         );
         self.transaction_pipes
-            .push(Box::new(TransactionPipe::<T, U>::new(schema, processor)));
+            .push(Box::new(TransactionPipe::<T, U>::new(
+                schema,
+                processor,
+                vec![],
+            )));
+        self
+    }
+
+    /// Adds a transaction pipe with filters for processing full transaction data selectively.
+    ///
+    /// This method creates a transaction pipe that only processes transactions
+    /// that pass all the specified filters. Filters can be used to selectively
+    /// process transactions based on criteria such as datasource ID, transaction
+    /// type, or other custom logic.
+    ///
+    /// # Parameters
+    ///
+    /// - `processor`: A `Processor` that processes the decoded transaction data
+    /// - `schema`: A `TransactionSchema` used to match and interpret
+    ///   transaction data
+    /// - `filters`: A collection of filters that determine which transactions
+    ///   should be processed
+    ///
+    /// # Example
+    ///
+    /// ```ignore
+    /// use carbon_core::{
+    ///     pipeline::PipelineBuilder,
+    ///     datasource::DatasourceId,
+    ///     filter::DatasourceFilter,
+    /// };
+    ///
+    /// let mainnet_id = DatasourceId::named("mainnet");
+    /// let filter = DatasourceFilter::new(mainnet_id);
+    /// let filters = vec![Box::new(filter) as Box<dyn carbon_core::filter::Filter>];
+    ///
+    /// let builder = PipelineBuilder::new()
+    ///     .transaction_with_filters(MyTransactionProcessor, MY_SCHEMA.clone(), filters);
+    /// ```
+    pub fn transaction_with_filters<T, U>(
+        mut self,
+        processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
+            + Send
+            + Sync
+            + 'static,
+        schema: Option<TransactionSchema<T>>,
+        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+    ) -> Self
+    where
+        T: InstructionDecoderCollection + 'static,
+        U: DeserializeOwned + Send + Sync + 'static,
+    {
+        log::trace!(
+            "transaction_with_filters(self, schema: {:?}, processor: {:?}, filters: {:?})",
+            stringify!(schema),
+            stringify!(processor),
+            stringify!(filters)
+        );
+        self.transaction_pipes
+            .push(Box::new(TransactionPipe::<T, U>::new(
+                schema, processor, filters,
+            )));
         self
     }
 

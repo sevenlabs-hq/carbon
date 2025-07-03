@@ -21,7 +21,7 @@
 
 use {
     crate::{
-        error::CarbonResult, metrics::MetricsCollection, processor::Processor,
+        error::CarbonResult, filter::Filter, metrics::MetricsCollection, processor::Processor,
         transaction::TransactionMetadata,
     },
     async_trait::async_trait,
@@ -135,11 +135,17 @@ pub type InstructionProcessorInputType<T> = (
 ///
 /// - `decoder`: The decoder used for parsing instructions.
 /// - `processor`: The processor that handles decoded instructions.
+/// - `filters`: A collection of filters that determine which instruction
+///   updates should be processed. Each filter in this collection is applied to
+///   incoming instruction updates, and only updates that pass all filters
+///   (return `true`) will be processed. If this collection is empty, all
+///   updates are processed.
 pub struct InstructionPipe<T: Send> {
     pub decoder:
         Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
     pub processor:
         Box<dyn Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static>,
+    pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
 }
 
 /// An async trait for processing instructions within nested contexts.
@@ -152,6 +158,9 @@ pub struct InstructionPipe<T: Send> {
 ///
 /// - `run`: Processes a `NestedInstruction`, recursively processing any inner
 ///   instructions.
+/// - `filters`: Returns a reference to the filters associated with this pipe,
+///   which are used by the pipeline to determine which instruction updates
+///   should be processed.
 #[async_trait]
 pub trait InstructionPipes<'a>: Send + Sync {
     async fn run(
@@ -159,6 +168,7 @@ pub trait InstructionPipes<'a>: Send + Sync {
         nested_instruction: &NestedInstruction,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
+    fn filters(&self) -> &Vec<Box<dyn Filter + Send + Sync + 'static>>;
 }
 
 #[async_trait]
@@ -195,6 +205,10 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
         }
 
         Ok(())
+    }
+
+    fn filters(&self) -> &Vec<Box<dyn Filter + Send + Sync + 'static>> {
+        &self.filters
     }
 }
 

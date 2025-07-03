@@ -38,6 +38,7 @@ tokio-util = { workspace = true }
 # Optional macro dependencies
 carbon-macros = { workspace = true, optional = true }
 carbon-proc-macros = { workspace = true, optional = true }
+rand = "0.9.1"
 
 [lib]
 crate-type = ["rlib"]
