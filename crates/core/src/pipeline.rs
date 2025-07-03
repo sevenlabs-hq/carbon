@@ -560,7 +560,7 @@ impl Pipeline {
                 for pipe in self.instruction_pipes.iter_mut() {
                     for nested_instruction in nested_instructions.iter() {
                         if pipe.filters().iter().all(|filter| {
-                            filter.filter_instruction(&datasource_id, &nested_instruction)
+                            filter.filter_instruction(&datasource_id, nested_instruction)
                         }) {
                             pipe.run(nested_instruction, self.metrics.clone()).await?;
                         }
