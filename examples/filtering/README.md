@@ -1,6 +1,6 @@
 # Carbon Pipeline Example
 
-This project demonstrates how to set up and run a Carbon pipeline that processes Solana transactions using the Pumpfun decoder. It utilizes the `HeliusWebsocket` as a data source to subscribe to Solana transactions and events. The example showcases how to decode Pumpfun instructions and implement a custom processor to handle specific events.
+This project demonstrates how to set up and run a Carbon pipeline and do filtering between datasources.
 
 ## Setup Instructions
 
