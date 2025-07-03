@@ -1,7 +1,7 @@
 use {
     async_trait::async_trait,
     carbon_core::{
-        datasource::{Datasource, TransactionUpdate, Update, UpdateType},
+        datasource::{Datasource, DatasourceId, TransactionUpdate, Update, UpdateType},
         error::CarbonResult,
         metrics::MetricsCollection,
         transformers::transaction_metadata_from_original_meta,
@@ -164,7 +164,8 @@ impl RpcTransactionCrawler {
 impl Datasource for RpcTransactionCrawler {
     async fn consume(
         &self,
-        sender: Sender<Update>,
+        id: DatasourceId,
+        sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -212,6 +213,7 @@ impl Datasource for RpcTransactionCrawler {
         let task_processor = task_processor(
             transaction_receiver,
             sender,
+            id,
             filters,
             cancellation_token.clone(),
             metrics.clone(),
@@ -457,7 +459,8 @@ fn transaction_fetcher(
 
 fn task_processor(
     transaction_receiver: Receiver<(Signature, EncodedConfirmedTransactionWithStatusMeta)>,
-    sender: Sender<Update>,
+    sender: Sender<(Update, DatasourceId)>,
+    id: DatasourceId,
     filters: Filters,
     cancellation_token: CancellationToken,
     metrics: Arc<MetricsCollection>,
@@ -465,6 +468,7 @@ fn task_processor(
 ) -> JoinHandle<()> {
     let mut transaction_receiver = transaction_receiver;
     let sender = sender.clone();
+    let id_for_loop = id.clone();
 
     tokio::spawn(async move {
         loop {
@@ -558,13 +562,13 @@ fn task_processor(
 
 
                     if connection_config.blocking_send {
-                        if let Err(e) = sender.send(update.clone()).await {
+                        if let Err(e) = sender.send((update.clone(), id_for_loop.clone())).await {
                             log::warn!("Failed to send update: {:?}", e);
                             continue;
                         }
                     }
                     if !connection_config.blocking_send {
-                        if let Err(e) = sender.try_send(update) {
+                        if let Err(e) = sender.try_send((update.clone(), id_for_loop.clone())) {
                             log::warn!("Failed to send update: {:?}", e);
                             continue;
                         }

@@ -2,7 +2,7 @@ use {
     async_trait::async_trait,
     carbon_core::{
         account::AccountProcessorInputType,
-        datasource::{AccountUpdate, Datasource, Update, UpdateType},
+        datasource::{AccountUpdate, Datasource, DatasourceId, Update, UpdateType},
         error::CarbonResult,
         instruction::InstructionDecoder,
         instruction_decoder_collection,
@@ -52,7 +52,8 @@ impl GpaBackfillDatasource {
 impl Datasource for GpaBackfillDatasource {
     async fn consume(
         &self,
-        sender: Sender<Update>,
+        id: DatasourceId,
+        sender: Sender<(Update, DatasourceId)>,
         _cancellation_token: CancellationToken,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -79,12 +80,17 @@ impl Datasource for GpaBackfillDatasource {
             ));
         };
 
+        let id_for_loop = id.clone();
+
         for (pubkey, account) in program_accounts {
-            if let Err(e) = sender.try_send(Update::Account(AccountUpdate {
-                pubkey,
-                account,
-                slot,
-            })) {
+            if let Err(e) = sender.try_send((
+                Update::Account(AccountUpdate {
+                    pubkey,
+                    account,
+                    slot,
+                }),
+                id_for_loop.clone(),
+            )) {
                 log::error!("Failed to send account update: {:?}", e);
             }
         }
