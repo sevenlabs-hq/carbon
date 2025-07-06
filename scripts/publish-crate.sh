@@ -7,6 +7,7 @@ workspace_crates=(
     carbon-proc-macros
     carbon-test-utils
     carbon-core
+
     carbon-postgres-client
     carbon-gql-server
 
@@ -50,8 +51,8 @@ workspace_crates=(
     carbon-openbook-v2-decoder
     carbon-orca-whirlpool-decoder
     carbon-phoenix-v1-decoder
-    carbon-pumpfun-decoder
     carbon-pump-swap-decoder
+    carbon-pumpfun-decoder
     carbon-raydium-amm-v4-decoder
     carbon-raydium-clmm-decoder
     carbon-raydium-cpmm-decoder
@@ -69,6 +70,8 @@ workspace_crates=(
     carbon-virtual-curve-decoder
     carbon-virtuals-decoder
     carbon-zeta-decoder
+
+    carbon-jito-protos
 )
 
 for crate in "${workspace_crates[@]}"; do
