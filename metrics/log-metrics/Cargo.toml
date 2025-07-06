@@ -1,6 +1,6 @@
 [package]
 name = "carbon-log-metrics"
-version = "0.8.1"
+version = "0.9.0"
 description = "Log Metrics"
 license = { workspace = true }
 edition = { workspace = true }
