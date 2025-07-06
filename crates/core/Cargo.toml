@@ -34,6 +34,7 @@ serde_json = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 tokio-util = { workspace = true }
+uuid = { workspace = true, features = ["v4"] }
 
 # Optional macro dependencies
 carbon-macros = { workspace = true, optional = true }

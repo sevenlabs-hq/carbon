@@ -33,6 +33,12 @@
 //! - **[`error`]**: Defines error types used throughout the crate, providing
 //!   consistent error handling for the framework.
 //!
+//! - **[`filter`]**: Provides a flexible filtering system that allows selective
+//!   processing of updates based on various criteria such as datasource ID,
+//!   update content, or custom logic. Filters can be applied to different
+//!   types of updates (accounts, instructions, transactions, account deletions,
+//!   and block details) to control which updates are processed by specific pipes.
+//!
 //! - **[`instruction`]**: Supports instruction parsing and processing within
 //!   transactions. This module includes structures and traits for decoding and
 //!   handling transaction instructions.
@@ -119,6 +125,7 @@ pub mod collection;
 pub mod datasource;
 pub mod deserialize;
 pub mod error;
+pub mod filter;
 pub mod instruction;
 pub mod metrics;
 pub mod pipeline;

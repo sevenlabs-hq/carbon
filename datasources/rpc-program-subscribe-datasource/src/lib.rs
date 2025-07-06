@@ -1,7 +1,7 @@
 use {
     async_trait::async_trait,
     carbon_core::{
-        datasource::{AccountUpdate, Datasource, Update, UpdateType},
+        datasource::{AccountUpdate, Datasource, DatasourceId, Update, UpdateType},
         error::CarbonResult,
         metrics::MetricsCollection,
     },
@@ -55,7 +55,8 @@ impl RpcProgramSubscribe {
 impl Datasource for RpcProgramSubscribe {
     async fn consume(
         &self,
-        sender: Sender<Update>,
+        id: DatasourceId,
+        sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -85,6 +86,7 @@ impl Datasource for RpcProgramSubscribe {
 
             let filters = self.filters.clone();
             let sender_clone = sender.clone();
+            let id_for_loop = id.clone();
 
             let (mut program_stream, _program_unsub) = match client
                 .program_subscribe(&filters.pubkey, filters.program_subscribe_config)
@@ -148,7 +150,7 @@ impl Datasource for RpcProgramSubscribe {
                                     .await
                                     .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
-                                if let Err(err) = sender_clone.try_send(update) {
+                                if let Err(err) = sender_clone.try_send((update, id_for_loop.clone())) {
                                     log::error!("Error sending account update: {:?}", err);
                                     break;
                                 }

@@ -1,7 +1,7 @@
 use {
     async_trait::async_trait,
     carbon_core::{
-        datasource::{Datasource, TransactionUpdate, Update, UpdateType},
+        datasource::{Datasource, DatasourceId, TransactionUpdate, Update, UpdateType},
         error::CarbonResult,
         metrics::MetricsCollection,
     },
@@ -34,7 +34,8 @@ impl JitoShredstreamGrpcClient {
 impl Datasource for JitoShredstreamGrpcClient {
     async fn consume(
         &self,
-        sender: Sender<Update>,
+        id: DatasourceId,
+        sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -87,6 +88,7 @@ impl Datasource for JitoShredstreamGrpcClient {
                     let metrics = metrics.clone();
                     let sender = sender.clone();
                     let dedup_cache = dedup_cache.clone();
+                    let id_for_closure = id.clone();
 
                     async move {
                         let start_time = SystemTime::now();
@@ -127,7 +129,7 @@ impl Datasource for JitoShredstreamGrpcClient {
                                     block_hash: None,
                                 }));
 
-                                if let Err(e) = sender.try_send(update) {
+                                if let Err(e) = sender.try_send((update, id_for_closure.clone())) {
                                     log::error!("Failed to send transaction update with signature {:?} at slot {}: {:?}", signature, message.slot, e);
                                     return Ok(());
                                 }

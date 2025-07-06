@@ -102,12 +102,98 @@ use {
 pub trait Datasource: Send + Sync {
     async fn consume(
         &self,
-        sender: tokio::sync::mpsc::Sender<Update>,
+        id: DatasourceId,
+        sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
 
     fn update_types(&self) -> Vec<UpdateType>;
+}
+
+/// A unique identifier for a datasource in the pipeline.
+///
+/// Datasource IDs are used to track the source of data updates and enable
+/// filtering of updates based on their origin. This is particularly useful
+/// when you have multiple datasources and want to process updates selectively.
+///
+/// # Examples
+///
+/// Creating a datasource with a unique ID:
+/// ```
+/// use carbon_core::datasource::DatasourceId;
+///
+/// let id = DatasourceId::new_unique();
+/// println!("Generated ID: {:?}", id);
+/// ```
+///
+/// Creating a datasource with a named ID:
+/// ```
+/// use carbon_core::datasource::DatasourceId;
+///
+/// let id = DatasourceId::new_named("mainnet-rpc");
+/// println!("Named ID: {:?}", id);
+/// ```
+///
+/// Using with filters:
+/// ```
+/// use carbon_core::{datasource::DatasourceId, filter::DatasourceFilter};
+///
+/// let datasource_id = DatasourceId::new_named("testnet");
+/// let filter = DatasourceFilter::new(datasource_id);
+/// ```
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct DatasourceId(String);
+
+impl DatasourceId {
+    /// Creates a new datasource ID with a randomly generated unique identifier.
+    ///
+    /// This method uses a cryptographically secure random number generator
+    /// to create a unique ID. The ID is converted to a string representation
+    /// for easy debugging and logging.
+    ///
+    /// # Returns
+    ///
+    /// A new `DatasourceId` with a unique random identifier.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use carbon_core::datasource::DatasourceId;
+    ///
+    /// let id1 = DatasourceId::new_unique();
+    /// let id2 = DatasourceId::new_unique();
+    /// assert_ne!(id1, id2); // IDs should be different
+    /// ```
+    pub fn new_unique() -> Self {
+        Self(uuid::Uuid::new_v4().to_string())
+    }
+
+    /// Creates a new datasource ID with a specific name.
+    ///
+    /// This method is useful when you want to assign a meaningful name
+    /// to a datasource for easier identification and debugging.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - A string slice containing the name for the datasource ID
+    ///
+    /// # Returns
+    ///
+    /// A new `DatasourceId` with the specified name.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use carbon_core::datasource::DatasourceId;
+    ///
+    /// let mainnet_id = DatasourceId::new_named("mainnet-rpc");
+    /// let testnet_id = DatasourceId::new_named("testnet-rpc");
+    /// assert_ne!(mainnet_id, testnet_id);
+    /// ```
+    pub fn new_named(name: &str) -> Self {
+        Self(name.to_string())
+    }
 }
 
 /// Represents a data update in the `carbon-core` pipeline, encompassing
