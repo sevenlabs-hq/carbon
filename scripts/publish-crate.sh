@@ -76,6 +76,5 @@ workspace_crates=(
 
 for crate in "${workspace_crates[@]}"; do
     echo "--- $crate"
-    cargo package -p $crate
     cargo publish -p $crate
 done
