@@ -6,6 +6,7 @@ edition = { workspace = true }
 [dependencies]
 carbon-core = { workspace = true }
 carbon-kamino-lending-decoder = { workspace = true }
+carbon-log-metrics = { workspace = true }
 carbon-yellowstone-grpc-datasource = { workspace = true }
 
 async-trait = { workspace = true }

@@ -13,6 +13,7 @@ use {
         accounts::KaminoLendingAccount, instructions::KaminoLendingInstruction,
         KaminoLendingDecoder, PROGRAM_ID as KAMINO_LENDING_PROGRAM_ID,
     },
+    carbon_log_metrics::LogMetrics,
     carbon_yellowstone_grpc_datasource::YellowstoneGrpcGeyserClient,
     solana_client::{nonblocking::rpc_client::RpcClient, rpc_config::RpcProgramAccountsConfig},
     solana_pubkey::Pubkey,
@@ -90,6 +91,8 @@ pub async fn main() -> CarbonResult<()> {
             KaminoLendingStartupAccountProcessor,
             vec![Box::new(DatasourceFilter::new(gpa_backfill_datasource_id))],
         )
+        .channel_buffer_size(1_000_000)
+        .metrics(Arc::new(LogMetrics::new()))
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
         .build()?
         .run()
@@ -144,7 +147,7 @@ impl Processor for KaminoLendingRealtimeAccountProcessor {
     async fn process(
         &mut self,
         data: Self::InputType,
-        _metrics: Arc<MetricsCollection>,
+        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let account = data.1;
 
@@ -185,6 +188,10 @@ impl Processor for KaminoLendingRealtimeAccountProcessor {
             )
         );
 
+        metrics
+            .increment_counter("realtime_account_processor_account_processed", 1)
+            .await?;
+
         Ok(())
     }
 }
@@ -201,7 +208,7 @@ impl Processor for KaminoLendingStartupAccountProcessor {
     async fn process(
         &mut self,
         data: Self::InputType,
-        _metrics: Arc<MetricsCollection>,
+        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let account = data.1;
 
@@ -242,6 +249,10 @@ impl Processor for KaminoLendingStartupAccountProcessor {
             )
         );
 
+        metrics
+            .increment_counter("startup_account_processor_account_processed", 1)
+            .await?;
+
         Ok(())
     }
 }
@@ -273,7 +284,7 @@ impl Datasource for GpaRpcDatasource {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         _cancellation_token: CancellationToken,
-        _metrics: Arc<MetricsCollection>,
+        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let rpc_client = RpcClient::new(self.rpc_url.clone());
 
@@ -311,6 +322,9 @@ impl Datasource for GpaRpcDatasource {
             )) {
                 log::error!("Failed to send account update: {:?}", e);
             }
+            metrics
+                .increment_counter("gpa_rpc_datasource_account_ingested", 1)
+                .await?;
         }
 
         Ok(())
