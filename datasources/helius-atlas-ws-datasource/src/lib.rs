@@ -2,7 +2,8 @@ use {
     async_trait::async_trait,
     carbon_core::{
         datasource::{
-            AccountDeletion, AccountUpdate, Datasource, TransactionUpdate, Update, UpdateType,
+            AccountDeletion, AccountUpdate, Datasource, DatasourceId, TransactionUpdate, Update,
+            UpdateType,
         },
         error::CarbonResult,
         metrics::MetricsCollection,
@@ -94,7 +95,8 @@ impl HeliusWebsocket {
 impl Datasource for HeliusWebsocket {
     async fn consume(
         &self,
-        sender: Sender<Update>,
+        id: DatasourceId,
+        sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -103,6 +105,8 @@ impl Datasource for HeliusWebsocket {
         }
 
         let mut reconnection_attempts = 0;
+
+        let id = id.clone();
 
         loop {
             if cancellation_token.is_cancelled() {
@@ -160,6 +164,7 @@ impl Datasource for HeliusWebsocket {
             let iteration_cancellation_clone = iteration_cancellation.clone();
 
             let main_cancellation = cancellation_token.clone();
+            let id_for_loop = id.clone();
 
             let handle = tokio::spawn(async move {
                 let mut handles = vec![];
@@ -260,6 +265,7 @@ impl Datasource for HeliusWebsocket {
                         let helius_clone = Arc::clone(&helius);
                         let account_deletions_tracked = Arc::clone(&account_deletions_tracked);
                         let metrics = metrics.clone();
+                        let id_for_account = id_for_loop.clone();
 
                         let handle = tokio::spawn(async move {
                             let ws = match helius_clone.ws() {
@@ -319,9 +325,10 @@ impl Datasource for HeliusWebsocket {
                                                         metrics.increment_counter("helius_atlas_ws_account_deletions_received", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
 
-                                                        if let Err(err) = sender_clone.try_send(
+                                                        if let Err(err) = sender_clone.try_send((
                                                             Update::AccountDeletion(account_deletion),
-                                                        ) {
+                                                            id_for_account.clone(),
+                                                        )) {
                                                             log::error!("Error sending account update: {:?}", err);
                                                             break;
                                                         }
@@ -338,7 +345,10 @@ impl Datasource for HeliusWebsocket {
                                                     metrics.increment_counter("helius_atlas_ws_account_updates_received", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
 
-                                                    if let Err(err) = sender_clone.try_send(update) {
+                                                    if let Err(err) = sender_clone.try_send((
+                                                        update,
+                                                        id_for_account.clone(),
+                                                    )) {
                                                         log::error!("Error sending account update: {:?}", err);
                                                         break;
                                                     }
@@ -364,6 +374,7 @@ impl Datasource for HeliusWebsocket {
                     let iteration_cancellation_tx = iteration_cancellation.clone();
                     let sender_clone = sender.clone();
                     let helius_clone = Arc::clone(&helius);
+                    let id_for_transaction = id_for_loop.clone();
 
                     let handle = tokio::spawn(async move {
                         let ws = match helius_clone.ws() {
@@ -597,7 +608,10 @@ impl Datasource for HeliusWebsocket {
                                             metrics.increment_counter("helius_atlas_ws_transaction_updates_received", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
 
-                                            if let Err(err) = sender_clone.try_send(update) {
+                                            if let Err(err) = sender_clone.try_send((
+                                                update,
+                                                id_for_transaction.clone(),
+                                            )) {
                                                 log::error!("Error sending transaction update: {:?}", err);
                                                 break;
                                             }

@@ -1,3 +1,4 @@
+use carbon_core::datasource::DatasourceId;
 pub use solana_client::rpc_config::RpcBlockConfig;
 use solana_hash::Hash;
 use std::str::FromStr;
@@ -66,7 +67,8 @@ impl RpcBlockCrawler {
 impl Datasource for RpcBlockCrawler {
     async fn consume(
         &self,
-        sender: Sender<Update>,
+        id: DatasourceId,
+        sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -93,6 +95,7 @@ impl Datasource for RpcBlockCrawler {
         let task_processor = task_processor(
             block_receiver,
             sender,
+            id,
             cancellation_token.clone(),
             metrics.clone(),
         );
@@ -247,11 +250,14 @@ fn block_fetcher(
 /// Process the block and send the transactions to the sender
 fn task_processor(
     block_receiver: Receiver<(u64, UiConfirmedBlock)>,
-    sender: Sender<Update>,
+    sender: Sender<(Update, DatasourceId)>,
+    id: DatasourceId,
     cancellation_token: CancellationToken,
     metrics: Arc<MetricsCollection>,
 ) -> JoinHandle<()> {
     let mut block_receiver = block_receiver;
+    let sender = sender.clone();
+    let id_for_loop = id.clone();
 
     tokio::spawn(async move {
         loop {
@@ -318,7 +324,7 @@ fn task_processor(
                                     .await
                                     .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
-                                if let Err(err) = sender.try_send(update) {
+                                if let Err(err) = sender.try_send((update, id_for_loop.clone())) {
                                     log::error!("Error sending transaction update: {:?}", err);
                                     break;
                                 }

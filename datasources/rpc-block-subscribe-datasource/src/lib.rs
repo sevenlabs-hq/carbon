@@ -1,4 +1,4 @@
-use carbon_core::datasource::BlockDetails;
+use carbon_core::datasource::{BlockDetails, DatasourceId};
 use solana_hash::Hash;
 use std::str::FromStr;
 
@@ -61,7 +61,8 @@ impl RpcBlockSubscribe {
 impl Datasource for RpcBlockSubscribe {
     async fn consume(
         &self,
-        sender: Sender<Update>,
+        id: DatasourceId,
+        sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
@@ -91,6 +92,7 @@ impl Datasource for RpcBlockSubscribe {
 
             let filters = self.filters.clone();
             let sender_clone = sender.clone();
+            let id_for_loop = id.clone();
 
             let (mut block_stream, _block_unsub) = match client
                 .block_subscribe(filters.block_filter, filters.block_subscribe_config)
@@ -139,7 +141,7 @@ impl Datasource for RpcBlockSubscribe {
                                                 block_height: block.block_height,
                                     });
 
-                                    if let Err(err) = sender_clone.try_send(block_deteils) {
+                                    if let Err(err) = sender_clone.try_send((block_deteils, id_for_loop.clone())) {
                                         log::error!("Error sending block details: {:?}", err);
                                         break;
                                     }
@@ -190,7 +192,7 @@ impl Datasource for RpcBlockSubscribe {
                                                 .await
                                                 .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
 
-                                            if let Err(err) = sender_clone.try_send(update) {
+                                            if let Err(err) = sender_clone.try_send((update, id_for_loop.clone())) {
                                                 log::error!("Error sending transaction update: {:?}", err);
                                                 break;
                                             }

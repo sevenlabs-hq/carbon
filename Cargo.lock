@@ -1201,6 +1201,7 @@ dependencies = [
  "thiserror 2.0.12",
  "tokio",
  "tokio-util",
+ "uuid",
 ]
 
 [[package]]
@@ -2823,6 +2824,27 @@ name = "fiat-crypto"
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28dea519a9695b9977216879a3ebfddf92f1c08c05d984f8996aecd6ecdc811d"
+
+[[package]]
+name = "filtering-carbon-example"
+version = "0.2.1"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "carbon-kamino-lending-decoder",
+ "carbon-log-metrics",
+ "carbon-yellowstone-grpc-datasource",
+ "dotenv",
+ "env_logger 0.11.8",
+ "log",
+ "solana-account",
+ "solana-client",
+ "solana-instruction",
+ "solana-pubkey",
+ "tokio",
+ "tokio-util",
+ "yellowstone-grpc-proto",
+]
 
 [[package]]
 name = "five8_const"
@@ -10227,7 +10249,9 @@ version = "1.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3cf4199d1e5d15ddd86a694e4d0dffa9c323ce759fea589f00fef9d81cc1931d"
 dependencies = [
+ "getrandom 0.3.3",
  "js-sys",
+ "serde",
  "wasm-bindgen",
 ]
 

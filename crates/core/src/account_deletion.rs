@@ -10,8 +10,8 @@
 
 use {
     crate::{
-        datasource::AccountDeletion, error::CarbonResult, metrics::MetricsCollection,
-        processor::Processor,
+        datasource::AccountDeletion, error::CarbonResult, filter::Filter,
+        metrics::MetricsCollection, processor::Processor,
     },
     async_trait::async_trait,
     std::sync::Arc,
@@ -62,6 +62,11 @@ use {
 ///
 /// - `processor`: A boxed `Processor` that handles the specific logic of
 ///   processing an account deletion event.
+/// - `filters`: A collection of filters that determine which account deletion
+///   events should be processed. Each filter in this collection is applied to
+///   incoming account deletion events, and only events that pass all filters
+///   (return `true`) will be processed. If this collection is empty, all
+///   events are processed.
 ///
 /// # Notes
 ///
@@ -71,96 +76,29 @@ use {
 ///   managing updates.
 pub struct AccountDeletionPipe {
     pub processor: Box<dyn Processor<InputType = AccountDeletion> + Send + Sync>,
+    pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
 }
 
-/// A trait for handling account deletion events in the pipeline.
+/// An async trait for processing account deletions.
 ///
-/// The `AccountDeletionPipes` trait defines an asynchronous `run` method, which
-/// is responsible for processing an `AccountDeletion` event. Implementing this
-/// trait allows you to create custom account deletion handling within the
-/// pipeline, which can be extended to include metrics tracking or other
-/// custom behaviors.
+/// The `AccountDeletionPipes` trait allows for processing of account deletions.
 ///
-/// ## Functionality
+/// # Required Methods
 ///
-/// The `run` method takes an `AccountDeletion` event and a list of `Metrics` to
-/// track the processing operation. The method is asynchronous, allowing for
-/// non-blocking operations, and is expected to return a `CarbonResult<()>`,
-/// which indicates success or failure.
-///
-/// # Syntax
-///
-/// Implementations of `AccountDeletionPipes` should focus on handling account
-/// deletions and integrating with metrics as needed.
-///
-/// # Example
-///
-/// ```ignore
-/// use carbon_core::metrics::MetricsCollection;
-/// use std::sync::Arc;
-/// use carbon_core::error::CarbonResult;
-/// use carbon_core::datasource::AccountDeletion;
-/// use carbon_core::account_deletion::AccountDeletionPipe;
-/// use async_trait::async_trait;
-///
-/// struct MyAccountDeletionPipe;
-///
-/// #[async_trait]
-/// impl AccountDeletionPipes for AccountDeletionPipe {
-///     async fn run(
-///         &mut self,
-///         account_deletion: AccountDeletion,
-///         metrics: Arc<MetricsCollection>,
-///     ) -> CarbonResult<()> {
-///         // Custom processing logic for the deletion event
-///         Ok(())
-///     }
-/// }
-/// ```
-///
-/// # Parameters
-///
-/// - `account_deletion`: An `AccountDeletion` instance representing the account
-///   deletion event.
-/// - `metrics`: A vector of `Metrics` objects for monitoring and reporting
-///   purposes.
-///
-/// # Returns
-///
-/// Returns a `CarbonResult<()>`, which will be `Ok(())` if processing is
-/// successful, or an error if there was an issue with the processing logic.
-///
-/// # Notes
-///
-/// - This trait is asynchronous and requires the `async_trait` crate for
-///   `async` methods.
-/// - Ensure that `AccountDeletionPipe` is configured with a processor capable
-///   of handling account deletions, as this is its primary responsibility
-///   within the pipeline.
+/// - `run`: Processes an account deletion event and tracks the operation with
+///   metrics.
+/// - `filters`: Returns a reference to the filters associated with this pipe,
+///   which are used by the pipeline to determine which account deletion events
+///   should be processed.
 #[async_trait]
 pub trait AccountDeletionPipes: Send + Sync {
-    /// Processes an account deletion event and tracks the operation with
-    /// metrics.
-    ///
-    /// This asynchronous method allows for non-blocking processing of account
-    /// deletion events, enabling integration with custom deletion logic and
-    /// metrics tracking.
-    ///
-    /// # Parameters
-    ///
-    /// - `account_deletion`: The account deletion event to process.
-    /// - `metrics`: A list of `Metrics` implementations for tracking and
-    ///   reporting metrics.
-    ///
-    /// # Returns
-    ///
-    /// Returns a `CarbonResult<()>`, which is `Ok` on success, or an error if
-    /// processing fails.
     async fn run(
         &mut self,
         account_deletion: AccountDeletion,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
+
+    fn filters(&self) -> &Vec<Box<dyn Filter + Send + Sync + 'static>>;
 }
 
 #[async_trait]
@@ -178,5 +116,9 @@ impl AccountDeletionPipes for AccountDeletionPipe {
         self.processor.process(account_deletion, metrics).await?;
 
         Ok(())
+    }
+
+    fn filters(&self) -> &Vec<Box<dyn Filter + Send + Sync + 'static>> {
+        &self.filters
     }
 }
