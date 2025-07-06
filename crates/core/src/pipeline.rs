@@ -781,7 +781,7 @@ impl PipelineBuilder {
     /// ```ignore
     /// use carbon_core::{pipeline::PipelineBuilder, datasource::DatasourceId};
     ///
-    /// let mainnet_id = DatasourceId::named("mainnet");
+    /// let mainnet_id = DatasourceId::new_named("mainnet");
     /// let builder = PipelineBuilder::new()
     ///     .datasource_with_id(mainnet_id, MyDatasource::new());
     /// ```
@@ -891,7 +891,7 @@ impl PipelineBuilder {
     ///     filter::DatasourceFilter,
     /// };
     ///
-    /// let mainnet_id = DatasourceId::named("mainnet");
+    /// let mainnet_id = DatasourceId::new_named("mainnet");
     /// let filter = DatasourceFilter::new(mainnet_id);
     /// let filters = vec![Box::new(filter) as Box<dyn carbon_core::filter::Filter>];
     ///
@@ -973,7 +973,7 @@ impl PipelineBuilder {
     ///     filter::DatasourceFilter,
     /// };
     ///
-    /// let mainnet_id = DatasourceId::named("mainnet");
+    /// let mainnet_id = DatasourceId::new_named("mainnet");
     /// let filter = DatasourceFilter::new(mainnet_id);
     /// let filters = vec![Box::new(filter) as Box<dyn carbon_core::filter::Filter>];
     ///
@@ -1052,7 +1052,7 @@ impl PipelineBuilder {
     ///     filter::DatasourceFilter,
     /// };
     ///
-    /// let mainnet_id = DatasourceId::named("mainnet");
+    /// let mainnet_id = DatasourceId::new_named("mainnet");
     /// let filter = DatasourceFilter::new(mainnet_id);
     /// let filters = vec![Box::new(filter) as Box<dyn carbon_core::filter::Filter>];
     ///
@@ -1137,7 +1137,7 @@ impl PipelineBuilder {
     ///     filter::DatasourceFilter,
     /// };
     ///
-    /// let mainnet_id = DatasourceId::named("mainnet");
+    /// let mainnet_id = DatasourceId::new_named("mainnet");
     /// let filter = DatasourceFilter::new(mainnet_id);
     /// let filters = vec![Box::new(filter) as Box<dyn carbon_core::filter::Filter>];
     ///
@@ -1234,7 +1234,7 @@ impl PipelineBuilder {
     ///     filter::DatasourceFilter,
     /// };
     ///
-    /// let mainnet_id = DatasourceId::named("mainnet");
+    /// let mainnet_id = DatasourceId::new_named("mainnet");
     /// let filter = DatasourceFilter::new(mainnet_id);
     /// let filters = vec![Box::new(filter) as Box<dyn carbon_core::filter::Filter>];
     ///

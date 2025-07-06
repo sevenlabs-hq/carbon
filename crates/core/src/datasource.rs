@@ -33,7 +33,6 @@
 //! - Ensure implementations handle errors gracefully, especially when fetching
 //!   data and sending updates to the pipeline.
 
-use rand::Rng;
 use solana_program::hash::Hash;
 use solana_transaction_status::Rewards;
 use {
@@ -132,7 +131,7 @@ pub trait Datasource: Send + Sync {
 /// ```
 /// use carbon_core::datasource::DatasourceId;
 ///
-/// let id = DatasourceId::named("mainnet-rpc");
+/// let id = DatasourceId::new_named("mainnet-rpc");
 /// println!("Named ID: {:?}", id);
 /// ```
 ///
@@ -140,10 +139,10 @@ pub trait Datasource: Send + Sync {
 /// ```
 /// use carbon_core::{datasource::DatasourceId, filter::DatasourceFilter};
 ///
-/// let datasource_id = DatasourceId::named("testnet");
+/// let datasource_id = DatasourceId::new_named("testnet");
 /// let filter = DatasourceFilter::new(datasource_id);
 /// ```
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct DatasourceId(String);
 
 impl DatasourceId {
@@ -167,7 +166,7 @@ impl DatasourceId {
     /// assert_ne!(id1, id2); // IDs should be different
     /// ```
     pub fn new_unique() -> Self {
-        Self(rand::rng().random::<u32>().to_string())
+        Self(uuid::Uuid::new_v4().to_string())
     }
 
     /// Creates a new datasource ID with a specific name.
@@ -188,8 +187,8 @@ impl DatasourceId {
     /// ```
     /// use carbon_core::datasource::DatasourceId;
     ///
-    /// let mainnet_id = DatasourceId::named("mainnet-rpc");
-    /// let testnet_id = DatasourceId::named("testnet-rpc");
+    /// let mainnet_id = DatasourceId::new_named("mainnet-rpc");
+    /// let testnet_id = DatasourceId::new_named("testnet-rpc");
     /// assert_ne!(mainnet_id, testnet_id);
     /// ```
     pub fn new_named(name: &str) -> Self {

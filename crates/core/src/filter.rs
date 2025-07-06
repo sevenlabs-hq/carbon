@@ -19,7 +19,7 @@
 //! ```
 //! use carbon_core::{datasource::DatasourceId, filter::DatasourceFilter};
 //!
-//! let mainnet_id = DatasourceId::named("mainnet");
+//! let mainnet_id = DatasourceId::new_named("mainnet");
 //! let filter = DatasourceFilter::new(mainnet_id);
 //! ```
 //!
@@ -28,8 +28,8 @@
 //! use carbon_core::{datasource::DatasourceId, filter::DatasourceFilter};
 //!
 //! let ids = vec![
-//!     DatasourceId::named("mainnet"),
-//!     DatasourceId::named("testnet"),
+//!     DatasourceId::new_named("mainnet"),
+//!     DatasourceId::new_named("testnet"),
 //! ];
 //! let filter = DatasourceFilter::new_many(ids);
 //! ```
@@ -137,10 +137,12 @@ pub trait Filter {
     /// `true` if the account update should be processed, `false` otherwise.
     fn filter_account(
         &self,
-        datasource_id: &DatasourceId,
-        account_metadata: &AccountMetadata,
-        account: &solana_account::Account,
-    ) -> bool;
+        _datasource_id: &DatasourceId,
+        _account_metadata: &AccountMetadata,
+        _account: &solana_account::Account,
+    ) -> bool {
+        true
+    }
 
     /// Filters instruction updates based on datasource ID and instruction data.
     ///
@@ -157,9 +159,11 @@ pub trait Filter {
     /// `true` if the instruction update should be processed, `false` otherwise.
     fn filter_instruction(
         &self,
-        datasource_id: &DatasourceId,
-        nested_instruction: &NestedInstruction,
-    ) -> bool;
+        _datasource_id: &DatasourceId,
+        _nested_instruction: &NestedInstruction,
+    ) -> bool {
+        true
+    }
 
     /// Filters transaction updates based on datasource ID and transaction data.
     ///
@@ -177,10 +181,12 @@ pub trait Filter {
     /// `true` if the transaction update should be processed, `false` otherwise.
     fn filter_transaction(
         &self,
-        datasource_id: &DatasourceId,
-        transaction_metadata: &TransactionMetadata,
-        nested_instructions: &NestedInstructions,
-    ) -> bool;
+        _datasource_id: &DatasourceId,
+        _transaction_metadata: &TransactionMetadata,
+        _nested_instructions: &NestedInstructions,
+    ) -> bool {
+        true
+    }
 
     /// Filters account deletion updates based on datasource ID and deletion data.
     ///
@@ -197,9 +203,11 @@ pub trait Filter {
     /// `true` if the account deletion update should be processed, `false` otherwise.
     fn filter_account_deletion(
         &self,
-        datasource_id: &DatasourceId,
-        account_deletion: &AccountDeletion,
-    ) -> bool;
+        _datasource_id: &DatasourceId,
+        _account_deletion: &AccountDeletion,
+    ) -> bool {
+        true
+    }
 
     /// Filters block details updates based on datasource ID and block data.
     ///
@@ -216,9 +224,11 @@ pub trait Filter {
     /// `true` if the block details update should be processed, `false` otherwise.
     fn filter_block_details(
         &self,
-        datasource_id: &DatasourceId,
-        block_details: &BlockDetails,
-    ) -> bool;
+        _datasource_id: &DatasourceId,
+        _block_details: &BlockDetails,
+    ) -> bool {
+        true
+    }
 }
 
 /// A filter that allows updates from specific datasources.
@@ -233,7 +243,7 @@ pub trait Filter {
 /// ```
 /// use carbon_core::{datasource::DatasourceId, filter::DatasourceFilter};
 ///
-/// let mainnet_id = DatasourceId::named("mainnet");
+/// let mainnet_id = DatasourceId::new_named("mainnet");
 /// let filter = DatasourceFilter::new(mainnet_id);
 /// ```
 ///
@@ -242,8 +252,8 @@ pub trait Filter {
 /// use carbon_core::{datasource::DatasourceId, filter::DatasourceFilter};
 ///
 /// let ids = vec![
-///     DatasourceId::named("mainnet"),
-///     DatasourceId::named("testnet"),
+///     DatasourceId::new_named("mainnet"),
+///     DatasourceId::new_named("testnet"),
 /// ];
 /// let filter = DatasourceFilter::new_many(ids);
 /// ```
@@ -252,7 +262,7 @@ pub trait Filter {
 /// ```
 /// use carbon_core::{datasource::DatasourceId, filter::DatasourceFilter};
 ///
-/// let filter = DatasourceFilter::new(DatasourceId::named("mainnet"));
+/// let filter = DatasourceFilter::new(DatasourceId::new_named("mainnet"));
 /// let filters = vec![Box::new(filter) as Box<dyn Filter>];
 ///
 /// // Use with pipeline builder
@@ -285,7 +295,7 @@ impl DatasourceFilter {
     /// ```
     /// use carbon_core::{datasource::DatasourceId, filter::DatasourceFilter};
     ///
-    /// let mainnet_id = DatasourceId::named("mainnet");
+    /// let mainnet_id = DatasourceId::new_named("mainnet");
     /// let filter = DatasourceFilter::new(mainnet_id);
     /// ```
     pub fn new(datasource_id: DatasourceId) -> Self {
@@ -313,8 +323,8 @@ impl DatasourceFilter {
     /// use carbon_core::{datasource::DatasourceId, filter::DatasourceFilter};
     ///
     /// let ids = vec![
-    ///     DatasourceId::named("mainnet"),
-    ///     DatasourceId::named("testnet"),
+    ///     DatasourceId::new_named("mainnet"),
+    ///     DatasourceId::new_named("testnet"),
     /// ];
     /// let filter = DatasourceFilter::new_many(ids);
     /// ```
