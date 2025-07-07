@@ -67,7 +67,7 @@ jobs:
         run: cargo install --locked cargo-sort
 
       - name: Check `Cargo.toml` sort
-        run: cargo sort -c
+        run: cargo sort -c -g
 
   machete:
     runs-on: ubuntu-latest
