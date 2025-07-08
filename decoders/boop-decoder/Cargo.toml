@@ -5,6 +5,7 @@ description = "Boop program decoder"
 edition = { workspace = true }
 license = { workspace = true }
 readme = "README.md"
+repository = { workspace = true }
 keywords = ["solana", "decoder", "boop"]
 categories = ["encoding"]
 

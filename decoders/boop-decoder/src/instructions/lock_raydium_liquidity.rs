@@ -1,10 +1,12 @@
-use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+
+use carbon_core::{CarbonDeserialize, borsh};
+
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 #[carbon(discriminator = "0xadff94067a638c16")]
-pub struct LockRaydiumLiquidity {}
+pub struct LockRaydiumLiquidity{
+}
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct LockRaydiumLiquidityInstructionAccounts {
@@ -35,14 +37,35 @@ pub struct LockRaydiumLiquidityInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for LockRaydiumLiquidity {
     type ArrangedAccounts = LockRaydiumLiquidityInstructionAccounts;
 
-    fn arrange_accounts(
-        accounts: &[solana_instruction::AccountMeta],
-    ) -> Option<Self::ArrangedAccounts> {
-        let [lock_program, vault_authority, authority, fee_nft_owner, fee_nft_mint, fee_nft_account, pool_state, locked_liquidity, lp_mint, liquidity_owner_lp, locked_lp_vault, token_0_vault, token_1_vault, operator, config, bonding_curve, metadata_account, rent, system_program, token_program, associated_token_program, metadata_program, _remaining @ ..] =
-            accounts
-        else {
+    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
+        let [
+            lock_program,
+            vault_authority,
+            authority,
+            fee_nft_owner,
+            fee_nft_mint,
+            fee_nft_account,
+            pool_state,
+            locked_liquidity,
+            lp_mint,
+            liquidity_owner_lp,
+            locked_lp_vault,
+            token_0_vault,
+            token_1_vault,
+            operator,
+            config,
+            bonding_curve,
+            metadata_account,
+            rent,
+            system_program,
+            token_program,
+            associated_token_program,
+            metadata_program,
+            _remaining @ ..
+        ] = accounts else {
             return None;
         };
+       
 
         Some(LockRaydiumLiquidityInstructionAccounts {
             lock_program: lock_program.pubkey,

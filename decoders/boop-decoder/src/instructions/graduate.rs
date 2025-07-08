@@ -1,10 +1,12 @@
-use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+
+use carbon_core::{CarbonDeserialize, borsh};
+
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 #[carbon(discriminator = "0x2debe1b511da4082")]
-pub struct Graduate {}
+pub struct Graduate{
+}
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct GraduateInstructionAccounts {
@@ -28,14 +30,28 @@ pub struct GraduateInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Graduate {
     type ArrangedAccounts = GraduateInstructionAccounts;
 
-    fn arrange_accounts(
-        accounts: &[solana_instruction::AccountMeta],
-    ) -> Option<Self::ArrangedAccounts> {
-        let [mint, wsol, protocol_fee_recipient, token_distributor, token_distributor_token_account, vault_authority, bonding_curve_sol_vault, bonding_curve, bonding_curve_vault, bonding_curve_wsol_account, operator, config, system_program, token_program, associated_token_program, _remaining @ ..] =
-            accounts
-        else {
+    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
+        let [
+            mint,
+            wsol,
+            protocol_fee_recipient,
+            token_distributor,
+            token_distributor_token_account,
+            vault_authority,
+            bonding_curve_sol_vault,
+            bonding_curve,
+            bonding_curve_vault,
+            bonding_curve_wsol_account,
+            operator,
+            config,
+            system_program,
+            token_program,
+            associated_token_program,
+            _remaining @ ..
+        ] = accounts else {
             return None;
         };
+       
 
         Some(GraduateInstructionAccounts {
             mint: mint.pubkey,

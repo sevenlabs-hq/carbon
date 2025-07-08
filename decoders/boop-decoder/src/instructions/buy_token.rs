@@ -1,10 +1,11 @@
-use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+
+use carbon_core::{CarbonDeserialize, borsh};
+
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 #[carbon(discriminator = "0x8a7f0e5b26577369")]
-pub struct BuyToken {
+pub struct BuyToken{
     pub buy_amount: u64,
     pub amount_out_min: u64,
 }
@@ -29,14 +30,26 @@ pub struct BuyTokenInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for BuyToken {
     type ArrangedAccounts = BuyTokenInstructionAccounts;
 
-    fn arrange_accounts(
-        accounts: &[solana_instruction::AccountMeta],
-    ) -> Option<Self::ArrangedAccounts> {
-        let [mint, bonding_curve, trading_fees_vault, bonding_curve_vault, bonding_curve_sol_vault, recipient_token_account, buyer, config, vault_authority, wsol, system_program, token_program, associated_token_program, _remaining @ ..] =
-            accounts
-        else {
+    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
+        let [
+            mint,
+            bonding_curve,
+            trading_fees_vault,
+            bonding_curve_vault,
+            bonding_curve_sol_vault,
+            recipient_token_account,
+            buyer,
+            config,
+            vault_authority,
+            wsol,
+            system_program,
+            token_program,
+            associated_token_program,
+            _remaining @ ..
+        ] = accounts else {
             return None;
         };
+       
 
         Some(BuyTokenInstructionAccounts {
             mint: mint.pubkey,

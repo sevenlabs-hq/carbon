@@ -1,10 +1,11 @@
-use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+
+use carbon_core::{CarbonDeserialize, borsh};
+
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 #[carbon(discriminator = "0xd22b65d7778c6ada")]
-pub struct InitiateAuthorityTransfer {
+pub struct InitiateAuthorityTransfer{
     pub new_authority: solana_pubkey::Pubkey,
 }
 
@@ -18,12 +19,16 @@ pub struct InitiateAuthorityTransferInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for InitiateAuthorityTransfer {
     type ArrangedAccounts = InitiateAuthorityTransferInstructionAccounts;
 
-    fn arrange_accounts(
-        accounts: &[solana_instruction::AccountMeta],
-    ) -> Option<Self::ArrangedAccounts> {
-        let [authority, config, system_program, _remaining @ ..] = accounts else {
+    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
+        let [
+            authority,
+            config,
+            system_program,
+            _remaining @ ..
+        ] = accounts else {
             return None;
         };
+       
 
         Some(InitiateAuthorityTransferInstructionAccounts {
             authority: authority.pubkey,

@@ -1,10 +1,11 @@
-use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+
+use carbon_core::{CarbonDeserialize, borsh};
+
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 #[carbon(discriminator = "0xb459c74ca8ecd98a")]
-pub struct DeployBondingCurve {
+pub struct DeployBondingCurve{
     pub creator: solana_pubkey::Pubkey,
     pub salt: u64,
 }
@@ -26,14 +27,23 @@ pub struct DeployBondingCurveInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for DeployBondingCurve {
     type ArrangedAccounts = DeployBondingCurveInstructionAccounts;
 
-    fn arrange_accounts(
-        accounts: &[solana_instruction::AccountMeta],
-    ) -> Option<Self::ArrangedAccounts> {
-        let [mint, vault_authority, bonding_curve, bonding_curve_sol_vault, bonding_curve_vault, config, payer, system_program, token_program, associated_token_program, _remaining @ ..] =
-            accounts
-        else {
+    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
+        let [
+            mint,
+            vault_authority,
+            bonding_curve,
+            bonding_curve_sol_vault,
+            bonding_curve_vault,
+            config,
+            payer,
+            system_program,
+            token_program,
+            associated_token_program,
+            _remaining @ ..
+        ] = accounts else {
             return None;
         };
+       
 
         Some(DeployBondingCurveInstructionAccounts {
             mint: mint.pubkey,

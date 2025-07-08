@@ -1,10 +1,11 @@
-use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+
+use carbon_core::{CarbonDeserialize, borsh};
+
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 #[carbon(discriminator = "0x5434cce4188cea4b")]
-pub struct CreateToken {
+pub struct CreateToken{
     pub salt: u64,
     pub name: String,
     pub symbol: String,
@@ -26,14 +27,21 @@ pub struct CreateTokenInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CreateToken {
     type ArrangedAccounts = CreateTokenInstructionAccounts;
 
-    fn arrange_accounts(
-        accounts: &[solana_instruction::AccountMeta],
-    ) -> Option<Self::ArrangedAccounts> {
-        let [config, metadata, mint, payer, rent, system_program, token_program, token_metadata_program, _remaining @ ..] =
-            accounts
-        else {
+    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
+        let [
+            config,
+            metadata,
+            mint,
+            payer,
+            rent,
+            system_program,
+            token_program,
+            token_metadata_program,
+            _remaining @ ..
+        ] = accounts else {
             return None;
         };
+       
 
         Some(CreateTokenInstructionAccounts {
             config: config.pubkey,
