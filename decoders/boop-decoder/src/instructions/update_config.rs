@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x1d9efcbf0a53db63")]
-pub struct UpdateConfig{
+pub struct UpdateConfig {
     pub new_protocol_fee_recipient: solana_pubkey::Pubkey,
     pub new_virtual_sol_reserves: u64,
     pub new_virtual_token_reserves: u64,
@@ -29,16 +28,12 @@ pub struct UpdateConfigInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for UpdateConfig {
     type ArrangedAccounts = UpdateConfigInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            config,
-            authority,
-            system_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [config, authority, system_program, _remaining @ ..] = accounts else {
             return None;
         };
-       
 
         Some(UpdateConfigInstructionAccounts {
             config: config.pubkey,

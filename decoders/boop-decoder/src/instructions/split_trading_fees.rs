@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x607ee12fb9d5323a")]
-pub struct SplitTradingFees{
-}
+pub struct SplitTradingFees {}
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct SplitTradingFeesInstructionAccounts {
@@ -39,37 +37,14 @@ pub struct SplitTradingFeesInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SplitTradingFees {
     type ArrangedAccounts = SplitTradingFeesInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            operator,
-            mint,
-            wsol,
-            config,
-            vault_authority,
-            bonding_curve,
-            trading_fees_vault,
-            fee_splitter_program,
-            system_program,
-            token_program,
-            associated_token_program,
-            fee_splitter_config,
-            fee_splitter_creator_vault,
-            fee_splitter_vault_authority,
-            fee_splitter_creator_vault_authority,
-            fee_splitter_staking_mint,
-            fee_splitter_wsol_vault,
-            fee_splitter_creator_vault_authority_wsol_vault,
-            fee_splitter_treasury_wsol_vault,
-            fee_splitter_team_wsol_vault,
-            fee_splitter_reward_pool,
-            fee_splitter_reward_pool_staking_vault,
-            fee_splitter_reward_pool_reward_vault,
-            fee_splitter_reward_pool_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [operator, mint, wsol, config, vault_authority, bonding_curve, trading_fees_vault, fee_splitter_program, system_program, token_program, associated_token_program, fee_splitter_config, fee_splitter_creator_vault, fee_splitter_vault_authority, fee_splitter_creator_vault_authority, fee_splitter_staking_mint, fee_splitter_wsol_vault, fee_splitter_creator_vault_authority_wsol_vault, fee_splitter_treasury_wsol_vault, fee_splitter_team_wsol_vault, fee_splitter_reward_pool, fee_splitter_reward_pool_staking_vault, fee_splitter_reward_pool_reward_vault, fee_splitter_reward_pool_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(SplitTradingFeesInstructionAccounts {
             operator: operator.pubkey,
@@ -89,7 +64,8 @@ impl carbon_core::deserialize::ArrangeAccounts for SplitTradingFees {
             fee_splitter_creator_vault_authority: fee_splitter_creator_vault_authority.pubkey,
             fee_splitter_staking_mint: fee_splitter_staking_mint.pubkey,
             fee_splitter_wsol_vault: fee_splitter_wsol_vault.pubkey,
-            fee_splitter_creator_vault_authority_wsol_vault: fee_splitter_creator_vault_authority_wsol_vault.pubkey,
+            fee_splitter_creator_vault_authority_wsol_vault:
+                fee_splitter_creator_vault_authority_wsol_vault.pubkey,
             fee_splitter_treasury_wsol_vault: fee_splitter_treasury_wsol_vault.pubkey,
             fee_splitter_team_wsol_vault: fee_splitter_team_wsol_vault.pubkey,
             fee_splitter_reward_pool: fee_splitter_reward_pool.pubkey,

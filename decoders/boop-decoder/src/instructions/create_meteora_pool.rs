@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xf6fe2125e1b029e8")]
-pub struct CreateMeteoraPool{
-}
+pub struct CreateMeteoraPool {}
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct CreateMeteoraPoolInstructionAccounts {
@@ -36,34 +34,14 @@ pub struct CreateMeteoraPoolInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CreateMeteoraPool {
     type ArrangedAccounts = CreateMeteoraPoolInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            operator,
-            config,
-            vault_authority,
-            cp_amm_config,
-            pool_authority,
-            pool,
-            position,
-            position_nft_mint,
-            position_nft_account,
-            token_a_mint,
-            token_b_mint,
-            token_a_vault,
-            token_b_vault,
-            bonding_curve,
-            bonding_curve_vault,
-            bonding_curve_wsol_vault,
-            token_program,
-            token_2022_program,
-            system_program,
-            event_authority,
-            cp_amm_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [operator, config, vault_authority, cp_amm_config, pool_authority, pool, position, position_nft_mint, position_nft_account, token_a_mint, token_b_mint, token_a_vault, token_b_vault, bonding_curve, bonding_curve_vault, bonding_curve_wsol_vault, token_program, token_2022_program, system_program, event_authority, cp_amm_program, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(CreateMeteoraPoolInstructionAccounts {
             operator: operator.pubkey,

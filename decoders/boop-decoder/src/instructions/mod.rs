@@ -1,15 +1,18 @@
-
-
-
-
 use super::BoopDecoder;
 pub mod add_operators;
+pub mod authority_transfer_cancelled_event;
+pub mod authority_transfer_completed_event;
+pub mod authority_transfer_initiated_event;
+pub mod bonding_curve_deployed_event;
+pub mod bonding_curve_deployed_fallback_event;
+pub mod bonding_curve_vault_closed_event;
 pub mod buy_token;
 pub mod cancel_authority_transfer;
 pub mod close_bonding_curve_vault;
 pub mod collect_meteora_trading_fees;
 pub mod collect_trading_fees;
 pub mod complete_authority_transfer;
+pub mod config_updated_event;
 pub mod create_meteora_pool;
 pub mod create_raydium_pool;
 pub mod create_raydium_random_pool;
@@ -21,30 +24,22 @@ pub mod deposit_into_raydium;
 pub mod graduate;
 pub mod initialize;
 pub mod initiate_authority_transfer;
-pub mod lock_raydium_liquidity;
-pub mod remove_operators;
-pub mod sell_token;
-pub mod split_trading_fees;
-pub mod swap_sol_for_tokens_on_raydium;
-pub mod swap_tokens_for_sol_on_raydium;
-pub mod toggle_paused;
-pub mod update_config;
-pub mod authority_transfer_cancelled_event;
-pub mod authority_transfer_completed_event;
-pub mod authority_transfer_initiated_event;
-pub mod bonding_curve_deployed_event;
-pub mod bonding_curve_deployed_fallback_event;
-pub mod bonding_curve_vault_closed_event;
-pub mod config_updated_event;
 pub mod liquidity_deposited_into_raydium_event;
+pub mod lock_raydium_liquidity;
 pub mod operators_added_event;
 pub mod operators_removed_event;
 pub mod paused_toggled_event;
 pub mod raydium_liquidity_locked_event;
 pub mod raydium_pool_created_event;
 pub mod raydium_random_pool_created_event;
+pub mod remove_operators;
+pub mod sell_token;
+pub mod split_trading_fees;
+pub mod swap_sol_for_tokens_on_raydium;
 pub mod swap_sol_for_tokens_on_raydium_event;
+pub mod swap_tokens_for_sol_on_raydium;
 pub mod swap_tokens_for_sol_on_raydium_event;
+pub mod toggle_paused;
 pub mod token_bought_event;
 pub mod token_created_event;
 pub mod token_created_fallback_event;
@@ -52,8 +47,18 @@ pub mod token_graduated_event;
 pub mod token_sold_event;
 pub mod trading_fees_collected_event;
 pub mod trading_fees_split_event;
+pub mod update_config;
 
-#[derive(carbon_core::InstructionType, serde::Serialize, serde::Deserialize, PartialEq, Eq, Debug, Clone, Hash)]
+#[derive(
+    carbon_core::InstructionType,
+    serde::Serialize,
+    serde::Deserialize,
+    PartialEq,
+    Eq,
+    Debug,
+    Clone,
+    Hash,
+)]
 pub enum BoopInstruction {
     AddOperators(add_operators::AddOperators),
     BuyToken(buy_token::BuyToken),
@@ -81,22 +86,36 @@ pub enum BoopInstruction {
     SwapTokensForSolOnRaydium(swap_tokens_for_sol_on_raydium::SwapTokensForSolOnRaydium),
     TogglePaused(toggle_paused::TogglePaused),
     UpdateConfig(update_config::UpdateConfig),
-    AuthorityTransferCancelledEvent(authority_transfer_cancelled_event::AuthorityTransferCancelledEvent),
-    AuthorityTransferCompletedEvent(authority_transfer_completed_event::AuthorityTransferCompletedEvent),
-    AuthorityTransferInitiatedEvent(authority_transfer_initiated_event::AuthorityTransferInitiatedEvent),
+    AuthorityTransferCancelledEvent(
+        authority_transfer_cancelled_event::AuthorityTransferCancelledEvent,
+    ),
+    AuthorityTransferCompletedEvent(
+        authority_transfer_completed_event::AuthorityTransferCompletedEvent,
+    ),
+    AuthorityTransferInitiatedEvent(
+        authority_transfer_initiated_event::AuthorityTransferInitiatedEvent,
+    ),
     BondingCurveDeployedEvent(bonding_curve_deployed_event::BondingCurveDeployedEvent),
-    BondingCurveDeployedFallbackEvent(bonding_curve_deployed_fallback_event::BondingCurveDeployedFallbackEvent),
+    BondingCurveDeployedFallbackEvent(
+        bonding_curve_deployed_fallback_event::BondingCurveDeployedFallbackEvent,
+    ),
     BondingCurveVaultClosedEvent(bonding_curve_vault_closed_event::BondingCurveVaultClosedEvent),
     ConfigUpdatedEvent(config_updated_event::ConfigUpdatedEvent),
-    LiquidityDepositedIntoRaydiumEvent(liquidity_deposited_into_raydium_event::LiquidityDepositedIntoRaydiumEvent),
+    LiquidityDepositedIntoRaydiumEvent(
+        liquidity_deposited_into_raydium_event::LiquidityDepositedIntoRaydiumEvent,
+    ),
     OperatorsAddedEvent(operators_added_event::OperatorsAddedEvent),
     OperatorsRemovedEvent(operators_removed_event::OperatorsRemovedEvent),
     PausedToggledEvent(paused_toggled_event::PausedToggledEvent),
     RaydiumLiquidityLockedEvent(raydium_liquidity_locked_event::RaydiumLiquidityLockedEvent),
     RaydiumPoolCreatedEvent(raydium_pool_created_event::RaydiumPoolCreatedEvent),
     RaydiumRandomPoolCreatedEvent(raydium_random_pool_created_event::RaydiumRandomPoolCreatedEvent),
-    SwapSolForTokensOnRaydiumEvent(swap_sol_for_tokens_on_raydium_event::SwapSolForTokensOnRaydiumEvent),
-    SwapTokensForSolOnRaydiumEvent(swap_tokens_for_sol_on_raydium_event::SwapTokensForSolOnRaydiumEvent),
+    SwapSolForTokensOnRaydiumEvent(
+        swap_sol_for_tokens_on_raydium_event::SwapSolForTokensOnRaydiumEvent,
+    ),
+    SwapTokensForSolOnRaydiumEvent(
+        swap_tokens_for_sol_on_raydium_event::SwapTokensForSolOnRaydiumEvent,
+    ),
     TokenBoughtEvent(token_bought_event::TokenBoughtEvent),
     TokenCreatedEvent(token_created_event::TokenCreatedEvent),
     TokenCreatedFallbackEvent(token_created_fallback_event::TokenCreatedFallbackEvent),

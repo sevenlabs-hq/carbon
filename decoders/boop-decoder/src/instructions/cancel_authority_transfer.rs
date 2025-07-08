@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x5e837db8b7187de5")]
-pub struct CancelAuthorityTransfer{
-}
+pub struct CancelAuthorityTransfer {}
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct CancelAuthorityTransferInstructionAccounts {
@@ -18,16 +16,12 @@ pub struct CancelAuthorityTransferInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CancelAuthorityTransfer {
     type ArrangedAccounts = CancelAuthorityTransferInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            authority,
-            config,
-            system_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [authority, config, system_program, _remaining @ ..] = accounts else {
             return None;
         };
-       
 
         Some(CancelAuthorityTransferInstructionAccounts {
             authority: authority.pubkey,

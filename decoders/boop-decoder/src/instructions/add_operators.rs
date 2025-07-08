@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xa5c73ed651360496")]
-pub struct AddOperators{
+pub struct AddOperators {
     pub operators: Vec<solana_pubkey::Pubkey>,
 }
 
@@ -19,16 +18,12 @@ pub struct AddOperatorsInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for AddOperators {
     type ArrangedAccounts = AddOperatorsInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            config,
-            authority,
-            system_program,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [config, authority, system_program, _remaining @ ..] = accounts else {
             return None;
         };
-       
 
         Some(AddOperatorsInstructionAccounts {
             config: config.pubkey,

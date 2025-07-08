@@ -1,11 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x6bf883ef98ea3623")]
-pub struct SwapSolForTokensOnRaydium{
+pub struct SwapSolForTokensOnRaydium {
     pub amount_in: u64,
     pub minimum_amount_out: u64,
 }
@@ -33,29 +32,14 @@ pub struct SwapSolForTokensOnRaydiumInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for SwapSolForTokensOnRaydium {
     type ArrangedAccounts = SwapSolForTokensOnRaydiumInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            config,
-            bonding_curve,
-            amm_config,
-            operator,
-            vault_authority,
-            authority,
-            pool_state,
-            input_vault,
-            output_vault,
-            bonding_curve_vault,
-            bonding_curve_wsol_vault,
-            output_token_mint,
-            input_token_mint,
-            token_program,
-            cp_swap_program,
-            observation_state,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [config, bonding_curve, amm_config, operator, vault_authority, authority, pool_state, input_vault, output_vault, bonding_curve_vault, bonding_curve_wsol_vault, output_token_mint, input_token_mint, token_program, cp_swap_program, observation_state, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(SwapSolForTokensOnRaydiumInstructionAccounts {
             config: config.pubkey,

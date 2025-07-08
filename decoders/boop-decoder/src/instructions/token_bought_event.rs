@@ -1,11 +1,10 @@
-
-
 use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xe445a52e51cb9a1d4759de7cd7c0e68a")]
-pub struct TokenBoughtEvent{
+pub struct TokenBoughtEvent {
     pub mint: solana_pubkey::Pubkey,
     pub amount_in: u64,
     pub amount_out: u64,

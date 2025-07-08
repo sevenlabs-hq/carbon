@@ -1,12 +1,10 @@
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xbd47bdef71423bbd")]
-pub struct CloseBondingCurveVault{
-}
+pub struct CloseBondingCurveVault {}
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct CloseBondingCurveVaultInstructionAccounts {
@@ -27,25 +25,14 @@ pub struct CloseBondingCurveVaultInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CloseBondingCurveVault {
     type ArrangedAccounts = CloseBondingCurveVaultInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            config,
-            operator,
-            vault_authority,
-            bonding_curve,
-            bonding_curve_vault,
-            mint,
-            recipient_token_account,
-            recipient,
-            token_program,
-            system_program,
-            associated_token_program,
-            rent,
-            _remaining @ ..
-        ] = accounts else {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        let [config, operator, vault_authority, bonding_curve, bonding_curve_vault, mint, recipient_token_account, recipient, token_program, system_program, associated_token_program, rent, _remaining @ ..] =
+            accounts
+        else {
             return None;
         };
-       
 
         Some(CloseBondingCurveVaultInstructionAccounts {
             config: config.pubkey,
