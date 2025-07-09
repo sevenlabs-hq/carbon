@@ -1,0 +1,28 @@
+[package]
+name = "carbon-agave-grpc-datasource"
+description = "Agave gRPC Datasource"
+license = { workspace = true }
+version = "0.8.1"
+edition = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "indexer", "agave", "datasource"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+agave-geyser-plugin-interface = { workspace = true }
+solana-account = { workspace = true }
+solana-program = { workspace = true }
+solana-pubkey = { workspace = true }
+solana-signature = { workspace = true }
+
+carbon-core = { workspace = true }
+
+async-trait = { workspace = true }
+futures = { workspace = true }
+log = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tokio-util = { workspace = true }

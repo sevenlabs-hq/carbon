@@ -83,7 +83,7 @@ impl Datasource for GpaBackfillDatasource {
             if let Err(e) = sender.try_send(Update::Account(AccountUpdate {
                 pubkey,
                 account,
-                slot,
+                slot: Some(slot),
             })) {
                 log::error!("Failed to send account update: {:?}", e);
             }

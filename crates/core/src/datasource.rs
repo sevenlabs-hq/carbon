@@ -153,7 +153,7 @@ pub enum UpdateType {
 pub struct AccountUpdate {
     pub pubkey: Pubkey,
     pub account: Account,
-    pub slot: u64,
+    pub slot: Option<u64>,
 }
 
 /// Represents the details of a Solana block, including its slot, hashes, rewards, and timing information.
@@ -191,7 +191,7 @@ pub struct BlockDetails {
 #[derive(Debug, Clone)]
 pub struct AccountDeletion {
     pub pubkey: Pubkey,
-    pub slot: u64,
+    pub slot: Option<u64>,
 }
 
 /// Represents a transaction update in the Solana network, including transaction
@@ -219,7 +219,7 @@ pub struct TransactionUpdate {
     pub transaction: VersionedTransaction, // TODO: replace with solana_transaction crate after 2.2.0 release
     pub meta: TransactionStatusMeta,
     pub is_vote: bool,
-    pub slot: u64,
+    pub slot: Option<u64>,
     pub block_time: Option<i64>,
     pub block_hash: Option<Hash>,
 }
