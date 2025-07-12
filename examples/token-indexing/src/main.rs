@@ -45,7 +45,7 @@ pub async fn main() -> CarbonResult<()> {
         "spl_token_account_filter".to_string(),
         SubscribeRequestFilterAccounts {
             account: vec![],
-            owner: vec!["BBpG8o6dm54Liqxvaj8ShTPYoz1RGvenbGdfaPKYqzoB".to_string()],
+            owner: vec![spl_token::id().to_string()],
             filters: vec![],
             nonempty_txn_signature: None,
         },
@@ -79,7 +79,7 @@ pub async fn main() -> CarbonResult<()> {
         failed: Some(false),
         account_include: vec![],
         account_exclude: vec![],
-        account_required: vec!["BBpG8o6dm54Liqxvaj8ShTPYoz1RGvenbGdfaPKYqzoB".to_string()],
+        account_required: vec![spl_token::id().to_string()],
         signature: None,
     };
 
@@ -92,9 +92,9 @@ pub async fn main() -> CarbonResult<()> {
     );
 
      let geyser_config = YellowstoneGrpcClientConfig::new(
-        None,         // Option<String>
-        Some(Duration::from_secs(15)),         // Option<String>
-        Some(Duration::from_secs(15)),          // Option<String>
+        None,        
+        Some(Duration::from_secs(15)),        
+        Some(Duration::from_secs(15)),         
         env::var("MAX_DECODING_MESSAGE_SIZE").ok().and_then(|v| v.parse::<usize>().ok()),
         None,
         env::var("TCP_NODE").ok().and_then(|v| v.parse::<bool>().ok()),
