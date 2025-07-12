@@ -120,6 +120,7 @@
 
 pub mod account;
 pub mod account_deletion;
+pub mod account_utils;
 mod block_details;
 pub mod collection;
 pub mod datasource;

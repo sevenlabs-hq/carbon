@@ -2,7 +2,7 @@
 use super::super::types::*;
 {%- endif %}
 {% raw %}
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{CarbonDeserialize, borsh, account_utils::next_account};
 {% endraw %}
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
@@ -16,7 +16,7 @@ pub struct {{ instruction.struct_name }}{
 #[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct {{ instruction.struct_name }}InstructionAccounts {
     {%- for account in instruction.accounts %}
-    pub {{ account.name }}: solana_pubkey::Pubkey,
+    pub {{ account.name }}: {% if account.is_optional %}Option<solana_pubkey::Pubkey>{% else %}solana_pubkey::Pubkey{% endif %},
     {%- endfor %}
 }
 
@@ -24,19 +24,19 @@ impl carbon_core::deserialize::ArrangeAccounts for {{ instruction.struct_name }}
     type ArrangedAccounts = {{ instruction.struct_name }}InstructionAccounts;
 
     fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
-        let [
-            {%- for i in (0..instruction.accounts.len()) %}
-            {{ instruction.accounts[i].name }},
-            {%- endfor %}
-            _remaining @ ..
-        ] = accounts else {
-            return None;
-        };
-       
+        let mut iter = accounts.iter();
+
+        {%- for account in instruction.accounts %}
+        {%- if account.is_optional %}
+        let {{ account.name }} = next_account(&mut iter);
+        {%- else %}
+        let {{ account.name }} = next_account(&mut iter)?;
+        {%- endif %}
+        {%- endfor %}
 
         Some({{ instruction.struct_name }}InstructionAccounts {
             {%- for account in instruction.accounts %}
-            {{ account.name }}: {{ account.name }}.pubkey,
+            {{ account.name }},
             {%- endfor %}
         })
     }
