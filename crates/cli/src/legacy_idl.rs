@@ -57,7 +57,7 @@ pub struct LegacyIdlInstructionAccount {
     pub is_mut: bool,
     #[serde(default)]
     pub is_signer: bool,
-    #[serde(default)]
+    #[serde(default, alias = "optional", alias = "IsOptional")]
     pub is_optional: Option<bool>,
     #[serde(default)]
     pub docs: Option<Vec<String>>,
