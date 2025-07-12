@@ -1,7 +1,6 @@
-use {
-    super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use super::super::types::*;
+
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -11,6 +10,7 @@ pub struct TransferOutOfEscrow {
     pub transfer_out_of_escrow_args: TransferOutOfEscrowArgs,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct TransferOutOfEscrowInstructionAccounts {
     pub escrow: solana_pubkey::Pubkey,
     pub metadata: solana_pubkey::Pubkey,
@@ -24,7 +24,7 @@ pub struct TransferOutOfEscrowInstructionAccounts {
     pub ata_program: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
     pub sysvar_instructions: solana_pubkey::Pubkey,
-    pub authority: solana_pubkey::Pubkey,
+    pub authority: Option<solana_pubkey::Pubkey>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for TransferOutOfEscrow {
@@ -33,26 +33,35 @@ impl carbon_core::deserialize::ArrangeAccounts for TransferOutOfEscrow {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [escrow, metadata, payer, attribute_mint, attribute_src, attribute_dst, escrow_mint, escrow_account, system_program, ata_program, token_program, sysvar_instructions, authority, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let escrow = next_account(&mut iter)?;
+        let metadata = next_account(&mut iter)?;
+        let payer = next_account(&mut iter)?;
+        let attribute_mint = next_account(&mut iter)?;
+        let attribute_src = next_account(&mut iter)?;
+        let attribute_dst = next_account(&mut iter)?;
+        let escrow_mint = next_account(&mut iter)?;
+        let escrow_account = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let ata_program = next_account(&mut iter)?;
+        let token_program = next_account(&mut iter)?;
+        let sysvar_instructions = next_account(&mut iter)?;
+        let authority = next_account(&mut iter);
 
         Some(TransferOutOfEscrowInstructionAccounts {
-            escrow: escrow.pubkey,
-            metadata: metadata.pubkey,
-            payer: payer.pubkey,
-            attribute_mint: attribute_mint.pubkey,
-            attribute_src: attribute_src.pubkey,
-            attribute_dst: attribute_dst.pubkey,
-            escrow_mint: escrow_mint.pubkey,
-            escrow_account: escrow_account.pubkey,
-            system_program: system_program.pubkey,
-            ata_program: ata_program.pubkey,
-            token_program: token_program.pubkey,
-            sysvar_instructions: sysvar_instructions.pubkey,
-            authority: authority.pubkey,
+            escrow,
+            metadata,
+            payer,
+            attribute_mint,
+            attribute_src,
+            attribute_dst,
+            escrow_mint,
+            escrow_account,
+            system_program,
+            ata_program,
+            token_program,
+            sysvar_instructions,
+            authority,
         })
     }
 }
