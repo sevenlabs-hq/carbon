@@ -1,9 +1,9 @@
-use {
-    super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use super::super::types::*;
 
-#[derive(CarbonDeserialize, Debug)]
+use carbon_core::{borsh, CarbonDeserialize};
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize)]
+#[carbon(discriminator = "0x1bbb206489fd68f2")]
 pub struct TokenRecord {
     pub key: Key,
     pub bump: u8,

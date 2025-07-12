@@ -1,9 +1,9 @@
-use {
-    super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use super::super::types::*;
 
-#[derive(CarbonDeserialize, Debug)]
+use carbon_core::{borsh, CarbonDeserialize};
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize)]
+#[carbon(discriminator = "0xb994256b776af3ec")]
 pub struct MetadataDelegateRecord {
     pub key: Key,
     pub bump: u8,
