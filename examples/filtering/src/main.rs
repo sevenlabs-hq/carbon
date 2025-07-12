@@ -60,12 +60,12 @@ pub async fn main() -> CarbonResult<()> {
     transaction_filters.insert("kamino_transaction_filter".to_string(), transaction_filter);
 
     let geyser_config = YellowstoneGrpcClientConfig::new(
-        None,       
+        None,         
         Some(Duration::from_secs(15)),         
-        Some(Duration::from_secs(15)),         
+        Some(Duration::from_secs(15)),
+        env::var("MAX_DECODING_MESSAGE_SIZE").ok().and_then(|v| v.parse::<usize>().ok()),
         None,
-        None,
-        None,                          
+        env::var("TCP_NODE").ok().and_then(|v| v.parse::<bool>().ok()),
     );
 
     let yellowstone_grpc = YellowstoneGrpcGeyserClient::new(
