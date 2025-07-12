@@ -17,14 +17,14 @@ use {
         storage::{migrations::InitMigration, queries::TokenQueries},
         TokenProgramDecoder,
     },
-    carbon_yellowstone_grpc_datasource::YellowstoneGrpcGeyserClient,
+    carbon_yellowstone_grpc_datasource::{YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient},
     juniper::{EmptyMutation, EmptySubscription},
     spl_token::state::Mint,
     std::{
         collections::{HashMap, HashSet},
         env,
         net::SocketAddr,
-        sync::Arc,
+        sync::Arc, time::Duration,
     },
     tokio::sync::RwLock,
     yellowstone_grpc_proto::geyser::{
@@ -45,7 +45,7 @@ pub async fn main() -> CarbonResult<()> {
         "spl_token_account_filter".to_string(),
         SubscribeRequestFilterAccounts {
             account: vec![],
-            owner: vec![spl_token::id().to_string()],
+            owner: vec!["BBpG8o6dm54Liqxvaj8ShTPYoz1RGvenbGdfaPKYqzoB".to_string()],
             filters: vec![],
             nonempty_txn_signature: None,
         },
@@ -79,7 +79,7 @@ pub async fn main() -> CarbonResult<()> {
         failed: Some(false),
         account_include: vec![],
         account_exclude: vec![],
-        account_required: vec![spl_token::id().to_string()],
+        account_required: vec!["BBpG8o6dm54Liqxvaj8ShTPYoz1RGvenbGdfaPKYqzoB".to_string()],
         signature: None,
     };
 
@@ -91,6 +91,14 @@ pub async fn main() -> CarbonResult<()> {
         transaction_filter,
     );
 
+     let geyser_config = YellowstoneGrpcClientConfig::new(
+        None,         // Option<String>
+        Some(Duration::from_secs(15)),         // Option<String>
+        Some(Duration::from_secs(15)),          // Option<String>
+        env::var("MAX_DECODING_MESSAGE_SIZE").ok().and_then(|v| v.parse::<usize>().ok()),
+        None,
+        env::var("TCP_NODE").ok().and_then(|v| v.parse::<bool>().ok()),
+    );
     let yellowstone_grpc = YellowstoneGrpcGeyserClient::new(
         env::var("GEYSER_URL").unwrap_or_default(),
         env::var("X_TOKEN").ok(),
@@ -99,6 +107,7 @@ pub async fn main() -> CarbonResult<()> {
         transaction_filters,
         Default::default(),
         Arc::new(RwLock::new(HashSet::new())),
+        geyser_config
     );
 
     carbon_core::pipeline::Pipeline::builder()

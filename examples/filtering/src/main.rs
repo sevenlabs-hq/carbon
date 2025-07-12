@@ -14,13 +14,13 @@ use {
         KaminoLendingDecoder, PROGRAM_ID as KAMINO_LENDING_PROGRAM_ID,
     },
     carbon_log_metrics::LogMetrics,
-    carbon_yellowstone_grpc_datasource::YellowstoneGrpcGeyserClient,
+    carbon_yellowstone_grpc_datasource::{YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient},
     solana_client::{nonblocking::rpc_client::RpcClient, rpc_config::RpcProgramAccountsConfig},
     solana_pubkey::Pubkey,
     std::{
         collections::{HashMap, HashSet},
         env,
-        sync::Arc,
+        sync::Arc, time::Duration,
     },
     tokio::sync::{mpsc::Sender, RwLock},
     tokio_util::sync::CancellationToken,
@@ -59,6 +59,15 @@ pub async fn main() -> CarbonResult<()> {
 
     transaction_filters.insert("kamino_transaction_filter".to_string(), transaction_filter);
 
+    let geyser_config = YellowstoneGrpcClientConfig::new(
+        None,       
+        Some(Duration::from_secs(15)),         
+        Some(Duration::from_secs(15)),         
+        None,
+        None,
+        None,                          
+    );
+
     let yellowstone_grpc = YellowstoneGrpcGeyserClient::new(
         env::var("GEYSER_URL").unwrap_or_default(),
         env::var("X_TOKEN").ok(),
@@ -67,6 +76,7 @@ pub async fn main() -> CarbonResult<()> {
         transaction_filters,
         Default::default(),
         Arc::new(RwLock::new(HashSet::new())),
+        geyser_config
     );
     let yellowstone_grpc_id = DatasourceId::new_named("yellowstone_grpc");
 
