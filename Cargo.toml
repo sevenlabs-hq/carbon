@@ -98,9 +98,6 @@ carbon-virtual-curve-decoder = { path = "decoders/virtual-curve-decoder", versio
 carbon-virtuals-decoder = { path = "decoders/virtuals-decoder", version = "0.9.1" }
 carbon-zeta-decoder = { path = "decoders/zeta-decoder", version = "0.9.1" }
 
-# vendor
-carbon-jito-protos = { path = "misc/jito-protos", version = "0.2.4" }
-
 # misc
 chrono = { version = "0.4.40", features = ["serde"] }
 clap = { version = "4.5.30", features = ["derive"] }
