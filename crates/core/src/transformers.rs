@@ -489,6 +489,10 @@ pub fn transaction_metadata_from_original_meta(
             .compute_units_consumed
             .map(|compute_unit_consumed| compute_unit_consumed)
             .or(None),
+        cost_units: meta_original
+            .cost_units
+            .map(|cost_units| cost_units)
+            .or(None),
     })
 }
 
@@ -682,6 +686,7 @@ mod tests {
             },
             return_data: None,
             compute_units_consumed: Some(44850),
+            cost_units: Some(44850),
         };
         // Act
         let tx_meta_status =
@@ -1084,6 +1089,7 @@ mod tests {
             },
             return_data: None,
             compute_units_consumed: Some(123511),
+            cost_units: Some(123511),
         };
 
         // Act

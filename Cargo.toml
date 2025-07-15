@@ -137,7 +137,7 @@ sha2 = "0.10.8"
 # solana
 solana-account = "2.2"
 solana-account-decoder = "2.2"
-solana-account-decoder-client-types = "2.2"
+solana-account-decoder-client-types = "2.3.4"
 solana-client = "2.2"
 solana-clock = "2.2"
 solana-commitment-config = "2.2"
