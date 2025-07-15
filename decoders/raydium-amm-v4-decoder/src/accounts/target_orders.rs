@@ -3,11 +3,16 @@ use {
     carbon_core::{borsh, CarbonDeserialize},
 };
 
+use serde_big_array::BigArray;
+
 pub const TARGET_ORDERS_SIZE: usize = core::mem::size_of::<TargetOrders>();
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
+)]
 pub struct TargetOrders {
     pub owner: [u64; 4],
+    #[serde(with = "BigArray")]
     pub buy_orders: [TargetOrder; 50],
     pub padding1: [u64; 8],
     pub target_x: u128,
@@ -20,6 +25,7 @@ pub struct TargetOrders {
     pub placed_y: u128,
     pub calc_pnl_x: u128,
     pub calc_pnl_y: u128,
+    #[serde(with = "BigArray")]
     pub sell_orders: [TargetOrder; 50],
     pub padding2: [u64; 6],
     pub replace_buy_client_id: [u64; 10],
