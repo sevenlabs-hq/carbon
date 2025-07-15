@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x0a")]
 pub struct CreateMasterEdition {}
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct CreateMasterEditionInstructionAccounts {
     pub edition: solana_pubkey::Pubkey,
     pub mint: solana_pubkey::Pubkey,
@@ -24,22 +25,27 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateMasterEdition {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [edition, mint, update_authority, mint_authority, payer, metadata, token_program, system_program, rent, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let edition = next_account(&mut iter)?;
+        let mint = next_account(&mut iter)?;
+        let update_authority = next_account(&mut iter)?;
+        let mint_authority = next_account(&mut iter)?;
+        let payer = next_account(&mut iter)?;
+        let metadata = next_account(&mut iter)?;
+        let token_program = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let rent = next_account(&mut iter)?;
 
         Some(CreateMasterEditionInstructionAccounts {
-            edition: edition.pubkey,
-            mint: mint.pubkey,
-            update_authority: update_authority.pubkey,
-            mint_authority: mint_authority.pubkey,
-            payer: payer.pubkey,
-            metadata: metadata.pubkey,
-            token_program: token_program.pubkey,
-            system_program: system_program.pubkey,
-            rent: rent.pubkey,
+            edition,
+            mint,
+            update_authority,
+            mint_authority,
+            payer,
+            metadata,
+            token_program,
+            system_program,
+            rent,
         })
     }
 }

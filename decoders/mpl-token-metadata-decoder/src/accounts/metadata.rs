@@ -1,9 +1,9 @@
-use {
-    super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use super::super::types::*;
 
-#[derive(CarbonDeserialize, Debug)]
+use carbon_core::{borsh, CarbonDeserialize};
+
+#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize)]
+#[carbon(discriminator = "0x480b791a6fb5555d")]
 pub struct Metadata {
     pub key: Key,
     pub update_authority: solana_pubkey::Pubkey,
