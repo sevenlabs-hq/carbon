@@ -3,7 +3,9 @@ use {
     carbon_core::{borsh, CarbonDeserialize},
 };
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xa8ce8d6a584caca7")]
 pub struct Obligation {
     pub tag: u64,
@@ -27,5 +29,6 @@ pub struct Obligation {
     pub borrowing_disabled: u8,
     pub reserved: [u8; 7],
     pub highest_borrow_factor_pct: u64,
+    #[serde(with = "serde_big_array::BigArray")]
     pub padding3: [u64; 126],
 }

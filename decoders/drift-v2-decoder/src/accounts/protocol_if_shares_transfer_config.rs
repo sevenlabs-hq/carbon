@@ -1,6 +1,8 @@
 use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xbc01d56217941e01")]
 pub struct ProtocolIfSharesTransferConfig {
     pub whitelisted_signers: [solana_pubkey::Pubkey; 4],
