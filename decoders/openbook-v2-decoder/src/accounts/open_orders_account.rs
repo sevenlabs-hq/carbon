@@ -3,7 +3,9 @@ use {
     carbon_core::{borsh, CarbonDeserialize},
 };
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xffc24e7b1069d0a5")]
 pub struct OpenOrdersAccount {
     pub owner: solana_pubkey::Pubkey,
