@@ -2,7 +2,7 @@
 name = "carbon-meteora-damm-v2-decoder"
 description = "Carbon Meteora Damm V2 Decoder"
 license = "MIT"
-version = "0.9.0"
+version = "0.9.1"
 edition = { workspace = true }
 
 [lib]
