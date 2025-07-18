@@ -1,0 +1,12 @@
+{% extends "layout.njk" %}
+{% import "macros.njk" as macros %}
+
+{% block main %}
+
+{{ imports }}
+
+{{ macros.docblock(account.docs) }}
+#[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq, Eq)]
+pub struct {{ account.name | pascalCase }} {{ typeManifest.type }}
+
+{% endblock %}

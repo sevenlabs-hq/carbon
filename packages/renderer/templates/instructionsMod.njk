@@ -1,0 +1,63 @@
+{% extends "layout.njk" %}
+
+{% block main %}
+
+use crate::{PROGRAM_ID, {{ programsToExport[0].name | pascalCase }}Decoder};
+
+{% for instruction in instructionsToExport | sort(false, false, 'name') %}
+pub mod {{ instruction.name | snakeCase }};
+{% endfor %}
+
+{% for instruction in instructionsToExport | sort(false, false, 'name') %}
+pub use self::{{ instruction.name | snakeCase }}::*;
+{% endfor %}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum {{ programsToExport[0].name | pascalCase }}Instruction {
+{% for instruction in instructionsToExport | sort(false, false, 'name') %}
+    {{ instruction.name | pascalCase }}({{ instruction.name | pascalCase }}),
+{% endfor %}
+}
+
+impl carbon_core::instruction::InstructionDecoder<'_> for {{ programsToExport[0].name | pascalCase }}Decoder {
+    type InstructionType = {{ programsToExport[0].name | pascalCase }}Instruction;
+
+    fn decode_instruction(
+        &self,
+        instruction: &solana_instruction::Instruction,
+    ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
+        let data = instruction.data.as_slice();
+        
+        {% for instruction in instructionsToExport %}
+        // Try to decode {{ instruction.name | pascalCase }}
+        {
+            let mut data_slice = data;
+            {% if instruction.discriminatorManifest %}
+            // Check discriminator for {{ instruction.name | pascalCase }}
+            {{ instruction.discriminatorManifest.checkCode | safe }}
+            
+            // Skip discriminator bytes for deserialization
+            {% if instruction.discriminatorManifest.size > 0 %}
+            data_slice = &data_slice[{{ instruction.discriminatorManifest.size }}..];
+            {% endif %}
+            {% endif %}
+            
+            if let Ok(decoded) = {{ instruction.name | snakeCase }}::{{ instruction.name | pascalCase }}::deserialize(&mut data_slice.clone()) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: {{ programsToExport[0].name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+        {% endfor %}
+        
+        None
+    }
+}
+
+{% endblock %}
