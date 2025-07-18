@@ -3,7 +3,9 @@ use {
     carbon_core::{borsh, CarbonDeserialize},
 };
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xe4c452a562d2eb98")]
 pub struct VaultState {
     pub admin_authority: solana_pubkey::Pubkey,
@@ -34,8 +36,10 @@ pub struct VaultState {
     pub cumulative_earned_interest_sf: u128,
     pub cumulative_mgmt_fees_sf: u128,
     pub cumulative_perf_fees_sf: u128,
+    #[serde(with = "serde_big_array::BigArray")]
     pub name: [u8; 40],
     pub vault_lookup_table: solana_pubkey::Pubkey,
     pub vault_farm: solana_pubkey::Pubkey,
+    #[serde(with = "serde_big_array::BigArray")]
     pub padding2: [u128; 245],
 }

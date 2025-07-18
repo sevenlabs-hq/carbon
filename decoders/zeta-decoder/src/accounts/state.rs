@@ -2,7 +2,9 @@ use super::super::types::*;
 
 use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xd8926b5e684bb6b1")]
 pub struct State {
     pub admin: solana_pubkey::Pubkey,
@@ -47,5 +49,6 @@ pub struct State {
     pub pricing_admin: solana_pubkey::Pubkey,
     pub treasury_split_token_account: solana_pubkey::Pubkey,
     pub treasury_split_percentage: u8,
+    #[serde(with = "serde_big_array::BigArray")]
     pub padding: [u8; 185],
 }

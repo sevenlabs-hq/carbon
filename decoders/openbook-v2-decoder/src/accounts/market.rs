@@ -3,7 +3,7 @@ use {
     carbon_core::{borsh, CarbonDeserialize},
 };
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, Clone)]
 #[carbon(discriminator = "0xdbbed53700e3c69a")]
 pub struct Market {
     pub bump: u8,
@@ -41,5 +41,6 @@ pub struct Market {
     pub base_deposit_total: u64,
     pub market_quote_vault: solana_pubkey::Pubkey,
     pub quote_deposit_total: u64,
+    #[serde(with = "serde_big_array::BigArray")]
     pub reserved: [u8; 128],
 }

@@ -1210,6 +1210,7 @@ version = "0.9.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "serde-big-array",
  "solana-account",
  "solana-instruction",
  "solana-pubkey",
@@ -1380,6 +1381,7 @@ version = "0.9.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "serde-big-array",
  "solana-account",
  "solana-instruction",
  "solana-pubkey",
@@ -1441,6 +1443,7 @@ version = "0.9.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "serde-big-array",
  "solana-account",
  "solana-instruction",
  "solana-pubkey",
@@ -1512,6 +1515,7 @@ dependencies = [
  "carbon-core",
  "carbon-test-utils",
  "serde",
+ "serde-big-array",
  "solana-account",
  "solana-instruction",
  "solana-pubkey",
@@ -1580,6 +1584,7 @@ dependencies = [
  "carbon-core",
  "carbon-test-utils",
  "serde",
+ "serde-big-array",
  "solana-account",
  "solana-instruction",
  "solana-pubkey",
@@ -1672,6 +1677,7 @@ dependencies = [
  "carbon-core",
  "carbon-test-utils",
  "serde",
+ "serde-big-array",
  "solana-account",
  "solana-instruction",
  "solana-pubkey",
@@ -1683,6 +1689,7 @@ version = "0.9.0"
 dependencies = [
  "carbon-core",
  "serde",
+ "serde-big-array",
  "solana-account",
  "solana-instruction",
  "solana-pubkey",

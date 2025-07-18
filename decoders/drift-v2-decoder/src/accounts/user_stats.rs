@@ -2,7 +2,9 @@ use super::super::types::*;
 
 use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xb0df881b7a4f20e3")]
 pub struct UserStats {
     pub authority: solana_pubkey::Pubkey,

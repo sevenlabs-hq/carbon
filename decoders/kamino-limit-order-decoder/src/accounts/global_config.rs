@@ -1,6 +1,8 @@
 use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x95089ccaa0fcb0d9")]
 pub struct GlobalConfig {
     pub emergency_mode: u8,
@@ -19,5 +21,6 @@ pub struct GlobalConfig {
     pub pda_authority_bump: u64,
     pub admin_authority: solana_pubkey::Pubkey,
     pub admin_authority_cached: solana_pubkey::Pubkey,
+    #[serde(with = "serde_big_array::BigArray")]
     pub padding2: [u64; 243],
 }

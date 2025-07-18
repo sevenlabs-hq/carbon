@@ -20,3 +20,4 @@ solana-instruction = { workspace = true, default-features = false }
 solana-pubkey = { workspace = true }
 
 serde = { workspace = true }
+serde-big-array = { workspace = true }
