@@ -1,0 +1,65 @@
+{% extends "layout.njk" %}
+
+{% block main %}
+
+use crate::{PROGRAM_ID, {{ programsToExport[0].name | pascalCase }}Decoder};
+
+{% for account in accountsToExport | sort(false, false, 'name') %}
+pub mod {{ account.name | snakeCase }};
+{% endfor %}
+
+{% for account in accountsToExport | sort(false, false, 'name') %}
+pub use self::{{ account.name | snakeCase }}::*;
+{% endfor %}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum {{ programsToExport[0].name | pascalCase }}Account {
+{% for account in accountsToExport | sort(false, false, 'name') %}
+    {{ account.name | pascalCase }}({{ account.name | pascalCase }}),
+{% endfor %}
+}
+
+impl<'a> carbon_core::account::AccountDecoder<'a> for {{ programsToExport[0].name | pascalCase }}Decoder {
+    type AccountType = {{ programsToExport[0].name | pascalCase }}Account;
+    
+    fn decode_account(
+        &self,
+        account: &'a solana_account::Account,
+    ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
+        if account.owner != PROGRAM_ID {
+            return None;
+        }
+        
+        let data = account.data.as_slice();
+        
+        {% for account in accountsToExport %}
+        // Try to decode {{ account.name | pascalCase }}
+        {
+            let mut data_slice = data;
+            {% if account.discriminatorManifest %}
+            // Check discriminator for {{ account.name | pascalCase }}
+            {{ account.discriminatorManifest.checkCode | safe }}
+            
+            // Skip discriminator bytes for deserialization
+            {% if account.discriminatorManifest.size > 0 %}
+            data_slice = &data_slice[{{ account.discriminatorManifest.size }}..];
+            {% endif %}
+            {% endif %}
+            
+            if let Ok(decoded) = {{ account.name | snakeCase }}::{{ account.name | pascalCase }}::deserialize(&mut data_slice.clone()) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: {{ programsToExport[0].name | pascalCase }}Account::{{ account.name | pascalCase }}(decoded),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {% endfor %}
+        
+        None
+    }
+}
+
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "layout.njk" %}
+{% import "macros.njk" as macros %}
+
+{% block main %}
+
+{{ imports }}
+
+{{ macros.docblock(definedType.docs) }}
+#[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq, Eq)]
+{% if definedType.type.kind === 'enumTypeNode' %}
+pub enum {{ definedType.name | pascalCase }} {{ typeManifest.type }}
+{% else %}
+pub struct {{ definedType.name | pascalCase }} {{ typeManifest.type }}
+{% endif %}
+
+{% endblock %}
