@@ -3,7 +3,9 @@ use {
     carbon_core::{borsh, CarbonDeserialize},
 };
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xc666d84a3f42a3be")]
 pub struct FarmState {
     pub farm_admin: solana_pubkey::Pubkey,
@@ -42,5 +44,6 @@ pub struct FarmState {
     pub strategy_id: solana_pubkey::Pubkey,
     pub delegated_rps_admin: solana_pubkey::Pubkey,
     pub vault_id: solana_pubkey::Pubkey,
+    #[serde(with = "serde_big_array::BigArray")]
     pub padding: [u64; 78],
 }

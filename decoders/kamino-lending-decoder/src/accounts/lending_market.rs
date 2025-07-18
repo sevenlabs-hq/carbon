@@ -3,7 +3,9 @@ use {
     carbon_core::{borsh, CarbonDeserialize},
 };
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xf6723262489d1c78")]
 pub struct LendingMarket {
     pub version: u64,
@@ -25,9 +27,11 @@ pub struct LendingMarket {
     pub risk_council: solana_pubkey::Pubkey,
     pub reserved1: [u8; 8],
     pub elevation_groups: [ElevationGroup; 32],
+    #[serde(with = "serde_big_array::BigArray")]
     pub elevation_group_padding: [u64; 90],
     pub min_net_value_in_obligation_sf: u128,
     pub min_value_skip_liquidation_ltv_bf_checks: u64,
     pub name: [u8; 32],
+    #[serde(with = "serde_big_array::BigArray")]
     pub padding1: [u64; 173],
 }
