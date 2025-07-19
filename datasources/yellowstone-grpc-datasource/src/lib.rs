@@ -54,6 +54,20 @@ pub struct YellowstoneGrpcClientConfig{
     pub tls_config: Option<ClientTlsConfig>,
     pub tcp_nodelay: Option<bool>,
 }
+
+impl Default for YellowstoneGrpcClientConfig {
+    fn default() -> Self {
+        Self {
+            compression: None,
+            connect_timeout: Some(Duration::from_secs(15)),
+            timeout: Some(Duration::from_secs(15)),
+            max_decoding_message_size: None,
+            tls_config: None,
+            tcp_nodelay: None,
+        }
+    }
+}
+
 #[derive(Default, Debug, Clone)]
 pub struct BlockFilters {
     pub filters: HashMap<String, SubscribeRequestFilterBlocks>,
