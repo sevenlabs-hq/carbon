@@ -11,11 +11,11 @@ use {
         accounts::KaminoLendingAccount, instructions::KaminoLendingInstruction,
         KaminoLendingDecoder, PROGRAM_ID as KAMINO_LENDING_PROGRAM_ID,
     },
-    carbon_yellowstone_grpc_datasource::YellowstoneGrpcGeyserClient,
+    carbon_yellowstone_grpc_datasource::{YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient},
     std::{
         collections::{HashMap, HashSet},
         env,
-        sync::Arc,
+        sync::Arc, time::Duration,
     },
     tokio::sync::RwLock,
     yellowstone_grpc_proto::geyser::{
@@ -53,6 +53,15 @@ pub async fn main() -> CarbonResult<()> {
 
     transaction_filters.insert("kamino_transaction_filter".to_string(), transaction_filter);
 
+    let geyser_config = YellowstoneGrpcClientConfig::new(
+        None,       
+        Some(Duration::from_secs(15)),         
+        Some(Duration::from_secs(15)),         
+        None,
+        None,
+        None,
+    );
+
     let yellowstone_grpc = YellowstoneGrpcGeyserClient::new(
         env::var("GEYSER_URL").unwrap_or_default(),
         env::var("X_TOKEN").ok(),
@@ -61,6 +70,7 @@ pub async fn main() -> CarbonResult<()> {
         transaction_filters,
         Default::default(),
         Arc::new(RwLock::new(HashSet::new())),
+        geyser_config
     );
 
     carbon_core::pipeline::Pipeline::builder()
