@@ -1,7 +1,7 @@
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Clone)]
-#[carbon(discriminator = "0x17")]
+#[carbon(discriminator = "0x2B")]
 pub struct InitializedScaledUiAmount {
     pub multiplier: f64,
     pub authority: Option<solana_pubkey::Pubkey>

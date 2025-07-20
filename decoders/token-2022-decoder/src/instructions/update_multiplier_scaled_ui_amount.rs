@@ -1,7 +1,7 @@
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Clone)]
-#[carbon(discriminator = "0x17")]
+#[carbon(discriminator = "0x2B")]
 pub struct UpdateMultiplierScaledUiAmount {
     pub new_multiplier: f64,
     pub effective_timestamp: i64
