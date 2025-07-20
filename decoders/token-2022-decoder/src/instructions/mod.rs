@@ -83,16 +83,18 @@ pub mod withdraw_withheld_tokens_from_accounts;
 pub mod withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee;
 pub mod withdraw_withheld_tokens_from_mint;
 pub mod withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee;
+pub mod initialize_scaled_ui_amount;
+pub mod update_multiplier_scaled_ui_amount;
+pub mod initialize_mint_pausable;
+pub mod toggle_mint_pause;
 
 #[derive(
     carbon_core::InstructionType,
     serde::Serialize,
     serde::Deserialize,
     PartialEq,
-    Eq,
     Debug,
     Clone,
-    Hash,
 )]
 pub enum Token2022Instruction {
     InitializeMint(initialize_mint::InitializeMint),
@@ -177,6 +179,10 @@ pub enum Token2022Instruction {
     UpdateTokenGroupMaxSize(update_token_group_max_size::UpdateTokenGroupMaxSize),
     UpdateTokenGroupUpdateAuthority(update_token_group_update_authority::UpdateTokenGroupUpdateAuthority),
     InitializeTokenGroupMember(initialize_token_group_member::InitializeTokenGroupMember),
+    InitializeScaledUiAmount(initialize_scaled_ui_amount::InitializedScaledUiAmount),
+    UpdateMultiplierScaledUiAmount(update_multiplier_scaled_ui_amount::UpdateMultiplierScaledUiAmount),
+    InitializeMintPausable(initialize_mint_pausable::InitializeMintPausable),
+    ToggleMintPause(toggle_mint_pause::ToggleMintPause)
 }
 
 impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
@@ -273,6 +279,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             Token2022Instruction::UpdateTokenGroupMaxSize => update_token_group_max_size::UpdateTokenGroupMaxSize,
             Token2022Instruction::UpdateTokenGroupUpdateAuthority => update_token_group_update_authority::UpdateTokenGroupUpdateAuthority,
             Token2022Instruction::InitializeTokenGroupMember => initialize_token_group_member::InitializeTokenGroupMember,
+            Token2022Instruction::InitializeScaledUiAmount => initialize_scaled_ui_amount::InitializedScaledUiAmount,
+            Token2022Instruction::UpdateMultiplierScaledUiAmount => update_multiplier_scaled_ui_amount::UpdateMultiplierScaledUiAmount,
+            Token2022Instruction::InitializeMintPausable => initialize_mint_pausable::InitializeMintPausable,
+            Token2022Instruction::ToggleMintPause => toggle_mint_pause::ToggleMintPause
         )
     }
 }
