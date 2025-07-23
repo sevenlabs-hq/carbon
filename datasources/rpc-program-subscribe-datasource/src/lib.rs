@@ -135,7 +135,7 @@ impl Datasource for RpcProgramSubscribe {
                                 let update = Update::Account(AccountUpdate {
                                     pubkey: account_pubkey,
                                     account: decoded_account,
-                                    slot: acc_event.context.slot,
+                                    slot: Some(acc_event.context.slot),
                                 });
 
                                 metrics

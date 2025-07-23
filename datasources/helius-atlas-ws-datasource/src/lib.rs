@@ -317,7 +317,7 @@ impl Datasource for HeliusWebsocket {
                                                     if !accounts_tracked.is_empty() && accounts_tracked.contains(&account) {
                                                         let account_deletion = AccountDeletion {
                                                             pubkey: account,
-                                                            slot: acc_event.context.slot,
+                                                            slot: Some(acc_event.context.slot),
                                                         };
 
                                                         metrics.record_histogram("helius_atlas_ws_account_deletion_process_time_nanoseconds", start_time.elapsed().as_nanos() as f64).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
@@ -337,7 +337,7 @@ impl Datasource for HeliusWebsocket {
                                                     let update = Update::Account(AccountUpdate {
                                                         pubkey: account,
                                                         account: decoded_account,
-                                                        slot: acc_event.context.slot,
+                                                        slot: Some(acc_event.context.slot),
                                                     });
 
                                                     metrics.record_histogram("helius_atlas_ws_account_process_time_nanoseconds", start_time.elapsed().as_nanos() as f64).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
@@ -585,6 +585,7 @@ impl Datasource for HeliusWebsocket {
                                                     .compute_units_consumed
                                                     .map(|compute_unit_consumed| compute_unit_consumed)
                                                     .or(None),
+                                                cost_units: meta_original.cost_units.map(|v| v.into()),
                                             };
 
                                             let update = Update::Transaction(Box::new(TransactionUpdate {
@@ -592,7 +593,7 @@ impl Datasource for HeliusWebsocket {
                                                 transaction: decoded_transaction.clone(),
                                                 meta: meta_needed,
                                                 is_vote: config.filter.vote.is_some_and(|is_vote| is_vote),
-                                                slot: tx_event.slot,
+                                                slot: Some(tx_event.slot),
                                                 block_time: None,
                                                 block_hash: None,
                                             }));

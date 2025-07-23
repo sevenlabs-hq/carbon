@@ -316,7 +316,7 @@ impl Datasource for GpaRpcDatasource {
                 Update::Account(AccountUpdate {
                     pubkey,
                     account,
-                    slot,
+                    slot: Some(slot),
                 }),
                 id_for_loop.clone(),
             )) {

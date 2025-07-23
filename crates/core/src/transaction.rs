@@ -67,7 +67,7 @@ use {
 /// Note: The `block_time` field may not be returned in all scenarios.
 #[derive(Debug, Clone, Default)]
 pub struct TransactionMetadata {
-    pub slot: u64,
+    pub slot: Option<u64>,
     pub signature: Signature,
     pub fee_payer: Pubkey,
     pub meta: solana_transaction_status::TransactionStatusMeta,

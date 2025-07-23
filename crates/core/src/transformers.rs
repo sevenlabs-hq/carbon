@@ -489,6 +489,7 @@ pub fn transaction_metadata_from_original_meta(
             .compute_units_consumed
             .map(|compute_unit_consumed| compute_unit_consumed)
             .or(None),
+        cost_units: meta_original.cost_units.map(|v| v.into()),
     })
 }
 
@@ -682,6 +683,7 @@ mod tests {
             },
             return_data: None,
             compute_units_consumed: Some(44850),
+            cost_units: None,
         };
         // Act
         let tx_meta_status =
@@ -736,7 +738,7 @@ mod tests {
             },
             meta: original_tx_meta.clone(),
             is_vote: false,
-            slot: 123,
+            slot: Some(123),
             block_time: Some(123),
             block_hash: Hash::from_str("9bit9vXNX9HyHwL89aGDNmk3vbyAM96nvb6F4SaoM1CU").ok(),
         };
@@ -1084,6 +1086,7 @@ mod tests {
             },
             return_data: None,
             compute_units_consumed: Some(123511),
+            cost_units: None,
         };
 
         // Act
@@ -1164,7 +1167,7 @@ mod tests {
             },
             meta: original_tx_meta.clone(),
             is_vote: false,
-            slot: 123,
+            slot: Some(123),
             block_time: Some(123),
             block_hash: None,
         };
