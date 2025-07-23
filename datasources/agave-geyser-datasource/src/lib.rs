@@ -161,8 +161,10 @@ async fn send_subscribe_account_update_info(
             };
             if let Err(e) = sender.try_send((Update::AccountDeletion(account_deletion), id.clone())) {
                 log::error!(
-                    "Failed to send account deletion update for pubkey {:?} : {:?}",
+                    "Failed to send account deletion update for pubkey {:?}, sender capacity {:?} / max_capacity: {:?} : {:?}",
                     account_pubkey,
+                    sender.capacity(),
+                    sender.max_capacity(),
                     e
                 );
             }
@@ -170,8 +172,10 @@ async fn send_subscribe_account_update_info(
     } else {
         if let Err(e) = sender.try_send((Update::Account(account_update), id.clone())) {
             log::error!(
-                "Failed to send account update for pubkey {:?} : {:?}",
+                "Failed to send account update for pubkey {:?},  sender capacity {:?} / max_capacity: {:?} : {:?},",
                 account_pubkey,
+                sender.capacity(),
+                sender.max_capacity(),
                 e
             );
         }
@@ -204,8 +208,10 @@ async fn send_subscribe_update_transaction_info<'a>(
     
     if let Err(e) = sender.try_send((Update::Transaction(transaction_info), id)) {
         log::error!(
-            "Failed to send transaction update with signature {:?} : {:?}",
+            "Failed to send transaction update with signature {:?}, sender capacity {:?} / max_capacity: {:?} {:?}",
             signature,
+            sender.capacity(),
+            sender.max_capacity(),
             e
         );
         return;
