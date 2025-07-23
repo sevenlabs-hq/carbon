@@ -179,6 +179,7 @@ uuid = { version = "1.6.1", features = ["serde", "v7"] }
 yellowstone-grpc-proto  = { git = "https://github.com/rpcpool/yellowstone-grpc.git", tag = "v8.0.0+solana.2.3.1", features = ["convert"] }
 yellowstone-grpc-client = { git = "https://github.com/rpcpool/yellowstone-grpc.git", tag = "v8.0.0+solana.2.3.1" }
 agave-geyser-plugin-interface = "=2.3.1"
+tokio-stream = "0.1.17"
 
 [patch.crates-io.curve25519-dalek]
 git = "https://github.com/anza-xyz/curve25519-dalek.git"

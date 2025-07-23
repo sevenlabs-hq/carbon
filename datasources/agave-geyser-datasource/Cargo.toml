@@ -26,3 +26,4 @@ futures = { workspace = true }
 log = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tokio-util = { workspace = true }
+tokio-stream = {workspace = true}

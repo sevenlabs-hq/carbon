@@ -1077,6 +1077,7 @@ dependencies = [
  "solana-pubkey",
  "solana-signature",
  "tokio",
+ "tokio-stream",
  "tokio-util",
 ]
 

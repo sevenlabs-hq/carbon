@@ -1,7 +1,10 @@
+use futures::StreamExt;
+use tokio_stream::wrappers::ReceiverStream;
 use log::warn;
 use tokio::select;
 use tokio::sync::mpsc::Receiver;
 use tokio::sync::Mutex;
+use tokio::time::Instant;
 use {
     async_trait::async_trait,
     carbon_core::{
@@ -30,16 +33,19 @@ pub enum AgaveGeyserMessage {
 pub struct AgaveGeyserClient {
     receiver: Mutex<Option<Receiver<AgaveGeyserMessage>>>,
     account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
+    workers_num: usize
 }
 
 impl AgaveGeyserClient {
     pub fn new(
         account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
         receiver: Receiver<AgaveGeyserMessage>,
+        workers_num: usize
     ) -> Self {
         Self {
             receiver: Mutex::new(Some(receiver)),
             account_deletions_tracked,
+            workers_num
         }
     }
 }
@@ -61,7 +67,8 @@ impl Datasource for AgaveGeyserClient {
         let account_deletions_tracked = Arc::clone(&self.account_deletions_tracked);
 
         let id = id.clone();
-      
+        let workers = self.workers_num.clone();
+
         tokio::spawn(async move {
             handle_geyser_stream(
                 receiver,
@@ -69,7 +76,8 @@ impl Datasource for AgaveGeyserClient {
                 metrics,
                 sender,
                 &account_deletions_tracked,
-                id
+                id,
+                workers
             ).await;
         });
 
@@ -86,53 +94,66 @@ impl Datasource for AgaveGeyserClient {
 }
 
 pub async fn handle_geyser_stream(
-    mut receiver: Receiver<AgaveGeyserMessage>,
+    receiver: Receiver<AgaveGeyserMessage>,
     cancellation_token: CancellationToken,
     metrics: Arc<MetricsCollection>,
     sender: Sender<(Update, DatasourceId)>,
     account_deletions_tracked: &RwLock<HashSet<Pubkey>>,
     id: DatasourceId,
+    workers_num: usize,
 ) {
-    while !cancellation_token.is_cancelled() {
-        select! {
-            biased;
+    let stream = ReceiverStream::new(receiver);
 
-            _ = cancellation_token.cancelled() => {
-                break;
-            }
+    select! {
+        _ = cancellation_token.cancelled() => {
+            log::info!("Geyser stream cancelled before start");
+        }
 
-            maybe_msg = receiver.recv() => {
-                match maybe_msg {
-                    Some(msg) => {
+        _ = async {
+            stream
+                .for_each_concurrent(workers_num, |msg| {
+                    let metrics = Arc::clone(&metrics);
+                    let sender = sender.clone();
+                    let account_deletions_tracked = account_deletions_tracked.clone();
+                    let id = id.clone();
+                    let cancellation_token = cancellation_token.clone();
+
+                    async move {
+                        if cancellation_token.is_cancelled() {
+                            warn!("Cancellation received inside concurrent handler");
+                            return;
+                        }
+
+                        let start = Instant::now();
+
                         match msg {
                             AgaveGeyserMessage::Account(account_info) => {
-                               send_subscribe_account_update_info(
-                                            account_info,
-                                            &metrics,
-                                            &sender,
-                                            &account_deletions_tracked,
-                                            id.clone()
-                                        ).await;
+                                send_subscribe_account_update_info(
+                                    account_info,
+                                    &metrics,
+                                    &sender,
+                                    &account_deletions_tracked,
+                                    id,
+                                ).await;
                             }
-
                             AgaveGeyserMessage::Transaction(transaction_update) => {
                                 send_subscribe_update_transaction_info(
                                     transaction_update,
                                     &metrics,
                                     &sender,
-                                    id.clone()
+                                    id,
                                 ).await;
                             }
                         }
-                    }
 
-                    None => {
-                        warn!("Receiver closed");
-                        break;
+                        let elapsed = start.elapsed();
+                        if elapsed.as_millis() > 50 {
+                            warn!("Slow geyser msg processing: {:?}", elapsed);
+                        }
                     }
-                }
-            }
-        }
+                })
+                .await;
+        } => {}
     }
 
     log::info!("Geyser message loop exited");
