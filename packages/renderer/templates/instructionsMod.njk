@@ -35,18 +35,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for {{ programsToExport[0]
         {% for instruction in instructionsToExport %}
         // Try to decode {{ instruction.name | pascalCase }}
         {
-            let mut data_slice = data;
-            {% if instruction.discriminatorManifest %}
-            // Check discriminator for {{ instruction.name | pascalCase }}
-            {{ instruction.discriminatorManifest.checkCode | safe }}
-            
-            // Skip discriminator bytes for deserialization
-            {% if instruction.discriminatorManifest.size > 0 %}
-            data_slice = &data_slice[{{ instruction.discriminatorManifest.size }}..];
-            {% endif %}
-            {% endif %}
-            
-            if let Ok(decoded) = {{ instruction.name | snakeCase }}::{{ instruction.name | pascalCase }}::deserialize(&mut data_slice.clone()) {
+            if let Ok(decoded) = {{ instruction.name | snakeCase }}::{{ instruction.name | pascalCase }}::decode(data.clone()) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: {{ programsToExport[0].name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(decoded),

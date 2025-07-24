@@ -20,17 +20,42 @@ pub struct {{ instruction.name | pascalCase }}InstructionAccounts {
 {% endfor %}
 }
 
+impl {{ instruction.name | pascalCase }} {
+    pub fn decode(data: &[u8]) -> Option<Self> {
+        {% if discriminatorManifest %}
+        {{ discriminatorManifest.checkCode | safe }}
+        {% endif %}
+
+        let mut data_slice = data;
+
+        {% if discriminatorManifest %}
+        data_slice = &data_slice[{{ discriminatorManifest.size }}..];
+        {% endif %}
+
+        if let Ok(decoded) = Self::deserialize(&mut data_slice.clone()) {
+            return Some(decoded);
+        }
+
+        None
+    }
+}
+
 impl ArrangeAccounts for {{ instruction.name | pascalCase }} {
     type ArrangedAccounts = {{ instruction.name | pascalCase }}InstructionAccounts;
 
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        {% if instruction.accounts.length > 0 %}
-        let [{{ instruction.accounts | map(attribute='name') | map('snakeCase') | join(', ') }}, _remaining @ ..] = accounts else {
+        {% if instruction.accounts | length > 0 %}
+        let [
+            {%- for account in instruction.accounts -%}
+            {{ account.name | snakeCase }}{{ ", " if not loop.last }}
+            {%- endfor -%}
+            _remaining @ ..
+        ] = accounts else {
             return None;
         };
-        
+
         Some({{ instruction.name | pascalCase }}InstructionAccounts {
             {% for account in instruction.accounts %}
             {{ account.name | snakeCase }}: {{ account.name | snakeCase }}.pubkey,

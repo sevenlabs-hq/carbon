@@ -1,4 +1,5 @@
 import {
+    DiscriminatorNode,
     getAllAccounts,
     getAllDefinedTypes,
     getAllInstructionsWithSubs,
@@ -9,9 +10,9 @@ import {
 import { RenderMap } from '@codama/renderers-core';
 import { extendVisitor, pipe, staticVisitor, visit } from '@codama/visitors-core';
 
-import { getTypeManifestVisitor } from './getTypeManifestVisitor';
+import { getDiscriminatorManifest, getTypeManifestVisitor } from './getTypeManifestVisitor';
 import { ImportMap } from './ImportMap';
-import { render } from './utils';
+import { partition, render } from './utils';
 
 export type GetRenderMapOptions = {
     renderParentInstructions?: boolean;
@@ -66,19 +67,55 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         .add('carbon_core::instruction::DecodedInstruction')
                         .add('carbon_core::deserialize::ArrangeAccounts');
 
+                    const [discriminatorArguments, regularArguments] = partition(
+                        node.arguments,
+                        arg => arg.name == 'discriminator',
+                    );
+
                     // Collect all types from arguments
-                    const argumentTypes = node.arguments.map(arg => {
+                    const argumentTypes = regularArguments.map(arg => {
                         const manifest = visit(arg.type, typeManifestVisitor);
                         imports.mergeWithManifest(manifest);
                         return manifest;
                     });
+
+                    let discriminators = node.discriminators ?? [];
+
+                    for (const discriminatorArgument of discriminatorArguments) {
+                        if (discriminatorArgument.defaultValue) {
+                            for (let i = 0; i < discriminators.length; i++) {
+                                const discriminator = discriminators[i];
+                                if (
+                                    discriminator.kind === 'fieldDiscriminatorNode' &&
+                                    discriminator.name === discriminatorArgument.name
+                                ) {
+                                    discriminators[i] = {
+                                        kind: 'constantDiscriminatorNode',
+                                        offset: discriminator.offset,
+                                        constant: {
+                                            kind: 'constantValueNode',
+                                            type: discriminatorArgument.type,
+                                            value: discriminatorArgument.defaultValue as any,
+                                        },
+                                    };
+                                }
+                            }
+                        }
+                    }
+
+                    const discriminatorManifest = getDiscriminatorManifest(discriminators);
 
                     return new RenderMap().add(
                         `instructions/${snakeCase(node.name)}.rs`,
                         render('instructionsPage.njk', {
                             argumentTypes,
                             imports: imports.toString(),
-                            instruction: node,
+                            instruction: {
+                                ...node,
+                                arguments: regularArguments,
+                                discriminators,
+                            },
+                            discriminatorManifest,
                             program: currentProgram,
                         }),
                     );
