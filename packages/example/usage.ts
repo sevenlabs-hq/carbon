@@ -8,7 +8,7 @@ import { createFromRoot } from 'codama';
 const codama = createFromRoot(rootNodeFromAnchor(anchorIdl as any));
 
 // Generate Rust code
-const outputPath = join(process.cwd(), '../generated');
+const outputPath = join(process.cwd(), './generated');
 
 // Render the Rust code
 codama.accept(renderVisitor(outputPath, {}));
