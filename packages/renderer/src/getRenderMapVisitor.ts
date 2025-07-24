@@ -30,18 +30,61 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
         v =>
             extendVisitor(v, {
                 visitAccount(node) {
-                    const typeManifest = visit(node.data, typeManifestVisitor);
+                    let discriminators = node.discriminators ?? [];
+
+                    let newNode = node;
+
+                    if (node.data.kind == 'structTypeNode') {
+                        const [discriminatorArguments, regularArguments] = partition(
+                            node.data.fields,
+                            arg => arg.name == 'discriminator',
+                        );
+
+                        newNode = {
+                            ...node,
+                            data: {
+                                ...node.data,
+                                fields: regularArguments,
+                            },
+                        };
+
+                        for (const discriminatorArgument of discriminatorArguments) {
+                            if (discriminatorArgument.defaultValue) {
+                                for (let i = 0; i < discriminators.length; i++) {
+                                    const discriminator = discriminators[i];
+                                    if (
+                                        discriminator.kind === 'fieldDiscriminatorNode' &&
+                                        discriminator.name === discriminatorArgument.name
+                                    ) {
+                                        discriminators[i] = {
+                                            kind: 'constantDiscriminatorNode',
+                                            offset: discriminator.offset,
+                                            constant: {
+                                                kind: 'constantValueNode',
+                                                type: discriminatorArgument.type,
+                                                value: discriminatorArgument.defaultValue as any,
+                                            },
+                                        };
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    const typeManifest = visit(newNode.data, typeManifestVisitor);
                     const imports = new ImportMap()
                         .mergeWithManifest(typeManifest)
-                        .add('carbon_core::account::AccountDecoder')
-                        .add('carbon_core::account::DecodedAccount');
+                        .add('carbon_core::borsh::{self, BorshDeserialize}');
+
+                    const discriminatorManifest = getDiscriminatorManifest(discriminators);
 
                     return new RenderMap().add(
                         `accounts/${snakeCase(node.name)}.rs`,
                         render('accountsPage.njk', {
-                            account: node,
+                            account: newNode,
                             imports: imports.toString(),
                             program: currentProgram,
+                            discriminatorManifest,
                             typeManifest,
                         }),
                     );
@@ -63,8 +106,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                 visitInstruction(node) {
                     const imports = new ImportMap()
-                        .add('carbon_core::instruction::InstructionDecoder')
-                        .add('carbon_core::instruction::DecodedInstruction')
+                        .add('carbon_core::borsh::{self, BorshDeserialize}')
                         .add('carbon_core::deserialize::ArrangeAccounts');
 
                     const [discriminatorArguments, regularArguments] = partition(

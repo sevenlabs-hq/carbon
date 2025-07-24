@@ -35,18 +35,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for {{ programsToExport[0].nam
         {% for account in accountsToExport %}
         // Try to decode {{ account.name | pascalCase }}
         {
-            let mut data_slice = data;
-            {% if account.discriminatorManifest %}
-            // Check discriminator for {{ account.name | pascalCase }}
-            {{ account.discriminatorManifest.checkCode | safe }}
-            
-            // Skip discriminator bytes for deserialization
-            {% if account.discriminatorManifest.size > 0 %}
-            data_slice = &data_slice[{{ account.discriminatorManifest.size }}..];
-            {% endif %}
-            {% endif %}
-            
-            if let Ok(decoded) = {{ account.name | snakeCase }}::{{ account.name | pascalCase }}::deserialize(&mut data_slice.clone()) {
+            if let Some(decoded) = {{ account.name | snakeCase }}::{{ account.name | pascalCase }}::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: {{ programsToExport[0].name | pascalCase }}Account::{{ account.name | pascalCase }}(decoded),

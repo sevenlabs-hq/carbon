@@ -35,7 +35,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for {{ programsToExport[0]
         {% for instruction in instructionsToExport %}
         // Try to decode {{ instruction.name | pascalCase }}
         {
-            if let Ok(decoded) = {{ instruction.name | snakeCase }}::{{ instruction.name | pascalCase }}::decode(data.clone()) {
+            if let Some(decoded) = {{ instruction.name | snakeCase }}::{{ instruction.name | pascalCase }}::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: {{ programsToExport[0].name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(decoded),

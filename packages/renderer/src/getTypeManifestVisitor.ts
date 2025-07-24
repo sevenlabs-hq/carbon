@@ -103,7 +103,21 @@ export function getTypeManifestVisitor() {
 
                 visitEnumStructVariantType(node, { self }) {
                     const name = pascalCase(node.name);
-                    const structManifest = visit(node.struct, self);
+                    // Create a custom visitor for enum struct variant fields that doesn't add 'pub'
+                    const enumStructVisitor = extendVisitor(self, {
+                        visitStructFieldType(node, { self }) {
+                            const fieldManifest = visit(node.type, self);
+                            const fieldName = snakeCase(node.name);
+
+                            return {
+                                imports: fieldManifest.imports,
+                                type: `${fieldName}: ${fieldManifest.type},`,
+                                borshType: `${fieldName}: ${fieldManifest.borshType},`,
+                            };
+                        },
+                    });
+
+                    const structManifest = visit(node.struct, enumStructVisitor);
                     return {
                         imports: structManifest.imports,
                         type: `${name} ${structManifest.type},`,
