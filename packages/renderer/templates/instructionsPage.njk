@@ -14,6 +14,7 @@ pub struct {{ instruction.name | pascalCase }} {
 {% endfor %}
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct {{ instruction.name | pascalCase }}InstructionAccounts {
 {% for account in instruction.accounts %}
     pub {{ account.name | snakeCase }}: solana_pubkey::Pubkey,
