@@ -107,7 +107,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 visitInstruction(node) {
                     const imports = new ImportMap()
                         .add('carbon_core::borsh::{self, BorshDeserialize}')
-                        .add('carbon_core::deserialize::ArrangeAccounts');
+                        .add('carbon_core::deserialize::ArrangeAccounts')
+                        .add('carbon_core::account_utils::next_account');
 
                     const [discriminatorArguments, regularArguments] = partition(
                         node.arguments,
