@@ -10,8 +10,9 @@ keywords = ["solana", "indexer"]
 categories = ["encoding"]
 
 [features]
-default = ["macros"]
+default = ["macros", "postgres"]
 macros = ["carbon-macros", "carbon-proc-macros"]
+postgres = ["sqlx", "num-traits"]
 
 [dependencies]
 solana-account = { workspace = true }
@@ -39,6 +40,8 @@ uuid = { workspace = true, features = ["v4"] }
 # Optional macro dependencies
 carbon-macros = { workspace = true, optional = true }
 carbon-proc-macros = { workspace = true, optional = true }
+num-traits = { workspace = true, features = ["i128"], optional = true }
+sqlx = { workspace = true, features = ["postgres", "rust_decimal"], optional = true }
 
 [lib]
 crate-type = ["rlib"]
