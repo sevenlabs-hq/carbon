@@ -37,7 +37,7 @@ impl Decode<'_, Postgres> for Pubkey {
         value: PgValueRef<'_>,
     ) -> Result<Self, Box<dyn std::error::Error + Send + Sync + 'static>> {
         let bytes = value.as_bytes()?;
-        Ok(Self(solana_pubkey::Pubkey::try_from_slice(&bytes)?))
+        Ok(Self(solana_pubkey::Pubkey::try_from_slice(bytes)?))
     }
 }
 
@@ -107,7 +107,7 @@ macro_rules! big_unsigned {
                 PgTypeInfo::with_name("_NUMERIC")
             }
         }
-        impl<'q> Encode<'q, Postgres> for $name {
+        impl Encode<'_, Postgres> for $name {
             fn encode_by_ref(
                 &self,
                 buf: &mut sqlx::postgres::PgArgumentBuffer,
@@ -162,7 +162,7 @@ impl PgHasArrayType for I128 {
         PgTypeInfo::with_name("_NUMERIC")
     }
 }
-impl<'q> Encode<'q, Postgres> for I128 {
+impl Encode<'_, Postgres> for I128 {
     fn encode_by_ref(
         &self,
         buf: &mut sqlx::postgres::PgArgumentBuffer,
@@ -172,8 +172,8 @@ impl<'q> Encode<'q, Postgres> for I128 {
         bd.encode_by_ref(buf)
     }
 }
-impl<'r> Decode<'r, Postgres> for I128 {
-    fn decode(value: sqlx::postgres::PgValueRef<'r>) -> Result<Self, sqlx::error::BoxDynError> {
+impl Decode<'_, Postgres> for I128 {
+    fn decode(value: sqlx::postgres::PgValueRef<'_>) -> Result<Self, sqlx::error::BoxDynError> {
         let bd = Decimal::decode(value)?;
         match bd.to_i128() {
             Some(v) => Ok(Self(v)),
