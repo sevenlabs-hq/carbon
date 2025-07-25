@@ -1,5 +1,4 @@
 import {
-    DiscriminatorNode,
     getAllAccounts,
     getAllDefinedTypes,
     getAllInstructionsWithSubs,
