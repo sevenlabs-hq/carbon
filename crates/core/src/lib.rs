@@ -130,6 +130,7 @@ pub mod filter;
 pub mod instruction;
 pub mod metrics;
 pub mod pipeline;
+pub mod postgres;
 pub mod processor;
 pub mod schema;
 pub mod transaction;
