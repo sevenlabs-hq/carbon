@@ -3,7 +3,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Clone)]
 #[carbon(discriminator = "0x2C")]
 pub struct InitializeMintPausable {
-    pub authority: solana_pubkey::Pubkey
+    pub authority: solana_pubkey::Pubkey,
 }
 
 pub struct InitializeMintPausableInstructionAccounts {
@@ -20,6 +20,8 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeMintPausable {
             return None;
         };
 
-        Some(InitializeMintPausableInstructionAccounts { mint_account: mint.pubkey })
+        Some(InitializeMintPausableInstructionAccounts {
+            mint_account: mint.pubkey,
+        })
     }
 }
