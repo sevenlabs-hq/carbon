@@ -48,19 +48,19 @@ impl ArrangeAccounts for {{ instruction.name | pascalCase }} {
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         {% if instruction.accounts | length > 0 %}
-        let [
-            {%- for account in instruction.accounts -%}
-            {{ account.name | snakeCase }}{{ ", " if not loop.last }}
-            {%- endfor -%}
-            , _remaining @ ..
-        ] = accounts else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+
+        {% for account in instruction.accounts %}
+        let {{ account.name | snakeCase }} = next_account(&mut iter){% if not account.isOptional %}?{% endif %};
+        {% endfor %}
+
+        let remaining = iter.collect::<Vec<_>>();
 
         Some({{ instruction.name | pascalCase }}InstructionAccounts {
             {% for account in instruction.accounts %}
-            {{ account.name | snakeCase }}: {{ account.name | snakeCase }}.pubkey,
+            {{ account.name | snakeCase }}: {{ account.name | snakeCase }},
             {% endfor %}
+            remaining: remaining,
         })
         {% else %}
         Some({{ instruction.name | pascalCase }}InstructionAccounts {})
