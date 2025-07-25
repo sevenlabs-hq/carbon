@@ -4,7 +4,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x2B")]
 pub struct UpdateMultiplierScaledUiAmount {
     pub new_multiplier: f64,
-    pub effective_timestamp: i64
+    pub effective_timestamp: i64,
 }
 
 pub struct UpdateMultiplierScaledUiAmountInstructionAccounts {
@@ -18,10 +18,13 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateMultiplierScaledUiAmoun
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [mint, owner,_remaining @ ..] = accounts else {
+        let [mint, owner, _remaining @ ..] = accounts else {
             return None;
         };
 
-        Some(UpdateMultiplierScaledUiAmountInstructionAccounts { mint: mint.pubkey, owner: owner.pubkey })
+        Some(UpdateMultiplierScaledUiAmountInstructionAccounts {
+            mint: mint.pubkey,
+            owner: owner.pubkey,
+        })
     }
 }

@@ -45,10 +45,12 @@ pub mod initialize_metadata_pointer;
 pub mod initialize_mint;
 pub mod initialize_mint2;
 pub mod initialize_mint_close_authority;
+pub mod initialize_mint_pausable;
 pub mod initialize_multisig;
 pub mod initialize_multisig2;
 pub mod initialize_non_transferable_mint;
 pub mod initialize_permanent_delegate;
+pub mod initialize_scaled_ui_amount;
 pub mod initialize_token_group;
 pub mod initialize_token_group_member;
 pub mod initialize_token_metadata;
@@ -63,6 +65,7 @@ pub mod set_authority;
 pub mod set_transfer_fee;
 pub mod sync_native;
 pub mod thaw_account;
+pub mod toggle_mint_pause;
 pub mod transfer;
 pub mod transfer_checked;
 pub mod transfer_checked_with_fee;
@@ -72,6 +75,7 @@ pub mod update_default_account_state;
 pub mod update_group_member_pointer;
 pub mod update_group_pointer;
 pub mod update_metadata_pointer;
+pub mod update_multiplier_scaled_ui_amount;
 pub mod update_rate_interest_bearing_mint;
 pub mod update_token_group_max_size;
 pub mod update_token_group_update_authority;
@@ -83,18 +87,9 @@ pub mod withdraw_withheld_tokens_from_accounts;
 pub mod withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee;
 pub mod withdraw_withheld_tokens_from_mint;
 pub mod withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee;
-pub mod initialize_scaled_ui_amount;
-pub mod update_multiplier_scaled_ui_amount;
-pub mod initialize_mint_pausable;
-pub mod toggle_mint_pause;
 
 #[derive(
-    carbon_core::InstructionType,
-    serde::Serialize,
-    serde::Deserialize,
-    PartialEq,
-    Debug,
-    Clone,
+    carbon_core::InstructionType, serde::Serialize, serde::Deserialize, PartialEq, Debug, Clone,
 )]
 pub enum Token2022Instruction {
     InitializeMint(initialize_mint::InitializeMint),

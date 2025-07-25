@@ -3,12 +3,12 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Clone)]
 #[carbon(discriminator = "0x2C")]
 pub struct ToggleMintPause {
-    pub pause: bool
+    pub pause: bool,
 }
 
 pub struct ToggleMintPauseInstructionAccounts {
     pub mint_account: solana_pubkey::Pubkey,
-    pub authority: solana_pubkey::Pubkey
+    pub authority: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ToggleMintPause {
@@ -21,6 +21,9 @@ impl carbon_core::deserialize::ArrangeAccounts for ToggleMintPause {
             return None;
         };
 
-        Some(ToggleMintPauseInstructionAccounts { mint_account: mint.pubkey, authority: authority.pubkey })
+        Some(ToggleMintPauseInstructionAccounts {
+            mint_account: mint.pubkey,
+            authority: authority.pubkey,
+        })
     }
 }
