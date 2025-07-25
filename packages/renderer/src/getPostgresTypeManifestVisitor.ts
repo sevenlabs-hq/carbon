@@ -1,0 +1,119 @@
+import { isNode, REGISTERED_TYPE_NODE_KINDS, pascalCase } from '@codama/nodes';
+import { extendVisitor, mergeVisitor, pipe, visit } from '@codama/visitors-core';
+import { ImportMap } from './ImportMap';
+
+export type PostgresTypeManifest = {
+    imports: ImportMap;
+    sqlxType: string;
+    sqlColumnType: string;
+};
+
+export function getPostgresTypeManifestVisitor() {
+    return pipe(
+        mergeVisitor<PostgresTypeManifest>(
+            (): PostgresTypeManifest => ({
+                imports: new ImportMap(),
+                sqlxType: '',
+                sqlColumnType: '',
+            }),
+            (_k, vals) => ({
+                imports: new ImportMap().mergeWith(...vals.map(v => v.imports)),
+                sqlxType: vals.map(v => v.sqlxType).join(''),
+                sqlColumnType: vals.map(v => v.sqlColumnType).join(''),
+            }),
+            { keys: [...REGISTERED_TYPE_NODE_KINDS, 'definedTypeLinkNode'] },
+        ),
+        v =>
+            extendVisitor(v, {
+                /* primitives */
+                visitBooleanType() {
+                    return m('bool', 'BOOLEAN');
+                },
+                visitBytesType() {
+                    return m('Vec<u8>', 'BYTEA');
+                },
+                visitStringType() {
+                    return m('String', 'TEXT');
+                },
+                visitPublicKeyType() {
+                    return m('PubkeySql', 'BYTEA', ['carbon_core::postgres::primitives::Pubkey']);
+                },
+                visitNumberType(node) {
+                    switch (node.format) {
+                        case 'i8':
+                        case 'i16':
+                            return m('i16', 'SMALLINT');
+                        case 'u8':
+                            return m('U8Sql', 'SMALLINT', ['carbon_core::postgres::primitives::U8']);
+                        case 'u16':
+                            return m('U16Sql', 'INTEGER', ['carbon_core::postgres::primitives::U16']);
+                        case 'i32':
+                            return m('i32', 'INTEGER');
+                        case 'u32':
+                            return m('U32Sql', 'BIGINT', ['carbon_core::postgres::primitives::U32']);
+                        case 'i64':
+                            return m('i64', 'BIGINT');
+                        case 'u64':
+                            return m('U64Sql', 'NUMERIC(20)', ['carbon_core::postgres::primitives::U64']);
+                        case 'i128':
+                            return m('I128Sql', 'NUMERIC(38)', ['carbon_core::postgres::primitives::I128']);
+                        case 'u128':
+                            return m('U128Sql', 'NUMERIC(39)', ['carbon_core::postgres::primitives::U128']);
+                        case 'f32':
+                            return m('f32', 'REAL');
+                        case 'f64':
+                            return m('f64', 'DOUBLE PRECISION');
+                        default:
+                            throw new Error(`Unsupported number format: ${node.format}`);
+                    }
+                },
+                /* wrappers */
+                visitOptionType(node, { self }) {
+                    const inner = visit(node.item, self);
+                    return {
+                        imports: inner.imports,
+                        sqlxType: `Option<${inner.sqlxType}>`,
+                        sqlColumnType: inner.sqlColumnType,
+                    };
+                },
+                visitArrayType(node, { self }) {
+                    const inner = visit(node.item, self);
+                    if (isNode(node.item, 'numberTypeNode') || isNode(node.item, 'booleanTypeNode')) {
+                        return {
+                            imports: inner.imports,
+                            sqlxType: `Vec<${inner.sqlxType}>`,
+                            sqlColumnType: `${inner.sqlColumnType}[]`,
+                        };
+                    }
+                    return jsonb(inner);
+                },
+                visitMapType() {
+                    return jsonb();
+                },
+                visitSetType() {
+                    return jsonb();
+                },
+                visitSizePrefixType(node, { self }) {
+                    return visit(node.type, self);
+                },
+                visitZeroableOptionType(node, { self }) {
+                    return visit(node.item, self);
+                },
+                visitDefinedTypeLink(node) {
+                    return m(pascalCase(node.name), 'COMPOSITE');
+                },
+            }),
+    );
+
+    function m(rust: string, sql: string, extra: string[] = []): PostgresTypeManifest {
+        return { imports: new ImportMap().add(extra), sqlxType: rust, sqlColumnType: sql };
+    }
+    function jsonb(inner?: PostgresTypeManifest): PostgresTypeManifest {
+        const base = inner ?? { imports: new ImportMap(), sqlxType: 'serde_json::Value', sqlColumnType: 'JSONB' };
+        return {
+            imports: new ImportMap().add('sqlx::types::Json').mergeWith(base.imports),
+            sqlxType: `sqlx::types::Json<${base.sqlxType}>`,
+            sqlColumnType: 'JSONB',
+        };
+    }
+}
