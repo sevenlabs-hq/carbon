@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x09")]
 pub struct DeprecatedMintPrintingTokens {}
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct DeprecatedMintPrintingTokensInstructionAccounts {
     pub destination: solana_pubkey::Pubkey,
     pub printing_mint: solana_pubkey::Pubkey,
@@ -22,20 +23,23 @@ impl carbon_core::deserialize::ArrangeAccounts for DeprecatedMintPrintingTokens 
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [destination, printing_mint, update_authority, metadata, master_edition, token_program, rent, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let destination = next_account(&mut iter)?;
+        let printing_mint = next_account(&mut iter)?;
+        let update_authority = next_account(&mut iter)?;
+        let metadata = next_account(&mut iter)?;
+        let master_edition = next_account(&mut iter)?;
+        let token_program = next_account(&mut iter)?;
+        let rent = next_account(&mut iter)?;
 
         Some(DeprecatedMintPrintingTokensInstructionAccounts {
-            destination: destination.pubkey,
-            printing_mint: printing_mint.pubkey,
-            update_authority: update_authority.pubkey,
-            metadata: metadata.pubkey,
-            master_edition: master_edition.pubkey,
-            token_program: token_program.pubkey,
-            rent: rent.pubkey,
+            destination,
+            printing_mint,
+            update_authority,
+            metadata,
+            master_edition,
+            token_program,
+            rent,
         })
     }
 }

@@ -204,3 +204,102 @@ impl carbon_core::instruction::InstructionDecoder<'_> for TokenMetadataDecoder {
         )
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::{
+        instructions::{
+            create_metadata_account_v3::{
+                CreateMetadataAccountV3, CreateMetadataAccountV3InstructionAccounts,
+            },
+            TokenMetadataInstruction,
+        },
+        types::{CreateMetadataAccountArgsV3, Creator, DataV2},
+        TokenMetadataDecoder,
+    };
+    use carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder};
+    use carbon_test_utils::read_instruction;
+    use solana_instruction::AccountMeta;
+    use solana_pubkey::pubkey;
+
+    #[test]
+    fn test_decode_create_metadata_v3_without_rent() {
+        let expected_ix = TokenMetadataInstruction::CreateMetadataAccountV3(CreateMetadataAccountV3 {
+            create_metadata_account_args_v3: CreateMetadataAccountArgsV3 {
+                data: DataV2 {
+                    name: "スキズー".to_owned(),
+                    symbol: "SKZOO".to_owned(),
+                    uri: "https://ipfs.io/ipfs/bafkreigwusbaqy7cgbh3mvij5gu4c2m4msaceoutpw5fyisypych7glzjm".to_owned(),
+                    seller_fee_basis_points: 0,
+                    creators: Some(
+                        vec![
+                            Creator {
+                            address: pubkey!("WLHv2UAZm6z4KyaaELi5pjdbJh6RESMva1Rnn8pJVVh"),
+                            verified: true,
+                            share: 100,
+                        }
+                        ]
+                    ),
+                    collection: None,
+                    uses: None,
+                },
+                is_mutable: false,
+                collection_details: None,
+            }
+        });
+
+        let expected_accounts = vec![
+            AccountMeta::new(
+                pubkey!("FURfzvnjVPdjrfMBRzeSgahzS1xietCqiv8SG9pCS8ke"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("A3p836DWHzDA3DY73QfJSLCqekkhGohNXVAHAa1Qbonk"),
+                true,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("WLHv2UAZm6z4KyaaELi5pjdbJh6RESMva1Rnn8pJVVh"),
+                false,
+            ),
+            AccountMeta::new(
+                pubkey!("5f5BPCCNeMkekfjFZi18kAYU95rRdM2jToGaNZZwYZX6"),
+                true,
+            ),
+            AccountMeta::new_readonly(
+                pubkey!("WLHv2UAZm6z4KyaaELi5pjdbJh6RESMva1Rnn8pJVVh"),
+                false,
+            ),
+            AccountMeta::new_readonly(pubkey!("11111111111111111111111111111111"), false),
+        ];
+
+        let expected_arranged_accounts = CreateMetadataAccountV3InstructionAccounts {
+            metadata: pubkey!("FURfzvnjVPdjrfMBRzeSgahzS1xietCqiv8SG9pCS8ke"),
+            mint: pubkey!("A3p836DWHzDA3DY73QfJSLCqekkhGohNXVAHAa1Qbonk"),
+            mint_authority: pubkey!("WLHv2UAZm6z4KyaaELi5pjdbJh6RESMva1Rnn8pJVVh"),
+            payer: pubkey!("5f5BPCCNeMkekfjFZi18kAYU95rRdM2jToGaNZZwYZX6"),
+            update_authority: pubkey!("WLHv2UAZm6z4KyaaELi5pjdbJh6RESMva1Rnn8pJVVh"),
+            system_program: pubkey!("11111111111111111111111111111111"),
+            rent: None,
+        };
+
+        let decoder = TokenMetadataDecoder;
+
+        const FIXTURE_PATH: &str = "tests/fixtures/create_metadata_v3_ix.json";
+        let instruction = read_instruction(FIXTURE_PATH).expect("read fixture");
+
+        let decoded_instruction = decoder
+            .decode_instruction(&instruction)
+            .expect("decode instruction");
+
+        let decoded_arranged_accounts =
+            CreateMetadataAccountV3::arrange_accounts(&instruction.accounts)
+                .expect("arrange accounts");
+
+        assert_eq!(decoded_instruction.data, expected_ix);
+        assert_eq!(decoded_instruction.accounts, expected_accounts);
+        assert_eq!(decoded_instruction.program_id, PROGRAM_ID);
+        assert!(decoded_arranged_accounts.rent.is_none());
+        assert_eq!(decoded_arranged_accounts, expected_arranged_accounts);
+    }
+}

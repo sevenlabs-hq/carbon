@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x26")]
 pub struct CreateEscrowAccount {}
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct CreateEscrowAccountInstructionAccounts {
     pub escrow: solana_pubkey::Pubkey,
     pub metadata: solana_pubkey::Pubkey,
@@ -15,7 +16,7 @@ pub struct CreateEscrowAccountInstructionAccounts {
     pub payer: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
     pub sysvar_instructions: solana_pubkey::Pubkey,
-    pub authority: solana_pubkey::Pubkey,
+    pub authority: Option<solana_pubkey::Pubkey>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for CreateEscrowAccount {
@@ -24,22 +25,27 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateEscrowAccount {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [escrow, metadata, mint, token_account, edition, payer, system_program, sysvar_instructions, authority, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let escrow = next_account(&mut iter)?;
+        let metadata = next_account(&mut iter)?;
+        let mint = next_account(&mut iter)?;
+        let token_account = next_account(&mut iter)?;
+        let edition = next_account(&mut iter)?;
+        let payer = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let sysvar_instructions = next_account(&mut iter)?;
+        let authority = next_account(&mut iter);
 
         Some(CreateEscrowAccountInstructionAccounts {
-            escrow: escrow.pubkey,
-            metadata: metadata.pubkey,
-            mint: mint.pubkey,
-            token_account: token_account.pubkey,
-            edition: edition.pubkey,
-            payer: payer.pubkey,
-            system_program: system_program.pubkey,
-            sysvar_instructions: sysvar_instructions.pubkey,
-            authority: authority.pubkey,
+            escrow,
+            metadata,
+            mint,
+            token_account,
+            edition,
+            payer,
+            system_program,
+            sysvar_instructions,
+            authority,
         })
     }
 }
