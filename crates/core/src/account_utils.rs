@@ -21,7 +21,6 @@ use solana_pubkey::Pubkey;
 /// let required = next_account(&mut iter)?;           // required account
 /// let optional = next_account(&mut iter);            // optional account
 /// ```
-
 pub fn next_account<'a>(iter: &mut impl Iterator<Item = &'a AccountMeta>) -> Option<Pubkey> {
     Some(iter.next()?.pubkey)
 }
