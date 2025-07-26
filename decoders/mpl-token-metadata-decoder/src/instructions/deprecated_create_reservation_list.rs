@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x06")]
 pub struct DeprecatedCreateReservationList {}
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct DeprecatedCreateReservationListInstructionAccounts {
     pub reservation_list: solana_pubkey::Pubkey,
     pub payer: solana_pubkey::Pubkey,
@@ -23,21 +24,25 @@ impl carbon_core::deserialize::ArrangeAccounts for DeprecatedCreateReservationLi
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [reservation_list, payer, update_authority, master_edition, resource, metadata, system_program, rent, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let reservation_list = next_account(&mut iter)?;
+        let payer = next_account(&mut iter)?;
+        let update_authority = next_account(&mut iter)?;
+        let master_edition = next_account(&mut iter)?;
+        let resource = next_account(&mut iter)?;
+        let metadata = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let rent = next_account(&mut iter)?;
 
         Some(DeprecatedCreateReservationListInstructionAccounts {
-            reservation_list: reservation_list.pubkey,
-            payer: payer.pubkey,
-            update_authority: update_authority.pubkey,
-            master_edition: master_edition.pubkey,
-            resource: resource.pubkey,
-            metadata: metadata.pubkey,
-            system_program: system_program.pubkey,
-            rent: rent.pubkey,
+            reservation_list,
+            payer,
+            update_authority,
+            master_edition,
+            resource,
+            metadata,
+            system_program,
+            rent,
         })
     }
 }

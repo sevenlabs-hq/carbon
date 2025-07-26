@@ -1,11 +1,10 @@
-use {
-    super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use super::super::types::*;
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
 )]
+#[carbon(discriminator = "0x4fa529a7b4bf8db9")]
 pub struct MasterEditionV1 {
     pub key: Key,
     pub supply: u64,

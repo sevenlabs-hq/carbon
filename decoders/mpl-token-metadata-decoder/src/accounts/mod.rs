@@ -1,8 +1,7 @@
-use {
-    super::TokenMetadataDecoder,
-    crate::PROGRAM_ID,
-    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
-};
+use carbon_core::account::AccountDecoder;
+use carbon_core::deserialize::CarbonDeserialize;
+
+use super::TokenMetadataDecoder;
 pub mod collection_authority_record;
 pub mod edition;
 pub mod edition_marker;
@@ -41,10 +40,6 @@ impl AccountDecoder<'_> for TokenMetadataDecoder {
         &self,
         account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
-        if !account.owner.eq(&PROGRAM_ID) {
-            return None;
-        }
-
         if let Some(decoded_account) =
             collection_authority_record::CollectionAuthorityRecord::deserialize(
                 account.data.as_slice(),

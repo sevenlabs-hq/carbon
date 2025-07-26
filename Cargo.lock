@@ -1549,6 +1549,7 @@ name = "carbon-mpl-token-metadata-decoder"
 version = "0.9.1"
 dependencies = [
  "carbon-core",
+ "carbon-test-utils",
  "serde",
  "solana-account",
  "solana-instruction",
