@@ -4,6 +4,8 @@
 
 use crate::{PROGRAM_ID, {{ programsToExport[0].name | pascalCase }}Decoder};
 
+pub mod sql;
+
 {% for account in accountsToExport | sort(false, false, 'name') %}
 pub mod {{ account.name | snakeCase }};
 {% endfor %}

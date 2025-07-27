@@ -1,0 +1,53 @@
+{% extends "layout.njk" %}
+{% import "macros.njk" as macros %}
+
+{% block main %}
+
+{{ imports }}
+
+{{ macros.docblock(entityDocs) }}
+#[derive(sqlx::FromRow, Debug, Clone)]
+pub struct {{ entityName | pascalCase }}Row {
+{% for field in flatFields %}
+    {% if field.docs and field.docs.length > 0 %}
+{{ macros.docblock(field.docs) -}}
+    {% endif %}
+    pub {{ field.column }}: {{ field.rowType }},
+{% endfor %}
+}
+
+impl From<{{ entityName | pascalCase }}> for {{ entityName | pascalCase }}Row {
+    fn from({% if flatFields.length == 0 %}_{% endif %}source: {{ entityName | pascalCase }}) -> Self {
+        {% if isEnum %}
+        let mut row = Self {
+            variant: 0,
+            {% for field in flatFields %}
+            {% if field.column != 'variant' %}
+            {{ field.column }}: None,
+            {% endif %}
+            {% endfor %}
+        };
+
+        match source {
+            {% for arm in enumVariants %}
+            {{ arm.pattern }} => {
+                row.variant = {{ arm.discriminant }};
+                {% for assign in arm.assignments %}
+                row.{{ assign.column }} = Some({{ assign.expr }});
+                {% endfor %}
+                row
+            }
+            {% endfor %}
+        }
+
+        {% else %}
+        Self {
+            {% for field in flatFields %}
+            {{ field.column }}: {{ field.expr }},
+            {% endfor %}
+        }
+        {% endif %}
+    }
+}
+
+{% endblock %}

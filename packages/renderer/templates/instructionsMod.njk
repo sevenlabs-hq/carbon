@@ -2,6 +2,8 @@
 
 {% block main %}
 
+pub mod sql;
+
 use crate::{PROGRAM_ID, {{ programsToExport[0].name | pascalCase }}Decoder};
 
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}

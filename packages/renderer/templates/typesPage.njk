@@ -6,7 +6,7 @@
 {{ imports }}
 
 {{ macros.docblock(definedType.docs) }}
-#[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
 {% if definedType.type.kind === 'enumTypeNode' %}
 pub enum {{ definedType.name | pascalCase }} {{ typeManifest.type }}
 {% else %}
