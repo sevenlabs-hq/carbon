@@ -36,7 +36,7 @@ export function getPostgresTypeManifestVisitor() {
                     return m('String', 'TEXT');
                 },
                 visitPublicKeyType() {
-                    return m('PubkeySql', 'BYTEA', ['carbon_core::postgres::primitives::Pubkey']);
+                    return m('Pubkey', 'BYTEA', ['crate::carbon_core_postgres_primitives::Pubkey']);
                 },
                 visitNumberType(node) {
                     switch (node.format) {
@@ -44,21 +44,21 @@ export function getPostgresTypeManifestVisitor() {
                         case 'i16':
                             return m('i16', 'SMALLINT');
                         case 'u8':
-                            return m('U8Sql', 'SMALLINT', ['carbon_core::postgres::primitives::U8']);
+                            return m('U8', 'SMALLINT', ['crate::carbon_core_postgres_primitives::U8']);
                         case 'u16':
-                            return m('U16Sql', 'INTEGER', ['carbon_core::postgres::primitives::U16']);
+                            return m('U16', 'INTEGER', ['crate::carbon_core_postgres_primitives::U16']);
                         case 'i32':
                             return m('i32', 'INTEGER');
                         case 'u32':
-                            return m('U32Sql', 'BIGINT', ['carbon_core::postgres::primitives::U32']);
+                            return m('U32', 'BIGINT', ['crate::carbon_core_postgres_primitives::U32']);
                         case 'i64':
                             return m('i64', 'BIGINT');
                         case 'u64':
-                            return m('U64Sql', 'NUMERIC(20)', ['carbon_core::postgres::primitives::U64']);
+                            return m('U64', 'NUMERIC(20)', ['crate::carbon_core_postgres_primitives::U64']);
                         case 'i128':
-                            return m('I128Sql', 'NUMERIC(38)', ['carbon_core::postgres::primitives::I128']);
+                            return m('I128', 'NUMERIC(38)', ['crate::carbon_core_postgres_primitives::I128']);
                         case 'u128':
-                            return m('U128Sql', 'NUMERIC(39)', ['carbon_core::postgres::primitives::U128']);
+                            return m('U128', 'NUMERIC(39)', ['crate::carbon_core_postgres_primitives::U128']);
                         case 'f32':
                             return m('f32', 'REAL');
                         case 'f64':
@@ -85,13 +85,21 @@ export function getPostgresTypeManifestVisitor() {
                             sqlColumnType: `${inner.sqlColumnType}[]`,
                         };
                     }
-                    return jsonb(inner);
+                    return jsonb(inner, true);
                 },
                 visitMapType() {
                     return jsonb();
                 },
                 visitSetType() {
                     return jsonb();
+                },
+                visitTupleType(node, { self }) {
+                    const inners = node.items.map(i => visit(i, self));
+                    return {
+                        imports: new ImportMap().mergeWith(...inners.map(i => i.imports)),
+                        sqlxType: `(${inners.map(i => i.sqlxType).join(', ')})`,
+                        sqlColumnType: `(${inners.map(i => i.sqlColumnType).join(', ')})`,
+                    };
                 },
                 visitSizePrefixType(node, { self }) {
                     return visit(node.type, self);
@@ -100,7 +108,9 @@ export function getPostgresTypeManifestVisitor() {
                     return visit(node.item, self);
                 },
                 visitDefinedTypeLink(node) {
-                    return m(pascalCase(node.name), 'COMPOSITE');
+                    return m(`${pascalCase(node.name)}Row`, 'COMPOSITE', [
+                        `crate::types::sql::${pascalCase(node.name)}Row`,
+                    ]);
                 },
             }),
     );
@@ -108,11 +118,11 @@ export function getPostgresTypeManifestVisitor() {
     function m(rust: string, sql: string, extra: string[] = []): PostgresTypeManifest {
         return { imports: new ImportMap().add(extra), sqlxType: rust, sqlColumnType: sql };
     }
-    function jsonb(inner?: PostgresTypeManifest): PostgresTypeManifest {
+    function jsonb(inner?: PostgresTypeManifest, isVec = false): PostgresTypeManifest {
         const base = inner ?? { imports: new ImportMap(), sqlxType: 'serde_json::Value', sqlColumnType: 'JSONB' };
         return {
-            imports: new ImportMap().add('sqlx::types::Json').mergeWith(base.imports),
-            sqlxType: `sqlx::types::Json<${base.sqlxType}>`,
+            imports: base.imports,
+            sqlxType: isVec ? `sqlx::types::Json<Vec<${base.sqlxType}>>` : `sqlx::types::Json<${base.sqlxType}>`,
             sqlColumnType: 'JSONB',
         };
     }

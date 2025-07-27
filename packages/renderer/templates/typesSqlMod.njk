@@ -2,14 +2,13 @@
 
 {% block main %}
 
-pub mod sql;
-
 {% for type in definedTypesToExport | sort(false, false, 'name') %}
-pub mod {{ type.name | snakeCase }};
+pub mod {{ type.name | snakeCase }}_row;
 {% endfor %}
 
 {% for type in definedTypesToExport | sort(false, false, 'name') %}
-pub use self::{{ type.name | snakeCase }}::*;
+pub use self::{{ type.name | snakeCase }}_row::*;
 {% endfor %}
 
 {% endblock %}
+=== END FILE: templates/typesSqlMod.njk ===

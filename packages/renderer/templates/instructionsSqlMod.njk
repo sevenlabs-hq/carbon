@@ -1,0 +1,13 @@
+{% extends "layout.njk" %}
+
+{% block main %}
+
+{% for instruction in instructionsToExport | sort(false, false, 'name') %}
+pub mod {{ instruction.name | snakeCase }}_row;
+{% endfor %}
+
+{% for instruction in instructionsToExport | sort(false, false, 'name') %}
+pub use self::{{ instruction.name | snakeCase }}_row::*;
+{% endfor %}
+
+{% endblock %}

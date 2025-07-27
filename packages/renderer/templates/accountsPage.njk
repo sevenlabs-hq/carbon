@@ -6,7 +6,7 @@
 {{ imports }}
 
 {{ macros.docblock(account.docs) }}
-#[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
 pub struct {{ account.name | pascalCase }} {{ typeManifest.type }}
 
 impl {{ account.name | pascalCase }} {
