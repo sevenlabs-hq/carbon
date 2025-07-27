@@ -36,7 +36,7 @@ export function getPostgresTypeManifestVisitor() {
                     return m('String', 'TEXT');
                 },
                 visitPublicKeyType() {
-                    return m('Pubkey', 'BYTEA', ['crate::carbon_core_postgres_primitives::Pubkey']);
+                    return m('Pubkey', 'BYTEA', ['carbon_core::postgres::primitives::Pubkey']);
                 },
                 visitNumberType(node) {
                     switch (node.format) {
@@ -44,21 +44,21 @@ export function getPostgresTypeManifestVisitor() {
                         case 'i16':
                             return m('i16', 'SMALLINT');
                         case 'u8':
-                            return m('U8', 'SMALLINT', ['crate::carbon_core_postgres_primitives::U8']);
+                            return m('U8', 'SMALLINT', ['carbon_core::postgres::primitives::U8']);
                         case 'u16':
-                            return m('U16', 'INTEGER', ['crate::carbon_core_postgres_primitives::U16']);
+                            return m('U16', 'INTEGER', ['carbon_core::postgres::primitives::U16']);
                         case 'i32':
                             return m('i32', 'INTEGER');
                         case 'u32':
-                            return m('U32', 'BIGINT', ['crate::carbon_core_postgres_primitives::U32']);
+                            return m('U32', 'BIGINT', ['carbon_core::postgres::primitives::U32']);
                         case 'i64':
                             return m('i64', 'BIGINT');
                         case 'u64':
-                            return m('U64', 'NUMERIC(20)', ['crate::carbon_core_postgres_primitives::U64']);
+                            return m('U64', 'NUMERIC(20)', ['carbon_core::postgres::primitives::U64']);
                         case 'i128':
-                            return m('I128', 'NUMERIC(38)', ['crate::carbon_core_postgres_primitives::I128']);
+                            return m('I128', 'NUMERIC(38)', ['carbon_core::postgres::primitives::I128']);
                         case 'u128':
-                            return m('U128', 'NUMERIC(39)', ['crate::carbon_core_postgres_primitives::U128']);
+                            return m('U128', 'NUMERIC(39)', ['carbon_core::postgres::primitives::U128']);
                         case 'f32':
                             return m('f32', 'REAL');
                         case 'f64':
