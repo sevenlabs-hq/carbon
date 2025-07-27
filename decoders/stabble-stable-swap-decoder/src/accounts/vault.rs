@@ -1,6 +1,8 @@
 use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xd308e82b02987577")]
 pub struct Vault {
     pub admin: solana_pubkey::Pubkey,

@@ -1,6 +1,8 @@
 use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x48b155f94ca7ba7e")]
 pub struct UserState {
     pub user_id: u64,
@@ -19,5 +21,6 @@ pub struct UserState {
     pub bump: u64,
     pub delegatee: solana_pubkey::Pubkey,
     pub last_stake_ts: u64,
+    #[serde(with = "serde_big_array::BigArray")]
     pub padding1: [u64; 50],
 }

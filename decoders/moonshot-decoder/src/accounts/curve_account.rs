@@ -3,7 +3,9 @@ use {
     carbon_core::{borsh, CarbonDeserialize},
 };
 
-#[derive(CarbonDeserialize, Debug, PartialEq)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x085b531c84d8f816")]
 pub struct CurveAccount {
     pub total_supply: u64,
@@ -18,6 +20,7 @@ pub struct CurveAccount {
     pub coef_b: u32,
     pub bump: u8,
     pub migration_target: MigrationTarget,
+    #[serde(with = "serde_big_array::BigArray")]
     pub _reserved: [u8; 327],
 }
 

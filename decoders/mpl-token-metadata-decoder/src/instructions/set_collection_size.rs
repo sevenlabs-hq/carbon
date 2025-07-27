@@ -1,7 +1,6 @@
-use {
-    super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use super::super::types::*;
+
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -11,11 +10,12 @@ pub struct SetCollectionSize {
     pub set_collection_size_args: SetCollectionSizeArgs,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct SetCollectionSizeInstructionAccounts {
     pub collection_metadata: solana_pubkey::Pubkey,
     pub collection_authority: solana_pubkey::Pubkey,
     pub collection_mint: solana_pubkey::Pubkey,
-    pub collection_authority_record: solana_pubkey::Pubkey,
+    pub collection_authority_record: Option<solana_pubkey::Pubkey>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SetCollectionSize {
@@ -24,17 +24,17 @@ impl carbon_core::deserialize::ArrangeAccounts for SetCollectionSize {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [collection_metadata, collection_authority, collection_mint, collection_authority_record, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let collection_metadata = next_account(&mut iter)?;
+        let collection_authority = next_account(&mut iter)?;
+        let collection_mint = next_account(&mut iter)?;
+        let collection_authority_record = next_account(&mut iter);
 
         Some(SetCollectionSizeInstructionAccounts {
-            collection_metadata: collection_metadata.pubkey,
-            collection_authority: collection_authority.pubkey,
-            collection_mint: collection_mint.pubkey,
-            collection_authority_record: collection_authority_record.pubkey,
+            collection_metadata,
+            collection_authority,
+            collection_mint,
+            collection_authority_record,
         })
     }
 }

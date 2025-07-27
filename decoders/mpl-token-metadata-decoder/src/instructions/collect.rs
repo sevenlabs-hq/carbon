@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x36")]
 pub struct Collect {}
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct CollectInstructionAccounts {
     pub authority: solana_pubkey::Pubkey,
     pub recipient: solana_pubkey::Pubkey,
@@ -17,13 +18,13 @@ impl carbon_core::deserialize::ArrangeAccounts for Collect {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [authority, recipient, _remaining @ ..] = accounts else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let authority = next_account(&mut iter)?;
+        let recipient = next_account(&mut iter)?;
 
         Some(CollectInstructionAccounts {
-            authority: authority.pubkey,
-            recipient: recipient.pubkey,
+            authority,
+            recipient,
         })
     }
 }

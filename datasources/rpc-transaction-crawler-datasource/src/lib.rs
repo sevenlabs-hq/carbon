@@ -253,7 +253,7 @@ fn signature_fetcher(
 
     tokio::spawn(async move {
         let mut last_fetched_signature = filters.before_signature;
-        let until_signature = filters.until_signature;
+        let mut until_signature = filters.until_signature;
         let mut most_recent_signature: Option<Signature> = None;
         loop {
             tokio::select! {
@@ -279,12 +279,25 @@ fn signature_fetcher(
                                 let start = Instant::now();
 
                                 if signatures.is_empty() {
-                                    if last_fetched_signature.is_none() {
-                                        tokio::time::sleep(connection_config.polling_interval).await;
+                                    // no more signatures to fetch, so we've gone through
+                                    // all transactions that have been sent up until we started polling for signatures
+                                    // update `last_fetched_signature` to None so we can detect newly sent transactions
+                                    last_fetched_signature = None;
+                                    if most_recent_signature.is_some() {
+                                            // set the `until` signature to the most recent signature
+                                            // this will prevent reindexing old transactions
+                                            until_signature = most_recent_signature;
+                                            // set the most recent signature to None
+                                            // this will prevent reindexing old transactions
+                                            // after we run out of new
+                                            most_recent_signature = None;
                                     }
+                                     tokio::time::sleep(connection_config.polling_interval).await;
                                     break;
                                 }
 
+                                // if we have not seen a signature, then update the most recent signature
+                                // on subsequent loop's, this will prevent us from reindexing already seen transactions
                                 if most_recent_signature.is_none() {
                                     match Signature::from_str(&signatures[0].signature) {
                                         Ok(sig) => most_recent_signature = Some(sig),

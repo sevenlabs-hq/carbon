@@ -5,7 +5,9 @@ use {
 
 pub const AMM_INFO_SIZE: usize = core::mem::size_of::<AmmInfo>();
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
+)]
 pub struct AmmInfo {
     pub status: u64,
     pub nonce: u64,

@@ -1,7 +1,6 @@
-use {
-    super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use super::super::types::*;
+
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -12,6 +11,7 @@ pub struct MintNewEditionFromMasterEditionViaVaultProxy {
         MintNewEditionFromMasterEditionViaTokenArgs,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct MintNewEditionFromMasterEditionViaVaultProxyInstructionAccounts {
     pub new_metadata: solana_pubkey::Pubkey,
     pub new_edition: solana_pubkey::Pubkey,
@@ -29,7 +29,7 @@ pub struct MintNewEditionFromMasterEditionViaVaultProxyInstructionAccounts {
     pub token_program: solana_pubkey::Pubkey,
     pub token_vault_program: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
-    pub rent: solana_pubkey::Pubkey,
+    pub rent: Option<solana_pubkey::Pubkey>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for MintNewEditionFromMasterEditionViaVaultProxy {
@@ -38,31 +38,44 @@ impl carbon_core::deserialize::ArrangeAccounts for MintNewEditionFromMasterEditi
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [new_metadata, new_edition, master_edition, new_mint, edition_mark_pda, new_mint_authority, payer, vault_authority, safety_deposit_store, safety_deposit_box, vault, new_metadata_update_authority, metadata, token_program, token_vault_program, system_program, rent, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let new_metadata = next_account(&mut iter)?;
+        let new_edition = next_account(&mut iter)?;
+        let master_edition = next_account(&mut iter)?;
+        let new_mint = next_account(&mut iter)?;
+        let edition_mark_pda = next_account(&mut iter)?;
+        let new_mint_authority = next_account(&mut iter)?;
+        let payer = next_account(&mut iter)?;
+        let vault_authority = next_account(&mut iter)?;
+        let safety_deposit_store = next_account(&mut iter)?;
+        let safety_deposit_box = next_account(&mut iter)?;
+        let vault = next_account(&mut iter)?;
+        let new_metadata_update_authority = next_account(&mut iter)?;
+        let metadata = next_account(&mut iter)?;
+        let token_program = next_account(&mut iter)?;
+        let token_vault_program = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let rent = next_account(&mut iter);
 
         Some(
             MintNewEditionFromMasterEditionViaVaultProxyInstructionAccounts {
-                new_metadata: new_metadata.pubkey,
-                new_edition: new_edition.pubkey,
-                master_edition: master_edition.pubkey,
-                new_mint: new_mint.pubkey,
-                edition_mark_pda: edition_mark_pda.pubkey,
-                new_mint_authority: new_mint_authority.pubkey,
-                payer: payer.pubkey,
-                vault_authority: vault_authority.pubkey,
-                safety_deposit_store: safety_deposit_store.pubkey,
-                safety_deposit_box: safety_deposit_box.pubkey,
-                vault: vault.pubkey,
-                new_metadata_update_authority: new_metadata_update_authority.pubkey,
-                metadata: metadata.pubkey,
-                token_program: token_program.pubkey,
-                token_vault_program: token_vault_program.pubkey,
-                system_program: system_program.pubkey,
-                rent: rent.pubkey,
+                new_metadata,
+                new_edition,
+                master_edition,
+                new_mint,
+                edition_mark_pda,
+                new_mint_authority,
+                payer,
+                vault_authority,
+                safety_deposit_store,
+                safety_deposit_box,
+                vault,
+                new_metadata_update_authority,
+                metadata,
+                token_program,
+                token_vault_program,
+                system_program,
+                rent,
             },
         )
     }
