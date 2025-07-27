@@ -1,6 +1,6 @@
 [package]
 name = "carbon-raydium-stable-swap-decoder"
-version = "0.9.0"
+version = "0.9.1"
 description = "Raydium Stable Swap Decoder"
 edition = { workspace = true }
 license = { workspace = true }

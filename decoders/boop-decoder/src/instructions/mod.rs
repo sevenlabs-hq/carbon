@@ -11,9 +11,11 @@ pub mod bonding_curve_vault_closed_event;
 pub mod buy_token;
 pub mod cancel_authority_transfer;
 pub mod close_bonding_curve_vault;
+pub mod collect_meteora_trading_fees;
 pub mod collect_trading_fees;
 pub mod complete_authority_transfer;
 pub mod config_updated_event;
+pub mod create_meteora_pool;
 pub mod create_raydium_pool;
 pub mod create_raydium_random_pool;
 pub mod create_token;
@@ -64,8 +66,10 @@ pub enum BoopInstruction {
     BuyToken(buy_token::BuyToken),
     CancelAuthorityTransfer(cancel_authority_transfer::CancelAuthorityTransfer),
     CloseBondingCurveVault(close_bonding_curve_vault::CloseBondingCurveVault),
+    CollectMeteoraTradingFees(collect_meteora_trading_fees::CollectMeteoraTradingFees),
     CollectTradingFees(collect_trading_fees::CollectTradingFees),
     CompleteAuthorityTransfer(complete_authority_transfer::CompleteAuthorityTransfer),
+    CreateMeteoraPool(create_meteora_pool::CreateMeteoraPool),
     CreateRaydiumPool(create_raydium_pool::CreateRaydiumPool),
     CreateRaydiumRandomPool(create_raydium_random_pool::CreateRaydiumRandomPool),
     CreateToken(create_token::CreateToken),
@@ -139,8 +143,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for BoopDecoder {
             BoopInstruction::BuyToken => buy_token::BuyToken,
             BoopInstruction::CancelAuthorityTransfer => cancel_authority_transfer::CancelAuthorityTransfer,
             BoopInstruction::CloseBondingCurveVault => close_bonding_curve_vault::CloseBondingCurveVault,
+            BoopInstruction::CollectMeteoraTradingFees => collect_meteora_trading_fees::CollectMeteoraTradingFees,
             BoopInstruction::CollectTradingFees => collect_trading_fees::CollectTradingFees,
             BoopInstruction::CompleteAuthorityTransfer => complete_authority_transfer::CompleteAuthorityTransfer,
+            BoopInstruction::CreateMeteoraPool => create_meteora_pool::CreateMeteoraPool,
             BoopInstruction::CreateRaydiumPool => create_raydium_pool::CreateRaydiumPool,
             BoopInstruction::CreateRaydiumRandomPool => create_raydium_random_pool::CreateRaydiumRandomPool,
             BoopInstruction::CreateToken => create_token::CreateToken,

@@ -3,7 +3,9 @@ use {
     carbon_core::{borsh, CarbonDeserialize},
 };
 
-#[derive(CarbonDeserialize, Debug, PartialEq)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xbdff6146babd1866")]
 pub struct ConfigAccount {
     pub migration_authority: solana_pubkey::Pubkey,
@@ -22,6 +24,7 @@ pub struct ConfigAccount {
     pub max_supported_token_supply: u64,
     pub bump: u8,
     pub coef_b: u32,
+    #[serde(with = "serde_big_array::BigArray")]
     pub _reserved: [u8; 192],
 }
 

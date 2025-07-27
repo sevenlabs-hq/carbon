@@ -48,6 +48,8 @@ pub trait CarbonDeserialize
 where
     Self: Sized + crate::borsh::BorshDeserialize,
 {
+    const DISCRIMINATOR: &'static [u8];
+
     fn deserialize(data: &[u8]) -> Option<Self>;
 }
 

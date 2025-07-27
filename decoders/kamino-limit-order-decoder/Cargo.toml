@@ -1,6 +1,6 @@
 [package]
-name = "kamino-limit-order-decoder"
-version = "0.9.0"
+name = "carbon-kamino-limit-order-decoder"
+version = "0.9.1"
 description = "Kamino Limit Order Decoder"
 edition = { workspace = true }
 license = { workspace = true }
