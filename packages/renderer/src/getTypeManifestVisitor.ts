@@ -48,6 +48,7 @@ export function getTypeManifestVisitor() {
                             imports: childManifest.imports,
                             type: `[${childManifest.type}; ${arrayType.count.value}]`,
                             borshType: `[${childManifest.borshType}; ${arrayType.count.value}]`,
+                            requiredBigArray: arrayType.count.value > 32 ? arrayType.count.value : undefined,
                         };
                     }
 
@@ -59,7 +60,6 @@ export function getTypeManifestVisitor() {
                         };
                     }
 
-                    const prefix = resolveNestedTypeNode(arrayType.count.prefix);
                     return {
                         imports: childManifest.imports,
                         type: `Vec<${childManifest.type}>`,
@@ -218,9 +218,14 @@ export function getTypeManifestVisitor() {
                     const fieldManifest = visit(node.type, self);
                     const fieldName = snakeCase(node.name);
 
+                    const serdeBigArray =
+                        isNode(node.type, 'arrayTypeNode') &&
+                        isNode(node.type.count, 'fixedCountNode') &&
+                        node.type.count.value > 32;
+
                     return {
                         imports: fieldManifest.imports,
-                        type: `pub ${fieldName}: ${fieldManifest.type},`,
+                        type: `${serdeBigArray ? '#[serde(with = "serde_big_array::BigArray")] ' : ''}pub ${fieldName}: ${fieldManifest.type},`,
                         borshType: `${fieldName}: ${fieldManifest.borshType},`,
                     };
                 },

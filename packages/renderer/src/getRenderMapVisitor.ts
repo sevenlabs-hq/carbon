@@ -30,10 +30,8 @@ type FlattenedField = {
     column: string;
     rustPath: string;
     rowType: string;
-    optional: boolean;
-    variant?: string;
-    accessorVariant?: string;
     expr?: string;
+    reverseExpr?: string;
     docs: string[];
     postgresManifest: PostgresTypeManifest;
 };
@@ -101,8 +99,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const discriminatorManifest = getDiscriminatorManifest(discriminators);
 
                     const flatFields = flattenType(newNode.data, [], [], new Set());
-                    const sqlImports = new ImportMap().add(`crate::accounts::${pascalCase(node.name)}`);
-                    flatFields.forEach(([f, type]) => {
+                    const sqlImports = new ImportMap()
+                        .add(`crate::accounts::${pascalCase(node.name)}`)
+                        .add('carbon_core::account::AccountMetadata')
+                        .add('carbon_core::postgres::metadata::AccountRowMetadata');
+                    flatFields.forEach(f => {
                         sqlImports.mergeWith(f.postgresManifest.imports);
                     });
 
@@ -122,12 +123,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             render('sqlRowPage.njk', {
                                 entityDocs: node.docs,
                                 entityName: node.name,
-                                isEnum: isNode(node.data, 'enumTypeNode'),
-                                enumVariants: isNode(node.data, 'enumTypeNode')
-                                    ? buildEnumVariantsInfo(node.name, node.data, flatFields)
-                                    : [],
                                 imports: sqlImports.toString(),
-                                flatFields: flatFields.map(([f, type]) => f),
+                                flatFields,
+                                isAccount: true,
                             }),
                         );
                 },
@@ -136,35 +134,14 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const typeManifest = visit(node.type, typeManifestVisitor);
                     const imports = new ImportMap().mergeWithManifest(typeManifest).add('carbon_core::borsh');
 
-                    const flatFields = flattenType(node.type, [], [], new Set());
-                    const sqlImports = new ImportMap().add(`crate::types::${pascalCase(node.name)}`);
-
-                    flatFields.forEach(([f, type]) => {
-                        sqlImports.mergeWith(f.postgresManifest.imports);
-                    });
-
-                    return new RenderMap()
-                        .add(
-                            `types/${snakeCase(node.name)}.rs`,
-                            render('typesPage.njk', {
-                                definedType: node,
-                                imports: imports.toString(),
-                                typeManifest,
-                            }),
-                        )
-                        .add(
-                            `types/sql/${snakeCase(node.name)}_row.rs`,
-                            render('sqlRowPage.njk', {
-                                entityDocs: node.docs,
-                                entityName: node.name,
-                                isEnum: isNode(node.type, 'enumTypeNode'),
-                                enumVariants: isNode(node.type, 'enumTypeNode')
-                                    ? buildEnumVariantsInfo(pascalCase(node.name), node.type, flatFields)
-                                    : [],
-                                imports: sqlImports.toString(),
-                                flatFields: flatFields.map(([f, type]) => f),
-                            }),
-                        );
+                    return new RenderMap().add(
+                        `types/${snakeCase(node.name)}.rs`,
+                        render('typesPage.njk', {
+                            definedType: node,
+                            imports: imports.toString(),
+                            typeManifest,
+                        }),
+                    );
                 },
 
                 visitInstruction(node) {
@@ -230,8 +207,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         [],
                         new Set(),
                     );
-                    const sqlImports = new ImportMap().add(`crate::instructions::${pascalCase(node.name)}`);
-                    flatFields.forEach(([f, type]) => {
+                    const sqlImports = new ImportMap()
+                        .add(`crate::instructions::${pascalCase(node.name)}`)
+                        .add('carbon_core::instruction::InstructionMetadata')
+                        .add('carbon_core::postgres::metadata::InstructionRowMetadata');
+                    flatFields.forEach(f => {
                         sqlImports.mergeWith(f.postgresManifest.imports);
                     });
 
@@ -251,9 +231,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             render('sqlRowPage.njk', {
                                 entityDocs: node.docs,
                                 entityName: node.name,
-                                isEnum: false,
                                 imports: sqlImports.toString(),
-                                flatFields: flatFields.map(([f, type]) => f),
+                                flatFields,
+                                isAccount: false,
                             }),
                         );
                 },
@@ -302,7 +282,6 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     }
                     if (definedTypesToExport.length > 0) {
                         map.add('types/mod.rs', render('typesMod.njk', ctx));
-                        map.add('types/sql/mod.rs', render('typesSqlMod.njk', ctx));
                     }
 
                     // Generate lib.rs
@@ -319,10 +298,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
         prefix: string[],
         docsPrefix: string[],
         seen: Set<string>,
-        opts: { variant?: string; inOption?: boolean } = {},
-    ): [FlattenedField, TypeNode][] {
-        const out: [FlattenedField, TypeNode][] = [];
-        const { variant, inOption } = opts;
+        opts: { inOption?: boolean } = {},
+    ): FlattenedField[] {
+        const out: FlattenedField[] = [];
+
+        const { inOption } = opts;
 
         const makeName = (nameParts: string[]) => {
             let col = snakeCase(nameParts.join('_'));
@@ -335,84 +315,43 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             return col;
         };
 
-        if (typeNode.kind == 'structTypeNode') {
+        if (isNode(typeNode, 'structTypeNode')) {
             for (const field of typeNode.fields) {
-                out.push(
-                    ...flattenType(field.type, [...prefix, snakeCase(field.name)], field.docs ?? [], seen, {
-                        variant,
-                        inOption,
-                    }),
-                );
+                out.push(...flattenType(field.type, [...prefix, snakeCase(field.name)], [], seen, { inOption }));
             }
             return out;
         }
 
-        if (isNode(typeNode, 'enumTypeNode')) {
-            // discriminant column
-            const variantCol = makeName([...prefix, 'variant']);
-            out.push([
-                {
-                    column: variantCol,
-                    rustPath: [...prefix, 'variant'].join('.'),
-                    rowType: 'i16',
-                    optional: false,
-                    docs: ['enum variant discriminant'],
-                    postgresManifest: {
-                        sqlxType: 'i16',
-                        sqlColumnType: 'SMALLINT',
-                        imports: new ImportMap(),
-                    },
-                },
-                typeNode,
-            ]);
+        if (isNode(typeNode, 'optionTypeNode') && typeNode.item.kind == 'definedTypeLinkNode') {
+            const column = makeName(prefix);
+            const manifest = visit(typeNode.item, postgresTypeManifestVisitor) as PostgresTypeManifest;
 
-            typeNode.variants.forEach((v: any) => {
-                const vName = snakeCase(v.name);
-                if (v.kind === 'enumStructVariantTypeNode') {
-                    v.struct.fields.forEach((f: any) => {
-                        out.push(
-                            ...flattenType(f.type, [...prefix, vName, snakeCase(f.name)], f.docs ?? [], seen, {
-                                variant: vName,
-                            }),
-                        );
-                    });
-                } else if (v.kind === 'enumTupleVariantTypeNode') {
-                    v.tuple.items.forEach((it: any, i: number) => {
-                        out.push(...flattenType(it, [...prefix, vName, `item_${i}`], [], seen, { variant: vName }));
-                    });
-                }
+            out.push({
+                column,
+                rustPath: prefix.join('.'),
+                rowType: `Option<sqlx::types::Json<${manifest.sqlxType}>>`,
+                docs: docsPrefix,
+                postgresManifest: manifest,
+                expr: buildExpression(typeNode, `source.${prefix.join('.')}`),
+                reverseExpr: buildReverse(typeNode, `source.${column}`),
             });
-            return out;
-        }
-
-        if (isNode(typeNode, 'tupleTypeNode')) {
-            for (let i = 0; i < typeNode.items.length; i++) {
-                out.push(...flattenType(typeNode.items[i], [...prefix, `item_${i}`], [], seen, { variant, inOption }));
-            }
 
             return out;
         }
 
-        if (isNode(typeNode, 'optionTypeNode')) {
-            const inner = visit(typeNode.item, postgresTypeManifestVisitor) as PostgresTypeManifest;
-            const rowType = variant ? `Option<Option<${inner.sqlxType}>>` : `Option<${inner.sqlxType}>`;
+        if (isNode(typeNode, 'definedTypeLinkNode')) {
+            const column = makeName(prefix);
+            const manifest = visit(typeNode, postgresTypeManifestVisitor) as PostgresTypeManifest;
 
-            const expr = buildExpression(typeNode, `source.${prefix.join('.')}`);
-
-            out.push([
-                {
-                    column: makeName(prefix),
-                    rustPath: prefix.join('.'),
-                    rowType,
-                    optional: true,
-                    docs: docsPrefix,
-                    postgresManifest: inner,
-                    variant,
-                    accessorVariant: variant ? prefix.slice(1).join('.') : undefined,
-                    expr,
-                },
-                typeNode,
-            ]);
+            out.push({
+                column,
+                rustPath: prefix.join('.'),
+                rowType: `sqlx::types::Json<${manifest.sqlxType}>`,
+                docs: docsPrefix,
+                postgresManifest: manifest,
+                expr: buildExpression(typeNode, `source.${prefix.join('.')}`),
+                reverseExpr: buildReverse(typeNode, `source.${column}`),
+            });
             return out;
         }
 
@@ -422,25 +361,28 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
         const field: FlattenedField = {
             column,
             rustPath: prefix.join('.'),
-            rowType: variant ? `Option<${manifest.sqlxType}>` : manifest.sqlxType,
-            optional: !!variant,
+            rowType: manifest.sqlxType,
             docs: docsPrefix,
             postgresManifest: manifest,
-            variant,
-            accessorVariant: variant
-                ? prefix.slice(1).join('.') // after <variant>
-                : undefined,
         };
 
         field.expr = buildExpression(typeNode, `source.${field.rustPath}`);
+        field.reverseExpr = buildReverse(typeNode, `source.${field.rustPath}`);
 
-        out.push([field, typeNode]);
+        out.push(field);
+
         return out;
     }
 
     function buildExpression(typeNode: TypeNode, prefix: string): string {
         if (isNode(typeNode, 'arrayTypeNode')) {
-            if (isNode(typeNode.item, 'numberTypeNode') || isNode(typeNode.item, 'booleanTypeNode')) {
+            if (
+                isNode(typeNode.item, 'numberTypeNode') ||
+                isNode(typeNode.item, 'booleanTypeNode') ||
+                isNode(typeNode.item, 'bytesTypeNode') ||
+                isNode(typeNode.item, 'stringTypeNode') ||
+                isNode(typeNode.item, 'publicKeyTypeNode')
+            ) {
                 return `${prefix}.into_iter().map(|element| element.into()).collect()`;
             } else {
                 return `sqlx::types::Json(${prefix}.into_iter().map(|element| ${buildExpression(typeNode.item, `element`)}).collect())`;
@@ -454,34 +396,72 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
         }
     }
 
-    function buildEnumVariantsInfo(
-        entityPascal: string,
-        enumNode: EnumTypeNode,
-        flatFields: [FlattenedField, TypeNode][],
-    ) {
-        const byVariant: Record<string, [FlattenedField, TypeNode][]> = {};
-        flatFields.forEach(([f, type]) => {
-            if (!f.variant) return;
-            (byVariant[f.variant] ??= []).push([f, type]);
-        });
+    function buildReverse(typeNode: TypeNode, prefix: string): string {
+        if (isNode(typeNode, 'arrayTypeNode')) {
+            const isJson = !(
+                isNode(typeNode.item, 'numberTypeNode') ||
+                isNode(typeNode.item, 'booleanTypeNode') ||
+                isNode(typeNode.item, 'bytesTypeNode') ||
+                isNode(typeNode.item, 'stringTypeNode') ||
+                isNode(typeNode.item, 'publicKeyTypeNode')
+            );
 
-        return enumNode.variants.map((variant, idx: number) => {
-            const vSnake = snakeCase(variant.name);
-            let pattern = `${entityPascal}::${pascalCase(variant.name)}`;
-            if (variant.kind === 'enumStructVariantTypeNode' && variant.struct.kind == 'structTypeNode') {
-                const vars = variant.struct.fields.map((f: any) => snakeCase(f.name)).join(', ');
-                pattern += ` { ${vars} }`;
-            } else if (variant.kind === 'enumTupleVariantTypeNode' && variant.tuple.kind == 'tupleTypeNode') {
-                const vars = variant.tuple.items.map((_: any, i: number) => `item_${i}`).join(', ');
-                pattern += `(${vars})`;
+            switch (typeNode.count.kind) {
+                // our target type is [T; N], T is typeNode.item, N is typeNode.count.value - from Vec<sqlx::types::Json<T>> or Vec<PrimitiveT>
+                case 'fixedCountNode':
+                    if (isJson) {
+                        return `${prefix}.0.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?`;
+                    } else {
+                        return `${prefix}.into_iter().map(|element| ${buildReverse(typeNode.item, 'element')}).collect::<Vec<_>>().try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
+                    }
+                    break;
+                // our target type is Vec<T>, T is typeNode.item - from Vec<sqlx::types::Json<T>> or Vec<PrimitiveT>
+                case 'prefixedCountNode':
+                    if (isJson) {
+                        return `${prefix}.0`;
+                    } else {
+                        return `${prefix}.into_iter().map(|element| element.try_into()).collect::<Result<_, _>>().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
+                    }
+                    break;
+                // TODO: implement this
+                case 'remainderCountNode':
+                    return `unimplemented!()`;
+                    break;
             }
+        }
+        if (isNode(typeNode, 'optionTypeNode')) {
+            return `${prefix}.map(|value| ${buildReverse(typeNode.item, 'value')})`;
+        }
+        if (isNode(typeNode, 'tupleTypeNode')) {
+            return `(${typeNode.items.map((it, i) => buildReverse(it, `${prefix}.${i}`)).join(', ')})`;
+        }
+        if (
+            isNode(typeNode, 'definedTypeLinkNode') ||
+            isNode(typeNode, 'structTypeNode') ||
+            isNode(typeNode, 'enumTypeNode')
+        ) {
+            return `${prefix}.0`;
+        }
 
-            const assignments = (byVariant[vSnake] || []).map(([f, type]) => ({
-                column: f.column,
-                expr: buildExpression(type, `${f.accessorVariant}`),
-            }));
+        if (isNode(typeNode, 'numberTypeNode')) {
+            switch (typeNode.format) {
+                case 'u8':
+                case 'u16':
+                case 'u32':
+                    return `${prefix}.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?`;
+                case 'u64':
+                case 'u128':
+                case 'i128':
+                    return `*${prefix}`;
+                default:
+                    break;
+            }
+        }
 
-            return { pattern, discriminant: idx, assignments };
-        });
+        if (isNode(typeNode, 'publicKeyTypeNode')) {
+            return `*${prefix}`;
+        }
+
+        return `${prefix}.into()`;
     }
 }

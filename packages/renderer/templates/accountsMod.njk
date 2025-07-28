@@ -14,7 +14,7 @@ pub mod {{ account.name | snakeCase }};
 pub use self::{{ account.name | snakeCase }}::*;
 {% endfor %}
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum {{ programsToExport[0].name | pascalCase }}Account {
 {% for account in accountsToExport | sort(false, false, 'name') %}
     {{ account.name | pascalCase }}({{ account.name | pascalCase }}),

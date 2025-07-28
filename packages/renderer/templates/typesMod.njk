@@ -2,8 +2,6 @@
 
 {% block main %}
 
-pub mod sql;
-
 {% for type in definedTypesToExport | sort(false, false, 'name') %}
 pub mod {{ type.name | snakeCase }};
 {% endfor %}

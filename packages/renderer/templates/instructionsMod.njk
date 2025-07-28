@@ -14,7 +14,7 @@ pub mod {{ instruction.name | snakeCase }};
 pub use self::{{ instruction.name | snakeCase }}::*;
 {% endfor %}
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum {{ programsToExport[0].name | pascalCase }}Instruction {
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
     {{ instruction.name | pascalCase }}({{ instruction.name | pascalCase }}),
