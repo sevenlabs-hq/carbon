@@ -41,6 +41,7 @@ export function getPostgresTypeManifestVisitor() {
                 visitNumberType(node) {
                     switch (node.format) {
                         case 'i8':
+                            return m('i8', 'SMALLINT');
                         case 'i16':
                             return m('i16', 'SMALLINT');
                         case 'u8':
@@ -78,7 +79,13 @@ export function getPostgresTypeManifestVisitor() {
                 },
                 visitArrayType(node, { self }) {
                     const inner = visit(node.item, self);
-                    if (isNode(node.item, 'numberTypeNode') || isNode(node.item, 'booleanTypeNode')) {
+                    if (
+                        isNode(node.item, 'numberTypeNode') ||
+                        isNode(node.item, 'booleanTypeNode') ||
+                        isNode(node.item, 'bytesTypeNode') ||
+                        isNode(node.item, 'stringTypeNode') ||
+                        isNode(node.item, 'publicKeyTypeNode')
+                    ) {
                         return {
                             imports: inner.imports,
                             sqlxType: `Vec<${inner.sqlxType}>`,
@@ -108,9 +115,7 @@ export function getPostgresTypeManifestVisitor() {
                     return visit(node.item, self);
                 },
                 visitDefinedTypeLink(node) {
-                    return m(`${pascalCase(node.name)}Row`, 'COMPOSITE', [
-                        `crate::types::sql::${pascalCase(node.name)}Row`,
-                    ]);
+                    return m(`${pascalCase(node.name)}`, 'COMPOSITE', [`crate::types::${pascalCase(node.name)}`]);
                 },
             }),
     );
