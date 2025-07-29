@@ -30,6 +30,7 @@ type FlattenedField = {
     column: string;
     rustPath: string;
     rowType: string;
+    sqlRowType: string;
     expr?: string;
     reverseExpr?: string;
     docs: string[];
@@ -255,6 +256,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                 visitRoot(node, { self }) {
                     const programsToExport = getAllPrograms(node);
+
+                    if (programsToExport.length > 1) {
+                        throw new Error('Multiple programs are not supported');
+                    }
+
+                    const program = programsToExport[0];
+
                     const accountsToExport = getAllAccounts(node);
                     const instructionsToExport = getAllInstructionsWithSubs(node, {
                         leavesOnly: !renderParentInstructions,
@@ -265,7 +273,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         accountsToExport,
                         definedTypesToExport,
                         instructionsToExport,
-                        programsToExport,
+                        program,
                         root: node,
                     };
 
@@ -330,6 +338,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 column,
                 rustPath: prefix.join('.'),
                 rowType: `Option<sqlx::types::Json<${manifest.sqlxType}>>`,
+                sqlRowType: `${manifest.sqlColumnType}`,
                 docs: docsPrefix,
                 postgresManifest: manifest,
                 expr: buildExpression(typeNode, `source.${prefix.join('.')}`),
@@ -347,6 +356,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 column,
                 rustPath: prefix.join('.'),
                 rowType: `sqlx::types::Json<${manifest.sqlxType}>`,
+                sqlRowType: `${manifest.sqlColumnType} NOT NULL`,
                 docs: docsPrefix,
                 postgresManifest: manifest,
                 expr: buildExpression(typeNode, `source.${prefix.join('.')}`),
@@ -362,6 +372,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             column,
             rustPath: prefix.join('.'),
             rowType: manifest.sqlxType,
+            sqlRowType: `${manifest.sqlColumnType} NOT NULL`,
             docs: docsPrefix,
             postgresManifest: manifest,
         };

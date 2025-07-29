@@ -10,4 +10,28 @@ pub mod {{ account.name | snakeCase }}_row;
 pub use self::{{ account.name | snakeCase }}_row::*;
 {% endfor %}
 
+pub struct {{ program.name | pascalCase }}AccountsMigration;
+
+impl sqlx_migrator::Migration<sqlx::Postgres> for {{program.name | pascalCase}}AccountsMigration {
+    fn app(&self) -> &str {
+        "{{ program.name | kebabCase }}"
+    }
+
+    fn name(&self) -> &str {
+        "{{ program.name | snakeCase }}_accounts"
+    }
+
+    fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
+        vec![
+            {% for account in accountsToExport | sort(false, false, 'name') %}
+            Box::new({{ account.name | pascalCase }}MigrationOperation),
+            {% endfor %}
+        ]
+    }
+
+    fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![]
+    }
+}
+
 {% endblock %}

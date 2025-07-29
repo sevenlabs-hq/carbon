@@ -2,11 +2,9 @@
 
 {% block main %}
 
-{% for program in programsToExport %}
 use solana_pubkey::Pubkey;
 pub struct {{ program.name | pascalCase }}Decoder;
 pub const PROGRAM_ID: Pubkey = solana_pubkey::Pubkey::from_str_const("{{ program.publicKey }}");
-{% endfor %}
 
 {% if accountsToExport.length > 0 %}
 pub mod accounts;
