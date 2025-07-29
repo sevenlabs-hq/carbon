@@ -44,12 +44,196 @@ impl TryFrom<{{ entityName | pascalCase }}Row> for {{ entityName | pascalCase }}
     }
 }
 
+impl carbon_core::postgres::operations::Table for {{ entityName | pascalCase }} {
+    fn table() -> &'static str {
+        "{{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %}"
+    }
+
+    fn columns() -> Vec<&'static str> {
+        vec![
+            {% if isAccount %}
+            "__pubkey",
+            "__slot",
+            {% else %}
+            "__signature",
+            "__index",
+            "__stack_height",
+            "__slot",
+            {% endif %}
+            {% for field in flatFields %}
+            "{{ field.column }}",
+            {% endfor %}
+        ]
+    }
+}
+
+#[async_trait::async_trait]
+impl carbon_core::postgres::operations::Insert for {{ entityName | pascalCase }}Row {
+    async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
+        sqlx::query(r#"
+            INSERT INTO {{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %} (
+            {% for field in flatFields %}
+                "{{ field.column }}",
+            {% endfor %}
+            {% if isAccount %}
+                __pubkey, __slot
+            {% else %}
+                __signature, __index, __stack_height, __slot
+            {% endif %}
+            ) VALUES (
+            {% set paramCount = flatFields.length %}
+            {% if isAccount %}
+            {% set paramCount = paramCount + 2 %}
+            {% else %}
+            {% set paramCount = paramCount + 4 %}
+            {% endif %}
+            {% for i in range(1, paramCount + 1) %}
+                ${{ i }}{% if not loop.last %},{% endif %}
+            {% endfor %}
+        )"#)
+        {% for field in flatFields %}
+        .bind(self.{{ field.column }}.clone())
+        {% endfor %}
+        {% if isAccount %}
+        .bind(self.metadata.pubkey.clone())
+        .bind(self.metadata.slot.clone())
+        {% else %}
+        .bind(self.metadata.signature.clone())
+        .bind(self.metadata.index.clone())
+        .bind(self.metadata.stack_height.clone())
+        .bind(self.metadata.slot.clone())
+        {% endif %}
+        .execute(pool).await
+        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
+        Ok(())
+    }
+}
+
+#[async_trait::async_trait]
+impl carbon_core::postgres::operations::Upsert for {{ entityName | pascalCase }}Row {
+    async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
+        sqlx::query(r#"INSERT INTO {{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %} (
+            {% for field in flatFields %}
+            "{{ field.column }}",
+            {% endfor %}
+            {% if isAccount %}
+            __pubkey, __slot
+            {% else %}
+            __signature, __index, __stack_height, __slot
+            {% endif %}
+        ) VALUES (
+            {% set paramCount = flatFields.length %}
+            {% if isAccount %}
+            {% set paramCount = paramCount + 2 %}
+            {% else %}
+            {% set paramCount = paramCount + 4 %}
+            {% endif %}
+            {% for i in range(1, paramCount + 1) %}
+            ${{ i }}{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ) ON CONFLICT (
+            {% if isAccount %}
+            __pubkey
+            {% else %}
+            __signature, __index
+            {% endif %}
+        ) DO UPDATE SET
+            {% for field in flatFields %}
+            "{{ field.column }}" = EXCLUDED."{{ field.column }}",
+            {% endfor %}
+            {% if isAccount %}
+            __slot = EXCLUDED.__slot
+            {% else %}
+            __index = EXCLUDED.__index,
+            __stack_height = EXCLUDED.__stack_height,
+            __slot = EXCLUDED.__slot
+            {% endif %}
+        "#)
+        {% for field in flatFields %}
+        .bind(self.{{ field.column }}.clone())
+        {% endfor %}
+        {% if isAccount %}
+        .bind(self.metadata.pubkey)
+        .bind(self.metadata.slot.clone())
+        {% else %}
+        .bind(self.metadata.signature.clone())
+        .bind(self.metadata.index.clone())
+        .bind(self.metadata.stack_height.clone())
+        .bind(self.metadata.slot.clone())
+        {% endif %}
+        .execute(pool).await
+        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
+
+        Ok(())
+    }
+}
+
+#[async_trait::async_trait]
+impl carbon_core::postgres::operations::Delete for {{ entityName | pascalCase }}Row {
+    type Key = {% if isAccount %}Pubkey{% else %}(String, carbon_core::postgres::primitives::U32){% endif %};
+
+    async fn delete(&self, pool: &sqlx::PgPool, key: Self::Key) -> carbon_core::error::CarbonResult<()> {
+        sqlx::query(r#"DELETE FROM {{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %} WHERE
+            {% if isAccount %}
+            __pubkey = $1
+            {% else %}
+            __signature = $1 AND __index = $2
+            {% endif %}
+        "#)
+        {% if isAccount %}
+        .bind(key)
+        {% else %}
+        .bind(key.0)
+        .bind(key.1)
+        {% endif %}
+        .execute(pool).await
+        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
+
+        Ok(())
+    }
+}
+
+#[async_trait::async_trait]
+impl carbon_core::postgres::operations::LookUp for {{ entityName | pascalCase }}Row {
+    type Key = {% if isAccount %}Pubkey{% else %}(String, carbon_core::postgres::primitives::U32){% endif %};
+
+    async fn lookup(&self, pool: &sqlx::PgPool, key: Self::Key) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(r#"SELECT * FROM {{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %} WHERE
+            {% if isAccount %}
+            __pubkey = $1
+            {% else %}
+            __signature = $1 AND __index = $2
+            {% endif %}
+        "#)
+        {% if isAccount %}
+        .bind(key)
+        {% else %}
+        .bind(key.0)
+        .bind(key.1)
+        {% endif %}
+        .fetch_optional(pool).await
+        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))
+        ?;
+
+        Ok(row)
+    }
+}
+
 pub struct {{ entityName | pascalCase }}MigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for {{ entityName | pascalCase }}MigrationOperation {
     async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query("CREATE TABLE IF NOT EXISTS {{ entityName | snakeCase }}_account (
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS {{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %} (
+            {% if isAccount %}
+            -- Account data
+            {% else %}
+            -- Instruction data
+            {% endif %}
+            {% for field in flatFields %}
+            "{{ field.column }}" {{ field.sqlRowType }},
+            {% endfor %}
+
             {% if isAccount %}
             -- Account metadata
             __pubkey BYTEA NOT NULL,
@@ -59,28 +243,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for {{ entityName | pascalCase }}M
             __signature TEXT NOT NULL,
             __index BIGINT NOT NULL,
             __stack_height BIGINT NOT NULL,
-            __slot BIGINT
+            __slot BIGINT,
             {% endif %}
-            {% if isAccount %}
-            -- Account data
-            {% else %}
-            -- Instruction data
-            {% endif %}
-            {% for field in flatFields %}
-            {{ field.column }}: {{ field.sqlRowType }},
-            {% endfor %}
 
             {% if isAccount %}
             PRIMARY KEY (__pubkey)
             {% else %}
             PRIMARY KEY (__signature, __index)
             {% endif %}
-        )").execute(connection).await?;
+        )"#).execute(connection).await?;
         Ok(())
     }
 
     async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query("DROP TABLE IF EXISTS {{ entityName | snakeCase }}_account").execute(connection).await?;
+        sqlx::query(r#"DROP TABLE IF EXISTS {{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %}"#).execute(connection).await?;
         Ok(())
     }
 }

@@ -47,8 +47,14 @@ impl Type<Postgres> for Pubkey {
     }
 }
 
+impl PgHasArrayType for Pubkey {
+    fn array_type_info() -> PgTypeInfo {
+        PgTypeInfo::with_name("_BYTEA")
+    }
+}
+
 macro_rules! unsigned_small {
-    ($name:ident, $src:ty, $inner:ty) => {
+    ($name:ident, $src:ty, $inner:ty, $type:literal, $array_type:literal) => {
         #[derive(Clone, Copy, PartialEq, Eq, Debug, sqlx::Encode, sqlx::Decode)]
         pub struct $name(pub $inner);
 
@@ -72,12 +78,23 @@ macro_rules! unsigned_small {
                 &self.0
             }
         }
+
+        impl Type<Postgres> for $name {
+            fn type_info() -> PgTypeInfo {
+                PgTypeInfo::with_name($type)
+            }
+        }
+        impl PgHasArrayType for $name {
+            fn array_type_info() -> PgTypeInfo {
+                PgTypeInfo::with_name($array_type)
+            }
+        }
     };
 }
 
-unsigned_small!(U8, u8, i16);
-unsigned_small!(U16, u16, i32);
-unsigned_small!(U32, u32, i64);
+unsigned_small!(U8, u8, i16, "SMALLINT", "_SMALLINT");
+unsigned_small!(U16, u16, i32, "INTEGER", "_INTEGER");
+unsigned_small!(U32, u32, i64, "BIGINT", "_BIGINT");
 
 macro_rules! big_unsigned {
     ($name:ident, $src:ty, $prec:literal) => {
