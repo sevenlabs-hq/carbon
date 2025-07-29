@@ -2,7 +2,7 @@
 
 {% block main %}
 
-use crate::{PROGRAM_ID, {{ programsToExport[0].name | pascalCase }}Decoder};
+use crate::{PROGRAM_ID, {{ program.name | pascalCase }}Decoder};
 
 pub mod sql;
 
@@ -15,14 +15,14 @@ pub use self::{{ account.name | snakeCase }}::*;
 {% endfor %}
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum {{ programsToExport[0].name | pascalCase }}Account {
+pub enum {{ program.name | pascalCase }}Account {
 {% for account in accountsToExport | sort(false, false, 'name') %}
     {{ account.name | pascalCase }}({{ account.name | pascalCase }}),
 {% endfor %}
 }
 
-impl<'a> carbon_core::account::AccountDecoder<'a> for {{ programsToExport[0].name | pascalCase }}Decoder {
-    type AccountType = {{ programsToExport[0].name | pascalCase }}Account;
+impl<'a> carbon_core::account::AccountDecoder<'a> for {{ program.name | pascalCase }}Decoder {
+    type AccountType = {{ program.name | pascalCase }}Account;
     
     fn decode_account(
         &self,
@@ -40,7 +40,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for {{ programsToExport[0].nam
             if let Some(decoded) = {{ account.name | snakeCase }}::{{ account.name | pascalCase }}::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
-                    data: {{ programsToExport[0].name | pascalCase }}Account::{{ account.name | pascalCase }}(decoded),
+                    data: {{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(decoded),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

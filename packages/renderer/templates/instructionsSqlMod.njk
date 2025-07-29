@@ -10,4 +10,28 @@ pub mod {{ instruction.name | snakeCase }}_row;
 pub use self::{{ instruction.name | snakeCase }}_row::*;
 {% endfor %}
 
+pub struct {{ program.name | pascalCase }}InstructionsMigration;
+
+impl sqlx_migrator::Migration<sqlx::Postgres> for {{program.name | pascalCase}}InstructionsMigration {
+    fn app(&self) -> &str {
+        "{{ program.name | kebabCase }}"
+    }
+
+    fn name(&self) -> &str {
+        "{{ program.name | snakeCase }}_instructions"
+    }
+
+    fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
+        vec![
+            {% for instruction in instructionsToExport | sort(false, false, 'name') %}
+            Box::new({{ instruction.name | pascalCase }}MigrationOperation),
+            {% endfor %}
+        ]
+    }
+
+    fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![]
+    }
+}
+
 {% endblock %}

@@ -44,5 +44,46 @@ impl TryFrom<{{ entityName | pascalCase }}Row> for {{ entityName | pascalCase }}
     }
 }
 
+pub struct {{ entityName | pascalCase }}MigrationOperation;
+
+#[async_trait::async_trait]
+impl sqlx_migrator::Operation<sqlx::Postgres> for {{ entityName | pascalCase }}MigrationOperation {
+    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query("CREATE TABLE IF NOT EXISTS {{ entityName | snakeCase }}_account (
+            {% if isAccount %}
+            -- Account metadata
+            __pubkey BYTEA NOT NULL,
+            __slot BIGINT,
+            {% else %}
+            -- Instruction metadata
+            __signature TEXT NOT NULL,
+            __index BIGINT NOT NULL,
+            __stack_height BIGINT NOT NULL,
+            __slot BIGINT
+            {% endif %}
+            {% if isAccount %}
+            -- Account data
+            {% else %}
+            -- Instruction data
+            {% endif %}
+            {% for field in flatFields %}
+            {{ field.column }}: {{ field.sqlRowType }},
+            {% endfor %}
+
+            {% if isAccount %}
+            PRIMARY KEY (__pubkey)
+            {% else %}
+            PRIMARY KEY (__signature, __index)
+            {% endif %}
+        )").execute(connection).await?;
+        Ok(())
+    }
+
+    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query("DROP TABLE IF EXISTS {{ entityName | snakeCase }}_account").execute(connection).await?;
+        Ok(())
+    }
+}
+
 {% endblock %}
 
