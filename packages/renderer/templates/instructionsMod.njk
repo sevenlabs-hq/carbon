@@ -16,6 +16,8 @@ pub use self::{{ instruction.name | snakeCase }}::*;
 {% endfor %}
 
 #[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum {{ program.name | pascalCase }}Instruction {
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
     {{ instruction.name | pascalCase }}({{ instruction.name | pascalCase }}),

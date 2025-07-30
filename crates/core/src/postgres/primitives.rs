@@ -135,7 +135,8 @@ use std::{convert::TryFrom, ops::Deref};
 ///     .fetch_optional(pool)
 ///     .await?;
 /// ```
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, serde::Serialize, serde::Deserialize)]
+#[serde(transparent)]
 pub struct Pubkey(pub solana_pubkey::Pubkey);
 
 impl Deref for Pubkey {
@@ -218,7 +219,18 @@ impl PgHasArrayType for Pubkey {
 /// ```
 macro_rules! unsigned_small {
     ($name:ident, $src:ty, $inner:ty, $type:literal, $array_type:literal) => {
-        #[derive(Clone, Copy, PartialEq, Eq, Debug, sqlx::Encode, sqlx::Decode)]
+        #[derive(
+            Clone,
+            Copy,
+            PartialEq,
+            Eq,
+            Debug,
+            sqlx::Encode,
+            sqlx::Decode,
+            serde::Serialize,
+            serde::Deserialize,
+        )]
+        #[serde(transparent)]
         pub struct $name(pub $inner);
 
         /* constructors & conversions */
@@ -300,7 +312,8 @@ unsigned_small!(U32, u32, i64, "BIGINT", "_BIGINT");
 /// ```
 macro_rules! big_unsigned {
     ($name:ident, $src:ty, $prec:literal) => {
-        #[derive(Clone, Debug, PartialEq, Eq)]
+        #[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+        #[serde(transparent)]
         pub struct $name(pub $src);
 
         impl From<$src> for $name {
@@ -390,7 +403,8 @@ big_unsigned!(U128, u128, 39);
 /// // Direct access to underlying value
 /// println!("Balance: {}", *balance);
 /// ```
-#[derive(Clone, Debug, PartialEq, Eq)]
+#[derive(Clone, Debug, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+#[serde(transparent)]
 pub struct I128(pub i128);
 
 impl From<i128> for I128 {

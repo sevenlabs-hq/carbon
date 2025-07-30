@@ -1200,6 +1200,7 @@ dependencies = [
  "solana-transaction-context",
  "solana-transaction-status",
  "sqlx",
+ "sqlx_migrator",
  "thiserror 2.0.12",
  "tokio",
  "tokio-util",
