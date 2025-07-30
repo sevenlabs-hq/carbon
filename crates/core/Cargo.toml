@@ -12,7 +12,7 @@ categories = ["encoding"]
 [features]
 default = ["macros", "postgres"]
 macros = ["carbon-macros", "carbon-proc-macros"]
-postgres = ["sqlx", "num-traits"]
+postgres = ["sqlx", "num-traits", "sqlx_migrator"]
 
 [dependencies]
 solana-account = { workspace = true }
@@ -42,6 +42,7 @@ carbon-macros = { workspace = true, optional = true }
 carbon-proc-macros = { workspace = true, optional = true }
 num-traits = { workspace = true, features = ["i128"], optional = true }
 sqlx = { workspace = true, features = ["postgres", "rust_decimal"], optional = true }
+sqlx_migrator = { workspace = true, optional = true }
 
 [lib]
 crate-type = ["rlib"]

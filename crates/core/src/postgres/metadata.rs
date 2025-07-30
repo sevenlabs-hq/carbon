@@ -160,7 +160,7 @@ use crate::{
 /// };
 /// let row_metadata: AccountRowMetadata = account_metadata.into();
 /// ```
-#[derive(Debug, Clone, PartialEq, sqlx::FromRow)]
+#[derive(Debug, Clone, PartialEq, sqlx::FromRow, serde::Serialize, serde::Deserialize)]
 pub struct AccountRowMetadata {
     #[sqlx(rename = "__pubkey")]
     pub pubkey: Pubkey,
@@ -220,7 +220,7 @@ impl From<AccountMetadata> for AccountRowMetadata {
 /// };
 /// let row_metadata: InstructionRowMetadata = instruction_metadata.into();
 /// ```
-#[derive(Debug, Clone, PartialEq, sqlx::FromRow)]
+#[derive(Debug, Clone, PartialEq, sqlx::FromRow, serde::Serialize, serde::Deserialize)]
 pub struct InstructionRowMetadata {
     #[sqlx(rename = "__signature")]
     pub signature: String,
