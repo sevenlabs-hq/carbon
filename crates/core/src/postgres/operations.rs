@@ -19,12 +19,12 @@ pub trait Upsert {
 pub trait Delete {
     type Key;
 
-    async fn delete(&self, pool: &sqlx::PgPool, key: Self::Key) -> CarbonResult<()>;
+    async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> CarbonResult<()>;
 }
 
 #[async_trait::async_trait]
 pub trait LookUp: Sized {
     type Key;
 
-    async fn lookup(&self, pool: &sqlx::PgPool, key: Self::Key) -> CarbonResult<Option<Self>>;
+    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> CarbonResult<Option<Self>>;
 }
