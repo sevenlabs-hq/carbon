@@ -172,7 +172,7 @@ impl carbon_core::postgres::operations::Upsert for {{ entityName | pascalCase }}
 impl carbon_core::postgres::operations::Delete for {{ entityName | pascalCase }}Row {
     type Key = {% if isAccount %}Pubkey{% else %}(String, carbon_core::postgres::primitives::U32){% endif %};
 
-    async fn delete(&self, pool: &sqlx::PgPool, key: Self::Key) -> carbon_core::error::CarbonResult<()> {
+    async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"DELETE FROM {{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %} WHERE
             {% if isAccount %}
             __pubkey = $1
@@ -197,7 +197,7 @@ impl carbon_core::postgres::operations::Delete for {{ entityName | pascalCase }}
 impl carbon_core::postgres::operations::LookUp for {{ entityName | pascalCase }}Row {
     type Key = {% if isAccount %}Pubkey{% else %}(String, carbon_core::postgres::primitives::U32){% endif %};
 
-    async fn lookup(&self, pool: &sqlx::PgPool, key: Self::Key) -> carbon_core::error::CarbonResult<Option<Self>> {
+    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(r#"SELECT * FROM {{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %} WHERE
             {% if isAccount %}
             __pubkey = $1
