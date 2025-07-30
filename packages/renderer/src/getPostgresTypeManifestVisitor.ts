@@ -5,7 +5,7 @@ import { ImportMap } from './ImportMap';
 export type PostgresTypeManifest = {
     imports: ImportMap;
     sqlxType: string;
-    sqlColumnType: string;
+    postgresColumnType: string;
 };
 
 export function getPostgresTypeManifestVisitor() {
@@ -14,12 +14,12 @@ export function getPostgresTypeManifestVisitor() {
             (): PostgresTypeManifest => ({
                 imports: new ImportMap(),
                 sqlxType: '',
-                sqlColumnType: '',
+                postgresColumnType: '',
             }),
             (_k, vals) => ({
                 imports: new ImportMap().mergeWith(...vals.map(v => v.imports)),
                 sqlxType: vals.map(v => v.sqlxType).join(''),
-                sqlColumnType: vals.map(v => v.sqlColumnType).join(''),
+                postgresColumnType: vals.map(v => v.postgresColumnType).join(''),
             }),
             { keys: [...REGISTERED_TYPE_NODE_KINDS, 'definedTypeLinkNode'] },
         ),
@@ -74,7 +74,7 @@ export function getPostgresTypeManifestVisitor() {
                     return {
                         imports: inner.imports,
                         sqlxType: `Option<${inner.sqlxType}>`,
-                        sqlColumnType: inner.sqlColumnType,
+                        postgresColumnType: inner.postgresColumnType,
                     };
                 },
                 visitArrayType(node, { self }) {
@@ -89,7 +89,7 @@ export function getPostgresTypeManifestVisitor() {
                         return {
                             imports: inner.imports,
                             sqlxType: `Vec<${inner.sqlxType}>`,
-                            sqlColumnType: `${inner.sqlColumnType}[]`,
+                            postgresColumnType: `${inner.postgresColumnType}[]`,
                         };
                     }
                     return jsonb(inner, true);
@@ -105,7 +105,7 @@ export function getPostgresTypeManifestVisitor() {
                     return {
                         imports: new ImportMap().mergeWith(...inners.map(i => i.imports)),
                         sqlxType: `(${inners.map(i => i.sqlxType).join(', ')})`,
-                        sqlColumnType: `(${inners.map(i => i.sqlColumnType).join(', ')})`,
+                        postgresColumnType: `(${inners.map(i => i.postgresColumnType).join(', ')})`,
                     };
                 },
                 visitSizePrefixType(node, { self }) {
@@ -121,14 +121,14 @@ export function getPostgresTypeManifestVisitor() {
     );
 
     function m(rust: string, sql: string, extra: string[] = []): PostgresTypeManifest {
-        return { imports: new ImportMap().add(extra), sqlxType: rust, sqlColumnType: sql };
+        return { imports: new ImportMap().add(extra), sqlxType: rust, postgresColumnType: sql };
     }
     function jsonb(inner?: PostgresTypeManifest, isVec = false): PostgresTypeManifest {
-        const base = inner ?? { imports: new ImportMap(), sqlxType: 'serde_json::Value', sqlColumnType: 'JSONB' };
+        const base = inner ?? { imports: new ImportMap(), sqlxType: 'serde_json::Value', postgresColumnType: 'JSONB' };
         return {
             imports: base.imports,
             sqlxType: isVec ? `sqlx::types::Json<Vec<${base.sqlxType}>>` : `sqlx::types::Json<${base.sqlxType}>`,
-            sqlColumnType: 'JSONB',
+            postgresColumnType: 'JSONB',
         };
     }
 }

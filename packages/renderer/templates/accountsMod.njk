@@ -4,7 +4,8 @@
 
 use crate::{PROGRAM_ID, {{ program.name | pascalCase }}Decoder};
 
-pub mod sql;
+#[cfg(feature = "postgres")]
+pub mod postgres;
 
 {% for account in accountsToExport | sort(false, false, 'name') %}
 pub mod {{ account.name | snakeCase }};
