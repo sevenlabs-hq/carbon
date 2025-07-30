@@ -30,7 +30,7 @@ type FlattenedField = {
     column: string;
     rustPath: string;
     rowType: string;
-    sqlRowType: string;
+    postgresColumnType: string;
     expr?: string;
     reverseExpr?: string;
     docs: string[];
@@ -100,17 +100,17 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const discriminatorManifest = getDiscriminatorManifest(discriminators);
 
                     const flatFields = flattenType(newNode.data, [], [], new Set());
-                    const sqlImports = new ImportMap()
+                    const postgresImports = new ImportMap()
                         .add(`crate::accounts::${pascalCase(node.name)}`)
                         .add('carbon_core::account::AccountMetadata')
                         .add('carbon_core::postgres::metadata::AccountRowMetadata');
                     flatFields.forEach(f => {
-                        sqlImports.mergeWith(f.postgresManifest.imports);
+                        postgresImports.mergeWith(f.postgresManifest.imports);
                     });
 
                     return new RenderMap()
                         .add(
-                            `accounts/${snakeCase(node.name)}.rs`,
+                            `src/accounts/${snakeCase(node.name)}.rs`,
                             render('accountsPage.njk', {
                                 account: newNode,
                                 imports: imports.toString(),
@@ -120,11 +120,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             }),
                         )
                         .add(
-                            `accounts/sql/${snakeCase(node.name)}_row.rs`,
-                            render('sqlRowPage.njk', {
+                            `src/accounts/postgres/${snakeCase(node.name)}_row.rs`,
+                            render('postgresRowPage.njk', {
                                 entityDocs: node.docs,
                                 entityName: node.name,
-                                imports: sqlImports.toString(),
+                                imports: postgresImports.toString(),
                                 flatFields,
                                 isAccount: true,
                             }),
@@ -136,7 +136,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const imports = new ImportMap().mergeWithManifest(typeManifest).add('carbon_core::borsh');
 
                     return new RenderMap().add(
-                        `types/${snakeCase(node.name)}.rs`,
+                        `src/types/${snakeCase(node.name)}.rs`,
                         render('typesPage.njk', {
                             definedType: node,
                             imports: imports.toString(),
@@ -208,17 +208,17 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         [],
                         new Set(),
                     );
-                    const sqlImports = new ImportMap()
+                    const postgresImports = new ImportMap()
                         .add(`crate::instructions::${pascalCase(node.name)}`)
                         .add('carbon_core::instruction::InstructionMetadata')
                         .add('carbon_core::postgres::metadata::InstructionRowMetadata');
                     flatFields.forEach(f => {
-                        sqlImports.mergeWith(f.postgresManifest.imports);
+                        postgresImports.mergeWith(f.postgresManifest.imports);
                     });
 
                     return new RenderMap()
                         .add(
-                            `instructions/${snakeCase(node.name)}.rs`,
+                            `src/instructions/${snakeCase(node.name)}.rs`,
                             render('instructionsPage.njk', {
                                 argumentTypes,
                                 imports: imports.toString(),
@@ -228,11 +228,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             }),
                         )
                         .add(
-                            `instructions/sql/${snakeCase(node.name)}_row.rs`,
-                            render('sqlRowPage.njk', {
+                            `src/instructions/postgres/${snakeCase(node.name)}_row.rs`,
+                            render('postgresRowPage.njk', {
                                 entityDocs: node.docs,
                                 entityName: node.name,
-                                imports: sqlImports.toString(),
+                                imports: postgresImports.toString(),
                                 flatFields,
                                 isAccount: false,
                             }),
@@ -275,25 +275,30 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         instructionsToExport,
                         program,
                         root: node,
+                        carbonVersion: '0.9.1',
+                        solanaSdkVersion: '~2.2',
                     };
 
                     const map = new RenderMap();
 
                     // Generate mod files
                     if (accountsToExport.length > 0) {
-                        map.add('accounts/mod.rs', render('accountsMod.njk', ctx));
-                        map.add('accounts/sql/mod.rs', render('accountsSqlMod.njk', ctx));
+                        map.add('src/accounts/mod.rs', render('accountsMod.njk', ctx));
+                        map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
                     }
                     if (instructionsToExport.length > 0) {
-                        map.add('instructions/mod.rs', render('instructionsMod.njk', ctx));
-                        map.add('instructions/sql/mod.rs', render('instructionsSqlMod.njk', ctx));
+                        map.add('src/instructions/mod.rs', render('instructionsMod.njk', ctx));
+                        map.add('src/instructions/postgres/mod.rs', render('instructionsPostgresMod.njk', ctx));
                     }
                     if (definedTypesToExport.length > 0) {
-                        map.add('types/mod.rs', render('typesMod.njk', ctx));
+                        map.add('src/types/mod.rs', render('typesMod.njk', ctx));
                     }
 
                     // Generate lib.rs
-                    map.add('lib.rs', render('lib.njk', ctx));
+                    map.add('src/lib.rs', render('lib.njk', ctx));
+
+                    // Generate Cargo.toml
+                    map.add('Cargo.toml', render('cargo.njk', ctx));
 
                     // Process all programs
                     return map.mergeWith(...getAllPrograms(node).map(p => visit(p, self)));
@@ -338,7 +343,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 column,
                 rustPath: prefix.join('.'),
                 rowType: `Option<sqlx::types::Json<${manifest.sqlxType}>>`,
-                sqlRowType: `${manifest.sqlColumnType}`,
+                postgresColumnType: `${manifest.postgresColumnType}`,
                 docs: docsPrefix,
                 postgresManifest: manifest,
                 expr: buildExpression(typeNode, `source.${prefix.join('.')}`),
@@ -356,7 +361,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 column,
                 rustPath: prefix.join('.'),
                 rowType: `sqlx::types::Json<${manifest.sqlxType}>`,
-                sqlRowType: `${manifest.sqlColumnType} NOT NULL`,
+                postgresColumnType: `${manifest.postgresColumnType} NOT NULL`,
                 docs: docsPrefix,
                 postgresManifest: manifest,
                 expr: buildExpression(typeNode, `source.${prefix.join('.')}`),
@@ -372,7 +377,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             column,
             rustPath: prefix.join('.'),
             rowType: manifest.sqlxType,
-            sqlRowType: `${manifest.sqlColumnType} NOT NULL`,
+            postgresColumnType: `${manifest.postgresColumnType} NOT NULL`,
             docs: docsPrefix,
             postgresManifest: manifest,
         };

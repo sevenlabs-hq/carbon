@@ -2,7 +2,8 @@
 
 {% block main %}
 
-pub mod sql;
+#[cfg(feature = "postgres")]
+pub mod postgres;
 
 use crate::{PROGRAM_ID, {{ program.name | pascalCase }}Decoder};
 
