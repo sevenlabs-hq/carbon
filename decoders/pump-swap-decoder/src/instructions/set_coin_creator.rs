@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -21,17 +21,19 @@ impl carbon_core::deserialize::ArrangeAccounts for SetCoinCreator {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [pool, metadata, bonding_curve, event_authority, program, _remaining @ ..] = accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let pool = next_account(&mut iter)?;
+        let metadata = next_account(&mut iter)?;
+        let bonding_curve = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
 
         Some(SetCoinCreatorInstructionAccounts {
-            pool: pool.pubkey,
-            metadata: metadata.pubkey,
-            bonding_curve: bonding_curve.pubkey,
-            event_authority: event_authority.pubkey,
-            program: program.pubkey,
+            pool,
+            metadata,
+            bonding_curve,
+            event_authority,
+            program,
         })
     }
 }
