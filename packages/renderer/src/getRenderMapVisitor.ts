@@ -1,0 +1,483 @@
+import {
+    DefinedTypeNode,
+    EnumTypeNode,
+    getAllAccounts,
+    getAllDefinedTypes,
+    getAllInstructionsWithSubs,
+    getAllPrograms,
+    isNode,
+    pascalCase,
+    ProgramNode,
+    snakeCase,
+    SnakeCaseString,
+    structFieldTypeNode,
+    structTypeNode,
+    TypeNode,
+} from '@codama/nodes';
+import { RenderMap } from '@codama/renderers-core';
+import { extendVisitor, pipe, staticVisitor, visit } from '@codama/visitors-core';
+
+import { getDiscriminatorManifest, getTypeManifestVisitor } from './getTypeManifestVisitor';
+import { ImportMap } from './ImportMap';
+import { partition, render } from './utils';
+import { getPostgresTypeManifestVisitor, PostgresTypeManifest } from './getPostgresTypeManifestVisitor';
+
+export type GetRenderMapOptions = {
+    renderParentInstructions?: boolean;
+};
+
+type FlattenedField = {
+    column: string;
+    rustPath: string;
+    rowType: string;
+    postgresColumnType: string;
+    expr?: string;
+    reverseExpr?: string;
+    docs: string[];
+    postgresManifest: PostgresTypeManifest;
+};
+
+export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
+    const renderParentInstructions = options.renderParentInstructions ?? false;
+    const typeManifestVisitor = getTypeManifestVisitor();
+    const postgresTypeManifestVisitor = getPostgresTypeManifestVisitor();
+
+    let currentProgram: ProgramNode | null = null;
+
+    return pipe(
+        staticVisitor(() => new RenderMap(), {
+            keys: ['rootNode', 'programNode', 'instructionNode', 'accountNode', 'definedTypeNode'],
+        }),
+        v =>
+            extendVisitor(v, {
+                visitAccount(node) {
+                    let discriminators = node.discriminators ?? [];
+
+                    let newNode = node;
+
+                    if (node.data.kind == 'structTypeNode') {
+                        const [discriminatorArguments, regularArguments] = partition(
+                            node.data.fields,
+                            arg => arg.name == 'discriminator',
+                        );
+
+                        newNode = {
+                            ...node,
+                            data: {
+                                ...node.data,
+                                fields: regularArguments,
+                            },
+                        };
+
+                        for (const discriminatorArgument of discriminatorArguments) {
+                            if (discriminatorArgument.defaultValue) {
+                                for (let i = 0; i < discriminators.length; i++) {
+                                    const discriminator = discriminators[i];
+                                    if (
+                                        discriminator.kind === 'fieldDiscriminatorNode' &&
+                                        discriminator.name === discriminatorArgument.name
+                                    ) {
+                                        discriminators[i] = {
+                                            kind: 'constantDiscriminatorNode',
+                                            offset: discriminator.offset,
+                                            constant: {
+                                                kind: 'constantValueNode',
+                                                type: discriminatorArgument.type,
+                                                value: discriminatorArgument.defaultValue as any,
+                                            },
+                                        };
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    const typeManifest = visit(newNode.data, typeManifestVisitor);
+                    const imports = new ImportMap()
+                        .mergeWithManifest(typeManifest)
+                        .add('carbon_core::borsh::{self, BorshDeserialize}');
+
+                    const discriminatorManifest = getDiscriminatorManifest(discriminators);
+
+                    const flatFields = flattenType(newNode.data, [], [], new Set());
+                    const postgresImports = new ImportMap()
+                        .add(`crate::accounts::${pascalCase(node.name)}`)
+                        .add('carbon_core::account::AccountMetadata')
+                        .add('carbon_core::postgres::metadata::AccountRowMetadata');
+                    flatFields.forEach(f => {
+                        postgresImports.mergeWith(f.postgresManifest.imports);
+                    });
+
+                    return new RenderMap()
+                        .add(
+                            `src/accounts/${snakeCase(node.name)}.rs`,
+                            render('accountsPage.njk', {
+                                account: newNode,
+                                imports: imports.toString(),
+                                program: currentProgram,
+                                discriminatorManifest,
+                                typeManifest,
+                            }),
+                        )
+                        .add(
+                            `src/accounts/postgres/${snakeCase(node.name)}_row.rs`,
+                            render('postgresRowPage.njk', {
+                                entityDocs: node.docs,
+                                entityName: node.name,
+                                imports: postgresImports.toString(),
+                                flatFields,
+                                isAccount: true,
+                            }),
+                        );
+                },
+
+                visitDefinedType(node) {
+                    const typeManifest = visit(node.type, typeManifestVisitor);
+                    const imports = new ImportMap().mergeWithManifest(typeManifest).add('carbon_core::borsh');
+
+                    return new RenderMap().add(
+                        `src/types/${snakeCase(node.name)}.rs`,
+                        render('typesPage.njk', {
+                            definedType: node,
+                            imports: imports.toString(),
+                            typeManifest,
+                        }),
+                    );
+                },
+
+                visitInstruction(node) {
+                    const imports = new ImportMap()
+                        .add('carbon_core::borsh::{self, BorshDeserialize}')
+                        .add('carbon_core::deserialize::ArrangeAccounts')
+                        .add('carbon_core::account_utils::next_account');
+
+                    const [discriminatorArguments, regularArguments] = partition(
+                        node.arguments,
+                        arg => arg.name == 'discriminator',
+                    );
+
+                    // Collect all types from arguments
+                    const argumentTypes = regularArguments.map(arg => {
+                        const manifest = visit(arg.type, typeManifestVisitor);
+                        imports.mergeWithManifest(manifest);
+                        return manifest;
+                    });
+
+                    let discriminators = node.discriminators ?? [];
+
+                    for (const discriminatorArgument of discriminatorArguments) {
+                        if (discriminatorArgument.defaultValue) {
+                            for (let i = 0; i < discriminators.length; i++) {
+                                const discriminator = discriminators[i];
+                                if (
+                                    discriminator.kind === 'fieldDiscriminatorNode' &&
+                                    discriminator.name === discriminatorArgument.name
+                                ) {
+                                    discriminators[i] = {
+                                        kind: 'constantDiscriminatorNode',
+                                        offset: discriminator.offset,
+                                        constant: {
+                                            kind: 'constantValueNode',
+                                            type: discriminatorArgument.type,
+                                            value: discriminatorArgument.defaultValue as any,
+                                        },
+                                    };
+                                }
+                            }
+                        }
+                    }
+
+                    const newNode = {
+                        ...node,
+                        arguments: regularArguments,
+                        discriminators,
+                    };
+
+                    const discriminatorManifest = getDiscriminatorManifest(discriminators);
+
+                    const flatFields = flattenType(
+                        structTypeNode(
+                            newNode.arguments.map(a =>
+                                structFieldTypeNode({
+                                    type: a.type,
+                                    name: a.name,
+                                }),
+                            ),
+                        ),
+                        [],
+                        [],
+                        new Set(),
+                    );
+                    const postgresImports = new ImportMap()
+                        .add(`crate::instructions::${pascalCase(node.name)}`)
+                        .add('carbon_core::instruction::InstructionMetadata')
+                        .add('carbon_core::postgres::metadata::InstructionRowMetadata');
+                    flatFields.forEach(f => {
+                        postgresImports.mergeWith(f.postgresManifest.imports);
+                    });
+
+                    return new RenderMap()
+                        .add(
+                            `src/instructions/${snakeCase(node.name)}.rs`,
+                            render('instructionsPage.njk', {
+                                argumentTypes,
+                                imports: imports.toString(),
+                                instruction: newNode,
+                                discriminatorManifest,
+                                program: currentProgram,
+                            }),
+                        )
+                        .add(
+                            `src/instructions/postgres/${snakeCase(node.name)}_row.rs`,
+                            render('postgresRowPage.njk', {
+                                entityDocs: node.docs,
+                                entityName: node.name,
+                                imports: postgresImports.toString(),
+                                flatFields,
+                                isAccount: false,
+                            }),
+                        );
+                },
+
+                visitProgram(node, { self }) {
+                    currentProgram = node;
+                    const renderMap = new RenderMap()
+                        .mergeWith(...node.accounts.map(account => visit(account, self)))
+                        .mergeWith(...node.definedTypes.map(type => visit(type, self)))
+                        .mergeWith(
+                            ...getAllInstructionsWithSubs(node, {
+                                leavesOnly: !renderParentInstructions,
+                            }).map(ix => visit(ix, self)),
+                        );
+
+                    currentProgram = null;
+                    return renderMap;
+                },
+
+                visitRoot(node, { self }) {
+                    const programsToExport = getAllPrograms(node);
+
+                    if (programsToExport.length > 1) {
+                        throw new Error('Multiple programs are not supported');
+                    }
+
+                    const program = programsToExport[0];
+
+                    const accountsToExport = getAllAccounts(node);
+                    const instructionsToExport = getAllInstructionsWithSubs(node, {
+                        leavesOnly: !renderParentInstructions,
+                    });
+                    const definedTypesToExport = getAllDefinedTypes(node);
+
+                    const ctx = {
+                        accountsToExport,
+                        definedTypesToExport,
+                        instructionsToExport,
+                        program,
+                        root: node,
+                        carbonVersion: '0.9.1',
+                        solanaSdkVersion: '~2.2',
+                    };
+
+                    const map = new RenderMap();
+
+                    // Generate mod files
+                    if (accountsToExport.length > 0) {
+                        map.add('src/accounts/mod.rs', render('accountsMod.njk', ctx));
+                        map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
+                    }
+                    if (instructionsToExport.length > 0) {
+                        map.add('src/instructions/mod.rs', render('instructionsMod.njk', ctx));
+                        map.add('src/instructions/postgres/mod.rs', render('instructionsPostgresMod.njk', ctx));
+                    }
+                    if (definedTypesToExport.length > 0) {
+                        map.add('src/types/mod.rs', render('typesMod.njk', ctx));
+                    }
+
+                    // Generate lib.rs
+                    map.add('src/lib.rs', render('lib.njk', ctx));
+
+                    // Generate Cargo.toml
+                    map.add('Cargo.toml', render('cargo.njk', ctx));
+
+                    // Process all programs
+                    return map.mergeWith(...getAllPrograms(node).map(p => visit(p, self)));
+                },
+            }),
+    );
+
+    function flattenType(
+        typeNode: TypeNode,
+        prefix: string[],
+        docsPrefix: string[],
+        seen: Set<string>,
+        opts: { inOption?: boolean } = {},
+    ): FlattenedField[] {
+        const out: FlattenedField[] = [];
+
+        const { inOption } = opts;
+
+        const makeName = (nameParts: string[]) => {
+            let col = snakeCase(nameParts.join('_'));
+            if (seen.has(col)) {
+                let i = 1;
+                while (seen.has(`${col}_${i}`)) i++;
+                col = `${col}_${i}` as SnakeCaseString;
+            }
+            seen.add(col);
+            return col;
+        };
+
+        if (isNode(typeNode, 'structTypeNode')) {
+            for (const field of typeNode.fields) {
+                out.push(...flattenType(field.type, [...prefix, snakeCase(field.name)], [], seen, { inOption }));
+            }
+            return out;
+        }
+
+        if (isNode(typeNode, 'optionTypeNode') && typeNode.item.kind == 'definedTypeLinkNode') {
+            const column = makeName(prefix);
+            const manifest = visit(typeNode.item, postgresTypeManifestVisitor) as PostgresTypeManifest;
+
+            out.push({
+                column,
+                rustPath: prefix.join('.'),
+                rowType: `Option<sqlx::types::Json<${manifest.sqlxType}>>`,
+                postgresColumnType: `${manifest.postgresColumnType}`,
+                docs: docsPrefix,
+                postgresManifest: manifest,
+                expr: buildExpression(typeNode, `source.${prefix.join('.')}`),
+                reverseExpr: buildReverse(typeNode, `source.${column}`),
+            });
+
+            return out;
+        }
+
+        if (isNode(typeNode, 'definedTypeLinkNode')) {
+            const column = makeName(prefix);
+            const manifest = visit(typeNode, postgresTypeManifestVisitor) as PostgresTypeManifest;
+
+            out.push({
+                column,
+                rustPath: prefix.join('.'),
+                rowType: `sqlx::types::Json<${manifest.sqlxType}>`,
+                postgresColumnType: `${manifest.postgresColumnType} NOT NULL`,
+                docs: docsPrefix,
+                postgresManifest: manifest,
+                expr: buildExpression(typeNode, `source.${prefix.join('.')}`),
+                reverseExpr: buildReverse(typeNode, `source.${column}`),
+            });
+            return out;
+        }
+
+        const manifest = visit(typeNode, postgresTypeManifestVisitor) as PostgresTypeManifest;
+        const column = makeName(prefix);
+
+        const field: FlattenedField = {
+            column,
+            rustPath: prefix.join('.'),
+            rowType: manifest.sqlxType,
+            postgresColumnType: `${manifest.postgresColumnType} NOT NULL`,
+            docs: docsPrefix,
+            postgresManifest: manifest,
+        };
+
+        field.expr = buildExpression(typeNode, `source.${field.rustPath}`);
+        field.reverseExpr = buildReverse(typeNode, `source.${field.rustPath}`);
+
+        out.push(field);
+
+        return out;
+    }
+
+    function buildExpression(typeNode: TypeNode, prefix: string): string {
+        if (isNode(typeNode, 'arrayTypeNode')) {
+            if (
+                isNode(typeNode.item, 'numberTypeNode') ||
+                isNode(typeNode.item, 'booleanTypeNode') ||
+                isNode(typeNode.item, 'bytesTypeNode') ||
+                isNode(typeNode.item, 'stringTypeNode') ||
+                isNode(typeNode.item, 'publicKeyTypeNode')
+            ) {
+                return `${prefix}.into_iter().map(|element| element.into()).collect()`;
+            } else {
+                return `sqlx::types::Json(${prefix}.into_iter().map(|element| ${buildExpression(typeNode.item, `element`)}).collect())`;
+            }
+        } else if (isNode(typeNode, 'optionTypeNode')) {
+            return `${prefix}.map(|value| ${buildExpression(typeNode.item, `value`)})`;
+        } else if (isNode(typeNode, 'tupleTypeNode')) {
+            return `(${typeNode.items.map((item, i) => buildExpression(item, `${prefix}.${i}`)).join(', ')})`;
+        } else {
+            return `${prefix}.into()`;
+        }
+    }
+
+    function buildReverse(typeNode: TypeNode, prefix: string): string {
+        if (isNode(typeNode, 'arrayTypeNode')) {
+            const isJson = !(
+                isNode(typeNode.item, 'numberTypeNode') ||
+                isNode(typeNode.item, 'booleanTypeNode') ||
+                isNode(typeNode.item, 'bytesTypeNode') ||
+                isNode(typeNode.item, 'stringTypeNode') ||
+                isNode(typeNode.item, 'publicKeyTypeNode')
+            );
+
+            switch (typeNode.count.kind) {
+                // our target type is [T; N], T is typeNode.item, N is typeNode.count.value - from Vec<sqlx::types::Json<T>> or Vec<PrimitiveT>
+                case 'fixedCountNode':
+                    if (isJson) {
+                        return `${prefix}.0.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?`;
+                    } else {
+                        return `${prefix}.into_iter().map(|element| ${buildReverse(typeNode.item, 'element')}).collect::<Vec<_>>().try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
+                    }
+                    break;
+                // our target type is Vec<T>, T is typeNode.item - from Vec<sqlx::types::Json<T>> or Vec<PrimitiveT>
+                case 'prefixedCountNode':
+                    if (isJson) {
+                        return `${prefix}.0`;
+                    } else {
+                        return `${prefix}.into_iter().map(|element| element.try_into()).collect::<Result<_, _>>().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
+                    }
+                    break;
+                // TODO: implement this
+                case 'remainderCountNode':
+                    return `unimplemented!()`;
+                    break;
+            }
+        }
+        if (isNode(typeNode, 'optionTypeNode')) {
+            return `${prefix}.map(|value| ${buildReverse(typeNode.item, 'value')})`;
+        }
+        if (isNode(typeNode, 'tupleTypeNode')) {
+            return `(${typeNode.items.map((it, i) => buildReverse(it, `${prefix}.${i}`)).join(', ')})`;
+        }
+        if (
+            isNode(typeNode, 'definedTypeLinkNode') ||
+            isNode(typeNode, 'structTypeNode') ||
+            isNode(typeNode, 'enumTypeNode')
+        ) {
+            return `${prefix}.0`;
+        }
+
+        if (isNode(typeNode, 'numberTypeNode')) {
+            switch (typeNode.format) {
+                case 'u8':
+                case 'u16':
+                case 'u32':
+                    return `${prefix}.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?`;
+                case 'u64':
+                case 'u128':
+                case 'i128':
+                    return `*${prefix}`;
+                default:
+                    break;
+            }
+        }
+
+        if (isNode(typeNode, 'publicKeyTypeNode')) {
+            return `*${prefix}`;
+        }
+
+        return `${prefix}.into()`;
+    }
+}

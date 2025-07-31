@@ -1,0 +1,80 @@
+{% extends "layout.njk" %}
+
+{% block main %}
+
+{% for account in accountsToExport | sort(false, false, 'name') %}
+pub mod {{ account.name | snakeCase }}_row;
+{% endfor %}
+
+{% for account in accountsToExport | sort(false, false, 'name') %}
+pub use self::{{ account.name | snakeCase }}_row::*;
+{% endfor %}
+
+use super::{{ program.name | pascalCase }}Account;
+
+pub struct {{ program.name | pascalCase }}AccountsMigration;
+
+impl sqlx_migrator::Migration<sqlx::Postgres> for {{program.name | pascalCase}}AccountsMigration {
+    fn app(&self) -> &str {
+        "{{ program.name | kebabCase }}"
+    }
+
+    fn name(&self) -> &str {
+        "{{ program.name | snakeCase }}_accounts"
+    }
+
+    fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
+        vec![
+            {% for account in accountsToExport | sort(false, false, 'name') %}
+            Box::new({{ account.name | pascalCase }}MigrationOperation),
+            {% endfor %}
+        ]
+    }
+
+    fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![]
+    }
+}
+
+pub struct {{ program.name | pascalCase }}AccountWithMetadata(pub {{ program.name | pascalCase }}Account, pub carbon_core::account::AccountMetadata);
+
+impl From<({{ program.name | pascalCase }}Account, carbon_core::account::AccountMetadata)> for {{ program.name | pascalCase }}AccountWithMetadata {
+    fn from(value: ({{ program.name | pascalCase }}Account, carbon_core::account::AccountMetadata)) -> Self {
+        {{ program.name | pascalCase }}AccountWithMetadata(value.0, value.1)
+    }
+}
+
+#[async_trait::async_trait]
+impl carbon_core::postgres::operations::Insert for {{ program.name | pascalCase }}AccountWithMetadata {
+    async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
+        let {{ program.name | pascalCase }}AccountWithMetadata(account, metadata) = self;
+
+        match account {
+            {% for account in accountsToExport %}
+            {{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(account) => {
+                let row = {{ account.name | snakeCase }}_row::{{ account.name | pascalCase }}Row::from_parts(account.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            {% endfor %}
+        }
+    }
+}
+
+#[async_trait::async_trait]
+impl carbon_core::postgres::operations::Upsert for {{ program.name | pascalCase }}AccountWithMetadata {
+    async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
+        let {{ program.name | pascalCase}}AccountWithMetadata(account, metadata) = self;
+        match account {
+            {% for account in accountsToExport %}
+            {{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(account) => {
+                let row = {{ account.name | snakeCase }}_row::{{ account.name | pascalCase }}Row::from_parts(account.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            {% endfor %}
+        }
+    }
+}
+
+{% endblock %}
