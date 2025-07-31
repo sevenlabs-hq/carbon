@@ -36,10 +36,18 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for {{program.name | pascalCase}}A
     }
 }
 
+pub struct {{ program.name | pascalCase }}AccountWithMetadata(pub {{ program.name | pascalCase }}Account, pub carbon_core::account::AccountMetadata);
+
+impl From<({{ program.name | pascalCase }}Account, carbon_core::account::AccountMetadata)> for {{ program.name | pascalCase }}AccountWithMetadata {
+    fn from(value: ({{ program.name | pascalCase }}Account, carbon_core::account::AccountMetadata)) -> Self {
+        {{ program.name | pascalCase }}AccountWithMetadata(value.0, value.1)
+    }
+}
+
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Insert for ({{ program.name | pascalCase }}Account, carbon_core::account::AccountMetadata) {
+impl carbon_core::postgres::operations::Insert for {{ program.name | pascalCase }}AccountWithMetadata {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let (account, metadata) = self;
+        let {{ program.name | pascalCase }}AccountWithMetadata(account, metadata) = self;
 
         match account {
             {% for account in accountsToExport %}
@@ -54,9 +62,9 @@ impl carbon_core::postgres::operations::Insert for ({{ program.name | pascalCase
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Upsert for ({{ program.name | pascalCase }}Account, carbon_core::account::AccountMetadata) {
+impl carbon_core::postgres::operations::Upsert for {{ program.name | pascalCase }}AccountWithMetadata {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let (account, metadata) = self;
+        let {{ program.name | pascalCase}}AccountWithMetadata(account, metadata) = self;
         match account {
             {% for account in accountsToExport %}
             {{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(account) => {

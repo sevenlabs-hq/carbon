@@ -36,10 +36,18 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for {{program.name | pascalCase}}I
     }
 }
 
+pub struct {{ program.name | pascalCase }}InstructionWithMetadata(pub {{ program.name | pascalCase }}Instruction, pub carbon_core::instruction::InstructionMetadata);
+
+impl From<({{ program.name | pascalCase }}Instruction, carbon_core::instruction::InstructionMetadata)> for {{ program.name | pascalCase }}InstructionWithMetadata {
+    fn from(value: ({{ program.name | pascalCase }}Instruction, carbon_core::instruction::InstructionMetadata)) -> Self {
+        {{ program.name | pascalCase }}InstructionWithMetadata(value.0, value.1)
+    }
+}
+
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Insert for ({{ program.name | pascalCase }}Instruction, carbon_core::instruction::InstructionMetadata) {
+impl carbon_core::postgres::operations::Insert for {{ program.name | pascalCase }}InstructionWithMetadata {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let (instruction, metadata) = self;
+        let {{ program.name | pascalCase }}InstructionWithMetadata(instruction, metadata) = self;
         match instruction {
             {% for instruction in instructionsToExport %}
             {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) => {
@@ -53,9 +61,9 @@ impl carbon_core::postgres::operations::Insert for ({{ program.name | pascalCase
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Upsert for ({{ program.name | pascalCase }}Instruction, carbon_core::instruction::InstructionMetadata) {
+impl carbon_core::postgres::operations::Upsert for {{ program.name | pascalCase }}InstructionWithMetadata {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let (instruction, metadata) = self;
+        let {{ program.name | pascalCase }}InstructionWithMetadata(instruction, metadata) = self;
         match instruction {
             {% for instruction in instructionsToExport %}
             {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) => {
