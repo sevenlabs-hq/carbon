@@ -266,7 +266,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InstructionRowMigrationOperati
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
             r#"CREATE TABLE IF NOT EXISTS instructions (
-            __signature BYTEA NOT NULL,
+            __signature TEXT NOT NULL,
             __index BIGINT NOT NULL,
             __stack_height BIGINT NOT NULL,
             __slot BIGINT,
