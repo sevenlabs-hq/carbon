@@ -10,6 +10,8 @@ pub mod {{ instruction.name | snakeCase }}_row;
 pub use self::{{ instruction.name | snakeCase }}_row::*;
 {% endfor %}
 
+use super::{{ program.name | pascalCase }}Instruction;
+
 pub struct {{ program.name | pascalCase }}InstructionsMigration;
 
 impl sqlx_migrator::Migration<sqlx::Postgres> for {{program.name | pascalCase}}InstructionsMigration {
@@ -31,6 +33,38 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for {{program.name | pascalCase}}I
 
     fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
         vec![]
+    }
+}
+
+#[async_trait::async_trait]
+impl carbon_core::postgres::operations::Insert for ({{ program.name | pascalCase }}Instruction, carbon_core::instruction::InstructionMetadata) {
+    async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
+        let (instruction, metadata) = self;
+        match instruction {
+            {% for instruction in instructionsToExport %}
+            {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) => {
+                let row = {{ instruction.name | snakeCase }}_row::{{ instruction.name | pascalCase }}Row::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            {% endfor %}
+        }
+    }
+}
+
+#[async_trait::async_trait]
+impl carbon_core::postgres::operations::Upsert for ({{ program.name | pascalCase }}Instruction, carbon_core::instruction::InstructionMetadata) {
+    async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
+        let (instruction, metadata) = self;
+        match instruction {
+            {% for instruction in instructionsToExport %}
+            {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) => {
+                let row = {{ instruction.name | snakeCase }}_row::{{ instruction.name | pascalCase }}Row::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            {% endfor %}
+        }
     }
 }
 

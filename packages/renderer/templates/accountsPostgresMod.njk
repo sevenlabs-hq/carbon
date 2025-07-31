@@ -10,6 +10,8 @@ pub mod {{ account.name | snakeCase }}_row;
 pub use self::{{ account.name | snakeCase }}_row::*;
 {% endfor %}
 
+use super::{{ program.name | pascalCase }}Account;
+
 pub struct {{ program.name | pascalCase }}AccountsMigration;
 
 impl sqlx_migrator::Migration<sqlx::Postgres> for {{program.name | pascalCase}}AccountsMigration {
@@ -31,6 +33,39 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for {{program.name | pascalCase}}A
 
     fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
         vec![]
+    }
+}
+
+#[async_trait::async_trait]
+impl carbon_core::postgres::operations::Insert for ({{ program.name | pascalCase }}Account, carbon_core::account::AccountMetadata) {
+    async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
+        let (account, metadata) = self;
+
+        match account {
+            {% for account in accountsToExport %}
+            {{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(account) => {
+                let row = {{ account.name | snakeCase }}_row::{{ account.name | pascalCase }}Row::from_parts(account.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            {% endfor %}
+        }
+    }
+}
+
+#[async_trait::async_trait]
+impl carbon_core::postgres::operations::Upsert for ({{ program.name | pascalCase }}Account, carbon_core::account::AccountMetadata) {
+    async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
+        let (account, metadata) = self;
+        match account {
+            {% for account in accountsToExport %}
+            {{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(account) => {
+                let row = {{ account.name | snakeCase }}_row::{{ account.name | pascalCase }}Row::from_parts(account.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            {% endfor %}
+        }
     }
 }
 
