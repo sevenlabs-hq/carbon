@@ -11,16 +11,25 @@ use crate::{
     },
 };
 
-pub struct PostgresAccountProcessor<T> {
+pub struct PostgresAccountProcessor<T, W> {
     pool: sqlx::PgPool,
-    _phantom: std::marker::PhantomData<T>,
+    _phantom: std::marker::PhantomData<(T, W)>,
+}
+
+impl<T, W> PostgresAccountProcessor<T, W> {
+    pub fn new(pool: sqlx::PgPool) -> Self {
+        Self {
+            pool,
+            _phantom: std::marker::PhantomData,
+        }
+    }
 }
 
 #[async_trait::async_trait]
-impl<T> crate::processor::Processor for PostgresAccountProcessor<T>
+impl<T, W> crate::processor::Processor for PostgresAccountProcessor<T, W>
 where
     T: Clone + Send + Sync + 'static,
-    (T, AccountMetadata): Upsert,
+    W: From<(T, AccountMetadata)> + Upsert + Send + 'static,
 {
     type InputType = AccountProcessorInputType<T>;
 
@@ -33,7 +42,9 @@ where
 
         let start = std::time::Instant::now();
 
-        match (decoded_account.data, metadata).upsert(&self.pool).await {
+        let wrapper = W::from((decoded_account.data, metadata));
+
+        match wrapper.upsert(&self.pool).await {
             Ok(()) => {
                 metrics
                     .increment_counter("postgres.accounts.upsert.upserted", 1)
@@ -59,6 +70,15 @@ where
 pub struct PostgresJsonAccountProcessor<T> {
     pool: sqlx::PgPool,
     _phantom: std::marker::PhantomData<T>,
+}
+
+impl<T> PostgresJsonAccountProcessor<T> {
+    pub fn new(pool: sqlx::PgPool) -> Self {
+        Self {
+            pool,
+            _phantom: std::marker::PhantomData,
+        }
+    }
 }
 
 #[async_trait::async_trait]
@@ -102,16 +122,25 @@ where
     }
 }
 
-pub struct PostgresInstructionProcessor<T> {
+pub struct PostgresInstructionProcessor<T, W> {
     pool: sqlx::PgPool,
-    _phantom: std::marker::PhantomData<T>,
+    _phantom: std::marker::PhantomData<(T, W)>,
+}
+
+impl<T, W> PostgresInstructionProcessor<T, W> {
+    pub fn new(pool: sqlx::PgPool) -> Self {
+        Self {
+            pool,
+            _phantom: std::marker::PhantomData,
+        }
+    }
 }
 
 #[async_trait::async_trait]
-impl<T> crate::processor::Processor for PostgresInstructionProcessor<T>
+impl<T, W> crate::processor::Processor for PostgresInstructionProcessor<T, W>
 where
     T: Clone + Send + Sync + 'static,
-    (T, InstructionMetadata): Upsert,
+    W: From<(T, InstructionMetadata)> + Upsert + Send + 'static,
 {
     type InputType = InstructionProcessorInputType<T>;
 
@@ -124,10 +153,9 @@ where
 
         let start = std::time::Instant::now();
 
-        match (decoded_instruction.data, metadata)
-            .upsert(&self.pool)
-            .await
-        {
+        let wrapper = W::from((decoded_instruction.data, metadata));
+
+        match wrapper.upsert(&self.pool).await {
             Ok(()) => {
                 metrics
                     .increment_counter("postgres.instructions.upsert.upserted", 1)
@@ -153,6 +181,15 @@ where
 pub struct PostgresJsonInstructionProcessor<T> {
     pool: sqlx::PgPool,
     _phantom: std::marker::PhantomData<T>,
+}
+
+impl<T> PostgresJsonInstructionProcessor<T> {
+    pub fn new(pool: sqlx::PgPool) -> Self {
+        Self {
+            pool,
+            _phantom: std::marker::PhantomData,
+        }
+    }
 }
 
 #[async_trait::async_trait]
