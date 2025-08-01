@@ -5,7 +5,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x17b7f83760d8ac60")]
+#[carbon(discriminator = "0x02")]
 pub struct BondingCurve {
     pub discriminator: AccountDiscriminator,
     pub base_mint: solana_pubkey::Pubkey,

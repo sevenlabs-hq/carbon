@@ -5,7 +5,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0xa8fc58b6dbcd2735")]
+#[carbon(discriminator = "0x06")]
 pub struct MintConfig {
     pub discriminator: AccountDiscriminator,
     pub instruction_discriminator: u8,

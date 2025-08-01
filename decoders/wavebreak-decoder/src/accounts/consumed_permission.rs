@@ -5,7 +5,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x17ccc2778472b97b")]
+#[carbon(discriminator = "0x05")]
 pub struct ConsumedPermission {
     pub discriminator: AccountDiscriminator,
     pub padding1: [u8; 7],
