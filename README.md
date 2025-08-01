@@ -280,6 +280,7 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-token-program-decoder`             | Token Program Decoder                     | TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA  |
 | `carbon-virtual-curve-decoder`             | Meteora Virtual Curve Program Decoder     | dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN  |
 | `carbon-virtuals-decoder`                  | Virtuals Program Decoder                  | 5U3EU2ubXtK84QcRjWVmYt9RaDyA8gKxdUrPFXmZyaki |
+| `carbon-wavebreak-decoder`                 | Wavebreak Program Decoder                 | waveQX2yP3H1pVU8djGvEHmYg8uamQ84AuyGtpsrXTF  |
 | `carbon-zeta-decoder`                      | Zeta Program Decoder                      | ZETAxsqBRek56DhiGXrn75yj2NHU3aYUnxvHXpkf3aD  |
 
 ## Pre-commit hooks

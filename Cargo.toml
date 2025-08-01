@@ -98,6 +98,7 @@ carbon-token-2022-decoder = { path = "decoders/token-2022-decoder", version = "0
 carbon-token-program-decoder = { path = "decoders/token-program-decoder", version = "0.9.1" }
 carbon-virtual-curve-decoder = { path = "decoders/virtual-curve-decoder", version = "0.9.1" }
 carbon-virtuals-decoder = { path = "decoders/virtuals-decoder", version = "0.9.1" }
+carbon-wavebreak-decoder = { path = "decoders/wavebreak-decoder", version = "0.9.1" }
 carbon-yellowstone-grpc-datasource = { path = "datasources/yellowstone-grpc-datasource", version = "0.9.1" }
 carbon-zeta-decoder = { path = "decoders/zeta-decoder", version = "0.9.1" }
 
