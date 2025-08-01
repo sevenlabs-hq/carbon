@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -40,37 +40,57 @@ impl carbon_core::deserialize::ArrangeAccounts for Migrate {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [global, withdraw_authority, mint, bonding_curve, associated_bonding_curve, user, system_program, token_program, pump_amm, pool, pool_authority, pool_authority_mint_account, pool_authority_wsol_account, amm_global_config, wsol_mint, lp_mint, user_pool_token_account, pool_base_token_account, pool_quote_token_account, token_2022_program, associated_token_program, pump_amm_event_authority, event_authority, program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let global = next_account(&mut iter)?;
+        let withdraw_authority = next_account(&mut iter)?;
+        let mint = next_account(&mut iter)?;
+        let bonding_curve = next_account(&mut iter)?;
+        let associated_bonding_curve = next_account(&mut iter)?;
+        let user = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let token_program = next_account(&mut iter)?;
+        let pump_amm = next_account(&mut iter)?;
+        let pool = next_account(&mut iter)?;
+        let pool_authority = next_account(&mut iter)?;
+        let pool_authority_mint_account = next_account(&mut iter)?;
+        let pool_authority_wsol_account = next_account(&mut iter)?;
+        let amm_global_config = next_account(&mut iter)?;
+        let wsol_mint = next_account(&mut iter)?;
+        let lp_mint = next_account(&mut iter)?;
+        let user_pool_token_account = next_account(&mut iter)?;
+        let pool_base_token_account = next_account(&mut iter)?;
+        let pool_quote_token_account = next_account(&mut iter)?;
+        let token_2022_program = next_account(&mut iter)?;
+        let associated_token_program = next_account(&mut iter)?;
+        let pump_amm_event_authority = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
 
         Some(MigrateInstructionAccounts {
-            global: global.pubkey,
-            withdraw_authority: withdraw_authority.pubkey,
-            mint: mint.pubkey,
-            bonding_curve: bonding_curve.pubkey,
-            associated_bonding_curve: associated_bonding_curve.pubkey,
-            user: user.pubkey,
-            system_program: system_program.pubkey,
-            token_program: token_program.pubkey,
-            pump_amm: pump_amm.pubkey,
-            pool: pool.pubkey,
-            pool_authority: pool_authority.pubkey,
-            pool_authority_mint_account: pool_authority_mint_account.pubkey,
-            pool_authority_wsol_account: pool_authority_wsol_account.pubkey,
-            amm_global_config: amm_global_config.pubkey,
-            wsol_mint: wsol_mint.pubkey,
-            lp_mint: lp_mint.pubkey,
-            user_pool_token_account: user_pool_token_account.pubkey,
-            pool_base_token_account: pool_base_token_account.pubkey,
-            pool_quote_token_account: pool_quote_token_account.pubkey,
-            token_2022_program: token_2022_program.pubkey,
-            associated_token_program: associated_token_program.pubkey,
-            pump_amm_event_authority: pump_amm_event_authority.pubkey,
-            event_authority: event_authority.pubkey,
-            program: program.pubkey,
+            global,
+            withdraw_authority,
+            mint,
+            bonding_curve,
+            associated_bonding_curve,
+            user,
+            system_program,
+            token_program,
+            pump_amm,
+            pool,
+            pool_authority,
+            pool_authority_mint_account,
+            pool_authority_wsol_account,
+            amm_global_config,
+            wsol_mint,
+            lp_mint,
+            user_pool_token_account,
+            pool_base_token_account,
+            pool_quote_token_account,
+            token_2022_program,
+            associated_token_program,
+            pump_amm_event_authority,
+            event_authority,
+            program,
         })
     }
 }
