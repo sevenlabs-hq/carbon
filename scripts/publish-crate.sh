@@ -70,6 +70,7 @@ workspace_crates=(
     carbon-token-program-decoder
     carbon-virtual-curve-decoder
     carbon-virtuals-decoder
+    carbon-wavebreak-decoder
     carbon-zeta-decoder
 )
 
