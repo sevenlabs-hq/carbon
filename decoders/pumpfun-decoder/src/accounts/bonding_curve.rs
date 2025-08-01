@@ -11,4 +11,5 @@ pub struct BondingCurve {
     pub real_sol_reserves: u64,
     pub token_total_supply: u64,
     pub complete: bool,
+    pub creator: solana_pubkey::Pubkey,
 }

@@ -18,4 +18,5 @@ pub struct SetParamsEvent {
     pub fee_recipients: [solana_pubkey::Pubkey; 8],
     pub timestamp: i64,
     pub set_creator_authority: solana_pubkey::Pubkey,
+    pub admin_set_creator_authority: solana_pubkey::Pubkey,
 }
