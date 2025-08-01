@@ -5,7 +5,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0x6582b0423e24e65d")]
+#[carbon(discriminator = "0x04")]
 pub struct PermissionConfig {
     pub discriminator: AccountDiscriminator,
     pub consumer_program: solana_pubkey::Pubkey,
