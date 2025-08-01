@@ -2,7 +2,13 @@ use crate::PROGRAM_ID;
 
 use super::PumpfunDecoder;
 
+pub mod admin_set_creator;
+pub mod admin_set_creator_event;
+pub mod admin_update_token_incentives;
+pub mod admin_update_token_incentives_event;
 pub mod buy;
+pub mod claim_token_incentives;
+pub mod claim_token_incentives_event;
 pub mod collect_creator_fee;
 pub mod collect_creator_fee_event;
 pub mod complete_event;
@@ -20,6 +26,8 @@ pub mod set_metaplex_creator;
 pub mod set_metaplex_creator_event;
 pub mod set_params;
 pub mod set_params_event;
+pub mod sync_user_volume_accumulator;
+pub mod sync_user_volume_accumulator_event;
 pub mod trade_event;
 pub mod update_global_authority;
 pub mod update_global_authority_event;
@@ -35,7 +43,10 @@ pub mod update_global_authority_event;
     Hash,
 )]
 pub enum PumpfunInstruction {
+    AdminSetCreator(admin_set_creator::AdminSetCreator),
+    AdminUpdateTokenIncentives(admin_update_token_incentives::AdminUpdateTokenIncentives),
     Buy(buy::Buy),
+    ClaimTokenIncentives(claim_token_incentives::ClaimTokenIncentives),
     CollectCreatorFee(collect_creator_fee::CollectCreatorFee),
     Create(create::Create),
     ExtendAccount(extend_account::ExtendAccount),
@@ -45,7 +56,13 @@ pub enum PumpfunInstruction {
     SetCreator(set_creator::SetCreator),
     SetMetaplexCreator(set_metaplex_creator::SetMetaplexCreator),
     SetParams(set_params::SetParams),
+    SyncUserVolumeAccumulator(sync_user_volume_accumulator::SyncUserVolumeAccumulator),
     UpdateGlobalAuthority(update_global_authority::UpdateGlobalAuthority),
+    AdminSetCreatorEvent(admin_set_creator_event::AdminSetCreatorEvent),
+    AdminUpdateTokenIncentivesEvent(
+        admin_update_token_incentives_event::AdminUpdateTokenIncentivesEvent,
+    ),
+    ClaimTokenIncentivesEvent(claim_token_incentives_event::ClaimTokenIncentivesEvent),
     CollectCreatorFeeEvent(collect_creator_fee_event::CollectCreatorFeeEvent),
     CompleteEvent(complete_event::CompleteEvent),
     CompletePumpAmmMigrationEvent(complete_pump_amm_migration_event::CompletePumpAmmMigrationEvent),
@@ -54,6 +71,9 @@ pub enum PumpfunInstruction {
     SetCreatorEvent(set_creator_event::SetCreatorEvent),
     SetMetaplexCreatorEvent(set_metaplex_creator_event::SetMetaplexCreatorEvent),
     SetParamsEvent(set_params_event::SetParamsEvent),
+    SyncUserVolumeAccumulatorEvent(
+        sync_user_volume_accumulator_event::SyncUserVolumeAccumulatorEvent,
+    ),
     TradeEvent(trade_event::TradeEvent),
     UpdateGlobalAuthorityEvent(update_global_authority_event::UpdateGlobalAuthorityEvent),
 }
@@ -69,7 +89,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpfunDecoder {
             return None;
         }
         carbon_core::try_decode_instructions!(instruction,
+            PumpfunInstruction::AdminSetCreator => admin_set_creator::AdminSetCreator,
+            PumpfunInstruction::AdminUpdateTokenIncentives => admin_update_token_incentives::AdminUpdateTokenIncentives,
             PumpfunInstruction::Buy => buy::Buy,
+            PumpfunInstruction::ClaimTokenIncentives => claim_token_incentives::ClaimTokenIncentives,
             PumpfunInstruction::CollectCreatorFee => collect_creator_fee::CollectCreatorFee,
             PumpfunInstruction::Create => create::Create,
             PumpfunInstruction::ExtendAccount => extend_account::ExtendAccount,
@@ -79,7 +102,11 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpfunDecoder {
             PumpfunInstruction::SetCreator => set_creator::SetCreator,
             PumpfunInstruction::SetMetaplexCreator => set_metaplex_creator::SetMetaplexCreator,
             PumpfunInstruction::SetParams => set_params::SetParams,
+            PumpfunInstruction::SyncUserVolumeAccumulator => sync_user_volume_accumulator::SyncUserVolumeAccumulator,
             PumpfunInstruction::UpdateGlobalAuthority => update_global_authority::UpdateGlobalAuthority,
+            PumpfunInstruction::AdminSetCreatorEvent => admin_set_creator_event::AdminSetCreatorEvent,
+            PumpfunInstruction::AdminUpdateTokenIncentivesEvent => admin_update_token_incentives_event::AdminUpdateTokenIncentivesEvent,
+            PumpfunInstruction::ClaimTokenIncentivesEvent => claim_token_incentives_event::ClaimTokenIncentivesEvent,
             PumpfunInstruction::CollectCreatorFeeEvent => collect_creator_fee_event::CollectCreatorFeeEvent,
             PumpfunInstruction::CompleteEvent => complete_event::CompleteEvent,
             PumpfunInstruction::CompletePumpAmmMigrationEvent => complete_pump_amm_migration_event::CompletePumpAmmMigrationEvent,
@@ -88,6 +115,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpfunDecoder {
             PumpfunInstruction::SetCreatorEvent => set_creator_event::SetCreatorEvent,
             PumpfunInstruction::SetMetaplexCreatorEvent => set_metaplex_creator_event::SetMetaplexCreatorEvent,
             PumpfunInstruction::SetParamsEvent => set_params_event::SetParamsEvent,
+            PumpfunInstruction::SyncUserVolumeAccumulatorEvent => sync_user_volume_accumulator_event::SyncUserVolumeAccumulatorEvent,
             PumpfunInstruction::TradeEvent => trade_event::TradeEvent,
             PumpfunInstruction::UpdateGlobalAuthorityEvent => update_global_authority_event::UpdateGlobalAuthorityEvent,
         )
@@ -107,8 +135,8 @@ mod tests {
     fn test_decode_buy() {
         // Arrange
         let expected_ix = PumpfunInstruction::Buy(buy::Buy {
-            amount: 34275561331820,
-            max_sol_cost: 1020000000,
+            amount: 1761808330141,
+            max_sol_cost: 55000000,
         });
         let expected_accounts = vec![
             AccountMeta {
@@ -117,32 +145,32 @@ mod tests {
                 is_writable: false,
             },
             AccountMeta {
-                pubkey: pubkey!("CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM"),
+                pubkey: pubkey!("68yFSZxzLWJXkxxRGydZ63C6mHx1NLEDWmwN9Lb5yySg"),
                 is_signer: false,
                 is_writable: true,
             },
             AccountMeta {
-                pubkey: pubkey!("AC69oJv1m7843mdRfoQDneZuyRxYrMq86i2mARMtpump"),
+                pubkey: pubkey!("ANY6GmWTnMdcve9ouPYRfTUaJEzi5pFHxaXDRReMveMo"),
                 is_signer: false,
                 is_writable: false,
             },
             AccountMeta {
-                pubkey: pubkey!("623TpUDcZjKdmd9wybMveLKSSbgRs2hvwFjygzi4g15B"),
+                pubkey: pubkey!("7BXEBYDN1RDb9gyp3ZXuYfk63rRrYsbwUjbVCTrM7kMq"),
                 is_signer: false,
                 is_writable: true,
             },
             AccountMeta {
-                pubkey: pubkey!("5rQKu3z4SXShvQkNKSJu9mtsVmgM8AvLoeNbJGvTyQv6"),
+                pubkey: pubkey!("6s8yqaYzxYgkaguisExzrTsZVUe5zGqk5yVeFh2XZvpo"),
                 is_signer: false,
                 is_writable: true,
             },
             AccountMeta {
-                pubkey: pubkey!("BQN63TcxSjMtHsLUUJ6f6iGsoLE1qqMyvD3A4TBpY6ii"),
+                pubkey: pubkey!("8EDQQdDDJ7RuKgAAfubcWiUUakpSzRE9TBorhtqxM1Y2"),
                 is_signer: false,
                 is_writable: true,
             },
             AccountMeta {
-                pubkey: pubkey!("CkdtUhQdH2sHXJYTJTNFbF1K5W33WVgVHG7zffaMkEmv"),
+                pubkey: pubkey!("B52TW9jWxJfe84ovSe8eHtw7s8zu4ZAJ2LSkWE3cP2pd"),
                 is_signer: true,
                 is_writable: true,
             },
@@ -157,7 +185,7 @@ mod tests {
                 is_writable: false,
             },
             AccountMeta {
-                pubkey: pubkey!("8rsczKQ9bVT6AcGoD4CqoKySbVErCoXwQH8h7ZjAsUqE"),
+                pubkey: pubkey!("Av288QVHYUTtKQCyxFHMWPoF4gTLCowJpw6mQm2jjjPZ"),
                 is_signer: false,
                 is_writable: true,
             },
@@ -171,24 +199,37 @@ mod tests {
                 is_signer: false,
                 is_writable: false,
             },
+            AccountMeta {
+                pubkey: pubkey!("Hq2wp8uJ9jCPsYgNHex8RtqdvMPfVGoYwjvF1ATiwn2Y"),
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: pubkey!("A5YYvy72JYi6PhwHRNm6VPH1mt17a7MjUp2CdZf6xsKQ"),
+                is_signer: false,
+                is_writable: false,
+            },
         ];
         let expected_arranged_accounts = buy::BuyInstructionAccounts {
             global: pubkey!("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
-            fee_recipient: pubkey!("CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM"),
-            mint: pubkey!("AC69oJv1m7843mdRfoQDneZuyRxYrMq86i2mARMtpump"),
-            bonding_curve: pubkey!("623TpUDcZjKdmd9wybMveLKSSbgRs2hvwFjygzi4g15B"),
-            associated_bonding_curve: pubkey!("5rQKu3z4SXShvQkNKSJu9mtsVmgM8AvLoeNbJGvTyQv6"),
-            associated_user: pubkey!("BQN63TcxSjMtHsLUUJ6f6iGsoLE1qqMyvD3A4TBpY6ii"),
-            user: pubkey!("CkdtUhQdH2sHXJYTJTNFbF1K5W33WVgVHG7zffaMkEmv"),
+            fee_recipient: pubkey!("68yFSZxzLWJXkxxRGydZ63C6mHx1NLEDWmwN9Lb5yySg"),
+            mint: pubkey!("ANY6GmWTnMdcve9ouPYRfTUaJEzi5pFHxaXDRReMveMo"),
+            bonding_curve: pubkey!("7BXEBYDN1RDb9gyp3ZXuYfk63rRrYsbwUjbVCTrM7kMq"),
+            associated_bonding_curve: pubkey!("6s8yqaYzxYgkaguisExzrTsZVUe5zGqk5yVeFh2XZvpo"),
+            associated_user: pubkey!("8EDQQdDDJ7RuKgAAfubcWiUUakpSzRE9TBorhtqxM1Y2"),
+            user: pubkey!("B52TW9jWxJfe84ovSe8eHtw7s8zu4ZAJ2LSkWE3cP2pd"),
             system_program: pubkey!("11111111111111111111111111111111"),
             token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-            creator_vault: pubkey!("8rsczKQ9bVT6AcGoD4CqoKySbVErCoXwQH8h7ZjAsUqE"),
+            creator_vault: pubkey!("Av288QVHYUTtKQCyxFHMWPoF4gTLCowJpw6mQm2jjjPZ"),
             event_authority: pubkey!("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
             program: pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
+            global_volume_accumulator: pubkey!("Hq2wp8uJ9jCPsYgNHex8RtqdvMPfVGoYwjvF1ATiwn2Y"),
+            user_volume_accumulator: pubkey!("A5YYvy72JYi6PhwHRNm6VPH1mt17a7MjUp2CdZf6xsKQ"),
         };
 
         // Act
         let decoder = PumpfunDecoder;
+        // The buy fixture is from devnet
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/buy_ix.json")
             .expect("read fixture");
         let decoded = decoder

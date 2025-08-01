@@ -3,9 +3,8 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-pub struct CompleteEvent {
+pub struct SyncUserVolumeAccumulatorEvent {
     pub user: solana_pubkey::Pubkey,
-    pub mint: solana_pubkey::Pubkey,
-    pub bonding_curve: solana_pubkey::Pubkey,
-    pub timestamp: i64,
+    pub total_claimed_tokens_before: u64,
+    pub total_claimed_tokens_after: u64,
 }
