@@ -25,6 +25,7 @@ workspace_crates=(
     carbon-address-lookup-table-decoder
     carbon-associated-token-account-decoder
     carbon-boop-decoder
+    carbon-bubblegum-decoder
     carbon-drift-v2-decoder
     carbon-fluxbeam-decoder
     carbon-gavel-decoder
