@@ -71,7 +71,7 @@ impl Processor for PumpfunInstructionProcessor {
         match pumpfun_instruction.data {
             PumpfunInstruction::CreateEvent(create_event) => {
                 log::info!(
-                    "New token created: {:#?} on slot {}",
+                    "New token created: {:#?} on slot {:#?}",
                     create_event,
                     metadata.transaction_metadata.slot
                 );

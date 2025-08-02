@@ -307,7 +307,7 @@ fn task_processor(
                                     transaction: decoded_transaction.clone(),
                                     meta: meta_needed,
                                     is_vote: false,
-                                    slot,
+                                    slot: Some(slot),
                                     block_time: block.block_time,
                                     block_hash,
                                 }));

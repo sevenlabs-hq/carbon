@@ -1,0 +1,24 @@
+[package]
+name = "stream-message-datasource"
+description = "Stream Message Datasource"
+license = { workspace = true }
+version = "0.9.1"
+edition = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "indexer", "agave", "datasource"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+solana-program = { workspace = true }
+solana-pubkey = { workspace = true }
+
+carbon-core = { workspace = true }
+
+async-trait = { workspace = true }
+log = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tokio-util = { workspace = true }

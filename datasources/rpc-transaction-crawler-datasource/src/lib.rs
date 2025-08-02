@@ -559,7 +559,7 @@ fn task_processor(
                         transaction: decoded_transaction.clone(),
                         meta: meta_needed,
                         is_vote: false,
-                        slot: fetched_transaction.slot,
+                        slot: Some(fetched_transaction.slot),
                         block_time: fetched_transaction.block_time,
                         block_hash: None,
                     }));

@@ -72,7 +72,7 @@ use {
 /// - `pubkey`: The public key of the account.
 #[derive(Debug, Clone)]
 pub struct AccountMetadata {
-    pub slot: u64,
+    pub slot: Option<u64>,
     pub pubkey: Pubkey,
 }
 
