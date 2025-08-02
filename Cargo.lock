@@ -1155,6 +1155,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-bubblegum-decoder"
+version = "0.9.1"
+dependencies = [
+ "carbon-core",
+ "serde",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey",
+]
+
+[[package]]
 name = "carbon-cli"
 version = "0.9.1"
 dependencies = [
