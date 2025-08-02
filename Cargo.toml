@@ -27,6 +27,7 @@ bs58 = { version = "0.5.1", default-features = false }
 carbon-address-lookup-table-decoder = { path = "decoders/address-lookup-table-decoder", version = "0.9.1" }
 carbon-associated-token-account-decoder = { path = "decoders/associated-token-account-decoder", version = "0.9.1" }
 carbon-boop-decoder = { path = "decoders/boop-decoder", version = "0.9.1" }
+carbon-bubblegum-decoder = { path = "decoders/bubblegum-decoder", version = "0.9.1" }
 
 # main
 carbon-cli = { path = "crates/cli", version = "0.9.1" }
