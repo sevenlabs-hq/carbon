@@ -587,6 +587,7 @@ impl Datasource for HeliusWebsocket {
                                                     .compute_units_consumed
                                                     .map(|compute_unit_consumed| compute_unit_consumed)
                                                     .or(None),
+                                                cost_units: meta_original.cost_units.into(),
                                             };
 
                                             let update = Update::Transaction(Box::new(TransactionUpdate {
