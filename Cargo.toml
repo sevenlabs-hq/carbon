@@ -156,7 +156,8 @@ solana-transaction = "~2.2"
 solana-transaction-context = "~2.2"
 solana-transaction-status = "~2.2"
 spl-memo = "5.0.0"
-spl-token = "6.0.0"
+spl-token = "8.0.0"
+spl-token-2022 = "9.0.0"
 sqlx = { version = "0.8.5", features = [
     "macros",
     "runtime-tokio-rustls",
