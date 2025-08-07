@@ -1795,6 +1795,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-stream-message-datasource"
+version = "0.9.1"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "log",
+ "solana-program",
+ "solana-pubkey",
+ "tokio",
+ "tokio-util",
+]
+
+[[package]]
 name = "carbon-system-program-decoder"
 version = "0.9.1"
 dependencies = [
@@ -8450,9 +8463,9 @@ dependencies = [
 
 [[package]]
 name = "solana-transaction"
-version = "2.2.2"
+version = "2.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "abec848d081beb15a324c633cd0e0ab33033318063230389895cae503ec9b544"
+checksum = "80657d6088f721148f5d889c828ca60c7daeedac9a8679f9ec215e0c42bcbf41"
 dependencies = [
  "bincode",
  "serde",
@@ -9387,19 +9400,6 @@ name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
-
-[[package]]
-name = "stream-message-datasource"
-version = "0.9.1"
-dependencies = [
- "async-trait",
- "carbon-core",
- "log",
- "solana-program",
- "solana-pubkey",
- "tokio",
- "tokio-util",
-]
 
 [[package]]
 name = "stringprep"

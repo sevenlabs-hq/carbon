@@ -87,7 +87,7 @@ impl Datasource for GpaBackfillDatasource {
                 Update::Account(AccountUpdate {
                     pubkey,
                     account,
-                    slot: Some(slot),
+                    slot,
                 }),
                 id_for_loop.clone(),
             )) {

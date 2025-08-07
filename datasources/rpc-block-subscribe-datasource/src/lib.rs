@@ -175,7 +175,7 @@ impl Datasource for RpcBlockSubscribe {
                                                 transaction: decoded_transaction.clone(),
                                                 meta: meta_needed,
                                                 is_vote: false,
-                                                slot: Some(slot),
+                                                slot,
                                                 block_time: block.block_time,
                                                 block_hash,
                                             }));

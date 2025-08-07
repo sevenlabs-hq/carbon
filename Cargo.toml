@@ -40,7 +40,7 @@ carbon-gql-server = { path = "crates/gql-server", version = "0.9.1" }
 
 # datasources
 carbon-helius-atlas-ws-datasource = { path = "datasources/helius-atlas-ws-datasource", version = "0.9.1" }
-stream-message-datasource = { path = "datasources/stream-message-datasource", version = "0.9.1" }
+carbon-stream-message-datasource = { path = "datasources/stream-message-datasource", version = "0.9.1" }
 
 # vendor
 carbon-jito-protos = { path = "misc/jito-protos", version = "0.2.4" }
@@ -155,7 +155,7 @@ solana-program = "2.2.1"
 solana-program-pack = "2.2.1"
 solana-pubkey = { version = "2.3.6", features = ["serde", "borsh", "curve25519"] }
 solana-signature = { version = "2.3.0", features = ["rand"] }
-solana-transaction = "=2.2.2"
+solana-transaction = "2.2.2"
 solana-transaction-context = "2.3.6"
 solana-transaction-status = "2.3.6"
 spl-memo = "6.0.0"

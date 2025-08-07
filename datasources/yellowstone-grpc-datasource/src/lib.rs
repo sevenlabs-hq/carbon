@@ -255,7 +255,7 @@ async fn send_subscribe_account_update_info(
             if accounts.contains(&account_pubkey) {
                 let account_deletion = AccountDeletion {
                     pubkey: account_pubkey,
-                    slot: Some(slot),
+                    slot,
                 };
                 if let Err(e) = sender.try_send((Update::AccountDeletion(account_deletion), id)) {
                     log::error!(
@@ -270,7 +270,7 @@ async fn send_subscribe_account_update_info(
             let update = Update::Account(AccountUpdate {
                 pubkey: account_pubkey,
                 account,
-                slot: Some(slot),
+                slot,
             });
 
             if let Err(e) = sender.try_send((update, id)) {
@@ -335,7 +335,7 @@ async fn send_subscribe_update_transaction_info(
             transaction: versioned_transaction,
             meta: meta_original,
             is_vote: transaction_info.is_vote,
-            slot: Some(slot),
+            slot,
             block_time,
             block_hash: None,
         }));

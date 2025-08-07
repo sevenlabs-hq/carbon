@@ -489,10 +489,7 @@ pub fn transaction_metadata_from_original_meta(
             .compute_units_consumed
             .map(|compute_unit_consumed| compute_unit_consumed)
             .or(None),
-        cost_units: {
-            #[allow(clippy::useless_conversion)]
-            meta_original.cost_units.map(|v| v.into())
-        },
+        cost_units: meta_original.cost_units.into(),
     })
 }
 
@@ -741,7 +738,7 @@ mod tests {
             },
             meta: original_tx_meta.clone(),
             is_vote: false,
-            slot: Some(123),
+            slot: 123,
             block_time: Some(123),
             block_hash: Hash::from_str("9bit9vXNX9HyHwL89aGDNmk3vbyAM96nvb6F4SaoM1CU").ok(),
         };
@@ -1170,7 +1167,7 @@ mod tests {
             },
             meta: original_tx_meta.clone(),
             is_vote: false,
-            slot: Some(123),
+            slot: 123,
             block_time: Some(123),
             block_hash: None,
         };

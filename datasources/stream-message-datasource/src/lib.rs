@@ -8,7 +8,7 @@ use {
         error::CarbonResult,
         metrics::MetricsCollection,
     },
-    log::{debug, warn},
+    log::warn,
     solana_pubkey::Pubkey,
     std::{collections::HashSet, sync::Arc},
     tokio::{
@@ -17,7 +17,6 @@ use {
             mpsc::{Receiver, Sender},
             Mutex, RwLock,
         },
-        time::Instant,
     },
     tokio_util::sync::CancellationToken,
 };
@@ -96,14 +95,11 @@ pub async fn handle_message_stream(
 ) {
     while !cancellation_token.is_cancelled() {
         select! {
-            biased;
-
             _ = cancellation_token.cancelled() => {
                 break;
             }
 
             maybe_msg = receiver.recv() => {
-                let start = Instant::now();
                 match maybe_msg {
                     Some(msg) => {
                         match msg {
@@ -133,11 +129,6 @@ pub async fn handle_message_stream(
                         break;
                     }
                 }
-
-                let elapsed = start.elapsed();
-                if elapsed.as_millis() > 50 {
-                    debug!("Slow geyser msg processing: {:?}", elapsed);
-                }
             }
         }
     }
@@ -164,7 +155,7 @@ async fn send_subscribe_account_update_info(
         if accounts.contains(&account_pubkey) {
             let account_deletion = AccountDeletion {
                 pubkey: account_pubkey,
-                slot: None,
+                slot: account_update.slot,
             };
             if let Err(e) = sender
                 .send((Update::AccountDeletion(account_deletion), id.clone()))
@@ -203,7 +194,7 @@ async fn send_subscribe_account_update_info(
     metrics
         .increment_counter("agave_grpc_account_updates_received", 1)
         .await
-        .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+        .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
 }
 
 async fn send_subscribe_update_transaction_info(
@@ -238,5 +229,5 @@ async fn send_subscribe_update_transaction_info(
     metrics
         .increment_counter("agave_grpc_transaction_updates_received", 1)
         .await
-        .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+        .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
 }
