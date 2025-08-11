@@ -235,11 +235,13 @@ pub enum UpdateType {
 /// - `pubkey`: The public key of the account being updated.
 /// - `account`: The new state of the account.
 /// - `slot`: The slot number in which this account update was recorded.
+/// - `transaction_signature`: Signature of the transaction that caused the update.
 #[derive(Debug, Clone)]
 pub struct AccountUpdate {
     pub pubkey: Pubkey,
     pub account: Account,
     pub slot: u64,
+    pub transaction_signature: Option<Signature>,
 }
 
 /// Represents the details of a Solana block, including its slot, hashes, rewards, and timing information.
@@ -274,10 +276,12 @@ pub struct BlockDetails {
 ///
 /// - `pubkey`: The public key of the deleted account.
 /// - `slot`: The slot number in which the account was deleted.
+/// - `transaction_signature`: Signature of the transaction that caused the update.
 #[derive(Debug, Clone)]
 pub struct AccountDeletion {
     pub pubkey: Pubkey,
     pub slot: u64,
+    pub transaction_signature: Option<Signature>,
 }
 
 /// Represents a transaction update in the Solana network, including transaction
