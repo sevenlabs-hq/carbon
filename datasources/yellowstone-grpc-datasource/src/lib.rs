@@ -256,6 +256,9 @@ async fn send_subscribe_account_update_info(
                 let account_deletion = AccountDeletion {
                     pubkey: account_pubkey,
                     slot,
+                    transaction_signature: account_info
+                        .txn_signature
+                        .and_then(|sig| Signature::try_from(sig).ok()),
                 };
                 if let Err(e) = sender.try_send((Update::AccountDeletion(account_deletion), id)) {
                     log::error!(
@@ -271,6 +274,9 @@ async fn send_subscribe_account_update_info(
                 pubkey: account_pubkey,
                 account,
                 slot,
+                transaction_signature: account_info
+                    .txn_signature
+                    .and_then(|sig| Signature::try_from(sig).ok()),
             });
 
             if let Err(e) = sender.try_send((update, id)) {
