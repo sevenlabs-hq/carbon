@@ -56,6 +56,7 @@ use {
     },
     async_trait::async_trait,
     solana_pubkey::Pubkey,
+    solana_signature::Signature,
     std::sync::Arc,
 };
 
@@ -70,10 +71,12 @@ use {
 ///
 /// - `slot`: The Solana slot number where the account was updated.
 /// - `pubkey`: The public key of the account.
+/// - `transaction_signature`: Signature of the transaction that caused the update.
 #[derive(Debug, Clone)]
 pub struct AccountMetadata {
     pub slot: u64,
     pub pubkey: Pubkey,
+    pub transaction_signature: Option<Signature>,
 }
 
 /// Represents the decoded data of a Solana account, including account-specific
