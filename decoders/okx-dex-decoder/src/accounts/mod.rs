@@ -1,6 +1,4 @@
-use carbon_core::account::AccountDecoder;
-
-use super::OkxDexDecoder;
+use {super::OkxDexDecoder, carbon_core::account::AccountDecoder};
 
 pub enum OkxDexAccount {}
 

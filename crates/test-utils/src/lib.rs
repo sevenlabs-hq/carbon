@@ -1,10 +1,11 @@
-use serde::Deserialize;
-
-use solana_account::Account;
-use solana_instruction::{AccountMeta, Instruction};
-use solana_pubkey::Pubkey;
-use solana_transaction_status::UiTransactionStatusMeta;
-use std::{fs, path::Path};
+use {
+    serde::Deserialize,
+    solana_account::Account,
+    solana_instruction::{AccountMeta, Instruction},
+    solana_pubkey::Pubkey,
+    solana_transaction_status::UiTransactionStatusMeta,
+    std::{fs, path::Path},
+};
 
 pub mod base58_deserialize;
 mod base64_deserialize;

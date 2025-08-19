@@ -1,9 +1,8 @@
 use {
     super::super::types::*,
     carbon_core::{borsh, CarbonDeserialize},
+    serde_big_array::BigArray,
 };
-
-use serde_big_array::BigArray;
 
 pub const TARGET_ORDERS_SIZE: usize = core::mem::size_of::<TargetOrders>();
 

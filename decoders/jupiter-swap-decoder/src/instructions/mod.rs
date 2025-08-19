@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::JupiterSwapDecoder;
+use {super::JupiterSwapDecoder, crate::PROGRAM_ID};
 pub mod claim;
 pub mod claim_token;
 pub mod create_open_orders;

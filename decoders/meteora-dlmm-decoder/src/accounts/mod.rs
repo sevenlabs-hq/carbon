@@ -1,9 +1,8 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use crate::PROGRAM_ID;
-
-use super::MeteoraDlmmDecoder;
+use {
+    super::MeteoraDlmmDecoder,
+    crate::PROGRAM_ID,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod bin_array;
 pub mod bin_array_bitmap_extension;
 pub mod claim_fee_operator;
@@ -158,13 +157,15 @@ impl AccountDecoder<'_> for MeteoraDlmmDecoder {
 #[cfg(test)]
 mod tests {
 
-    use crate::types::{
-        FeeInfo, ProtocolFee, RewardInfo, StaticParameters, UserRewardInfo, VariableParameters,
-    };
-    use solana_pubkey::pubkey;
-
-    use super::{
-        lb_pair::LbPair, oracle::Oracle, position::Position, preset_parameter::PresetParameter, *,
+    use {
+        super::{
+            lb_pair::LbPair, oracle::Oracle, position::Position, preset_parameter::PresetParameter,
+            *,
+        },
+        crate::types::{
+            FeeInfo, ProtocolFee, RewardInfo, StaticParameters, UserRewardInfo, VariableParameters,
+        },
+        solana_pubkey::pubkey,
     };
 
     #[test]

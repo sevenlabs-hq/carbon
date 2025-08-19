@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::PerpetualsDecoder;
+use {super::PerpetualsDecoder, crate::PROGRAM_ID};
 pub mod add_custody;
 pub mod add_liquidity2;
 pub mod add_liquidity_event;

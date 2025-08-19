@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::RaydiumClmmDecoder;
+use {super::RaydiumClmmDecoder, crate::PROGRAM_ID};
 pub mod close_position;
 pub mod collect_fund_fee;
 pub mod collect_personal_fee_event;
@@ -138,43 +136,47 @@ impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumClmmDecoder {
 
 #[cfg(test)]
 mod tests {
-    use alloc::vec;
-    use carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder};
-    use solana_instruction::AccountMeta;
-    use solana_pubkey::pubkey;
-
-    use crate::{
-        instructions::{
-            close_position::{ClosePosition, ClosePositionInstructionAccounts},
-            collect_fund_fee::{CollectFundFee, CollectFundFeeInstructionAccounts},
-            collect_protocol_fee::{CollectProtocolFee, CollectProtocolFeeInstructionAccounts},
-            collect_remaining_rewards::{
-                CollectRemainingRewards, CollectRemainingRewardsInstructionAccounts,
+    use {
+        super::*,
+        crate::{
+            instructions::{
+                close_position::{ClosePosition, ClosePositionInstructionAccounts},
+                collect_fund_fee::{CollectFundFee, CollectFundFeeInstructionAccounts},
+                collect_protocol_fee::{CollectProtocolFee, CollectProtocolFeeInstructionAccounts},
+                collect_remaining_rewards::{
+                    CollectRemainingRewards, CollectRemainingRewardsInstructionAccounts,
+                },
+                create_amm_config::{CreateAmmConfig, CreateAmmConfigInstructionAccounts},
+                create_pool::{CreatePool, CreatePoolInstructionAccounts},
+                decrease_liquidity::{DecreaseLiquidity, DecreaseLiquidityInstructionAccounts},
+                decrease_liquidity_v2::{
+                    DecreaseLiquidityV2, DecreaseLiquidityV2InstructionAccounts,
+                },
+                increase_liquidity::{IncreaseLiquidity, IncreaseLiquidityInstructionAccounts},
+                increase_liquidity_v2::{
+                    IncreaseLiquidityV2, IncreaseLiquidityV2InstructionAccounts,
+                },
+                initialize_reward::{InitializeReward, InitializeRewardInstructionAccounts},
+                open_position::{OpenPosition, OpenPositionInstructionAccounts},
+                open_position_v2::{OpenPositionV2, OpenPositionV2InstructionAccounts},
+                open_position_with_token22_nft::{
+                    OpenPositionWithToken22Nft, OpenPositionWithToken22NftInstructionAccounts,
+                },
+                set_reward_params::{SetRewardParams, SetRewardParamsInstructionAccounts},
+                swap::{Swap, SwapInstructionAccounts},
+                swap_router_base_in::{SwapRouterBaseIn, SwapRouterBaseInInstructionAccounts},
+                swap_v2::{SwapV2, SwapV2InstructionAccounts},
+                update_amm_config::{UpdateAmmConfig, UpdateAmmConfigInstructionAccounts},
+                update_pool_status::{UpdatePoolStatus, UpdatePoolStatusInstructionAccounts},
+                update_reward_infos::{UpdateRewardInfos, UpdateRewardInfosInstructionAccounts},
             },
-            create_amm_config::{CreateAmmConfig, CreateAmmConfigInstructionAccounts},
-            create_pool::{CreatePool, CreatePoolInstructionAccounts},
-            decrease_liquidity::{DecreaseLiquidity, DecreaseLiquidityInstructionAccounts},
-            decrease_liquidity_v2::{DecreaseLiquidityV2, DecreaseLiquidityV2InstructionAccounts},
-            increase_liquidity::{IncreaseLiquidity, IncreaseLiquidityInstructionAccounts},
-            increase_liquidity_v2::{IncreaseLiquidityV2, IncreaseLiquidityV2InstructionAccounts},
-            initialize_reward::{InitializeReward, InitializeRewardInstructionAccounts},
-            open_position::{OpenPosition, OpenPositionInstructionAccounts},
-            open_position_v2::{OpenPositionV2, OpenPositionV2InstructionAccounts},
-            open_position_with_token22_nft::{
-                OpenPositionWithToken22Nft, OpenPositionWithToken22NftInstructionAccounts,
-            },
-            set_reward_params::{SetRewardParams, SetRewardParamsInstructionAccounts},
-            swap::{Swap, SwapInstructionAccounts},
-            swap_router_base_in::{SwapRouterBaseIn, SwapRouterBaseInInstructionAccounts},
-            swap_v2::{SwapV2, SwapV2InstructionAccounts},
-            update_amm_config::{UpdateAmmConfig, UpdateAmmConfigInstructionAccounts},
-            update_pool_status::{UpdatePoolStatus, UpdatePoolStatusInstructionAccounts},
-            update_reward_infos::{UpdateRewardInfos, UpdateRewardInfosInstructionAccounts},
+            types::InitializeRewardParam,
         },
-        types::InitializeRewardParam,
+        alloc::vec,
+        carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder},
+        solana_instruction::AccountMeta,
+        solana_pubkey::pubkey,
     };
-
-    use super::*;
 
     #[test]
     fn test_decode_create_amm_config_ix() {

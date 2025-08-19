@@ -136,12 +136,14 @@ impl AccountDecoder<'_> for RaydiumClmmDecoder {
 #[cfg(test)]
 mod tests {
 
-    use super::{
-        amm_config::AmmConfig, observation_state::ObservationState, pool_state::PoolState,
-        protocol_position_state::ProtocolPositionState, tick_array_state::TickArrayState, *,
+    use {
+        super::{
+            amm_config::AmmConfig, observation_state::ObservationState, pool_state::PoolState,
+            protocol_position_state::ProtocolPositionState, tick_array_state::TickArrayState, *,
+        },
+        crate::types::{Observation, RewardInfo, TickState},
+        solana_pubkey::pubkey,
     };
-    use crate::types::{Observation, RewardInfo, TickState};
-    use solana_pubkey::pubkey;
 
     #[test]
     fn test_decode_amm_config_account() {

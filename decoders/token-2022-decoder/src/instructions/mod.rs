@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::Token2022Decoder;
+use {super::Token2022Decoder, crate::PROGRAM_ID};
 pub mod amount_to_ui_amount;
 pub mod apply_confidential_pending_balance;
 pub mod approve;

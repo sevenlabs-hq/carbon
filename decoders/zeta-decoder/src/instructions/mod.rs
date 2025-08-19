@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::ZetaDecoder;
+use {super::ZetaDecoder, crate::PROGRAM_ID};
 pub mod add_market_indexes;
 pub mod add_perp_market_index;
 pub mod admin_crank_event_queue;

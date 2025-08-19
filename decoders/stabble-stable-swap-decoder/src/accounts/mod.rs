@@ -1,9 +1,8 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use crate::PROGRAM_ID;
-
-use super::StableSwapDecoder;
+use {
+    super::StableSwapDecoder,
+    crate::PROGRAM_ID,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod pool;
 pub mod strategy;
 pub mod vault;

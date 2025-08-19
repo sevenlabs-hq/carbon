@@ -128,11 +128,11 @@ impl AccountDecoder<'_> for OrcaWhirlpoolDecoder {
 
 #[cfg(test)]
 mod tests {
-    use solana_pubkey::pubkey;
-
-    use crate::types::{PositionRewardInfo, Tick, WhirlpoolRewardInfo};
-
-    use super::*;
+    use {
+        super::*,
+        crate::types::{PositionRewardInfo, Tick, WhirlpoolRewardInfo},
+        solana_pubkey::pubkey,
+    };
 
     #[test]
     fn test_decode_whirlpools_config_extension_account() {

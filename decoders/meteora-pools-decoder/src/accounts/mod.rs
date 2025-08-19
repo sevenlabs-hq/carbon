@@ -1,9 +1,8 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use crate::PROGRAM_ID;
-
-use super::MeteoraPoolsDecoder;
+use {
+    super::MeteoraPoolsDecoder,
+    crate::PROGRAM_ID,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod config;
 pub mod lock_escrow;
 pub mod pool;

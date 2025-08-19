@@ -1,6 +1,8 @@
-use juniper::{GraphQLScalar, InputValue, ScalarValue, Value};
-use serde::{Deserialize, Serialize};
-use std::str::FromStr;
+use {
+    juniper::{GraphQLScalar, InputValue, ScalarValue, Value},
+    serde::{Deserialize, Serialize},
+    std::str::FromStr,
+};
 
 #[derive(Clone, Debug, Serialize, Deserialize, Eq, GraphQLScalar, PartialEq)]
 #[graphql(parse_token(String))]

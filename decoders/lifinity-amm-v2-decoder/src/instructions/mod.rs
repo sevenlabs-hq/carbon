@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::LifinityAmmV2Decoder;
+use {super::LifinityAmmV2Decoder, crate::PROGRAM_ID};
 pub mod deposit_all_token_types;
 pub mod swap;
 pub mod withdraw_all_token_types;
@@ -42,10 +40,11 @@ impl carbon_core::instruction::InstructionDecoder<'_> for LifinityAmmV2Decoder {
 
 #[cfg(test)]
 mod tests {
-    use carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder};
-    use solana_instruction::AccountMeta;
-
-    use super::*;
+    use {
+        super::*,
+        carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder},
+        solana_instruction::AccountMeta,
+    };
 
     #[test]
     fn test_decode_swap() {

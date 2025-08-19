@@ -1,10 +1,11 @@
-use async_trait::async_trait;
-use carbon_postgres_client::PgClient;
-use solana_pubkey::Pubkey;
-use spl_token::state::{Account, Mint};
-use sqlx::Postgres;
-
-use super::converters::{DBMint, DBTokenAccount};
+use {
+    super::converters::{DBMint, DBTokenAccount},
+    async_trait::async_trait,
+    carbon_postgres_client::PgClient,
+    solana_pubkey::Pubkey,
+    spl_token::state::{Account, Mint},
+    sqlx::Postgres,
+};
 
 #[async_trait]
 pub trait TokenQueries {

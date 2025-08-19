@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::VirtualsDecoder;
+use {super::VirtualsDecoder, crate::PROGRAM_ID};
 pub mod buy;
 pub mod buy_event;
 pub mod claim_fees;

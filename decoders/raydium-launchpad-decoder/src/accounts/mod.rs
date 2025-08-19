@@ -1,10 +1,9 @@
-use alloc::boxed::Box;
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use crate::PROGRAM_ID;
-
-use super::RaydiumLaunchpadDecoder;
+use {
+    super::RaydiumLaunchpadDecoder,
+    crate::PROGRAM_ID,
+    alloc::boxed::Box,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod global_config;
 pub mod platform_config;
 pub mod pool_state;

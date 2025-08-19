@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::SharkyDecoder;
+use {super::SharkyDecoder, crate::PROGRAM_ID};
 pub mod close_nft_list;
 pub mod close_order_book;
 pub mod create_nft_list;

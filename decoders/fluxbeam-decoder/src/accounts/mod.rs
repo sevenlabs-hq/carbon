@@ -1,9 +1,8 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use crate::PROGRAM_ID;
-
-use super::FluxbeamDecoder;
+use {
+    super::FluxbeamDecoder,
+    crate::PROGRAM_ID,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod swap_v1;
 
 pub enum FluxbeamAccount {
@@ -36,9 +35,10 @@ impl AccountDecoder<'_> for FluxbeamDecoder {
 
 #[cfg(test)]
 mod tests {
-    use crate::types::{CurveType, Fees, SwapCurve};
-
-    use super::*;
+    use {
+        super::*,
+        crate::types::{CurveType, Fees, SwapCurve},
+    };
 
     #[test]
     fn test_decode_swap_account() {

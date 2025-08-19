@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::RaydiumLiquidityLockingDecoder;
+use {super::RaydiumLiquidityLockingDecoder, crate::PROGRAM_ID};
 pub mod collect_clmm_fees_and_rewards;
 pub mod collect_cp_fees;
 pub mod lock_clmm_position;

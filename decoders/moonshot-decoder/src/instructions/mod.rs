@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::MoonshotDecoder;
+use {super::MoonshotDecoder, crate::PROGRAM_ID};
 pub mod buy;
 pub mod config_init;
 pub mod config_update;
@@ -50,16 +48,16 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MoonshotDecoder {
 
 #[cfg(test)]
 mod tests {
-    use alloc::{string::ToString, vec};
-    use carbon_core::{
-        deserialize::{ArrangeAccounts, PrefixString},
-        instruction::InstructionDecoder,
+    use {
+        super::*,
+        crate::types::{TokenMintParams, TradeParams},
+        alloc::{string::ToString, vec},
+        carbon_core::{
+            deserialize::{ArrangeAccounts, PrefixString},
+            instruction::InstructionDecoder,
+        },
+        solana_instruction::AccountMeta,
     };
-    use solana_instruction::AccountMeta;
-
-    use crate::types::{TokenMintParams, TradeParams};
-
-    use super::*;
 
     #[test]
     fn test_decode_token_mint() {

@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::RaydiumLaunchpadDecoder;
+use {super::RaydiumLaunchpadDecoder, crate::PROGRAM_ID};
 pub mod buy_exact_in;
 pub mod buy_exact_out;
 pub mod claim_platform_fee;

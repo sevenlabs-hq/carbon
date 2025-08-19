@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::DriftDecoder;
+use {super::DriftDecoder, crate::PROGRAM_ID};
 pub mod add_insurance_fund_stake;
 pub mod add_perp_lp_shares;
 pub mod admin_disable_update_perp_bid_ask_twap;

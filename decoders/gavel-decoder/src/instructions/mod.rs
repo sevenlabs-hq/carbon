@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::GavelDecoder;
+use {super::GavelDecoder, crate::PROGRAM_ID};
 pub mod add_liquidity;
 pub mod initialize_lp_position;
 pub mod initialize_pool;

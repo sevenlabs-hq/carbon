@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::JupiterDcaDecoder;
+use {super::JupiterDcaDecoder, crate::PROGRAM_ID};
 pub mod close_dca;
 pub mod closed_event;
 pub mod collected_fee_event;
@@ -87,10 +85,11 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterDcaDecoder {
 
 #[cfg(test)]
 mod tests {
-    use carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder};
-    use solana_instruction::AccountMeta;
-
-    use super::*;
+    use {
+        super::*,
+        carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder},
+        solana_instruction::AccountMeta,
+    };
 
     #[test]
     fn test_decode_open_dca() {

@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::RaydiumAmmV4Decoder;
+use {super::RaydiumAmmV4Decoder, crate::PROGRAM_ID};
 pub mod admin_cancel_orders;
 pub mod create_config_account;
 pub mod deposit;

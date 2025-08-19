@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::BoopDecoder;
+use {super::BoopDecoder, crate::PROGRAM_ID};
 pub mod add_operators;
 pub mod authority_transfer_cancelled_event;
 pub mod authority_transfer_completed_event;

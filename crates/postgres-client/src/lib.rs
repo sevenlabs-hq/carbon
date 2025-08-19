@@ -1,7 +1,9 @@
-use sqlx::{postgres::PgPoolOptions, Error, PgPool, Postgres};
-use sqlx_migrator::{
-    migrator::{Info, Migrate, Migrator},
-    Migration, Plan,
+use {
+    sqlx::{postgres::PgPoolOptions, Error, PgPool, Postgres},
+    sqlx_migrator::{
+        migrator::{Info, Migrate, Migrator},
+        Migration, Plan,
+    },
 };
 
 #[derive(Clone)]

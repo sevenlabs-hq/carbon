@@ -1,9 +1,8 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use crate::PROGRAM_ID;
-
-use super::LifinityAmmV2Decoder;
+use {
+    super::LifinityAmmV2Decoder,
+    crate::PROGRAM_ID,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod amm;
 
 pub enum LifinityAmmV2Account {
@@ -37,8 +36,7 @@ impl AccountDecoder<'_> for LifinityAmmV2Decoder {
 #[cfg(test)]
 mod tests {
 
-    use super::super::types::*;
-    use super::*;
+    use super::{super::types::*, *};
 
     #[test]
     fn test_decode_amm_account() {

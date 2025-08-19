@@ -1,8 +1,9 @@
-use axum::Extension;
-
-use carbon_postgres_client::PgClient;
-use juniper_axum::{extract::JuniperRequest, response::JuniperResponse};
-use juniper_graphql_ws::Schema;
+use {
+    axum::Extension,
+    carbon_postgres_client::PgClient,
+    juniper_axum::{extract::JuniperRequest, response::JuniperResponse},
+    juniper_graphql_ws::Schema,
+};
 
 pub mod server;
 pub mod types;

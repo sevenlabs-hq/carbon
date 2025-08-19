@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::PumpSwapDecoder;
+use {super::PumpSwapDecoder, crate::PROGRAM_ID};
 pub mod admin_set_coin_creator;
 pub mod admin_set_coin_creator_event;
 pub mod admin_update_token_incentives;

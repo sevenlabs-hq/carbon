@@ -1,10 +1,9 @@
-use alloc::boxed::Box;
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use crate::PROGRAM_ID;
-
-use super::ZetaDecoder;
+use {
+    super::ZetaDecoder,
+    crate::PROGRAM_ID,
+    alloc::boxed::Box,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod cross_margin_account;
 pub mod cross_margin_account_manager;
 pub mod cross_open_orders_map;

@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::StableSwapDecoder;
+use {super::StableSwapDecoder, crate::PROGRAM_ID};
 pub mod accept_owner;
 pub mod approve_strategy;
 pub mod change_amp_factor;

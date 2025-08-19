@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::PhoenixDecoder;
+use {super::PhoenixDecoder, crate::PROGRAM_ID};
 pub mod cancel_all_orders;
 pub mod cancel_all_orders_with_free_funds;
 pub mod cancel_multiple_orders_by_id;

@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::FluxbeamDecoder;
+use {super::FluxbeamDecoder, crate::PROGRAM_ID};
 pub mod deposit_all_token_types;
 pub mod deposit_single_token_type_exact_amount_in;
 pub mod initialize;
@@ -55,12 +53,12 @@ impl carbon_core::instruction::InstructionDecoder<'_> for FluxbeamDecoder {
 
 #[cfg(test)]
 mod tests {
-    use carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder};
-    use solana_instruction::AccountMeta;
-
-    use crate::types::{CurveType, Fees, SwapCurve};
-
-    use super::*;
+    use {
+        super::*,
+        crate::types::{CurveType, Fees, SwapCurve},
+        carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder},
+        solana_instruction::AccountMeta,
+    };
 
     #[test]
     fn test_decode_initialize() {

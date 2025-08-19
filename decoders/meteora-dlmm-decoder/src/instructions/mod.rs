@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::MeteoraDlmmDecoder;
+use {super::MeteoraDlmmDecoder, crate::PROGRAM_ID};
 pub mod add_liquidity;
 pub mod add_liquidity2;
 pub mod add_liquidity_by_strategy;
@@ -291,112 +289,114 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDlmmDecoder {
 
 #[cfg(test)]
 mod tests {
-    use carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder};
-    use solana_instruction::AccountMeta;
-    use solana_pubkey::pubkey;
-
-    use crate::{
-        instructions::{
-            add_liquidity::{AddLiquidity, AddLiquidityInstructionAccounts},
-            add_liquidity_by_strategy::{
-                AddLiquidityByStrategy, AddLiquidityByStrategyInstructionAccounts,
+    use {
+        super::*,
+        crate::{
+            instructions::{
+                add_liquidity::{AddLiquidity, AddLiquidityInstructionAccounts},
+                add_liquidity_by_strategy::{
+                    AddLiquidityByStrategy, AddLiquidityByStrategyInstructionAccounts,
+                },
+                add_liquidity_by_strategy_one_side::{
+                    AddLiquidityByStrategyOneSide, AddLiquidityByStrategyOneSideInstructionAccounts,
+                },
+                add_liquidity_by_weight::{
+                    AddLiquidityByWeight, AddLiquidityByWeightInstructionAccounts,
+                },
+                add_liquidity_one_side::{
+                    AddLiquidityOneSide, AddLiquidityOneSideInstructionAccounts,
+                },
+                add_liquidity_one_side_precise::{
+                    AddLiquidityOneSidePrecise, AddLiquidityOneSidePreciseInstructionAccounts,
+                },
+                claim_fee::{ClaimFee, ClaimFeeInstructionAccounts},
+                claim_fee2::{ClaimFee2, ClaimFee2InstructionAccounts},
+                claim_reward::{ClaimReward, ClaimRewardInstructionAccounts},
+                claim_reward2::{ClaimReward2, ClaimReward2InstructionAccounts},
+                close_position::{ClosePosition, ClosePositionInstructionAccounts},
+                close_position2::{ClosePosition2, ClosePosition2InstructionAccounts},
+                close_position_if_empty::{
+                    ClosePositionIfEmpty, ClosePositionIfEmptyInstructionAccounts,
+                },
+                close_preset_parameter::{
+                    ClosePresetParameter, ClosePresetParameterInstructionAccounts,
+                },
+                go_to_a_bin::{GoToABin, GoToABinInstructionAccounts},
+                initialize_bin_array::{InitializeBinArray, InitializeBinArrayInstructionAccounts},
+                initialize_bin_array_bitmap_extension::{
+                    InitializeBinArrayBitmapExtension,
+                    InitializeBinArrayBitmapExtensionInstructionAccounts,
+                },
+                initialize_customizable_permissionless_lb_pair::{
+                    InitializeCustomizablePermissionlessLbPair,
+                    InitializeCustomizablePermissionlessLbPairInstructionAccounts,
+                },
+                initialize_customizable_permissionless_lb_pair2::{
+                    InitializeCustomizablePermissionlessLbPair2,
+                    InitializeCustomizablePermissionlessLbPair2InstructionAccounts,
+                },
+                initialize_lb_pair::{InitializeLbPair, InitializeLbPairInstructionAccounts},
+                initialize_lb_pair2::{InitializeLbPair2, InitializeLbPair2InstructionAccounts},
+                initialize_permission_lb_pair::{
+                    InitializePermissionLbPair, InitializePermissionLbPairInstructionAccounts,
+                },
+                initialize_position::{InitializePosition, InitializePositionInstructionAccounts},
+                initialize_position_by_operator::{
+                    InitializePositionByOperator, InitializePositionByOperatorInstructionAccounts,
+                },
+                initialize_position_pda::{
+                    InitializePositionPda, InitializePositionPdaInstructionAccounts,
+                },
+                migrate_bin_array::{MigrateBinArray, MigrateBinArrayInstructionAccounts},
+                migrate_position::{MigratePosition, MigratePositionInstructionAccounts},
+                remove_all_liquidity::{RemoveAllLiquidity, RemoveAllLiquidityInstructionAccounts},
+                remove_liquidity::{RemoveLiquidity, RemoveLiquidityInstructionAccounts},
+                remove_liquidity2::{RemoveLiquidity2, RemoveLiquidity2InstructionAccounts},
+                remove_liquidity_by_range::{
+                    RemoveLiquidityByRange, RemoveLiquidityByRangeInstructionAccounts,
+                },
+                remove_liquidity_by_range2::{
+                    RemoveLiquidityByRange2, RemoveLiquidityByRange2InstructionAccounts,
+                },
+                set_activation_point::{SetActivationPoint, SetActivationPointInstructionAccounts},
+                set_pair_status::{SetPairStatus, SetPairStatusInstructionAccounts},
+                set_pair_status_permissionless::{
+                    SetPairStatusPermissionless, SetPairStatusPermissionlessInstructionAccounts,
+                },
+                set_pre_activation_duration::{
+                    SetPreActivationDuration, SetPreActivationDurationInstructionAccounts,
+                },
+                set_pre_activation_swap_address::{
+                    SetPreActivationSwapAddress, SetPreActivationSwapAddressInstructionAccounts,
+                },
+                swap::{Swap, SwapInstructionAccounts},
+                swap2::{Swap2, Swap2InstructionAccounts},
+                swap_exact_out::{SwapExactOut, SwapExactOutInstructionAccounts},
+                swap_exact_out2::{SwapExactOut2, SwapExactOut2InstructionAccounts},
+                swap_with_price_impact2::{
+                    SwapWithPriceImpact2, SwapWithPriceImpact2InstructionAccounts,
+                },
+                update_base_fee_parameters::{
+                    UpdateBaseFeeParameters, UpdateBaseFeeParametersInstructionAccounts,
+                },
+                update_fees_and_rewards::{
+                    UpdateFeesAndRewards, UpdateFeesAndRewardsInstructionAccounts,
+                },
             },
-            add_liquidity_by_strategy_one_side::{
-                AddLiquidityByStrategyOneSide, AddLiquidityByStrategyOneSideInstructionAccounts,
-            },
-            add_liquidity_by_weight::{
-                AddLiquidityByWeight, AddLiquidityByWeightInstructionAccounts,
-            },
-            add_liquidity_one_side::{AddLiquidityOneSide, AddLiquidityOneSideInstructionAccounts},
-            add_liquidity_one_side_precise::{
-                AddLiquidityOneSidePrecise, AddLiquidityOneSidePreciseInstructionAccounts,
-            },
-            claim_fee::{ClaimFee, ClaimFeeInstructionAccounts},
-            claim_fee2::{ClaimFee2, ClaimFee2InstructionAccounts},
-            claim_reward::{ClaimReward, ClaimRewardInstructionAccounts},
-            claim_reward2::{ClaimReward2, ClaimReward2InstructionAccounts},
-            close_position::{ClosePosition, ClosePositionInstructionAccounts},
-            close_position2::{ClosePosition2, ClosePosition2InstructionAccounts},
-            close_position_if_empty::{
-                ClosePositionIfEmpty, ClosePositionIfEmptyInstructionAccounts,
-            },
-            close_preset_parameter::{
-                ClosePresetParameter, ClosePresetParameterInstructionAccounts,
-            },
-            go_to_a_bin::{GoToABin, GoToABinInstructionAccounts},
-            initialize_bin_array::{InitializeBinArray, InitializeBinArrayInstructionAccounts},
-            initialize_bin_array_bitmap_extension::{
-                InitializeBinArrayBitmapExtension,
-                InitializeBinArrayBitmapExtensionInstructionAccounts,
-            },
-            initialize_customizable_permissionless_lb_pair::{
-                InitializeCustomizablePermissionlessLbPair,
-                InitializeCustomizablePermissionlessLbPairInstructionAccounts,
-            },
-            initialize_customizable_permissionless_lb_pair2::{
-                InitializeCustomizablePermissionlessLbPair2,
-                InitializeCustomizablePermissionlessLbPair2InstructionAccounts,
-            },
-            initialize_lb_pair::{InitializeLbPair, InitializeLbPairInstructionAccounts},
-            initialize_lb_pair2::{InitializeLbPair2, InitializeLbPair2InstructionAccounts},
-            initialize_permission_lb_pair::{
-                InitializePermissionLbPair, InitializePermissionLbPairInstructionAccounts,
-            },
-            initialize_position::{InitializePosition, InitializePositionInstructionAccounts},
-            initialize_position_by_operator::{
-                InitializePositionByOperator, InitializePositionByOperatorInstructionAccounts,
-            },
-            initialize_position_pda::{
-                InitializePositionPda, InitializePositionPdaInstructionAccounts,
-            },
-            migrate_bin_array::{MigrateBinArray, MigrateBinArrayInstructionAccounts},
-            migrate_position::{MigratePosition, MigratePositionInstructionAccounts},
-            remove_all_liquidity::{RemoveAllLiquidity, RemoveAllLiquidityInstructionAccounts},
-            remove_liquidity::{RemoveLiquidity, RemoveLiquidityInstructionAccounts},
-            remove_liquidity2::{RemoveLiquidity2, RemoveLiquidity2InstructionAccounts},
-            remove_liquidity_by_range::{
-                RemoveLiquidityByRange, RemoveLiquidityByRangeInstructionAccounts,
-            },
-            remove_liquidity_by_range2::{
-                RemoveLiquidityByRange2, RemoveLiquidityByRange2InstructionAccounts,
-            },
-            set_activation_point::{SetActivationPoint, SetActivationPointInstructionAccounts},
-            set_pair_status::{SetPairStatus, SetPairStatusInstructionAccounts},
-            set_pair_status_permissionless::{
-                SetPairStatusPermissionless, SetPairStatusPermissionlessInstructionAccounts,
-            },
-            set_pre_activation_duration::{
-                SetPreActivationDuration, SetPreActivationDurationInstructionAccounts,
-            },
-            set_pre_activation_swap_address::{
-                SetPreActivationSwapAddress, SetPreActivationSwapAddressInstructionAccounts,
-            },
-            swap::{Swap, SwapInstructionAccounts},
-            swap2::{Swap2, Swap2InstructionAccounts},
-            swap_exact_out::{SwapExactOut, SwapExactOutInstructionAccounts},
-            swap_exact_out2::{SwapExactOut2, SwapExactOut2InstructionAccounts},
-            swap_with_price_impact2::{
-                SwapWithPriceImpact2, SwapWithPriceImpact2InstructionAccounts,
-            },
-            update_base_fee_parameters::{
-                UpdateBaseFeeParameters, UpdateBaseFeeParametersInstructionAccounts,
-            },
-            update_fees_and_rewards::{
-                UpdateFeesAndRewards, UpdateFeesAndRewardsInstructionAccounts,
+            types::{
+                AccountsType, AddLiquiditySingleSidePreciseParameter, BaseFeeParameter,
+                BinLiquidityDistribution, BinLiquidityDistributionByWeight, BinLiquidityReduction,
+                CompressedBinDepositAmount, CustomizableParams, InitPermissionPairIx,
+                InitializeLbPair2Params, LiquidityOneSideParameter, LiquidityParameter,
+                LiquidityParameterByStrategy, LiquidityParameterByStrategyOneSide,
+                LiquidityParameterByWeight, RemainingAccountsInfo, RemainingAccountsSlice,
+                StrategyParameters, StrategyType,
             },
         },
-        types::{
-            AccountsType, AddLiquiditySingleSidePreciseParameter, BaseFeeParameter,
-            BinLiquidityDistribution, BinLiquidityDistributionByWeight, BinLiquidityReduction,
-            CompressedBinDepositAmount, CustomizableParams, InitPermissionPairIx,
-            InitializeLbPair2Params, LiquidityOneSideParameter, LiquidityParameter,
-            LiquidityParameterByStrategy, LiquidityParameterByStrategyOneSide,
-            LiquidityParameterByWeight, RemainingAccountsInfo, RemainingAccountsSlice,
-            StrategyParameters, StrategyType,
-        },
+        carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder},
+        solana_instruction::AccountMeta,
+        solana_pubkey::pubkey,
     };
-
-    use super::*;
 
     #[test]
     fn test_decode_add_liquidity_ix() {

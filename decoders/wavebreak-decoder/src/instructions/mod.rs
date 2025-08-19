@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::WavebreakDecoder;
+use {super::WavebreakDecoder, crate::PROGRAM_ID};
 pub mod authority_config_grant;
 pub mod authority_config_initialize;
 pub mod authority_config_revoke;

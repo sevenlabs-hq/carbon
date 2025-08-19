@@ -1,7 +1,8 @@
-use alloc::vec::Vec;
-use carbon_core::{borsh, CarbonDeserialize};
-
-use crate::types::{LiquidityDistributionParameters, PoolFeeParameters};
+use {
+    crate::types::{LiquidityDistributionParameters, PoolFeeParameters},
+    alloc::vec::Vec,
+    carbon_core::{borsh, CarbonDeserialize},
+};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,

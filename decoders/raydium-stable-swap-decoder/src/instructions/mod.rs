@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::RaydiumStableSwapAmmDecoder;
+use {super::RaydiumStableSwapAmmDecoder, crate::PROGRAM_ID};
 pub mod deposit;
 pub mod initialize;
 pub mod pre_initialize;

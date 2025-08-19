@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::StakeProgramDecoder;
+use {super::StakeProgramDecoder, crate::PROGRAM_ID};
 pub mod authorize;
 pub mod authorize_checked;
 pub mod authorize_checked_with_seed;

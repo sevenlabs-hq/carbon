@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::TokenMetadataDecoder;
+use {super::TokenMetadataDecoder, crate::PROGRAM_ID};
 pub mod _use;
 pub mod approve_collection_authority;
 pub mod approve_use_authority;
@@ -207,21 +205,23 @@ impl carbon_core::instruction::InstructionDecoder<'_> for TokenMetadataDecoder {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-    use crate::{
-        instructions::{
-            create_metadata_account_v3::{
-                CreateMetadataAccountV3, CreateMetadataAccountV3InstructionAccounts,
+    use {
+        super::*,
+        crate::{
+            instructions::{
+                create_metadata_account_v3::{
+                    CreateMetadataAccountV3, CreateMetadataAccountV3InstructionAccounts,
+                },
+                TokenMetadataInstruction,
             },
-            TokenMetadataInstruction,
+            types::{CreateMetadataAccountArgsV3, Creator, DataV2},
+            TokenMetadataDecoder,
         },
-        types::{CreateMetadataAccountArgsV3, Creator, DataV2},
-        TokenMetadataDecoder,
+        carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder},
+        carbon_test_utils::read_instruction,
+        solana_instruction::AccountMeta,
+        solana_pubkey::pubkey,
     };
-    use carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder};
-    use carbon_test_utils::read_instruction;
-    use solana_instruction::AccountMeta;
-    use solana_pubkey::pubkey;
 
     #[test]
     fn test_decode_create_metadata_v3_without_rent() {

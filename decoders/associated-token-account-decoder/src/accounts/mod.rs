@@ -1,5 +1,4 @@
-use super::SplAssociatedTokenAccountDecoder;
-use carbon_core::account::AccountDecoder;
+use {super::SplAssociatedTokenAccountDecoder, carbon_core::account::AccountDecoder};
 
 pub enum SplAssociatedTokenAccountAccount {}
 

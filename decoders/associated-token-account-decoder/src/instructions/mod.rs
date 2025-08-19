@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::SplAssociatedTokenAccountDecoder;
+use {super::SplAssociatedTokenAccountDecoder, crate::PROGRAM_ID};
 pub mod create;
 pub mod create_idempotent;
 pub mod recover_nested;

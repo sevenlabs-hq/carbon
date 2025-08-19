@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::OkxDexDecoder;
+use {super::OkxDexDecoder, crate::PROGRAM_ID};
 pub mod commission_sol_from_swap;
 pub mod commission_sol_proxy_swap;
 pub mod commission_sol_swap;

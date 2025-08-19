@@ -1,10 +1,11 @@
-use crate::datasource::BlockDetails;
-use crate::error::CarbonResult;
-use crate::filter::Filter;
-use crate::metrics::MetricsCollection;
-use crate::processor::Processor;
-use async_trait::async_trait;
-use std::sync::Arc;
+use {
+    crate::{
+        datasource::BlockDetails, error::CarbonResult, filter::Filter, metrics::MetricsCollection,
+        processor::Processor,
+    },
+    async_trait::async_trait,
+    std::sync::Arc,
+};
 
 /// A pipe for processing block details using a defined processor.
 ///

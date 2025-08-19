@@ -1,19 +1,15 @@
-use solana_instruction::AccountMeta;
-use solana_pubkey::Pubkey;
+use {solana_instruction::AccountMeta, solana_pubkey::Pubkey};
 
-/// Returns the next account's pubkey from the iterator, or `None` if there are no more accounts.
+/// Returns the next account's pubkey from the iterator, or `None` if there are
+/// no more accounts.
 ///
 /// # Usage
-/// - Use with `?` to indicate the account is required:
-///   ```ignore
-///   let required = next_account(&mut iter)?;
-///   ```
-///   This will propagate `None` if the account is missing.
-/// - Use without `?` to handle optional accounts:
-///   ```ignore
-///   let optional = next_account(&mut iter);
-///   ```
-///   This returns `Option<Pubkey>` that you can match or use directly.
+/// - Use with `?` to indicate the account is required: ```ignore let required =
+///   next_account(&mut iter)?; ``` This will propagate `None` if the account is
+///   missing.
+/// - Use without `?` to handle optional accounts: ```ignore let optional =
+///   next_account(&mut iter); ``` This returns `Option<Pubkey>` that you can
+///   match or use directly.
 ///
 /// # Example
 /// ```ignore

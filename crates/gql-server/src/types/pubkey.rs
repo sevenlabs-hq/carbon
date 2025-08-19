@@ -1,12 +1,13 @@
-use std::{
-    fmt::{self, Display},
-    ops::Deref,
-    str::FromStr,
+use {
+    juniper::{GraphQLScalar, InputValue, ScalarValue, Value},
+    serde::{Deserialize, Serialize},
+    solana_pubkey::Pubkey as SolanaPubkey,
+    std::{
+        fmt::{self, Display},
+        ops::Deref,
+        str::FromStr,
+    },
 };
-
-use juniper::{GraphQLScalar, InputValue, ScalarValue, Value};
-use serde::{Deserialize, Serialize};
-use solana_pubkey::Pubkey as SolanaPubkey;
 
 #[derive(Clone, Debug, Deserialize, Eq, GraphQLScalar, PartialEq, Serialize)]
 #[graphql(parse_token(String), description = "A Solana's public key")]

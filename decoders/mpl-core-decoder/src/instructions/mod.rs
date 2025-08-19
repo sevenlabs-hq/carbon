@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::MplCoreProgramDecoder;
+use {super::MplCoreProgramDecoder, crate::PROGRAM_ID};
 pub mod add_collection_external_plugin_adapter_v1;
 pub mod add_collection_plugin_v1;
 pub mod add_external_plugin_adapter_v1;

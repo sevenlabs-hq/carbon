@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::WeightedSwapDecoder;
+use {super::WeightedSwapDecoder, crate::PROGRAM_ID};
 pub mod accept_owner;
 pub mod change_max_supply;
 pub mod change_swap_fee;

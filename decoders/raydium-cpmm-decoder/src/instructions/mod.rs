@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::RaydiumCpmmDecoder;
+use {super::RaydiumCpmmDecoder, crate::PROGRAM_ID};
 pub mod collect_fund_fee;
 pub mod collect_protocol_fee;
 pub mod create_amm_config;

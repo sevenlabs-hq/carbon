@@ -1,7 +1,7 @@
-use sqlx_migrator::migration::Migration;
-use sqlx_migrator::operation::Operation;
-
-use crate::storage::operations::InitOperation;
+use {
+    crate::storage::operations::InitOperation,
+    sqlx_migrator::{migration::Migration, operation::Operation},
+};
 
 pub struct InitMigration;
 

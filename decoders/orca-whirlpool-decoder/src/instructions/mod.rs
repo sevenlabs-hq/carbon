@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::OrcaWhirlpoolDecoder;
+use {super::OrcaWhirlpoolDecoder, crate::PROGRAM_ID};
 pub mod close_bundled_position;
 pub mod close_position;
 pub mod collect_fees;
@@ -179,72 +177,83 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OrcaWhirlpoolDecoder {
 
 #[cfg(test)]
 mod tests {
-    use carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder};
-    use solana_instruction::AccountMeta;
-    use solana_pubkey::pubkey;
-
-    use crate::{
-        instructions::{
-            close_bundled_position::{
-                CloseBundledPosition, CloseBundledPositionInstructionAccounts,
+    use {
+        super::*,
+        crate::{
+            instructions::{
+                close_bundled_position::{
+                    CloseBundledPosition, CloseBundledPositionInstructionAccounts,
+                },
+                close_position::{ClosePosition, ClosePositionInstructionAccounts},
+                collect_fees::{CollectFees, CollectFeesInstructionAccounts},
+                collect_fees_v2::{CollectFeesV2, CollectFeesV2InstructionAccounts},
+                collect_protocol_fees::{
+                    CollectProtocolFees, CollectProtocolFeesInstructionAccounts,
+                },
+                collect_protocol_fees_v2::{
+                    CollectProtocolFeesV2, CollectProtocolFeesV2InstructionAccounts,
+                },
+                collect_reward::{CollectReward, CollectRewardInstructionAccounts},
+                collect_reward_v2::{CollectRewardV2, CollectRewardV2InstructionAccounts},
+                decrease_liquidity::{DecreaseLiquidity, DecreaseLiquidityInstructionAccounts},
+                decrease_liquidity_v2::{
+                    DecreaseLiquidityV2, DecreaseLiquidityV2InstructionAccounts,
+                },
+                delete_position_bundle::{
+                    DeletePositionBundle, DeletePositionBundleInstructionAccounts,
+                },
+                increase_liquidity::{IncreaseLiquidity, IncreaseLiquidityInstructionAccounts},
+                increase_liquidity_v2::{
+                    IncreaseLiquidityV2, IncreaseLiquidityV2InstructionAccounts,
+                },
+                initialize_config_extension::{
+                    InitializeConfigExtension, InitializeConfigExtensionInstructionAccounts,
+                },
+                initialize_fee_tier::{InitializeFeeTier, InitializeFeeTierInstructionAccounts},
+                initialize_pool::{InitializePool, InitializePoolInstructionAccounts},
+                initialize_pool_v2::{InitializePoolV2, InitializePoolV2InstructionAccounts},
+                initialize_position_bundle::{
+                    InitializePositionBundle, InitializePositionBundleInstructionAccounts,
+                },
+                initialize_position_bundle_with_metadata::{
+                    InitializePositionBundleWithMetadata,
+                    InitializePositionBundleWithMetadataInstructionAccounts,
+                },
+                initialize_reward_v2::{InitializeRewardV2, InitializeRewardV2InstructionAccounts},
+                initialize_tick_array::{
+                    InitializeTickArray, InitializeTickArrayInstructionAccounts,
+                },
+                initialize_token_badge::{
+                    InitializeTokenBadge, InitializeTokenBadgeInstructionAccounts,
+                },
+                open_bundled_position::{
+                    OpenBundledPosition, OpenBundledPositionInstructionAccounts,
+                },
+                open_position::{OpenPosition, OpenPositionInstructionAccounts},
+                open_position_with_metadata::{
+                    OpenPositionWithMetadata, OpenPositionWithMetadataInstructionAccounts,
+                },
+                set_collect_protocol_fees_authority::{
+                    SetCollectProtocolFeesAuthority,
+                    SetCollectProtocolFeesAuthorityInstructionAccounts,
+                },
+                set_reward_emissions_v2::{
+                    SetRewardEmissionsV2, SetRewardEmissionsV2InstructionAccounts,
+                },
+                swap::{Swap, SwapInstructionAccounts},
+                swap_v2::{SwapV2, SwapV2InstructionAccounts},
+                two_hop_swap::{TwoHopSwap, TwoHopSwapInstructionAccounts},
+                two_hop_swap_v2::{TwoHopSwapV2, TwoHopSwapV2InstructionAccounts},
+                update_fees_and_rewards::{
+                    UpdateFeesAndRewards, UpdateFeesAndRewardsInstructionAccounts,
+                },
             },
-            close_position::{ClosePosition, ClosePositionInstructionAccounts},
-            collect_fees::{CollectFees, CollectFeesInstructionAccounts},
-            collect_fees_v2::{CollectFeesV2, CollectFeesV2InstructionAccounts},
-            collect_protocol_fees::{CollectProtocolFees, CollectProtocolFeesInstructionAccounts},
-            collect_protocol_fees_v2::{
-                CollectProtocolFeesV2, CollectProtocolFeesV2InstructionAccounts,
-            },
-            collect_reward::{CollectReward, CollectRewardInstructionAccounts},
-            collect_reward_v2::{CollectRewardV2, CollectRewardV2InstructionAccounts},
-            decrease_liquidity::{DecreaseLiquidity, DecreaseLiquidityInstructionAccounts},
-            decrease_liquidity_v2::{DecreaseLiquidityV2, DecreaseLiquidityV2InstructionAccounts},
-            delete_position_bundle::{
-                DeletePositionBundle, DeletePositionBundleInstructionAccounts,
-            },
-            increase_liquidity::{IncreaseLiquidity, IncreaseLiquidityInstructionAccounts},
-            increase_liquidity_v2::{IncreaseLiquidityV2, IncreaseLiquidityV2InstructionAccounts},
-            initialize_config_extension::{
-                InitializeConfigExtension, InitializeConfigExtensionInstructionAccounts,
-            },
-            initialize_fee_tier::{InitializeFeeTier, InitializeFeeTierInstructionAccounts},
-            initialize_pool::{InitializePool, InitializePoolInstructionAccounts},
-            initialize_pool_v2::{InitializePoolV2, InitializePoolV2InstructionAccounts},
-            initialize_position_bundle::{
-                InitializePositionBundle, InitializePositionBundleInstructionAccounts,
-            },
-            initialize_position_bundle_with_metadata::{
-                InitializePositionBundleWithMetadata,
-                InitializePositionBundleWithMetadataInstructionAccounts,
-            },
-            initialize_reward_v2::{InitializeRewardV2, InitializeRewardV2InstructionAccounts},
-            initialize_tick_array::{InitializeTickArray, InitializeTickArrayInstructionAccounts},
-            initialize_token_badge::{
-                InitializeTokenBadge, InitializeTokenBadgeInstructionAccounts,
-            },
-            open_bundled_position::{OpenBundledPosition, OpenBundledPositionInstructionAccounts},
-            open_position::{OpenPosition, OpenPositionInstructionAccounts},
-            open_position_with_metadata::{
-                OpenPositionWithMetadata, OpenPositionWithMetadataInstructionAccounts,
-            },
-            set_collect_protocol_fees_authority::{
-                SetCollectProtocolFeesAuthority, SetCollectProtocolFeesAuthorityInstructionAccounts,
-            },
-            set_reward_emissions_v2::{
-                SetRewardEmissionsV2, SetRewardEmissionsV2InstructionAccounts,
-            },
-            swap::{Swap, SwapInstructionAccounts},
-            swap_v2::{SwapV2, SwapV2InstructionAccounts},
-            two_hop_swap::{TwoHopSwap, TwoHopSwapInstructionAccounts},
-            two_hop_swap_v2::{TwoHopSwapV2, TwoHopSwapV2InstructionAccounts},
-            update_fees_and_rewards::{
-                UpdateFeesAndRewards, UpdateFeesAndRewardsInstructionAccounts,
-            },
+            types::{OpenPositionBumps, OpenPositionWithMetadataBumps, WhirlpoolBumps},
         },
-        types::{OpenPositionBumps, OpenPositionWithMetadataBumps, WhirlpoolBumps},
+        carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder},
+        solana_instruction::AccountMeta,
+        solana_pubkey::pubkey,
     };
-
-    use super::*;
 
     #[test]
     fn test_decode_close_bundled_position_ix() {

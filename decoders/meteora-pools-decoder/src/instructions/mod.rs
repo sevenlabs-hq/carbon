@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::MeteoraPoolsDecoder;
+use {super::MeteoraPoolsDecoder, crate::PROGRAM_ID};
 pub mod add_balance_liquidity;
 pub mod add_imbalance_liquidity;
 pub mod add_liquidity_event;

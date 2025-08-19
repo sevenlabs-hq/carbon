@@ -1,7 +1,7 @@
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use super::TokenMetadataDecoder;
+use {
+    super::TokenMetadataDecoder,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod collection_authority_record;
 pub mod edition;
 pub mod edition_marker;

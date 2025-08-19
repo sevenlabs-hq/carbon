@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::KaminoVaultDecoder;
+use {super::KaminoVaultDecoder, crate::PROGRAM_ID};
 pub mod deposit;
 pub mod give_up_pending_fees;
 pub mod init_vault;

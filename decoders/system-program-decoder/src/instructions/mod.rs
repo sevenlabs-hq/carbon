@@ -66,14 +66,15 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SystemProgramDecoder {
 
 #[cfg(test)]
 mod tests {
-    use alloc::{string::ToString, vec};
-    use carbon_core::{
-        deserialize::{ArrangeAccounts, U64PrefixString},
-        instruction::InstructionDecoder,
+    use {
+        super::*,
+        alloc::{string::ToString, vec},
+        carbon_core::{
+            deserialize::{ArrangeAccounts, U64PrefixString},
+            instruction::InstructionDecoder,
+        },
+        solana_instruction::AccountMeta,
     };
-    use solana_instruction::AccountMeta;
-
-    use super::*;
 
     #[test]
     fn test_decode_create_with_seed() {

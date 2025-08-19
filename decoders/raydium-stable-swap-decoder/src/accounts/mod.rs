@@ -1,6 +1,4 @@
-use carbon_core::account::AccountDecoder;
-
-use super::RaydiumStableSwapAmmDecoder;
+use {super::RaydiumStableSwapAmmDecoder, carbon_core::account::AccountDecoder};
 
 pub enum RaydiumStableSwapAmmAccount {}
 

@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::MeteoraDammV2Decoder;
+use {super::MeteoraDammV2Decoder, crate::PROGRAM_ID};
 pub mod add_liquidity;
 pub mod claim_partner_fee;
 pub mod claim_position_fee;

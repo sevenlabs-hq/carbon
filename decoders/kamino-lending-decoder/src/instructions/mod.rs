@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::KaminoLendingDecoder;
+use {super::KaminoLendingDecoder, crate::PROGRAM_ID};
 pub mod borrow_obligation_liquidity;
 pub mod delete_referrer_state_and_short_url;
 pub mod deposit_obligation_collateral;

@@ -35,9 +35,9 @@
 //!
 //! - **[`filter`]**: Provides a flexible filtering system that allows selective
 //!   processing of updates based on various criteria such as datasource ID,
-//!   update content, or custom logic. Filters can be applied to different
-//!   types of updates (accounts, instructions, transactions, account deletions,
-//!   and block details) to control which updates are processed by specific pipes.
+//!   update content, or custom logic. Filters can be applied to different types
+//!   of updates (accounts, instructions, transactions, account deletions, and
+//!   block details) to control which updates are processed by specific pipes.
 //!
 //! - **[`instruction`]**: Supports instruction parsing and processing within
 //!   transactions. This module includes structures and traits for decoding and

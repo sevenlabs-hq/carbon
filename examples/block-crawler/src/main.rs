@@ -1,7 +1,3 @@
-use std::{env, sync::Arc};
-
-use solana_transaction_status::UiTransactionEncoding;
-
 use {
     async_trait::async_trait,
     carbon_core::{
@@ -11,6 +7,8 @@ use {
     carbon_pumpfun_decoder::{instructions::PumpfunInstruction, PumpfunDecoder},
     carbon_rpc_block_crawler_datasource::{RpcBlockConfig, RpcBlockCrawler},
     clap::Parser,
+    solana_transaction_status::UiTransactionEncoding,
+    std::{env, sync::Arc},
 };
 
 #[derive(Parser, Debug)]

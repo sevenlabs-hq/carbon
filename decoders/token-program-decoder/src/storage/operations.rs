@@ -1,5 +1,4 @@
-use sqlx_migrator::error::Error;
-use sqlx_migrator::operation::Operation;
+use sqlx_migrator::{error::Error, operation::Operation};
 
 pub(crate) struct InitOperation;
 

@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::JupiterLimitOrder2Decoder;
+use {super::JupiterLimitOrder2Decoder, crate::PROGRAM_ID};
 pub mod cancel_order;
 pub mod cancel_order_event;
 pub mod create_order_event;

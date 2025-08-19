@@ -1,6 +1,7 @@
-use carbon_core::{borsh, CarbonDeserialize};
-
-use crate::types::AddLiquidityParameters;
+use {
+    crate::types::AddLiquidityParameters,
+    carbon_core::{borsh, CarbonDeserialize},
+};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,

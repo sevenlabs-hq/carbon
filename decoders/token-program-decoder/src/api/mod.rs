@@ -1,8 +1,10 @@
-use crate::storage::queries::TokenQueries;
-use carbon_gql_server::types::pubkey::Pubkey;
-use carbon_postgres_client::PgClient;
-use converters::{GQLAccount, GQLMint};
-use juniper::{graphql_object, EmptyMutation, EmptySubscription, RootNode};
+use {
+    crate::storage::queries::TokenQueries,
+    carbon_gql_server::types::pubkey::Pubkey,
+    carbon_postgres_client::PgClient,
+    converters::{GQLAccount, GQLMint},
+    juniper::{graphql_object, EmptyMutation, EmptySubscription, RootNode},
+};
 
 mod converters;
 

@@ -65,8 +65,8 @@ use {
 /// - `filters`: A collection of filters that determine which account deletion
 ///   events should be processed. Each filter in this collection is applied to
 ///   incoming account deletion events, and only events that pass all filters
-///   (return `true`) will be processed. If this collection is empty, all
-///   events are processed.
+///   (return `true`) will be processed. If this collection is empty, all events
+///   are processed.
 ///
 /// # Notes
 ///

@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::NameDecoder;
+use {super::NameDecoder, crate::PROGRAM_ID};
 pub mod create;
 pub mod delete;
 pub mod realloc;

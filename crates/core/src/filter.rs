@@ -1,10 +1,10 @@
 //! Filtering system for the carbon-core pipeline.
 //!
-//! This module provides a flexible filtering mechanism that allows you to selectively
-//! process updates based on various criteria. Filters can be applied to different
-//! types of updates (accounts, instructions, transactions, account deletions, and
-//! block details) and can filter based on datasource IDs, update content, or any
-//! other custom logic.
+//! This module provides a flexible filtering mechanism that allows you to
+//! selectively process updates based on various criteria. Filters can be
+//! applied to different types of updates (accounts, instructions, transactions,
+//! account deletions, and block details) and can filter based on datasource
+//! IDs, update content, or any other custom logic.
 //!
 //! # Overview
 //!
@@ -78,7 +78,7 @@ use crate::{
 /// # Filter Methods
 ///
 /// - `filter_account`: Filters account updates
-/// - `filter_instruction`: Filters instruction updates  
+/// - `filter_instruction`: Filters instruction updates
 /// - `filter_transaction`: Filters transaction updates
 /// - `filter_account_deletion`: Filters account deletion updates
 /// - `filter_block_details`: Filters block details updates
@@ -188,10 +188,12 @@ pub trait Filter {
         true
     }
 
-    /// Filters account deletion updates based on datasource ID and deletion data.
+    /// Filters account deletion updates based on datasource ID and deletion
+    /// data.
     ///
-    /// This method is called for each account deletion update before processing.
-    /// Return `true` to process the account deletion update, or `false` to skip it.
+    /// This method is called for each account deletion update before
+    /// processing. Return `true` to process the account deletion update, or
+    /// `false` to skip it.
     ///
     /// # Arguments
     ///
@@ -200,7 +202,8 @@ pub trait Filter {
     ///
     /// # Returns
     ///
-    /// `true` if the account deletion update should be processed, `false` otherwise.
+    /// `true` if the account deletion update should be processed, `false`
+    /// otherwise.
     fn filter_account_deletion(
         &self,
         _datasource_id: &DatasourceId,
@@ -212,7 +215,8 @@ pub trait Filter {
     /// Filters block details updates based on datasource ID and block data.
     ///
     /// This method is called for each block details update before processing.
-    /// Return `true` to process the block details update, or `false` to skip it.
+    /// Return `true` to process the block details update, or `false` to skip
+    /// it.
     ///
     /// # Arguments
     ///
@@ -221,7 +225,8 @@ pub trait Filter {
     ///
     /// # Returns
     ///
-    /// `true` if the block details update should be processed, `false` otherwise.
+    /// `true` if the block details update should be processed, `false`
+    /// otherwise.
     fn filter_block_details(
         &self,
         _datasource_id: &DatasourceId,
@@ -277,7 +282,8 @@ pub struct DatasourceFilter {
 }
 
 impl DatasourceFilter {
-    /// Creates a new datasource filter that allows updates from a single datasource.
+    /// Creates a new datasource filter that allows updates from a single
+    /// datasource.
     ///
     /// This is the most common use case when you want to filter for updates
     /// from a specific datasource.
@@ -288,7 +294,8 @@ impl DatasourceFilter {
     ///
     /// # Returns
     ///
-    /// A new `DatasourceFilter` that only allows updates from the specified datasource.
+    /// A new `DatasourceFilter` that only allows updates from the specified
+    /// datasource.
     ///
     /// # Examples
     ///
@@ -304,7 +311,8 @@ impl DatasourceFilter {
         }
     }
 
-    /// Creates a new datasource filter that allows updates from multiple datasources.
+    /// Creates a new datasource filter that allows updates from multiple
+    /// datasources.
     ///
     /// This is useful when you want to process updates from several datasources
     /// while filtering out others.
@@ -315,7 +323,8 @@ impl DatasourceFilter {
     ///
     /// # Returns
     ///
-    /// A new `DatasourceFilter` that allows updates from all specified datasources.
+    /// A new `DatasourceFilter` that allows updates from all specified
+    /// datasources.
     ///
     /// # Examples
     ///
@@ -361,13 +370,14 @@ impl Filter for DatasourceFilter {
 
     /// Filters instruction updates based on the datasource ID.
     ///
-    /// Returns `true` if the instruction update comes from an allowed datasource,
-    /// `false` otherwise.
+    /// Returns `true` if the instruction update comes from an allowed
+    /// datasource, `false` otherwise.
     ///
     /// # Arguments
     ///
     /// * `datasource_id` - The ID of the datasource that produced this update
-    /// * `_nested_instruction` - Instruction data (unused in this implementation)
+    /// * `_nested_instruction` - Instruction data (unused in this
+    ///   implementation)
     ///
     /// # Returns
     ///
@@ -382,14 +392,16 @@ impl Filter for DatasourceFilter {
 
     /// Filters transaction updates based on the datasource ID.
     ///
-    /// Returns `true` if the transaction update comes from an allowed datasource,
-    /// `false` otherwise.
+    /// Returns `true` if the transaction update comes from an allowed
+    /// datasource, `false` otherwise.
     ///
     /// # Arguments
     ///
     /// * `datasource_id` - The ID of the datasource that produced this update
-    /// * `_transaction_metadata` - Transaction metadata (unused in this implementation)
-    /// * `_nested_instructions` - Transaction instructions (unused in this implementation)
+    /// * `_transaction_metadata` - Transaction metadata (unused in this
+    ///   implementation)
+    /// * `_nested_instructions` - Transaction instructions (unused in this
+    ///   implementation)
     ///
     /// # Returns
     ///
@@ -405,13 +417,14 @@ impl Filter for DatasourceFilter {
 
     /// Filters account deletion updates based on the datasource ID.
     ///
-    /// Returns `true` if the account deletion update comes from an allowed datasource,
-    /// `false` otherwise.
+    /// Returns `true` if the account deletion update comes from an allowed
+    /// datasource, `false` otherwise.
     ///
     /// # Arguments
     ///
     /// * `datasource_id` - The ID of the datasource that produced this update
-    /// * `_account_deletion` - Account deletion data (unused in this implementation)
+    /// * `_account_deletion` - Account deletion data (unused in this
+    ///   implementation)
     ///
     /// # Returns
     ///
@@ -426,8 +439,8 @@ impl Filter for DatasourceFilter {
 
     /// Filters block details updates based on the datasource ID.
     ///
-    /// Returns `true` if the block details update comes from an allowed datasource,
-    /// `false` otherwise.
+    /// Returns `true` if the block details update comes from an allowed
+    /// datasource, `false` otherwise.
     ///
     /// # Arguments
     ///

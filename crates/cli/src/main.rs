@@ -14,9 +14,12 @@ pub mod project;
 pub mod types;
 pub mod util;
 
-use commands::{Datasource, Decoder, Metrics, Url};
-use inquire::{
-    error::InquireResult, required, Confirm, CustomType, InquireError, MultiSelect, Select, Text,
+use {
+    commands::{Datasource, Decoder, Metrics, Url},
+    inquire::{
+        error::InquireResult, required, Confirm, CustomType, InquireError, MultiSelect, Select,
+        Text,
+    },
 };
 
 fn main() -> InquireResult<()> {

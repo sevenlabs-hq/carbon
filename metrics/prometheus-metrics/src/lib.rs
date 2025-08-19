@@ -1,4 +1,3 @@
-use std::net::SocketAddr;
 use {
     async_trait::async_trait,
     carbon_core::{
@@ -7,7 +6,7 @@ use {
     },
     metrics::{counter, gauge, histogram},
     metrics_exporter_prometheus::PrometheusBuilder,
-    std::{collections::HashMap, sync::Once},
+    std::{collections::HashMap, net::SocketAddr, sync::Once},
     tokio::sync::RwLock,
 };
 

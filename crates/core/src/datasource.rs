@@ -33,16 +33,15 @@
 //! - Ensure implementations handle errors gracefully, especially when fetching
 //!   data and sending updates to the pipeline.
 
-use solana_program::hash::Hash;
-use solana_transaction_status::Rewards;
 use {
     crate::{error::CarbonResult, metrics::MetricsCollection},
     async_trait::async_trait,
     solana_account::Account,
+    solana_program::hash::Hash,
     solana_pubkey::Pubkey,
     solana_signature::Signature,
     solana_transaction::versioned::VersionedTransaction,
-    solana_transaction_status::TransactionStatusMeta,
+    solana_transaction_status::{Rewards, TransactionStatusMeta},
     std::sync::Arc,
     tokio_util::sync::CancellationToken,
 };
@@ -242,18 +241,24 @@ pub struct AccountUpdate {
     pub slot: u64,
 }
 
-/// Represents the details of a Solana block, including its slot, hashes, rewards, and timing information.
+/// Represents the details of a Solana block, including its slot, hashes,
+/// rewards, and timing information.
 ///
-/// The `BlockDetails` struct encapsulates the essential information for a block,
-/// providing details about its slot, blockhashes, rewards, and other metadata.
+/// The `BlockDetails` struct encapsulates the essential information for a
+/// block, providing details about its slot, blockhashes, rewards, and other
+/// metadata.
 ///
 /// - `slot`: The slot number in which this block was recorded.
 /// - `previous_block_hash`: The hash of the previous block in the blockchain.
 /// - `block_hash`: The hash of the current block.
-/// - `rewards`: Optional rewards information associated with the block, such as staking rewards.
-/// - `num_reward_partitions`: Optional number of reward partitions in the block.
-/// - `block_time`: Optional Unix timestamp indicating when the block was processed.
-/// - `block_height`: Optional height of the block in the blockchain.#[derive(Debug, Clone)]
+/// - `rewards`: Optional rewards information associated with the block, such as
+///   staking rewards.
+/// - `num_reward_partitions`: Optional number of reward partitions in the
+///   block.
+/// - `block_time`: Optional Unix timestamp indicating when the block was
+///   processed.
+/// - `block_height`: Optional height of the block in the
+///   blockchain.#[derive(Debug, Clone)]
 #[derive(Debug, Clone)]
 pub struct BlockDetails {
     pub slot: u64,
@@ -302,7 +307,8 @@ pub struct AccountDeletion {
 #[derive(Debug, Clone)]
 pub struct TransactionUpdate {
     pub signature: Signature,
-    pub transaction: VersionedTransaction, // TODO: replace with solana_transaction crate after 2.2.0 release
+    pub transaction: VersionedTransaction, /* TODO: replace with solana_transaction crate after
+                                            * 2.2.0 release */
     pub meta: TransactionStatusMeta,
     pub is_vote: bool,
     pub slot: u64,

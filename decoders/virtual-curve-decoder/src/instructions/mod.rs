@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::VirtualCurveDecoder;
+use {super::VirtualCurveDecoder, crate::PROGRAM_ID};
 pub mod claim_protocol_fee;
 pub mod claim_trading_fee;
 pub mod close_claim_fee_operator;

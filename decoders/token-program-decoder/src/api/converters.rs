@@ -1,8 +1,10 @@
-use carbon_gql_server::types::{pubkey::Pubkey, u64::U64, u8::U8};
-use juniper::{GraphQLEnum, GraphQLObject};
-use spl_token::{
-    solana_program::program_option::COption,
-    state::{Account, AccountState, Mint},
+use {
+    carbon_gql_server::types::{pubkey::Pubkey, u64::U64, u8::U8},
+    juniper::{GraphQLEnum, GraphQLObject},
+    spl_token::{
+        solana_program::program_option::COption,
+        state::{Account, AccountState, Mint},
+    },
 };
 
 #[derive(GraphQLObject)]

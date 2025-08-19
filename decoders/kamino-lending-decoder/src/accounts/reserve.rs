@@ -1,9 +1,8 @@
 use {
     super::super::types::*,
     carbon_core::{borsh, CarbonDeserialize},
+    serde_big_array::BigArray,
 };
-
-use serde_big_array::BigArray;
 
 #[derive(
     CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,

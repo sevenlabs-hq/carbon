@@ -1,6 +1,7 @@
-use carbon_core::{borsh, CarbonDeserialize};
-
-use crate::types::PoolFeeParameters;
+use {
+    crate::types::PoolFeeParameters,
+    carbon_core::{borsh, CarbonDeserialize},
+};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,

@@ -1,10 +1,9 @@
-use alloc::boxed::Box;
-use carbon_core::account::AccountDecoder;
-use carbon_core::deserialize::CarbonDeserialize;
-
-use crate::PROGRAM_ID;
-
-use super::VirtualCurveDecoder;
+use {
+    super::VirtualCurveDecoder,
+    crate::PROGRAM_ID,
+    alloc::boxed::Box,
+    carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
+};
 pub mod claim_fee_operator;
 pub mod config;
 pub mod lock_escrow;

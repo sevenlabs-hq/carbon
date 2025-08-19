@@ -1,6 +1,4 @@
-use crate::PROGRAM_ID;
-
-use super::OpenbookV2Decoder;
+use {super::OpenbookV2Decoder, crate::PROGRAM_ID};
 pub mod cancel_all_and_place_orders;
 pub mod cancel_all_orders;
 pub mod cancel_order;

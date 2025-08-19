@@ -1,6 +1,4 @@
-use carbon_core::account::AccountDecoder;
-
-use super::StakeProgramDecoder;
+use {super::StakeProgramDecoder, carbon_core::account::AccountDecoder};
 
 pub enum StakeProgramAccount {}
 
