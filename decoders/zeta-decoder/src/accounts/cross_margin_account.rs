@@ -2,7 +2,9 @@ use super::super::types::*;
 
 use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xf25e8e8323f4931c")]
 pub struct CrossMarginAccount {
     pub authority: solana_pubkey::Pubkey,
@@ -23,5 +25,6 @@ pub struct CrossMarginAccount {
     pub rebate_rebalance_amount: u64,
     pub potential_order_loss: [u64; 25],
     pub potential_order_loss_padding: [u64; 0],
+    #[serde(with = "serde_big_array::BigArray")]
     pub padding: [u8; 1776],
 }

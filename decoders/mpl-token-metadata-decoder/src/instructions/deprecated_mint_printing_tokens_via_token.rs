@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x08")]
 pub struct DeprecatedMintPrintingTokensViaToken {}
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct DeprecatedMintPrintingTokensViaTokenInstructionAccounts {
     pub destination: solana_pubkey::Pubkey,
     pub token: solana_pubkey::Pubkey,
@@ -24,22 +25,27 @@ impl carbon_core::deserialize::ArrangeAccounts for DeprecatedMintPrintingTokensV
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [destination, token, one_time_printing_authorization_mint, printing_mint, burn_authority, metadata, master_edition, token_program, rent, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let destination = next_account(&mut iter)?;
+        let token = next_account(&mut iter)?;
+        let one_time_printing_authorization_mint = next_account(&mut iter)?;
+        let printing_mint = next_account(&mut iter)?;
+        let burn_authority = next_account(&mut iter)?;
+        let metadata = next_account(&mut iter)?;
+        let master_edition = next_account(&mut iter)?;
+        let token_program = next_account(&mut iter)?;
+        let rent = next_account(&mut iter)?;
 
         Some(DeprecatedMintPrintingTokensViaTokenInstructionAccounts {
-            destination: destination.pubkey,
-            token: token.pubkey,
-            one_time_printing_authorization_mint: one_time_printing_authorization_mint.pubkey,
-            printing_mint: printing_mint.pubkey,
-            burn_authority: burn_authority.pubkey,
-            metadata: metadata.pubkey,
-            master_edition: master_edition.pubkey,
-            token_program: token_program.pubkey,
-            rent: rent.pubkey,
+            destination,
+            token,
+            one_time_printing_authorization_mint,
+            printing_mint,
+            burn_authority,
+            metadata,
+            master_edition,
+            token_program,
+            rent,
         })
     }
 }

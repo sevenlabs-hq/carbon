@@ -25,6 +25,7 @@ workspace_crates=(
     carbon-address-lookup-table-decoder
     carbon-associated-token-account-decoder
     carbon-boop-decoder
+    carbon-bubblegum-decoder
     carbon-drift-v2-decoder
     carbon-fluxbeam-decoder
     carbon-gavel-decoder
@@ -35,6 +36,7 @@ workspace_crates=(
     carbon-jupiter-swap-decoder
     carbon-kamino-farms-decoder
     carbon-kamino-lending-decoder
+    carbon-kamino-limit-order-decoder
     carbon-kamino-vault-decoder
     carbon-lifinity-amm-v2-decoder
     carbon-marginfi-v2-decoder
@@ -69,9 +71,8 @@ workspace_crates=(
     carbon-token-program-decoder
     carbon-virtual-curve-decoder
     carbon-virtuals-decoder
+    carbon-wavebreak-decoder
     carbon-zeta-decoder
-
-    carbon-jito-protos
 )
 
 for crate in "${workspace_crates[@]}"; do

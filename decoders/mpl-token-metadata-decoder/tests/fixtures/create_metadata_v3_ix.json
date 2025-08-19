@@ -1,0 +1,37 @@
+{
+    "program_id": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s",
+    "accounts": [
+        {
+            "pubkey": "FURfzvnjVPdjrfMBRzeSgahzS1xietCqiv8SG9pCS8ke",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "A3p836DWHzDA3DY73QfJSLCqekkhGohNXVAHAa1Qbonk",
+            "is_signer": true,
+            "is_writable": true
+        },
+        {
+            "pubkey": "WLHv2UAZm6z4KyaaELi5pjdbJh6RESMva1Rnn8pJVVh",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "5f5BPCCNeMkekfjFZi18kAYU95rRdM2jToGaNZZwYZX6",
+            "is_signer": true,
+            "is_writable": true
+        },
+        {
+            "pubkey": "WLHv2UAZm6z4KyaaELi5pjdbJh6RESMva1Rnn8pJVVh",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "11111111111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false
+        }
+    ],
+    "data": "210c000000e382b9e382ade382bae383bc05000000534b5a4f4f5000000068747470733a2f2f697066732e696f2f697066732f6261666b72656967777573626171793763676268336d76696a3567753463326d346d736163656f757470773566796973797079636837676c7a6a6d000001010000000783a81526210f94a0e8e84d2087003b3a4260d29ce79dacfe21a4ea771fa628016400000000",
+    "signature": "4srDKje7jmxauwMdh1mduVDAfWccqmJjiFZ78ZZXr1fwpQifsN3Dm8d5NrxtYfhFfu164VoomCAqct4abRYffp4L"
+}

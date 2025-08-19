@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -30,6 +30,8 @@ pub struct BuyInstructionAccounts {
     pub program: solana_pubkey::Pubkey,
     pub coin_creator_vault_ata: solana_pubkey::Pubkey,
     pub coin_creator_vault_authority: solana_pubkey::Pubkey,
+    pub global_volume_accumulator: solana_pubkey::Pubkey,
+    pub user_volume_accumulator: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Buy {
@@ -38,32 +40,51 @@ impl carbon_core::deserialize::ArrangeAccounts for Buy {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [pool, user, global_config, base_mint, quote_mint, user_base_token_account, user_quote_token_account, pool_base_token_account, pool_quote_token_account, protocol_fee_recipient, protocol_fee_recipient_token_account, base_token_program, quote_token_program, system_program, associated_token_program, event_authority, program, coin_creator_vault_ata, coin_creator_vault_authority, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let pool = next_account(&mut iter)?;
+        let user = next_account(&mut iter)?;
+        let global_config = next_account(&mut iter)?;
+        let base_mint = next_account(&mut iter)?;
+        let quote_mint = next_account(&mut iter)?;
+        let user_base_token_account = next_account(&mut iter)?;
+        let user_quote_token_account = next_account(&mut iter)?;
+        let pool_base_token_account = next_account(&mut iter)?;
+        let pool_quote_token_account = next_account(&mut iter)?;
+        let protocol_fee_recipient = next_account(&mut iter)?;
+        let protocol_fee_recipient_token_account = next_account(&mut iter)?;
+        let base_token_program = next_account(&mut iter)?;
+        let quote_token_program = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let associated_token_program = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
+        let coin_creator_vault_ata = next_account(&mut iter)?;
+        let coin_creator_vault_authority = next_account(&mut iter)?;
+        let global_volume_accumulator = next_account(&mut iter)?;
+        let user_volume_accumulator = next_account(&mut iter)?;
 
         Some(BuyInstructionAccounts {
-            pool: pool.pubkey,
-            user: user.pubkey,
-            global_config: global_config.pubkey,
-            base_mint: base_mint.pubkey,
-            quote_mint: quote_mint.pubkey,
-            user_base_token_account: user_base_token_account.pubkey,
-            user_quote_token_account: user_quote_token_account.pubkey,
-            pool_base_token_account: pool_base_token_account.pubkey,
-            pool_quote_token_account: pool_quote_token_account.pubkey,
-            protocol_fee_recipient: protocol_fee_recipient.pubkey,
-            protocol_fee_recipient_token_account: protocol_fee_recipient_token_account.pubkey,
-            base_token_program: base_token_program.pubkey,
-            quote_token_program: quote_token_program.pubkey,
-            system_program: system_program.pubkey,
-            associated_token_program: associated_token_program.pubkey,
-            event_authority: event_authority.pubkey,
-            program: program.pubkey,
-            coin_creator_vault_ata: coin_creator_vault_ata.pubkey,
-            coin_creator_vault_authority: coin_creator_vault_authority.pubkey,
+            pool,
+            user,
+            global_config,
+            base_mint,
+            quote_mint,
+            user_base_token_account,
+            user_quote_token_account,
+            pool_base_token_account,
+            pool_quote_token_account,
+            protocol_fee_recipient,
+            protocol_fee_recipient_token_account,
+            base_token_program,
+            quote_token_program,
+            system_program,
+            associated_token_program,
+            event_authority,
+            program,
+            coin_creator_vault_ata,
+            coin_creator_vault_authority,
+            global_volume_accumulator,
+            user_volume_accumulator,
         })
     }
 }

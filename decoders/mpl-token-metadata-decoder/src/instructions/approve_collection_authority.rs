@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x17")]
 pub struct ApproveCollectionAuthority {}
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct ApproveCollectionAuthorityInstructionAccounts {
     pub collection_authority_record: solana_pubkey::Pubkey,
     pub new_collection_authority: solana_pubkey::Pubkey,
@@ -14,7 +15,7 @@ pub struct ApproveCollectionAuthorityInstructionAccounts {
     pub metadata: solana_pubkey::Pubkey,
     pub mint: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
-    pub rent: solana_pubkey::Pubkey,
+    pub rent: Option<solana_pubkey::Pubkey>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for ApproveCollectionAuthority {
@@ -23,21 +24,25 @@ impl carbon_core::deserialize::ArrangeAccounts for ApproveCollectionAuthority {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [collection_authority_record, new_collection_authority, update_authority, payer, metadata, mint, system_program, rent, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let collection_authority_record = next_account(&mut iter)?;
+        let new_collection_authority = next_account(&mut iter)?;
+        let update_authority = next_account(&mut iter)?;
+        let payer = next_account(&mut iter)?;
+        let metadata = next_account(&mut iter)?;
+        let mint = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let rent = next_account(&mut iter);
 
         Some(ApproveCollectionAuthorityInstructionAccounts {
-            collection_authority_record: collection_authority_record.pubkey,
-            new_collection_authority: new_collection_authority.pubkey,
-            update_authority: update_authority.pubkey,
-            payer: payer.pubkey,
-            metadata: metadata.pubkey,
-            mint: mint.pubkey,
-            system_program: system_program.pubkey,
-            rent: rent.pubkey,
+            collection_authority_record,
+            new_collection_authority,
+            update_authority,
+            payer,
+            metadata,
+            mint,
+            system_program,
+            rent,
         })
     }
 }

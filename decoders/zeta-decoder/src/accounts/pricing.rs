@@ -2,7 +2,9 @@ use super::super::types::*;
 
 use carbon_core::{borsh, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xbe7bd2b68f0b9888")]
 pub struct Pricing {
     pub nonce: u8,
@@ -37,5 +39,6 @@ pub struct Pricing {
     pub net_outflow_sum: i64,
     pub halt_force_pricing: [bool; 25],
     pub halt_force_pricing_padding: [bool; 0],
+    #[serde(with = "serde_big_array::BigArray")]
     pub padding: [u8; 2707],
 }

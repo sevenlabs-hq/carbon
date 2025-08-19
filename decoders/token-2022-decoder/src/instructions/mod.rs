@@ -45,10 +45,12 @@ pub mod initialize_metadata_pointer;
 pub mod initialize_mint;
 pub mod initialize_mint2;
 pub mod initialize_mint_close_authority;
+pub mod initialize_mint_pausable;
 pub mod initialize_multisig;
 pub mod initialize_multisig2;
 pub mod initialize_non_transferable_mint;
 pub mod initialize_permanent_delegate;
+pub mod initialize_scaled_ui_amount;
 pub mod initialize_token_group;
 pub mod initialize_token_group_member;
 pub mod initialize_token_metadata;
@@ -63,6 +65,7 @@ pub mod set_authority;
 pub mod set_transfer_fee;
 pub mod sync_native;
 pub mod thaw_account;
+pub mod toggle_mint_pause;
 pub mod transfer;
 pub mod transfer_checked;
 pub mod transfer_checked_with_fee;
@@ -72,6 +75,7 @@ pub mod update_default_account_state;
 pub mod update_group_member_pointer;
 pub mod update_group_pointer;
 pub mod update_metadata_pointer;
+pub mod update_multiplier_scaled_ui_amount;
 pub mod update_rate_interest_bearing_mint;
 pub mod update_token_group_max_size;
 pub mod update_token_group_update_authority;
@@ -85,14 +89,7 @@ pub mod withdraw_withheld_tokens_from_mint;
 pub mod withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee;
 
 #[derive(
-    carbon_core::InstructionType,
-    serde::Serialize,
-    serde::Deserialize,
-    PartialEq,
-    Eq,
-    Debug,
-    Clone,
-    Hash,
+    carbon_core::InstructionType, serde::Serialize, serde::Deserialize, PartialEq, Debug, Clone,
 )]
 pub enum Token2022Instruction {
     InitializeMint(initialize_mint::InitializeMint),
@@ -177,6 +174,10 @@ pub enum Token2022Instruction {
     UpdateTokenGroupMaxSize(update_token_group_max_size::UpdateTokenGroupMaxSize),
     UpdateTokenGroupUpdateAuthority(update_token_group_update_authority::UpdateTokenGroupUpdateAuthority),
     InitializeTokenGroupMember(initialize_token_group_member::InitializeTokenGroupMember),
+    InitializeScaledUiAmount(initialize_scaled_ui_amount::InitializedScaledUiAmount),
+    UpdateMultiplierScaledUiAmount(update_multiplier_scaled_ui_amount::UpdateMultiplierScaledUiAmount),
+    InitializeMintPausable(initialize_mint_pausable::InitializeMintPausable),
+    ToggleMintPause(toggle_mint_pause::ToggleMintPause)
 }
 
 impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
@@ -273,6 +274,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             Token2022Instruction::UpdateTokenGroupMaxSize => update_token_group_max_size::UpdateTokenGroupMaxSize,
             Token2022Instruction::UpdateTokenGroupUpdateAuthority => update_token_group_update_authority::UpdateTokenGroupUpdateAuthority,
             Token2022Instruction::InitializeTokenGroupMember => initialize_token_group_member::InitializeTokenGroupMember,
+            Token2022Instruction::InitializeScaledUiAmount => initialize_scaled_ui_amount::InitializedScaledUiAmount,
+            Token2022Instruction::UpdateMultiplierScaledUiAmount => update_multiplier_scaled_ui_amount::UpdateMultiplierScaledUiAmount,
+            Token2022Instruction::InitializeMintPausable => initialize_mint_pausable::InitializeMintPausable,
+            Token2022Instruction::ToggleMintPause => toggle_mint_pause::ToggleMintPause
         )
     }
 }
