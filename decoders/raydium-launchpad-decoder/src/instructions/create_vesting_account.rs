@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -23,18 +23,19 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateVestingAccount {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [creator, beneficiary, pool_state, vesting_record, system_program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let creator = next_account(&mut iter)?;
+        let beneficiary = next_account(&mut iter)?;
+        let pool_state = next_account(&mut iter)?;
+        let vesting_record = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
 
         Some(CreateVestingAccountInstructionAccounts {
-            creator: creator.pubkey,
-            beneficiary: beneficiary.pubkey,
-            pool_state: pool_state.pubkey,
-            vesting_record: vesting_record.pubkey,
-            system_program: system_program.pubkey,
+            creator,
+            beneficiary,
+            pool_state,
+            vesting_record,
+            system_program,
         })
     }
 }

@@ -13,4 +13,5 @@ pub struct PoolCreateEvent {
     pub base_mint_param: MintParams,
     pub curve_param: CurveParams,
     pub vesting_param: VestingParams,
+    pub amm_fee_on: AmmCreatorFeeOn,
 }

@@ -1,23 +1,21 @@
-use super::super::types::*;
-
 use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0xc33c4c81922d438f")]
-pub struct UpdatePlatformConfig {
-    pub param: PlatformConfigParam,
+#[carbon(discriminator = "0x1b1e3ea95de01891")]
+pub struct RemovePlatformCurveParam {
+    pub index: u8,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
-pub struct UpdatePlatformConfigInstructionAccounts {
+pub struct RemovePlatformCurveParamInstructionAccounts {
     pub platform_admin: solana_pubkey::Pubkey,
     pub platform_config: solana_pubkey::Pubkey,
 }
 
-impl carbon_core::deserialize::ArrangeAccounts for UpdatePlatformConfig {
-    type ArrangedAccounts = UpdatePlatformConfigInstructionAccounts;
+impl carbon_core::deserialize::ArrangeAccounts for RemovePlatformCurveParam {
+    type ArrangedAccounts = RemovePlatformCurveParamInstructionAccounts;
 
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
@@ -26,7 +24,7 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdatePlatformConfig {
         let platform_admin = next_account(&mut iter)?;
         let platform_config = next_account(&mut iter)?;
 
-        Some(UpdatePlatformConfigInstructionAccounts {
+        Some(RemovePlatformCurveParamInstructionAccounts {
             platform_admin,
             platform_config,
         })

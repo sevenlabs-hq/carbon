@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -21,13 +21,13 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateConfig {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [owner, global_config, _remaining @ ..] = accounts else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let owner = next_account(&mut iter)?;
+        let global_config = next_account(&mut iter)?;
 
         Some(UpdateConfigInstructionAccounts {
-            owner: owner.pubkey,
-            global_config: global_config.pubkey,
+            owner,
+            global_config,
         })
     }
 }
