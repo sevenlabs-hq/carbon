@@ -42,11 +42,11 @@ pub struct YellowstoneGrpcGeyserClient {
     pub transaction_filters: HashMap<String, SubscribeRequestFilterTransactions>,
     pub block_filters: BlockFilters,
     pub account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
-    pub geyser_config: YellowstoneGrpcClientConfig
+    pub geyser_config: YellowstoneGrpcClientConfig,
 }
 
 #[derive(Debug, Clone)]
-pub struct YellowstoneGrpcClientConfig{
+pub struct YellowstoneGrpcClientConfig {
     pub compression: Option<CompressionEncoding>,
     pub connect_timeout: Option<Duration>,
     pub timeout: Option<Duration>,
@@ -93,19 +93,19 @@ impl YellowstoneGrpcGeyserClient {
             transaction_filters,
             block_filters,
             account_deletions_tracked,
-            geyser_config
+            geyser_config,
         }
     }
 }
 
-impl YellowstoneGrpcClientConfig{
-    pub const fn new( 
-     compression: Option<CompressionEncoding>,
-     connect_timeout: Option<Duration>,
-     timeout: Option<Duration>,
-     max_decoding_message_size: Option<usize>,
-     tls_config: Option<ClientTlsConfig>,
-     tcp_nodelay: Option<bool>
+impl YellowstoneGrpcClientConfig {
+    pub const fn new(
+        compression: Option<CompressionEncoding>,
+        connect_timeout: Option<Duration>,
+        timeout: Option<Duration>,
+        max_decoding_message_size: Option<usize>,
+        tls_config: Option<ClientTlsConfig>,
+        tcp_nodelay: Option<bool>,
     ) -> Self {
         YellowstoneGrpcClientConfig {
             compression,
@@ -113,31 +113,36 @@ impl YellowstoneGrpcClientConfig{
             timeout,
             max_decoding_message_size,
             tls_config,
-            tcp_nodelay
+            tcp_nodelay,
         }
-    } 
+    }
 
     pub fn geyser_config_builder(
         &self,
-        mut builder:GeyserGrpcBuilder,
-    )->GeyserGrpcBuilderResult<GeyserGrpcBuilder>{
+        mut builder: GeyserGrpcBuilder,
+    ) -> GeyserGrpcBuilderResult<GeyserGrpcBuilder> {
         builder = builder.connect_timeout(self.connect_timeout.unwrap_or(Duration::from_secs(15)));
-        
+
         builder = builder.timeout(self.timeout.unwrap_or(Duration::from_secs(15)));
-        let tls = self.tls_config.clone().unwrap_or_else(|| ClientTlsConfig::new().with_enabled_roots());
+        let tls = self
+            .tls_config
+            .clone()
+            .unwrap_or_else(|| ClientTlsConfig::new().with_enabled_roots());
         builder = builder.tls_config(tls)?;
 
         if let Some(compression) = self.compression {
-            builder = builder.send_compressed(compression).accept_compressed(compression);
+            builder = builder
+                .send_compressed(compression)
+                .accept_compressed(compression);
         }
         if let Some(val) = self.max_decoding_message_size {
             builder = builder.max_decoding_message_size(val);
         }
-        
+
         if let Some(val) = self.tcp_nodelay {
             builder = builder.tcp_nodelay(val);
         }
-          Ok(builder)
+        Ok(builder)
     }
 }
 
@@ -162,12 +167,13 @@ impl Datasource for YellowstoneGrpcGeyserClient {
         } = self.block_filters.clone();
         let retain_block_failed_transactions = block_failed_transactions.unwrap_or(true);
 
-         let builder = GeyserGrpcClient::build_from_shared(endpoint)
+        let builder = GeyserGrpcClient::build_from_shared(endpoint)
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?
             .x_token(x_token)
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?;
 
-        let mut geyser_client = self.geyser_config
+        let mut geyser_client = self
+            .geyser_config
             .geyser_config_builder(builder)
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?
             .connect()
