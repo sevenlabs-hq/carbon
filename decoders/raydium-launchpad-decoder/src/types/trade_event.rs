@@ -18,7 +18,9 @@ pub struct TradeEvent {
     pub amount_out: u64,
     pub protocol_fee: u64,
     pub platform_fee: u64,
+    pub creator_fee: u64,
     pub share_fee: u64,
     pub trade_direction: TradeDirection,
     pub pool_status: PoolStatus,
+    pub exact_in: bool,
 }
