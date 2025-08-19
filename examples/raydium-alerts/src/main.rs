@@ -16,7 +16,9 @@ use {
         },
         RaydiumAmmV4Decoder, PROGRAM_ID as RAYDIUM_AMM_V4_PROGRAM_ID,
     },
-    carbon_yellowstone_grpc_datasource::{YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient},
+    carbon_yellowstone_grpc_datasource::{
+        YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient,
+    },
     std::{
         collections::{HashMap, HashSet},
         env,
@@ -65,12 +67,12 @@ pub async fn main() -> CarbonResult<()> {
     transaction_filters.insert("raydium_transaction_filter".to_string(), transaction_filter);
 
     let geyser_config = YellowstoneGrpcClientConfig::new(
-        None,               
-        Some(Duration::from_secs(15)),                 
-        Some(Duration::from_secs(15)),                 
-        None,                          
-        None, 
-        None,  
+        None,
+        Some(Duration::from_secs(15)),
+        Some(Duration::from_secs(15)),
+        None,
+        None,
+        None,
     );
 
     let yellowstone_grpc = YellowstoneGrpcGeyserClient::new(
@@ -81,7 +83,7 @@ pub async fn main() -> CarbonResult<()> {
         transaction_filters,
         Default::default(),
         Arc::new(RwLock::new(HashSet::new())),
-        geyser_config
+        geyser_config,
     );
 
     carbon_core::pipeline::Pipeline::builder()
