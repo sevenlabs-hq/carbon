@@ -3,15 +3,12 @@ use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0xa78a4e95dfc2067e")]
-pub struct CollectFundFee {
-    pub amount_0_requested: u64,
-    pub amount_1_requested: u64,
-}
+#[carbon(discriminator = "0x1416567bc61cdb84")]
+pub struct CollectCreatorFee {}
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
-pub struct CollectFundFeeInstructionAccounts {
-    pub owner: solana_pubkey::Pubkey,
+pub struct CollectCreatorFeeInstructionAccounts {
+    pub creator: solana_pubkey::Pubkey,
     pub authority: solana_pubkey::Pubkey,
     pub pool_state: solana_pubkey::Pubkey,
     pub amm_config: solana_pubkey::Pubkey,
@@ -19,20 +16,22 @@ pub struct CollectFundFeeInstructionAccounts {
     pub token_1_vault: solana_pubkey::Pubkey,
     pub vault_0_mint: solana_pubkey::Pubkey,
     pub vault_1_mint: solana_pubkey::Pubkey,
-    pub recipient_token_0_account: solana_pubkey::Pubkey,
-    pub recipient_token_1_account: solana_pubkey::Pubkey,
-    pub token_program: solana_pubkey::Pubkey,
-    pub token_program_2022: solana_pubkey::Pubkey,
+    pub creator_token_0: solana_pubkey::Pubkey,
+    pub creator_token_1: solana_pubkey::Pubkey,
+    pub token_0_program: solana_pubkey::Pubkey,
+    pub token_1_program: solana_pubkey::Pubkey,
+    pub associated_token_program: solana_pubkey::Pubkey,
+    pub system_program: solana_pubkey::Pubkey,
 }
 
-impl carbon_core::deserialize::ArrangeAccounts for CollectFundFee {
-    type ArrangedAccounts = CollectFundFeeInstructionAccounts;
+impl carbon_core::deserialize::ArrangeAccounts for CollectCreatorFee {
+    type ArrangedAccounts = CollectCreatorFeeInstructionAccounts;
 
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         let mut iter = accounts.iter();
-        let owner = next_account(&mut iter)?;
+        let creator = next_account(&mut iter)?;
         let authority = next_account(&mut iter)?;
         let pool_state = next_account(&mut iter)?;
         let amm_config = next_account(&mut iter)?;
@@ -40,13 +39,15 @@ impl carbon_core::deserialize::ArrangeAccounts for CollectFundFee {
         let token_1_vault = next_account(&mut iter)?;
         let vault_0_mint = next_account(&mut iter)?;
         let vault_1_mint = next_account(&mut iter)?;
-        let recipient_token_0_account = next_account(&mut iter)?;
-        let recipient_token_1_account = next_account(&mut iter)?;
-        let token_program = next_account(&mut iter)?;
-        let token_program_2022 = next_account(&mut iter)?;
+        let creator_token_0 = next_account(&mut iter)?;
+        let creator_token_1 = next_account(&mut iter)?;
+        let token_0_program = next_account(&mut iter)?;
+        let token_1_program = next_account(&mut iter)?;
+        let associated_token_program = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
 
-        Some(CollectFundFeeInstructionAccounts {
-            owner,
+        Some(CollectCreatorFeeInstructionAccounts {
+            creator,
             authority,
             pool_state,
             amm_config,
@@ -54,10 +55,12 @@ impl carbon_core::deserialize::ArrangeAccounts for CollectFundFee {
             token_1_vault,
             vault_0_mint,
             vault_1_mint,
-            recipient_token_0_account,
-            recipient_token_1_account,
-            token_program,
-            token_program_2022,
+            creator_token_0,
+            creator_token_1,
+            token_0_program,
+            token_1_program,
+            associated_token_program,
+            system_program,
         })
     }
 }

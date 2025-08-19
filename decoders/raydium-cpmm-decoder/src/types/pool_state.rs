@@ -1,9 +1,8 @@
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
-    CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0xf7ede3f5d7c3de46")]
 pub struct PoolState {
     pub amm_config: solana_pubkey::Pubkey,
     pub pool_creator: solana_pubkey::Pubkey,
