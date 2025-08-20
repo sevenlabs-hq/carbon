@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -6,7 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x22965df48be1e943")]
 pub struct SetCollectProtocolFeesAuthority {}
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct SetCollectProtocolFeesAuthorityInstructionAccounts {
     pub whirlpools_config: solana_pubkey::Pubkey,
     pub collect_protocol_fees_authority: solana_pubkey::Pubkey,
@@ -19,16 +19,15 @@ impl carbon_core::deserialize::ArrangeAccounts for SetCollectProtocolFeesAuthori
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [whirlpools_config, collect_protocol_fees_authority, new_collect_protocol_fees_authority, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let whirlpools_config = next_account(&mut iter)?;
+        let collect_protocol_fees_authority = next_account(&mut iter)?;
+        let new_collect_protocol_fees_authority = next_account(&mut iter)?;
 
         Some(SetCollectProtocolFeesAuthorityInstructionAccounts {
-            whirlpools_config: whirlpools_config.pubkey,
-            collect_protocol_fees_authority: collect_protocol_fees_authority.pubkey,
-            new_collect_protocol_fees_authority: new_collect_protocol_fees_authority.pubkey,
+            whirlpools_config,
+            collect_protocol_fees_authority,
+            new_collect_protocol_fees_authority,
         })
     }
 }
