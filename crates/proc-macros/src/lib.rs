@@ -420,7 +420,7 @@ struct InstructionMacroInput {
 /// # Example
 ///
 /// ```ignore
-/// 
+///
 /// let program_variant: Ident = parse_quote!(MyProgram);
 /// let decoder_expr: Expr = parse_quote!(MyDecoder);
 /// let instruction_type: TypePath = parse_quote!(MyInstructionType);
@@ -490,7 +490,7 @@ struct InstructionEntry {
 /// # Example
 ///
 /// ```ignore
-/// 
+///
 /// let input = parse_quote! {
 ///     MyInstructionsEnum, MyInstructionTypesEnum, MyProgramsEnum,
 ///     MyProgram => my_decoder => MyInstruction,
