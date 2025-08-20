@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -9,6 +9,7 @@ pub struct SwapBaseInput {
     pub minimum_amount_out: u64,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct SwapBaseInputInstructionAccounts {
     pub payer: solana_pubkey::Pubkey,
     pub authority: solana_pubkey::Pubkey,
@@ -31,26 +32,35 @@ impl carbon_core::deserialize::ArrangeAccounts for SwapBaseInput {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [payer, authority, amm_config, pool_state, input_token_account, output_token_account, input_vault, output_vault, input_token_program, output_token_program, input_token_mint, output_token_mint, observation_state, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let payer = next_account(&mut iter)?;
+        let authority = next_account(&mut iter)?;
+        let amm_config = next_account(&mut iter)?;
+        let pool_state = next_account(&mut iter)?;
+        let input_token_account = next_account(&mut iter)?;
+        let output_token_account = next_account(&mut iter)?;
+        let input_vault = next_account(&mut iter)?;
+        let output_vault = next_account(&mut iter)?;
+        let input_token_program = next_account(&mut iter)?;
+        let output_token_program = next_account(&mut iter)?;
+        let input_token_mint = next_account(&mut iter)?;
+        let output_token_mint = next_account(&mut iter)?;
+        let observation_state = next_account(&mut iter)?;
 
         Some(SwapBaseInputInstructionAccounts {
-            payer: payer.pubkey,
-            authority: authority.pubkey,
-            amm_config: amm_config.pubkey,
-            pool_state: pool_state.pubkey,
-            input_token_account: input_token_account.pubkey,
-            output_token_account: output_token_account.pubkey,
-            input_vault: input_vault.pubkey,
-            output_vault: output_vault.pubkey,
-            input_token_program: input_token_program.pubkey,
-            output_token_program: output_token_program.pubkey,
-            input_token_mint: input_token_mint.pubkey,
-            output_token_mint: output_token_mint.pubkey,
-            observation_state: observation_state.pubkey,
+            payer,
+            authority,
+            amm_config,
+            pool_state,
+            input_token_account,
+            output_token_account,
+            input_vault,
+            output_vault,
+            input_token_program,
+            output_token_program,
+            input_token_mint,
+            output_token_mint,
+            observation_state,
         })
     }
 }
