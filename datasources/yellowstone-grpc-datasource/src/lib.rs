@@ -75,6 +75,7 @@ pub struct BlockFilters {
 }
 
 impl YellowstoneGrpcGeyserClient {
+    #[allow(clippy::too_many_arguments)]
     pub const fn new(
         endpoint: String,
         x_token: Option<String>,
