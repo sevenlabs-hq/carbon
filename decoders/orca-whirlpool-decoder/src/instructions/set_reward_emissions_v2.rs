@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -9,7 +9,7 @@ pub struct SetRewardEmissionsV2 {
     pub emissions_per_second_x64: u128,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct SetRewardEmissionsV2InstructionAccounts {
     pub whirlpool: solana_pubkey::Pubkey,
     pub reward_authority: solana_pubkey::Pubkey,
@@ -22,14 +22,15 @@ impl carbon_core::deserialize::ArrangeAccounts for SetRewardEmissionsV2 {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [whirlpool, reward_authority, reward_vault, _remaining @ ..] = accounts else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let whirlpool = next_account(&mut iter)?;
+        let reward_authority = next_account(&mut iter)?;
+        let reward_vault = next_account(&mut iter)?;
 
         Some(SetRewardEmissionsV2InstructionAccounts {
-            whirlpool: whirlpool.pubkey,
-            reward_authority: reward_authority.pubkey,
-            reward_vault: reward_vault.pubkey,
+            whirlpool,
+            reward_authority,
+            reward_vault,
         })
     }
 }
