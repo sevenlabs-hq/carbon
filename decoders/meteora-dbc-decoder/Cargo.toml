@@ -1,5 +1,5 @@
 [package]
-name = "dynamic-bonding-curve-decoder"
+name = "carbon-meteora-dbc-decoder"
 version = "0.9.1"
 edition = { workspace = true }
 
