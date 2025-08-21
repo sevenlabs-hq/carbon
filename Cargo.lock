@@ -2653,8 +2653,6 @@ name = "dynamic-bonding-curve-decoder"
 version = "0.9.1"
 dependencies = [
  "carbon-core",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "serde-big-array",
  "solana-account",
