@@ -1,7 +1,6 @@
-use {
-    super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use super::super::types::*;
+
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
@@ -11,7 +10,7 @@ pub struct Whirlpool {
     pub whirlpools_config: solana_pubkey::Pubkey,
     pub whirlpool_bump: [u8; 1],
     pub tick_spacing: u16,
-    pub tick_spacing_seed: [u8; 2],
+    pub fee_tier_index_seed: [u8; 2],
     pub fee_rate: u16,
     pub protocol_fee_rate: u16,
     pub liquidity: u128,

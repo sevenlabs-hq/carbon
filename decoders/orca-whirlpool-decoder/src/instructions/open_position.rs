@@ -1,7 +1,6 @@
-use {
-    super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use super::super::types::*;
+
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -13,7 +12,7 @@ pub struct OpenPosition {
     pub tick_upper_index: i32,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct OpenPositionInstructionAccounts {
     pub funder: solana_pubkey::Pubkey,
     pub owner: solana_pubkey::Pubkey,
@@ -33,23 +32,29 @@ impl carbon_core::deserialize::ArrangeAccounts for OpenPosition {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [funder, owner, position, position_mint, position_token_account, whirlpool, token_program, system_program, rent, associated_token_program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let funder = next_account(&mut iter)?;
+        let owner = next_account(&mut iter)?;
+        let position = next_account(&mut iter)?;
+        let position_mint = next_account(&mut iter)?;
+        let position_token_account = next_account(&mut iter)?;
+        let whirlpool = next_account(&mut iter)?;
+        let token_program = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let rent = next_account(&mut iter)?;
+        let associated_token_program = next_account(&mut iter)?;
 
         Some(OpenPositionInstructionAccounts {
-            funder: funder.pubkey,
-            owner: owner.pubkey,
-            position: position.pubkey,
-            position_mint: position_mint.pubkey,
-            position_token_account: position_token_account.pubkey,
-            whirlpool: whirlpool.pubkey,
-            token_program: token_program.pubkey,
-            system_program: system_program.pubkey,
-            rent: rent.pubkey,
-            associated_token_program: associated_token_program.pubkey,
+            funder,
+            owner,
+            position,
+            position_mint,
+            position_token_account,
+            whirlpool,
+            token_program,
+            system_program,
+            rent,
+            associated_token_program,
         })
     }
 }
