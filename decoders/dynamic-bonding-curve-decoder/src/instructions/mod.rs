@@ -1,7 +1,3 @@
-
-
-
-
 use super::DynamicBondingCurveDecoder;
 pub mod claim_creator_trading_fee;
 pub mod claim_protocol_fee;
@@ -13,21 +9,6 @@ pub mod create_locker;
 pub mod create_partner_metadata;
 pub mod create_virtual_pool_metadata;
 pub mod creator_withdraw_surplus;
-pub mod initialize_virtual_pool_with_spl_token;
-pub mod initialize_virtual_pool_with_token2022;
-pub mod migrate_meteora_damm;
-pub mod migrate_meteora_damm_claim_lp_token;
-pub mod migrate_meteora_damm_lock_lp_token;
-pub mod migration_damm_v2;
-pub mod migration_damm_v2_create_metadata;
-pub mod migration_meteora_damm_create_metadata;
-pub mod partner_withdraw_surplus;
-pub mod protocol_withdraw_surplus;
-pub mod swap;
-pub mod swap2;
-pub mod transfer_pool_creator;
-pub mod withdraw_leftover;
-pub mod withdraw_migration_fee;
 pub mod evt_claim_creator_trading_fee_event;
 pub mod evt_claim_protocol_fee_event;
 pub mod evt_claim_trading_fee_event;
@@ -44,14 +25,38 @@ pub mod evt_partner_metadata_event;
 pub mod evt_partner_withdraw_migration_fee_event;
 pub mod evt_partner_withdraw_surplus_event;
 pub mod evt_protocol_withdraw_surplus_event;
-pub mod evt_swap_event;
 pub mod evt_swap2_event;
+pub mod evt_swap_event;
 pub mod evt_update_pool_creator_event;
 pub mod evt_virtual_pool_metadata_event;
 pub mod evt_withdraw_leftover_event;
 pub mod evt_withdraw_migration_fee_event;
+pub mod initialize_virtual_pool_with_spl_token;
+pub mod initialize_virtual_pool_with_token2022;
+pub mod migrate_meteora_damm;
+pub mod migrate_meteora_damm_claim_lp_token;
+pub mod migrate_meteora_damm_lock_lp_token;
+pub mod migration_damm_v2;
+pub mod migration_damm_v2_create_metadata;
+pub mod migration_meteora_damm_create_metadata;
+pub mod partner_withdraw_surplus;
+pub mod protocol_withdraw_surplus;
+pub mod swap;
+pub mod swap2;
+pub mod transfer_pool_creator;
+pub mod withdraw_leftover;
+pub mod withdraw_migration_fee;
 
-#[derive(carbon_core::InstructionType, serde::Serialize, serde::Deserialize, PartialEq, Eq, Debug, Clone, Hash)]
+#[derive(
+    carbon_core::InstructionType,
+    serde::Serialize,
+    serde::Deserialize,
+    PartialEq,
+    Eq,
+    Debug,
+    Clone,
+    Hash,
+)]
 pub enum DynamicBondingCurveInstruction {
     ClaimCreatorTradingFee(claim_creator_trading_fee::ClaimCreatorTradingFee),
     ClaimProtocolFee(claim_protocol_fee::ClaimProtocolFee),
@@ -63,14 +68,24 @@ pub enum DynamicBondingCurveInstruction {
     CreatePartnerMetadata(create_partner_metadata::CreatePartnerMetadata),
     CreateVirtualPoolMetadata(create_virtual_pool_metadata::CreateVirtualPoolMetadata),
     CreatorWithdrawSurplus(creator_withdraw_surplus::CreatorWithdrawSurplus),
-    InitializeVirtualPoolWithSplToken(initialize_virtual_pool_with_spl_token::InitializeVirtualPoolWithSplToken),
-    InitializeVirtualPoolWithToken2022(initialize_virtual_pool_with_token2022::InitializeVirtualPoolWithToken2022),
+    InitializeVirtualPoolWithSplToken(
+        initialize_virtual_pool_with_spl_token::InitializeVirtualPoolWithSplToken,
+    ),
+    InitializeVirtualPoolWithToken2022(
+        initialize_virtual_pool_with_token2022::InitializeVirtualPoolWithToken2022,
+    ),
     MigrateMeteoraDamm(migrate_meteora_damm::MigrateMeteoraDamm),
-    MigrateMeteoraDammClaimLpToken(migrate_meteora_damm_claim_lp_token::MigrateMeteoraDammClaimLpToken),
-    MigrateMeteoraDammLockLpToken(migrate_meteora_damm_lock_lp_token::MigrateMeteoraDammLockLpToken),
+    MigrateMeteoraDammClaimLpToken(
+        migrate_meteora_damm_claim_lp_token::MigrateMeteoraDammClaimLpToken,
+    ),
+    MigrateMeteoraDammLockLpToken(
+        migrate_meteora_damm_lock_lp_token::MigrateMeteoraDammLockLpToken,
+    ),
     MigrationDammV2(migration_damm_v2::MigrationDammV2),
     MigrationDammV2CreateMetadata(migration_damm_v2_create_metadata::MigrationDammV2CreateMetadata),
-    MigrationMeteoraDammCreateMetadata(migration_meteora_damm_create_metadata::MigrationMeteoraDammCreateMetadata),
+    MigrationMeteoraDammCreateMetadata(
+        migration_meteora_damm_create_metadata::MigrationMeteoraDammCreateMetadata,
+    ),
     PartnerWithdrawSurplus(partner_withdraw_surplus::PartnerWithdrawSurplus),
     ProtocolWithdrawSurplus(protocol_withdraw_surplus::ProtocolWithdrawSurplus),
     Swap(swap::Swap),
@@ -78,22 +93,40 @@ pub enum DynamicBondingCurveInstruction {
     TransferPoolCreator(transfer_pool_creator::TransferPoolCreator),
     WithdrawLeftover(withdraw_leftover::WithdrawLeftover),
     WithdrawMigrationFee(withdraw_migration_fee::WithdrawMigrationFee),
-    EvtClaimCreatorTradingFeeEvent(evt_claim_creator_trading_fee_event::EvtClaimCreatorTradingFeeEvent),
+    EvtClaimCreatorTradingFeeEvent(
+        evt_claim_creator_trading_fee_event::EvtClaimCreatorTradingFeeEvent,
+    ),
     EvtClaimProtocolFeeEvent(evt_claim_protocol_fee_event::EvtClaimProtocolFeeEvent),
     EvtClaimTradingFeeEvent(evt_claim_trading_fee_event::EvtClaimTradingFeeEvent),
-    EvtCloseClaimFeeOperatorEvent(evt_close_claim_fee_operator_event::EvtCloseClaimFeeOperatorEvent),
-    EvtCreateClaimFeeOperatorEvent(evt_create_claim_fee_operator_event::EvtCreateClaimFeeOperatorEvent),
+    EvtCloseClaimFeeOperatorEvent(
+        evt_close_claim_fee_operator_event::EvtCloseClaimFeeOperatorEvent,
+    ),
+    EvtCreateClaimFeeOperatorEvent(
+        evt_create_claim_fee_operator_event::EvtCreateClaimFeeOperatorEvent,
+    ),
     EvtCreateConfigEvent(evt_create_config_event::EvtCreateConfigEvent),
     EvtCreateConfigV2Event(evt_create_config_v2_event::EvtCreateConfigV2Event),
-    EvtCreateDammV2MigrationMetadataEvent(evt_create_damm_v2_migration_metadata_event::EvtCreateDammV2MigrationMetadataEvent),
-    EvtCreateMeteoraMigrationMetadataEvent(evt_create_meteora_migration_metadata_event::EvtCreateMeteoraMigrationMetadataEvent),
-    EvtCreatorWithdrawSurplusEvent(evt_creator_withdraw_surplus_event::EvtCreatorWithdrawSurplusEvent),
+    EvtCreateDammV2MigrationMetadataEvent(
+        evt_create_damm_v2_migration_metadata_event::EvtCreateDammV2MigrationMetadataEvent,
+    ),
+    EvtCreateMeteoraMigrationMetadataEvent(
+        evt_create_meteora_migration_metadata_event::EvtCreateMeteoraMigrationMetadataEvent,
+    ),
+    EvtCreatorWithdrawSurplusEvent(
+        evt_creator_withdraw_surplus_event::EvtCreatorWithdrawSurplusEvent,
+    ),
     EvtCurveCompleteEvent(evt_curve_complete_event::EvtCurveCompleteEvent),
     EvtInitializePoolEvent(evt_initialize_pool_event::EvtInitializePoolEvent),
     EvtPartnerMetadataEvent(evt_partner_metadata_event::EvtPartnerMetadataEvent),
-    EvtPartnerWithdrawMigrationFeeEvent(evt_partner_withdraw_migration_fee_event::EvtPartnerWithdrawMigrationFeeEvent),
-    EvtPartnerWithdrawSurplusEvent(evt_partner_withdraw_surplus_event::EvtPartnerWithdrawSurplusEvent),
-    EvtProtocolWithdrawSurplusEvent(evt_protocol_withdraw_surplus_event::EvtProtocolWithdrawSurplusEvent),
+    EvtPartnerWithdrawMigrationFeeEvent(
+        evt_partner_withdraw_migration_fee_event::EvtPartnerWithdrawMigrationFeeEvent,
+    ),
+    EvtPartnerWithdrawSurplusEvent(
+        evt_partner_withdraw_surplus_event::EvtPartnerWithdrawSurplusEvent,
+    ),
+    EvtProtocolWithdrawSurplusEvent(
+        evt_protocol_withdraw_surplus_event::EvtProtocolWithdrawSurplusEvent,
+    ),
     EvtSwapEvent(evt_swap_event::EvtSwapEvent),
     EvtSwap2Event(evt_swap2_event::EvtSwap2Event),
     EvtUpdatePoolCreatorEvent(evt_update_pool_creator_event::EvtUpdatePoolCreatorEvent),
@@ -102,7 +135,7 @@ pub enum DynamicBondingCurveInstruction {
     EvtWithdrawMigrationFeeEvent(evt_withdraw_migration_fee_event::EvtWithdrawMigrationFeeEvent),
 }
 
-impl<'a> carbon_core::instruction::InstructionDecoder<'a> for DynamicBondingCurveDecoder {
+impl carbon_core::instruction::InstructionDecoder<'_> for DynamicBondingCurveDecoder {
     type InstructionType = DynamicBondingCurveInstruction;
 
     fn decode_instruction(

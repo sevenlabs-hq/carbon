@@ -1,12 +1,10 @@
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh, account_utils::next_account};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x268652d85f7c1163")]
-pub struct CloseClaimFeeOperator{
-}
+pub struct CloseClaimFeeOperator {}
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct CloseClaimFeeOperatorInstructionAccounts {
@@ -20,7 +18,9 @@ pub struct CloseClaimFeeOperatorInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CloseClaimFeeOperator {
     type ArrangedAccounts = CloseClaimFeeOperatorInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
         let mut iter = accounts.iter();
         let claim_fee_operator = next_account(&mut iter)?;
         let rent_receiver = next_account(&mut iter)?;

@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh, account_utils::next_account};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xf8c69e91e17587c8")]
-pub struct Swap{
+pub struct Swap {
     pub params: SwapParameters,
 }
 
@@ -32,7 +32,9 @@ pub struct SwapInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for Swap {
     type ArrangedAccounts = SwapInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
         let mut iter = accounts.iter();
         let pool_authority = next_account(&mut iter)?;
         let config = next_account(&mut iter)?;

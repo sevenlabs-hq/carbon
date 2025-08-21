@@ -1,12 +1,10 @@
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh, account_utils::next_account};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xa50389071c864c50")]
-pub struct CreatorWithdrawSurplus{
-}
+pub struct CreatorWithdrawSurplus {}
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct CreatorWithdrawSurplusInstructionAccounts {
@@ -25,7 +23,9 @@ pub struct CreatorWithdrawSurplusInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CreatorWithdrawSurplus {
     type ArrangedAccounts = CreatorWithdrawSurplusInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
         let mut iter = accounts.iter();
         let pool_authority = next_account(&mut iter)?;
         let config = next_account(&mut iter)?;

@@ -1,11 +1,10 @@
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh, account_utils::next_account};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xed8e2d178106dea2")]
-pub struct WithdrawMigrationFee{
+pub struct WithdrawMigrationFee {
     pub flag: u8,
 }
 
@@ -26,7 +25,9 @@ pub struct WithdrawMigrationFeeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for WithdrawMigrationFee {
     type ArrangedAccounts = WithdrawMigrationFeeInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
         let mut iter = accounts.iter();
         let pool_authority = next_account(&mut iter)?;
         let config = next_account(&mut iter)?;
