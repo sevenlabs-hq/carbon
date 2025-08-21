@@ -1,10 +1,10 @@
-
 use super::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 pub struct EvtCreateConfigV2 {
     pub config: solana_pubkey::Pubkey,
     pub quote_mint: solana_pubkey::Pubkey,

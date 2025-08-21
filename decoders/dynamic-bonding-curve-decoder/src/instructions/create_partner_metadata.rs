@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh, account_utils::next_account};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0xc0a8eabfbce2e3ff")]
-pub struct CreatePartnerMetadata{
+pub struct CreatePartnerMetadata {
     pub metadata: CreatePartnerMetadataParameters,
 }
 
@@ -23,7 +23,9 @@ pub struct CreatePartnerMetadataInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CreatePartnerMetadata {
     type ArrangedAccounts = CreatePartnerMetadataInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
         let mut iter = accounts.iter();
         let partner_metadata = next_account(&mut iter)?;
         let payer = next_account(&mut iter)?;

@@ -1,12 +1,12 @@
-
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh, account_utils::next_account};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x2d61bb67fe6d7c86")]
-pub struct CreateVirtualPoolMetadata{
+pub struct CreateVirtualPoolMetadata {
     pub metadata: CreateVirtualPoolMetadataParameters,
 }
 
@@ -24,7 +24,9 @@ pub struct CreateVirtualPoolMetadataInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for CreateVirtualPoolMetadata {
     type ArrangedAccounts = CreateVirtualPoolMetadataInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
         let mut iter = accounts.iter();
         let virtual_pool = next_account(&mut iter)?;
         let virtual_pool_metadata = next_account(&mut iter)?;

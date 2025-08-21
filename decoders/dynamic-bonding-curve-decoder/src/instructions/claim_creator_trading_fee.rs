@@ -1,11 +1,10 @@
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
-
-use carbon_core::{CarbonDeserialize, borsh, account_utils::next_account};
-
-
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
 #[carbon(discriminator = "0x52dcfabd03556b2d")]
-pub struct ClaimCreatorTradingFee{
+pub struct ClaimCreatorTradingFee {
     pub max_base_amount: u64,
     pub max_quote_amount: u64,
 }
@@ -30,7 +29,9 @@ pub struct ClaimCreatorTradingFeeInstructionAccounts {
 impl carbon_core::deserialize::ArrangeAccounts for ClaimCreatorTradingFee {
     type ArrangedAccounts = ClaimCreatorTradingFeeInstructionAccounts;
 
-    fn arrange_accounts(accounts: &[solana_instruction::AccountMeta]) -> Option<Self::ArrangedAccounts> {
+    fn arrange_accounts(
+        accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
         let mut iter = accounts.iter();
         let pool_authority = next_account(&mut iter)?;
         let pool = next_account(&mut iter)?;
