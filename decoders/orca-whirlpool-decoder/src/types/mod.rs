@@ -14,6 +14,8 @@ pub mod position_reward_info;
 pub use position_reward_info::*;
 pub mod tick;
 pub use tick::*;
+pub mod dynamic_tick;
+pub use dynamic_tick::*;
 pub mod whirlpool_bumps;
 pub use whirlpool_bumps::*;
 pub mod whirlpool_reward_info;

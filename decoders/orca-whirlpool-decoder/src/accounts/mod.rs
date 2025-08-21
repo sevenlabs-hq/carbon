@@ -3,12 +3,13 @@ use carbon_core::deserialize::CarbonDeserialize;
 
 use super::OrcaWhirlpoolDecoder;
 pub mod adaptive_fee_tier;
+pub mod dynamic_tick_array;
 pub mod fee_tier;
+pub mod fixed_tick_array;
 pub mod lock_config;
 pub mod oracle;
 pub mod position;
 pub mod position_bundle;
-pub mod tick_array;
 pub mod token_badge;
 pub mod whirlpool;
 pub mod whirlpools_config;
@@ -23,7 +24,8 @@ pub enum WhirlpoolAccount {
     Oracle(oracle::Oracle),
     Position(position::Position),
     PositionBundle(position_bundle::PositionBundle),
-    TickArray(Box<tick_array::TickArray>),
+    FixedTickArray(Box<fixed_tick_array::FixedTickArray>),
+    DynamicTickArray(Box<dynamic_tick_array::DynamicTickArray>),
     TokenBadge(token_badge::TokenBadge),
     Whirlpool(Box<whirlpool::Whirlpool>),
 }
@@ -125,10 +127,24 @@ impl AccountDecoder<'_> for OrcaWhirlpoolDecoder {
             });
         }
 
-        if let Some(decoded_account) = tick_array::TickArray::deserialize(account.data.as_slice()) {
+        if let Some(decoded_account) =
+            fixed_tick_array::FixedTickArray::deserialize(account.data.as_slice())
+        {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: WhirlpoolAccount::TickArray(Box::new(decoded_account)),
+                data: WhirlpoolAccount::FixedTickArray(Box::new(decoded_account)),
+                owner: account.owner,
+                executable: account.executable,
+                rent_epoch: account.rent_epoch,
+            });
+        }
+
+        if let Some(decoded_account) =
+            dynamic_tick_array::DynamicTickArray::deserialize(account.data.as_slice())
+        {
+            return Some(carbon_core::account::DecodedAccount {
+                lamports: account.lamports,
+                data: WhirlpoolAccount::DynamicTickArray(Box::new(decoded_account)),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
