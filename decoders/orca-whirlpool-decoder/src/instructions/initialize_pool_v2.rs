@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -9,7 +9,7 @@ pub struct InitializePoolV2 {
     pub initial_sqrt_price: u128,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct InitializePoolV2InstructionAccounts {
     pub whirlpools_config: solana_pubkey::Pubkey,
     pub token_mint_a: solana_pubkey::Pubkey,
@@ -33,27 +33,37 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializePoolV2 {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [whirlpools_config, token_mint_a, token_mint_b, token_badge_a, token_badge_b, funder, whirlpool, token_vault_a, token_vault_b, fee_tier, token_program_a, token_program_b, system_program, rent, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let whirlpools_config = next_account(&mut iter)?;
+        let token_mint_a = next_account(&mut iter)?;
+        let token_mint_b = next_account(&mut iter)?;
+        let token_badge_a = next_account(&mut iter)?;
+        let token_badge_b = next_account(&mut iter)?;
+        let funder = next_account(&mut iter)?;
+        let whirlpool = next_account(&mut iter)?;
+        let token_vault_a = next_account(&mut iter)?;
+        let token_vault_b = next_account(&mut iter)?;
+        let fee_tier = next_account(&mut iter)?;
+        let token_program_a = next_account(&mut iter)?;
+        let token_program_b = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let rent = next_account(&mut iter)?;
 
         Some(InitializePoolV2InstructionAccounts {
-            whirlpools_config: whirlpools_config.pubkey,
-            token_mint_a: token_mint_a.pubkey,
-            token_mint_b: token_mint_b.pubkey,
-            token_badge_a: token_badge_a.pubkey,
-            token_badge_b: token_badge_b.pubkey,
-            funder: funder.pubkey,
-            whirlpool: whirlpool.pubkey,
-            token_vault_a: token_vault_a.pubkey,
-            token_vault_b: token_vault_b.pubkey,
-            fee_tier: fee_tier.pubkey,
-            token_program_a: token_program_a.pubkey,
-            token_program_b: token_program_b.pubkey,
-            system_program: system_program.pubkey,
-            rent: rent.pubkey,
+            whirlpools_config,
+            token_mint_a,
+            token_mint_b,
+            token_badge_a,
+            token_badge_b,
+            funder,
+            whirlpool,
+            token_vault_a,
+            token_vault_b,
+            fee_tier,
+            token_program_a,
+            token_program_b,
+            system_program,
+            rent,
         })
     }
 }
