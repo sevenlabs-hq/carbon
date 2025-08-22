@@ -61,6 +61,181 @@ pub struct InstructionMetadata {
     pub absolute_path: Vec<u8>,
 }
 
+#[derive(Debug)]
+enum LogType {
+    Start(usize), // stack_height
+    Data,
+    CU,
+    Finish,
+}
+
+impl InstructionMetadata {
+    pub fn extract_logs(&self) -> Vec<String> {
+        let logs = match &self.transaction_metadata.meta.log_messages {
+            Some(logs) => logs,
+            None => return Vec::new(),
+        };
+
+        let mut extracted_logs = Vec::new();
+        let mut current_path: Vec<u8> = vec![];
+        let mut position_counters: Vec<u8> = vec![0]; // Track position at each stack height
+
+        for log in logs {
+            let parsed_log = self.parse_log(log);
+
+            match parsed_log {
+                LogType::Start(stack_height) => {
+                    // Adjust position counters for this stack height
+                    if stack_height > position_counters.len() {
+                        // Going deeper - add new level starting at 0
+                        position_counters.push(0);
+                    } else {
+                        // Same or higher level - increment counter at this level
+                        position_counters[stack_height - 1] += 1;
+                        // Clear deeper levels
+                        position_counters.truncate(stack_height);
+                    }
+
+                    // Update current path from position counters
+                    current_path = position_counters[..stack_height]
+                        .iter()
+                        .map(|&x| x)
+                        .collect();
+                }
+                LogType::Finish => {
+                    // Don't change path during finish processing
+                }
+                LogType::Data | LogType::CU => {
+                    // Don't change path for data/CU logs
+                }
+            }
+
+            // Extract if we're on target path and it's a data log (not CU)
+            if current_path == self.absolute_path {
+                match parsed_log {
+                    LogType::Data => {
+                        extracted_logs.push(log.clone());
+                    }
+                    _ => {} // Skip Start, Finish, and CU logs
+                }
+            }
+
+            // After processing finish, pop the path
+            if let LogType::Finish = parsed_log {
+                current_path.pop();
+            }
+        }
+
+        extracted_logs
+    }
+
+    // /// Extracts only the logs belonging to this specific instruction
+    // pub fn extract_logs(&self) -> Vec<String> {
+    //     let logs = match &self.transaction_metadata.meta.log_messages {
+    //         Some(logs) => logs,
+    //         None => return Vec::new(),
+    //     };
+
+    //     if self.absolute_path.is_empty() {
+    //         return Vec::new();
+    //     }
+
+    //     let mut extracted_logs: Vec<String> = vec![];
+    //     let mut current_ixs_path: Vec<u8> = vec![];
+    //     let mut potential_next: Option<u8> = None;
+
+    //     for log in logs {
+    //         let parsed_log = self.parse_log(log);
+
+    //         match parsed_log {
+    //             LogType::Start(log_stack_height) => {
+    //                 if log_stack_height > current_ixs_path.len() {
+    //                     // New deeper level - add position 0
+    //                     current_ixs_path.push(potential_next.take().unwrap_or(0));
+    //                 } else if log_stack_height == current_ixs_path.len() {
+    //                     potential_next = None;
+    //                     // Same level - increment position
+    //                     if let Some(last) = current_ixs_path.last_mut() {
+    //                         *last += 1;
+    //                     }
+    //                 }
+    //                 // else {
+    //                 //     // Going back to higher level
+    //                 // let target_len = log_stack_height;
+    //                 // current_ixs_path.truncate(target_len);
+
+    //                 //     // Increment position at current level
+    //                 //     if let Some(last) = current_ixs_path.last_mut() {
+    //                 //         *last += 1;
+    //                 //     }
+    //                 // }
+    //             }
+    //             LogType::Finish => {
+    //                 potential_next = current_ixs_path.last().map(|x| x + 1);
+    //                 current_ixs_path.pop();
+    //             }
+    //             _ => {}
+    //         }
+
+    //         // Check if current path matches our target path
+    //         if current_ixs_path.len() == self.absolute_path.len()
+    //             && current_ixs_path == self.absolute_path
+    //         {
+    //             if let LogType::Data = parsed_log {
+    //                 extracted_logs.push(log.clone());
+    //             }
+    //             // if let LogType::Finish = parsed_log {
+    //             //     break;
+    //             // }
+    //         }
+
+    //         // if is_prev_log_finish
+    //         //     && current_ixs_path.len() > 0
+    //         //     && current_ixs_path[..current_ixs_path.len() - 1] == self.absolute_path[..]
+    //         // {
+    //         //     match parsed_log {
+    //         //         LogType::Data => {
+    //         //             extracted_logs.push(log.clone());
+    //         //         }
+    //         //         LogType::Finish => {
+    //         //             extracted_logs.push(log.clone());
+    //         //         }
+    //         //         _ => {}
+    //         //     }
+    //         // }
+    //     }
+
+    //     extracted_logs
+    // }
+
+    /// Parses a log line to determine its type
+    fn parse_log(&self, log: &str) -> LogType {
+        if log.starts_with("Program ") && log.contains(" invoke [") {
+            // Parse: "Program <program_id> invoke [level]"
+            let parts: Vec<&str> = log.split_whitespace().collect();
+            if parts.len() >= 4 && parts[0] == "Program" && parts[2] == "invoke" {
+                let level_str = parts[3].trim_start_matches('[').trim_end_matches(']');
+                if let Ok(level) = level_str.parse::<usize>() {
+                    return LogType::Start(level);
+                }
+            }
+        } else if log.starts_with("Program ")
+            && (log.ends_with(" success") || log.contains(" failed"))
+        {
+            // Parse: "Program <program_id> success" or "Program <program_id> failed"
+            let parts: Vec<&str> = log.split_whitespace().collect();
+            if parts.len() >= 3 && parts[0] == "Program" {
+                return LogType::Finish;
+            }
+        } else if log.contains("consumed") && log.contains("compute units") {
+            return LogType::CU;
+        }
+
+        // Everything else is data (program logs, consumed logs, return logs, etc.)
+        LogType::Data
+    }
+}
+
 pub type InstructionsWithMetadata = Vec<(InstructionMetadata, solana_instruction::Instruction)>;
 
 /// A decoded instruction containing program ID, data, and associated accounts.
