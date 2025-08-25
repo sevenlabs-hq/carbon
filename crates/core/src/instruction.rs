@@ -77,7 +77,7 @@ impl InstructionMetadata {
     /// absolute path within the instruction stack.
     ///
     /// Returns `Vec<Vec<u8>>` containing the `data` bytes (base64 encoded) from log messages.
-    pub fn extract_logs(&self) -> Vec<Vec<u8>> {
+    pub fn extract_event_log_data(&self) -> Vec<Vec<u8>> {
         let logs = match &self.transaction_metadata.meta.log_messages {
             Some(logs) => logs,
             None => return Vec::new(),
@@ -97,13 +97,9 @@ impl InstructionMetadata {
                 LogType::Start(stack_height) => {
                     current_stack_height = stack_height;
 
-                    // If we're at a new level higher than before, initialize at 0
-                    // If we're at same or lower level, increment
                     let current_pos = if stack_height > last_stack_height {
-                        // Going higher - start at 0
                         0
                     } else {
-                        // Same level or going back down - increment from last position
                         position_at_level
                             .get(&stack_height)
                             .map(|&pos| pos + 1)
@@ -114,19 +110,15 @@ impl InstructionMetadata {
                     last_stack_height = stack_height;
                 }
                 LogType::Finish => {
-                    // When finishing, we go back to parent level
                     current_stack_height = current_stack_height.saturating_sub(1);
                 }
-                // No changes for Data/CU
                 _ => {}
             }
 
-            // Build current path from position tracking
             let current_path: Vec<u8> = (1..=current_stack_height)
                 .map(|level| position_at_level.get(&level).copied().unwrap_or(0))
                 .collect();
 
-            // Extract if we're on target path and it's a data log
             if current_path == self.absolute_path && matches!(parsed_log, LogType::Data) {
                 if let Some(data) = log.split_whitespace().last() {
                     if let Ok(buf) =
@@ -144,7 +136,6 @@ impl InstructionMetadata {
     /// Parses a log line to determine its type
     fn parse_log(&self, log: &str) -> LogType {
         if log.starts_with("Program ") && log.contains(" invoke [") {
-            // Parse: "Program <program_id> invoke [level]"
             let parts: Vec<&str> = log.split_whitespace().collect();
             if parts.len() >= 4 && parts[0] == "Program" && parts[2] == "invoke" {
                 let level_str = parts[3].trim_start_matches('[').trim_end_matches(']');
@@ -155,17 +146,14 @@ impl InstructionMetadata {
         } else if log.starts_with("Program ")
             && (log.ends_with(" success") || log.contains(" failed"))
         {
-            // Parse: "Program <program_id> success" or "Program <program_id> failed"
             let parts: Vec<&str> = log.split_whitespace().collect();
             if parts.len() >= 3 && parts[0] == "Program" {
                 return LogType::Finish;
             }
         } else if log.contains("consumed") && log.contains("compute units") {
-            // Parse: Consumed compute units
             return LogType::CU;
         }
 
-        // Everything else is data (program logs, return logs, etc.)
         LogType::Data
     }
 }
@@ -482,17 +470,26 @@ impl UnsafeNestedBuilder {
 #[cfg(test)]
 mod tests {
 
-    use {super::*, solana_instruction::Instruction};
+    use {
+        super::*, solana_instruction::Instruction, solana_transaction_status::TransactionStatusMeta,
+    };
 
     fn create_instruction_with_metadata(
         index: u32,
         stack_height: u32,
+        absolute_path: Vec<u8>,
     ) -> (InstructionMetadata, Instruction) {
         let metadata = InstructionMetadata {
-            transaction_metadata: Arc::default(),
+            transaction_metadata: Arc::new(TransactionMetadata {
+                meta: TransactionStatusMeta {
+                    log_messages: Some(vec!["Program CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK invoke [1]".to_string(), "Program data: QMbN6CYIceLh9Vdh3ndmrpChVVDCYAykCoHLEYdQWNcAxLJNu7nWNHiJzugda0JT2xgyBCWGtm7/oWjb/wT2kcbwA0JRUuwSV88ABSiDPpXudmLYK2jIBhqh3sTXxnR7WMgtjWsyqjga53NruXU9Dj/hyRRE/RQ9xCEh3052KbW6tbtNksNK4HIr+0wAAAAAAAAAAAAAAACz/t2FxQIAAAAAAAAAAAAAACdJpynsFrOoMAAAAAAAAAD4JhBoAxAAAAAAAAAAAAAAhC8BAA==".to_string(), "Program CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK consumed 91799 of 185765 compute units".to_string(), "Program CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK success".to_string()]),
+                    ..Default::default()
+                },
+                ..Default::default()
+            }),
             stack_height,
             index,
-            absolute_path: vec![],
+            absolute_path,
         };
         let instruction = Instruction {
             program_id: Pubkey::new_unique(),
@@ -505,8 +502,8 @@ mod tests {
     #[test]
     fn test_nested_instructions_single_level() {
         let instructions = vec![
-            create_instruction_with_metadata(1, 1),
-            create_instruction_with_metadata(2, 1),
+            create_instruction_with_metadata(1, 1, vec![1]),
+            create_instruction_with_metadata(2, 1, vec![2]),
         ];
         let nested_instructions: NestedInstructions = instructions.into();
         assert_eq!(nested_instructions.len(), 2);
@@ -524,16 +521,33 @@ mod tests {
     #[test]
     fn test_deep_nested_instructions() {
         let instructions = vec![
-            create_instruction_with_metadata(0, 1),
-            create_instruction_with_metadata(0, 1),
-            create_instruction_with_metadata(1, 2),
-            create_instruction_with_metadata(1, 3),
-            create_instruction_with_metadata(1, 3),
-            create_instruction_with_metadata(1, 3),
+            create_instruction_with_metadata(0, 1, vec![0]),
+            create_instruction_with_metadata(0, 1, vec![0]),
+            create_instruction_with_metadata(1, 2, vec![0, 1]),
+            create_instruction_with_metadata(1, 3, vec![0, 1, 1]),
+            create_instruction_with_metadata(1, 3, vec![0, 1, 1]),
+            create_instruction_with_metadata(1, 3, vec![0, 1, 1]),
+            create_instruction_with_metadata(1, 3, vec![0, 1, 1]),
         ];
 
         let nested_instructions: NestedInstructions = instructions.into();
         assert_eq!(nested_instructions.len(), 2);
         assert_eq!(nested_instructions.0[1].inner_instructions.len(), 1);
+    }
+
+    #[test]
+    fn test_extract_event_log_data() {
+        let logs = create_instruction_with_metadata(0, 1, vec![0])
+            .0
+            .extract_event_log_data();
+        assert_eq!(logs.len(), 1);
+        assert_eq!(
+            logs[0],
+            base64::Engine::decode(
+                &base64::engine::general_purpose::STANDARD,
+                "QMbN6CYIceLh9Vdh3ndmrpChVVDCYAykCoHLEYdQWNcAxLJNu7nWNHiJzugda0JT2xgyBCWGtm7/oWjb/wT2kcbwA0JRUuwSV88ABSiDPpXudmLYK2jIBhqh3sTXxnR7WMgtjWsyqjga53NruXU9Dj/hyRRE/RQ9xCEh3052KbW6tbtNksNK4HIr+0wAAAAAAAAAAAAAAACz/t2FxQIAAAAAAAAAAAAAACdJpynsFrOoMAAAAAAAAAD4JhBoAxAAAAAAAAAAAAAAhC8BAA=="
+            )
+            .unwrap()
+        );
     }
 }
