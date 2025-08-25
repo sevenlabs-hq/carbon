@@ -99,19 +99,20 @@ impl Processor for JupiterSwapInstructionProcessor {
         (metadata, instruction, nested_instructions, _): Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        println!("Signature: {:?}", metadata.transaction_metadata.signature);
-        println!(
-            "Processing instruction - Index: {}, Stack Height: {}, Path: {:?}",
-            metadata.index, metadata.stack_height, metadata.absolute_path
-        );
-
         let logs = metadata.extract_logs();
 
-        println!("Extracted {} logs:", logs.len());
-        for (i, log) in logs.iter().enumerate() {
-            println!("  {}: {}", i, log);
+        if !logs.is_empty() {
+            println!("Signature: {:?}", metadata.transaction_metadata.signature);
+            println!(
+                "Processing instruction - Index: {}, Stack Height: {}, Path: {:?}",
+                metadata.index, metadata.stack_height, metadata.absolute_path
+            );
+            println!("Extracted {} logs:", logs.len());
+            for (i, log) in logs.iter().enumerate() {
+                println!("  {}: {}", i, log);
+            }
+            println!("--------------------------------");
         }
-        println!("--------------------------------");
 
         Ok(())
     }
