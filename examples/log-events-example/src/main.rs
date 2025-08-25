@@ -96,7 +96,7 @@ impl Processor for JupiterSwapInstructionProcessor {
     );
     async fn process(
         &mut self,
-        (metadata, instruction, nested_instructions, _): Self::InputType,
+        (metadata, _, _, _): Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let logs = metadata.extract_logs();
