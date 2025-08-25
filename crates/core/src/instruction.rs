@@ -70,6 +70,13 @@ enum LogType {
 }
 
 impl InstructionMetadata {
+    /// Extracts the `data` log messages associated with this instruction.
+    ///
+    /// This method filters the transaction's log messages to return only those
+    /// that correspond to the current instruction, based on its stack height and
+    /// absolute path within the instruction stack.
+    ///
+    /// Returns `Vec<String>` containing the `data` log messages.
     pub fn extract_logs(&self) -> Vec<String> {
         let logs = match &self.transaction_metadata.meta.log_messages {
             Some(logs) => logs,
@@ -108,9 +115,7 @@ impl InstructionMetadata {
                 }
                 LogType::Finish => {
                     // When finishing, we go back to parent level
-                    if current_stack_height > 0 {
-                        current_stack_height -= 1;
-                    }
+                    current_stack_height = current_stack_height.saturating_sub(1);
                 }
                 // No changes for Data/CU
                 _ => {}
