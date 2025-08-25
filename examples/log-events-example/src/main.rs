@@ -1,16 +1,17 @@
 use {
     async_trait::async_trait,
     carbon_core::{
+        borsh::BorshDeserialize,
         error::CarbonResult,
         instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
         metrics::MetricsCollection,
         processor::Processor,
     },
-    carbon_jupiter_swap_decoder::{
-        instructions::JupiterSwapInstruction, JupiterSwapDecoder,
-        PROGRAM_ID as JUPITER_SWAP_PROGRAM_ID,
-    },
     carbon_log_metrics::LogMetrics,
+    carbon_raydium_cpmm_decoder::{
+        instructions::RaydiumCpmmInstruction, types::SwapEvent, RaydiumCpmmDecoder,
+        PROGRAM_ID as RAYDIUM_CPMM_PROGRAM_ID,
+    },
     carbon_yellowstone_grpc_datasource::{
         YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient,
     },
@@ -39,7 +40,7 @@ pub async fn main() -> CarbonResult<()> {
         failed: Some(false),
         account_include: vec![],
         account_exclude: vec![],
-        account_required: vec![JUPITER_SWAP_PROGRAM_ID.to_string().clone()],
+        account_required: vec![RAYDIUM_CPMM_PROGRAM_ID.to_string().clone()],
         signature: None,
     };
 
@@ -75,7 +76,7 @@ pub async fn main() -> CarbonResult<()> {
         .datasource(yellowstone_grpc)
         .metrics(Arc::new(LogMetrics::new()))
         .metrics_flush_interval(3)
-        .instruction(JupiterSwapDecoder, JupiterSwapInstructionProcessor)
+        .instruction(RaydiumCpmmDecoder, RaydiumCpmmInstructionProcessor)
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
         .build()?
         .run()
@@ -84,13 +85,13 @@ pub async fn main() -> CarbonResult<()> {
     Ok(())
 }
 
-pub struct JupiterSwapInstructionProcessor;
+pub struct RaydiumCpmmInstructionProcessor;
 
 #[async_trait]
-impl Processor for JupiterSwapInstructionProcessor {
+impl Processor for RaydiumCpmmInstructionProcessor {
     type InputType = (
         InstructionMetadata,
-        DecodedInstruction<JupiterSwapInstruction>,
+        DecodedInstruction<RaydiumCpmmInstruction>,
         NestedInstructions,
         solana_instruction::Instruction,
     );
@@ -107,9 +108,12 @@ impl Processor for JupiterSwapInstructionProcessor {
                 "Processing instruction - Index: {}, Stack Height: {}, Path: {:?}",
                 metadata.index, metadata.stack_height, metadata.absolute_path
             );
-            println!("Extracted {} logs:", logs.len());
-            for (i, log) in logs.iter().enumerate() {
-                println!("  {}: {}", i, log);
+            for log in logs {
+                if log.len() > 8 {
+                    if let Ok(swap_event) = SwapEvent::deserialize(&mut &log[8..]) {
+                        println!("SwapEvent: {:?}", swap_event);
+                    }
+                }
             }
             println!("--------------------------------");
         }

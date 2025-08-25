@@ -70,14 +70,14 @@ enum LogType {
 }
 
 impl InstructionMetadata {
-    /// Extracts the `data` log messages associated with this instruction.
+    /// Extracts the `data` from log messages associated with this instruction.
     ///
     /// This method filters the transaction's log messages to return only those
     /// that correspond to the current instruction, based on its stack height and
     /// absolute path within the instruction stack.
     ///
-    /// Returns `Vec<String>` containing the `data` log messages.
-    pub fn extract_logs(&self) -> Vec<String> {
+    /// Returns `Vec<Vec<u8>>` containing the `data` bytes (base64 encoded) from log messages.
+    pub fn extract_logs(&self) -> Vec<Vec<u8>> {
         let logs = match &self.transaction_metadata.meta.log_messages {
             Some(logs) => logs,
             None => return Vec::new(),
@@ -128,7 +128,13 @@ impl InstructionMetadata {
 
             // Extract if we're on target path and it's a data log
             if current_path == self.absolute_path && matches!(parsed_log, LogType::Data) {
-                extracted_logs.push(log.clone());
+                if let Some(data) = log.split_whitespace().last() {
+                    if let Ok(buf) =
+                        base64::Engine::decode(&base64::engine::general_purpose::STANDARD, data)
+                    {
+                        extracted_logs.push(buf);
+                    }
+                }
             }
         }
 

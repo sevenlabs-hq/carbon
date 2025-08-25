@@ -1190,6 +1190,7 @@ name = "carbon-core"
 version = "0.9.1"
 dependencies = [
  "async-trait",
+ "base64 0.22.1",
  "borsh 0.10.4",
  "bs58",
  "carbon-macros",
@@ -4208,9 +4209,10 @@ name = "log-events-example"
 version = "0.9.1"
 dependencies = [
  "async-trait",
+ "base64 0.22.1",
  "carbon-core",
- "carbon-jupiter-swap-decoder",
  "carbon-log-metrics",
+ "carbon-raydium-cpmm-decoder",
  "carbon-yellowstone-grpc-datasource",
  "dotenv",
  "env_logger 0.11.8",
