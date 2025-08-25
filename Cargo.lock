@@ -4209,7 +4209,6 @@ name = "log-events-example"
 version = "0.9.1"
 dependencies = [
  "async-trait",
- "base64 0.22.1",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-raydium-cpmm-decoder",
