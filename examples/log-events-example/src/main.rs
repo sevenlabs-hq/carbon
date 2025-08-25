@@ -100,7 +100,7 @@ impl Processor for RaydiumCpmmInstructionProcessor {
         (metadata, _, _, _): Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let logs = metadata.extract_logs();
+        let logs = metadata.extract_event_log_data();
 
         if !logs.is_empty() {
             println!("Signature: {:?}", metadata.transaction_metadata.signature);
