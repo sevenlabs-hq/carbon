@@ -9,6 +9,7 @@ pub mod protocol_admin_state;
 pub mod protocol_config;
 pub mod protocol_owner_state;
 
+#[allow(clippy::large_enum_variant)]
 pub enum HeavenAccount {
     LiquidityPoolState(liquidity_pool_state::LiquidityPoolState),
     MsolTicketSolSpent(msol_ticket_sol_spent::MsolTicketSolSpent),
