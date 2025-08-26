@@ -1,0 +1,20 @@
+[package]
+name = "carbon-heaven-decoder"
+version = "0.9.1"
+description = "Heaven program decoder"
+edition = { workspace = true }
+license = { workspace = true }
+readme = "README.md"
+keywords = ["solana", "decoder", "heaven"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+carbon-core = { workspace = true }
+serde = { workspace = true }
+serde-big-array = { workspace = true }
+solana-account = { workspace = true }
+solana-instruction = { workspace = true, default-features = false }
+solana-pubkey = { workspace = true }
