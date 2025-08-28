@@ -420,6 +420,7 @@ async fn send_subscribe_update_transaction_info(
             slot,
             block_time,
             block_hash: None,
+            index: transaction_info.index,
         }));
         if let Err(e) = sender.try_send((update, id)) {
             log::error!(
