@@ -45,6 +45,7 @@ workspace_crates=(
     carbon-meteora-damm-v2-decoder
     carbon-meteora-dlmm-decoder
     carbon-meteora-pools-decoder
+    carbon-meteora-vault-decoder
     carbon-meteora-dbc-decoder
     carbon-moonshot-decoder
     carbon-mpl-core-decoder
