@@ -279,6 +279,7 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-system-program-decoder`            | System Program Decoder                    | 11111111111111111111111111111111             |
 | `carbon-token-2022-decoder`                | Token 2022 Program Decoder                | TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb  |
 | `carbon-token-program-decoder`             | Token Program Decoder                     | TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA  |
+| `carbon-vertigo-decoder`                   | Vertigo Program Decoder                   | vrTGoBuy5rYSxAfV3jaRJWHH6nN9WK4NRExGxsk1bCJ  |
 | `carbon-virtual-curve-decoder`             | Meteora Virtual Curve Program Decoder     | dbcij3LWUppWqq96dh6gJWwBifmcGfLSB5D4DuSMaqN  |
 | `carbon-virtuals-decoder`                  | Virtuals Program Decoder                  | 5U3EU2ubXtK84QcRjWVmYt9RaDyA8gKxdUrPFXmZyaki |
 | `carbon-wavebreak-decoder`                 | Wavebreak Program Decoder                 | waveQX2yP3H1pVU8djGvEHmYg8uamQ84AuyGtpsrXTF  |
