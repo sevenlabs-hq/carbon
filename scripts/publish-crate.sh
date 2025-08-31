@@ -70,6 +70,7 @@ workspace_crates=(
     carbon-system-program-decoder
     carbon-token-2022-decoder
     carbon-token-program-decoder
+    carbon-vertigo-decoder
     carbon-virtual-curve-decoder
     carbon-virtuals-decoder
     carbon-wavebreak-decoder

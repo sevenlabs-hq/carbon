@@ -1946,6 +1946,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-vertigo-decoder"
+version = "0.9.0"
+dependencies = [
+ "carbon-core",
+ "serde",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey",
+]
+
+[[package]]
 name = "carbon-virtual-curve-decoder"
 version = "0.9.1"
 dependencies = [

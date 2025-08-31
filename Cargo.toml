@@ -98,6 +98,7 @@ carbon-system-program-decoder = { path = "decoders/system-program-decoder", vers
 carbon-test-utils = { path = "crates/test-utils", version = "0.9.1" }
 carbon-token-2022-decoder = { path = "decoders/token-2022-decoder", version = "0.9.1" }
 carbon-token-program-decoder = { path = "decoders/token-program-decoder", version = "0.9.1" }
+carbon-vertigo-decoder = { path = "decoders/vertigo-decoder", version = "0.9.1" }
 carbon-virtual-curve-decoder = { path = "decoders/virtual-curve-decoder", version = "0.9.1" }
 carbon-virtuals-decoder = { path = "decoders/virtuals-decoder", version = "0.9.1" }
 carbon-wavebreak-decoder = { path = "decoders/wavebreak-decoder", version = "0.9.1" }
