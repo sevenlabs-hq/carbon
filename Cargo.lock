@@ -1280,6 +1280,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-heaven-decoder"
+version = "0.9.1"
+dependencies = [
+ "carbon-core",
+ "serde",
+ "serde-big-array",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey",
+]
+
+[[package]]
 name = "carbon-helius-atlas-ws-datasource"
 version = "0.9.1"
 dependencies = [
