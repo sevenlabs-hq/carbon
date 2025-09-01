@@ -1556,6 +1556,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-meteora-vault-decoder"
+version = "0.9.1"
+dependencies = [
+ "carbon-core",
+ "serde",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey",
+]
+
+[[package]]
 name = "carbon-moonshot-decoder"
 version = "0.9.1"
 dependencies = [
