@@ -21,8 +21,8 @@
 
 use {
     crate::{
-        error::CarbonResult, filter::Filter, metrics::MetricsCollection, processor::Processor,
-        transaction::TransactionMetadata,
+        deserialize::CarbonDeserialize, error::CarbonResult, filter::Filter,
+        metrics::MetricsCollection, processor::Processor, transaction::TransactionMetadata,
     },
     async_trait::async_trait,
     serde::{Deserialize, Serialize},
@@ -70,6 +70,23 @@ enum LogType {
 }
 
 impl InstructionMetadata {
+    /// Decodes the log events `T` thrown by this instruction.
+    ///
+    /// # Parameters
+    ///
+    /// - `T`: The event type to decode the logs into.
+    ///
+    /// # Returns
+    ///
+    /// All successfull events of the type `T` decoded from the logs of the instruction.
+    pub fn decode_log_events<T: CarbonDeserialize>(&self) -> Vec<T> {
+        self.extract_event_log_data()
+            .into_iter()
+            .map(|log| <T as CarbonDeserialize>::deserialize(&mut &log[8..]))
+            .flatten()
+            .collect()
+    }
+
     /// Extracts the `data` from log messages associated with this instruction.
     ///
     /// This method filters the transaction's log messages to return only those
@@ -77,7 +94,7 @@ impl InstructionMetadata {
     /// absolute path within the instruction stack.
     ///
     /// Returns `Vec<Vec<u8>>` containing the `data` bytes (base64 encoded) from log messages.
-    pub fn extract_event_log_data(&self) -> Vec<Vec<u8>> {
+    fn extract_event_log_data(&self) -> Vec<Vec<u8>> {
         let logs = match &self.transaction_metadata.meta.log_messages {
             Some(logs) => logs,
             None => return Vec::new(),
