@@ -1694,6 +1694,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-pump-fees-decoder"
+version = "0.9.1"
+dependencies = [
+ "carbon-core",
+ "carbon-test-utils",
+ "serde",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey",
+]
+
+[[package]]
 name = "carbon-pump-swap-decoder"
 version = "0.9.1"
 dependencies = [
