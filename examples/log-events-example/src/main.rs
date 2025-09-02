@@ -1,7 +1,6 @@
 use {
     async_trait::async_trait,
     carbon_core::{
-        borsh::BorshDeserialize,
         error::CarbonResult,
         instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
         metrics::MetricsCollection,
@@ -100,22 +99,10 @@ impl Processor for RaydiumCpmmInstructionProcessor {
         (metadata, _, _, _): Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let logs = metadata.extract_event_log_data();
+        let logs = metadata.decode_log_events::<SwapEvent>();
 
         if !logs.is_empty() {
-            println!("Signature: {:?}", metadata.transaction_metadata.signature);
-            println!(
-                "Processing instruction - Index: {}, Stack Height: {}, Path: {:?}",
-                metadata.index, metadata.stack_height, metadata.absolute_path
-            );
-            for log in logs {
-                if log.len() > 8 {
-                    if let Ok(swap_event) = SwapEvent::deserialize(&mut &log[8..]) {
-                        println!("SwapEvent: {:?}", swap_event);
-                    }
-                }
-            }
-            println!("--------------------------------");
+            println!("Swap Events: {:?}", logs);
         }
 
         Ok(())
