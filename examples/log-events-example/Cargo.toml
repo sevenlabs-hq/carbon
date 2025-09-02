@@ -4,12 +4,12 @@ version = "0.9.1"
 edition = { workspace = true }
 
 [dependencies]
-carbon-core = { workspace = true }
-carbon-raydium-cpmm-decoder = { workspace = true }
-carbon-log-metrics = { workspace = true }
-carbon-yellowstone-grpc-datasource = { workspace = true }
 
 async-trait = { workspace = true }
+carbon-core = { workspace = true }
+carbon-log-metrics = { workspace = true }
+carbon-raydium-cpmm-decoder = { workspace = true }
+carbon-yellowstone-grpc-datasource = { workspace = true }
 dotenv = { workspace = true }
 env_logger = { workspace = true }
 solana-instruction = { workspace = true }

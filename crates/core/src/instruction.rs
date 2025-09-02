@@ -82,8 +82,7 @@ impl InstructionMetadata {
     pub fn decode_log_events<T: CarbonDeserialize>(&self) -> Vec<T> {
         self.extract_event_log_data()
             .into_iter()
-            .map(|log| <T as CarbonDeserialize>::deserialize(&mut &log[8..]))
-            .flatten()
+            .filter_map(|log| <T as CarbonDeserialize>::deserialize(&log[8..]))
             .collect()
     }
 
