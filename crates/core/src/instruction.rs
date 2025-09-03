@@ -74,7 +74,7 @@ impl InstructionMetadata {
     ///
     /// # Parameters
     ///
-    /// - `T`: The event type to decode the logs into.
+    /// - `T`: The event type to decode the instruction's logs into.
     ///
     /// # Returns
     ///
