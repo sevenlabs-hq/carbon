@@ -77,6 +77,7 @@ carbon-phoenix-v1-decoder = { path = "decoders/phoenix-v1-decoder", version = "0
 carbon-postgres-client = { path = "crates/postgres-client", version = "0.9.1" }
 carbon-proc-macros = { path = "crates/proc-macros", version = "0.9.1" }
 carbon-prometheus-metrics = { path = "metrics/prometheus-metrics", version = "0.9.1" }
+carbon-pump-fees-decoder = { path = "decoders/pump-fees-decoder", version = "0.9.1" }
 carbon-pump-swap-decoder = { path = "decoders/pump-swap-decoder", version = "0.9.1" }
 carbon-pumpfun-decoder = { path = "decoders/pumpfun-decoder", version = "0.9.1" }
 carbon-raydium-amm-v4-decoder = { path = "decoders/raydium-amm-v4-decoder", version = "0.9.1" }
