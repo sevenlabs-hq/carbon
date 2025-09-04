@@ -438,6 +438,7 @@ impl Datasource for HeliusWebsocket {
                                                 fee: meta_original.fee,
                                                 pre_balances: meta_original.pre_balances,
                                                 post_balances: meta_original.post_balances,
+                                                cost_units: meta_original.cost_units.map(|cost_units| cost_units),
                                                 inner_instructions: Some(
                                                     meta_original
                                                         .inner_instructions

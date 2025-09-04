@@ -353,6 +353,7 @@ pub fn transaction_metadata_from_original_meta(
         fee: meta_original.fee,
         pre_balances: meta_original.pre_balances,
         post_balances: meta_original.post_balances,
+        cost_units: meta_original.cost_units.map(|cost_units| cost_units),
         inner_instructions: Some(
             meta_original
                 .inner_instructions
@@ -548,6 +549,7 @@ mod tests {
                 3695760,
                 1461600,
             ],
+            cost_units: None,
             inner_instructions: Some(vec![
                 InnerInstructions{
                     index: 1,
@@ -811,6 +813,7 @@ mod tests {
                 934087680,
                 4000000
             ],
+            cost_units: None,
             inner_instructions: Some(vec![
                 InnerInstructions {
                     index: 3,
