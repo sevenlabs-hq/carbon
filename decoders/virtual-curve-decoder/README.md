@@ -1,1 +1,0 @@
-# Carbon Virtual Curve Decoder
