@@ -65,8 +65,16 @@
 use crate::{
     account::AccountMetadata,
     datasource::{AccountDeletion, BlockDetails, DatasourceId},
+    error::CarbonResult,
     instruction::{NestedInstruction, NestedInstructions},
     transaction::TransactionMetadata,
+};
+use async_trait::async_trait;
+use solana_pubkey::Pubkey;
+use solana_signature::Signature;
+use std::{
+    collections::HashSet,
+    sync::{Arc, Mutex},
 };
 
 /// A trait for filtering updates in the carbon-core pipeline.
@@ -120,6 +128,7 @@ use crate::{
 ///     fn filter_account_deletion(&self, _: &DatasourceId, _: &_) -> bool { true }
 /// }
 /// ```
+#[async_trait]
 pub trait Filter {
     /// Filters account updates based on datasource ID and account data.
     ///
@@ -443,5 +452,309 @@ impl Filter for DatasourceFilter {
         _block_details: &BlockDetails,
     ) -> bool {
         self.allowed_datasources.contains(datasource_id)
+    }
+}
+
+/// Deduplication filter for eliminating duplicate updates within the same Solana slot.
+///
+/// This module provides a `DedupFilter` that prevents duplicate processing of updates
+/// that occur within the same slot. The filter maintains state on a per-slot basis,
+/// automatically clearing deduplication data when transitioning to a new slot to
+/// keep memory usage bounded.
+///
+/// # Overview
+///
+/// The deduplication filter tracks unique identifiers for each update type:
+/// - **Account updates**: Deduplicated by `(pubkey, lamports, hashed_data)`
+/// - **Instruction updates**: Deduplicated by transaction `signature` and absolute path.
+///
+/// The filter can operate in two modes:
+/// - **Global deduplication**: Removes duplicates across all datasources
+/// - **Datasource-specific deduplication**: Only removes duplicates within specified datasources
+///
+/// # Examples
+///
+/// Global deduplication across all datasources:
+/// ```
+/// use carbon_core::filter::DedupFilter;
+///
+/// let filter = DedupFilter::new();
+/// ```
+///
+/// Deduplication for specific datasources:
+/// ```
+/// use carbon_core::{datasource::DatasourceId, filter::DedupFilter};
+///
+/// let datasource_ids = vec![
+///     DatasourceId::new_named("mainnet"),
+///     DatasourceId::new_named("backup"),
+/// ];
+/// let filter = DedupFilter::new_for_datasources(datasource_ids);
+/// ```
+///
+/// Using with pipeline builders:
+/// ```
+/// use carbon_core::{datasource::DatasourceId, filter::DedupFilter};
+///
+/// let filter = DedupFilter::new();
+/// let filters = vec![Arc::new(filter) as Arc<dyn Filter>];
+///
+/// // Use with pipeline builder
+/// // pipeline.account_with_filters(decoder, processor, filters);
+/// ```
+
+/// Internal state for tracking deduplicated updates within a single slot.
+///
+/// This structure maintains separate `HashSet` collections for each update type,
+/// allowing efficient O(1) lookup and insertion operations. The collections
+/// store minimal identifying information for each update type to optimize
+/// memory usage while ensuring accurate deduplication.
+#[derive(Debug, Default)]
+struct DedupState {
+    /// Tracks account updates by (pubkey, lamports, data_hash) tuples.
+    ///
+    /// The data hash captures all changes to the account data, ensuring that
+    /// both lamport changes and data-only changes are properly deduplicated.
+    /// Uses Blake3 for fast, secure hashing of account data.
+    accounts: HashSet<(Pubkey, u64, blake3::Hash)>,
+
+    /// Tracks instruction updates by transaction signature and absolute path of the instruction.
+    instructions: HashSet<(Signature, Vec<u8>)>,
+}
+
+/// A filter that eliminates duplicate updates within the same Solana slot.
+///
+/// The `DedupFilter` maintains internal state to track which updates have already
+/// been processed within the current slot. When a new slot is encountered, the
+/// filter automatically clears its state to prevent memory growth and prepare
+/// for the next slot's updates.
+#[derive(Clone)]
+pub struct DedupFilter {
+    /// The current slot being tracked for deduplication.
+    ///
+    /// When a new slot is encountered, the deduplication state is cleared
+    /// and this value is updated to track the new slot.
+    current_slot: Arc<Mutex<Option<u64>>>,
+
+    /// Internal state tracking which updates have been seen in the current slot.
+    dedup_state: Arc<Mutex<DedupState>>,
+
+    /// Optional list of datasource IDs that should participate in deduplication.
+    ///
+    /// If `None`, all datasources are deduplicated together. If `Some(vec)`,
+    /// only updates from the specified datasources will be deduplicated, while
+    /// updates from other datasources will always pass through the filter.
+    allowed_datasources: Option<Vec<DatasourceId>>,
+}
+
+impl DedupFilter {
+    /// Creates a new deduplication filter that operates across all datasources.
+    ///
+    /// This filter will deduplicate updates globally, regardless of which
+    /// datasource they originate from. This is the most common use case when
+    /// you want to ensure no duplicate processing occurs in your pipeline.
+    ///
+    /// # Returns
+    ///
+    /// A new `DedupFilter` configured for global deduplication.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use carbon_core::filter::DedupFilter;
+    ///
+    /// let filter = DedupFilter::new();
+    ///
+    /// // Use with pipeline builder
+    /// let filters = vec![Box::new(filter) as Box<dyn Filter>];
+    /// ```
+    pub fn new() -> Self {
+        Self {
+            current_slot: Arc::new(Mutex::new(None)),
+            dedup_state: Arc::new(Mutex::new(DedupState::default())),
+            allowed_datasources: None,
+        }
+    }
+
+    /// Creates a new deduplication filter for specific datasources.
+    ///
+    /// This filter will only deduplicate updates that come from the specified
+    /// datasources. Updates from other datasources will pass through without
+    /// deduplication. This is useful when you have multiple datasources but
+    /// only want to deduplicate within a subset of them.
+    ///
+    /// # Arguments
+    ///
+    /// * `datasource_ids` - A vector of datasource IDs that should participate
+    ///   in deduplication
+    ///
+    /// # Returns
+    ///
+    /// A new `DedupFilter` configured for datasource-specific deduplication.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use carbon_core::{datasource::DatasourceId, filter::DedupFilter};
+    ///
+    /// let datasource_ids = vec![
+    ///     DatasourceId::new_named("mainnet"),
+    ///     DatasourceId::new_named("backup"),
+    /// ];
+    /// let filter = DedupFilter::new_for_datasources(datasource_ids);
+    ///
+    /// // Use with pipeline builder
+    /// let filters = vec![Arc::new(filter) as Arcs<dyn Filter>];
+    /// ```
+    pub fn new_for_datasources(datasource_ids: Vec<DatasourceId>) -> Self {
+        Self {
+            current_slot: Arc::new(Mutex::new(None)),
+            dedup_state: Arc::new(Mutex::new(DedupState::default())),
+            allowed_datasources: Some(datasource_ids),
+        }
+    }
+
+    /// Checks if the given datasource should participate in deduplication.
+    ///
+    /// Returns `true` if the datasource should be deduplicated based on the
+    /// filter's configuration, or `false` if updates from this datasource
+    /// should pass through without deduplication checks.
+    ///
+    /// # Arguments
+    ///
+    /// * `datasource_id` - The ID of the datasource to check
+    ///
+    /// # Returns
+    ///
+    /// `true` if the datasource participates in deduplication, `false` otherwise.
+    fn should_deduplicate_datasource(&self, datasource_id: &DatasourceId) -> bool {
+        match &self.allowed_datasources {
+            None => true, // Deduplicate all datasources
+            Some(allowed) => allowed.contains(datasource_id),
+        }
+    }
+
+    /// Updates the current slot and clears deduplication state if needed.
+    ///
+    /// This method checks if the provided slot is different from the currently
+    /// tracked slot. If it is, the deduplication state is cleared and the
+    /// current slot is updated. This automatic cleanup ensures memory usage
+    /// remains bounded and aligns with Solana's slot-based block structure.
+    ///
+    /// # Arguments
+    ///
+    /// * `new_slot` - The slot number of the current update
+    ///
+    /// # Thread Safety
+    ///
+    /// This method acquires locks on both the current slot and deduplication
+    /// state. The locks are held briefly to minimize contention.
+    fn update_slot_if_needed(&self, new_slot: u64) -> CarbonResult<()> {
+        let mut current_slot = self
+            .current_slot
+            .lock()
+            .map_err(|e| crate::error::Error::Custom(e.to_string()))?;
+
+        if current_slot.map_or(true, |slot| slot != new_slot) {
+            *current_slot = Some(new_slot);
+            let mut state = self
+                .dedup_state
+                .lock()
+                .map_err(|e| crate::error::Error::Custom(e.to_string()))?;
+            *state = DedupState::default();
+        }
+
+        Ok(())
+    }
+}
+
+impl Filter for DedupFilter {
+    /// Filters account updates based on deduplication state.
+    ///
+    /// This method checks if an account update has already been processed within
+    /// the current slot. Account updates are identified by the combination of
+    /// the account's public key, lamports, and a Blake3 hash of the account data.
+    /// This ensures that both lamport changes and data-only changes are properly
+    /// deduplicated.
+    ///
+    /// Uses Blake3 for hashing account data, which provides excellent performance
+    /// (3-5 GB/s) even for large accounts while maintaining cryptographic security.
+    ///
+    /// # Arguments
+    ///
+    /// * `datasource_id` - The ID of the datasource that produced this update
+    /// * `account_metadata` - Metadata about the account update for the pubkey
+    /// * `account` - The account data used for generating the content hash and lamports
+    ///
+    /// # Returns
+    ///
+    /// `true` if the account update should be processed (not a duplicate or from
+    /// a non-deduplicated datasource), `false` if it should be skipped as a duplicate.
+    fn filter_account(
+        &self,
+        datasource_id: &DatasourceId,
+        account_metadata: &AccountMetadata,
+        account: &solana_account::Account,
+    ) -> bool {
+        if !self.should_deduplicate_datasource(datasource_id) {
+            return true;
+        }
+
+        if let Err(e) = self.update_slot_if_needed(account_metadata.slot) {
+            log::error!("Failed to update slot for account deduplication: {:?}", e);
+            return false;
+        }
+
+        let data_hash = blake3::hash(&account.data);
+        let key = (account_metadata.pubkey, account.lamports, data_hash);
+
+        if let Ok(mut state) = self.dedup_state.lock() {
+            state.accounts.insert(key)
+        } else {
+            log::error!("Failed to lock dedup state for account filtering");
+            return false;
+        }
+    }
+
+    /// Filters instruction updates based on deduplication state.
+    ///
+    /// This method checks if a instruction has already been processed within
+    /// the current slot. Instructions are identified by their tx signature and absolute path (within the txs).
+    ///
+    /// # Arguments
+    ///
+    /// * `datasource_id` - The ID of the datasource that produced this update
+    /// * `nested_instruction` - The instruction containing transaction metadata
+    ///
+    /// # Returns
+    ///
+    /// `true` if the instruction should be processed (not a duplicate or from
+    /// a non-deduplicated datasource), `false` if it should be skipped as a duplicate.
+    fn filter_instruction(
+        &self,
+        datasource_id: &DatasourceId,
+        nested_instruction: &crate::instruction::NestedInstruction,
+    ) -> bool {
+        if !self.should_deduplicate_datasource(datasource_id) {
+            return true;
+        }
+
+        if let Err(e) =
+            self.update_slot_if_needed(nested_instruction.metadata.transaction_metadata.slot)
+        {
+            log::error!("Failed to update slot: {:?}", e);
+            return false;
+        }
+
+        let key = (
+            nested_instruction.metadata.transaction_metadata.signature,
+            nested_instruction.metadata.absolute_path.clone(),
+        );
+        if let Ok(mut state) = self.dedup_state.lock() {
+            state.instructions.insert(key)
+        } else {
+            log::error!("Failed to lock dedup state");
+            return false;
+        }
     }
 }

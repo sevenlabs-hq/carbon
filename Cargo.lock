@@ -1190,6 +1190,7 @@ name = "carbon-core"
 version = "0.9.1"
 dependencies = [
  "async-trait",
+ "blake3",
  "borsh 0.10.4",
  "bs58",
  "carbon-macros",
@@ -1992,18 +1993,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "carbon-virtual-curve-decoder"
-version = "0.9.1"
-dependencies = [
- "carbon-core",
- "serde",
- "serde-big-array",
- "solana-account",
- "solana-instruction",
- "solana-pubkey",
-]
-
-[[package]]
 name = "carbon-virtuals-decoder"
 version = "0.9.1"
 dependencies = [
@@ -2564,6 +2553,27 @@ name = "data-encoding"
 version = "2.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2a2330da5de22e8a3cb63252ce2abb30116bf5265e89c0e01bc17015ce30a476"
+
+[[package]]
+name = "dedup-filtering-carbon-example"
+version = "0.2.1"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "carbon-log-metrics",
+ "carbon-system-program-decoder",
+ "carbon-yellowstone-grpc-datasource",
+ "dotenv",
+ "env_logger 0.11.8",
+ "log",
+ "solana-account",
+ "solana-client",
+ "solana-instruction",
+ "solana-pubkey",
+ "tokio",
+ "tokio-util",
+ "yellowstone-grpc-proto",
+]
 
 [[package]]
 name = "der"
