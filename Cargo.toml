@@ -95,6 +95,7 @@ carbon-solayer-restaking-program-decoder = { path = "decoders/solayer-restaking-
 carbon-stabble-stable-swap-decoder = { path = "decoders/carbon-stabble-stable-swap-decoder", version = "0.9.1" }
 carbon-stabble-weighted-swap-decoder = { path = "decoders/carbon-stabble-weighted-swap-decoder", version = "0.9.1" }
 carbon-stake-program-decoder = { path = "decoders/carbon-stake-program-decoder", version = "0.9.1" }
+carbon-stream-message-datasource = { path = "datasources/stream-message-datasource", version = "0.9.1" }
 carbon-system-program-decoder = { path = "decoders/system-program-decoder", version = "0.9.1" }
 carbon-test-utils = { path = "crates/test-utils", version = "0.9.1" }
 carbon-token-2022-decoder = { path = "decoders/token-2022-decoder", version = "0.9.1" }
@@ -130,9 +131,10 @@ metrics = "0.24.1"
 metrics-exporter-prometheus = "0.16.0"
 paste = "1.0.15"
 proc-macro2 = "1"
-prost = "0.12"
-prost-types = "0.12"
+prost = "0.13.5"
+prost-types = "0.13.5"
 quote = "1.0"
+reqwest = { version = "0.12.22", default-features = false, features = ["json", "rustls-tls"] }
 retry = "2.0.0"
 rust_decimal = { version = "1.36.0", features = ["db-postgres"] }
 serde = { version = "1.0.208", features = ["derive"] }
@@ -142,26 +144,26 @@ sha2 = "0.10.8"
 
 # solana
 solana-account = "~2.2"
-solana-account-decoder = "~2.3"
-solana-account-decoder-client-types = "~2.3"
-solana-client = "~2.3"
+solana-account-decoder = "^2.3.6"
+solana-account-decoder-client-types = "^2.3.6"
+solana-client = "^2.3.6"
 solana-clock = "~2.2"
 solana-commitment-config = "~2.2"
-solana-entry = "~2.3"
+solana-entry = "^2.3.6"
 solana-hash = "~2.3"
 solana-instruction = { version = "~2.3", default-features = false }
-solana-message = "~2.4"
+solana-message = "^2.3.6"
 solana-native-token = "~2.3"
-solana-program = "~2.3"
+solana-program = "~2.2"
 solana-program-pack = "~2.2"
-solana-pubkey = { version = "~2.4", features = ["serde", "borsh", "curve25519"] }
+solana-pubkey = { version = "^2.3.6", features = ["serde", "borsh", "curve25519"] }
 solana-signature = { version = "~2.3", features = ["rand"] }
 solana-transaction = "~2.2"
-solana-transaction-context = "~2.3"
-solana-transaction-status = "~2.3"
-spl-memo = "5.0.0"
-spl-token = "6.0.0"
+solana-transaction-context = "^2.3.6"
+solana-transaction-status = "^2.3.6"
 
+spl-memo = "6.0.0"
+spl-token = "7.0.0"
 sqlx = { version = "0.8.5", features = [
     "macros",
     "runtime-tokio-rustls",
@@ -173,15 +175,15 @@ sqlx = { version = "0.8.5", features = [
 sqlx_migrator = { version = "0.17.0", features = ["postgres"] }
 syn = { version = "1.0", features = ["full"] }
 thiserror = { version = "2.0.12", default-features = false }
-tokio = { version = "1.43.0", features = ["rt", "time", "signal", "macros"] }
+tokio = { version = "1.45.0", features = ["rt", "time", "signal", "macros"] }
 tokio-retry = "0.3.0"
-tokio-util = "0.7.13"
-tonic = { version = "0.10", features = ["tls", "tls-roots", "tls-webpki-roots"] }
-tonic-build = "0.10"
+tokio-util = "0.7.15"
+tonic = { version = "0.13.1", features = [ "tls-native-roots", "tls-webpki-roots" ] }
+tonic-build = "0.13.1"
 unicode-xid = "0.2"
 uuid = { version = "1.6.1", features = ["serde", "v7"] }
-yellowstone-grpc-client = { version = "~9" }
-yellowstone-grpc-proto = { version = "~9" }
+yellowstone-grpc-client = { version = "9.0.0" }
+yellowstone-grpc-proto = { version = "9.0.0", features = ["convert"] }
 
 [patch.crates-io.curve25519-dalek]
 git = "https://github.com/anza-xyz/curve25519-dalek.git"

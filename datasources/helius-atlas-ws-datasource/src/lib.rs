@@ -438,7 +438,6 @@ impl Datasource for HeliusWebsocket {
                                                 fee: meta_original.fee,
                                                 pre_balances: meta_original.pre_balances,
                                                 post_balances: meta_original.post_balances,
-                                                cost_units: meta_original.cost_units.map(|cost_units| cost_units),
                                                 inner_instructions: Some(
                                                     meta_original
                                                         .inner_instructions
@@ -588,6 +587,7 @@ impl Datasource for HeliusWebsocket {
                                                     .compute_units_consumed
                                                     .map(|compute_unit_consumed| compute_unit_consumed)
                                                     .or(None),
+                                                cost_units: meta_original.cost_units.into(),
                                             };
 
                                             let update = Update::Transaction(Box::new(TransactionUpdate {
