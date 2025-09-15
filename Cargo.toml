@@ -118,10 +118,7 @@ flate2 = "1.0.35"
 futures = "0.3.30"
 futures-util = "0.3.31"
 heck = "0.5.0"
-# Took commit  "missing json feature of reqwest"
-# https://github.com/helius-labs/helius-rust-sdk/commit/91d3584c1d68574ea2ef42ba25f049416014106a
-# This fix has already been merged into the dev branch but there is no new release yet
-helius = { git = "https://github.com/helius-labs/helius-rust-sdk.git", rev = "91d3584c1d68574ea2ef42ba25f049416014106a" }
+helius = { version = "0.3.1" }
 hex = "0.4.3"
 indicatif = "0.17.8"
 inquire = "0.7.5"
