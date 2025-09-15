@@ -502,33 +502,7 @@ impl Filter for DatasourceFilter {
 /// // Use with pipeline builder
 /// // pipeline.account_with_filters(decoder, processor, filters);
 /// ```
-
-/// Internal state for tracking deduplicated updates within a single slot.
-///
-/// This structure maintains separate `HashSet` collections for each update type,
-/// allowing efficient O(1) lookup and insertion operations. The collections
-/// store minimal identifying information for each update type to optimize
-/// memory usage while ensuring accurate deduplication.
-#[derive(Debug, Default)]
-struct DedupState {
-    /// Tracks account updates by (pubkey, lamports, data_hash) tuples.
-    ///
-    /// The data hash captures all changes to the account data, ensuring that
-    /// both lamport changes and data-only changes are properly deduplicated.
-    /// Uses Blake3 for fast, secure hashing of account data.
-    accounts: HashSet<(Pubkey, u64, blake3::Hash)>,
-
-    /// Tracks instruction updates by transaction signature and absolute path of the instruction.
-    instructions: HashSet<(Signature, Vec<u8>)>,
-}
-
-/// A filter that eliminates duplicate updates within the same Solana slot.
-///
-/// The `DedupFilter` maintains internal state to track which updates have already
-/// been processed within the current slot. When a new slot is encountered, the
-/// filter automatically clears its state to prevent memory growth and prepare
-/// for the next slot's updates.
-#[derive(Clone)]
+#[derive(Clone, Default)]
 pub struct DedupFilter {
     /// The current slot being tracked for deduplication.
     ///
@@ -548,34 +522,6 @@ pub struct DedupFilter {
 }
 
 impl DedupFilter {
-    /// Creates a new deduplication filter that operates across all datasources.
-    ///
-    /// This filter will deduplicate updates globally, regardless of which
-    /// datasource they originate from. This is the most common use case when
-    /// you want to ensure no duplicate processing occurs in your pipeline.
-    ///
-    /// # Returns
-    ///
-    /// A new `DedupFilter` configured for global deduplication.
-    ///
-    /// # Examples
-    ///
-    /// ```
-    /// use carbon_core::filter::DedupFilter;
-    ///
-    /// let filter = DedupFilter::new();
-    ///
-    /// // Use with pipeline builder
-    /// let filters = vec![Box::new(filter) as Box<dyn Filter>];
-    /// ```
-    pub fn new() -> Self {
-        Self {
-            current_slot: Arc::new(Mutex::new(None)),
-            dedup_state: Arc::new(Mutex::new(DedupState::default())),
-            allowed_datasources: None,
-        }
-    }
-
     /// Creates a new deduplication filter for specific datasources.
     ///
     /// This filter will only deduplicate updates that come from the specified
@@ -668,6 +614,25 @@ impl DedupFilter {
     }
 }
 
+/// Internal state for tracking deduplicated updates within a single slot.
+///
+/// This structure maintains separate `HashSet` collections for each update type,
+/// allowing efficient O(1) lookup and insertion operations. The collections
+/// store minimal identifying information for each update type to optimize
+/// memory usage while ensuring accurate deduplication.
+#[derive(Debug, Default)]
+struct DedupState {
+    /// Tracks account updates by (pubkey, lamports, data_hash) tuples.
+    ///
+    /// The data hash captures all changes to the account data, ensuring that
+    /// both lamport changes and data-only changes are properly deduplicated.
+    /// Uses Blake3 for fast, secure hashing of account data.
+    accounts: HashSet<(Pubkey, u64, blake3::Hash)>,
+
+    /// Tracks instruction updates by transaction signature and absolute path of the instruction.
+    instructions: HashSet<(Signature, Vec<u8>)>,
+}
+
 impl Filter for DedupFilter {
     /// Filters account updates based on deduplication state.
     ///
@@ -712,7 +677,7 @@ impl Filter for DedupFilter {
             state.accounts.insert(key)
         } else {
             log::error!("Failed to lock dedup state for account filtering");
-            return false;
+            false
         }
     }
 
@@ -754,7 +719,7 @@ impl Filter for DedupFilter {
             state.instructions.insert(key)
         } else {
             log::error!("Failed to lock dedup state");
-            return false;
+            false
         }
     }
 }
