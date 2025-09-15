@@ -5,6 +5,7 @@ use crate::PROGRAM_ID;
 
 use super::PumpSwapDecoder;
 pub mod bonding_curve;
+pub mod fee_config;
 pub mod global_config;
 pub mod global_volume_accumulator;
 pub mod pool;
@@ -12,6 +13,7 @@ pub mod user_volume_accumulator;
 
 pub enum PumpSwapAccount {
     BondingCurve(bonding_curve::BondingCurve),
+    FeeConfig(fee_config::FeeConfig),
     GlobalConfig(global_config::GlobalConfig),
     GlobalVolumeAccumulator(global_volume_accumulator::GlobalVolumeAccumulator),
     Pool(pool::Pool),
@@ -34,6 +36,16 @@ impl AccountDecoder<'_> for PumpSwapDecoder {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
                 data: PumpSwapAccount::BondingCurve(decoded_account),
+                owner: account.owner,
+                executable: account.executable,
+                rent_epoch: account.rent_epoch,
+            });
+        }
+
+        if let Some(decoded_account) = fee_config::FeeConfig::deserialize(account.data.as_slice()) {
+            return Some(carbon_core::account::DecodedAccount {
+                lamports: account.lamports,
+                data: PumpSwapAccount::FeeConfig(decoded_account),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

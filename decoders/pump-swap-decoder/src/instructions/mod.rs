@@ -9,6 +9,8 @@ pub mod buy;
 pub mod buy_event;
 pub mod claim_token_incentives;
 pub mod claim_token_incentives_event;
+pub mod close_user_volume_accumulator;
+pub mod close_user_volume_accumulator_event;
 pub mod collect_coin_creator_fee;
 pub mod collect_coin_creator_fee_event;
 pub mod create_config;
@@ -21,6 +23,8 @@ pub mod disable;
 pub mod disable_event;
 pub mod extend_account;
 pub mod extend_account_event;
+pub mod init_user_volume_accumulator;
+pub mod init_user_volume_accumulator_event;
 pub mod sell;
 pub mod sell_event;
 pub mod set_bonding_curve_coin_creator_event;
@@ -50,12 +54,14 @@ pub enum PumpSwapInstruction {
     AdminUpdateTokenIncentives(admin_update_token_incentives::AdminUpdateTokenIncentives),
     Buy(buy::Buy),
     ClaimTokenIncentives(claim_token_incentives::ClaimTokenIncentives),
+    CloseUserVolumeAccumulator(close_user_volume_accumulator::CloseUserVolumeAccumulator),
     CollectCoinCreatorFee(collect_coin_creator_fee::CollectCoinCreatorFee),
     CreateConfig(create_config::CreateConfig),
     CreatePool(create_pool::CreatePool),
     Deposit(deposit::Deposit),
     Disable(disable::Disable),
     ExtendAccount(extend_account::ExtendAccount),
+    InitUserVolumeAccumulator(init_user_volume_accumulator::InitUserVolumeAccumulator),
     Sell(sell::Sell),
     SetCoinCreator(set_coin_creator::SetCoinCreator),
     SyncUserVolumeAccumulator(sync_user_volume_accumulator::SyncUserVolumeAccumulator),
@@ -68,12 +74,18 @@ pub enum PumpSwapInstruction {
     ),
     BuyEvent(buy_event::BuyEvent),
     ClaimTokenIncentivesEvent(claim_token_incentives_event::ClaimTokenIncentivesEvent),
+    CloseUserVolumeAccumulatorEvent(
+        close_user_volume_accumulator_event::CloseUserVolumeAccumulatorEvent,
+    ),
     CollectCoinCreatorFeeEvent(collect_coin_creator_fee_event::CollectCoinCreatorFeeEvent),
     CreateConfigEvent(create_config_event::CreateConfigEvent),
     CreatePoolEvent(create_pool_event::CreatePoolEvent),
     DepositEvent(deposit_event::DepositEvent),
     DisableEvent(disable_event::DisableEvent),
     ExtendAccountEvent(extend_account_event::ExtendAccountEvent),
+    InitUserVolumeAccumulatorEvent(
+        init_user_volume_accumulator_event::InitUserVolumeAccumulatorEvent,
+    ),
     SellEvent(sell_event::SellEvent),
     SetBondingCurveCoinCreatorEvent(
         set_bonding_curve_coin_creator_event::SetBondingCurveCoinCreatorEvent,
@@ -102,12 +114,14 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpSwapDecoder {
             PumpSwapInstruction::AdminUpdateTokenIncentives => admin_update_token_incentives::AdminUpdateTokenIncentives,
             PumpSwapInstruction::Buy => buy::Buy,
             PumpSwapInstruction::ClaimTokenIncentives => claim_token_incentives::ClaimTokenIncentives,
+            PumpSwapInstruction::CloseUserVolumeAccumulator => close_user_volume_accumulator::CloseUserVolumeAccumulator,
             PumpSwapInstruction::CollectCoinCreatorFee => collect_coin_creator_fee::CollectCoinCreatorFee,
             PumpSwapInstruction::CreateConfig => create_config::CreateConfig,
             PumpSwapInstruction::CreatePool => create_pool::CreatePool,
             PumpSwapInstruction::Deposit => deposit::Deposit,
             PumpSwapInstruction::Disable => disable::Disable,
             PumpSwapInstruction::ExtendAccount => extend_account::ExtendAccount,
+            PumpSwapInstruction::InitUserVolumeAccumulator => init_user_volume_accumulator::InitUserVolumeAccumulator,
             PumpSwapInstruction::Sell => sell::Sell,
             PumpSwapInstruction::SetCoinCreator => set_coin_creator::SetCoinCreator,
             PumpSwapInstruction::SyncUserVolumeAccumulator => sync_user_volume_accumulator::SyncUserVolumeAccumulator,
@@ -118,12 +132,14 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpSwapDecoder {
             PumpSwapInstruction::AdminUpdateTokenIncentivesEvent => admin_update_token_incentives_event::AdminUpdateTokenIncentivesEvent,
             PumpSwapInstruction::BuyEvent => buy_event::BuyEvent,
             PumpSwapInstruction::ClaimTokenIncentivesEvent => claim_token_incentives_event::ClaimTokenIncentivesEvent,
+            PumpSwapInstruction::CloseUserVolumeAccumulatorEvent => close_user_volume_accumulator_event::CloseUserVolumeAccumulatorEvent,
             PumpSwapInstruction::CollectCoinCreatorFeeEvent => collect_coin_creator_fee_event::CollectCoinCreatorFeeEvent,
             PumpSwapInstruction::CreateConfigEvent => create_config_event::CreateConfigEvent,
             PumpSwapInstruction::CreatePoolEvent => create_pool_event::CreatePoolEvent,
             PumpSwapInstruction::DepositEvent => deposit_event::DepositEvent,
             PumpSwapInstruction::DisableEvent => disable_event::DisableEvent,
             PumpSwapInstruction::ExtendAccountEvent => extend_account_event::ExtendAccountEvent,
+            PumpSwapInstruction::InitUserVolumeAccumulatorEvent => init_user_volume_accumulator_event::InitUserVolumeAccumulatorEvent,
             PumpSwapInstruction::SellEvent => sell_event::SellEvent,
             PumpSwapInstruction::SetBondingCurveCoinCreatorEvent => set_bonding_curve_coin_creator_event::SetBondingCurveCoinCreatorEvent,
             PumpSwapInstruction::SetMetaplexCoinCreatorEvent => set_metaplex_coin_creator_event::SetMetaplexCoinCreatorEvent,
