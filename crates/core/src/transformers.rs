@@ -549,6 +549,7 @@ mod tests {
                 3695760,
                 1461600,
             ],
+            cost_units: None,
             inner_instructions: Some(vec![
                 InnerInstructions{
                     index: 1,
@@ -683,7 +684,6 @@ mod tests {
             },
             return_data: None,
             compute_units_consumed: Some(44850),
-            cost_units: None,
         };
         // Act
         let tx_meta_status =
@@ -813,6 +813,7 @@ mod tests {
                 934087680,
                 4000000
             ],
+            cost_units: None,
             inner_instructions: Some(vec![
                 InnerInstructions {
                     index: 3,
@@ -1086,7 +1087,6 @@ mod tests {
             },
             return_data: None,
             compute_units_consumed: Some(123511),
-            cost_units: None,
         };
 
         // Act
