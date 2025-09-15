@@ -8,7 +8,7 @@ fn main() {
     }
 
     configure()
-        .compile(
+        .compile_protos(
             &[
                 "protos/auth.proto",
                 "protos/shared.proto",
