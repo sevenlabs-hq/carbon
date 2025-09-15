@@ -1,6 +1,6 @@
 [package]
 name = "carbon-boop-decoder"
-version = "0.9.1"
+version = "0.10.0"
 description = "Boop program decoder"
 edition = { workspace = true }
 license = { workspace = true }
