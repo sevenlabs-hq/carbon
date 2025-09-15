@@ -1076,6 +1076,7 @@ name = "carbon-core"
 version = "0.9.1"
 dependencies = [
  "async-trait",
+ "base64 0.22.1",
  "borsh 0.10.4",
  "bs58",
  "carbon-macros",
@@ -4150,6 +4151,23 @@ name = "log"
 version = "0.4.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "13dc2df351e3202783a1fe0d44375f7295ffb4049267b0f3018346dc122a1d94"
+
+[[package]]
+name = "log-events-example"
+version = "0.9.1"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "carbon-log-metrics",
+ "carbon-raydium-cpmm-decoder",
+ "carbon-yellowstone-grpc-datasource",
+ "dotenv",
+ "env_logger 0.11.8",
+ "rustls 0.23.27",
+ "solana-instruction",
+ "tokio",
+ "yellowstone-grpc-proto",
+]
 
 [[package]]
 name = "lru-slab"
