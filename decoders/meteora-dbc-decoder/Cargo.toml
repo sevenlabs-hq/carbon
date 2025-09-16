@@ -1,6 +1,8 @@
 [package]
 name = "carbon-meteora-dbc-decoder"
 version = "0.10.0"
+license = "MIT"
+description = "Meteora DBC Decoder"
 edition = { workspace = true }
 
 [lib]
