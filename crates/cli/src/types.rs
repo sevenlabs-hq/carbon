@@ -1,7 +1,7 @@
 use {
     crate::{
         idl::{Idl, IdlEnumField},
-        legacy_idl::{LegacyIdl, LegacyIdlEnumField, LegacyIdlEnumFields, LegacyIdlType},
+        legacy_idl::{LegacyIdl, LegacyIdlEnumField, LegacyIdlEnumFields},
         util::{idl_type_to_rust_type, is_big_array},
     },
     askama::Template,
@@ -191,22 +191,66 @@ pub fn process_types(idl: &Idl) -> Vec<TypeData> {
                 kind = TypeKind::TupleStruct;
                 if let Some(ref fields_vec) = idl_type_def.type_.fields {
                     for field in fields_vec {
-                        let rust_type = idl_type_to_rust_type(&field.type_);
-                        if rust_type.1 {
-                            requires_imports = true;
-                        }
-                        let is_pubkey = rust_type.0.contains("Pubkey");
-                        let attributes = if is_big_array(&rust_type.0) {
-                            Some("#[serde(with = \"serde_big_array::BigArray\")]".to_string())
-                        } else {
-                            None
+                        match field {
+                            IdlEnumField::Named(field) => {
+                                let rust_type = idl_type_to_rust_type(&field.type_);
+                                if rust_type.1 {
+                                    requires_imports = true;
+                                }
+                                let is_pubkey = rust_type.0.contains("Pubkey");
+                                let attributes = if is_big_array(&rust_type.0) {
+                                    Some(
+                                        "#[serde(with = \"serde_big_array::BigArray\")]"
+                                            .to_string(),
+                                    )
+                                } else {
+                                    None
+                                };
+                                fields.push(FieldData {
+                                    name: field.name.to_snake_case(),
+                                    rust_type: rust_type.0,
+                                    is_pubkey,
+                                    attributes,
+                                });
+                            }
+                            IdlEnumField::Tuple(field) => {
+                                let rust_type = idl_type_to_rust_type(field);
+                                if rust_type.1 {
+                                    requires_imports = true;
+                                }
+                                let is_pubkey = rust_type.0.contains("Pubkey");
+                                let attributes = if is_big_array(&rust_type.0) {
+                                    Some(
+                                        "#[serde(with = \"serde_big_array::BigArray\")]"
+                                            .to_string(),
+                                    )
+                                } else {
+                                    None
+                                };
+                                fields.push(FieldData {
+                                    name: rust_type.0.to_snake_case(),
+                                    rust_type: rust_type.0,
+                                    is_pubkey,
+                                    attributes,
+                                });
+                            }
                         };
+<<<<<<< HEAD
                         fields.push(FieldData {
                             name: rust_type.0.to_snake_case(),
                             rust_type: rust_type.0,
                             is_pubkey,
                             attributes,
                         });
+||||||| parent of 12b060bf (feat: support defined type with idltype in fields)
+                        fields.push(FieldData {
+                            name: field.name.to_snake_case(),
+                            rust_type: rust_type.0,
+                            is_pubkey,
+                            attributes,
+                        });
+=======
+>>>>>>> 12b060bf (feat: support defined type with idltype in fields)
                     }
                 }
             }
