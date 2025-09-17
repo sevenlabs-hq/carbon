@@ -1,4 +1,4 @@
-use crate::types::OptionBool;
+// use crate::types::OptionBool;
 use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
@@ -8,7 +8,7 @@ use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 pub struct Buy {
     pub base_amount_out: u64,
     pub max_quote_amount_in: u64,
-    pub track_volume: OptionBool,
+    // pub track_volume: OptionBool,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
