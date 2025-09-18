@@ -5,13 +5,14 @@ use crate::PROGRAM_ID;
 
 use super::PumpfunDecoder;
 pub mod bonding_curve;
+pub mod fee_config;
 pub mod global;
 pub mod global_volume_accumulator;
 pub mod user_volume_accumulator;
 
-#[allow(clippy::large_enum_variant)]
 pub enum PumpfunAccount {
     BondingCurve(bonding_curve::BondingCurve),
+    FeeConfig(fee_config::FeeConfig),
     Global(global::Global),
     GlobalVolumeAccumulator(global_volume_accumulator::GlobalVolumeAccumulator),
     UserVolumeAccumulator(user_volume_accumulator::UserVolumeAccumulator),
@@ -33,6 +34,16 @@ impl AccountDecoder<'_> for PumpfunDecoder {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
                 data: PumpfunAccount::BondingCurve(decoded_account),
+                owner: account.owner,
+                executable: account.executable,
+                rent_epoch: account.rent_epoch,
+            });
+        }
+
+        if let Some(decoded_account) = fee_config::FeeConfig::deserialize(account.data.as_slice()) {
+            return Some(carbon_core::account::DecodedAccount {
+                lamports: account.lamports,
+                data: PumpfunAccount::FeeConfig(decoded_account),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
