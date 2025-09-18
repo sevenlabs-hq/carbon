@@ -1,5 +1,6 @@
 use {
     crate::legacy_idl::{LegacyIdlEnumFields, LegacyIdlType},
+    serde::de::{self, Deserializer},
     serde::{Deserialize, Serialize},
 };
 
@@ -127,13 +128,96 @@ pub struct IdlTypeDefinition {
     pub type_: IdlTypeDefinitionTy,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize)]
 pub struct IdlTypeDefinitionTy {
     pub kind: String,
     #[serde(default)]
     pub fields: Option<Vec<IdlEnumField>>,
     #[serde(default)]
     pub variants: Option<Vec<IdlEnumVariant>>,
+}
+
+impl<'de> Deserialize<'de> for IdlTypeDefinitionTy {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: Deserializer<'de>,
+    {
+        #[derive(Deserialize, Debug)]
+        struct Helper {
+            kind: String,
+            #[serde(default)]
+            fields: Option<Vec<IdlTypeDefinitionField>>,
+            #[serde(default)]
+            variants: Option<Vec<IdlEnumVariant>>,
+        }
+
+        fn is_primish(t: &LegacyIdlType) -> bool {
+            match t {
+                LegacyIdlType::Primitive(s) => matches!(
+                    s.as_str(),
+                    "bool"
+                        | "u8"
+                        | "i8"
+                        | "u16"
+                        | "i16"
+                        | "u32"
+                        | "i32"
+                        | "u64"
+                        | "i64"
+                        | "u128"
+                        | "i128"
+                        | "f32"
+                        | "f64"
+                        | "bytes"
+                        | "string"
+                        | "pubkey"
+                        | "publicKey"
+                ),
+                LegacyIdlType::OptionPrimitive { .. } => true,
+                _ => false,
+            }
+        }
+
+        let mut helper = Helper::deserialize(deserializer)?;
+
+        if helper.kind == "struct" {
+            println!("fields: {:#?}", helper);
+            if let Some(fields) = &helper.fields {
+                let mut any_named = false;
+                let mut any_primish = false;
+
+                println!("fields: {:#?}", fields);
+                // for f in fields {
+                //     match f {
+                //         IdlTypeDefinitionField::Tuple(type_) => {
+                //             if is_primish(type_) {
+                //                 any_primish = true;
+                //             } else {
+                //                 any_named = true;
+                //             }
+                //         }
+                //         _ => {
+                //             any_named = true;
+                //         }
+                //     }
+                // }
+
+                if any_primish && !any_named {
+                    helper.kind = "tuple_struct".to_owned();
+                } else if any_named && any_primish {
+                    return Err(de::Error::custom(
+                        "for kind=\"struct\", fields must be either all Primitive/OptionPrimitive (→ tuple_struct) or all proper Named struct fields",
+                    ));
+                }
+            }
+        }
+
+        Ok(IdlTypeDefinitionTy {
+            kind: helper.kind,
+            fields: helper.fields,
+            variants: helper.variants,
+        })
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

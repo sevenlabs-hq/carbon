@@ -1,7 +1,7 @@
 use {
     crate::{
         idl::{Idl, IdlEnumField},
-        legacy_idl::{LegacyIdl, LegacyIdlEnumField, LegacyIdlEnumFields},
+        legacy_idl::{LegacyIdl, LegacyIdlEnumField, LegacyIdlEnumFields, LegacyIdlType},
         util::{idl_type_to_rust_type, is_big_array},
     },
     askama::Template,
@@ -21,6 +21,7 @@ pub struct TypeData {
 #[derive(Debug, PartialEq, Eq)]
 pub enum TypeKind {
     Struct,
+    TupleStruct,
     Enum(Vec<EnumVariantData>),
 }
 
@@ -186,6 +187,29 @@ pub fn process_types(idl: &Idl) -> Vec<TypeData> {
         let mut kind = TypeKind::Struct;
 
         match idl_type_def.type_.kind.as_str() {
+            "tuple_struct" => {
+                kind = TypeKind::TupleStruct;
+                if let Some(ref fields_vec) = idl_type_def.type_.fields {
+                    for field in fields_vec {
+                        let rust_type = idl_type_to_rust_type(&field.type_);
+                        if rust_type.1 {
+                            requires_imports = true;
+                        }
+                        let is_pubkey = rust_type.0.contains("Pubkey");
+                        let attributes = if is_big_array(&rust_type.0) {
+                            Some("#[serde(with = \"serde_big_array::BigArray\")]".to_string())
+                        } else {
+                            None
+                        };
+                        fields.push(FieldData {
+                            name: rust_type.0.to_snake_case(),
+                            rust_type: rust_type.0,
+                            is_pubkey,
+                            attributes,
+                        });
+                    }
+                }
+            }
             "struct" => {
                 if let Some(ref fields_vec) = idl_type_def.type_.fields {
                     for field in fields_vec {
