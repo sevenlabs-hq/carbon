@@ -1,0 +1,30 @@
+[package]
+name = "carbon-helius-laserstream-datasource"
+description = "Helius Laserstream Datasource with automatic reconnection and slot replay"
+license = { workspace = true }
+version = "0.10.0"
+edition = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "indexer", "laserstream", "datasource", "helius"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+solana-account = { workspace = true }
+solana-program = { workspace = true }
+solana-pubkey = { workspace = true }
+solana-signature = { workspace = true }
+
+carbon-core = { workspace = true }
+
+async-trait = { workspace = true }
+futures = { workspace = true }
+log = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tokio-util = { workspace = true }
+uuid = { workspace = true }
+yellowstone-grpc-client = { workspace = true }
+yellowstone-grpc-proto = { workspace = true }
