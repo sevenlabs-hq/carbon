@@ -24,9 +24,10 @@ solana-signature = { workspace = true }
 solana-transaction = { workspace = true }
 solana-transaction-context = { workspace = true }
 solana-transaction-status = { workspace = true }
+solana-transaction-status-client-types = { workspace = true }
 
 async-trait = { workspace = true }
-borsh = { version = "0.10.4" }
+borsh = { workspace = true }
 bs58 = { workspace = true }
 base64 = { workspace = true }
 log = { workspace = true }
