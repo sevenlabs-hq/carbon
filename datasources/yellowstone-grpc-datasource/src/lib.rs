@@ -325,7 +325,7 @@ async fn send_subscribe_account_update_info(
 
         if account.lamports == 0
             && account.data.is_empty()
-            && account_owner_pubkey == solana_program::system_program::ID
+            && account_owner_pubkey == solana_system_interface::program::ID
         {
             let accounts = account_deletions_tracked.read().await;
             if accounts.contains(&account_pubkey) {
@@ -414,8 +414,8 @@ async fn send_subscribe_update_transaction_info(
         };
         let update = Update::Transaction(Box::new(TransactionUpdate {
             signature,
-            transaction: versioned_transaction,
-            meta: meta_original,
+            transaction: carbon_legacy::versioned_transaction::to_modern(versioned_transaction),
+            meta: carbon_legacy::transaction_status_meta::to_modern(meta_original),
             is_vote: transaction_info.is_vote,
             slot,
             block_time,

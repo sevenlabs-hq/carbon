@@ -1,5 +1,3 @@
-#![no_std]
-
 use solana_pubkey::Pubkey;
 
 pub struct PumpSwapDecoder;

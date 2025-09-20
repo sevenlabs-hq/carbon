@@ -15,6 +15,7 @@ macros = ["carbon-macros", "carbon-proc-macros"]
 
 [dependencies]
 solana-account = { workspace = true }
+solana-account-decoder-client-types = { workspace = true }
 solana-hash = { workspace = true }
 solana-instruction = { workspace = true, default-features = false }
 solana-message = { workspace = true }
@@ -26,7 +27,7 @@ solana-transaction-context = { workspace = true }
 solana-transaction-status = { workspace = true }
 
 async-trait = { workspace = true }
-borsh = { version = "0.10.4" }
+borsh = { workspace = true }
 bs58 = { workspace = true }
 base64 = { workspace = true }
 log = { workspace = true }
@@ -46,4 +47,3 @@ crate-type = ["rlib"]
 
 [dev-dependencies]
 carbon-test-utils = { workspace = true }
-solana-account-decoder-client-types = { workspace = true }

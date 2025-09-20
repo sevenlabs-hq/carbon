@@ -17,7 +17,7 @@ impl AccountDecoder<'_> for SystemProgramDecoder {
         &self,
         account: &solana_account::Account,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
-        if !account.owner.eq(&solana_program::system_program::id()) {
+        if !account.owner.eq(&solana_system_interface::program::id()) {
             return None;
         }
 

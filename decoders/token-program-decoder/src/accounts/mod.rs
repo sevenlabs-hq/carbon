@@ -2,7 +2,7 @@ use {
     crate::TokenProgramDecoder,
     carbon_core::account::{AccountDecoder, DecodedAccount},
     solana_account::ReadableAccount,
-    solana_program_pack::Pack,
+    spl_token::solana_program::program_pack::Pack,
 };
 
 pub enum TokenProgramAccount {
@@ -18,7 +18,9 @@ impl AccountDecoder<'_> for TokenProgramDecoder {
         &self,
         account: &solana_account::Account,
     ) -> Option<DecodedAccount<Self::AccountType>> {
-        if !account.owner.eq(&spl_token::id()) {
+        let spl_token_id = carbon_legacy::pubkey::to_modern(&spl_token::ID);
+
+        if !account.owner.eq(&spl_token_id) {
             return None;
         }
 

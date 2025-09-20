@@ -19,6 +19,7 @@ graphql = ["dep:carbon-gql-server", "dep:juniper"]
 [dependencies]
 async-trait = { workspace = true }
 carbon-core = { workspace = true }
+carbon-legacy = { workspace = true }
 carbon-gql-server = { workspace = true, optional = true }
 carbon-postgres-client = { workspace = true, optional = true }
 juniper = { workspace = true, optional = true }
@@ -26,7 +27,6 @@ rust_decimal = { workspace = true, optional = true }
 serde = { workspace = true }
 solana-account = { workspace = true }
 solana-instruction = { workspace = true, default-features = false }
-solana-program-pack = { workspace = true }
 solana-pubkey = { workspace = true }
 spl-token = { workspace = true }
 sqlx = { workspace = true, optional = true }

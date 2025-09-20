@@ -21,7 +21,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MemoProgramDecoder {
         &self,
         instruction: &solana_instruction::Instruction,
     ) -> Option<DecodedInstruction<Self::InstructionType>> {
-        if !instruction.program_id.eq(&spl_memo::ID) {
+        let memo_id = carbon_legacy::pubkey::to_modern(&spl_memo::ID);
+
+        if !instruction.program_id.eq(&memo_id) {
             return None;
         }
 
