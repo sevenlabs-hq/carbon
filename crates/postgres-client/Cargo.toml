@@ -1,6 +1,6 @@
 [package]
 name = "carbon-postgres-client"
-version = "0.9.1"
+version = "0.10.0"
 edition = { workspace = true }
 description = "PostgreSQL Client for Carbon"
 license = { workspace = true }

@@ -30,6 +30,8 @@ pub struct SellInstructionAccounts {
     pub program: solana_pubkey::Pubkey,
     pub coin_creator_vault_ata: solana_pubkey::Pubkey,
     pub coin_creator_vault_authority: solana_pubkey::Pubkey,
+    pub fee_config: solana_pubkey::Pubkey,
+    pub fee_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Sell {
@@ -58,6 +60,8 @@ impl carbon_core::deserialize::ArrangeAccounts for Sell {
         let program = next_account(&mut iter)?;
         let coin_creator_vault_ata = next_account(&mut iter)?;
         let coin_creator_vault_authority = next_account(&mut iter)?;
+        let fee_config = next_account(&mut iter)?;
+        let fee_program = next_account(&mut iter)?;
 
         Some(SellInstructionAccounts {
             pool,
@@ -79,6 +83,8 @@ impl carbon_core::deserialize::ArrangeAccounts for Sell {
             program,
             coin_creator_vault_ata,
             coin_creator_vault_authority,
+            fee_config,
+            fee_program,
         })
     }
 }

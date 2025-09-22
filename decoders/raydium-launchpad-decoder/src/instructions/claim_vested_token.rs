@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -26,23 +26,29 @@ impl carbon_core::deserialize::ArrangeAccounts for ClaimVestedToken {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [beneficiary, authority, pool_state, vesting_record, base_vault, user_base_token, base_token_mint, base_token_program, system_program, associated_token_program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let beneficiary = next_account(&mut iter)?;
+        let authority = next_account(&mut iter)?;
+        let pool_state = next_account(&mut iter)?;
+        let vesting_record = next_account(&mut iter)?;
+        let base_vault = next_account(&mut iter)?;
+        let user_base_token = next_account(&mut iter)?;
+        let base_token_mint = next_account(&mut iter)?;
+        let base_token_program = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let associated_token_program = next_account(&mut iter)?;
 
         Some(ClaimVestedTokenInstructionAccounts {
-            beneficiary: beneficiary.pubkey,
-            authority: authority.pubkey,
-            pool_state: pool_state.pubkey,
-            vesting_record: vesting_record.pubkey,
-            base_vault: base_vault.pubkey,
-            user_base_token: user_base_token.pubkey,
-            base_token_mint: base_token_mint.pubkey,
-            base_token_program: base_token_program.pubkey,
-            system_program: system_program.pubkey,
-            associated_token_program: associated_token_program.pubkey,
+            beneficiary,
+            authority,
+            pool_state,
+            vesting_record,
+            base_vault,
+            user_base_token,
+            base_token_mint,
+            base_token_program,
+            system_program,
+            associated_token_program,
         })
     }
 }

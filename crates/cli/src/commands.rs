@@ -6,7 +6,7 @@ use {
 #[derive(Parser)]
 #[command(name = "IDL Parser CLI")]
 #[command(about = "Generate Program Parsers for Carbon.")]
-#[command(version = "0.9.1", author = "aimbot-labs")]
+#[command(version = "0.10.0", author = "aimbot-labs")]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Commands,
@@ -104,8 +104,8 @@ impl FromStr for Url {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "mainnet-beta" => Ok(Url::Mainnet),
-            "devnet" => Ok(Url::Devnet),
+            "mainnet-beta" | "m" => Ok(Url::Mainnet),
+            "devnet" | "d" => Ok(Url::Devnet),
             _ if s.starts_with("http") => Ok(Url::CustomRpc(s.to_string())),
             _ => {
                 Err("Invalid network: Must be 'mainnet', 'devnet', or a valid RPC URL.".to_string())

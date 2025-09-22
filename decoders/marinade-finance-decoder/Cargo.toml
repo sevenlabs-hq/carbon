@@ -1,6 +1,6 @@
 [package]
 name = "carbon-marinade-finance-decoder"
-version = "0.9.1"
+version = "0.10.0"
 description = "Marinade Finance Decoder"
 edition = { workspace = true }
 license = { workspace = true }

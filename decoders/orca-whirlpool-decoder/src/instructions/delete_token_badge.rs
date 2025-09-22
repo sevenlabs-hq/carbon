@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -6,6 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x35924408127511b9")]
 pub struct DeleteTokenBadge {}
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct DeleteTokenBadgeInstructionAccounts {
     pub whirlpools_config: solana_pubkey::Pubkey,
     pub whirlpools_config_extension: solana_pubkey::Pubkey,
@@ -21,19 +22,21 @@ impl carbon_core::deserialize::ArrangeAccounts for DeleteTokenBadge {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [whirlpools_config, whirlpools_config_extension, token_badge_authority, token_mint, token_badge, receiver, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let whirlpools_config = next_account(&mut iter)?;
+        let whirlpools_config_extension = next_account(&mut iter)?;
+        let token_badge_authority = next_account(&mut iter)?;
+        let token_mint = next_account(&mut iter)?;
+        let token_badge = next_account(&mut iter)?;
+        let receiver = next_account(&mut iter)?;
 
         Some(DeleteTokenBadgeInstructionAccounts {
-            whirlpools_config: whirlpools_config.pubkey,
-            whirlpools_config_extension: whirlpools_config_extension.pubkey,
-            token_badge_authority: token_badge_authority.pubkey,
-            token_mint: token_mint.pubkey,
-            token_badge: token_badge.pubkey,
-            receiver: receiver.pubkey,
+            whirlpools_config,
+            whirlpools_config_extension,
+            token_badge_authority,
+            token_mint,
+            token_badge,
+            receiver,
         })
     }
 }

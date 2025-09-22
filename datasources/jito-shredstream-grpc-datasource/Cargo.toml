@@ -2,7 +2,7 @@
 name = "carbon-jito-shredstream-grpc-datasource"
 description = "Jito Shredstream gRPC Datasource"
 license = { workspace = true }
-version = "0.9.1"
+version = "0.10.0"
 edition = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }

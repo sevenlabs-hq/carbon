@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -6,7 +6,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0x370935097239d134")]
 pub struct InitializeConfigExtension {}
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct InitializeConfigExtensionInstructionAccounts {
     pub config: solana_pubkey::Pubkey,
     pub config_extension: solana_pubkey::Pubkey,
@@ -21,18 +21,19 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeConfigExtension {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [config, config_extension, funder, fee_authority, system_program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let config = next_account(&mut iter)?;
+        let config_extension = next_account(&mut iter)?;
+        let funder = next_account(&mut iter)?;
+        let fee_authority = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
 
         Some(InitializeConfigExtensionInstructionAccounts {
-            config: config.pubkey,
-            config_extension: config_extension.pubkey,
-            funder: funder.pubkey,
-            fee_authority: fee_authority.pubkey,
-            system_program: system_program.pubkey,
+            config,
+            config_extension,
+            funder,
+            fee_authority,
+            system_program,
         })
     }
 }

@@ -524,6 +524,7 @@ impl Pipeline {
                 let account_metadata = AccountMetadata {
                     slot: account_update.slot,
                     pubkey: account_update.pubkey,
+                    transaction_signature: account_update.transaction_signature,
                 };
 
                 for pipe in self.account_pipes.iter_mut() {

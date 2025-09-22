@@ -1,6 +1,6 @@
 [package]
 name = "carbon-okx-dex-decoder"
-version = "0.9.1"
+version = "0.10.0"
 description = "OKX DEX Decoder"
 license = { workspace = true }
 edition = { workspace = true }

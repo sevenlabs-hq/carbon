@@ -2,7 +2,7 @@
 name = "carbon-rpc-block-subscribe-datasource"
 description = "RPC Block Subscribe Datasource"
 license = { workspace = true }
-version = "0.9.1"
+version = "0.10.0"
 edition = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
