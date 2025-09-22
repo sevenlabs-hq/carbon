@@ -32,10 +32,20 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SplAssociatedTokenAcco
             return None;
         }
 
-        carbon_core::try_decode_instructions!(instruction,
+        let decoded_instruction = carbon_core::try_decode_instructions!(instruction,
             SplAssociatedTokenAccountInstruction::Create => create::Create,
             SplAssociatedTokenAccountInstruction::CreateIdempotent => create_idempotent::CreateIdempotent,
             SplAssociatedTokenAccountInstruction::RecoverNested => recover_nested::RecoverNested,
-        )
+        );
+
+        if let Some(decoded_instruction) = decoded_instruction {
+            Some(decoded_instruction)
+        } else {
+            Some(carbon_core::instruction::DecodedInstruction {
+                program_id: instruction.program_id,
+                accounts: instruction.accounts.clone(),
+                data: SplAssociatedTokenAccountInstruction::Create(create::Create {}),
+            })
+        }
     }
 }
