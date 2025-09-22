@@ -41,6 +41,7 @@ carbon-gql-server = { path = "crates/gql-server", version = "0.10.0" }
 
 # datasources
 carbon-helius-atlas-ws-datasource = { path = "datasources/helius-atlas-ws-datasource", version = "0.10.0" }
+carbon-helius-laserstream-datasource = { path = "datasources/helius-laserstream-datasource", version = "0.10.0" }
 
 # vendor
 carbon-jito-protos = { path = "misc/jito-protos", version = "0.2.4" }
@@ -177,7 +178,7 @@ thiserror = { version = "2.0.12", default-features = false }
 tokio = { version = "1.45.0", features = ["rt", "time", "signal", "macros"] }
 tokio-retry = "0.3.0"
 tokio-util = "0.7.15"
-tonic = { version = "0.13.1", features = [ "tls-native-roots", "tls-webpki-roots" ] }
+tonic = { version = "0.13.1", features = ["tls-native-roots", "tls-webpki-roots"] }
 tonic-build = "0.13.1"
 unicode-xid = "0.2"
 uuid = { version = "1.6.1", features = ["serde", "v7"] }
