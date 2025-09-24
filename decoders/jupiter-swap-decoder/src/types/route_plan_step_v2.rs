@@ -1,9 +1,13 @@
+use super::*;
+
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-pub enum Side {
-    Bid,
-    Ask,
+pub struct RoutePlanStepV2 {
+    pub swap: Swap,
+    pub bps: u16,
+    pub input_index: u8,
+    pub output_index: u8,
 }
