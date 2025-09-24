@@ -1,9 +1,10 @@
+use super::*;
+
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-pub enum Side {
-    Bid,
-    Ask,
+pub struct SwapsEvent {
+    pub swap_events: Vec<SwapEventV2>,
 }

@@ -3,10 +3,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-pub enum AccountsType {
+pub enum DefiTunaAccountsType {
     TransferHookA,
     TransferHookB,
-    TransferHookReward,
     TransferHookInput,
     TransferHookIntermediate,
     TransferHookOutput,
