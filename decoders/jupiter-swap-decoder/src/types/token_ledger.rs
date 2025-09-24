@@ -3,7 +3,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-pub enum Side {
-    Bid,
-    Ask,
+pub struct TokenLedger {
+    pub token_account: solana_pubkey::Pubkey,
+    pub amount: u64,
 }
