@@ -10,7 +10,7 @@ pub enum JupiterSwapAccount {
     TokenLedger(token_ledger::TokenLedger),
 }
 
-impl<'a> AccountDecoder<'a> for JupiterSwapDecoder {
+impl AccountDecoder<'_> for JupiterSwapDecoder {
     type AccountType = JupiterSwapAccount;
     fn decode_account(
         &self,
