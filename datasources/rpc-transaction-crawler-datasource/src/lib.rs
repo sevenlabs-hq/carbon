@@ -562,6 +562,7 @@ fn task_processor(
                         slot: fetched_transaction.slot,
                         block_time: fetched_transaction.block_time,
                         block_hash: None,
+                        created_at: None,
                     }));
 
 

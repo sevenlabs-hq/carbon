@@ -301,6 +301,7 @@ pub struct AccountDeletion {
 /// - `slot`: The slot number in which the transaction was recorded.
 /// - `block_time`: The Unix timestamp of when the transaction was processed.
 /// - `block_hash`: Block hash that can be used to detect a fork.
+/// - `created_at`: The Unix timestamp of when the update was created (currently useful for Yellowstone GRPC TX updates)
 ///
 /// Note: The `block_time` field may not be returned in all scenarios.
 #[derive(Debug, Clone)]
@@ -312,4 +313,5 @@ pub struct TransactionUpdate {
     pub slot: u64,
     pub block_time: Option<i64>,
     pub block_hash: Option<Hash>,
+    pub created_at: Option<i64>,
 }

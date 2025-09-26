@@ -178,6 +178,7 @@ impl Datasource for RpcBlockSubscribe {
                                                 slot,
                                                 block_time: block.block_time,
                                                 block_hash,
+                                                created_at: None,
                                             }));
 
                                             metrics
