@@ -310,6 +310,7 @@ fn task_processor(
                                     slot,
                                     block_time: block.block_time,
                                     block_hash,
+                                    created_at: None,
                                 }));
 
                                 metrics

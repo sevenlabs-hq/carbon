@@ -741,6 +741,7 @@ mod tests {
             slot: 123,
             block_time: Some(123),
             block_hash: Hash::from_str("9bit9vXNX9HyHwL89aGDNmk3vbyAM96nvb6F4SaoM1CU").ok(),
+            created_at: Some(123),
         };
         let transaction_metadata = transaction_update
             .clone()
@@ -1170,6 +1171,7 @@ mod tests {
             slot: 123,
             block_time: Some(123),
             block_hash: None,
+            created_at: Some(123),
         };
         let transaction_metadata = transaction_update
             .clone()
