@@ -71,7 +71,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for TokenProgramDecoder {
         &self,
         instruction: &solana_instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
-        if !instruction.program_id.eq(&spl_token::id()) {
+        let spl_token_id = carbon_legacy::pubkey::to_modern(&spl_token::ID);
+
+        if !instruction.program_id.eq(&spl_token_id) {
             return None;
         }
 

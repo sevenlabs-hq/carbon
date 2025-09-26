@@ -16,14 +16,8 @@ use {
     },
     solana_account::Account,
     solana_clock::Clock,
-    solana_program::{instruction::CompiledInstruction, message::v0::LoadedAddresses},
     solana_pubkey::Pubkey,
     solana_signature::Signature,
-    solana_transaction_context::TransactionReturnData,
-    solana_transaction_status::{
-        option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
-        TransactionStatusMeta, TransactionTokenBalance, UiInstruction, UiLoadedAddresses,
-    },
     std::{
         collections::HashSet,
         str::FromStr,
@@ -185,10 +179,9 @@ impl Datasource for HeliusWebsocket {
                         }
                     };
 
-                    let (mut stream, _unsub) = match ws
-                        .account_subscribe(&solana_program::sysvar::clock::ID, None)
-                        .await
-                    {
+                    let clock_addr: carbon_legacy::pubkey::Pubkey =
+                        solana_program::sysvar::clock::ID.into();
+                    let (mut stream, _unsub) = match ws.account_subscribe(&clock_addr, None).await {
                         Ok(subscription) => subscription,
                         Err(err) => {
                             log::error!("Failed to subscribe to Clock sysvar: {:?}", err);
@@ -219,7 +212,7 @@ impl Datasource for HeliusWebsocket {
                                 match event_result {
                                     Some(clock_event) => {
                                         last_clock_update = Instant::now();
-                                        if let Some(clock_data) = clock_event.value.decode::<Account>() {
+                                        if let Some(clock_data) = clock_event.value.decode::<carbon_legacy::account::Account>() {
                                             if let Ok(clock) = bincode::deserialize::<Clock>(&clock_data.data) {
                                                 let current_slot = clock.slot;
 
@@ -276,8 +269,9 @@ impl Datasource for HeliusWebsocket {
                                 }
                             };
 
+                            let legacy_account: carbon_legacy::pubkey::Pubkey = account.into();
                             let (mut stream, _unsub) =
-                                match ws.account_subscribe(&account, None).await {
+                                match ws.account_subscribe(&legacy_account, None).await {
                                     Ok(subscription) => subscription,
                                     Err(err) => {
                                         log::error!(
@@ -303,15 +297,15 @@ impl Datasource for HeliusWebsocket {
                                         match event_result {
                                             Some(acc_event) => {
                                                 let start_time = std::time::Instant::now();
-                                                let decoded_account: Account = match acc_event.value.decode() {
-                                                    Some(account_data) => account_data,
+                                                let decoded_account: Account = match acc_event.value.decode::<carbon_legacy::account::Account>() {
+                                                    Some(account_data) => carbon_legacy::account::to_modern_account(account_data),
                                                     None => {
                                                         log::error!("Error decoding Helius WS Account event");
                                                         continue;
                                                     }
                                                 };
 
-                                                if decoded_account.lamports == 0 && decoded_account.data.is_empty() && decoded_account.owner == solana_program::system_program::ID {
+                                                if decoded_account.lamports == 0 && decoded_account.data.is_empty() && decoded_account.owner == solana_system_interface::program::ID {
                                                     let accounts_tracked =
                                                         account_deletions_tracked.read().await;
                                                     if !accounts_tracked.is_empty() && accounts_tracked.contains(&account) {
@@ -433,167 +427,10 @@ impl Datasource for HeliusWebsocket {
                                                 continue;
                                             };
 
-                                            let meta_needed = TransactionStatusMeta {
-                                                status: meta_original.status,
-                                                fee: meta_original.fee,
-                                                pre_balances: meta_original.pre_balances,
-                                                post_balances: meta_original.post_balances,
-                                                inner_instructions: Some(
-                                                    meta_original
-                                                        .inner_instructions
-                                                        .unwrap_or_else(std::vec::Vec::new)
-                                                        .iter()
-                                                        .map(|inner_instruction_group| InnerInstructions {
-                                                            index: inner_instruction_group.index,
-                                                            instructions: inner_instruction_group
-                                                                .instructions
-                                                                .iter()
-                                                                .map(|ui_instruction| match ui_instruction {
-                                                                    UiInstruction::Compiled(compiled_ui_instruction) => {
-                                                                        let decoded_data = bs58::decode(
-                                                                            compiled_ui_instruction.data.clone(),
-                                                                        )
-                                                                        .into_vec()
-                                                                        .unwrap_or_else(|_| vec![]);
-                                                                        InnerInstruction {
-                                                                            instruction: CompiledInstruction {
-                                                                                program_id_index: compiled_ui_instruction
-                                                                                    .program_id_index,
-                                                                                accounts: compiled_ui_instruction
-                                                                                    .accounts
-                                                                                    .clone(),
-                                                                                data: decoded_data,
-                                                                            },
-                                                                            stack_height: compiled_ui_instruction
-                                                                                .stack_height,
-                                                                        }
-                                                                    }
-                                                                    _ => {
-                                                                        log::error!(
-                                                                            "Unsupported instruction type encountered"
-                                                                        );
-                                                                        InnerInstruction {
-                                                                            instruction: CompiledInstruction {
-                                                                                program_id_index: 0,
-                                                                                accounts: vec![],
-                                                                                data: vec![],
-                                                                            },
-                                                                            stack_height: None,
-                                                                        }
-                                                                    }
-                                                                })
-                                                                .collect::<Vec<InnerInstruction>>(),
-                                                        })
-                                                        .collect::<Vec<InnerInstructions>>(),
-                                                ),
-                                                log_messages: Some(meta_original.log_messages.unwrap_or_else(std::vec::Vec::new)),
-                                                pre_token_balances: Some(
-                                                    meta_original
-                                                        .pre_token_balances
-                                                        .unwrap_or_else(std::vec::Vec::new)
-                                                        .iter()
-                                                        .filter_map(|transaction_token_balance| {
-                                                            if let (
-                                                                OptionSerializer::Some(owner),
-                                                                OptionSerializer::Some(program_id),
-                                                            ) = (
-                                                                transaction_token_balance.owner.as_ref(),
-                                                                transaction_token_balance.program_id.as_ref(),
-                                                            ) {
-                                                                Some(TransactionTokenBalance {
-                                                                    account_index: transaction_token_balance.account_index,
-                                                                    mint: transaction_token_balance.mint.clone(),
-                                                                    ui_token_amount: transaction_token_balance
-                                                                        .ui_token_amount
-                                                                        .clone(),
-                                                                    owner: owner.to_string(),
-                                                                    program_id: program_id.to_string(),
-                                                                })
-                                                            } else {
-                                                                None
-                                                            }
-                                                        })
-                                                        .collect::<Vec<TransactionTokenBalance>>(),
-                                                ),
-                                                post_token_balances: Some(
-                                                    meta_original
-                                                        .post_token_balances
-                                                        .unwrap_or_else(std::vec::Vec::new)
-                                                        .iter()
-                                                        .filter_map(|transaction_token_balance| {
-                                                            if let (
-                                                                OptionSerializer::Some(owner),
-                                                                OptionSerializer::Some(program_id),
-                                                            ) = (
-                                                                transaction_token_balance.owner.as_ref(),
-                                                                transaction_token_balance.program_id.as_ref(),
-                                                            ) {
-                                                                Some(TransactionTokenBalance {
-                                                                    account_index: transaction_token_balance.account_index,
-                                                                    mint: transaction_token_balance.mint.clone(),
-                                                                    ui_token_amount: transaction_token_balance
-                                                                        .ui_token_amount
-                                                                        .clone(),
-                                                                    owner: owner.to_string(),
-                                                                    program_id: program_id.to_string(),
-                                                                })
-                                                            } else {
-                                                                None
-                                                            }
-                                                        })
-                                                        .collect::<Vec<TransactionTokenBalance>>(),
-                                                ),
-                                                rewards: Some(
-                                                    meta_original
-                                                        .rewards
-                                                        .unwrap_or_else(std::vec::Vec::new)
-                                                        .iter()
-                                                        .map(|rewards| Reward {
-                                                            pubkey: rewards.pubkey.clone(),
-                                                            lamports: rewards.lamports,
-                                                            post_balance: rewards.post_balance,
-                                                            reward_type: rewards.reward_type,
-                                                            commission: rewards.commission,
-                                                        })
-                                                        .collect::<Vec<Reward>>(),
-                                                ),
-                                                loaded_addresses: {
-                                                    let loaded = meta_original.loaded_addresses.unwrap_or_else(|| {
-                                                        UiLoadedAddresses {
-                                                            writable: vec![],
-                                                            readonly: vec![],
-                                                        }
-                                                    });
-                                                    LoadedAddresses {
-                                                        writable: loaded
-                                                            .writable
-                                                            .iter()
-                                                            .map(|w| Pubkey::from_str(w).unwrap_or_default())
-                                                            .collect::<Vec<Pubkey>>(),
-                                                        readonly: loaded
-                                                            .readonly
-                                                            .iter()
-                                                            .map(|r| Pubkey::from_str(r).unwrap_or_default())
-                                                            .collect::<Vec<Pubkey>>(),
-                                                    }
-                                                },
-                                                return_data: meta_original.return_data.map(|return_data| {
-                                                    TransactionReturnData {
-                                                        program_id: return_data.program_id.parse().unwrap_or_default(),
-                                                        data: return_data.data.0.as_bytes().to_vec(),
-                                                    }
-                                                }),
-                                                compute_units_consumed: meta_original
-                                                    .compute_units_consumed
-                                                    .map(|compute_unit_consumed| compute_unit_consumed)
-                                                    .or(None),
-                                                cost_units: meta_original.cost_units.into(),
-                                            };
-
                                             let update = Update::Transaction(Box::new(TransactionUpdate {
                                                 signature,
-                                                transaction: decoded_transaction.clone(),
-                                                meta: meta_needed,
+                                                transaction: carbon_legacy::versioned_transaction::to_modern(decoded_transaction.clone()),
+                                                meta: carbon_legacy::ui_transaction_status_meta::to_transaction_status_meta(meta_original),
                                                 is_vote: config.filter.vote.is_some_and(|is_vote| is_vote),
                                                 slot: tx_event.slot,
                                                 block_time: None,

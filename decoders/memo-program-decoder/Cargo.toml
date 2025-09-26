@@ -14,6 +14,7 @@ crate-type = ["rlib"]
 
 [dependencies]
 carbon-core = { workspace = true }
+carbon-legacy = { workspace = true }
 serde = { workspace = true }
 solana-instruction = { workspace = true, default-features = false }
 spl-memo = { workspace = true }

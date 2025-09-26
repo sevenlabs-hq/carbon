@@ -13,8 +13,8 @@ categories = ["encoding"]
 crate-type = ["rlib"]
 
 [dependencies]
-solana-program = { workspace = true }
 solana-pubkey = { workspace = true }
+solana-system-interface = { workspace = true }
 
 carbon-core = { workspace = true }
 

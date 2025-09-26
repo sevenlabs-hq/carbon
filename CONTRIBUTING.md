@@ -110,7 +110,6 @@ Working examples demonstrating various use cases:
 - **`block-finality-alerts`**: Block processing example
 - **`jupiter-swap-alerts`**: Jupiter swap monitoring
 - **`kamino-alerts`**: Kamino lending monitoring
-- **`token-indexing`**: Token account indexing with PostgreSQL
 - And more...
 
 ## Code Style and Standards

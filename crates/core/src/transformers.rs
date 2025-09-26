@@ -30,9 +30,8 @@ use {
         transaction::TransactionMetadata,
     },
     solana_instruction::AccountMeta,
-    solana_program::{
-        instruction::CompiledInstruction,
-        message::{v0::LoadedAddresses, VersionedMessage},
+    solana_message::{
+        compiled_instruction::CompiledInstruction, v0::LoadedAddresses, VersionedMessage,
     },
     solana_pubkey::Pubkey,
     solana_transaction_context::TransactionReturnData,
@@ -349,7 +348,7 @@ pub fn transaction_metadata_from_original_meta(
         meta_original
     );
     Ok(TransactionStatusMeta {
-        status: meta_original.status,
+        status: meta_original.status.map_err(Into::into),
         fee: meta_original.fee,
         pre_balances: meta_original.pre_balances,
         post_balances: meta_original.post_balances,
