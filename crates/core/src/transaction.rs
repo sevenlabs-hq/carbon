@@ -63,6 +63,7 @@ use {
 /// - `message`: The versioned message containing the transaction instructions
 ///   and account keys
 /// - `block_time`: The Unix timestamp of when the transaction was processed.
+/// - `update_received_at`: The Unix timestamp of when the update for this transaction was received.
 ///
 /// Note: The `block_time` field may not be returned in all scenarios.
 #[derive(Debug, Clone, Default)]
@@ -74,6 +75,7 @@ pub struct TransactionMetadata {
     pub message: solana_program::message::VersionedMessage,
     pub block_time: Option<i64>,
     pub block_hash: Option<Hash>,
+    pub update_received_at: Option<i64>,
 }
 
 /// Tries convert transaction update into the metadata.
@@ -113,6 +115,7 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
             message: value.transaction.message.clone(),
             block_time: value.block_time,
             block_hash: value.block_hash,
+            update_received_at: value.created_at,
         })
     }
 }
