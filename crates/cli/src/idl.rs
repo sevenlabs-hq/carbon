@@ -152,30 +152,33 @@ impl<'de> Deserialize<'de> for IdlTypeDefinitionTy {
         }
 
         fn is_primish(t: &LegacyIdlType) -> bool {
-            match t {
-                LegacyIdlType::Primitive(s) => matches!(
-                    s.as_str(),
-                    "bool"
-                        | "u8"
-                        | "i8"
-                        | "u16"
-                        | "i16"
-                        | "u32"
-                        | "i32"
-                        | "u64"
-                        | "i64"
-                        | "u128"
-                        | "i128"
-                        | "f32"
-                        | "f64"
-                        | "bytes"
-                        | "string"
-                        | "pubkey"
-                        | "publicKey"
-                ),
-                LegacyIdlType::OptionPrimitive { .. } => true,
-                _ => false,
-            }
+            let s = match t {
+                LegacyIdlType::Primitive(s) => s,
+                LegacyIdlType::OptionPrimitive { option } => option,
+                _ => {
+                    return false;
+                }
+            };
+            matches!(
+                s.as_str(),
+                "bool"
+                    | "u8"
+                    | "i8"
+                    | "u16"
+                    | "i16"
+                    | "u32"
+                    | "i32"
+                    | "u64"
+                    | "i64"
+                    | "u128"
+                    | "i128"
+                    | "f32"
+                    | "f64"
+                    | "bytes"
+                    | "string"
+                    | "pubkey"
+                    | "publicKey"
+            )
         }
 
         let mut helper = Helper::deserialize(deserializer)?;
