@@ -235,22 +235,6 @@ pub fn process_types(idl: &Idl) -> Vec<TypeData> {
                                 });
                             }
                         };
-<<<<<<< HEAD
-                        fields.push(FieldData {
-                            name: rust_type.0.to_snake_case(),
-                            rust_type: rust_type.0,
-                            is_pubkey,
-                            attributes,
-                        });
-||||||| parent of 12b060bf (feat: support defined type with idltype in fields)
-                        fields.push(FieldData {
-                            name: field.name.to_snake_case(),
-                            rust_type: rust_type.0,
-                            is_pubkey,
-                            attributes,
-                        });
-=======
->>>>>>> 12b060bf (feat: support defined type with idltype in fields)
                     }
                 }
             }

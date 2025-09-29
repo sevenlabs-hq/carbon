@@ -24,7 +24,7 @@ pub struct {{ type_data.name }} {
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 pub struct {{ type_data.name }} (
     {%- for field in type_data.fields %}
-    {{ field.rust_type }},
+    pub {{ field.rust_type }},
     {%- endfor %}
 );
 {%- when TypeKind::Enum with (variants) %}

@@ -27,7 +27,7 @@ mod tests {
         let decoded = maybe_decoded.expect("Invalid instruction");
         match decoded.data {
             PumpSwapInstruction::Buy(buy) => {
-                assert!(!buy.track_volume.bool);
+                assert!(!buy.track_volume.0);
             }
             other => {
                 panic!("Expected Buy, got {:?}", other);
@@ -47,7 +47,7 @@ mod tests {
             .expect("Invalid instruction");
         match decoded.data {
             PumpSwapInstruction::Buy(buy) => {
-                assert!(buy.track_volume.bool);
+                assert!(buy.track_volume.0);
             }
             other => {
                 panic!("Expected Buy, got {:?}", other);

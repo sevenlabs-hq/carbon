@@ -146,7 +146,7 @@ impl<'de> Deserialize<'de> for IdlTypeDefinitionTy {
         struct Helper {
             kind: String,
             #[serde(default)]
-            fields: Option<Vec<IdlTypeDefinitionField>>,
+            fields: Option<Vec<IdlEnumField>>,
             #[serde(default)]
             variants: Option<Vec<IdlEnumVariant>>,
         }
@@ -181,26 +181,24 @@ impl<'de> Deserialize<'de> for IdlTypeDefinitionTy {
         let mut helper = Helper::deserialize(deserializer)?;
 
         if helper.kind == "struct" {
-            println!("fields: {:#?}", helper);
             if let Some(fields) = &helper.fields {
                 let mut any_named = false;
                 let mut any_primish = false;
 
-                println!("fields: {:#?}", fields);
-                // for f in fields {
-                //     match f {
-                //         IdlTypeDefinitionField::Tuple(type_) => {
-                //             if is_primish(type_) {
-                //                 any_primish = true;
-                //             } else {
-                //                 any_named = true;
-                //             }
-                //         }
-                //         _ => {
-                //             any_named = true;
-                //         }
-                //     }
-                // }
+                for f in fields {
+                    match f {
+                        IdlEnumField::Tuple(type_) => {
+                            if is_primish(type_) {
+                                any_primish = true;
+                            } else {
+                                any_named = true;
+                            }
+                        }
+                        _ => {
+                            any_named = true;
+                        }
+                    }
+                }
 
                 if any_primish && !any_named {
                     helper.kind = "tuple_struct".to_owned();

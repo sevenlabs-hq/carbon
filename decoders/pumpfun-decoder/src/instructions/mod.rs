@@ -176,7 +176,7 @@ mod tests {
         let expected_ix = PumpfunInstruction::Buy(buy::Buy {
             amount: 1690358,
             max_sol_cost: 195,
-            track_volume: OptionBool { bool: false },
+            track_volume: OptionBool(false),
         });
 
         let expected_accounts = vec![
