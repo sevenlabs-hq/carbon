@@ -34,6 +34,8 @@ pub mod global_volume_accumulator;
 pub use global_volume_accumulator::*;
 pub mod init_user_volume_accumulator_event;
 pub use init_user_volume_accumulator_event::*;
+pub mod option_bool;
+pub use option_bool::*;
 pub mod pool;
 pub use pool::*;
 pub mod sell_event;

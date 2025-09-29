@@ -23,6 +23,8 @@ pub struct SellInstructionAccounts {
     pub token_program: solana_pubkey::Pubkey,
     pub event_authority: solana_pubkey::Pubkey,
     pub program: solana_pubkey::Pubkey,
+    pub fee_config: solana_pubkey::Pubkey,
+    pub fee_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Sell {
@@ -44,6 +46,8 @@ impl carbon_core::deserialize::ArrangeAccounts for Sell {
         let token_program = next_account(&mut iter)?;
         let event_authority = next_account(&mut iter)?;
         let program = next_account(&mut iter)?;
+        let fee_config = next_account(&mut iter)?;
+        let fee_program = next_account(&mut iter)?;
 
         Some(SellInstructionAccounts {
             global,
@@ -58,6 +62,8 @@ impl carbon_core::deserialize::ArrangeAccounts for Sell {
             token_program,
             event_authority,
             program,
+            fee_config,
+            fee_program,
         })
     }
 }

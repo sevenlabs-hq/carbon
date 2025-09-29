@@ -1,12 +1,15 @@
-use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
+use super::super::types::*;
 
-#[derive(
-    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
-)]
+use carbon_core::account_utils::next_account;
+use carbon_core::{borsh, CarbonDeserialize};
+use serde::{Deserialize, Serialize};
+
+#[derive(CarbonDeserialize, Serialize, Deserialize, Debug, PartialEq, Eq, Clone, Hash)]
 #[carbon(discriminator = "0x66063d1201daebea")]
 pub struct Buy {
     pub amount: u64,
     pub max_sol_cost: u64,
+    pub track_volume: OptionBool,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
@@ -25,6 +28,8 @@ pub struct BuyInstructionAccounts {
     pub program: solana_pubkey::Pubkey,
     pub global_volume_accumulator: solana_pubkey::Pubkey,
     pub user_volume_accumulator: solana_pubkey::Pubkey,
+    pub fee_config: solana_pubkey::Pubkey,
+    pub fee_program: solana_pubkey::Pubkey,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for Buy {
@@ -48,6 +53,8 @@ impl carbon_core::deserialize::ArrangeAccounts for Buy {
         let program = next_account(&mut iter)?;
         let global_volume_accumulator = next_account(&mut iter)?;
         let user_volume_accumulator = next_account(&mut iter)?;
+        let fee_config = next_account(&mut iter)?;
+        let fee_program = next_account(&mut iter)?;
 
         Some(BuyInstructionAccounts {
             global,
@@ -64,6 +71,8 @@ impl carbon_core::deserialize::ArrangeAccounts for Buy {
             program,
             global_volume_accumulator,
             user_volume_accumulator,
+            fee_config,
+            fee_program,
         })
     }
 }

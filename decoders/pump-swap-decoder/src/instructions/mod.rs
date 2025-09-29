@@ -1,3 +1,6 @@
+use carbon_core::deserialize::CarbonDeserialize;
+use solana_instruction::Instruction;
+
 use crate::PROGRAM_ID;
 
 use super::PumpSwapDecoder;
@@ -109,6 +112,20 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpSwapDecoder {
         if !instruction.program_id.eq(&PROGRAM_ID) {
             return None;
         }
+        let instruction = if !instruction.data.is_empty()
+            && instruction.data[..8] == *buy::Buy::DISCRIMINATOR
+            && instruction.data.len() == 24
+        {
+            let mut data = instruction.data.clone();
+            data.push(0);
+            &Instruction {
+                program_id: instruction.program_id,
+                accounts: instruction.accounts.clone(),
+                data,
+            }
+        } else {
+            instruction
+        };
         carbon_core::try_decode_instructions!(instruction,
             PumpSwapInstruction::AdminSetCoinCreator => admin_set_coin_creator::AdminSetCoinCreator,
             PumpSwapInstruction::AdminUpdateTokenIncentives => admin_update_token_incentives::AdminUpdateTokenIncentives,

@@ -1,6 +1,6 @@
 use {
     crate::{
-        idl::Idl,
+        idl::{Idl, IdlEnumField},
         legacy_idl::LegacyIdl,
         util::{idl_type_to_rust_type, is_big_array},
     },
@@ -100,20 +100,46 @@ pub fn process_accounts(idl: &Idl) -> Vec<AccountData> {
             if ty.name == struct_name {
                 if let Some(fields) = &ty.type_.fields {
                     for field in fields {
-                        let rust_type = idl_type_to_rust_type(&field.type_);
-                        if rust_type.1 {
-                            requires_imports = true;
-                        }
-                        let attributes = if is_big_array(&rust_type.0) {
-                            Some("#[serde(with = \"serde_big_array::BigArray\")]".to_string())
-                        } else {
-                            None
+                        match field {
+                            IdlEnumField::Named(field) => {
+                                let rust_type = idl_type_to_rust_type(&field.type_);
+                                if rust_type.1 {
+                                    requires_imports = true;
+                                }
+                                let attributes = if is_big_array(&rust_type.0) {
+                                    Some(
+                                        "#[serde(with = \"serde_big_array::BigArray\")]"
+                                            .to_string(),
+                                    )
+                                } else {
+                                    None
+                                };
+                                account_fields.push(FieldData {
+                                    name: field.name.to_snake_case(),
+                                    rust_type: rust_type.0,
+                                    attributes,
+                                });
+                            }
+                            IdlEnumField::Tuple(field) => {
+                                let rust_type = idl_type_to_rust_type(field);
+                                if rust_type.1 {
+                                    requires_imports = true;
+                                }
+                                let attributes = if is_big_array(&rust_type.0) {
+                                    Some(
+                                        "#[serde(with = \"serde_big_array::BigArray\")]"
+                                            .to_string(),
+                                    )
+                                } else {
+                                    None
+                                };
+                                account_fields.push(FieldData {
+                                    name: rust_type.0.to_snake_case(),
+                                    rust_type: rust_type.0,
+                                    attributes,
+                                });
+                            }
                         };
-                        account_fields.push(FieldData {
-                            name: field.name.to_snake_case(),
-                            rust_type: rust_type.0,
-                            attributes,
-                        });
                     }
                 }
             }

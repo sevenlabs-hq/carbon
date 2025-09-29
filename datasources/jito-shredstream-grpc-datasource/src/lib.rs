@@ -93,7 +93,7 @@ impl Datasource for JitoShredstreamGrpcClient {
                     async move {
                         let start_time = SystemTime::now();
                         let block_time =
-                            Some(start_time.duration_since(UNIX_EPOCH).unwrap().as_millis() as i64);
+                            Some(start_time.duration_since(UNIX_EPOCH).expect("Time").as_millis() as i64);
 
                         let entries: Vec<Entry> = match bincode::deserialize(&message.entries) {
                             Ok(e) => e,
