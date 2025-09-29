@@ -12,7 +12,8 @@ use {
     carbon_raydium_amm_v4_decoder::{
         accounts::RaydiumAmmV4Account,
         instructions::{
-            swap_base_in::SwapBaseIn, swap_base_out::SwapBaseOut, RaydiumAmmV4Instruction,
+            swap_base_in::SwapBaseIn, swap_base_in_v2::SwapBaseInV2, swap_base_out::SwapBaseOut,
+            swap_base_out_v2::SwapBaseOutV2, RaydiumAmmV4Instruction,
         },
         RaydiumAmmV4Decoder, PROGRAM_ID as RAYDIUM_AMM_V4_PROGRAM_ID,
     },
@@ -162,6 +163,19 @@ impl Processor for RaydiumAmmV4InstructionProcessor {
                     ),
                 }
             }
+            RaydiumAmmV4Instruction::SwapBaseInV2(swap_base_in) => {
+                match SwapBaseInV2::arrange_accounts(&accounts) {
+                    Some(accounts) => {
+                        log::info!(
+                        "SwapBaseInV2: signature: {signature}, swap_base_in: {swap_base_in:?}, accounts: {accounts:#?}",
+                    );
+                    }
+                    None => log::error!(
+                        "Failed to arrange accounts for SwapBaseInV2 {}",
+                        accounts.len()
+                    ),
+                }
+            }
             RaydiumAmmV4Instruction::PreInitialize(pre_initialize) => {
                 log::info!(
                     "PreInitialize: signature: {signature}, pre_initialize: {pre_initialize:?}"
@@ -176,6 +190,19 @@ impl Processor for RaydiumAmmV4InstructionProcessor {
                     }
                     None => log::error!(
                         "Failed to arrange accounts for SwapBaseOut {}",
+                        accounts.len()
+                    ),
+                }
+            }
+            RaydiumAmmV4Instruction::SwapBaseOutV2(swap_base_out) => {
+                match SwapBaseOutV2::arrange_accounts(&accounts) {
+                    Some(accounts) => {
+                        log::info!(
+                            "SwapBaseOutV2: signature: {signature}, swap_base_out: {swap_base_out:?}, accounts: {accounts:#?}",
+                        );
+                    }
+                    None => log::error!(
+                        "Failed to arrange accounts for SwapBaseOutV2 {}",
                         accounts.len()
                     ),
                 }
