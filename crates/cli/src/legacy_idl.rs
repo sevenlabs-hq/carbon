@@ -141,7 +141,7 @@ pub struct LegacyIdlTypeDefinition {
 pub struct LegacyIdlTypeDefinitionTy {
     pub kind: String,
     #[serde(default)]
-    pub fields: Option<Vec<LegacyIdlTypeDefinitionField>>,
+    pub fields: Option<Vec<LegacyIdlEnumField>>,
     #[serde(default)]
     pub variants: Option<Vec<LegacyIdlEnumVariant>>,
 }
@@ -162,6 +162,13 @@ pub struct LegacyIdlEnumVariant {
     pub name: String,
     #[serde(default)]
     pub fields: Option<LegacyIdlEnumFields>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(untagged)]
+pub enum LegacyIdlEnumField {
+    Named(LegacyIdlTypeDefinitionField),
+    Tuple(LegacyIdlType),
 }
 
 #[derive(Debug, Serialize, Deserialize)]

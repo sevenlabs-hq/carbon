@@ -3,10 +3,9 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-pub struct ExtendAccountEvent {
-    pub account: solana_pubkey::Pubkey,
-    pub user: solana_pubkey::Pubkey,
-    pub current_size: u64,
-    pub new_size: u64,
+pub struct UpdateGlobalAuthorityEvent {
+    pub global: solana_pubkey::Pubkey,
+    pub authority: solana_pubkey::Pubkey,
+    pub new_authority: solana_pubkey::Pubkey,
     pub timestamp: i64,
 }

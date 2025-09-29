@@ -1,5 +1,9 @@
 use {
-    crate::{idl::Idl, legacy_idl::LegacyIdl, util::idl_type_to_rust_type},
+    crate::{
+        idl::{Idl, IdlEnumField},
+        legacy_idl::LegacyIdl,
+        util::idl_type_to_rust_type,
+    },
     askama::Template,
     heck::{ToSnakeCase, ToUpperCamelCase},
     sha2::{Digest, Sha256},
@@ -97,14 +101,28 @@ pub fn process_events(idl: &Idl) -> Vec<EventData> {
             if ty.name == struct_name {
                 if let Some(fields) = &ty.type_.fields {
                     for field in fields {
-                        let rust_type = idl_type_to_rust_type(&field.type_);
-                        if rust_type.1 {
-                            requires_imports = true;
-                        }
-                        args.push(ArgumentData {
-                            name: field.name.to_snake_case(),
-                            rust_type: rust_type.0,
-                        });
+                        match field {
+                            IdlEnumField::Named(field) => {
+                                let rust_type = idl_type_to_rust_type(&field.type_);
+                                if rust_type.1 {
+                                    requires_imports = true;
+                                }
+                                args.push(ArgumentData {
+                                    name: field.name.to_snake_case(),
+                                    rust_type: rust_type.0,
+                                });
+                            }
+                            IdlEnumField::Tuple(field) => {
+                                let rust_type = idl_type_to_rust_type(field);
+                                if rust_type.1 {
+                                    requires_imports = true;
+                                }
+                                args.push(ArgumentData {
+                                    name: rust_type.0.to_snake_case(),
+                                    rust_type: rust_type.0,
+                                });
+                            }
+                        };
                     }
                 }
             }
