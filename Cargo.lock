@@ -1052,6 +1052,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-circle-message-transmitter-v2-decoder"
+version = "0.10.0"
+dependencies = [
+ "carbon-core",
+ "serde",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey",
+]
+
+[[package]]
+name = "carbon-circle-token-messenger-v2-decoder"
+version = "0.10.0"
+dependencies = [
+ "carbon-core",
+ "serde",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey",
+]
+
+[[package]]
 name = "carbon-cli"
 version = "0.10.0"
 dependencies = [
