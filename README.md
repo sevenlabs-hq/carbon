@@ -84,6 +84,12 @@ chmod +x carbon-cli-linux-amd64
 sudo mv carbon-cli-linux-amd64 /usr/local/bin/carbon-cli
 ```
 
+###### Arch Linux AUR [package](https://aur.archlinux.org/packages/carbon-cli)
+
+```sh
+paru carbon-cli
+```
+
 ##### macOS
 
 ```sh
