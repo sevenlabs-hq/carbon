@@ -73,7 +73,7 @@ use async_trait::async_trait;
 use solana_pubkey::Pubkey;
 use solana_signature::Signature;
 use std::{
-    collections::HashSet,
+    collections::{HashMap, HashSet},
     sync::{Arc, Mutex},
 };
 
@@ -616,50 +616,58 @@ impl DedupFilter {
 
 /// Internal state for tracking deduplicated updates within a single slot.
 ///
-/// This structure maintains separate `HashSet` collections for each update type,
-/// allowing efficient O(1) lookup and insertion operations. The collections
-/// store minimal identifying information for each update type to optimize
-/// memory usage while ensuring accurate deduplication.
+/// This structure maintains separate collections for each update type,
+/// allowing efficient O(1) lookup and insertion operations.
 #[derive(Debug, Default)]
 struct DedupState {
-    /// Tracks account updates by (pubkey, lamports, data_hash) tuples.
+    /// Tracks per-datasource monotonic counter for account updates.
     ///
-    /// The data hash captures all changes to the account data, ensuring that
-    /// both lamport changes and data-only changes are properly deduplicated.
-    /// Uses Blake3 for fast, secure hashing of account data.
-    accounts: HashSet<(Pubkey, u64, blake3::Hash)>,
+    /// Key: (datasource_id, pubkey)
+    /// Value: counter (increments with each update from this datasource for this pubkey)
+    ///
+    /// Each datasource maintains its own independent counter per pubkey.
+    datasource_account_counters: HashMap<(DatasourceId, Pubkey), u64>,
+
+    /// Tracks the highest counter value emitted for each account.
+    ///
+    /// Key: pubkey
+    /// Value: highest counter that has been emitted
+    ///
+    /// An account update is only emitted if its counter is strictly greater than
+    /// the value stored here.
+    last_emitted_account: HashMap<Pubkey, u64>,
 
     /// Tracks instruction updates by transaction signature and absolute path of the instruction.
     instructions: HashSet<(Signature, Vec<u8>)>,
 }
 
 impl Filter for DedupFilter {
-    /// Filters account updates based on deduplication state.
+    /// Filters account updates based on deduplication state using per-datasource counters.
     ///
-    /// This method checks if an account update has already been processed within
-    /// the current slot. Account updates are identified by the combination of
-    /// the account's public key, lamports, and a Blake3 hash of the account data.
-    /// This ensures that both lamport changes and data-only changes are properly
-    /// deduplicated.
-    ///
-    /// Uses Blake3 for hashing account data, which provides excellent performance
-    /// (3-5 GB/s) even for large accounts while maintaining cryptographic security.
+    /// This method uses a counter-based approach to handle deduplication across multiple
+    /// datasources. Each datasource maintains its own monotonically increasing counter
+    /// per pubkey within a slot. An update is only emitted if its counter is strictly
+    /// greater than the last emitted counter for that pubkey.
+    /// When multiple datasources send identical updates,
+    /// only the first arrival is emitted since subsequent arrivals will have the same
+    /// or lower counter values.
     ///
     /// # Arguments
     ///
     /// * `datasource_id` - The ID of the datasource that produced this update
-    /// * `account_metadata` - Metadata about the account update for the pubkey
-    /// * `account` - The account data used for generating the content hash and lamports
+    /// * `account_metadata` - Metadata about the account update (pubkey and slot)
+    /// * `_account` - The account data (unused in counter-based deduplication)
     ///
     /// # Returns
     ///
-    /// `true` if the account update should be processed (not a duplicate or from
-    /// a non-deduplicated datasource), `false` if it should be skipped as a duplicate.
+    /// `true` if the account update should be processed (has a higher counter than
+    /// last emission or from a non-deduplicated datasource), `false` if it should
+    /// be skipped as a duplicate.
     fn filter_account(
         &self,
         datasource_id: &DatasourceId,
         account_metadata: &AccountMetadata,
-        account: &solana_account::Account,
+        _account: &solana_account::Account,
     ) -> bool {
         if !self.should_deduplicate_datasource(datasource_id) {
             return true;
@@ -670,15 +678,38 @@ impl Filter for DedupFilter {
             return false;
         }
 
-        let data_hash = blake3::hash(&account.data);
-        let key = (account_metadata.pubkey, account.lamports, data_hash);
+        let mut state = match self.dedup_state.lock() {
+            Ok(s) => s,
+            Err(e) => {
+                log::error!("Failed to lock dedup state for account filtering: {:?}", e);
+                return false;
+            }
+        };
 
-        if let Ok(mut state) = self.dedup_state.lock() {
-            state.accounts.insert(key)
-        } else {
-            log::error!("Failed to lock dedup state for account filtering");
-            false
+        let counter_key = (datasource_id.clone(), account_metadata.pubkey);
+
+        let counter = state
+            .datasource_account_counters
+            .entry(counter_key)
+            .and_modify(|c| *c += 1)
+            .or_insert(1);
+
+        let current_counter = *counter;
+
+        let last_emitted_counter = state
+            .last_emitted_account
+            .get(&account_metadata.pubkey)
+            .copied()
+            .unwrap_or(0);
+
+        if current_counter <= last_emitted_counter {
+            return false;
         }
+
+        state
+            .last_emitted_account
+            .insert(account_metadata.pubkey, current_counter);
+        true
     }
 
     /// Filters instruction updates based on deduplication state.
@@ -721,5 +752,182 @@ impl Filter for DedupFilter {
             log::error!("Failed to lock dedup state");
             false
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::datasource::DatasourceId;
+    use solana_account::Account;
+
+    use solana_pubkey::Pubkey;
+
+    fn create_account() -> Account {
+        Account {
+            lamports: 1000,
+            data: vec![1, 2, 3],
+            owner: Pubkey::default(),
+            executable: false,
+            rent_epoch: 0,
+        }
+    }
+
+    fn create_metadata(slot: u64, pubkey: Pubkey) -> AccountMetadata {
+        AccountMetadata {
+            slot,
+            pubkey,
+            transaction_signature: None,
+        }
+    }
+
+    #[test]
+    fn test_simple_duplicate_from_two_datasources() {
+        let filter = DedupFilter::default();
+        let ds1 = DatasourceId::new_named("source1");
+        let ds2 = DatasourceId::new_named("source2");
+        let pubkey = Pubkey::new_unique();
+        let account = create_account();
+        let metadata = create_metadata(100, pubkey);
+
+        // First update from source1 should pass
+        assert!(filter.filter_account(&ds1, &metadata, &account));
+
+        // Same update from source2 should be filtered
+        assert!(!filter.filter_account(&ds2, &metadata, &account));
+    }
+
+    #[test]
+    fn test_state_cycling_123_321_123() {
+        let filter = DedupFilter::default();
+        let ds1 = DatasourceId::new_named("source1");
+        let ds2 = DatasourceId::new_named("source2");
+        let pubkey = Pubkey::new_unique();
+        let metadata = create_metadata(100, pubkey);
+
+        let account_123 = Account {
+            lamports: 1000,
+            data: vec![1, 2, 3],
+            owner: Pubkey::default(),
+            executable: false,
+            rent_epoch: 0,
+        };
+
+        let account_321 = Account {
+            lamports: 1000,
+            data: vec![3, 2, 1],
+            owner: Pubkey::default(),
+            executable: false,
+            rent_epoch: 0,
+        };
+
+        // Update A (123) from source1
+        assert!(filter.filter_account(&ds1, &metadata, &account_123));
+        // Update A (123) from source2 - duplicate
+        assert!(!filter.filter_account(&ds2, &metadata, &account_123));
+
+        // Update B (321) from source1
+        assert!(filter.filter_account(&ds1, &metadata, &account_321));
+        // Update B (321) from source2 - duplicate
+        assert!(!filter.filter_account(&ds2, &metadata, &account_321));
+
+        // Update C (123) from source1 - cycles back but should pass
+        assert!(filter.filter_account(&ds1, &metadata, &account_123));
+        // Update C (123) from source2 - duplicate
+        assert!(!filter.filter_account(&ds2, &metadata, &account_123));
+    }
+
+    #[test]
+    fn test_slot_boundary_clears_state() {
+        let filter = DedupFilter::default();
+        let ds1 = DatasourceId::new_named("source1");
+        let ds2 = DatasourceId::new_named("source2");
+        let pubkey = Pubkey::new_unique();
+        let account = create_account();
+
+        // Slot 100
+        let metadata_100 = create_metadata(100, pubkey);
+        assert!(filter.filter_account(&ds1, &metadata_100, &account));
+        assert!(!filter.filter_account(&ds2, &metadata_100, &account));
+
+        // Slot 101 - state should reset
+        let metadata_101 = create_metadata(101, pubkey);
+        assert!(filter.filter_account(&ds1, &metadata_101, &account));
+        assert!(!filter.filter_account(&ds2, &metadata_101, &account));
+    }
+
+    #[test]
+    fn test_multiple_pubkeys_independent_counters() {
+        let filter = DedupFilter::default();
+        let ds1 = DatasourceId::new_named("source1");
+        let ds2 = DatasourceId::new_named("source2");
+        let pubkey1 = Pubkey::new_unique();
+        let pubkey2 = Pubkey::new_unique();
+        let account = create_account();
+        let metadata1 = create_metadata(100, pubkey1);
+        let metadata2 = create_metadata(100, pubkey2);
+
+        // Both pubkeys should have independent deduplication
+        assert!(filter.filter_account(&ds1, &metadata1, &account));
+        assert!(filter.filter_account(&ds1, &metadata2, &account));
+        assert!(!filter.filter_account(&ds2, &metadata1, &account));
+        assert!(!filter.filter_account(&ds2, &metadata2, &account));
+    }
+
+    #[test]
+    fn test_datasource_filter_only_deduplicates_allowed() {
+        let ds1 = DatasourceId::new_named("source1");
+        let ds2 = DatasourceId::new_named("source2");
+        let ds3 = DatasourceId::new_named("source3");
+
+        // Only deduplicate ds1 and ds2, not ds3
+        let filter = DedupFilter::new_for_datasources(vec![ds1.clone(), ds2.clone()]);
+
+        let pubkey = Pubkey::new_unique();
+        let account = create_account();
+        let metadata = create_metadata(100, pubkey);
+
+        // ds1 passes
+        assert!(filter.filter_account(&ds1, &metadata, &account));
+        // ds2 filtered (duplicate of ds1)
+        assert!(!filter.filter_account(&ds2, &metadata, &account));
+        // ds3 always passes (not in dedup list)
+        assert!(filter.filter_account(&ds3, &metadata, &account));
+        // ds3 again still passes (no dedup for ds3)
+        assert!(filter.filter_account(&ds3, &metadata, &account));
+    }
+
+    #[test]
+    fn test_three_datasources_interleaved() {
+        let filter = DedupFilter::default();
+        let ds1 = DatasourceId::new_named("source1");
+        let ds2 = DatasourceId::new_named("source2");
+        let ds3 = DatasourceId::new_named("source3");
+        let pubkey = Pubkey::new_unique();
+        let metadata = create_metadata(100, pubkey);
+
+        let account_a = Account {
+            lamports: 1000,
+            data: vec![1],
+            owner: Pubkey::default(),
+            executable: false,
+            rent_epoch: 0,
+        };
+
+        let account_b = Account {
+            lamports: 2000,
+            data: vec![2],
+            owner: Pubkey::default(),
+            executable: false,
+            rent_epoch: 0,
+        };
+
+        // Interleaved: ds1(A), ds2(A), ds1(B), ds3(A), ds2(B), ds3(B)
+        assert!(filter.filter_account(&ds1, &metadata, &account_a)); // counter=1, emit
+        assert!(!filter.filter_account(&ds2, &metadata, &account_a)); // counter=1, skip
+        assert!(filter.filter_account(&ds1, &metadata, &account_b)); // counter=2, emit
+        assert!(!filter.filter_account(&ds3, &metadata, &account_a)); // counter=1, skip
+        assert!(!filter.filter_account(&ds2, &metadata, &account_b)); // counter=2, skip
+        assert!(!filter.filter_account(&ds3, &metadata, &account_b)); // counter=2, skip
     }
 }

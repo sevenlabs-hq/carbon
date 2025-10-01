@@ -27,7 +27,6 @@ solana-transaction-status = { workspace = true }
 
 async-trait = { workspace = true }
 borsh = { version = "0.10.4" }
-blake3 = { workspace = true }
 bs58 = { workspace = true }
 base64 = { workspace = true }
 log = { workspace = true }
