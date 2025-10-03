@@ -71,7 +71,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for TokenProgramDecoder {
         &self,
         instruction: &solana_instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
-        if !instruction.program_id.eq(&spl_token::id()) {
+        if !instruction.program_id.eq(&spl_token_interface::id()) {
             return None;
         }
 

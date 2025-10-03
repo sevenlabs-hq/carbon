@@ -16,16 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     name: fmt
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Stable Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-
-      - name: Install `rustfmt`
-        run: rustup component add  rustfmt --toolchain 1.84.1
+          toolchain: 1.90.0 
+          components: clippy,rustfmt
 
       - name: cargo fmt --check
         run: cargo fmt --check
@@ -42,12 +39,10 @@ jobs:
           submodules: true
 
       - name: Stable Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-
-      - name: Install `clippy`
-        run: rustup component add  clippy --toolchain 1.84.1
+          toolchain: 1.90.0 
+          components: clippy
 
       - name: cargo clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
