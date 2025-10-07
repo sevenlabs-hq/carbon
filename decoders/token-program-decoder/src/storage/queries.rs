@@ -1,7 +1,7 @@
 use async_trait::async_trait;
 use carbon_postgres_client::PgClient;
 use solana_pubkey::Pubkey;
-use spl_token::state::{Account, Mint};
+use spl_token_interface::state::{Account, Mint};
 use sqlx::Postgres;
 
 use super::converters::{DBMint, DBTokenAccount};

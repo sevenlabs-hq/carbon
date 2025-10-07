@@ -1,7 +1,7 @@
 use rust_decimal::prelude::ToPrimitive;
 use rust_decimal::Decimal;
 use solana_pubkey::Pubkey;
-use spl_token::state::{Account, AccountState, Mint};
+use spl_token_interface::state::{Account, AccountState, Mint};
 
 #[derive(sqlx::Type)]
 #[sqlx(type_name = "account_state")]

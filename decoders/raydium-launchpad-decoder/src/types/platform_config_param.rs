@@ -1,6 +1,6 @@
 use super::*;
 
-use alloc::string::String;
+use alloc::{format, string::String};
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(

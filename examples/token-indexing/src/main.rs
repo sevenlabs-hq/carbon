@@ -21,7 +21,7 @@ use {
         YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient,
     },
     juniper::{EmptyMutation, EmptySubscription},
-    spl_token::state::Mint,
+    spl_token_interface::state::Mint,
     std::{
         collections::{HashMap, HashSet},
         env,
@@ -48,7 +48,7 @@ pub async fn main() -> CarbonResult<()> {
         "spl_token_account_filter".to_string(),
         SubscribeRequestFilterAccounts {
             account: vec![],
-            owner: vec![spl_token::id().to_string()],
+            owner: vec![spl_token_interface::id().to_string()],
             filters: vec![],
             nonempty_txn_signature: None,
         },
@@ -82,7 +82,7 @@ pub async fn main() -> CarbonResult<()> {
         failed: Some(false),
         account_include: vec![],
         account_exclude: vec![],
-        account_required: vec![spl_token::id().to_string()],
+        account_required: vec![spl_token_interface::id().to_string()],
         signature: None,
     };
 

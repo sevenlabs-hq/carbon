@@ -193,19 +193,6 @@ pub struct TupleTypeNode {
 
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct FieldDiscriminatorNode {
-    pub name: String,
-    pub offset: usize,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct FixedCountNode {
-    pub value: usize,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct InstructionAccountNode {
     pub name: String,
     pub is_writable: bool,

@@ -20,7 +20,7 @@ axum = "0.8.4"
 base64 = "0.22.1"
 bincode = "1.3.3"
 borsh = { version = "1.5.1" }
-borsh-derive-internal = "0.10.3"
+borsh-derive-internal-satellite = "0.11.0"
 bs58 = { version = "0.5.1", default-features = false }
 
 # decoders
@@ -118,9 +118,9 @@ dotenv = "0.15.0"
 env_logger = "0.11.5"
 flate2 = "1.0.35"
 futures = "0.3.30"
-futures-util = "0.3.31"
+futures-util = "0.3.1"
 heck = "0.5.0"
-helius = { version = "0.3.1" }
+helius = { git = "https://github.com/helius-labs/helius-rust-sdk", rev = "f62d528283ca009acacebdd343a8cf2bc0fd09cd" }
 hex = "0.4.3"
 indicatif = "0.17.8"
 inquire = "0.7.5"
@@ -145,27 +145,31 @@ serde_json = "1.0.138"
 sha2 = "0.10.8"
 
 # solana
-solana-account = "~2.2"
-solana-account-decoder = "^2.3.6"
-solana-account-decoder-client-types = "^2.3.6"
-solana-client = "^2.3.6"
-solana-clock = "~2.2"
-solana-commitment-config = "~2.2"
-solana-entry = "^2.3.6"
-solana-hash = "~2.3"
-solana-instruction = { version = "~2.3", default-features = false }
-solana-message = "^2.3.6"
-solana-native-token = "~2.3"
-solana-program = "~2.2"
-solana-program-pack = "~2.2"
-solana-pubkey = { version = "^2.3.6", features = ["serde", "borsh", "curve25519"] }
-solana-signature = { version = "~2.3", features = ["rand"] }
-solana-transaction = "~2.2"
-solana-transaction-context = "^2.3.6"
-solana-transaction-status = "^2.3.6"
+solana-account = "3.0.0"
+solana-account-decoder = "^3.0.5"
+solana-account-decoder-client-types = "^3.0.3"
+solana-client = "^3.0.3"
+solana-clock = "^3.0.0"
+solana-commitment-config = "~3.0.0"
+solana-entry = "^3.0.3"
+solana-hash = "~3.0.0"
+solana-instruction = { version = "~3.0.0", default-features = false }
+solana-message = "^3.0.1"
+solana-native-token = "~3.0.0"
+solana-program = { version = "~3.0.0", features = ["borsh"] }
+solana-program-pack = "~3.0.0"
+solana-pubkey = { version = "^3.0.0", features = ["serde", "borsh", "curve25519"] }
+solana-reward-info = "^3.0.0"
+solana-signature = { version = "~3.1.0", features = ["rand"] }
+solana-system-interface = "~2.0.0"
+solana-transaction = "^3.0.1"
+solana-transaction-context = "^3.0.3"
+solana-transaction-error = "^3.0.0"
+solana-transaction-status = "^3.0.3"
+solana-transaction-status-client-types = "^3.0.3"
 
-spl-memo = "6.0.0"
-spl-token = "7.0.0"
+spl-memo-interface = "2.0.0"
+spl-token-interface = "2.0.0"
 sqlx = { version = "0.8.5", features = [
     "macros",
     "runtime-tokio-rustls",
@@ -184,8 +188,8 @@ tonic = { version = "0.13.1", features = ["tls-native-roots", "tls-webpki-roots"
 tonic-build = "0.13.1"
 unicode-xid = "0.2"
 uuid = { version = "1.6.1", features = ["serde", "v7"] }
-yellowstone-grpc-client = { version = "9.0.0" }
-yellowstone-grpc-proto = { version = "9.0.0", features = ["convert"] }
+yellowstone-grpc-client = { git = "https://github.com/rpcpool/yellowstone-grpc", rev = "73c43e1112f6b3432a6b2df9bad73438f6c51034" }
+yellowstone-grpc-proto = { git = "https://github.com/rpcpool/yellowstone-grpc", rev = "73c43e1112f6b3432a6b2df9bad73438f6c51034", features = ["convert"] }
 
 [patch.crates-io.curve25519-dalek]
 git = "https://github.com/anza-xyz/curve25519-dalek.git"
