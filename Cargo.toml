@@ -28,6 +28,8 @@ carbon-address-lookup-table-decoder = { path = "decoders/address-lookup-table-de
 carbon-associated-token-account-decoder = { path = "decoders/associated-token-account-decoder", version = "0.10.0" }
 carbon-boop-decoder = { path = "decoders/boop-decoder", version = "0.10.0" }
 carbon-bubblegum-decoder = { path = "decoders/bubblegum-decoder", version = "0.10.0" }
+carbon-circle-message-transmitter-v2-decoder = { path = "decoders/circle-message-transmitter-v2-decoder", version = "0.10.0" }
+carbon-circle-token-messenger-v2-decoder  = { path = "decoders/carbon-circle-token-messenger-v2-decoder", version = "0.10.0" }
 
 # main
 carbon-cli = { path = "crates/cli", version = "0.10.0" }
