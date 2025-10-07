@@ -5,7 +5,7 @@ use {
         datasource::{AccountUpdate, Datasource, DatasourceId, Update, UpdateType},
         error::CarbonResult,
         instruction::InstructionDecoder,
-        instruction_decoder_collection,
+        instruction_decoder_collection_fast,
         metrics::MetricsCollection,
         pipeline::{Pipeline, ShutdownStrategy},
         processor::Processor,
@@ -131,9 +131,9 @@ impl Processor for SharkyAccountProcessor {
     }
 }
 
-instruction_decoder_collection!(
+instruction_decoder_collection_fast!(
     AllInstructions, AllInstructionsType, AllPrograms,
-    Sharky => SharkyDecoder => SharkyInstruction
+    Sharky => carbon_sharky_decoder::PROGRAM_ID => SharkyDecoder => SharkyInstruction
 );
 
 #[tokio::main]
