@@ -1,0 +1,26 @@
+[package]
+name = "postgres-carbon-example"
+version = "0.2.1"
+edition = "2021"
+
+[dependencies]
+carbon-core = { workspace = true }
+carbon-yellowstone-grpc-datasource = { workspace = true }
+carbon-log-metrics = { workspace = true }
+carbon-pump-amm-decoder = { path = "./generated", features = ["postgres"] }
+
+async-trait = { workspace = true }
+dotenv = { workspace = true }
+env_logger = { workspace = true }
+log = { workspace = true }
+solana-instruction = { workspace = true }
+solana-native-token = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+yellowstone-grpc-proto = { workspace = true }
+sqlx = { workspace = true }
+sqlx_migrator = { workspace = true }
+
+[dependencies.rustls]
+default-features = false
+features = ["std", "aws_lc_rs"]
+version = "0.23.0"

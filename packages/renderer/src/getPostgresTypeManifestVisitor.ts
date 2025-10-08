@@ -115,7 +115,11 @@ export function getPostgresTypeManifestVisitor() {
                     return visit(node.item, self);
                 },
                 visitDefinedTypeLink(node) {
-                    return m(`${pascalCase(node.name)}`, 'COMPOSITE', [`crate::types::${pascalCase(node.name)}`]);
+                    return {
+                        imports: new ImportMap().add([`crate::types::${pascalCase(node.name)}`]),
+                        sqlxType: `sqlx::types::Json<${pascalCase(node.name)}>`,
+                        postgresColumnType: 'JSONB',
+                    };
                 },
             }),
     );
