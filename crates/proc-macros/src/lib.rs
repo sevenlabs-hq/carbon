@@ -770,74 +770,22 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
     TokenStream::from(expanded)
 }
 
-/// Generates a collection of instruction decoders with fast `program_id` dispatch.
+/// Similar to `instruction_decoder_collection!` but dispatches by
+/// `program_id` via `match` for faster decoding.
 ///
-/// This macro is a faster alternative to `instruction_decoder_collection!`.
-/// It generates the same enums and trait implementation, but the
-/// `parse_instruction` method matches on `instruction.program_id` to choose the
-/// decoder instead of trying each decoder in sequence.
-///
-/// Syntax (preferred)
-///
-/// - First three arguments are enum identifiers for instructions, instruction
-///   types, and programs.
-/// - Each subsequent line maps a program variant to its program id, decoder,
-///   and instruction type:
-///   `ProgramVariant => ProgramIdPath => DecoderExpr => InstructionTypePath`.
-///
-/// Backward compatibility
-///
-/// - The legacy 3-part form `ProgramVariant => DecoderExpr => InstructionTypePath`
-///   is still accepted. Entries without an explicit `ProgramIdPath` are tried
-///   in a slow-path fallback (sequential `decode_instruction` checks) when the
-///   program id does not match any explicit arms. The macro does not assume any
-///   `PROGRAM_ID` constant exists in decoder crates.
-///
-/// Example
+/// Syntax
 ///
 /// ```ignore
 /// instruction_decoder_collection_fast!(
-///     AllDexInstructions,
-///     AllDexInstructionTypes,
-///     AllDexPrograms,
+///     AllInstructionsEnum,
+///     AllInstructionTypesEnum,
+///     AllProgramsEnum,
+///     // 4-part (preferred): Variant => ProgramIdPath => DecoderExpr => InstructionTypePath
 ///     Pumpfun => carbon_pumpfun_decoder::PROGRAM_ID => carbon_pumpfun_decoder::PumpfunDecoder => carbon_pumpfun_decoder::instructions::PumpfunInstruction,
-///     // No explicit PROGRAM_ID provided here; this entry falls back to slow decode
+///     // 3-part (legacy): falls back to slow sequential decode
 ///     PumpSwap => carbon_pump_swap_decoder::PumpSwapDecoder => carbon_pump_swap_decoder::instructions::PumpSwapInstruction,
-///     RaydiumAmmV4 => carbon_raydium_amm_v4_decoder::PROGRAM_ID => carbon_raydium_amm_v4_decoder::RaydiumAmmV4Decoder => carbon_raydium_amm_v4_decoder::instructions::RaydiumAmmV4Instruction,
-///     RaydiumCpmm => carbon_raydium_cpmm_decoder::PROGRAM_ID => carbon_raydium_cpmm_decoder::RaydiumCpmmDecoder => carbon_raydium_cpmm_decoder::instructions::RaydiumCpmmInstruction,
-///     RaydiumClmm => carbon_raydium_clmm_decoder::PROGRAM_ID => carbon_raydium_clmm_decoder::RaydiumClmmDecoder => carbon_raydium_clmm_decoder::instructions::RaydiumClmmInstruction
 /// );
 /// ```
-///
-/// This expands to a `parse_instruction` that matches on `program_id`:
-///
-/// ```ignore
-/// match instruction.program_id {
-///     carbon_pumpfun_decoder::PROGRAM_ID => {
-///         if let Some(decoded_instruction) = carbon_pumpfun_decoder::PumpfunDecoder
-///             .decode_instruction(&instruction)
-///         {
-///             Some(carbon_core::instruction::DecodedInstruction {
-///                 program_id: instruction.program_id,
-///                 accounts: instruction.accounts.clone(),
-///                 data: AllDexInstructions::Pumpfun(decoded_instruction.data),
-///             })
-///         } else {
-///             None
-///         }
-///     }
-///     // ...
-///     _ => None,
-/// }
-/// ```
-///
-/// Notes
-///
-/// - Prefer the explicit `ProgramIdPath` to make dispatch resilient to re-exports
-///   or nested module layouts. The generated enums and `get_type` implementation
-///   are identical to the non-fast macro.
-/// - Ensure each `ProgramIdPath` is unique; duplicate program IDs will result in
-///   unreachable match arms and decoding ambiguity.
 #[proc_macro]
 pub fn instruction_decoder_collection_fast(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as InstructionMacroInput);
