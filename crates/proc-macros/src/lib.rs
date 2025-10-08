@@ -788,10 +788,10 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
 /// Backward compatibility
 ///
 /// - The legacy 3-part form `ProgramVariant => DecoderExpr => InstructionTypePath`
-///   is still accepted for compatibility. In that case, the macro infers the
-///   program id path as `<crate_root>::PROGRAM_ID`, where `<crate_root>` is the
-///   first segment of `InstructionTypePath`. Prefer the explicit 4-part form to
-///   avoid ambiguity.
+///   is still accepted. Entries without an explicit `ProgramIdPath` are tried
+///   in a slow-path fallback (sequential `decode_instruction` checks) when the
+///   program id does not match any explicit arms. The macro does not assume any
+///   `PROGRAM_ID` constant exists in decoder crates.
 ///
 /// Example
 ///
@@ -801,7 +801,8 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
 ///     AllDexInstructionTypes,
 ///     AllDexPrograms,
 ///     Pumpfun => carbon_pumpfun_decoder::PROGRAM_ID => carbon_pumpfun_decoder::PumpfunDecoder => carbon_pumpfun_decoder::instructions::PumpfunInstruction,
-///     PumpSwap => carbon_pump_swap_decoder::PROGRAM_ID => carbon_pump_swap_decoder::PumpSwapDecoder => carbon_pump_swap_decoder::instructions::PumpSwapInstruction,
+///     // No explicit PROGRAM_ID provided here; this entry falls back to slow decode
+///     PumpSwap => carbon_pump_swap_decoder::PumpSwapDecoder => carbon_pump_swap_decoder::instructions::PumpSwapInstruction,
 ///     RaydiumAmmV4 => carbon_raydium_amm_v4_decoder::PROGRAM_ID => carbon_raydium_amm_v4_decoder::RaydiumAmmV4Decoder => carbon_raydium_amm_v4_decoder::instructions::RaydiumAmmV4Instruction,
 ///     RaydiumCpmm => carbon_raydium_cpmm_decoder::PROGRAM_ID => carbon_raydium_cpmm_decoder::RaydiumCpmmDecoder => carbon_raydium_cpmm_decoder::instructions::RaydiumCpmmInstruction,
 ///     RaydiumClmm => carbon_raydium_clmm_decoder::PROGRAM_ID => carbon_raydium_clmm_decoder::RaydiumClmmDecoder => carbon_raydium_clmm_decoder::instructions::RaydiumClmmInstruction
@@ -850,6 +851,7 @@ pub fn instruction_decoder_collection_fast(input: TokenStream) -> TokenStream {
     let mut instruction_type_variants = Vec::new();
     let mut program_variants = Vec::new();
     let mut parse_instruction_match_arms = Vec::new();
+    let mut fallback_decode_blocks = Vec::new();
     let mut get_type_arms = Vec::new();
 
     for entry in entries {
@@ -881,32 +883,32 @@ pub fn instruction_decoder_collection_fast(input: TokenStream) -> TokenStream {
             #program_variant
         });
 
-        let match_arm = if let Some(program_id_path) = explicit_program_id_path {
-            quote! { #program_id_path }
+        if let Some(program_id_path) = explicit_program_id_path {
+            parse_instruction_match_arms.push(quote! {
+                #program_id_path => {
+                    if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
+                        Some(carbon_core::instruction::DecodedInstruction {
+                            program_id: instruction.program_id,
+                            accounts: instruction.accounts.clone(),
+                            data: #instructions_enum_name::#program_variant(decoded_instruction.data),
+                        })
+                    } else {
+                        None
+                    }
+                }
+            });
         } else {
-            let program_id_crate_root = instruction_type
-                .path
-                .segments
-                .first()
-                .expect("instruction type path must have at least one segment")
-                .ident
-                .clone();
-            quote! { #program_id_crate_root::PROGRAM_ID }
-        };
-
-        parse_instruction_match_arms.push(quote! {
-            #match_arm => {
+            // No program id path: include in slow-path fallback.
+            fallback_decode_blocks.push(quote! {
                 if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
-                    Some(carbon_core::instruction::DecodedInstruction {
+                    return Some(carbon_core::instruction::DecodedInstruction {
                         program_id: instruction.program_id,
                         accounts: instruction.accounts.clone(),
                         data: #instructions_enum_name::#program_variant(decoded_instruction.data),
-                    })
-                } else {
-                    None
+                    });
                 }
-            }
-        });
+            });
+        }
 
         get_type_arms.push(quote! {
             #instructions_enum_name::#program_variant(instruction) => {
@@ -939,7 +941,10 @@ pub fn instruction_decoder_collection_fast(input: TokenStream) -> TokenStream {
             ) -> Option<carbon_core::instruction::DecodedInstruction<Self>> {
                 match instruction.program_id {
                     #(#parse_instruction_match_arms),*
-                    _ => None,
+                    _ => {
+                        #(#fallback_decode_blocks)*
+                        None
+                    }
                 }
             }
 
