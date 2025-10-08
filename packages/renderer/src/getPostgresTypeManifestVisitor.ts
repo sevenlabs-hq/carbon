@@ -100,6 +100,7 @@ export function getPostgresTypeManifestVisitor() {
                 visitSetType() {
                     return jsonb();
                 },
+                // TODO: What about wrapper types OptionBool(pub bool)? Rn it's as (bool)
                 visitTupleType(node, { self }) {
                     const inners = node.items.map(i => visit(i, self));
                     return {
