@@ -5,6 +5,9 @@
 #[cfg(feature = "postgres")]
 pub mod postgres;
 
+#[cfg(feature = "graphql")]
+pub mod graphql;
+
 use crate::{PROGRAM_ID, {{ program.name | pascalCase }}Decoder};
 
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
