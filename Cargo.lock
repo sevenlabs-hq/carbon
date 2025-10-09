@@ -1667,6 +1667,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-pump-amm-decoder-2"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "base64 0.22.1",
+ "carbon-core",
+ "carbon-gql-server",
+ "carbon-test-utils",
+ "juniper",
+ "serde",
+ "serde-big-array",
+ "serde_json",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey",
+ "sqlx",
+ "sqlx_migrator",
+]
+
+[[package]]
 name = "carbon-pump-swap-decoder"
 version = "0.9.1"
 dependencies = [
@@ -4986,6 +5006,7 @@ dependencies = [
  "carbon-core",
  "carbon-log-metrics",
  "carbon-pump-amm-decoder",
+ "carbon-pump-amm-decoder-2",
  "carbon-yellowstone-grpc-datasource",
  "dotenv",
  "env_logger 0.11.8",

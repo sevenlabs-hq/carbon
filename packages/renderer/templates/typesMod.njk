@@ -2,6 +2,9 @@
 
 {% block main %}
 
+#[cfg(feature = "graphql")]
+pub mod graphql;
+
 {% for type in definedTypesToExport | sort(false, false, 'name') %}
 pub mod {{ type.name | snakeCase }};
 {% endfor %}

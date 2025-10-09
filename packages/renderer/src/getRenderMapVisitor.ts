@@ -21,6 +21,7 @@ import { getDiscriminatorManifest, getTypeManifestVisitor } from './getTypeManif
 import { ImportMap } from './ImportMap';
 import { partition, render } from './utils';
 import { getPostgresTypeManifestVisitor, PostgresTypeManifest } from './getPostgresTypeManifestVisitor';
+import { FlattenedGraphQLField, flattenTypeForGraphQL } from './utils/flattenGraphqlFields';
 
 export type GetRenderMapOptions = {
     renderParentInstructions?: boolean;
@@ -99,6 +100,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                     const discriminatorManifest = getDiscriminatorManifest(discriminators);
 
+                    // Postgres generation
                     const flatFields = flattenType(newNode.data, [], [], new Set());
                     const postgresImports = new ImportMap()
                         .add(`crate::accounts::${pascalCase(node.name)}`)
@@ -108,7 +110,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         postgresImports.mergeWith(f.postgresManifest.imports);
                     });
 
-                    return new RenderMap()
+                    let renderMap = new RenderMap()
                         .add(
                             `src/accounts/${snakeCase(node.name)}.rs`,
                             render('accountsPage.njk', {
@@ -129,13 +131,36 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 isAccount: true,
                             }),
                         );
+
+                    // GraphQL generation
+                    const graphqlFields = flattenTypeForGraphQL(newNode.data, [], [], new Set());
+                    const graphqlImports = new ImportMap();
+                    graphqlFields.forEach((f: FlattenedGraphQLField) => {
+                        graphqlImports.mergeWith(f.graphqlManifest.imports);
+                    });
+
+                    // GraphQLObject doesn't support empty structs
+                    if (graphqlFields.length > 0) {
+                        renderMap.add(
+                            `src/accounts/graphql/${snakeCase(node.name)}_schema.rs`,
+                            render('graphqlSchemaPage.njk', {
+                                entityDocs: node.docs,
+                                entityName: node.name,
+                                imports: graphqlImports.toString(),
+                                graphqlFields,
+                                isAccount: true,
+                            }),
+                        );
+                    }
+
+                    return renderMap;
                 },
 
                 visitDefinedType(node) {
                     const typeManifest = visit(node.type, typeManifestVisitor);
                     const imports = new ImportMap().mergeWithManifest(typeManifest).add('carbon_core::borsh');
 
-                    return new RenderMap().add(
+                    let renderMap = new RenderMap().add(
                         `src/types/${snakeCase(node.name)}.rs`,
                         render('typesPage.njk', {
                             definedType: node,
@@ -143,6 +168,29 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             typeManifest,
                         }),
                     );
+
+                    // GraphQL generation
+                    const graphqlFields = flattenTypeForGraphQL(node.type, [], [], new Set());
+                    const graphqlImports = new ImportMap();
+                    graphqlFields.forEach((f: FlattenedGraphQLField) => {
+                        graphqlImports.mergeWith(f.graphqlManifest.imports);
+                    });
+
+                    // GraphQLObject doesn't support empty structs
+                    if (graphqlFields.length > 0) {
+                        renderMap.add(
+                            `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
+                            render('graphqlTypeSchemaPage.njk', {
+                                entityDocs: node.docs,
+                                entityName: node.name,
+                                imports: graphqlImports.toString(),
+                                graphqlFields,
+                                isAccount: false,
+                            }),
+                        );
+                    }
+
+                    return renderMap;
                 },
 
                 visitInstruction(node) {
@@ -195,6 +243,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                     const discriminatorManifest = getDiscriminatorManifest(discriminators);
 
+                    // Postgres generation
                     const flatFields = flattenType(
                         structTypeNode(
                             newNode.arguments.map(a =>
@@ -216,7 +265,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         postgresImports.mergeWith(f.postgresManifest.imports);
                     });
 
-                    return new RenderMap()
+                    let renderMap = new RenderMap()
                         .add(
                             `src/instructions/${snakeCase(node.name)}.rs`,
                             render('instructionsPage.njk', {
@@ -237,6 +286,41 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 isAccount: false,
                             }),
                         );
+
+                    // GraphQL generation
+                    const graphqlFields = flattenTypeForGraphQL(
+                        structTypeNode(
+                            newNode.arguments.map(a =>
+                                structFieldTypeNode({
+                                    type: a.type,
+                                    name: a.name,
+                                }),
+                            ),
+                        ),
+                        [],
+                        [],
+                        new Set(),
+                    );
+                    const graphqlImports = new ImportMap();
+                    graphqlFields.forEach((f: FlattenedGraphQLField) => {
+                        graphqlImports.mergeWith(f.graphqlManifest.imports);
+                    });
+
+                    // GraphQLObject doesn't support empty structs
+                    if (graphqlFields.length > 0) {
+                        renderMap.add(
+                            `src/instructions/graphql/${snakeCase(node.name)}_schema.rs`,
+                            render('graphqlSchemaPage.njk', {
+                                entityDocs: node.docs,
+                                entityName: node.name,
+                                imports: graphqlImports.toString(),
+                                graphqlFields,
+                                isAccount: false,
+                            }),
+                        );
+                    }
+
+                    return renderMap;
                 },
 
                 visitProgram(node, { self }) {
@@ -285,13 +369,16 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     if (accountsToExport.length > 0) {
                         map.add('src/accounts/mod.rs', render('accountsMod.njk', ctx));
                         map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
+                        map.add('src/accounts/graphql/mod.rs', render('accountsGraphQLMod.njk', ctx));
                     }
                     if (instructionsToExport.length > 0) {
                         map.add('src/instructions/mod.rs', render('instructionsMod.njk', ctx));
                         map.add('src/instructions/postgres/mod.rs', render('instructionsPostgresMod.njk', ctx));
+                        map.add('src/instructions/graphql/mod.rs', render('instructionsGraphQLMod.njk', ctx));
                     }
                     if (definedTypesToExport.length > 0) {
                         map.add('src/types/mod.rs', render('typesMod.njk', ctx));
+                        map.add('src/types/graphql/mod.rs', render('typesGraphQLMod.njk', ctx));
                     }
 
                     // Generate lib.rs
