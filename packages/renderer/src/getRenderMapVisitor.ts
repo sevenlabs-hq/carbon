@@ -158,7 +158,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                 visitDefinedType(node) {
                     const typeManifest = visit(node.type, typeManifestVisitor);
-                    const imports = new ImportMap().mergeWithManifest(typeManifest).add('carbon_core::borsh');
+                    const imports = new ImportMap().mergeWithManifest(typeManifest);
+                    // Only import borsh if the type is a struct or enum, to have clippy not complain
+                    if (node.type.kind === 'structTypeNode' || node.type.kind === 'enumTypeNode') {
+                        imports.add('carbon_core::borsh');
+                    }
 
                     let renderMap = new RenderMap().add(
                         `src/types/${snakeCase(node.name)}.rs`,
@@ -169,25 +173,26 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         }),
                     );
 
-                    // GraphQL generation
-                    const graphqlFields = flattenTypeForGraphQL(node.type, [], [], new Set());
-                    const graphqlImports = new ImportMap();
-                    graphqlFields.forEach((f: FlattenedGraphQLField) => {
-                        graphqlImports.mergeWith(f.graphqlManifest.imports);
-                    });
+                    // GraphQL generation only for non-empty structs
+                    if (node.type.kind === 'structTypeNode' && node.type.fields.length > 0) {
+                        const graphqlFields = flattenTypeForGraphQL(node.type, [], [], new Set());
+                        const graphqlImports = new ImportMap();
+                        graphqlFields.forEach((f: FlattenedGraphQLField) => {
+                            graphqlImports.mergeWith(f.graphqlManifest.imports);
+                        });
 
-                    // GraphQLObject doesn't support empty structs
-                    if (graphqlFields.length > 0) {
-                        renderMap.add(
-                            `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
-                            render('graphqlTypeSchemaPage.njk', {
-                                entityDocs: node.docs,
-                                entityName: node.name,
-                                imports: graphqlImports.toString(),
-                                graphqlFields,
-                                isAccount: false,
-                            }),
-                        );
+                        if (graphqlFields.length > 0) {
+                            renderMap.add(
+                                `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
+                                render('graphqlTypeSchemaPage.njk', {
+                                    entityDocs: node.docs,
+                                    entityName: node.name,
+                                    imports: graphqlImports.toString(),
+                                    graphqlFields,
+                                    isAccount: false,
+                                }),
+                            );
+                        }
                     }
 
                     return renderMap;
@@ -493,6 +498,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
         } else if (isNode(typeNode, 'optionTypeNode')) {
             return `${prefix}.map(|value| ${buildExpression(typeNode.item, `value`)})`;
         } else if (isNode(typeNode, 'tupleTypeNode')) {
+            if (typeNode.items.length === 1) {
+                return `sqlx::types::Json(${buildExpression(typeNode.items[0], `${prefix}`)})`;
+            }
             return `(${typeNode.items.map((item, i) => buildExpression(item, `${prefix}.${i}`)).join(', ')})`;
         } else {
             return `${prefix}.into()`;
@@ -500,6 +508,10 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
     }
 
     function buildReverse(typeNode: TypeNode, prefix: string): string {
+        // Postgres reverse mapping (Row → Rust):
+        // - Primitive arrays: map elements and try_into for fixed-size
+        // - Json arrays: unwrap `.0` once then map recursively
+        // - Fixed-size arrays: collect Result<Vec<_>, _> before try_into
         if (isNode(typeNode, 'arrayTypeNode')) {
             const isJson = !(
                 isNode(typeNode.item, 'numberTypeNode') ||
@@ -513,16 +525,41 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 // our target type is [T; N], T is typeNode.item, N is typeNode.count.value - from Vec<sqlx::types::Json<T>> or Vec<PrimitiveT>
                 case 'fixedCountNode':
                     if (isJson) {
-                        return `${prefix}.0.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?`;
+                        // If elements are defined types or plain values, don't try to unwrap .0
+                        if (
+                            isNode(typeNode.item, 'definedTypeLinkNode') ||
+                            isNode(typeNode.item, 'structTypeNode') ||
+                            isNode(typeNode.item, 'enumTypeNode')
+                        ) {
+                            return (
+                                `${prefix}.0.into_iter().collect::<Vec<_>>()` +
+                                `.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?`
+                            );
+                        }
+                        // JSON-stored vectors of primitives/arrays need element-wise reverse then try_into at this level
+                        return (
+                            `${prefix}.0.into_iter().map(|element| Ok(${buildReverse(typeNode.item, 'element')})).collect::<Result<Vec<_>, _>>()?` +
+                            `.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?`
+                        );
                     } else {
-                        return `${prefix}.into_iter().map(|element| ${buildReverse(typeNode.item, 'element')}).collect::<Vec<_>>().try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
+                        return `${prefix}.into_iter().map(|element| Ok(${buildReverse(typeNode.item, 'element')})).collect::<Result<Vec<_>, _>>()?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
                     }
                     break;
                 // our target type is Vec<T>, T is typeNode.item - from Vec<sqlx::types::Json<T>> or Vec<PrimitiveT>
                 case 'prefixedCountNode':
                     if (isJson) {
-                        return `${prefix}.0`;
+                        if (
+                            isNode(typeNode.item, 'definedTypeLinkNode') ||
+                            isNode(typeNode.item, 'structTypeNode') ||
+                            isNode(typeNode.item, 'enumTypeNode')
+                        ) {
+                            return `${prefix}.0`;
+                        }
+                        return `${prefix}.0.into_iter().map(|element| ${buildReverse(typeNode.item, 'element')}).collect()`;
                     } else {
+                        if (isNode(typeNode.item, 'publicKeyTypeNode')) {
+                            return `${prefix}.into_iter().map(|element| *element).collect()`;
+                        }
                         return `${prefix}.into_iter().map(|element| element.try_into()).collect::<Result<_, _>>().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
                     }
                     break;
@@ -536,6 +573,10 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             return `${prefix}.map(|value| ${buildReverse(typeNode.item, 'value')})`;
         }
         if (isNode(typeNode, 'tupleTypeNode')) {
+            if (typeNode.items.length === 1) {
+                // from sqlx::types::Json<T>
+                return `${prefix}.0`;
+            }
             return `(${typeNode.items.map((it, i) => buildReverse(it, `${prefix}.${i}`)).join(', ')})`;
         }
         if (
@@ -544,6 +585,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             isNode(typeNode, 'enumTypeNode')
         ) {
             return `${prefix}.0`;
+        }
+        if (isNode(typeNode, 'publicKeyTypeNode')) {
+            return `*${prefix}`;
         }
 
         if (isNode(typeNode, 'numberTypeNode')) {
@@ -559,10 +603,6 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 default:
                     break;
             }
-        }
-
-        if (isNode(typeNode, 'publicKeyTypeNode')) {
-            return `*${prefix}`;
         }
 
         return `${prefix}.into()`;

@@ -246,6 +246,13 @@ export function getTypeManifestVisitor() {
                 visitTupleType(node, { self }) {
                     const items = node.items.map(item => visit(item, self));
                     const mergedImports = new ImportMap().mergeWith(...items.map(i => i.imports));
+                    if (items.length === 1) {
+                        return {
+                            imports: mergedImports,
+                            type: items[0].type,
+                            borshType: items[0].borshType,
+                        };
+                    }
                     const itemTypes = items.map(i => i.type).join(', ');
                     const itemBorshTypes = items.map(i => i.borshType).join(', ');
 

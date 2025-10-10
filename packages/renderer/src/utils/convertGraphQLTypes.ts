@@ -1,30 +1,48 @@
 import { TypeNode, isNode } from '@codama/nodes';
+/*
+GraphQL conversion rules (Rust → GraphQL values):
+
+- PublicKey → Pubkey scalar (string form)
+- Numbers → custom scalars for large/signed (U8,U32,I64,U64,I128,U128) or native i32 where safe
+// TODO: FIX FIXEDSIZETYPENODE and it's type being bytes
+- Bytes:
+  - Any other u8 arrays (fixed-size or nested arrays) → numeric arrays (map each to U8)
+- Options → Option<...>
+- Arrays → Vec<...> (fixed-size rendered as Vec in GraphQL)
+  - Nested arrays from Postgres Json: unwrap outer `.0`, then map inner elements recursively
+- Maps/Tuples/Sets → Json scalar (lossless container)
+- Defined types → <TypeName>GraphQL with Into conversions
+
+Postgres → GraphQL specifics:
+- sqlx::types::Json<T> unwrap with `.0` once; do not unwrap elements
+- For fixed-size conversions elsewhere we collect Result<Vec<_>, _> before try_into in Postgres code (see getRenderMapVisitor)
+*/
 
 export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: string): string {
     if (isNode(typeNode, 'publicKeyTypeNode')) {
-        return `carbon_gql_server::types::pubkey::Pubkey(${fieldAccess})`;
+        return `carbon_core::graphql::primitives::Pubkey(${fieldAccess})`;
     }
 
     if (isNode(typeNode, 'bytesTypeNode')) {
-        return `base64::engine::general_purpose::STANDARD.encode(&${fieldAccess})`;
+        return `${fieldAccess}.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect()`;
     }
 
     if (isNode(typeNode, 'numberTypeNode')) {
         switch (typeNode.format) {
             case 'u8':
-                return `carbon_gql_server::types::u8::U8(${fieldAccess})`;
+                return `carbon_core::graphql::primitives::U8(${fieldAccess})`;
             case 'u16':
                 return `${fieldAccess} as i32`;
             case 'u32':
-                return `carbon_gql_server::types::u32::U32(${fieldAccess})`;
+                return `carbon_core::graphql::primitives::U32(${fieldAccess})`;
             case 'i64':
-                return `carbon_gql_server::types::i64::I64(${fieldAccess})`;
+                return `carbon_core::graphql::primitives::I64(${fieldAccess})`;
             case 'u64':
-                return `carbon_gql_server::types::u64::U64(${fieldAccess})`;
+                return `carbon_core::graphql::primitives::U64(${fieldAccess})`;
             case 'i128':
-                return `carbon_gql_server::types::i128::I128(${fieldAccess})`;
+                return `carbon_core::graphql::primitives::I128(${fieldAccess})`;
             case 'u128':
-                return `carbon_gql_server::types::u128::U128(${fieldAccess})`;
+                return `carbon_core::graphql::primitives::U128(${fieldAccess})`;
         }
     }
 
@@ -38,12 +56,17 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
         return `${fieldAccess}.into_iter().map(|item| ${innerExpr}).collect()`;
     }
 
+    if (isNode(typeNode, 'fixedSizeTypeNode')) {
+        const innerExpr = buildConversionFromOriginal(typeNode.type, 'item');
+        return `${fieldAccess}.into_iter().map(|item| ${innerExpr}).collect()`;
+    }
+
     if (isNode(typeNode, 'definedTypeLinkNode')) {
         return `${fieldAccess}.into()`;
     }
 
     if (isNode(typeNode, 'tupleTypeNode') || isNode(typeNode, 'mapTypeNode') || isNode(typeNode, 'setTypeNode')) {
-        return `serde_json::to_value(&${fieldAccess}).unwrap_or(serde_json::Value::Null)`;
+        return `carbon_core::graphql::primitives::Json(serde_json::to_value(&${fieldAccess}).unwrap_or(serde_json::Value::Null))`;
     }
 
     return fieldAccess;
@@ -51,29 +74,29 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
 
 export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: string): string {
     if (isNode(typeNode, 'publicKeyTypeNode')) {
-        return `carbon_gql_server::types::pubkey::Pubkey(*${fieldAccess})`;
+        return `carbon_core::graphql::primitives::Pubkey(*${fieldAccess})`;
     }
 
     if (isNode(typeNode, 'bytesTypeNode')) {
-        return `base64::engine::general_purpose::STANDARD.encode(&${fieldAccess})`;
+        return `${fieldAccess}.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect()`;
     }
 
     if (isNode(typeNode, 'numberTypeNode')) {
         switch (typeNode.format) {
             case 'u8':
-                return `carbon_gql_server::types::u8::U8((*${fieldAccess}) as u8)`;
+                return `carbon_core::graphql::primitives::U8((*${fieldAccess}) as u8)`;
             case 'u16':
                 return `(*${fieldAccess}) as i32`;
             case 'u32':
-                return `carbon_gql_server::types::u32::U32((*${fieldAccess}) as u32)`;
+                return `carbon_core::graphql::primitives::U32((*${fieldAccess}) as u32)`;
             case 'i64':
-                return `carbon_gql_server::types::i64::I64(${fieldAccess})`;
+                return `carbon_core::graphql::primitives::I64(${fieldAccess})`;
             case 'u64':
-                return `carbon_gql_server::types::u64::U64(*${fieldAccess})`;
+                return `carbon_core::graphql::primitives::U64(*${fieldAccess})`;
             case 'i128':
-                return `carbon_gql_server::types::i128::I128(*${fieldAccess})`;
+                return `carbon_core::graphql::primitives::I128(*${fieldAccess})`;
             case 'u128':
-                return `carbon_gql_server::types::u128::U128(*${fieldAccess})`;
+                return `carbon_core::graphql::primitives::U128(*${fieldAccess})`;
         }
     }
 
@@ -83,8 +106,12 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
     }
 
     if (isNode(typeNode, 'arrayTypeNode')) {
+        // Generic nested-array handling: unwrap outer Json if present, then map inner with recursive converter
+        if (isNode(typeNode.item, 'arrayTypeNode')) {
+            const innerExpr = buildConversionFromPostgresRow(typeNode.item, 'item');
+            return `${fieldAccess}.0.into_iter().map(|item| ${innerExpr}).collect()`;
+        }
         if (isNode(typeNode.item, 'definedTypeLinkNode')) {
-            // Array of custom types from Json<Vec<T>>
             return `${fieldAccess}.0.into_iter().map(|item| item.into()).collect()`;
         }
         if (
@@ -99,12 +126,32 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
         }
     }
 
+    if (isNode(typeNode, 'fixedSizeTypeNode')) {
+        if (
+            isNode(typeNode.type, 'numberTypeNode') ||
+            isNode(typeNode.type, 'booleanTypeNode') ||
+            isNode(typeNode.type, 'bytesTypeNode') ||
+            isNode(typeNode.type, 'stringTypeNode') ||
+            isNode(typeNode.type, 'publicKeyTypeNode')
+        ) {
+            const innerExpr = buildConversionFromPostgresRow(typeNode.type, 'item');
+            return `${fieldAccess}.into_iter().map(|item| ${innerExpr}).collect()`;
+        }
+        const innerExpr = buildConversionFromPostgresRow(typeNode.type, 'item');
+        return `${fieldAccess}.into_iter().map(|item| ${innerExpr}).collect()`;
+    }
+
     if (isNode(typeNode, 'definedTypeLinkNode')) {
-        // From sqlx::types::Json<T> to TGraphQL
         return `${fieldAccess}.0.into()`;
     }
 
-    if (isNode(typeNode, 'tupleTypeNode') || isNode(typeNode, 'mapTypeNode') || isNode(typeNode, 'setTypeNode')) {
+    if (isNode(typeNode, 'tupleTypeNode')) {
+        if (typeNode.items.length === 1) {
+            return `${fieldAccess}.0.into()`;
+        }
+        return fieldAccess;
+    }
+    if (isNode(typeNode, 'mapTypeNode') || isNode(typeNode, 'setTypeNode')) {
         return fieldAccess;
     }
 

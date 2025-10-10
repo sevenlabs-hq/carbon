@@ -10,9 +10,10 @@ keywords = ["solana", "indexer"]
 categories = ["encoding"]
 
 [features]
-default = ["macros", "postgres"]
+default = ["macros", "postgres", "graphql"]
 macros = ["carbon-macros", "carbon-proc-macros"]
 postgres = ["sqlx", "num-traits", "sqlx_migrator"]
+graphql = ["juniper"]
 
 [dependencies]
 solana-account = { workspace = true }
@@ -43,6 +44,7 @@ carbon-proc-macros = { workspace = true, optional = true }
 num-traits = { workspace = true, features = ["i128"], optional = true }
 sqlx = { workspace = true, features = ["postgres", "rust_decimal"], optional = true }
 sqlx_migrator = { workspace = true, optional = true }
+juniper = { workspace = true, optional = true }
 
 [lib]
 crate-type = ["rlib"]
