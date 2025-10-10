@@ -1,4 +1,17 @@
 import { isNode, REGISTERED_TYPE_NODE_KINDS, pascalCase } from '@codama/nodes';
+/*
+GraphQL type manifest rules:
+- PublicKey → Pubkey scalar
+- Numbers → i32 where safe; U8,U32,I64,U64,I128,U128 scalars to keep values lossless
+// TODO: FIX FIXEDSIZETYPENODE and it's type being bytes
+- Bytes:
+  - Other u8 arrays (fixed/nested) → numeric arrays via U8 scalars
+- Options → Option<T> (nullable)
+- Arrays → Vec<T>
+- Tuples/Sets → Json (singleton tuple collapses to inner type)
+- Maps → Json
+- Defined types → <TypeName>GraphQL
+*/
 import { extendVisitor, mergeVisitor, pipe, visit } from '@codama/visitors-core';
 import { ImportMap } from './ImportMap';
 
@@ -30,14 +43,13 @@ export function getGraphQLTypeManifestVisitor() {
                     return m('bool');
                 },
                 visitBytesType() {
-                    return m('String');
+                    return m('Vec<U8>', ['carbon_core::graphql::primitives::U8']);
                 },
                 visitStringType() {
                     return m('String');
                 },
                 visitPublicKeyType() {
-                    // Use the existing Juniper Pubkey scalar
-                    return m('Pubkey', ['carbon_gql_server::types::pubkey::Pubkey']);
+                    return m('Pubkey', ['carbon_core::graphql::primitives::Pubkey']);
                 },
                 visitNumberType(node) {
                     switch (node.format) {
@@ -46,19 +58,19 @@ export function getGraphQLTypeManifestVisitor() {
                         case 'i32':
                             return m('i32');
                         case 'u8':
-                            return m('U8', ['carbon_gql_server::types::u8::U8']);
+                            return m('U8', ['carbon_core::graphql::primitives::U8']);
                         case 'u16':
-                            return m('i32'); // Fits in i32
+                            return m('i32');
                         case 'u32':
-                            return m('U32', ['carbon_gql_server::types::u32::U32']);
+                            return m('U32', ['carbon_core::graphql::primitives::U32']);
                         case 'i64':
-                            return m('I64', ['carbon_gql_server::types::i64::I64']);
+                            return m('I64', ['carbon_core::graphql::primitives::I64']);
                         case 'u64':
-                            return m('U64', ['carbon_gql_server::types::u64::U64']);
+                            return m('U64', ['carbon_core::graphql::primitives::U64']);
                         case 'i128':
-                            return m('I128', ['carbon_gql_server::types::i128::I128']);
+                            return m('I128', ['carbon_core::graphql::primitives::I128']);
                         case 'u128':
-                            return m('U128', ['carbon_gql_server::types::u128::U128']);
+                            return m('U128', ['carbon_core::graphql::primitives::U128']);
                         case 'f32':
                             return m('f32');
                         case 'f64':
@@ -84,8 +96,17 @@ export function getGraphQLTypeManifestVisitor() {
                         isNullable: false,
                     };
                 },
+                // TODO: investigate and remove if unnecessary
+                visitFixedSizeType(node, { self }) {
+                    const inner = visit(node.type, self);
+                    return {
+                        imports: inner.imports,
+                        graphqlType: `Vec<${inner.graphqlType}>`,
+                        isNullable: false,
+                    };
+                },
                 visitMapType() {
-                    return m('serde_json::Value', ['serde_json']);
+                    return m('Json', ['carbon_core::graphql::primitives::Json']);
                 },
                 visitSetType(node, { self }) {
                     const inner = visit(node.item, self);
@@ -95,8 +116,12 @@ export function getGraphQLTypeManifestVisitor() {
                         isNullable: false,
                     };
                 },
-                visitTupleType() {
-                    return m('serde_json::Value', ['serde_json']);
+                visitTupleType(node, { self }) {
+                    // Fixes wrappers -> collapse to inner type
+                    if (node.items.length === 1) {
+                        return visit(node.items[0], self) as GraphQLTypeManifest;
+                    }
+                    return m('Json', ['carbon_core::graphql::primitives::Json']);
                 },
                 visitSizePrefixType(node, { self }) {
                     return visit(node.type, self);

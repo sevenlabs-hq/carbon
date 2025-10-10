@@ -1,6 +1,14 @@
 import { isNode, REGISTERED_TYPE_NODE_KINDS, pascalCase } from '@codama/nodes';
 import { extendVisitor, mergeVisitor, pipe, visit } from '@codama/visitors-core';
 import { ImportMap } from './ImportMap';
+/*
+Postgres type manifest rules:
+- Numbers/PublicKey → dedicated wrapper types for safe DB storage (e.g., U64)
+- Arrays of primitives → PG arrays when possible; complex/defined types → JSONB via sqlx::types::Json<T>
+- Maps/Tuples/Sets → JSONB
+- Singleton tuples → JSONB instead of (T) to avoid clippy noise
+- Defined types → JSONB to preserve structure
+*/
 
 export type PostgresTypeManifest = {
     imports: ImportMap;
@@ -100,9 +108,12 @@ export function getPostgresTypeManifestVisitor() {
                 visitSetType() {
                     return jsonb();
                 },
-                // TODO: What about wrapper types OptionBool(pub bool)? Rn it's as (bool)
                 visitTupleType(node, { self }) {
                     const inners = node.items.map(i => visit(i, self));
+                    // Fixes wrappers -> collapse to inner type
+                    if (inners.length === 1) {
+                        return jsonb(inners[0]);
+                    }
                     return {
                         imports: new ImportMap().mergeWith(...inners.map(i => i.imports)),
                         sqlxType: `(${inners.map(i => i.sqlxType).join(', ')})`,
