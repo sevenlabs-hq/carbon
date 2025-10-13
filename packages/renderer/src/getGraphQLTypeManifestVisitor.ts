@@ -98,6 +98,10 @@ export function getGraphQLTypeManifestVisitor() {
                 },
                 // TODO: investigate and remove if unnecessary
                 visitFixedSizeType(node, { self }) {
+                    // For fixed-size byte arrays [u8; N], render as Vec<U8> (not Vec<Vec<U8>>)
+                    if (node.type.kind === 'bytesTypeNode') {
+                        return m('Vec<U8>', ['carbon_core::graphql::primitives::U8']);
+                    }
                     const inner = visit(node.type, self);
                     return {
                         imports: inner.imports,

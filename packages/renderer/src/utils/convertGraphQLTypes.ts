@@ -57,6 +57,10 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
     }
 
     if (isNode(typeNode, 'fixedSizeTypeNode')) {
+        // For [u8; N] coming from original types as Vec<u8>
+        if (isNode(typeNode.type, 'bytesTypeNode')) {
+            return `${fieldAccess}.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect()`;
+        }
         const innerExpr = buildConversionFromOriginal(typeNode.type, 'item');
         return `${fieldAccess}.into_iter().map(|item| ${innerExpr}).collect()`;
     }
@@ -127,15 +131,9 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
     }
 
     if (isNode(typeNode, 'fixedSizeTypeNode')) {
-        if (
-            isNode(typeNode.type, 'numberTypeNode') ||
-            isNode(typeNode.type, 'booleanTypeNode') ||
-            isNode(typeNode.type, 'bytesTypeNode') ||
-            isNode(typeNode.type, 'stringTypeNode') ||
-            isNode(typeNode.type, 'publicKeyTypeNode')
-        ) {
-            const innerExpr = buildConversionFromPostgresRow(typeNode.type, 'item');
-            return `${fieldAccess}.into_iter().map(|item| ${innerExpr}).collect()`;
+        // For [u8; N] stored in Postgres as Vec<u8>, map each element to U8
+        if (isNode(typeNode.type, 'bytesTypeNode')) {
+            return `${fieldAccess}.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect()`;
         }
         const innerExpr = buildConversionFromPostgresRow(typeNode.type, 'item');
         return `${fieldAccess}.into_iter().map(|item| ${innerExpr}).collect()`;
