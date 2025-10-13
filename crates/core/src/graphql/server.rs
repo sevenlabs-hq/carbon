@@ -25,28 +25,26 @@ where
 
 pub fn graphql_router<Q, C>(
     schema: Arc<RootNode<'static, Q, DefaultMutation<C>, DefaultSubscription<C>>>,
-    make_ctx: impl Clone + Send + Sync + 'static + Fn() -> C,
+    context: C,
 ) -> Router
 where
     Q: juniper::GraphQLType<Context = C, TypeInfo = ()> + Send + Sync + 'static,
-    C: juniper::Context + Send + Sync + 'static,
+    C: juniper::Context + Clone + Send + Sync + 'static,
 {
     async fn handler<Q, C>(
         Extension(schema): Extension<
             Arc<RootNode<'static, Q, DefaultMutation<C>, DefaultSubscription<C>>>,
         >,
-        Extension(make_ctx): Extension<Arc<dyn Send + Sync + Fn() -> C>>,
+        Extension(ctx): Extension<C>,
         juniper_axum::extract::JuniperRequest(req): JuniperRequest<juniper::DefaultScalarValue>,
     ) -> JuniperResponse<juniper::DefaultScalarValue>
     where
         Q: juniper::GraphQLType<Context = C, TypeInfo = ()> + Send + Sync + 'static,
-        C: juniper::Context + Send + Sync + 'static,
+        C: juniper::Context + Clone + Send + Sync + 'static,
     {
-        let ctx = make_ctx();
         JuniperResponse(req.execute_sync(&schema, &ctx))
     }
 
-    let make_ctx = Arc::new(make_ctx);
     Router::new()
         .route(
             "/graphql",
@@ -54,5 +52,5 @@ where
         )
         .route("/graphiql", get(graphiql("/graphql", None)))
         .layer(Extension(schema))
-        .layer(Extension(make_ctx))
+        .layer(Extension(context))
 }

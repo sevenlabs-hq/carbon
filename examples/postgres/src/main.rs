@@ -151,14 +151,11 @@ pub async fn main() -> CarbonResult<()> {
 async fn run_graphql(pool: Arc<sqlx::PgPool>) -> CarbonResult<()> {
     let schema =
         carbon_core::graphql::server::build_schema(carbon_pump_amm_decoder::graphql::QueryRoot);
-    let make_ctx = {
-        let pool = pool.clone();
-        move || carbon_pump_amm_decoder::graphql::context::GraphQLContext { pool: pool.clone() }
-    };
+    let ctx = carbon_pump_amm_decoder::graphql::context::GraphQLContext { pool: pool.clone() };
     let app = carbon_core::graphql::server::graphql_router::<
         carbon_pump_amm_decoder::graphql::QueryRoot,
         carbon_pump_amm_decoder::graphql::context::GraphQLContext,
-    >(schema, make_ctx);
+    >(schema, ctx);
 
     let addr: SocketAddr = "0.0.0.0:8080".parse().unwrap();
     println!("GraphQL: http://{addr}/graphql");
