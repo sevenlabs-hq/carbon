@@ -173,7 +173,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         }),
                     );
 
-                    // GraphQL generation only for non-empty structs
+                    // GraphQL generation for structs and enums
                     if (node.type.kind === 'structTypeNode' && node.type.fields.length > 0) {
                         const graphqlFields = flattenTypeForGraphQL(node.type, [], [], new Set());
                         const graphqlImports = new ImportMap();
@@ -193,6 +193,26 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 }),
                             );
                         }
+                    } else if (node.type.kind === 'enumTypeNode') {
+                        const isFieldless = node.type.variants.every(v => v.kind === 'enumEmptyVariantTypeNode');
+                        const imports = new ImportMap();
+                        if (!isFieldless) {
+                            imports.add('serde_json');
+                            imports.add('carbon_core::graphql::primitives::Json');
+                        }
+                        renderMap.add(
+                            `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
+                            render('graphqlEnumSchemaPage.njk', {
+                                entityDocs: node.docs,
+                                entityName: node.name,
+                                imports: imports.toString(),
+                                isFieldless,
+                                variants: node.type.variants.map(v => ({
+                                    name: v.name,
+                                    docs: [],
+                                })),
+                            }),
+                        );
                     }
 
                     return renderMap;

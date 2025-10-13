@@ -1,7 +1,7 @@
 import { renderVisitor } from '@sevenlabs-hq/carbon-codama-renderer';
 import { join } from 'path';
 import { rootNodeFromAnchor } from '@codama/nodes-from-anchor';
-import anchorIdl from './pumpswap-idl.json' with { type: 'json' };
+import anchorIdl from './raydium_clmm_idl.json' with { type: 'json' };
 import { createFromRoot } from 'codama';
 
 // Example: Create a simple program with an account and instruction
