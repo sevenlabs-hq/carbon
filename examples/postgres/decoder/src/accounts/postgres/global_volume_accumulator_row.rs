@@ -46,8 +46,8 @@ impl TryFrom<GlobalVolumeAccumulatorRow> for GlobalVolumeAccumulator {
                         end_time: source.end_time.into(),
                         seconds_in_a_day: source.seconds_in_a_day.into(),
                         mint: *source.mint,
-                        total_token_supply: source.total_token_supply.into_iter().map(|element| *element).collect::<Vec<_>>().try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
-                        sol_volumes: source.sol_volumes.into_iter().map(|element| *element).collect::<Vec<_>>().try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
+                        total_token_supply: source.total_token_supply.into_iter().map(|element| Ok(*element)).collect::<Result<Vec<_>, _>>()?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
+                        sol_volumes: source.sol_volumes.into_iter().map(|element| Ok(*element)).collect::<Result<Vec<_>, _>>()?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
                     })
     }
 }
@@ -139,7 +139,7 @@ impl carbon_core::postgres::operations::Upsert for GlobalVolumeAccumulatorRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for GlobalVolumeAccumulatorRow {
-    type Key = Pubkey;
+    type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"DELETE FROM global_volume_accumulator_account WHERE
@@ -155,7 +155,7 @@ impl carbon_core::postgres::operations::Delete for GlobalVolumeAccumulatorRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for GlobalVolumeAccumulatorRow {
-    type Key = Pubkey;
+    type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(r#"SELECT * FROM global_volume_accumulator_account WHERE

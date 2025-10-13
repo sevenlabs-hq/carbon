@@ -5,6 +5,9 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
+#[cfg(feature = "graphql")]
+pub mod graphql;
+
 pub mod admin_set_coin_creator_event;
 pub mod admin_update_token_incentives_event;
 pub mod buy_event;

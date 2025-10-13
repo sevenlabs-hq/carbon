@@ -49,7 +49,7 @@ impl TryFrom<GlobalConfigRow> for GlobalConfig {
                         lp_fee_basis_points: *source.lp_fee_basis_points,
                         protocol_fee_basis_points: *source.protocol_fee_basis_points,
                         disable_flags: source.disable_flags.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
-                        protocol_fee_recipients: source.protocol_fee_recipients.into_iter().map(|element| *element).collect::<Vec<_>>().try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
+                        protocol_fee_recipients: source.protocol_fee_recipients.into_iter().map(|element| Ok(*element)).collect::<Result<Vec<_>, _>>()?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
                         coin_creator_fee_basis_points: *source.coin_creator_fee_basis_points,
                         admin_set_coin_creator_authority: *source.admin_set_coin_creator_authority,
                     })
@@ -149,7 +149,7 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for GlobalConfigRow {
-    type Key = Pubkey;
+    type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"DELETE FROM global_config_account WHERE
@@ -165,7 +165,7 @@ impl carbon_core::postgres::operations::Delete for GlobalConfigRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for GlobalConfigRow {
-    type Key = Pubkey;
+    type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(r#"SELECT * FROM global_config_account WHERE

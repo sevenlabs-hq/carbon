@@ -7,9 +7,9 @@ edition = "2021"
 carbon-core = { workspace = true }
 carbon-yellowstone-grpc-datasource = { workspace = true }
 carbon-log-metrics = { workspace = true }
-carbon-pump-amm-decoder = { path = "./decoder", features = ["postgres"] }
-carbon-pump-amm-decoder-2 = { path = "./generated", features = ["postgres", "graphql"] }
+carbon-pump-amm-decoder = { path = "./decoder", features = ["postgres", "graphql"] }
 
+axum = { workspace = true }
 async-trait = { workspace = true }
 dotenv = { workspace = true }
 env_logger = { workspace = true }

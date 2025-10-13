@@ -1179,12 +1179,14 @@ name = "carbon-core"
 version = "0.9.1"
 dependencies = [
  "async-trait",
+ "axum 0.8.4",
  "borsh 0.10.4",
  "bs58",
  "carbon-macros",
  "carbon-proc-macros",
  "carbon-test-utils",
  "juniper",
+ "juniper_axum",
  "log",
  "num-traits",
  "serde",
@@ -1653,22 +1655,6 @@ dependencies = [
 
 [[package]]
 name = "carbon-pump-amm-decoder"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "carbon-core",
- "carbon-test-utils",
- "serde",
- "serde-big-array",
- "solana-account",
- "solana-instruction",
- "solana-pubkey",
- "sqlx",
- "sqlx_migrator",
-]
-
-[[package]]
-name = "carbon-pump-amm-decoder-2"
 version = "0.1.0"
 dependencies = [
  "async-trait",
@@ -5003,10 +4989,10 @@ name = "postgres-carbon-example"
 version = "0.2.1"
 dependencies = [
  "async-trait",
+ "axum 0.8.4",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-pump-amm-decoder",
- "carbon-pump-amm-decoder-2",
  "carbon-yellowstone-grpc-datasource",
  "dotenv",
  "env_logger 0.11.8",

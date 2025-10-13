@@ -26,6 +26,7 @@ use {
     std::{
         collections::{HashMap, HashSet},
         env,
+        net::SocketAddr,
         sync::Arc,
     },
     tokio::sync::RwLock,
@@ -106,20 +107,20 @@ pub async fn main() -> CarbonResult<()> {
         Arc::new(RwLock::new(HashSet::new())),
     );
 
-    carbon_core::pipeline::Pipeline::builder()
+    let mut pipeline = carbon_core::pipeline::Pipeline::builder()
         .datasource(yellowstone_grpc)
         .metrics(Arc::new(LogMetrics::new()))
         .metrics_flush_interval(3)
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
         // Generic Processors
-        .account(
-            PumpAmmDecoder,
-            PostgresJsonAccountProcessor::<PumpAmmAccount>::new(pool.clone()),
-        )
-        .instruction(
-            PumpAmmDecoder,
-            PostgresJsonInstructionProcessor::<PumpAmmInstruction>::new(pool.clone()),
-        )
+        // .account(
+        //     PumpAmmDecoder,
+        //     PostgresJsonAccountProcessor::<PumpAmmAccount>::new(pool.clone()),
+        // )
+        // .instruction(
+        //     PumpAmmDecoder,
+        //     PostgresJsonInstructionProcessor::<PumpAmmInstruction>::new(pool.clone()),
+        // )
         // Concrete Processors
         .account(
             PumpAmmDecoder,
@@ -133,9 +134,37 @@ pub async fn main() -> CarbonResult<()> {
                 pool.clone(),
             ),
         )
-        .build()?
-        .run()
-        .await?;
+        .build()?;
 
+    tokio::select! {
+        res = run_graphql(Arc::new(pool.clone())) => {
+            res?;
+        }
+        res = pipeline.run() => {
+            res?;
+        }
+    }
+
+    Ok(())
+}
+
+async fn run_graphql(pool: Arc<sqlx::PgPool>) -> CarbonResult<()> {
+    let schema =
+        carbon_core::graphql::server::build_schema(carbon_pump_amm_decoder::graphql::QueryRoot);
+    let make_ctx = {
+        let pool = pool.clone();
+        move || carbon_pump_amm_decoder::graphql::context::GraphQLContext { pool: pool.clone() }
+    };
+    let app = carbon_core::graphql::server::graphql_router::<
+        carbon_pump_amm_decoder::graphql::QueryRoot,
+        carbon_pump_amm_decoder::graphql::context::GraphQLContext,
+    >(schema, make_ctx);
+
+    let addr: SocketAddr = "0.0.0.0:8080".parse().unwrap();
+    println!("GraphQL: http://{addr}/graphql");
+    println!("GraphiQL: http://{addr}/graphiql");
+    axum::serve(tokio::net::TcpListener::bind(addr).await.unwrap(), app)
+        .await
+        .unwrap();
     Ok(())
 }

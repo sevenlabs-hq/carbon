@@ -5,28 +5,29 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
-use crate::instructions::Buy;
 use carbon_core::instruction::InstructionMetadata;
 use carbon_core::postgres::metadata::InstructionRowMetadata;
 use carbon_core::postgres::primitives::U64;
+use crate::instructions::Buy;
+
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct BuyRow {
     #[sqlx(flatten)]
-    pub metadata: InstructionRowMetadata,
-    pub base_amount_out: U64,
-    pub max_quote_amount_in: U64,
-    pub track_volume: bool,
+        pub metadata: InstructionRowMetadata,
+            pub base_amount_out: U64,
+        pub max_quote_amount_in: U64,
+        pub track_volume: bool,
 }
 
 impl BuyRow {
     pub fn from_parts(source: Buy, metadata: InstructionMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-            base_amount_out: source.base_amount_out.into(),
-            max_quote_amount_in: source.max_quote_amount_in.into(),
-            track_volume: (source.track_volume.into()),
-        }
+                        base_amount_out: source.base_amount_out.into(),
+                        max_quote_amount_in: source.max_quote_amount_in.into(),
+                        track_volume: source.track_volume.into(),
+                    }
     }
 }
 
@@ -34,10 +35,10 @@ impl TryFrom<BuyRow> for Buy {
     type Error = carbon_core::error::Error;
     fn try_from(source: BuyRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            base_amount_out: *source.base_amount_out,
-            max_quote_amount_in: *source.max_quote_amount_in,
-            track_volume: (source.track_volume.into()),
-        })
+                        base_amount_out: *source.base_amount_out,
+                        max_quote_amount_in: *source.max_quote_amount_in,
+                        track_volume: source.track_volume.into(),
+                    })
     }
 }
 
@@ -48,14 +49,14 @@ impl carbon_core::postgres::operations::Table for Buy {
 
     fn columns() -> Vec<&'static str> {
         vec![
-            "__signature",
+                        "__signature",
             "__index",
             "__stack_height",
             "__slot",
-            "base_amount_out",
-            "max_quote_amount_in",
-            "track_volume",
-        ]
+                                    "base_amount_out",
+                        "max_quote_amount_in",
+                        "track_volume",
+                    ]
     }
 }
 
@@ -121,15 +122,12 @@ impl carbon_core::postgres::operations::Delete for BuyRow {
     type Key = (String, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM buy_instruction WHERE
+        sqlx::query(r#"DELETE FROM buy_instruction WHERE
                         __signature = $1 AND __index = $2
-                    "#,
-        )
-        .bind(key.0)
+                    "#)
+                .bind(key.0)
         .bind(key.1)
-        .execute(pool)
-        .await
+                .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(())
@@ -140,20 +138,15 @@ impl carbon_core::postgres::operations::Delete for BuyRow {
 impl carbon_core::postgres::operations::LookUp for BuyRow {
     type Key = (String, carbon_core::postgres::primitives::U32);
 
-    async fn lookup(
-        key: Self::Key,
-        pool: &sqlx::PgPool,
-    ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM buy_instruction WHERE
+    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(r#"SELECT * FROM buy_instruction WHERE
                         __signature = $1 AND __index = $2
-                    "#,
-        )
-        .bind(key.0)
+                    "#)
+                .bind(key.0)
         .bind(key.1)
-        .fetch_optional(pool)
-        .await
-        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
+                .fetch_optional(pool).await
+        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))
+        ?;
 
         Ok(row)
     }
@@ -163,12 +156,8 @@ pub struct BuyMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for BuyMigrationOperation {
-    async fn up(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS buy_instruction (
+    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS buy_instruction (
                         -- Instruction data
                                     "base_amount_out" NUMERIC(20) NOT NULL,
                         "max_quote_amount_in" NUMERIC(20) NOT NULL,
@@ -181,20 +170,13 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BuyMigrationOperation {
             __slot BIGINT,
             
                         PRIMARY KEY (__signature, __index)
-                    )"#,
-        )
-        .execute(connection)
-        .await?;
+                    )"#).execute(connection).await?;
         Ok(())
     }
 
-    async fn down(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS buy_instruction"#)
-            .execute(connection)
-            .await?;
+    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS buy_instruction"#).execute(connection).await?;
         Ok(())
     }
 }
+

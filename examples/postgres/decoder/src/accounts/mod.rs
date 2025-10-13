@@ -10,6 +10,9 @@ use crate::{PROGRAM_ID, PumpAmmDecoder};
 #[cfg(feature = "postgres")]
 pub mod postgres;
 
+#[cfg(feature = "graphql")]
+pub mod graphql;
+
 pub mod bonding_curve;
 pub mod fee_config;
 pub mod global_config;

@@ -406,6 +406,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         map.add('src/types/graphql/mod.rs', render('typesGraphQLMod.njk', ctx));
                     }
 
+                    // GraphQL root (context + query)
+                    map.add('src/graphql/mod.rs', render('graphqlRootMod.njk', ctx));
+                    map.add('src/graphql/context.rs', render('graphqlContextPage.njk', ctx));
+                    map.add('src/graphql/query.rs', render('graphqlQueryPage.njk', ctx));
+
                     // Generate lib.rs
                     map.add('src/lib.rs', render('lib.njk', ctx));
 
@@ -450,16 +455,27 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
         if (isNode(typeNode, 'optionTypeNode') && typeNode.item.kind == 'definedTypeLinkNode') {
             const column = makeName(prefix);
             const manifest = visit(typeNode.item, postgresTypeManifestVisitor) as PostgresTypeManifest;
+            const isJson = (manifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
+
+            const rowType = isJson ? `Option<sqlx::types::Json<${manifest.sqlxType}>>` : `Option<${manifest.sqlxType}>`;
+
+            const expr = isJson
+                ? `${`source.${prefix.join('.')}`}.map(|value| sqlx::types::Json(value.into()))`
+                : `${`source.${prefix.join('.')}`}.map(|value| value.into())`;
+
+            const reverseExpr = isJson
+                ? `${`source.${column}`}.map(|value| value.0)`
+                : `${`source.${column}`}.map(|value| value.into())`;
 
             out.push({
                 column,
                 rustPath: prefix.join('.'),
-                rowType: `Option<sqlx::types::Json<${manifest.sqlxType}>>`,
+                rowType,
                 postgresColumnType: `${manifest.postgresColumnType}`,
                 docs: docsPrefix,
                 postgresManifest: manifest,
-                expr: buildExpression(typeNode, `source.${prefix.join('.')}`),
-                reverseExpr: buildReverse(typeNode, `source.${column}`),
+                expr,
+                reverseExpr,
             });
 
             return out;
@@ -468,16 +484,25 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
         if (isNode(typeNode, 'definedTypeLinkNode')) {
             const column = makeName(prefix);
             const manifest = visit(typeNode, postgresTypeManifestVisitor) as PostgresTypeManifest;
+            const isJson = (manifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
+
+            const rowType = isJson ? `sqlx::types::Json<${manifest.sqlxType}>` : `${manifest.sqlxType}`;
+
+            const expr = isJson
+                ? `sqlx::types::Json(${`source.${prefix.join('.')}`}.into())`
+                : `${`source.${prefix.join('.')}`}.into()`;
+
+            const reverseExpr = isJson ? `${`source.${column}`}.0` : `${`source.${column}`}.into()`;
 
             out.push({
                 column,
                 rustPath: prefix.join('.'),
-                rowType: `sqlx::types::Json<${manifest.sqlxType}>`,
+                rowType,
                 postgresColumnType: `${manifest.postgresColumnType} NOT NULL`,
                 docs: docsPrefix,
                 postgresManifest: manifest,
-                expr: buildExpression(typeNode, `source.${prefix.join('.')}`),
-                reverseExpr: buildReverse(typeNode, `source.${column}`),
+                expr,
+                reverseExpr,
             });
             return out;
         }
@@ -519,7 +544,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             return `${prefix}.map(|value| ${buildExpression(typeNode.item, `value`)})`;
         } else if (isNode(typeNode, 'tupleTypeNode')) {
             if (typeNode.items.length === 1) {
-                return `sqlx::types::Json(${buildExpression(typeNode.items[0], `${prefix}`)})`;
+                return `${buildExpression(typeNode.items[0], `${prefix}`)}`;
             }
             return `(${typeNode.items.map((item, i) => buildExpression(item, `${prefix}.${i}`)).join(', ')})`;
         } else {
@@ -594,8 +619,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
         }
         if (isNode(typeNode, 'tupleTypeNode')) {
             if (typeNode.items.length === 1) {
-                // from sqlx::types::Json<T>
-                return `${prefix}.0`;
+                return `${buildReverse(typeNode.items[0], `${prefix}`)}`;
             }
             return `(${typeNode.items.map((it, i) => buildReverse(it, `${prefix}.${i}`)).join(', ')})`;
         }
