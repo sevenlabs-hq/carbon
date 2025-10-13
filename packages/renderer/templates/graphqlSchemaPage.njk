@@ -9,6 +9,7 @@ use juniper::GraphQLObject;
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "{{ entityName | pascalCase }}")]
 pub struct {{ entityName | pascalCase }}GraphQL {
+    pub metadata: {% if isAccount %}crate::accounts::graphql::AccountMetadataGraphQL{% else %}crate::instructions::graphql::InstructionMetadataGraphQL{% endif %},
 {% for field in graphqlFields %}
     {% if field.docs and field.docs.length > 0 %}
     {% for doc in field.docs %}
@@ -22,6 +23,7 @@ pub struct {{ entityName | pascalCase }}GraphQL {
 impl From<crate::{% if isAccount %}accounts{% else %}instructions{% endif %}::postgres::{{ entityName | pascalCase }}Row> for {{ entityName | pascalCase }}GraphQL {
     fn from(row: crate::{% if isAccount %}accounts{% else %}instructions{% endif %}::postgres::{{ entityName | pascalCase }}Row) -> Self {
         Self {
+            metadata: row.metadata.into(),
 {% for field in graphqlFields %}
             {{ field.fieldName }}: {{ field.fromRowExpr }},
 {% endfor %}

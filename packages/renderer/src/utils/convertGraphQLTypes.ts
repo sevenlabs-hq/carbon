@@ -145,7 +145,7 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
 
     if (isNode(typeNode, 'tupleTypeNode')) {
         if (typeNode.items.length === 1) {
-            return `${fieldAccess}.0.into()`;
+            return `${fieldAccess}.into()`;
         }
         return fieldAccess;
     }

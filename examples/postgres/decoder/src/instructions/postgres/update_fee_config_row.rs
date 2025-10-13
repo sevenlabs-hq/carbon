@@ -42,7 +42,7 @@ impl TryFrom<UpdateFeeConfigRow> for UpdateFeeConfig {
         Ok(Self {
                         lp_fee_basis_points: *source.lp_fee_basis_points,
                         protocol_fee_basis_points: *source.protocol_fee_basis_points,
-                        protocol_fee_recipients: source.protocol_fee_recipients.into_iter().map(|element| *element).collect::<Vec<_>>().try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
+                        protocol_fee_recipients: source.protocol_fee_recipients.into_iter().map(|element| Ok(*element)).collect::<Result<Vec<_>, _>>()?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
                         coin_creator_fee_basis_points: *source.coin_creator_fee_basis_points,
                         admin_set_coin_creator_authority: *source.admin_set_coin_creator_authority,
                     })

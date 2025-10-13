@@ -8,6 +8,9 @@
 #[cfg(feature = "postgres")]
 pub mod postgres;
 
+#[cfg(feature = "graphql")]
+pub mod graphql;
+
 use crate::{PROGRAM_ID, PumpAmmDecoder};
 
 pub mod admin_set_coin_creator;

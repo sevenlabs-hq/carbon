@@ -177,7 +177,7 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for PoolRow {
-    type Key = Pubkey;
+    type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"DELETE FROM pool_account WHERE
@@ -193,7 +193,7 @@ impl carbon_core::postgres::operations::Delete for PoolRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for PoolRow {
-    type Key = Pubkey;
+    type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(r#"SELECT * FROM pool_account WHERE

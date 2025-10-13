@@ -110,9 +110,8 @@ export function getPostgresTypeManifestVisitor() {
                 },
                 visitTupleType(node, { self }) {
                     const inners = node.items.map(i => visit(i, self));
-                    // Fixes wrappers -> collapse to inner type
                     if (inners.length === 1) {
-                        return jsonb(inners[0]);
+                        return inners[0];
                     }
                     return {
                         imports: new ImportMap().mergeWith(...inners.map(i => i.imports)),
