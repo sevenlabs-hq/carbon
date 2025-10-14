@@ -215,8 +215,8 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolMigrationOperation {
     async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(r#"CREATE TABLE IF NOT EXISTS pool_account (
                         -- Account data
-                                    "pool_bump" SMALLINT NOT NULL,
-                        "index" INTEGER NOT NULL,
+                                    "pool_bump" INT2 NOT NULL,
+                        "index" INT4 NOT NULL,
                         "creator" BYTEA NOT NULL,
                         "base_mint" BYTEA NOT NULL,
                         "quote_mint" BYTEA NOT NULL,
@@ -228,7 +228,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolMigrationOperation {
             
                         -- Account metadata
             __pubkey BYTEA NOT NULL,
-            __slot BIGINT,
+            __slot NUMERIC(20),
             
                         PRIMARY KEY (__pubkey)
                     )"#).execute(connection).await?;

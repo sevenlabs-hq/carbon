@@ -49,19 +49,19 @@ export function getPostgresTypeManifestVisitor() {
                 visitNumberType(node) {
                     switch (node.format) {
                         case 'i8':
-                            return m('i8', 'SMALLINT');
+                            return m('i8', 'INT2');
                         case 'i16':
-                            return m('i16', 'SMALLINT');
+                            return m('i16', 'INT2');
                         case 'u8':
-                            return m('U8', 'SMALLINT', ['carbon_core::postgres::primitives::U8']);
+                            return m('U8', 'INT2', ['carbon_core::postgres::primitives::U8']);
                         case 'u16':
-                            return m('U16', 'INTEGER', ['carbon_core::postgres::primitives::U16']);
+                            return m('U16', 'INT4', ['carbon_core::postgres::primitives::U16']);
                         case 'i32':
-                            return m('i32', 'INTEGER');
+                            return m('i32', 'INT4');
                         case 'u32':
-                            return m('U32', 'BIGINT', ['carbon_core::postgres::primitives::U32']);
+                            return m('U32', 'INT8', ['carbon_core::postgres::primitives::U32']);
                         case 'i64':
-                            return m('i64', 'BIGINT');
+                            return m('i64', 'INT8');
                         case 'u64':
                             return m('U64', 'NUMERIC(20)', ['carbon_core::postgres::primitives::U64']);
                         case 'i128':

@@ -28,7 +28,11 @@ pub fn graphql_router<Q, C>(
     context: C,
 ) -> Router
 where
-    Q: juniper::GraphQLType<Context = C, TypeInfo = ()> + Send + Sync + 'static,
+    Q: juniper::GraphQLTypeAsync<Context = C, TypeInfo = ()>
+        + juniper::GraphQLValueAsync<Context = C, TypeInfo = ()>
+        + Send
+        + Sync
+        + 'static,
     C: juniper::Context + Clone + Send + Sync + 'static,
 {
     async fn handler<Q, C>(
@@ -39,10 +43,10 @@ where
         juniper_axum::extract::JuniperRequest(req): JuniperRequest<juniper::DefaultScalarValue>,
     ) -> JuniperResponse<juniper::DefaultScalarValue>
     where
-        Q: juniper::GraphQLType<Context = C, TypeInfo = ()> + Send + Sync + 'static,
+        Q: juniper::GraphQLTypeAsync<Context = C, TypeInfo = ()> + Send + Sync + 'static,
         C: juniper::Context + Clone + Send + Sync + 'static,
     {
-        JuniperResponse(req.execute_sync(&schema, &ctx))
+        JuniperResponse(req.execute(&schema, &ctx).await)
     }
 
     Router::new()

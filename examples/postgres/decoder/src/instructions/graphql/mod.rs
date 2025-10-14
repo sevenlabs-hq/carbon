@@ -26,7 +26,7 @@ use juniper::GraphQLObject;
 #[graphql(name = "InstructionMetadata")]
 pub struct InstructionMetadataGraphQL {
     pub signature: String,
-    pub index: carbon_core::graphql::primitives::U32,
+    pub instruction_index: carbon_core::graphql::primitives::U32,
     pub stack_height: carbon_core::graphql::primitives::U32,
     pub slot: Option<carbon_core::graphql::primitives::U64>,
 }
@@ -35,7 +35,7 @@ impl From<carbon_core::postgres::metadata::InstructionRowMetadata> for Instructi
     fn from(metadata: carbon_core::postgres::metadata::InstructionRowMetadata) -> Self {
         Self {
             signature: metadata.signature,
-            index: carbon_core::graphql::primitives::U32((*metadata.index) as u32),
+            instruction_index: carbon_core::graphql::primitives::U32((*metadata.instruction_index) as u32),
             stack_height: carbon_core::graphql::primitives::U32((*metadata.stack_height) as u32),
             slot: metadata
                 .slot

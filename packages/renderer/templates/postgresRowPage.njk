@@ -56,7 +56,7 @@ impl carbon_core::postgres::operations::Table for {{ entityName | pascalCase }} 
             "__slot",
             {% else %}
             "__signature",
-            "__index",
+            "__instruction_index",
             "__stack_height",
             "__slot",
             {% endif %}
@@ -78,7 +78,7 @@ impl carbon_core::postgres::operations::Insert for {{ entityName | pascalCase }}
             {% if isAccount %}
                 __pubkey, __slot
             {% else %}
-                __signature, __index, __stack_height, __slot
+                __signature, __instruction_index, __stack_height, __slot
             {% endif %}
             ) VALUES (
             {% set paramCount = flatFields.length %}
@@ -99,7 +99,7 @@ impl carbon_core::postgres::operations::Insert for {{ entityName | pascalCase }}
         .bind(self.metadata.slot.clone())
         {% else %}
         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.index.clone())
+        .bind(self.metadata.instruction_index.clone())
         .bind(self.metadata.stack_height.clone())
         .bind(self.metadata.slot.clone())
         {% endif %}
@@ -119,7 +119,7 @@ impl carbon_core::postgres::operations::Upsert for {{ entityName | pascalCase }}
             {% if isAccount %}
             __pubkey, __slot
             {% else %}
-            __signature, __index, __stack_height, __slot
+            __signature, __instruction_index, __stack_height, __slot
             {% endif %}
         ) VALUES (
             {% set paramCount = flatFields.length %}
@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Upsert for {{ entityName | pascalCase }}
             {% if isAccount %}
             __pubkey
             {% else %}
-            __signature, __index
+            __signature, __instruction_index
             {% endif %}
         ) DO UPDATE SET
             {% for field in flatFields %}
@@ -144,7 +144,7 @@ impl carbon_core::postgres::operations::Upsert for {{ entityName | pascalCase }}
             {% if isAccount %}
             __slot = EXCLUDED.__slot
             {% else %}
-            __index = EXCLUDED.__index,
+            __instruction_index = EXCLUDED.__instruction_index,
             __stack_height = EXCLUDED.__stack_height,
             __slot = EXCLUDED.__slot
             {% endif %}
@@ -157,7 +157,7 @@ impl carbon_core::postgres::operations::Upsert for {{ entityName | pascalCase }}
         .bind(self.metadata.slot.clone())
         {% else %}
         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.index.clone())
+        .bind(self.metadata.instruction_index.clone())
         .bind(self.metadata.stack_height.clone())
         .bind(self.metadata.slot.clone())
         {% endif %}
@@ -177,7 +177,7 @@ impl carbon_core::postgres::operations::Delete for {{ entityName | pascalCase }}
             {% if isAccount %}
             __pubkey = $1
             {% else %}
-            __signature = $1 AND __index = $2
+            __signature = $1 AND __instruction_index = $2
             {% endif %}
         "#)
         {% if isAccount %}
@@ -202,7 +202,7 @@ impl carbon_core::postgres::operations::LookUp for {{ entityName | pascalCase }}
             {% if isAccount %}
             __pubkey = $1
             {% else %}
-            __signature = $1 AND __index = $2
+            __signature = $1 AND __instruction_index = $2
             {% endif %}
         "#)
         {% if isAccount %}
@@ -237,19 +237,19 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for {{ entityName | pascalCase }}M
             {% if isAccount %}
             -- Account metadata
             __pubkey BYTEA NOT NULL,
-            __slot BIGINT,
+            __slot NUMERIC(20),
             {% else %}
             -- Instruction metadata
             __signature TEXT NOT NULL,
-            __index BIGINT NOT NULL,
+            __instruction_index BIGINT NOT NULL,
             __stack_height BIGINT NOT NULL,
-            __slot BIGINT,
+            __slot NUMERIC(20),
             {% endif %}
 
             {% if isAccount %}
             PRIMARY KEY (__pubkey)
             {% else %}
-            PRIMARY KEY (__signature, __index)
+            PRIMARY KEY (__signature, __instruction_index)
             {% endif %}
         )"#).execute(connection).await?;
         Ok(())

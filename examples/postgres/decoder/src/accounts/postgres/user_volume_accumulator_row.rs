@@ -191,12 +191,12 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UserVolumeAccumulatorMigration
                         "total_unclaimed_tokens" NUMERIC(20) NOT NULL,
                         "total_claimed_tokens" NUMERIC(20) NOT NULL,
                         "current_sol_volume" NUMERIC(20) NOT NULL,
-                        "last_update_timestamp" BIGINT NOT NULL,
+                        "last_update_timestamp" INT8 NOT NULL,
                         "has_total_claimed_tokens" BOOLEAN NOT NULL,
             
                         -- Account metadata
             __pubkey BYTEA NOT NULL,
-            __slot BIGINT,
+            __slot NUMERIC(20),
             
                         PRIMARY KEY (__pubkey)
                     )"#).execute(connection).await?;

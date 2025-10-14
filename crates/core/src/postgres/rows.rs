@@ -187,7 +187,7 @@ impl<
     async fn insert(&self, pool: &sqlx::PgPool) -> CarbonResult<()> {
         sqlx::query(r#"INSERT INTO instructions (__signature, __index, __stack_height, __slot, data, accounts) VALUES ($1, $2, $3, $4, $5, $6)"#)
             .bind(self.metadata.signature.clone())
-            .bind(self.metadata.index)
+            .bind(self.metadata.instruction_index)
             .bind(self.metadata.stack_height)
             .bind(self.metadata.slot.clone())
             .bind(self.data.clone())
@@ -207,7 +207,7 @@ impl<
     async fn upsert(&self, pool: &sqlx::PgPool) -> CarbonResult<()> {
         sqlx::query(r#"INSERT INTO instructions (__signature, __index, __stack_height, __slot, data, accounts) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (__signature, __index) DO UPDATE SET __slot = $4, data = $5, accounts = $6"#)
             .bind(self.metadata.signature.clone())
-            .bind(self.metadata.index)
+            .bind(self.metadata.instruction_index)
             .bind(self.metadata.stack_height)
             .bind(self.metadata.slot.clone())
             .bind(self.data.clone())

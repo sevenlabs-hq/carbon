@@ -196,7 +196,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BondingCurveMigrationOperation
             
                         -- Account metadata
             __pubkey BYTEA NOT NULL,
-            __slot BIGINT,
+            __slot NUMERIC(20),
             
                         PRIMARY KEY (__pubkey)
                     )"#).execute(connection).await?;

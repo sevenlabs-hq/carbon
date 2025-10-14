@@ -50,7 +50,7 @@ impl carbon_core::postgres::operations::Table for Withdraw {
     fn columns() -> Vec<&'static str> {
         vec![
                         "__signature",
-            "__index",
+            "__instruction_index",
             "__stack_height",
             "__slot",
                                     "lp_token_amount_in",
@@ -68,14 +68,14 @@ impl carbon_core::postgres::operations::Insert for WithdrawRow {
                             "lp_token_amount_in",
                             "min_base_amount_out",
                             "min_quote_amount_out",
-                                        __signature, __index, __stack_height, __slot
+                                        __signature, __instruction_index, __stack_height, __slot
                         ) VALUES (
                                                                             $1,                            $2,                            $3,                            $4,                            $5,                            $6,                            $7                    )"#)
                 .bind(self.lp_token_amount_in.clone())
                 .bind(self.min_base_amount_out.clone())
                 .bind(self.min_quote_amount_out.clone())
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.index.clone())
+        .bind(self.metadata.instruction_index.clone())
         .bind(self.metadata.stack_height.clone())
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
@@ -91,15 +91,15 @@ impl carbon_core::postgres::operations::Upsert for WithdrawRow {
                         "lp_token_amount_in",
                         "min_base_amount_out",
                         "min_quote_amount_out",
-                                    __signature, __index, __stack_height, __slot
+                                    __signature, __instruction_index, __stack_height, __slot
                     ) VALUES (
                                                                         $1,                        $2,                        $3,                        $4,                        $5,                        $6,                        $7                    ) ON CONFLICT (
-                        __signature, __index
+                        __signature, __instruction_index
                     ) DO UPDATE SET
                         "lp_token_amount_in" = EXCLUDED."lp_token_amount_in",
                         "min_base_amount_out" = EXCLUDED."min_base_amount_out",
                         "min_quote_amount_out" = EXCLUDED."min_quote_amount_out",
-                                    __index = EXCLUDED.__index,
+                                    __instruction_index = EXCLUDED.__instruction_index,
             __stack_height = EXCLUDED.__stack_height,
             __slot = EXCLUDED.__slot
                     "#)
@@ -107,7 +107,7 @@ impl carbon_core::postgres::operations::Upsert for WithdrawRow {
                 .bind(self.min_base_amount_out.clone())
                 .bind(self.min_quote_amount_out.clone())
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.index.clone())
+        .bind(self.metadata.instruction_index.clone())
         .bind(self.metadata.stack_height.clone())
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
@@ -123,7 +123,7 @@ impl carbon_core::postgres::operations::Delete for WithdrawRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"DELETE FROM withdraw_instruction WHERE
-                        __signature = $1 AND __index = $2
+                        __signature = $1 AND __instruction_index = $2
                     "#)
                 .bind(key.0)
         .bind(key.1)
@@ -140,7 +140,7 @@ impl carbon_core::postgres::operations::LookUp for WithdrawRow {
 
     async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(r#"SELECT * FROM withdraw_instruction WHERE
-                        __signature = $1 AND __index = $2
+                        __signature = $1 AND __instruction_index = $2
                     "#)
                 .bind(key.0)
         .bind(key.1)
@@ -165,11 +165,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawMigrationOperation {
             
                         -- Instruction metadata
             __signature TEXT NOT NULL,
-            __index BIGINT NOT NULL,
+            __instruction_index BIGINT NOT NULL,
             __stack_height BIGINT NOT NULL,
-            __slot BIGINT,
+            __slot NUMERIC(20),
             
-                        PRIMARY KEY (__signature, __index)
+                        PRIMARY KEY (__signature, __instruction_index)
                     )"#).execute(connection).await?;
         Ok(())
     }
