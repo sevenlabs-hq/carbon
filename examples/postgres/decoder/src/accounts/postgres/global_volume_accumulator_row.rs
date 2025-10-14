@@ -177,16 +177,16 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalVolumeAccumulatorMigrati
     async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(r#"CREATE TABLE IF NOT EXISTS global_volume_accumulator_account (
                         -- Account data
-                                    "start_time" BIGINT NOT NULL,
-                        "end_time" BIGINT NOT NULL,
-                        "seconds_in_a_day" BIGINT NOT NULL,
+                                    "start_time" INT8 NOT NULL,
+                        "end_time" INT8 NOT NULL,
+                        "seconds_in_a_day" INT8 NOT NULL,
                         "mint" BYTEA NOT NULL,
                         "total_token_supply" NUMERIC(20)[] NOT NULL,
                         "sol_volumes" NUMERIC(20)[] NOT NULL,
             
                         -- Account metadata
             __pubkey BYTEA NOT NULL,
-            __slot BIGINT,
+            __slot NUMERIC(20),
             
                         PRIMARY KEY (__pubkey)
                     )"#).execute(connection).await?;

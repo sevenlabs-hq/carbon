@@ -190,14 +190,14 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalConfigMigrationOperation
                                     "admin" BYTEA NOT NULL,
                         "lp_fee_basis_points" NUMERIC(20) NOT NULL,
                         "protocol_fee_basis_points" NUMERIC(20) NOT NULL,
-                        "disable_flags" SMALLINT NOT NULL,
+                        "disable_flags" INT2 NOT NULL,
                         "protocol_fee_recipients" BYTEA[] NOT NULL,
                         "coin_creator_fee_basis_points" NUMERIC(20) NOT NULL,
                         "admin_set_coin_creator_authority" BYTEA NOT NULL,
             
                         -- Account metadata
             __pubkey BYTEA NOT NULL,
-            __slot BIGINT,
+            __slot NUMERIC(20),
             
                         PRIMARY KEY (__pubkey)
                     )"#).execute(connection).await?;

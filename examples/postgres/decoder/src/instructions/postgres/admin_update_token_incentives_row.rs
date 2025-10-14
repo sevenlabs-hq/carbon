@@ -56,7 +56,7 @@ impl carbon_core::postgres::operations::Table for AdminUpdateTokenIncentives {
     fn columns() -> Vec<&'static str> {
         vec![
                         "__signature",
-            "__index",
+            "__instruction_index",
             "__stack_height",
             "__slot",
                                     "start_time",
@@ -78,7 +78,7 @@ impl carbon_core::postgres::operations::Insert for AdminUpdateTokenIncentivesRow
                             "seconds_in_a_day",
                             "day_number",
                             "token_supply_per_day",
-                                        __signature, __index, __stack_height, __slot
+                                        __signature, __instruction_index, __stack_height, __slot
                         ) VALUES (
                                                                             $1,                            $2,                            $3,                            $4,                            $5,                            $6,                            $7,                            $8,                            $9                    )"#)
                 .bind(self.start_time.clone())
@@ -87,7 +87,7 @@ impl carbon_core::postgres::operations::Insert for AdminUpdateTokenIncentivesRow
                 .bind(self.day_number.clone())
                 .bind(self.token_supply_per_day.clone())
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.index.clone())
+        .bind(self.metadata.instruction_index.clone())
         .bind(self.metadata.stack_height.clone())
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
@@ -105,17 +105,17 @@ impl carbon_core::postgres::operations::Upsert for AdminUpdateTokenIncentivesRow
                         "seconds_in_a_day",
                         "day_number",
                         "token_supply_per_day",
-                                    __signature, __index, __stack_height, __slot
+                                    __signature, __instruction_index, __stack_height, __slot
                     ) VALUES (
                                                                         $1,                        $2,                        $3,                        $4,                        $5,                        $6,                        $7,                        $8,                        $9                    ) ON CONFLICT (
-                        __signature, __index
+                        __signature, __instruction_index
                     ) DO UPDATE SET
                         "start_time" = EXCLUDED."start_time",
                         "end_time" = EXCLUDED."end_time",
                         "seconds_in_a_day" = EXCLUDED."seconds_in_a_day",
                         "day_number" = EXCLUDED."day_number",
                         "token_supply_per_day" = EXCLUDED."token_supply_per_day",
-                                    __index = EXCLUDED.__index,
+                                    __instruction_index = EXCLUDED.__instruction_index,
             __stack_height = EXCLUDED.__stack_height,
             __slot = EXCLUDED.__slot
                     "#)
@@ -125,7 +125,7 @@ impl carbon_core::postgres::operations::Upsert for AdminUpdateTokenIncentivesRow
                 .bind(self.day_number.clone())
                 .bind(self.token_supply_per_day.clone())
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.index.clone())
+        .bind(self.metadata.instruction_index.clone())
         .bind(self.metadata.stack_height.clone())
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
@@ -141,7 +141,7 @@ impl carbon_core::postgres::operations::Delete for AdminUpdateTokenIncentivesRow
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"DELETE FROM admin_update_token_incentives_instruction WHERE
-                        __signature = $1 AND __index = $2
+                        __signature = $1 AND __instruction_index = $2
                     "#)
                 .bind(key.0)
         .bind(key.1)
@@ -158,7 +158,7 @@ impl carbon_core::postgres::operations::LookUp for AdminUpdateTokenIncentivesRow
 
     async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(r#"SELECT * FROM admin_update_token_incentives_instruction WHERE
-                        __signature = $1 AND __index = $2
+                        __signature = $1 AND __instruction_index = $2
                     "#)
                 .bind(key.0)
         .bind(key.1)
@@ -177,19 +177,19 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AdminUpdateTokenIncentivesMigr
     async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(r#"CREATE TABLE IF NOT EXISTS admin_update_token_incentives_instruction (
                         -- Instruction data
-                                    "start_time" BIGINT NOT NULL,
-                        "end_time" BIGINT NOT NULL,
-                        "seconds_in_a_day" BIGINT NOT NULL,
+                                    "start_time" INT8 NOT NULL,
+                        "end_time" INT8 NOT NULL,
+                        "seconds_in_a_day" INT8 NOT NULL,
                         "day_number" NUMERIC(20) NOT NULL,
                         "token_supply_per_day" NUMERIC(20) NOT NULL,
             
                         -- Instruction metadata
             __signature TEXT NOT NULL,
-            __index BIGINT NOT NULL,
+            __instruction_index BIGINT NOT NULL,
             __stack_height BIGINT NOT NULL,
-            __slot BIGINT,
+            __slot NUMERIC(20),
             
-                        PRIMARY KEY (__signature, __index)
+                        PRIMARY KEY (__signature, __instruction_index)
                     )"#).execute(connection).await?;
         Ok(())
     }

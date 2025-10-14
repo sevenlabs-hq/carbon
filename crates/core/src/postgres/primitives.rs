@@ -152,6 +152,24 @@ impl From<solana_pubkey::Pubkey> for Pubkey {
     }
 }
 
+// Ergonomic conversions from raw bytes (panic on invalid length/format) for debugging paths
+impl From<Vec<u8>> for Pubkey {
+    fn from(bytes: Vec<u8>) -> Self {
+        Self(
+            solana_pubkey::Pubkey::try_from_slice(&bytes)
+                .expect("invalid pubkey bytes for Pubkey conversion"),
+        )
+    }
+}
+impl From<&[u8]> for Pubkey {
+    fn from(bytes: &[u8]) -> Self {
+        Self(
+            solana_pubkey::Pubkey::try_from_slice(bytes)
+                .expect("invalid pubkey bytes for Pubkey conversion"),
+        )
+    }
+}
+
 impl Encode<'_, Postgres> for Pubkey {
     fn encode_by_ref(
         &self,
@@ -239,6 +257,16 @@ macro_rules! unsigned_small {
                 Self(v as $inner)
             }
         }
+        impl From<$inner> for $name {
+            fn from(v: $inner) -> Self {
+                Self(v)
+            }
+        }
+        impl From<&$inner> for $name {
+            fn from(v: &$inner) -> Self {
+                Self(*v)
+            }
+        }
         impl TryFrom<$name> for $src {
             type Error = crate::error::Error;
             fn try_from(v: $name) -> Result<Self, Self::Error> {
@@ -267,9 +295,9 @@ macro_rules! unsigned_small {
     };
 }
 
-unsigned_small!(U8, u8, i16, "SMALLINT", "_SMALLINT");
-unsigned_small!(U16, u16, i32, "INTEGER", "_INTEGER");
-unsigned_small!(U32, u32, i64, "BIGINT", "_BIGINT");
+unsigned_small!(U8, u8, i16, "INT2", "_INT2");
+unsigned_small!(U16, u16, i32, "INT4", "_INT4");
+unsigned_small!(U32, u32, i64, "INT8", "_INT8");
 
 /// Macro for creating PostgreSQL-compatible large unsigned integer types.
 ///
@@ -360,6 +388,32 @@ macro_rules! big_unsigned {
                     None => Err(Box::new(crate::error::Error::Custom(
                         "out of range".to_string(),
                     ))),
+                }
+            }
+        }
+
+        impl From<$name> for Decimal {
+            fn from(v: $name) -> Self {
+                // safe: $src is an unsigned integer; representable as u128
+                Decimal::from_u128(v.0 as u128)
+                    .expect("conversion to Decimal should never fail for unsigned integers")
+            }
+        }
+
+        /* Total conversions (panic on out-of-range) for ergonomic `.into()` */
+        impl From<Decimal> for $name {
+            fn from(d: Decimal) -> Self {
+                match d.to_u128() {
+                    Some(v) if v <= (<$src>::MAX as u128) => Self(v as $src),
+                    _ => panic!("Decimal value out of range for unsigned integer wrapper"),
+                }
+            }
+        }
+        impl From<&Decimal> for $name {
+            fn from(d: &Decimal) -> Self {
+                match d.to_u128() {
+                    Some(v) if v <= (<$src>::MAX as u128) => Self(v as $src),
+                    _ => panic!("Decimal value out of range for unsigned integer wrapper"),
                 }
             }
         }

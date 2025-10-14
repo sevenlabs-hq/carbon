@@ -45,7 +45,7 @@ impl carbon_core::postgres::operations::Table for AdminSetCoinCreator {
     fn columns() -> Vec<&'static str> {
         vec![
                         "__signature",
-            "__index",
+            "__instruction_index",
             "__stack_height",
             "__slot",
                                     "coin_creator",
@@ -59,12 +59,12 @@ impl carbon_core::postgres::operations::Insert for AdminSetCoinCreatorRow {
         sqlx::query(r#"
             INSERT INTO admin_set_coin_creator_instruction (
                             "coin_creator",
-                                        __signature, __index, __stack_height, __slot
+                                        __signature, __instruction_index, __stack_height, __slot
                         ) VALUES (
                                                                             $1,                            $2,                            $3,                            $4,                            $5                    )"#)
                 .bind(self.coin_creator.clone())
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.index.clone())
+        .bind(self.metadata.instruction_index.clone())
         .bind(self.metadata.stack_height.clone())
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
@@ -78,19 +78,19 @@ impl carbon_core::postgres::operations::Upsert for AdminSetCoinCreatorRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"INSERT INTO admin_set_coin_creator_instruction (
                         "coin_creator",
-                                    __signature, __index, __stack_height, __slot
+                                    __signature, __instruction_index, __stack_height, __slot
                     ) VALUES (
                                                                         $1,                        $2,                        $3,                        $4,                        $5                    ) ON CONFLICT (
-                        __signature, __index
+                        __signature, __instruction_index
                     ) DO UPDATE SET
                         "coin_creator" = EXCLUDED."coin_creator",
-                                    __index = EXCLUDED.__index,
+                                    __instruction_index = EXCLUDED.__instruction_index,
             __stack_height = EXCLUDED.__stack_height,
             __slot = EXCLUDED.__slot
                     "#)
                 .bind(self.coin_creator.clone())
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.index.clone())
+        .bind(self.metadata.instruction_index.clone())
         .bind(self.metadata.stack_height.clone())
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
@@ -106,7 +106,7 @@ impl carbon_core::postgres::operations::Delete for AdminSetCoinCreatorRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"DELETE FROM admin_set_coin_creator_instruction WHERE
-                        __signature = $1 AND __index = $2
+                        __signature = $1 AND __instruction_index = $2
                     "#)
                 .bind(key.0)
         .bind(key.1)
@@ -123,7 +123,7 @@ impl carbon_core::postgres::operations::LookUp for AdminSetCoinCreatorRow {
 
     async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(r#"SELECT * FROM admin_set_coin_creator_instruction WHERE
-                        __signature = $1 AND __index = $2
+                        __signature = $1 AND __instruction_index = $2
                     "#)
                 .bind(key.0)
         .bind(key.1)
@@ -146,11 +146,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AdminSetCoinCreatorMigrationOp
             
                         -- Instruction metadata
             __signature TEXT NOT NULL,
-            __index BIGINT NOT NULL,
+            __instruction_index BIGINT NOT NULL,
             __stack_height BIGINT NOT NULL,
-            __slot BIGINT,
+            __slot NUMERIC(20),
             
-                        PRIMARY KEY (__signature, __index)
+                        PRIMARY KEY (__signature, __instruction_index)
                     )"#).execute(connection).await?;
         Ok(())
     }

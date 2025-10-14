@@ -225,7 +225,7 @@ pub struct InstructionRowMetadata {
     #[sqlx(rename = "__signature")]
     pub signature: String,
     #[sqlx(rename = "__instruction_index")]
-    pub index: U32,
+    pub instruction_index: U32,
     #[sqlx(rename = "__stack_height")]
     pub stack_height: U32,
     #[sqlx(rename = "__slot")]
@@ -236,7 +236,7 @@ impl From<InstructionMetadata> for InstructionRowMetadata {
     fn from(metadata: InstructionMetadata) -> Self {
         Self {
             signature: metadata.transaction_metadata.signature.to_string(),
-            index: metadata.index.into(),
+            instruction_index: metadata.index.into(),
             stack_height: metadata.stack_height.into(),
             slot: Some(metadata.transaction_metadata.slot.into()),
         }

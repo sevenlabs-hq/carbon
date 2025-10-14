@@ -161,14 +161,14 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeConfigMigrationOperation {
     async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(r#"CREATE TABLE IF NOT EXISTS fee_config_account (
                         -- Account data
-                                    "bump" SMALLINT NOT NULL,
+                                    "bump" INT2 NOT NULL,
                         "admin" BYTEA NOT NULL,
                         "flat_fees" JSONB NOT NULL,
                         "fee_tiers" JSONB NOT NULL,
             
                         -- Account metadata
             __pubkey BYTEA NOT NULL,
-            __slot BIGINT,
+            __slot NUMERIC(20),
             
                         PRIMARY KEY (__pubkey)
                     )"#).execute(connection).await?;

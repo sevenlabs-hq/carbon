@@ -57,7 +57,7 @@ impl carbon_core::postgres::operations::Table for UpdateFeeConfig {
     fn columns() -> Vec<&'static str> {
         vec![
                         "__signature",
-            "__index",
+            "__instruction_index",
             "__stack_height",
             "__slot",
                                     "lp_fee_basis_points",
@@ -79,7 +79,7 @@ impl carbon_core::postgres::operations::Insert for UpdateFeeConfigRow {
                             "protocol_fee_recipients",
                             "coin_creator_fee_basis_points",
                             "admin_set_coin_creator_authority",
-                                        __signature, __index, __stack_height, __slot
+                                        __signature, __instruction_index, __stack_height, __slot
                         ) VALUES (
                                                                             $1,                            $2,                            $3,                            $4,                            $5,                            $6,                            $7,                            $8,                            $9                    )"#)
                 .bind(self.lp_fee_basis_points.clone())
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for UpdateFeeConfigRow {
                 .bind(self.coin_creator_fee_basis_points.clone())
                 .bind(self.admin_set_coin_creator_authority.clone())
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.index.clone())
+        .bind(self.metadata.instruction_index.clone())
         .bind(self.metadata.stack_height.clone())
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
@@ -106,17 +106,17 @@ impl carbon_core::postgres::operations::Upsert for UpdateFeeConfigRow {
                         "protocol_fee_recipients",
                         "coin_creator_fee_basis_points",
                         "admin_set_coin_creator_authority",
-                                    __signature, __index, __stack_height, __slot
+                                    __signature, __instruction_index, __stack_height, __slot
                     ) VALUES (
                                                                         $1,                        $2,                        $3,                        $4,                        $5,                        $6,                        $7,                        $8,                        $9                    ) ON CONFLICT (
-                        __signature, __index
+                        __signature, __instruction_index
                     ) DO UPDATE SET
                         "lp_fee_basis_points" = EXCLUDED."lp_fee_basis_points",
                         "protocol_fee_basis_points" = EXCLUDED."protocol_fee_basis_points",
                         "protocol_fee_recipients" = EXCLUDED."protocol_fee_recipients",
                         "coin_creator_fee_basis_points" = EXCLUDED."coin_creator_fee_basis_points",
                         "admin_set_coin_creator_authority" = EXCLUDED."admin_set_coin_creator_authority",
-                                    __index = EXCLUDED.__index,
+                                    __instruction_index = EXCLUDED.__instruction_index,
             __stack_height = EXCLUDED.__stack_height,
             __slot = EXCLUDED.__slot
                     "#)
@@ -126,7 +126,7 @@ impl carbon_core::postgres::operations::Upsert for UpdateFeeConfigRow {
                 .bind(self.coin_creator_fee_basis_points.clone())
                 .bind(self.admin_set_coin_creator_authority.clone())
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.index.clone())
+        .bind(self.metadata.instruction_index.clone())
         .bind(self.metadata.stack_height.clone())
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
@@ -142,7 +142,7 @@ impl carbon_core::postgres::operations::Delete for UpdateFeeConfigRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"DELETE FROM update_fee_config_instruction WHERE
-                        __signature = $1 AND __index = $2
+                        __signature = $1 AND __instruction_index = $2
                     "#)
                 .bind(key.0)
         .bind(key.1)
@@ -159,7 +159,7 @@ impl carbon_core::postgres::operations::LookUp for UpdateFeeConfigRow {
 
     async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(r#"SELECT * FROM update_fee_config_instruction WHERE
-                        __signature = $1 AND __index = $2
+                        __signature = $1 AND __instruction_index = $2
                     "#)
                 .bind(key.0)
         .bind(key.1)
@@ -186,11 +186,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateFeeConfigMigrationOperat
             
                         -- Instruction metadata
             __signature TEXT NOT NULL,
-            __index BIGINT NOT NULL,
+            __instruction_index BIGINT NOT NULL,
             __stack_height BIGINT NOT NULL,
-            __slot BIGINT,
+            __slot NUMERIC(20),
             
-                        PRIMARY KEY (__signature, __index)
+                        PRIMARY KEY (__signature, __instruction_index)
                     )"#).execute(connection).await?;
         Ok(())
     }

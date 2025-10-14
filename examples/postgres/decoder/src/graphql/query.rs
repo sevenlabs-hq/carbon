@@ -173,13 +173,13 @@ impl QueryRoot {
             async fn admin_set_coin_creator(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
-        index: i32,
+        instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::AdminSetCoinCreatorGraphQL>> {
         let rows: Vec<crate::instructions::postgres::AdminSetCoinCreatorRow> = sqlx::query_as(
-            r#"SELECT * FROM admin_set_coin_creator_instruction WHERE __signature = $1 AND __index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM admin_set_coin_creator_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
-        .bind(index)
+        .bind(instruction_index)
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
@@ -192,7 +192,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::AdminSetCoinCreatorGraphQL>> {
         let rows: Vec<crate::instructions::postgres::AdminSetCoinCreatorRow> = sqlx::query_as(
-            r#"SELECT * FROM admin_set_coin_creator_instruction ORDER BY __slot DESC, __signature DESC, __index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM admin_set_coin_creator_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -204,13 +204,13 @@ impl QueryRoot {
                 async fn admin_update_token_incentives(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
-        index: i32,
+        instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::AdminUpdateTokenIncentivesGraphQL>> {
         let rows: Vec<crate::instructions::postgres::AdminUpdateTokenIncentivesRow> = sqlx::query_as(
-            r#"SELECT * FROM admin_update_token_incentives_instruction WHERE __signature = $1 AND __index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM admin_update_token_incentives_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
-        .bind(index)
+        .bind(instruction_index)
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
@@ -223,7 +223,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::AdminUpdateTokenIncentivesGraphQL>> {
         let rows: Vec<crate::instructions::postgres::AdminUpdateTokenIncentivesRow> = sqlx::query_as(
-            r#"SELECT * FROM admin_update_token_incentives_instruction ORDER BY __slot DESC, __signature DESC, __index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM admin_update_token_incentives_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -235,13 +235,13 @@ impl QueryRoot {
                 async fn buy(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
-        index: i32,
+        instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::BuyGraphQL>> {
         let rows: Vec<crate::instructions::postgres::BuyRow> = sqlx::query_as(
-            r#"SELECT * FROM buy_instruction WHERE __signature = $1 AND __index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM buy_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
-        .bind(index)
+        .bind(instruction_index)
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
@@ -254,7 +254,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::BuyGraphQL>> {
         let rows: Vec<crate::instructions::postgres::BuyRow> = sqlx::query_as(
-            r#"SELECT * FROM buy_instruction ORDER BY __slot DESC, __signature DESC, __index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM buy_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -266,13 +266,13 @@ impl QueryRoot {
                                         async fn create_config(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
-        index: i32,
+        instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateConfigGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateConfigRow> = sqlx::query_as(
-            r#"SELECT * FROM create_config_instruction WHERE __signature = $1 AND __index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM create_config_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
-        .bind(index)
+        .bind(instruction_index)
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
@@ -285,7 +285,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateConfigGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateConfigRow> = sqlx::query_as(
-            r#"SELECT * FROM create_config_instruction ORDER BY __slot DESC, __signature DESC, __index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM create_config_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -297,13 +297,13 @@ impl QueryRoot {
                 async fn create_pool(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
-        index: i32,
+        instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreatePoolGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreatePoolRow> = sqlx::query_as(
-            r#"SELECT * FROM create_pool_instruction WHERE __signature = $1 AND __index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM create_pool_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
-        .bind(index)
+        .bind(instruction_index)
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
@@ -316,7 +316,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::CreatePoolGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreatePoolRow> = sqlx::query_as(
-            r#"SELECT * FROM create_pool_instruction ORDER BY __slot DESC, __signature DESC, __index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM create_pool_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -328,13 +328,13 @@ impl QueryRoot {
                 async fn deposit(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
-        index: i32,
+        instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::DepositGraphQL>> {
         let rows: Vec<crate::instructions::postgres::DepositRow> = sqlx::query_as(
-            r#"SELECT * FROM deposit_instruction WHERE __signature = $1 AND __index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM deposit_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
-        .bind(index)
+        .bind(instruction_index)
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
@@ -347,7 +347,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::DepositGraphQL>> {
         let rows: Vec<crate::instructions::postgres::DepositRow> = sqlx::query_as(
-            r#"SELECT * FROM deposit_instruction ORDER BY __slot DESC, __signature DESC, __index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM deposit_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -359,13 +359,13 @@ impl QueryRoot {
                 async fn disable(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
-        index: i32,
+        instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::DisableGraphQL>> {
         let rows: Vec<crate::instructions::postgres::DisableRow> = sqlx::query_as(
-            r#"SELECT * FROM disable_instruction WHERE __signature = $1 AND __index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM disable_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
-        .bind(index)
+        .bind(instruction_index)
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
@@ -378,7 +378,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::DisableGraphQL>> {
         let rows: Vec<crate::instructions::postgres::DisableRow> = sqlx::query_as(
-            r#"SELECT * FROM disable_instruction ORDER BY __slot DESC, __signature DESC, __index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM disable_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -390,13 +390,13 @@ impl QueryRoot {
                                 async fn sell(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
-        index: i32,
+        instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SellGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SellRow> = sqlx::query_as(
-            r#"SELECT * FROM sell_instruction WHERE __signature = $1 AND __index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM sell_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
-        .bind(index)
+        .bind(instruction_index)
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
@@ -409,7 +409,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::SellGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SellRow> = sqlx::query_as(
-            r#"SELECT * FROM sell_instruction ORDER BY __slot DESC, __signature DESC, __index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM sell_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -421,13 +421,13 @@ impl QueryRoot {
                                         async fn update_fee_config(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
-        index: i32,
+        instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::UpdateFeeConfigGraphQL>> {
         let rows: Vec<crate::instructions::postgres::UpdateFeeConfigRow> = sqlx::query_as(
-            r#"SELECT * FROM update_fee_config_instruction WHERE __signature = $1 AND __index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM update_fee_config_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
-        .bind(index)
+        .bind(instruction_index)
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
@@ -440,7 +440,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::UpdateFeeConfigGraphQL>> {
         let rows: Vec<crate::instructions::postgres::UpdateFeeConfigRow> = sqlx::query_as(
-            r#"SELECT * FROM update_fee_config_instruction ORDER BY __slot DESC, __signature DESC, __index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM update_fee_config_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -452,13 +452,13 @@ impl QueryRoot {
                 async fn withdraw(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
-        index: i32,
+        instruction_index: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawGraphQL>> {
         let rows: Vec<crate::instructions::postgres::WithdrawRow> = sqlx::query_as(
-            r#"SELECT * FROM withdraw_instruction WHERE __signature = $1 AND __index = $2 ORDER BY __stack_height ASC"#,
+            r#"SELECT * FROM withdraw_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
-        .bind(index)
+        .bind(instruction_index)
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
@@ -471,7 +471,7 @@ impl QueryRoot {
         offset: i32,
     ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawGraphQL>> {
         let rows: Vec<crate::instructions::postgres::WithdrawRow> = sqlx::query_as(
-            r#"SELECT * FROM withdraw_instruction ORDER BY __slot DESC, __signature DESC, __index ASC LIMIT $1 OFFSET $2"#,
+            r#"SELECT * FROM withdraw_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

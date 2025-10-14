@@ -47,7 +47,7 @@ impl carbon_core::postgres::operations::Table for Sell {
     fn columns() -> Vec<&'static str> {
         vec![
                         "__signature",
-            "__index",
+            "__instruction_index",
             "__stack_height",
             "__slot",
                                     "base_amount_in",
@@ -63,13 +63,13 @@ impl carbon_core::postgres::operations::Insert for SellRow {
             INSERT INTO sell_instruction (
                             "base_amount_in",
                             "min_quote_amount_out",
-                                        __signature, __index, __stack_height, __slot
+                                        __signature, __instruction_index, __stack_height, __slot
                         ) VALUES (
                                                                             $1,                            $2,                            $3,                            $4,                            $5,                            $6                    )"#)
                 .bind(self.base_amount_in.clone())
                 .bind(self.min_quote_amount_out.clone())
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.index.clone())
+        .bind(self.metadata.instruction_index.clone())
         .bind(self.metadata.stack_height.clone())
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
@@ -84,21 +84,21 @@ impl carbon_core::postgres::operations::Upsert for SellRow {
         sqlx::query(r#"INSERT INTO sell_instruction (
                         "base_amount_in",
                         "min_quote_amount_out",
-                                    __signature, __index, __stack_height, __slot
+                                    __signature, __instruction_index, __stack_height, __slot
                     ) VALUES (
                                                                         $1,                        $2,                        $3,                        $4,                        $5,                        $6                    ) ON CONFLICT (
-                        __signature, __index
+                        __signature, __instruction_index
                     ) DO UPDATE SET
                         "base_amount_in" = EXCLUDED."base_amount_in",
                         "min_quote_amount_out" = EXCLUDED."min_quote_amount_out",
-                                    __index = EXCLUDED.__index,
+                                    __instruction_index = EXCLUDED.__instruction_index,
             __stack_height = EXCLUDED.__stack_height,
             __slot = EXCLUDED.__slot
                     "#)
                 .bind(self.base_amount_in.clone())
                 .bind(self.min_quote_amount_out.clone())
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.index.clone())
+        .bind(self.metadata.instruction_index.clone())
         .bind(self.metadata.stack_height.clone())
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
@@ -114,7 +114,7 @@ impl carbon_core::postgres::operations::Delete for SellRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"DELETE FROM sell_instruction WHERE
-                        __signature = $1 AND __index = $2
+                        __signature = $1 AND __instruction_index = $2
                     "#)
                 .bind(key.0)
         .bind(key.1)
@@ -131,7 +131,7 @@ impl carbon_core::postgres::operations::LookUp for SellRow {
 
     async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(r#"SELECT * FROM sell_instruction WHERE
-                        __signature = $1 AND __index = $2
+                        __signature = $1 AND __instruction_index = $2
                     "#)
                 .bind(key.0)
         .bind(key.1)
@@ -155,11 +155,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SellMigrationOperation {
             
                         -- Instruction metadata
             __signature TEXT NOT NULL,
-            __index BIGINT NOT NULL,
+            __instruction_index BIGINT NOT NULL,
             __stack_height BIGINT NOT NULL,
-            __slot BIGINT,
+            __slot NUMERIC(20),
             
-                        PRIMARY KEY (__signature, __index)
+                        PRIMARY KEY (__signature, __instruction_index)
                     )"#).execute(connection).await?;
         Ok(())
     }
