@@ -152,21 +152,15 @@ impl From<solana_pubkey::Pubkey> for Pubkey {
     }
 }
 
-// Ergonomic conversions from raw bytes (panic on invalid length/format) for debugging paths
+// Ergonomic conversions from raw bytes (DEFAULT on invalid length/format) for debugging paths
 impl From<Vec<u8>> for Pubkey {
     fn from(bytes: Vec<u8>) -> Self {
-        Self(
-            solana_pubkey::Pubkey::try_from_slice(&bytes)
-                .expect("invalid pubkey bytes for Pubkey conversion"),
-        )
+        Self(solana_pubkey::Pubkey::try_from_slice(&bytes).unwrap_or_default())
     }
 }
 impl From<&[u8]> for Pubkey {
     fn from(bytes: &[u8]) -> Self {
-        Self(
-            solana_pubkey::Pubkey::try_from_slice(bytes)
-                .expect("invalid pubkey bytes for Pubkey conversion"),
-        )
+        Self(solana_pubkey::Pubkey::try_from_slice(bytes).unwrap_or_default())
     }
 }
 
@@ -395,8 +389,7 @@ macro_rules! big_unsigned {
         impl From<$name> for Decimal {
             fn from(v: $name) -> Self {
                 // safe: $src is an unsigned integer; representable as u128
-                Decimal::from_u128(v.0 as u128)
-                    .expect("conversion to Decimal should never fail for unsigned integers")
+                Decimal::from_u128(v.0 as u128).unwrap_or_default()
             }
         }
 
@@ -405,7 +398,7 @@ macro_rules! big_unsigned {
             fn from(d: Decimal) -> Self {
                 match d.to_u128() {
                     Some(v) if v <= (<$src>::MAX as u128) => Self(v as $src),
-                    _ => panic!("Decimal value out of range for unsigned integer wrapper"),
+                    _ => Self(0),
                 }
             }
         }
@@ -413,7 +406,7 @@ macro_rules! big_unsigned {
             fn from(d: &Decimal) -> Self {
                 match d.to_u128() {
                     Some(v) if v <= (<$src>::MAX as u128) => Self(v as $src),
-                    _ => panic!("Decimal value out of range for unsigned integer wrapper"),
+                    _ => Self(0),
                 }
             }
         }

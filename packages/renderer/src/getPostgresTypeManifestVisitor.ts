@@ -6,7 +6,7 @@ Postgres type manifest rules:
 - Numbers/PublicKey → dedicated wrapper types for safe DB storage (e.g., U64)
 - Arrays of primitives → PG arrays when possible; complex/defined types → JSONB via sqlx::types::Json<T>
 - Maps/Tuples/Sets → JSONB
-- Singleton tuples → JSONB instead of (T) to avoid clippy noise
+- Singleton tuples → inner type
 - Defined types → JSONB to preserve structure
 */
 
