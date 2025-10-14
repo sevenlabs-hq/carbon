@@ -3,9 +3,6 @@ import { isNode, REGISTERED_TYPE_NODE_KINDS, pascalCase } from '@codama/nodes';
 GraphQL type manifest rules:
 - PublicKey → Pubkey scalar
 - Numbers → i32 where safe; U8,U32,I64,U64,I128,U128 scalars to keep values lossless
-// TODO: FIX FIXEDSIZETYPENODE and it's type being bytes
-- Bytes:
-  - Other u8 arrays (fixed/nested) → numeric arrays via U8 scalars
 - Options → Option<T> (nullable)
 - Arrays → Vec<T>
 - Tuples/Sets → Json (singleton tuple collapses to inner type)
@@ -96,9 +93,8 @@ export function getGraphQLTypeManifestVisitor() {
                         isNullable: false,
                     };
                 },
-                // TODO: investigate and remove if unnecessary
                 visitFixedSizeType(node, { self }) {
-                    // For fixed-size byte arrays [u8; N], render as Vec<U8> (not Vec<Vec<U8>>)
+                    // array that has 'bytes' inside is vec<u8>, not vec<vec<u8>>
                     if (node.type.kind === 'bytesTypeNode') {
                         return m('Vec<U8>', ['carbon_core::graphql::primitives::U8']);
                     }
@@ -121,7 +117,7 @@ export function getGraphQLTypeManifestVisitor() {
                     };
                 },
                 visitTupleType(node, { self }) {
-                    // Fixes wrappers -> collapse to inner type
+                    // Fixes wrappers -> collapse to inner type (OptionBool(pub bool) should be just a bool)
                     if (node.items.length === 1) {
                         return visit(node.items[0], self) as GraphQLTypeManifest;
                     }

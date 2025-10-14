@@ -4,9 +4,6 @@ GraphQL conversion rules (Rust → GraphQL values):
 
 - PublicKey → Pubkey scalar (string form)
 - Numbers → custom scalars for large/signed (U8,U32,I64,U64,I128,U128) or native i32 where safe
-// TODO: FIX FIXEDSIZETYPENODE and it's type being bytes
-- Bytes:
-  - Any other u8 arrays (fixed-size or nested arrays) → numeric arrays (map each to U8)
 - Options → Option<...>
 - Arrays → Vec<...> (fixed-size rendered as Vec in GraphQL)
   - Nested arrays from Postgres Json: unwrap outer `.0`, then map inner elements recursively
