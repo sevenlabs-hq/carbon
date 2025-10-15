@@ -12,15 +12,9 @@ categories = ["encoding"]
 [lib]
 crate-type = ["rlib"]
 
-[features]
-postgres = ["dep:sqlx", "dep:sqlx_migrator", "dep:carbon-postgres-client", "dep:rust_decimal"]
-graphql = ["dep:carbon-gql-server", "dep:juniper"]
-
 [dependencies]
 async-trait = { workspace = true }
 carbon-core = { workspace = true }
-carbon-gql-server = { workspace = true, optional = true }
-carbon-postgres-client = { workspace = true, optional = true }
 juniper = { workspace = true, optional = true }
 rust_decimal = { workspace = true, optional = true }
 serde = { workspace = true }

@@ -1261,20 +1261,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "carbon-gql-server"
-version = "0.9.1"
-dependencies = [
- "axum 0.8.4",
- "carbon-postgres-client",
- "juniper",
- "juniper_axum",
- "juniper_graphql_ws",
- "serde",
- "solana-pubkey",
- "tokio",
-]
-
-[[package]]
 name = "carbon-helius-atlas-ws-datasource"
 version = "0.9.1"
 dependencies = [
@@ -1621,15 +1607,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "carbon-postgres-client"
-version = "0.9.1"
-dependencies = [
- "juniper",
- "sqlx",
- "sqlx_migrator",
-]
-
-[[package]]
 name = "carbon-proc-macros"
 version = "0.9.1"
 dependencies = [
@@ -1933,8 +1910,6 @@ version = "0.9.1"
 dependencies = [
  "async-trait",
  "carbon-core",
- "carbon-gql-server",
- "carbon-postgres-client",
  "juniper",
  "rust_decimal",
  "serde",
@@ -9768,27 +9743,6 @@ name = "tinyvec_macros"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
-
-[[package]]
-name = "token-indexing-example"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "carbon-core",
- "carbon-gql-server",
- "carbon-log-metrics",
- "carbon-postgres-client",
- "carbon-token-program-decoder",
- "carbon-yellowstone-grpc-datasource",
- "dotenv",
- "juniper",
- "log",
- "rustls 0.23.27",
- "solana-account",
- "spl-token 6.0.0",
- "tokio",
- "yellowstone-grpc-proto",
-]
 
 [[package]]
 name = "tokio"
