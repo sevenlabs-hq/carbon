@@ -18,10 +18,6 @@ carbon-macros = { path = "crates/macros", version = "0.9.1" }
 carbon-proc-macros = { path = "crates/proc-macros", version = "0.9.1" }
 carbon-test-utils = { path = "crates/test-utils", version = "0.9.1" }
 
-# storage and api
-carbon-gql-server = { path = "crates/gql-server", version = "0.9.1" }
-carbon-postgres-client = { path = "crates/postgres-client", version = "0.9.1" }
-
 # datasources
 carbon-helius-atlas-ws-datasource = { path = "datasources/helius-atlas-ws-datasource", version = "0.9.1" }
 carbon-jito-shredstream-grpc-datasource = { path = "datasources/jito-shredstream-grpc-datasource", version = "0.9.1" }

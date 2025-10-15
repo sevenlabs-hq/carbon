@@ -73,8 +73,6 @@ The Carbon project is organized as a Rust workspace with the following main comp
 - **`carbon-macros`**: Procedural macros for the framework
 - **`carbon-proc-macros`**: Additional procedural macros
 - **`carbon-test-utils`**: Testing utilities and helpers
-- **`carbon-gql-server`**: GraphQL server implementation
-- **`carbon-postgres-client`**: PostgreSQL client for data storage
 
 ### Datasources (`datasources/`)
 
