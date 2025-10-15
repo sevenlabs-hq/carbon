@@ -4,6 +4,10 @@ import { getRenderMapVisitor, GetRenderMapOptions } from './getRenderMapVisitor'
 
 export type RenderOptions = GetRenderMapOptions & {
     deleteFolderBeforeRendering?: boolean;
+    anchorEvents?: {
+        name: string,
+        discriminator: number[];
+    }[];
 };
 
 export function renderVisitor(path: string, options: RenderOptions = {}) {

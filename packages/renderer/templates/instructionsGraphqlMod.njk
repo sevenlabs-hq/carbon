@@ -3,12 +3,18 @@
 pub mod {{ instruction.name | snakeCase }}_schema;
 {% endif %}
 {% endfor %}
+{% if hasAnchorEvents %}
+pub mod cpi_event_schema;
+{% endif %}
 
 {% for instruction in instructionsToExport %}
 {% if instruction.arguments.length > 1 %}
 pub use {{ instruction.name | snakeCase }}_schema::*;
 {% endif %}
 {% endfor %}
+{% if hasAnchorEvents %}
+pub use cpi_event_schema::*;
+{% endif %}
 
 use juniper::GraphQLObject;
 

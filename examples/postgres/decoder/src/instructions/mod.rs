@@ -11,72 +11,226 @@ pub mod postgres;
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
-use crate::{PumpAmmDecoder, PROGRAM_ID};
+use crate::{PROGRAM_ID, LbClmmDecoder};
 
-pub mod admin_set_coin_creator;
-pub mod admin_update_token_incentives;
-pub mod buy;
-pub mod claim_token_incentives;
-pub mod close_user_volume_accumulator;
-pub mod collect_coin_creator_fee;
-pub mod create_config;
-pub mod create_pool;
-pub mod deposit;
-pub mod disable;
-pub mod extend_account;
-pub mod init_user_volume_accumulator;
-pub mod sell;
-pub mod set_coin_creator;
-pub mod sync_user_volume_accumulator;
-pub mod update_admin;
-pub mod update_fee_config;
-pub mod withdraw;
+pub mod add_liquidity;
+pub mod add_liquidity2;
+pub mod add_liquidity_by_strategy;
+pub mod add_liquidity_by_strategy2;
+pub mod add_liquidity_by_strategy_one_side;
+pub mod add_liquidity_by_weight;
+pub mod add_liquidity_one_side;
+pub mod add_liquidity_one_side_precise;
+pub mod add_liquidity_one_side_precise2;
+pub mod claim_fee;
+pub mod claim_fee2;
+pub mod claim_reward;
+pub mod claim_reward2;
+pub mod close_claim_protocol_fee_operator;
+pub mod close_position;
+pub mod close_position2;
+pub mod close_position_if_empty;
+pub mod close_preset_parameter;
+pub mod close_preset_parameter2;
+pub mod create_claim_protocol_fee_operator;
+pub mod decrease_position_length;
+pub mod for_idl_type_generation_do_not_call;
+pub mod fund_reward;
+pub mod go_to_a_bin;
+pub mod increase_oracle_length;
+pub mod increase_position_length;
+pub mod initialize_bin_array;
+pub mod initialize_bin_array_bitmap_extension;
+pub mod initialize_customizable_permissionless_lb_pair;
+pub mod initialize_customizable_permissionless_lb_pair2;
+pub mod initialize_lb_pair;
+pub mod initialize_lb_pair2;
+pub mod initialize_permission_lb_pair;
+pub mod initialize_position;
+pub mod initialize_position_by_operator;
+pub mod initialize_position_pda;
+pub mod initialize_preset_parameter;
+pub mod initialize_preset_parameter2;
+pub mod initialize_reward;
+pub mod initialize_token_badge;
+pub mod migrate_bin_array;
+pub mod migrate_position;
+pub mod rebalance_liquidity;
+pub mod remove_all_liquidity;
+pub mod remove_liquidity;
+pub mod remove_liquidity2;
+pub mod remove_liquidity_by_range;
+pub mod remove_liquidity_by_range2;
+pub mod set_activation_point;
+pub mod set_pair_status;
+pub mod set_pair_status_permissionless;
+pub mod set_pre_activation_duration;
+pub mod set_pre_activation_swap_address;
+pub mod swap;
+pub mod swap2;
+pub mod swap_exact_out;
+pub mod swap_exact_out2;
+pub mod swap_with_price_impact;
+pub mod swap_with_price_impact2;
+pub mod update_base_fee_parameters;
+pub mod update_dynamic_fee_parameters;
+pub mod update_fees_and_reward2;
+pub mod update_fees_and_rewards;
+pub mod update_position_operator;
+pub mod update_reward_duration;
+pub mod update_reward_funder;
+pub mod withdraw_ineligible_reward;
+pub mod withdraw_protocol_fee;
+pub mod cpi_event;
 
-pub use self::admin_set_coin_creator::*;
-pub use self::admin_update_token_incentives::*;
-pub use self::buy::*;
-pub use self::claim_token_incentives::*;
-pub use self::close_user_volume_accumulator::*;
-pub use self::collect_coin_creator_fee::*;
-pub use self::create_config::*;
-pub use self::create_pool::*;
-pub use self::deposit::*;
-pub use self::disable::*;
-pub use self::extend_account::*;
-pub use self::init_user_volume_accumulator::*;
-pub use self::sell::*;
-pub use self::set_coin_creator::*;
-pub use self::sync_user_volume_accumulator::*;
-pub use self::update_admin::*;
-pub use self::update_fee_config::*;
-pub use self::withdraw::*;
+pub use self::add_liquidity::*;
+pub use self::add_liquidity2::*;
+pub use self::add_liquidity_by_strategy::*;
+pub use self::add_liquidity_by_strategy2::*;
+pub use self::add_liquidity_by_strategy_one_side::*;
+pub use self::add_liquidity_by_weight::*;
+pub use self::add_liquidity_one_side::*;
+pub use self::add_liquidity_one_side_precise::*;
+pub use self::add_liquidity_one_side_precise2::*;
+pub use self::claim_fee::*;
+pub use self::claim_fee2::*;
+pub use self::claim_reward::*;
+pub use self::claim_reward2::*;
+pub use self::close_claim_protocol_fee_operator::*;
+pub use self::close_position::*;
+pub use self::close_position2::*;
+pub use self::close_position_if_empty::*;
+pub use self::close_preset_parameter::*;
+pub use self::close_preset_parameter2::*;
+pub use self::create_claim_protocol_fee_operator::*;
+pub use self::decrease_position_length::*;
+pub use self::for_idl_type_generation_do_not_call::*;
+pub use self::fund_reward::*;
+pub use self::go_to_a_bin::*;
+pub use self::increase_oracle_length::*;
+pub use self::increase_position_length::*;
+pub use self::initialize_bin_array::*;
+pub use self::initialize_bin_array_bitmap_extension::*;
+pub use self::initialize_customizable_permissionless_lb_pair::*;
+pub use self::initialize_customizable_permissionless_lb_pair2::*;
+pub use self::initialize_lb_pair::*;
+pub use self::initialize_lb_pair2::*;
+pub use self::initialize_permission_lb_pair::*;
+pub use self::initialize_position::*;
+pub use self::initialize_position_by_operator::*;
+pub use self::initialize_position_pda::*;
+pub use self::initialize_preset_parameter::*;
+pub use self::initialize_preset_parameter2::*;
+pub use self::initialize_reward::*;
+pub use self::initialize_token_badge::*;
+pub use self::migrate_bin_array::*;
+pub use self::migrate_position::*;
+pub use self::rebalance_liquidity::*;
+pub use self::remove_all_liquidity::*;
+pub use self::remove_liquidity::*;
+pub use self::remove_liquidity2::*;
+pub use self::remove_liquidity_by_range::*;
+pub use self::remove_liquidity_by_range2::*;
+pub use self::set_activation_point::*;
+pub use self::set_pair_status::*;
+pub use self::set_pair_status_permissionless::*;
+pub use self::set_pre_activation_duration::*;
+pub use self::set_pre_activation_swap_address::*;
+pub use self::swap::*;
+pub use self::swap2::*;
+pub use self::swap_exact_out::*;
+pub use self::swap_exact_out2::*;
+pub use self::swap_with_price_impact::*;
+pub use self::swap_with_price_impact2::*;
+pub use self::update_base_fee_parameters::*;
+pub use self::update_dynamic_fee_parameters::*;
+pub use self::update_fees_and_reward2::*;
+pub use self::update_fees_and_rewards::*;
+pub use self::update_position_operator::*;
+pub use self::update_reward_duration::*;
+pub use self::update_reward_funder::*;
+pub use self::withdraw_ineligible_reward::*;
+pub use self::withdraw_protocol_fee::*;
+pub use self::cpi_event::*;
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
-pub enum PumpAmmInstruction {
-    AdminSetCoinCreator(AdminSetCoinCreator),
-    AdminUpdateTokenIncentives(AdminUpdateTokenIncentives),
-    Buy(Buy),
-    ClaimTokenIncentives(ClaimTokenIncentives),
-    CloseUserVolumeAccumulator(CloseUserVolumeAccumulator),
-    CollectCoinCreatorFee(CollectCoinCreatorFee),
-    CreateConfig(CreateConfig),
-    CreatePool(CreatePool),
-    Deposit(Deposit),
-    Disable(Disable),
-    ExtendAccount(ExtendAccount),
-    InitUserVolumeAccumulator(InitUserVolumeAccumulator),
-    Sell(Sell),
-    SetCoinCreator(SetCoinCreator),
-    SyncUserVolumeAccumulator(SyncUserVolumeAccumulator),
-    UpdateAdmin(UpdateAdmin),
-    UpdateFeeConfig(UpdateFeeConfig),
-    Withdraw(Withdraw),
+pub enum LbClmmInstruction {
+    AddLiquidity(AddLiquidity),
+    AddLiquidity2(AddLiquidity2),
+    AddLiquidityByStrategy(AddLiquidityByStrategy),
+    AddLiquidityByStrategy2(AddLiquidityByStrategy2),
+    AddLiquidityByStrategyOneSide(AddLiquidityByStrategyOneSide),
+    AddLiquidityByWeight(AddLiquidityByWeight),
+    AddLiquidityOneSide(AddLiquidityOneSide),
+    AddLiquidityOneSidePrecise(AddLiquidityOneSidePrecise),
+    AddLiquidityOneSidePrecise2(AddLiquidityOneSidePrecise2),
+    ClaimFee(ClaimFee),
+    ClaimFee2(ClaimFee2),
+    ClaimReward(ClaimReward),
+    ClaimReward2(ClaimReward2),
+    CloseClaimProtocolFeeOperator(CloseClaimProtocolFeeOperator),
+    ClosePosition(ClosePosition),
+    ClosePosition2(ClosePosition2),
+    ClosePositionIfEmpty(ClosePositionIfEmpty),
+    ClosePresetParameter(ClosePresetParameter),
+    ClosePresetParameter2(ClosePresetParameter2),
+    CreateClaimProtocolFeeOperator(CreateClaimProtocolFeeOperator),
+    DecreasePositionLength(DecreasePositionLength),
+    ForIdlTypeGenerationDoNotCall(ForIdlTypeGenerationDoNotCall),
+    FundReward(FundReward),
+    GoToABin(GoToABin),
+    IncreaseOracleLength(IncreaseOracleLength),
+    IncreasePositionLength(IncreasePositionLength),
+    InitializeBinArray(InitializeBinArray),
+    InitializeBinArrayBitmapExtension(InitializeBinArrayBitmapExtension),
+    InitializeCustomizablePermissionlessLbPair(InitializeCustomizablePermissionlessLbPair),
+    InitializeCustomizablePermissionlessLbPair2(InitializeCustomizablePermissionlessLbPair2),
+    InitializeLbPair(InitializeLbPair),
+    InitializeLbPair2(InitializeLbPair2),
+    InitializePermissionLbPair(InitializePermissionLbPair),
+    InitializePosition(InitializePosition),
+    InitializePositionByOperator(InitializePositionByOperator),
+    InitializePositionPda(InitializePositionPda),
+    InitializePresetParameter(InitializePresetParameter),
+    InitializePresetParameter2(InitializePresetParameter2),
+    InitializeReward(InitializeReward),
+    InitializeTokenBadge(InitializeTokenBadge),
+    MigrateBinArray(MigrateBinArray),
+    MigratePosition(MigratePosition),
+    RebalanceLiquidity(RebalanceLiquidity),
+    RemoveAllLiquidity(RemoveAllLiquidity),
+    RemoveLiquidity(RemoveLiquidity),
+    RemoveLiquidity2(RemoveLiquidity2),
+    RemoveLiquidityByRange(RemoveLiquidityByRange),
+    RemoveLiquidityByRange2(RemoveLiquidityByRange2),
+    SetActivationPoint(SetActivationPoint),
+    SetPairStatus(SetPairStatus),
+    SetPairStatusPermissionless(SetPairStatusPermissionless),
+    SetPreActivationDuration(SetPreActivationDuration),
+    SetPreActivationSwapAddress(SetPreActivationSwapAddress),
+    Swap(Swap),
+    Swap2(Swap2),
+    SwapExactOut(SwapExactOut),
+    SwapExactOut2(SwapExactOut2),
+    SwapWithPriceImpact(SwapWithPriceImpact),
+    SwapWithPriceImpact2(SwapWithPriceImpact2),
+    UpdateBaseFeeParameters(UpdateBaseFeeParameters),
+    UpdateDynamicFeeParameters(UpdateDynamicFeeParameters),
+    UpdateFeesAndReward2(UpdateFeesAndReward2),
+    UpdateFeesAndRewards(UpdateFeesAndRewards),
+    UpdatePositionOperator(UpdatePositionOperator),
+    UpdateRewardDuration(UpdateRewardDuration),
+    UpdateRewardFunder(UpdateRewardFunder),
+    WithdrawIneligibleReward(WithdrawIneligibleReward),
+    WithdrawProtocolFee(WithdrawProtocolFee),
+// Anchor CPI Event Instruction
+    CpiEvent(CpiEvent)
 }
 
-impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
-    type InstructionType = PumpAmmInstruction;
+impl carbon_core::instruction::InstructionDecoder<'_> for LbClmmDecoder {
+    type InstructionType = LbClmmInstruction;
 
     fn decode_instruction(
         &self,
@@ -87,196 +241,698 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
         }
 
         let data = instruction.data.as_slice();
-
-        // Try to decode AdminSetCoinCreator
+        
+                // Try to decode AddLiquidity
         {
-            if let Some(decoded) = admin_set_coin_creator::AdminSetCoinCreator::decode(data) {
+            if let Some(decoded) = add_liquidity::AddLiquidity::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: PumpAmmInstruction::AdminSetCoinCreator(decoded),
+                    data: LbClmmInstruction::AddLiquidity(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
         }
-        // Try to decode AdminUpdateTokenIncentives
+                // Try to decode AddLiquidity2
         {
-            if let Some(decoded) =
-                admin_update_token_incentives::AdminUpdateTokenIncentives::decode(data)
-            {
+            if let Some(decoded) = add_liquidity2::AddLiquidity2::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: PumpAmmInstruction::AdminUpdateTokenIncentives(decoded),
+                    data: LbClmmInstruction::AddLiquidity2(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
         }
-        // Try to decode Buy
+                // Try to decode AddLiquidityByStrategy
         {
-            if let Some(decoded) = buy::Buy::decode(data) {
+            if let Some(decoded) = add_liquidity_by_strategy::AddLiquidityByStrategy::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: PumpAmmInstruction::Buy(decoded),
+                    data: LbClmmInstruction::AddLiquidityByStrategy(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
         }
-        // Try to decode ClaimTokenIncentives
+                // Try to decode AddLiquidityByStrategy2
         {
-            if let Some(decoded) = claim_token_incentives::ClaimTokenIncentives::decode(data) {
+            if let Some(decoded) = add_liquidity_by_strategy2::AddLiquidityByStrategy2::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: PumpAmmInstruction::ClaimTokenIncentives(decoded),
+                    data: LbClmmInstruction::AddLiquidityByStrategy2(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
         }
-        // Try to decode CloseUserVolumeAccumulator
+                // Try to decode AddLiquidityByStrategyOneSide
         {
-            if let Some(decoded) =
-                close_user_volume_accumulator::CloseUserVolumeAccumulator::decode(data)
-            {
+            if let Some(decoded) = add_liquidity_by_strategy_one_side::AddLiquidityByStrategyOneSide::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: PumpAmmInstruction::CloseUserVolumeAccumulator(decoded),
+                    data: LbClmmInstruction::AddLiquidityByStrategyOneSide(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
         }
-        // Try to decode CollectCoinCreatorFee
+                // Try to decode AddLiquidityByWeight
         {
-            if let Some(decoded) = collect_coin_creator_fee::CollectCoinCreatorFee::decode(data) {
+            if let Some(decoded) = add_liquidity_by_weight::AddLiquidityByWeight::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: PumpAmmInstruction::CollectCoinCreatorFee(decoded),
+                    data: LbClmmInstruction::AddLiquidityByWeight(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
         }
-        // Try to decode CreateConfig
+                // Try to decode AddLiquidityOneSide
         {
-            if let Some(decoded) = create_config::CreateConfig::decode(data) {
+            if let Some(decoded) = add_liquidity_one_side::AddLiquidityOneSide::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: PumpAmmInstruction::CreateConfig(decoded),
+                    data: LbClmmInstruction::AddLiquidityOneSide(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
         }
-        // Try to decode CreatePool
+                // Try to decode AddLiquidityOneSidePrecise
         {
-            if let Some(decoded) = create_pool::CreatePool::decode(data) {
+            if let Some(decoded) = add_liquidity_one_side_precise::AddLiquidityOneSidePrecise::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: PumpAmmInstruction::CreatePool(decoded),
+                    data: LbClmmInstruction::AddLiquidityOneSidePrecise(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
         }
-        // Try to decode Deposit
+                // Try to decode AddLiquidityOneSidePrecise2
         {
-            if let Some(decoded) = deposit::Deposit::decode(data) {
+            if let Some(decoded) = add_liquidity_one_side_precise2::AddLiquidityOneSidePrecise2::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: PumpAmmInstruction::Deposit(decoded),
+                    data: LbClmmInstruction::AddLiquidityOneSidePrecise2(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
         }
-        // Try to decode Disable
+                // Try to decode ClaimFee
         {
-            if let Some(decoded) = disable::Disable::decode(data) {
+            if let Some(decoded) = claim_fee::ClaimFee::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: PumpAmmInstruction::Disable(decoded),
+                    data: LbClmmInstruction::ClaimFee(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
         }
-        // Try to decode ExtendAccount
+                // Try to decode ClaimFee2
         {
-            if let Some(decoded) = extend_account::ExtendAccount::decode(data) {
+            if let Some(decoded) = claim_fee2::ClaimFee2::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: PumpAmmInstruction::ExtendAccount(decoded),
+                    data: LbClmmInstruction::ClaimFee2(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
         }
-        // Try to decode InitUserVolumeAccumulator
+                // Try to decode ClaimReward
         {
-            if let Some(decoded) =
-                init_user_volume_accumulator::InitUserVolumeAccumulator::decode(data)
-            {
+            if let Some(decoded) = claim_reward::ClaimReward::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: PumpAmmInstruction::InitUserVolumeAccumulator(decoded),
+                    data: LbClmmInstruction::ClaimReward(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
         }
-        // Try to decode Sell
+                // Try to decode ClaimReward2
         {
-            if let Some(decoded) = sell::Sell::decode(data) {
+            if let Some(decoded) = claim_reward2::ClaimReward2::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: PumpAmmInstruction::Sell(decoded),
+                    data: LbClmmInstruction::ClaimReward2(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
         }
-        // Try to decode SetCoinCreator
+                // Try to decode CloseClaimProtocolFeeOperator
         {
-            if let Some(decoded) = set_coin_creator::SetCoinCreator::decode(data) {
+            if let Some(decoded) = close_claim_protocol_fee_operator::CloseClaimProtocolFeeOperator::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: PumpAmmInstruction::SetCoinCreator(decoded),
+                    data: LbClmmInstruction::CloseClaimProtocolFeeOperator(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
         }
-        // Try to decode SyncUserVolumeAccumulator
+                // Try to decode ClosePosition
         {
-            if let Some(decoded) =
-                sync_user_volume_accumulator::SyncUserVolumeAccumulator::decode(data)
-            {
+            if let Some(decoded) = close_position::ClosePosition::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: PumpAmmInstruction::SyncUserVolumeAccumulator(decoded),
+                    data: LbClmmInstruction::ClosePosition(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
         }
-        // Try to decode UpdateAdmin
+                // Try to decode ClosePosition2
         {
-            if let Some(decoded) = update_admin::UpdateAdmin::decode(data) {
+            if let Some(decoded) = close_position2::ClosePosition2::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: PumpAmmInstruction::UpdateAdmin(decoded),
+                    data: LbClmmInstruction::ClosePosition2(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
         }
-        // Try to decode UpdateFeeConfig
+                // Try to decode ClosePositionIfEmpty
         {
-            if let Some(decoded) = update_fee_config::UpdateFeeConfig::decode(data) {
+            if let Some(decoded) = close_position_if_empty::ClosePositionIfEmpty::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: PumpAmmInstruction::UpdateFeeConfig(decoded),
+                    data: LbClmmInstruction::ClosePositionIfEmpty(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
         }
-        // Try to decode Withdraw
+                // Try to decode ClosePresetParameter
         {
-            if let Some(decoded) = withdraw::Withdraw::decode(data) {
+            if let Some(decoded) = close_preset_parameter::ClosePresetParameter::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: PumpAmmInstruction::Withdraw(decoded),
+                    data: LbClmmInstruction::ClosePresetParameter(decoded),
                     accounts: instruction.accounts.clone(),
                 });
             }
         }
-
+                // Try to decode ClosePresetParameter2
+        {
+            if let Some(decoded) = close_preset_parameter2::ClosePresetParameter2::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::ClosePresetParameter2(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode CreateClaimProtocolFeeOperator
+        {
+            if let Some(decoded) = create_claim_protocol_fee_operator::CreateClaimProtocolFeeOperator::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::CreateClaimProtocolFeeOperator(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode DecreasePositionLength
+        {
+            if let Some(decoded) = decrease_position_length::DecreasePositionLength::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::DecreasePositionLength(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode ForIdlTypeGenerationDoNotCall
+        {
+            if let Some(decoded) = for_idl_type_generation_do_not_call::ForIdlTypeGenerationDoNotCall::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::ForIdlTypeGenerationDoNotCall(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode FundReward
+        {
+            if let Some(decoded) = fund_reward::FundReward::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::FundReward(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode GoToABin
+        {
+            if let Some(decoded) = go_to_a_bin::GoToABin::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::GoToABin(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode IncreaseOracleLength
+        {
+            if let Some(decoded) = increase_oracle_length::IncreaseOracleLength::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::IncreaseOracleLength(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode IncreasePositionLength
+        {
+            if let Some(decoded) = increase_position_length::IncreasePositionLength::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::IncreasePositionLength(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode InitializeBinArray
+        {
+            if let Some(decoded) = initialize_bin_array::InitializeBinArray::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::InitializeBinArray(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode InitializeBinArrayBitmapExtension
+        {
+            if let Some(decoded) = initialize_bin_array_bitmap_extension::InitializeBinArrayBitmapExtension::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::InitializeBinArrayBitmapExtension(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode InitializeCustomizablePermissionlessLbPair
+        {
+            if let Some(decoded) = initialize_customizable_permissionless_lb_pair::InitializeCustomizablePermissionlessLbPair::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::InitializeCustomizablePermissionlessLbPair(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode InitializeCustomizablePermissionlessLbPair2
+        {
+            if let Some(decoded) = initialize_customizable_permissionless_lb_pair2::InitializeCustomizablePermissionlessLbPair2::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::InitializeCustomizablePermissionlessLbPair2(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode InitializeLbPair
+        {
+            if let Some(decoded) = initialize_lb_pair::InitializeLbPair::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::InitializeLbPair(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode InitializeLbPair2
+        {
+            if let Some(decoded) = initialize_lb_pair2::InitializeLbPair2::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::InitializeLbPair2(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode InitializePermissionLbPair
+        {
+            if let Some(decoded) = initialize_permission_lb_pair::InitializePermissionLbPair::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::InitializePermissionLbPair(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode InitializePosition
+        {
+            if let Some(decoded) = initialize_position::InitializePosition::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::InitializePosition(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode InitializePositionByOperator
+        {
+            if let Some(decoded) = initialize_position_by_operator::InitializePositionByOperator::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::InitializePositionByOperator(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode InitializePositionPda
+        {
+            if let Some(decoded) = initialize_position_pda::InitializePositionPda::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::InitializePositionPda(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode InitializePresetParameter
+        {
+            if let Some(decoded) = initialize_preset_parameter::InitializePresetParameter::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::InitializePresetParameter(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode InitializePresetParameter2
+        {
+            if let Some(decoded) = initialize_preset_parameter2::InitializePresetParameter2::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::InitializePresetParameter2(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode InitializeReward
+        {
+            if let Some(decoded) = initialize_reward::InitializeReward::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::InitializeReward(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode InitializeTokenBadge
+        {
+            if let Some(decoded) = initialize_token_badge::InitializeTokenBadge::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::InitializeTokenBadge(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode MigrateBinArray
+        {
+            if let Some(decoded) = migrate_bin_array::MigrateBinArray::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::MigrateBinArray(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode MigratePosition
+        {
+            if let Some(decoded) = migrate_position::MigratePosition::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::MigratePosition(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode RebalanceLiquidity
+        {
+            if let Some(decoded) = rebalance_liquidity::RebalanceLiquidity::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::RebalanceLiquidity(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode RemoveAllLiquidity
+        {
+            if let Some(decoded) = remove_all_liquidity::RemoveAllLiquidity::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::RemoveAllLiquidity(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode RemoveLiquidity
+        {
+            if let Some(decoded) = remove_liquidity::RemoveLiquidity::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::RemoveLiquidity(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode RemoveLiquidity2
+        {
+            if let Some(decoded) = remove_liquidity2::RemoveLiquidity2::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::RemoveLiquidity2(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode RemoveLiquidityByRange
+        {
+            if let Some(decoded) = remove_liquidity_by_range::RemoveLiquidityByRange::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::RemoveLiquidityByRange(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode RemoveLiquidityByRange2
+        {
+            if let Some(decoded) = remove_liquidity_by_range2::RemoveLiquidityByRange2::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::RemoveLiquidityByRange2(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode SetActivationPoint
+        {
+            if let Some(decoded) = set_activation_point::SetActivationPoint::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::SetActivationPoint(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode SetPairStatus
+        {
+            if let Some(decoded) = set_pair_status::SetPairStatus::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::SetPairStatus(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode SetPairStatusPermissionless
+        {
+            if let Some(decoded) = set_pair_status_permissionless::SetPairStatusPermissionless::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::SetPairStatusPermissionless(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode SetPreActivationDuration
+        {
+            if let Some(decoded) = set_pre_activation_duration::SetPreActivationDuration::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::SetPreActivationDuration(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode SetPreActivationSwapAddress
+        {
+            if let Some(decoded) = set_pre_activation_swap_address::SetPreActivationSwapAddress::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::SetPreActivationSwapAddress(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode Swap
+        {
+            if let Some(decoded) = swap::Swap::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::Swap(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode Swap2
+        {
+            if let Some(decoded) = swap2::Swap2::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::Swap2(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode SwapExactOut
+        {
+            if let Some(decoded) = swap_exact_out::SwapExactOut::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::SwapExactOut(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode SwapExactOut2
+        {
+            if let Some(decoded) = swap_exact_out2::SwapExactOut2::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::SwapExactOut2(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode SwapWithPriceImpact
+        {
+            if let Some(decoded) = swap_with_price_impact::SwapWithPriceImpact::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::SwapWithPriceImpact(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode SwapWithPriceImpact2
+        {
+            if let Some(decoded) = swap_with_price_impact2::SwapWithPriceImpact2::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::SwapWithPriceImpact2(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode UpdateBaseFeeParameters
+        {
+            if let Some(decoded) = update_base_fee_parameters::UpdateBaseFeeParameters::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::UpdateBaseFeeParameters(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode UpdateDynamicFeeParameters
+        {
+            if let Some(decoded) = update_dynamic_fee_parameters::UpdateDynamicFeeParameters::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::UpdateDynamicFeeParameters(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode UpdateFeesAndReward2
+        {
+            if let Some(decoded) = update_fees_and_reward2::UpdateFeesAndReward2::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::UpdateFeesAndReward2(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode UpdateFeesAndRewards
+        {
+            if let Some(decoded) = update_fees_and_rewards::UpdateFeesAndRewards::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::UpdateFeesAndRewards(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode UpdatePositionOperator
+        {
+            if let Some(decoded) = update_position_operator::UpdatePositionOperator::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::UpdatePositionOperator(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode UpdateRewardDuration
+        {
+            if let Some(decoded) = update_reward_duration::UpdateRewardDuration::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::UpdateRewardDuration(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode UpdateRewardFunder
+        {
+            if let Some(decoded) = update_reward_funder::UpdateRewardFunder::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::UpdateRewardFunder(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode WithdrawIneligibleReward
+        {
+            if let Some(decoded) = withdraw_ineligible_reward::WithdrawIneligibleReward::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::WithdrawIneligibleReward(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                // Try to decode WithdrawProtocolFee
+        {
+            if let Some(decoded) = withdraw_protocol_fee::WithdrawProtocolFee::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::WithdrawProtocolFee(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                        {
+            if let Some(decoded) = cpi_event::CpiEvent::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: LbClmmInstruction::CpiEvent(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+                
         None
     }
 }
+

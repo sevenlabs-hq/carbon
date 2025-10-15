@@ -5,42 +5,57 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
-pub mod bonding_curve_row;
-pub mod fee_config_row;
-pub mod global_config_row;
-pub mod global_volume_accumulator_row;
-pub mod pool_row;
-pub mod user_volume_accumulator_row;
+pub mod bin_array_row;
+pub mod bin_array_bitmap_extension_row;
+pub mod claim_fee_operator_row;
+pub mod dummy_zc_account_row;
+pub mod lb_pair_row;
+pub mod oracle_row;
+pub mod position_row;
+pub mod position_v2_row;
+pub mod preset_parameter_row;
+pub mod preset_parameter2_row;
+pub mod token_badge_row;
 
-pub use self::bonding_curve_row::*;
-pub use self::fee_config_row::*;
-pub use self::global_config_row::*;
-pub use self::global_volume_accumulator_row::*;
-pub use self::pool_row::*;
-pub use self::user_volume_accumulator_row::*;
+pub use self::bin_array_row::*;
+pub use self::bin_array_bitmap_extension_row::*;
+pub use self::claim_fee_operator_row::*;
+pub use self::dummy_zc_account_row::*;
+pub use self::lb_pair_row::*;
+pub use self::oracle_row::*;
+pub use self::position_row::*;
+pub use self::position_v2_row::*;
+pub use self::preset_parameter_row::*;
+pub use self::preset_parameter2_row::*;
+pub use self::token_badge_row::*;
 
-use super::PumpAmmAccount;
+use super::LbClmmAccount;
 
-pub struct PumpAmmAccountsMigration;
+pub struct LbClmmAccountsMigration;
 
-impl sqlx_migrator::Migration<sqlx::Postgres> for PumpAmmAccountsMigration {
+impl sqlx_migrator::Migration<sqlx::Postgres> for LbClmmAccountsMigration {
     fn app(&self) -> &str {
-        "pump-amm"
+        "lb-clmm"
     }
 
     fn name(&self) -> &str {
-        "pump_amm_accounts"
+        "lb_clmm_accounts"
     }
 
     fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
         vec![
-            Box::new(BondingCurveMigrationOperation),
-            Box::new(FeeConfigMigrationOperation),
-            Box::new(GlobalConfigMigrationOperation),
-            Box::new(GlobalVolumeAccumulatorMigrationOperation),
-            Box::new(PoolMigrationOperation),
-            Box::new(UserVolumeAccumulatorMigrationOperation),
-        ]
+                        Box::new(BinArrayMigrationOperation),
+                        Box::new(BinArrayBitmapExtensionMigrationOperation),
+                        Box::new(ClaimFeeOperatorMigrationOperation),
+                        Box::new(DummyZcAccountMigrationOperation),
+                        Box::new(LbPairMigrationOperation),
+                        Box::new(OracleMigrationOperation),
+                        Box::new(PositionMigrationOperation),
+                        Box::new(PositionV2MigrationOperation),
+                        Box::new(PresetParameterMigrationOperation),
+                        Box::new(PresetParameter2MigrationOperation),
+                        Box::new(TokenBadgeMigrationOperation),
+                    ]
     }
 
     fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
@@ -48,118 +63,140 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for PumpAmmAccountsMigration {
     }
 }
 
-pub struct PumpAmmAccountWithMetadata(
-    pub PumpAmmAccount,
-    pub carbon_core::account::AccountMetadata,
-);
+pub struct LbClmmAccountWithMetadata(pub LbClmmAccount, pub carbon_core::account::AccountMetadata);
 
-impl From<(PumpAmmAccount, carbon_core::account::AccountMetadata)> for PumpAmmAccountWithMetadata {
-    fn from(value: (PumpAmmAccount, carbon_core::account::AccountMetadata)) -> Self {
-        PumpAmmAccountWithMetadata(value.0, value.1)
+impl From<(LbClmmAccount, carbon_core::account::AccountMetadata)> for LbClmmAccountWithMetadata {
+    fn from(value: (LbClmmAccount, carbon_core::account::AccountMetadata)) -> Self {
+        LbClmmAccountWithMetadata(value.0, value.1)
     }
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Insert for PumpAmmAccountWithMetadata {
+impl carbon_core::postgres::operations::Insert for LbClmmAccountWithMetadata {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let PumpAmmAccountWithMetadata(account, metadata) = self;
+        let LbClmmAccountWithMetadata(account, metadata) = self;
 
         match account {
-            PumpAmmAccount::BondingCurve(account) => {
-                let row = bonding_curve_row::BondingCurveRow::from_parts(
-                    account.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmAccount::BinArray(account) => {
+                let row = bin_array_row::BinArrayRow::from_parts(account.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmAccount::FeeConfig(account) => {
-                let row =
-                    fee_config_row::FeeConfigRow::from_parts(account.clone(), metadata.clone());
+                        LbClmmAccount::BinArrayBitmapExtension(account) => {
+                let row = bin_array_bitmap_extension_row::BinArrayBitmapExtensionRow::from_parts(account.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmAccount::GlobalConfig(account) => {
-                let row = global_config_row::GlobalConfigRow::from_parts(
-                    account.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmAccount::ClaimFeeOperator(account) => {
+                let row = claim_fee_operator_row::ClaimFeeOperatorRow::from_parts(account.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmAccount::GlobalVolumeAccumulator(account) => {
-                let row = global_volume_accumulator_row::GlobalVolumeAccumulatorRow::from_parts(
-                    account.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmAccount::DummyZcAccount(account) => {
+                let row = dummy_zc_account_row::DummyZcAccountRow::from_parts(account.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmAccount::Pool(account) => {
-                let row = pool_row::PoolRow::from_parts(account.clone(), metadata.clone());
+                        LbClmmAccount::LbPair(account) => {
+                let row = lb_pair_row::LbPairRow::from_parts(account.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmAccount::UserVolumeAccumulator(account) => {
-                let row = user_volume_accumulator_row::UserVolumeAccumulatorRow::from_parts(
-                    account.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmAccount::Oracle(account) => {
+                let row = oracle_row::OracleRow::from_parts(account.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-        }
+                        LbClmmAccount::Position(account) => {
+                let row = position_row::PositionRow::from_parts(account.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmAccount::PositionV2(account) => {
+                let row = position_v2_row::PositionV2Row::from_parts(account.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmAccount::PresetParameter(account) => {
+                let row = preset_parameter_row::PresetParameterRow::from_parts(account.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmAccount::PresetParameter2(account) => {
+                let row = preset_parameter2_row::PresetParameter2Row::from_parts(account.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmAccount::TokenBadge(account) => {
+                let row = token_badge_row::TokenBadgeRow::from_parts(account.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                    }
     }
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Upsert for PumpAmmAccountWithMetadata {
+impl carbon_core::postgres::operations::Upsert for LbClmmAccountWithMetadata {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let PumpAmmAccountWithMetadata(account, metadata) = self;
+        let LbClmmAccountWithMetadata(account, metadata) = self;
         match account {
-            PumpAmmAccount::BondingCurve(account) => {
-                let row = bonding_curve_row::BondingCurveRow::from_parts(
-                    account.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmAccount::BinArray(account) => {
+                let row = bin_array_row::BinArrayRow::from_parts(account.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmAccount::FeeConfig(account) => {
-                let row =
-                    fee_config_row::FeeConfigRow::from_parts(account.clone(), metadata.clone());
+                        LbClmmAccount::BinArrayBitmapExtension(account) => {
+                let row = bin_array_bitmap_extension_row::BinArrayBitmapExtensionRow::from_parts(account.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmAccount::GlobalConfig(account) => {
-                let row = global_config_row::GlobalConfigRow::from_parts(
-                    account.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmAccount::ClaimFeeOperator(account) => {
+                let row = claim_fee_operator_row::ClaimFeeOperatorRow::from_parts(account.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmAccount::GlobalVolumeAccumulator(account) => {
-                let row = global_volume_accumulator_row::GlobalVolumeAccumulatorRow::from_parts(
-                    account.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmAccount::DummyZcAccount(account) => {
+                let row = dummy_zc_account_row::DummyZcAccountRow::from_parts(account.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmAccount::Pool(account) => {
-                let row = pool_row::PoolRow::from_parts(account.clone(), metadata.clone());
+                        LbClmmAccount::LbPair(account) => {
+                let row = lb_pair_row::LbPairRow::from_parts(account.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmAccount::UserVolumeAccumulator(account) => {
-                let row = user_volume_accumulator_row::UserVolumeAccumulatorRow::from_parts(
-                    account.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmAccount::Oracle(account) => {
+                let row = oracle_row::OracleRow::from_parts(account.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-        }
+                        LbClmmAccount::Position(account) => {
+                let row = position_row::PositionRow::from_parts(account.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmAccount::PositionV2(account) => {
+                let row = position_v2_row::PositionV2Row::from_parts(account.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmAccount::PresetParameter(account) => {
+                let row = preset_parameter_row::PresetParameterRow::from_parts(account.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmAccount::PresetParameter2(account) => {
+                let row = preset_parameter2_row::PresetParameter2Row::from_parts(account.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmAccount::TokenBadge(account) => {
+                let row = token_badge_row::TokenBadgeRow::from_parts(account.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                    }
     }
 }
+

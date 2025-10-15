@@ -1223,6 +1223,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-example-meteora-dlmm-decoder"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "base64 0.22.1",
+ "carbon-core",
+ "carbon-test-utils",
+ "juniper",
+ "serde",
+ "serde-big-array",
+ "serde_json",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey",
+ "sqlx",
+ "sqlx_migrator",
+]
+
+[[package]]
 name = "carbon-fetch-ix"
 version = "0.9.1"
 dependencies = [
@@ -1628,25 +1647,6 @@ dependencies = [
  "metrics",
  "metrics-exporter-prometheus",
  "tokio",
-]
-
-[[package]]
-name = "carbon-pump-amm-decoder"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "base64 0.22.1",
- "carbon-core",
- "carbon-test-utils",
- "juniper",
- "serde",
- "serde-big-array",
- "serde_json",
- "solana-account",
- "solana-instruction",
- "solana-pubkey",
- "sqlx",
- "sqlx_migrator",
 ]
 
 [[package]]
@@ -4966,8 +4966,8 @@ dependencies = [
  "async-trait",
  "axum 0.8.4",
  "carbon-core",
+ "carbon-example-meteora-dlmm-decoder",
  "carbon-log-metrics",
- "carbon-pump-amm-decoder",
  "carbon-yellowstone-grpc-datasource",
  "dotenv",
  "env_logger 0.11.8",

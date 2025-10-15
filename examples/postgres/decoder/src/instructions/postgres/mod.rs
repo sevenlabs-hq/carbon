@@ -5,78 +5,231 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
-pub mod admin_set_coin_creator_row;
-pub mod admin_update_token_incentives_row;
-pub mod buy_row;
-pub mod claim_token_incentives_row;
-pub mod close_user_volume_accumulator_row;
-pub mod collect_coin_creator_fee_row;
-pub mod create_config_row;
-pub mod create_pool_row;
-pub mod deposit_row;
-pub mod disable_row;
-pub mod extend_account_row;
-pub mod init_user_volume_accumulator_row;
-pub mod sell_row;
-pub mod set_coin_creator_row;
-pub mod sync_user_volume_accumulator_row;
-pub mod update_admin_row;
-pub mod update_fee_config_row;
-pub mod withdraw_row;
+pub mod add_liquidity_row;
+pub mod add_liquidity2_row;
+pub mod add_liquidity_by_strategy_row;
+pub mod add_liquidity_by_strategy2_row;
+pub mod add_liquidity_by_strategy_one_side_row;
+pub mod add_liquidity_by_weight_row;
+pub mod add_liquidity_one_side_row;
+pub mod add_liquidity_one_side_precise_row;
+pub mod add_liquidity_one_side_precise2_row;
+pub mod claim_fee_row;
+pub mod claim_fee2_row;
+pub mod claim_reward_row;
+pub mod claim_reward2_row;
+pub mod close_claim_protocol_fee_operator_row;
+pub mod close_position_row;
+pub mod close_position2_row;
+pub mod close_position_if_empty_row;
+pub mod close_preset_parameter_row;
+pub mod close_preset_parameter2_row;
+pub mod create_claim_protocol_fee_operator_row;
+pub mod decrease_position_length_row;
+pub mod for_idl_type_generation_do_not_call_row;
+pub mod fund_reward_row;
+pub mod go_to_a_bin_row;
+pub mod increase_oracle_length_row;
+pub mod increase_position_length_row;
+pub mod initialize_bin_array_row;
+pub mod initialize_bin_array_bitmap_extension_row;
+pub mod initialize_customizable_permissionless_lb_pair_row;
+pub mod initialize_customizable_permissionless_lb_pair2_row;
+pub mod initialize_lb_pair_row;
+pub mod initialize_lb_pair2_row;
+pub mod initialize_permission_lb_pair_row;
+pub mod initialize_position_row;
+pub mod initialize_position_by_operator_row;
+pub mod initialize_position_pda_row;
+pub mod initialize_preset_parameter_row;
+pub mod initialize_preset_parameter2_row;
+pub mod initialize_reward_row;
+pub mod initialize_token_badge_row;
+pub mod migrate_bin_array_row;
+pub mod migrate_position_row;
+pub mod rebalance_liquidity_row;
+pub mod remove_all_liquidity_row;
+pub mod remove_liquidity_row;
+pub mod remove_liquidity2_row;
+pub mod remove_liquidity_by_range_row;
+pub mod remove_liquidity_by_range2_row;
+pub mod set_activation_point_row;
+pub mod set_pair_status_row;
+pub mod set_pair_status_permissionless_row;
+pub mod set_pre_activation_duration_row;
+pub mod set_pre_activation_swap_address_row;
+pub mod swap_row;
+pub mod swap2_row;
+pub mod swap_exact_out_row;
+pub mod swap_exact_out2_row;
+pub mod swap_with_price_impact_row;
+pub mod swap_with_price_impact2_row;
+pub mod update_base_fee_parameters_row;
+pub mod update_dynamic_fee_parameters_row;
+pub mod update_fees_and_reward2_row;
+pub mod update_fees_and_rewards_row;
+pub mod update_position_operator_row;
+pub mod update_reward_duration_row;
+pub mod update_reward_funder_row;
+pub mod withdraw_ineligible_reward_row;
+pub mod withdraw_protocol_fee_row;
+pub mod cpi_event_row;
 
-pub use self::admin_set_coin_creator_row::*;
-pub use self::admin_update_token_incentives_row::*;
-pub use self::buy_row::*;
-pub use self::claim_token_incentives_row::*;
-pub use self::close_user_volume_accumulator_row::*;
-pub use self::collect_coin_creator_fee_row::*;
-pub use self::create_config_row::*;
-pub use self::create_pool_row::*;
-pub use self::deposit_row::*;
-pub use self::disable_row::*;
-pub use self::extend_account_row::*;
-pub use self::init_user_volume_accumulator_row::*;
-pub use self::sell_row::*;
-pub use self::set_coin_creator_row::*;
-pub use self::sync_user_volume_accumulator_row::*;
-pub use self::update_admin_row::*;
-pub use self::update_fee_config_row::*;
-pub use self::withdraw_row::*;
+pub use self::add_liquidity_row::*;
+pub use self::add_liquidity2_row::*;
+pub use self::add_liquidity_by_strategy_row::*;
+pub use self::add_liquidity_by_strategy2_row::*;
+pub use self::add_liquidity_by_strategy_one_side_row::*;
+pub use self::add_liquidity_by_weight_row::*;
+pub use self::add_liquidity_one_side_row::*;
+pub use self::add_liquidity_one_side_precise_row::*;
+pub use self::add_liquidity_one_side_precise2_row::*;
+pub use self::claim_fee_row::*;
+pub use self::claim_fee2_row::*;
+pub use self::claim_reward_row::*;
+pub use self::claim_reward2_row::*;
+pub use self::close_claim_protocol_fee_operator_row::*;
+pub use self::close_position_row::*;
+pub use self::close_position2_row::*;
+pub use self::close_position_if_empty_row::*;
+pub use self::close_preset_parameter_row::*;
+pub use self::close_preset_parameter2_row::*;
+pub use self::create_claim_protocol_fee_operator_row::*;
+pub use self::decrease_position_length_row::*;
+pub use self::for_idl_type_generation_do_not_call_row::*;
+pub use self::fund_reward_row::*;
+pub use self::go_to_a_bin_row::*;
+pub use self::increase_oracle_length_row::*;
+pub use self::increase_position_length_row::*;
+pub use self::initialize_bin_array_row::*;
+pub use self::initialize_bin_array_bitmap_extension_row::*;
+pub use self::initialize_customizable_permissionless_lb_pair_row::*;
+pub use self::initialize_customizable_permissionless_lb_pair2_row::*;
+pub use self::initialize_lb_pair_row::*;
+pub use self::initialize_lb_pair2_row::*;
+pub use self::initialize_permission_lb_pair_row::*;
+pub use self::initialize_position_row::*;
+pub use self::initialize_position_by_operator_row::*;
+pub use self::initialize_position_pda_row::*;
+pub use self::initialize_preset_parameter_row::*;
+pub use self::initialize_preset_parameter2_row::*;
+pub use self::initialize_reward_row::*;
+pub use self::initialize_token_badge_row::*;
+pub use self::migrate_bin_array_row::*;
+pub use self::migrate_position_row::*;
+pub use self::rebalance_liquidity_row::*;
+pub use self::remove_all_liquidity_row::*;
+pub use self::remove_liquidity_row::*;
+pub use self::remove_liquidity2_row::*;
+pub use self::remove_liquidity_by_range_row::*;
+pub use self::remove_liquidity_by_range2_row::*;
+pub use self::set_activation_point_row::*;
+pub use self::set_pair_status_row::*;
+pub use self::set_pair_status_permissionless_row::*;
+pub use self::set_pre_activation_duration_row::*;
+pub use self::set_pre_activation_swap_address_row::*;
+pub use self::swap_row::*;
+pub use self::swap2_row::*;
+pub use self::swap_exact_out_row::*;
+pub use self::swap_exact_out2_row::*;
+pub use self::swap_with_price_impact_row::*;
+pub use self::swap_with_price_impact2_row::*;
+pub use self::update_base_fee_parameters_row::*;
+pub use self::update_dynamic_fee_parameters_row::*;
+pub use self::update_fees_and_reward2_row::*;
+pub use self::update_fees_and_rewards_row::*;
+pub use self::update_position_operator_row::*;
+pub use self::update_reward_duration_row::*;
+pub use self::update_reward_funder_row::*;
+pub use self::withdraw_ineligible_reward_row::*;
+pub use self::withdraw_protocol_fee_row::*;
+pub use self::cpi_event_row::*;
 
-use super::PumpAmmInstruction;
+use super::LbClmmInstruction;
 
-pub struct PumpAmmInstructionsMigration;
+pub struct LbClmmInstructionsMigration;
 
-impl sqlx_migrator::Migration<sqlx::Postgres> for PumpAmmInstructionsMigration {
+impl sqlx_migrator::Migration<sqlx::Postgres> for LbClmmInstructionsMigration {
     fn app(&self) -> &str {
-        "pump-amm"
+        "lb-clmm"
     }
 
     fn name(&self) -> &str {
-        "pump_amm_instructions"
+        "lb_clmm_instructions"
     }
 
     fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
         vec![
-            Box::new(AdminSetCoinCreatorMigrationOperation),
-            Box::new(AdminUpdateTokenIncentivesMigrationOperation),
-            Box::new(BuyMigrationOperation),
-            Box::new(ClaimTokenIncentivesMigrationOperation),
-            Box::new(CloseUserVolumeAccumulatorMigrationOperation),
-            Box::new(CollectCoinCreatorFeeMigrationOperation),
-            Box::new(CreateConfigMigrationOperation),
-            Box::new(CreatePoolMigrationOperation),
-            Box::new(DepositMigrationOperation),
-            Box::new(DisableMigrationOperation),
-            Box::new(ExtendAccountMigrationOperation),
-            Box::new(InitUserVolumeAccumulatorMigrationOperation),
-            Box::new(SellMigrationOperation),
-            Box::new(SetCoinCreatorMigrationOperation),
-            Box::new(SyncUserVolumeAccumulatorMigrationOperation),
-            Box::new(UpdateAdminMigrationOperation),
-            Box::new(UpdateFeeConfigMigrationOperation),
-            Box::new(WithdrawMigrationOperation),
-        ]
+                        Box::new(AddLiquidityMigrationOperation),
+                        Box::new(AddLiquidity2MigrationOperation),
+                        Box::new(AddLiquidityByStrategyMigrationOperation),
+                        Box::new(AddLiquidityByStrategy2MigrationOperation),
+                        Box::new(AddLiquidityByStrategyOneSideMigrationOperation),
+                        Box::new(AddLiquidityByWeightMigrationOperation),
+                        Box::new(AddLiquidityOneSideMigrationOperation),
+                        Box::new(AddLiquidityOneSidePreciseMigrationOperation),
+                        Box::new(AddLiquidityOneSidePrecise2MigrationOperation),
+                        Box::new(ClaimFeeMigrationOperation),
+                        Box::new(ClaimFee2MigrationOperation),
+                        Box::new(ClaimRewardMigrationOperation),
+                        Box::new(ClaimReward2MigrationOperation),
+                        Box::new(CloseClaimProtocolFeeOperatorMigrationOperation),
+                        Box::new(ClosePositionMigrationOperation),
+                        Box::new(ClosePosition2MigrationOperation),
+                        Box::new(ClosePositionIfEmptyMigrationOperation),
+                        Box::new(ClosePresetParameterMigrationOperation),
+                        Box::new(ClosePresetParameter2MigrationOperation),
+                        Box::new(CreateClaimProtocolFeeOperatorMigrationOperation),
+                        Box::new(DecreasePositionLengthMigrationOperation),
+                        Box::new(ForIdlTypeGenerationDoNotCallMigrationOperation),
+                        Box::new(FundRewardMigrationOperation),
+                        Box::new(GoToABinMigrationOperation),
+                        Box::new(IncreaseOracleLengthMigrationOperation),
+                        Box::new(IncreasePositionLengthMigrationOperation),
+                        Box::new(InitializeBinArrayMigrationOperation),
+                        Box::new(InitializeBinArrayBitmapExtensionMigrationOperation),
+                        Box::new(InitializeCustomizablePermissionlessLbPairMigrationOperation),
+                        Box::new(InitializeCustomizablePermissionlessLbPair2MigrationOperation),
+                        Box::new(InitializeLbPairMigrationOperation),
+                        Box::new(InitializeLbPair2MigrationOperation),
+                        Box::new(InitializePermissionLbPairMigrationOperation),
+                        Box::new(InitializePositionMigrationOperation),
+                        Box::new(InitializePositionByOperatorMigrationOperation),
+                        Box::new(InitializePositionPdaMigrationOperation),
+                        Box::new(InitializePresetParameterMigrationOperation),
+                        Box::new(InitializePresetParameter2MigrationOperation),
+                        Box::new(InitializeRewardMigrationOperation),
+                        Box::new(InitializeTokenBadgeMigrationOperation),
+                        Box::new(MigrateBinArrayMigrationOperation),
+                        Box::new(MigratePositionMigrationOperation),
+                        Box::new(RebalanceLiquidityMigrationOperation),
+                        Box::new(RemoveAllLiquidityMigrationOperation),
+                        Box::new(RemoveLiquidityMigrationOperation),
+                        Box::new(RemoveLiquidity2MigrationOperation),
+                        Box::new(RemoveLiquidityByRangeMigrationOperation),
+                        Box::new(RemoveLiquidityByRange2MigrationOperation),
+                        Box::new(SetActivationPointMigrationOperation),
+                        Box::new(SetPairStatusMigrationOperation),
+                        Box::new(SetPairStatusPermissionlessMigrationOperation),
+                        Box::new(SetPreActivationDurationMigrationOperation),
+                        Box::new(SetPreActivationSwapAddressMigrationOperation),
+                        Box::new(SwapMigrationOperation),
+                        Box::new(Swap2MigrationOperation),
+                        Box::new(SwapExactOutMigrationOperation),
+                        Box::new(SwapExactOut2MigrationOperation),
+                        Box::new(SwapWithPriceImpactMigrationOperation),
+                        Box::new(SwapWithPriceImpact2MigrationOperation),
+                        Box::new(UpdateBaseFeeParametersMigrationOperation),
+                        Box::new(UpdateDynamicFeeParametersMigrationOperation),
+                        Box::new(UpdateFeesAndReward2MigrationOperation),
+                        Box::new(UpdateFeesAndRewardsMigrationOperation),
+                        Box::new(UpdatePositionOperatorMigrationOperation),
+                        Box::new(UpdateRewardDurationMigrationOperation),
+                        Box::new(UpdateRewardFunderMigrationOperation),
+                        Box::new(WithdrawIneligibleRewardMigrationOperation),
+                        Box::new(WithdrawProtocolFeeMigrationOperation),
+                                    Box::new(CpiEventMigrationOperation),
+                    ]
     }
 
     fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
@@ -84,313 +237,719 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for PumpAmmInstructionsMigration {
     }
 }
 
-pub struct PumpAmmInstructionWithMetadata(
-    pub PumpAmmInstruction,
-    pub carbon_core::instruction::InstructionMetadata,
-);
+pub struct LbClmmInstructionWithMetadata(pub LbClmmInstruction, pub carbon_core::instruction::InstructionMetadata);
 
-impl
-    From<(
-        PumpAmmInstruction,
-        carbon_core::instruction::InstructionMetadata,
-    )> for PumpAmmInstructionWithMetadata
-{
-    fn from(
-        value: (
-            PumpAmmInstruction,
-            carbon_core::instruction::InstructionMetadata,
-        ),
-    ) -> Self {
-        PumpAmmInstructionWithMetadata(value.0, value.1)
+impl From<(LbClmmInstruction, carbon_core::instruction::InstructionMetadata)> for LbClmmInstructionWithMetadata {
+    fn from(value: (LbClmmInstruction, carbon_core::instruction::InstructionMetadata)) -> Self {
+        LbClmmInstructionWithMetadata(value.0, value.1)
     }
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Insert for PumpAmmInstructionWithMetadata {
+impl carbon_core::postgres::operations::Insert for LbClmmInstructionWithMetadata {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let PumpAmmInstructionWithMetadata(instruction, metadata) = self;
+        let LbClmmInstructionWithMetadata(instruction, metadata) = self;
         match instruction {
-            PumpAmmInstruction::AdminSetCoinCreator(instruction) => {
-                let row = admin_set_coin_creator_row::AdminSetCoinCreatorRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmInstruction::AddLiquidity(instruction) => {
+                let row = add_liquidity_row::AddLiquidityRow::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::AdminUpdateTokenIncentives(instruction) => {
-                let row =
-                    admin_update_token_incentives_row::AdminUpdateTokenIncentivesRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                    );
+                        LbClmmInstruction::AddLiquidity2(instruction) => {
+                let row = add_liquidity2_row::AddLiquidity2Row::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::Buy(instruction) => {
-                let row = buy_row::BuyRow::from_parts(instruction.clone(), metadata.clone());
+                        LbClmmInstruction::AddLiquidityByStrategy(instruction) => {
+                let row = add_liquidity_by_strategy_row::AddLiquidityByStrategyRow::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::ClaimTokenIncentives(instruction) => {
-                let row = claim_token_incentives_row::ClaimTokenIncentivesRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmInstruction::AddLiquidityByStrategy2(instruction) => {
+                let row = add_liquidity_by_strategy2_row::AddLiquidityByStrategy2Row::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::CloseUserVolumeAccumulator(instruction) => {
-                let row =
-                    close_user_volume_accumulator_row::CloseUserVolumeAccumulatorRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                    );
+                        LbClmmInstruction::AddLiquidityByStrategyOneSide(instruction) => {
+                let row = add_liquidity_by_strategy_one_side_row::AddLiquidityByStrategyOneSideRow::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::CollectCoinCreatorFee(instruction) => {
-                let row = collect_coin_creator_fee_row::CollectCoinCreatorFeeRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmInstruction::AddLiquidityByWeight(instruction) => {
+                let row = add_liquidity_by_weight_row::AddLiquidityByWeightRow::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::CreateConfig(instruction) => {
-                let row = create_config_row::CreateConfigRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmInstruction::AddLiquidityOneSide(instruction) => {
+                let row = add_liquidity_one_side_row::AddLiquidityOneSideRow::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::CreatePool(instruction) => {
-                let row = create_pool_row::CreatePoolRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmInstruction::AddLiquidityOneSidePrecise(instruction) => {
+                let row = add_liquidity_one_side_precise_row::AddLiquidityOneSidePreciseRow::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::Deposit(instruction) => {
-                let row =
-                    deposit_row::DepositRow::from_parts(instruction.clone(), metadata.clone());
+                        LbClmmInstruction::AddLiquidityOneSidePrecise2(instruction) => {
+                let row = add_liquidity_one_side_precise2_row::AddLiquidityOneSidePrecise2Row::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::Disable(instruction) => {
-                let row =
-                    disable_row::DisableRow::from_parts(instruction.clone(), metadata.clone());
+                        LbClmmInstruction::ClaimFee(instruction) => {
+                let row = claim_fee_row::ClaimFeeRow::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::ExtendAccount(instruction) => {
-                let row = extend_account_row::ExtendAccountRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmInstruction::ClaimFee2(instruction) => {
+                let row = claim_fee2_row::ClaimFee2Row::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::InitUserVolumeAccumulator(instruction) => {
-                let row =
-                    init_user_volume_accumulator_row::InitUserVolumeAccumulatorRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                    );
+                        LbClmmInstruction::ClaimReward(instruction) => {
+                let row = claim_reward_row::ClaimRewardRow::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::Sell(instruction) => {
-                let row = sell_row::SellRow::from_parts(instruction.clone(), metadata.clone());
+                        LbClmmInstruction::ClaimReward2(instruction) => {
+                let row = claim_reward2_row::ClaimReward2Row::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::SetCoinCreator(instruction) => {
-                let row = set_coin_creator_row::SetCoinCreatorRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmInstruction::CloseClaimProtocolFeeOperator(instruction) => {
+                let row = close_claim_protocol_fee_operator_row::CloseClaimProtocolFeeOperatorRow::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::SyncUserVolumeAccumulator(instruction) => {
-                let row =
-                    sync_user_volume_accumulator_row::SyncUserVolumeAccumulatorRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                    );
+                        LbClmmInstruction::ClosePosition(instruction) => {
+                let row = close_position_row::ClosePositionRow::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::UpdateAdmin(instruction) => {
-                let row = update_admin_row::UpdateAdminRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmInstruction::ClosePosition2(instruction) => {
+                let row = close_position2_row::ClosePosition2Row::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::UpdateFeeConfig(instruction) => {
-                let row = update_fee_config_row::UpdateFeeConfigRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmInstruction::ClosePositionIfEmpty(instruction) => {
+                let row = close_position_if_empty_row::ClosePositionIfEmptyRow::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::Withdraw(instruction) => {
-                let row =
-                    withdraw_row::WithdrawRow::from_parts(instruction.clone(), metadata.clone());
+                        LbClmmInstruction::ClosePresetParameter(instruction) => {
+                let row = close_preset_parameter_row::ClosePresetParameterRow::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-        }
+                        LbClmmInstruction::ClosePresetParameter2(instruction) => {
+                let row = close_preset_parameter2_row::ClosePresetParameter2Row::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::CreateClaimProtocolFeeOperator(instruction) => {
+                let row = create_claim_protocol_fee_operator_row::CreateClaimProtocolFeeOperatorRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::DecreasePositionLength(instruction) => {
+                let row = decrease_position_length_row::DecreasePositionLengthRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::ForIdlTypeGenerationDoNotCall(instruction) => {
+                let row = for_idl_type_generation_do_not_call_row::ForIdlTypeGenerationDoNotCallRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::FundReward(instruction) => {
+                let row = fund_reward_row::FundRewardRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::GoToABin(instruction) => {
+                let row = go_to_a_bin_row::GoToABinRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::IncreaseOracleLength(instruction) => {
+                let row = increase_oracle_length_row::IncreaseOracleLengthRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::IncreasePositionLength(instruction) => {
+                let row = increase_position_length_row::IncreasePositionLengthRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializeBinArray(instruction) => {
+                let row = initialize_bin_array_row::InitializeBinArrayRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializeBinArrayBitmapExtension(instruction) => {
+                let row = initialize_bin_array_bitmap_extension_row::InitializeBinArrayBitmapExtensionRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializeCustomizablePermissionlessLbPair(instruction) => {
+                let row = initialize_customizable_permissionless_lb_pair_row::InitializeCustomizablePermissionlessLbPairRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializeCustomizablePermissionlessLbPair2(instruction) => {
+                let row = initialize_customizable_permissionless_lb_pair2_row::InitializeCustomizablePermissionlessLbPair2Row::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializeLbPair(instruction) => {
+                let row = initialize_lb_pair_row::InitializeLbPairRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializeLbPair2(instruction) => {
+                let row = initialize_lb_pair2_row::InitializeLbPair2Row::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializePermissionLbPair(instruction) => {
+                let row = initialize_permission_lb_pair_row::InitializePermissionLbPairRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializePosition(instruction) => {
+                let row = initialize_position_row::InitializePositionRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializePositionByOperator(instruction) => {
+                let row = initialize_position_by_operator_row::InitializePositionByOperatorRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializePositionPda(instruction) => {
+                let row = initialize_position_pda_row::InitializePositionPdaRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializePresetParameter(instruction) => {
+                let row = initialize_preset_parameter_row::InitializePresetParameterRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializePresetParameter2(instruction) => {
+                let row = initialize_preset_parameter2_row::InitializePresetParameter2Row::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializeReward(instruction) => {
+                let row = initialize_reward_row::InitializeRewardRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializeTokenBadge(instruction) => {
+                let row = initialize_token_badge_row::InitializeTokenBadgeRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::MigrateBinArray(instruction) => {
+                let row = migrate_bin_array_row::MigrateBinArrayRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::MigratePosition(instruction) => {
+                let row = migrate_position_row::MigratePositionRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::RebalanceLiquidity(instruction) => {
+                let row = rebalance_liquidity_row::RebalanceLiquidityRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::RemoveAllLiquidity(instruction) => {
+                let row = remove_all_liquidity_row::RemoveAllLiquidityRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::RemoveLiquidity(instruction) => {
+                let row = remove_liquidity_row::RemoveLiquidityRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::RemoveLiquidity2(instruction) => {
+                let row = remove_liquidity2_row::RemoveLiquidity2Row::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::RemoveLiquidityByRange(instruction) => {
+                let row = remove_liquidity_by_range_row::RemoveLiquidityByRangeRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::RemoveLiquidityByRange2(instruction) => {
+                let row = remove_liquidity_by_range2_row::RemoveLiquidityByRange2Row::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::SetActivationPoint(instruction) => {
+                let row = set_activation_point_row::SetActivationPointRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::SetPairStatus(instruction) => {
+                let row = set_pair_status_row::SetPairStatusRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::SetPairStatusPermissionless(instruction) => {
+                let row = set_pair_status_permissionless_row::SetPairStatusPermissionlessRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::SetPreActivationDuration(instruction) => {
+                let row = set_pre_activation_duration_row::SetPreActivationDurationRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::SetPreActivationSwapAddress(instruction) => {
+                let row = set_pre_activation_swap_address_row::SetPreActivationSwapAddressRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::Swap(instruction) => {
+                let row = swap_row::SwapRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::Swap2(instruction) => {
+                let row = swap2_row::Swap2Row::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::SwapExactOut(instruction) => {
+                let row = swap_exact_out_row::SwapExactOutRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::SwapExactOut2(instruction) => {
+                let row = swap_exact_out2_row::SwapExactOut2Row::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::SwapWithPriceImpact(instruction) => {
+                let row = swap_with_price_impact_row::SwapWithPriceImpactRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::SwapWithPriceImpact2(instruction) => {
+                let row = swap_with_price_impact2_row::SwapWithPriceImpact2Row::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::UpdateBaseFeeParameters(instruction) => {
+                let row = update_base_fee_parameters_row::UpdateBaseFeeParametersRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::UpdateDynamicFeeParameters(instruction) => {
+                let row = update_dynamic_fee_parameters_row::UpdateDynamicFeeParametersRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::UpdateFeesAndReward2(instruction) => {
+                let row = update_fees_and_reward2_row::UpdateFeesAndReward2Row::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::UpdateFeesAndRewards(instruction) => {
+                let row = update_fees_and_rewards_row::UpdateFeesAndRewardsRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::UpdatePositionOperator(instruction) => {
+                let row = update_position_operator_row::UpdatePositionOperatorRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::UpdateRewardDuration(instruction) => {
+                let row = update_reward_duration_row::UpdateRewardDurationRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::UpdateRewardFunder(instruction) => {
+                let row = update_reward_funder_row::UpdateRewardFunderRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::WithdrawIneligibleReward(instruction) => {
+                let row = withdraw_ineligible_reward_row::WithdrawIneligibleRewardRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::WithdrawProtocolFee(instruction) => {
+                let row = withdraw_protocol_fee_row::WithdrawProtocolFeeRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                                    LbClmmInstruction::CpiEvent(instruction) => {
+                let row = cpi_event_row::CpiEventRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+                    }
     }
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Upsert for PumpAmmInstructionWithMetadata {
+impl carbon_core::postgres::operations::Upsert for LbClmmInstructionWithMetadata {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let PumpAmmInstructionWithMetadata(instruction, metadata) = self;
+        let LbClmmInstructionWithMetadata(instruction, metadata) = self;
         match instruction {
-            PumpAmmInstruction::AdminSetCoinCreator(instruction) => {
-                let row = admin_set_coin_creator_row::AdminSetCoinCreatorRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmInstruction::AddLiquidity(instruction) => {
+                let row = add_liquidity_row::AddLiquidityRow::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::AdminUpdateTokenIncentives(instruction) => {
-                let row =
-                    admin_update_token_incentives_row::AdminUpdateTokenIncentivesRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                    );
+                        LbClmmInstruction::AddLiquidity2(instruction) => {
+                let row = add_liquidity2_row::AddLiquidity2Row::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::Buy(instruction) => {
-                let row = buy_row::BuyRow::from_parts(instruction.clone(), metadata.clone());
+                        LbClmmInstruction::AddLiquidityByStrategy(instruction) => {
+                let row = add_liquidity_by_strategy_row::AddLiquidityByStrategyRow::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::ClaimTokenIncentives(instruction) => {
-                let row = claim_token_incentives_row::ClaimTokenIncentivesRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmInstruction::AddLiquidityByStrategy2(instruction) => {
+                let row = add_liquidity_by_strategy2_row::AddLiquidityByStrategy2Row::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::CloseUserVolumeAccumulator(instruction) => {
-                let row =
-                    close_user_volume_accumulator_row::CloseUserVolumeAccumulatorRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                    );
+                        LbClmmInstruction::AddLiquidityByStrategyOneSide(instruction) => {
+                let row = add_liquidity_by_strategy_one_side_row::AddLiquidityByStrategyOneSideRow::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::CollectCoinCreatorFee(instruction) => {
-                let row = collect_coin_creator_fee_row::CollectCoinCreatorFeeRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmInstruction::AddLiquidityByWeight(instruction) => {
+                let row = add_liquidity_by_weight_row::AddLiquidityByWeightRow::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::CreateConfig(instruction) => {
-                let row = create_config_row::CreateConfigRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmInstruction::AddLiquidityOneSide(instruction) => {
+                let row = add_liquidity_one_side_row::AddLiquidityOneSideRow::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::CreatePool(instruction) => {
-                let row = create_pool_row::CreatePoolRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmInstruction::AddLiquidityOneSidePrecise(instruction) => {
+                let row = add_liquidity_one_side_precise_row::AddLiquidityOneSidePreciseRow::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::Deposit(instruction) => {
-                let row =
-                    deposit_row::DepositRow::from_parts(instruction.clone(), metadata.clone());
+                        LbClmmInstruction::AddLiquidityOneSidePrecise2(instruction) => {
+                let row = add_liquidity_one_side_precise2_row::AddLiquidityOneSidePrecise2Row::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::Disable(instruction) => {
-                let row =
-                    disable_row::DisableRow::from_parts(instruction.clone(), metadata.clone());
+                        LbClmmInstruction::ClaimFee(instruction) => {
+                let row = claim_fee_row::ClaimFeeRow::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::ExtendAccount(instruction) => {
-                let row = extend_account_row::ExtendAccountRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmInstruction::ClaimFee2(instruction) => {
+                let row = claim_fee2_row::ClaimFee2Row::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::InitUserVolumeAccumulator(instruction) => {
-                let row =
-                    init_user_volume_accumulator_row::InitUserVolumeAccumulatorRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                    );
+                        LbClmmInstruction::ClaimReward(instruction) => {
+                let row = claim_reward_row::ClaimRewardRow::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::Sell(instruction) => {
-                let row = sell_row::SellRow::from_parts(instruction.clone(), metadata.clone());
+                        LbClmmInstruction::ClaimReward2(instruction) => {
+                let row = claim_reward2_row::ClaimReward2Row::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::SetCoinCreator(instruction) => {
-                let row = set_coin_creator_row::SetCoinCreatorRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmInstruction::CloseClaimProtocolFeeOperator(instruction) => {
+                let row = close_claim_protocol_fee_operator_row::CloseClaimProtocolFeeOperatorRow::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::SyncUserVolumeAccumulator(instruction) => {
-                let row =
-                    sync_user_volume_accumulator_row::SyncUserVolumeAccumulatorRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                    );
+                        LbClmmInstruction::ClosePosition(instruction) => {
+                let row = close_position_row::ClosePositionRow::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::UpdateAdmin(instruction) => {
-                let row = update_admin_row::UpdateAdminRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmInstruction::ClosePosition2(instruction) => {
+                let row = close_position2_row::ClosePosition2Row::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::UpdateFeeConfig(instruction) => {
-                let row = update_fee_config_row::UpdateFeeConfigRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                );
+                        LbClmmInstruction::ClosePositionIfEmpty(instruction) => {
+                let row = close_position_if_empty_row::ClosePositionIfEmptyRow::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpAmmInstruction::Withdraw(instruction) => {
-                let row =
-                    withdraw_row::WithdrawRow::from_parts(instruction.clone(), metadata.clone());
+                        LbClmmInstruction::ClosePresetParameter(instruction) => {
+                let row = close_preset_parameter_row::ClosePresetParameterRow::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-        }
+                        LbClmmInstruction::ClosePresetParameter2(instruction) => {
+                let row = close_preset_parameter2_row::ClosePresetParameter2Row::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::CreateClaimProtocolFeeOperator(instruction) => {
+                let row = create_claim_protocol_fee_operator_row::CreateClaimProtocolFeeOperatorRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::DecreasePositionLength(instruction) => {
+                let row = decrease_position_length_row::DecreasePositionLengthRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::ForIdlTypeGenerationDoNotCall(instruction) => {
+                let row = for_idl_type_generation_do_not_call_row::ForIdlTypeGenerationDoNotCallRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::FundReward(instruction) => {
+                let row = fund_reward_row::FundRewardRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::GoToABin(instruction) => {
+                let row = go_to_a_bin_row::GoToABinRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::IncreaseOracleLength(instruction) => {
+                let row = increase_oracle_length_row::IncreaseOracleLengthRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::IncreasePositionLength(instruction) => {
+                let row = increase_position_length_row::IncreasePositionLengthRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializeBinArray(instruction) => {
+                let row = initialize_bin_array_row::InitializeBinArrayRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializeBinArrayBitmapExtension(instruction) => {
+                let row = initialize_bin_array_bitmap_extension_row::InitializeBinArrayBitmapExtensionRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializeCustomizablePermissionlessLbPair(instruction) => {
+                let row = initialize_customizable_permissionless_lb_pair_row::InitializeCustomizablePermissionlessLbPairRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializeCustomizablePermissionlessLbPair2(instruction) => {
+                let row = initialize_customizable_permissionless_lb_pair2_row::InitializeCustomizablePermissionlessLbPair2Row::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializeLbPair(instruction) => {
+                let row = initialize_lb_pair_row::InitializeLbPairRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializeLbPair2(instruction) => {
+                let row = initialize_lb_pair2_row::InitializeLbPair2Row::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializePermissionLbPair(instruction) => {
+                let row = initialize_permission_lb_pair_row::InitializePermissionLbPairRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializePosition(instruction) => {
+                let row = initialize_position_row::InitializePositionRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializePositionByOperator(instruction) => {
+                let row = initialize_position_by_operator_row::InitializePositionByOperatorRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializePositionPda(instruction) => {
+                let row = initialize_position_pda_row::InitializePositionPdaRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializePresetParameter(instruction) => {
+                let row = initialize_preset_parameter_row::InitializePresetParameterRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializePresetParameter2(instruction) => {
+                let row = initialize_preset_parameter2_row::InitializePresetParameter2Row::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializeReward(instruction) => {
+                let row = initialize_reward_row::InitializeRewardRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::InitializeTokenBadge(instruction) => {
+                let row = initialize_token_badge_row::InitializeTokenBadgeRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::MigrateBinArray(instruction) => {
+                let row = migrate_bin_array_row::MigrateBinArrayRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::MigratePosition(instruction) => {
+                let row = migrate_position_row::MigratePositionRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::RebalanceLiquidity(instruction) => {
+                let row = rebalance_liquidity_row::RebalanceLiquidityRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::RemoveAllLiquidity(instruction) => {
+                let row = remove_all_liquidity_row::RemoveAllLiquidityRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::RemoveLiquidity(instruction) => {
+                let row = remove_liquidity_row::RemoveLiquidityRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::RemoveLiquidity2(instruction) => {
+                let row = remove_liquidity2_row::RemoveLiquidity2Row::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::RemoveLiquidityByRange(instruction) => {
+                let row = remove_liquidity_by_range_row::RemoveLiquidityByRangeRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::RemoveLiquidityByRange2(instruction) => {
+                let row = remove_liquidity_by_range2_row::RemoveLiquidityByRange2Row::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::SetActivationPoint(instruction) => {
+                let row = set_activation_point_row::SetActivationPointRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::SetPairStatus(instruction) => {
+                let row = set_pair_status_row::SetPairStatusRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::SetPairStatusPermissionless(instruction) => {
+                let row = set_pair_status_permissionless_row::SetPairStatusPermissionlessRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::SetPreActivationDuration(instruction) => {
+                let row = set_pre_activation_duration_row::SetPreActivationDurationRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::SetPreActivationSwapAddress(instruction) => {
+                let row = set_pre_activation_swap_address_row::SetPreActivationSwapAddressRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::Swap(instruction) => {
+                let row = swap_row::SwapRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::Swap2(instruction) => {
+                let row = swap2_row::Swap2Row::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::SwapExactOut(instruction) => {
+                let row = swap_exact_out_row::SwapExactOutRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::SwapExactOut2(instruction) => {
+                let row = swap_exact_out2_row::SwapExactOut2Row::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::SwapWithPriceImpact(instruction) => {
+                let row = swap_with_price_impact_row::SwapWithPriceImpactRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::SwapWithPriceImpact2(instruction) => {
+                let row = swap_with_price_impact2_row::SwapWithPriceImpact2Row::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::UpdateBaseFeeParameters(instruction) => {
+                let row = update_base_fee_parameters_row::UpdateBaseFeeParametersRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::UpdateDynamicFeeParameters(instruction) => {
+                let row = update_dynamic_fee_parameters_row::UpdateDynamicFeeParametersRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::UpdateFeesAndReward2(instruction) => {
+                let row = update_fees_and_reward2_row::UpdateFeesAndReward2Row::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::UpdateFeesAndRewards(instruction) => {
+                let row = update_fees_and_rewards_row::UpdateFeesAndRewardsRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::UpdatePositionOperator(instruction) => {
+                let row = update_position_operator_row::UpdatePositionOperatorRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::UpdateRewardDuration(instruction) => {
+                let row = update_reward_duration_row::UpdateRewardDurationRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::UpdateRewardFunder(instruction) => {
+                let row = update_reward_funder_row::UpdateRewardFunderRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::WithdrawIneligibleReward(instruction) => {
+                let row = withdraw_ineligible_reward_row::WithdrawIneligibleRewardRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                        LbClmmInstruction::WithdrawProtocolFee(instruction) => {
+                let row = withdraw_protocol_fee_row::WithdrawProtocolFeeRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                                    LbClmmInstruction::CpiEvent(instruction) => {
+                let row = cpi_event_row::CpiEventRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+                    }
     }
 }
+
