@@ -4,7 +4,6 @@ use {
         postgres::{
             processors::{
                 PostgresAccountProcessor, PostgresInstructionProcessor,
-                PostgresJsonAccountProcessor, PostgresJsonInstructionProcessor,
             },
             rows::{GenericAccountsMigration, GenericInstructionMigration},
         },
