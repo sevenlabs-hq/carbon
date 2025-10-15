@@ -5,10 +5,16 @@
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
 pub mod {{ instruction.name | snakeCase }}_row;
 {% endfor %}
+{% if hasAnchorEvents %}
+pub mod cpi_event_row;
+{% endif %}
 
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
 pub use self::{{ instruction.name | snakeCase }}_row::*;
 {% endfor %}
+{% if hasAnchorEvents %}
+pub use self::cpi_event_row::*;
+{% endif %}
 
 use super::{{ program.name | pascalCase }}Instruction;
 
@@ -28,6 +34,9 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for {{program.name | pascalCase}}I
             {% for instruction in instructionsToExport | sort(false, false, 'name') %}
             Box::new({{ instruction.name | pascalCase }}MigrationOperation),
             {% endfor %}
+            {% if hasAnchorEvents %}
+            Box::new(CpiEventMigrationOperation),
+            {% endif %}
         ]
     }
 
@@ -56,6 +65,13 @@ impl carbon_core::postgres::operations::Insert for {{ program.name | pascalCase 
                 Ok(())
             }
             {% endfor %}
+            {% if hasAnchorEvents %}
+            {{ program.name | pascalCase }}Instruction::CpiEvent(instruction) => {
+                let row = cpi_event_row::CpiEventRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            {% endif %}
         }
     }
 }
@@ -72,6 +88,13 @@ impl carbon_core::postgres::operations::Upsert for {{ program.name | pascalCase 
                 Ok(())
             }
             {% endfor %}
+            {% if hasAnchorEvents %}
+            {{ program.name | pascalCase }}Instruction::CpiEvent(instruction) => {
+                let row = cpi_event_row::CpiEventRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            {% endif %}
         }
     }
 }

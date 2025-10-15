@@ -29,6 +29,8 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
             case 'u8':
                 return `carbon_core::graphql::primitives::U8(${fieldAccess})`;
             case 'u16':
+            case 'i8':
+            case 'i16':
                 return `${fieldAccess} as i32`;
             case 'u32':
                 return `carbon_core::graphql::primitives::U32(${fieldAccess})`;

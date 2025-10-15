@@ -9,16 +9,16 @@ use {
         },
     },
     carbon_log_metrics::LogMetrics,
-    carbon_pump_amm_decoder::{
+    carbon_example_meteora_dlmm_decoder::{
         accounts::{
-            postgres::{PumpAmmAccountWithMetadata, PumpAmmAccountsMigration},
-            PumpAmmAccount,
+            postgres::{LbClmmAccountWithMetadata, LbClmmAccountsMigration},
+            LbClmmAccount,
         },
         instructions::{
-            postgres::{PumpAmmInstructionWithMetadata, PumpAmmInstructionsMigration},
-            PumpAmmInstruction,
+            postgres::{LbClmmInstructionWithMetadata, LbClmmInstructionsMigration},
+            LbClmmInstruction,
         },
-        PumpAmmDecoder, PROGRAM_ID as PUMP_AMM_PROGRAM_ID,
+        LbClmmDecoder, PROGRAM_ID,
     },
     carbon_yellowstone_grpc_datasource::YellowstoneGrpcGeyserClient,
     sqlx_migrator::{Info, Migrate, Plan},
@@ -56,10 +56,10 @@ pub async fn main() -> CarbonResult<()> {
 
     // Concrete Migrations
     migrator
-        .add_migration(Box::new(PumpAmmAccountsMigration))
+        .add_migration(Box::new(LbClmmAccountsMigration))
         .unwrap();
     migrator
-        .add_migration(Box::new(PumpAmmInstructionsMigration))
+        .add_migration(Box::new(LbClmmInstructionsMigration))
         .unwrap();
     migrator.run(&mut *conn, &Plan::apply_all()).await.unwrap();
 
@@ -70,10 +70,10 @@ pub async fn main() -> CarbonResult<()> {
 
     let mut account_filters: HashMap<String, SubscribeRequestFilterAccounts> = HashMap::new();
     account_filters.insert(
-        "pump_amm_account_filter".to_string(),
+        "meteora_dlmm_transaction_filter".to_string(),
         SubscribeRequestFilterAccounts {
             account: vec![],
-            owner: vec![PUMP_AMM_PROGRAM_ID.to_string().clone()],
+            owner: vec![PROGRAM_ID.to_string().clone()],
             filters: vec![],
             nonempty_txn_signature: None,
         },
@@ -84,7 +84,7 @@ pub async fn main() -> CarbonResult<()> {
         failed: Some(false),
         account_include: vec![],
         account_exclude: vec![],
-        account_required: vec![PUMP_AMM_PROGRAM_ID.to_string().clone()],
+        account_required: vec![PROGRAM_ID.to_string().clone()],
         signature: None,
     };
 
@@ -92,7 +92,7 @@ pub async fn main() -> CarbonResult<()> {
         HashMap::new();
 
     transaction_filters.insert(
-        "pump_amm_transaction_filter".to_string(),
+        "meteora_dlmm_transaction_filter".to_string(),
         transaction_filter,
     );
 
@@ -122,14 +122,14 @@ pub async fn main() -> CarbonResult<()> {
         // )
         // Concrete Processors
         .account(
-            PumpAmmDecoder,
-            PostgresAccountProcessor::<PumpAmmAccount, PumpAmmAccountWithMetadata>::new(
+            LbClmmDecoder,
+            PostgresAccountProcessor::<LbClmmAccount, LbClmmAccountWithMetadata>::new(
                 pool.clone(),
             ),
         )
         .instruction(
-            PumpAmmDecoder,
-            PostgresInstructionProcessor::<PumpAmmInstruction, PumpAmmInstructionWithMetadata>::new(
+            LbClmmDecoder,
+            PostgresInstructionProcessor::<LbClmmInstruction, LbClmmInstructionWithMetadata>::new(
                 pool.clone(),
             ),
         )
@@ -149,11 +149,11 @@ pub async fn main() -> CarbonResult<()> {
 
 async fn run_graphql(pool: Arc<sqlx::PgPool>) -> CarbonResult<()> {
     let schema =
-        carbon_core::graphql::server::build_schema(carbon_pump_amm_decoder::graphql::QueryRoot);
-    let ctx = carbon_pump_amm_decoder::graphql::context::GraphQLContext { pool: pool.clone() };
+        carbon_core::graphql::server::build_schema(carbon_example_meteora_dlmm_decoder::graphql::QueryRoot);
+    let ctx = carbon_example_meteora_dlmm_decoder::graphql::context::GraphQLContext { pool: pool.clone() };
     let app = carbon_core::graphql::server::graphql_router::<
-        carbon_pump_amm_decoder::graphql::QueryRoot,
-        carbon_pump_amm_decoder::graphql::context::GraphQLContext,
+    carbon_example_meteora_dlmm_decoder::graphql::QueryRoot,
+    carbon_example_meteora_dlmm_decoder::graphql::context::GraphQLContext,
     >(schema, ctx);
 
     let addr: SocketAddr = "0.0.0.0:8080".parse().unwrap();

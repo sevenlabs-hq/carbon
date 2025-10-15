@@ -1,5 +1,5 @@
 [package]
-name = "carbon-pump-amm-decoder"
+name = "carbon-example-meteora-dlmm-decoder"
 version = "0.1.0"
 edition = "2021"
 

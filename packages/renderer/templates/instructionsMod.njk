@@ -13,10 +13,16 @@ use crate::{PROGRAM_ID, {{ program.name | pascalCase }}Decoder};
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
 pub mod {{ instruction.name | snakeCase }};
 {% endfor %}
+{% if hasAnchorEvents %}
+pub mod cpi_event;
+{% endif %}
 
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
 pub use self::{{ instruction.name | snakeCase }}::*;
 {% endfor %}
+{% if hasAnchorEvents %}
+pub use self::cpi_event::*;
+{% endif %}
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -25,6 +31,10 @@ pub enum {{ program.name | pascalCase }}Instruction {
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
     {{ instruction.name | pascalCase }}({{ instruction.name | pascalCase }}),
 {% endfor %}
+{% if hasAnchorEvents %}
+// Anchor CPI Event Instruction
+    CpiEvent(CpiEvent)
+{% endif %}
 }
 
 impl carbon_core::instruction::InstructionDecoder<'_> for {{ program.name | pascalCase }}Decoder {
@@ -52,6 +62,17 @@ impl carbon_core::instruction::InstructionDecoder<'_> for {{ program.name | pasc
             }
         }
         {% endfor %}
+        {% if hasAnchorEvents %}
+        {
+            if let Some(decoded) = cpi_event::CpiEvent::decode(data) {
+                return Some(carbon_core::instruction::DecodedInstruction {
+                    program_id: instruction.program_id,
+                    data: {{ program.name | pascalCase }}Instruction::CpiEvent(decoded),
+                    accounts: instruction.accounts.clone(),
+                });
+            }
+        }
+        {% endif %}
         
         None
     }

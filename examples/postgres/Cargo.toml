@@ -7,7 +7,7 @@ edition = "2021"
 carbon-core = { workspace = true }
 carbon-yellowstone-grpc-datasource = { workspace = true }
 carbon-log-metrics = { workspace = true }
-carbon-pump-amm-decoder = { path = "./decoder", features = ["postgres", "graphql"] }
+carbon-example-meteora-dlmm-decoder = { path = "./decoder", features = ["postgres", "graphql"] }
 
 axum = { workspace = true }
 async-trait = { workspace = true }

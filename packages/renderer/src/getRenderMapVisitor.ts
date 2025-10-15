@@ -1,4 +1,5 @@
 import {
+    camelCase,
     DefinedTypeNode,
     EnumTypeNode,
     getAllAccounts,
@@ -17,7 +18,7 @@ import {
 import { RenderMap } from '@codama/renderers-core';
 import { extendVisitor, pipe, staticVisitor, visit } from '@codama/visitors-core';
 
-import { getDiscriminatorManifest, getTypeManifestVisitor } from './getTypeManifestVisitor';
+import { DiscriminatorManifest, getDiscriminatorManifest, getTypeManifestVisitor } from './getTypeManifestVisitor';
 import { ImportMap } from './ImportMap';
 import { partition, render } from './utils';
 import { getPostgresTypeManifestVisitor, PostgresTypeManifest } from './getPostgresTypeManifestVisitor';
@@ -25,6 +26,10 @@ import { FlattenedGraphQLField, flattenTypeForGraphQL } from './utils/flattenGra
 
 export type GetRenderMapOptions = {
     renderParentInstructions?: boolean;
+    anchorEvents?: {
+        name: string,
+        discriminator: number[];
+    }[];
 };
 
 type FlattenedField = {
@@ -172,6 +177,36 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             typeManifest,
                         }),
                     );
+
+                    for (let event of options.anchorEvents ?? []) {
+                        imports.add('carbon_core::borsh::BorshDeserialize');
+
+                        if (camelCase(event.name) == node.name) {
+                            let discriminatorManifest: DiscriminatorManifest = {
+                                bytes: `[${event.discriminator.join(", ")}]`,
+                                size: event.discriminator.length,
+                                checkCode: `
+                                    if data.len() < ${event.discriminator.length} {
+                                        return None;
+                                    }
+                                    let discriminator = &data[0..${event.discriminator.length}];
+                                    if discriminator != &[${event.discriminator.join(", ")}] {
+                                        return None;
+                                    }
+                                `,
+                            };
+
+                            renderMap.add(
+                                `src/events/${snakeCase(node.name)}.rs`,
+                                render('eventsPage.njk', {
+                                    event: node,
+                                    imports: imports.toString(),
+                                    typeManifest,
+                                    discriminatorManifest,
+                                }),
+                            );
+                        }
+                    }
 
                     // GraphQL generation for structs and enums
                     if (node.type.kind === 'structTypeNode' && node.type.fields.length > 0) {
@@ -384,6 +419,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         instructionsToExport,
                         program,
                         root: node,
+                        hasAnchorEvents: options.anchorEvents?.length ?? 0 > 0,
+                        events: options.anchorEvents ?? []
                     };
 
                     const map = new RenderMap();
@@ -399,6 +436,14 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         map.add('src/instructions/postgres/mod.rs', render('instructionsPostgresMod.njk', ctx));
                         map.add('src/instructions/graphql/mod.rs', render('instructionsGraphQLMod.njk', ctx));
                     }
+                    
+                    if (options.anchorEvents?.length ?? 0 > 0) {
+                        map.add('src/instructions/cpi_event.rs', render('eventInstructionPage.njk', ctx));
+                        map.add('src/instructions/postgres/cpi_event_row.rs', render('eventInstructionRowPage.njk', ctx));
+                        map.add('src/instructions/graphql/cpi_event_schema.rs', render('eventInstructionGraphqlSchemaPage.njk', ctx));
+                        map.add('src/events/mod.rs', render('eventsMod.njk', ctx));
+                    }
+
                     if (definedTypesToExport.length > 0) {
                         map.add('src/types/mod.rs', render('typesMod.njk', ctx));
                         map.add('src/types/graphql/mod.rs', render('typesGraphQLMod.njk', ctx));

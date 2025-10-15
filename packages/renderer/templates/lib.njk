@@ -15,6 +15,9 @@ pub mod instructions;
 {% if definedTypesToExport.length > 0 %}
 pub mod types;
 {% endif %}
+{% if hasAnchorEvents %}
+pub mod events;
+{% endif%}
 pub mod graphql;
 
 {% endblock %}

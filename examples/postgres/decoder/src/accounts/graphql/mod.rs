@@ -1,16 +1,26 @@
-pub mod bonding_curve_schema;
-pub mod fee_config_schema;
-pub mod global_config_schema;
-pub mod global_volume_accumulator_schema;
-pub mod pool_schema;
-pub mod user_volume_accumulator_schema;
+pub mod bin_array_schema;
+pub mod bin_array_bitmap_extension_schema;
+pub mod claim_fee_operator_schema;
+pub mod dummy_zc_account_schema;
+pub mod lb_pair_schema;
+pub mod oracle_schema;
+pub mod position_schema;
+pub mod position_v2_schema;
+pub mod preset_parameter_schema;
+pub mod preset_parameter2_schema;
+pub mod token_badge_schema;
 
-pub use bonding_curve_schema::*;
-pub use fee_config_schema::*;
-pub use global_config_schema::*;
-pub use global_volume_accumulator_schema::*;
-pub use pool_schema::*;
-pub use user_volume_accumulator_schema::*;
+pub use bin_array_schema::*;
+pub use bin_array_bitmap_extension_schema::*;
+pub use claim_fee_operator_schema::*;
+pub use dummy_zc_account_schema::*;
+pub use lb_pair_schema::*;
+pub use oracle_schema::*;
+pub use position_schema::*;
+pub use position_v2_schema::*;
+pub use preset_parameter_schema::*;
+pub use preset_parameter2_schema::*;
+pub use token_badge_schema::*;
 
 use juniper::GraphQLObject;
 
