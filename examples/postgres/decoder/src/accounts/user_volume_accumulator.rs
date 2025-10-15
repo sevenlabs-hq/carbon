@@ -8,35 +8,38 @@
 use carbon_core::borsh::{self, BorshDeserialize};
 use solana_pubkey::Pubkey;
 
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
+#[derive(
+    Debug,
+    Clone,
+    carbon_core::borsh::BorshSerialize,
+    carbon_core::borsh::BorshDeserialize,
+    PartialEq,
+)]
 pub struct UserVolumeAccumulator {
-pub user: Pubkey,
-pub needs_claim: bool,
-pub total_unclaimed_tokens: u64,
-pub total_claimed_tokens: u64,
-pub current_sol_volume: u64,
-pub last_update_timestamp: i64,
-pub has_total_claimed_tokens: bool,
+    pub user: Pubkey,
+    pub needs_claim: bool,
+    pub total_unclaimed_tokens: u64,
+    pub total_claimed_tokens: u64,
+    pub current_sol_volume: u64,
+    pub last_update_timestamp: i64,
+    pub has_total_claimed_tokens: bool,
 }
 
 impl UserVolumeAccumulator {
     pub fn decode(data: &[u8]) -> Option<Self> {
-                
-                if data.len() < 8 {
-                    return None;
-                }
-                let discriminator = &data[0..8];
-                if discriminator != &[86, 255, 112, 14, 102, 53, 154, 250] {
-                    return None;
-                }
-            
-        
+        if data.len() < 8 {
+            return None;
+        }
+        let discriminator = &data[0..8];
+        if discriminator != &[86, 255, 112, 14, 102, 53, 154, 250] {
+            return None;
+        }
+
         let mut data_slice = data;
 
-                data_slice = &data_slice[8..];
-        
+        data_slice = &data_slice[8..];
+
         if let Ok(decoded) = Self::deserialize(&mut data_slice) {
             return Some(decoded);
         }
@@ -44,4 +47,3 @@ impl UserVolumeAccumulator {
         None
     }
 }
-

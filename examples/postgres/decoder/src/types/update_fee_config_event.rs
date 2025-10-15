@@ -8,16 +8,14 @@
 use carbon_core::borsh;
 use solana_pubkey::Pubkey;
 
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct UpdateFeeConfigEvent {
-pub timestamp: i64,
-pub admin: Pubkey,
-pub lp_fee_basis_points: u64,
-pub protocol_fee_basis_points: u64,
-pub protocol_fee_recipients: [Pubkey; 8],
-pub coin_creator_fee_basis_points: u64,
-pub admin_set_coin_creator_authority: Pubkey,
+    pub timestamp: i64,
+    pub admin: Pubkey,
+    pub lp_fee_basis_points: u64,
+    pub protocol_fee_basis_points: u64,
+    pub protocol_fee_recipients: [Pubkey; 8],
+    pub coin_creator_fee_basis_points: u64,
+    pub admin_set_coin_creator_authority: Pubkey,
 }
-

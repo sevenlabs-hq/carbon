@@ -5,37 +5,40 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
-use carbon_core::borsh::{self, BorshDeserialize};
 use crate::types::FeeTier;
 use crate::types::Fees;
+use carbon_core::borsh::{self, BorshDeserialize};
 use solana_pubkey::Pubkey;
 
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
+#[derive(
+    Debug,
+    Clone,
+    carbon_core::borsh::BorshSerialize,
+    carbon_core::borsh::BorshDeserialize,
+    PartialEq,
+)]
 pub struct FeeConfig {
-pub bump: u8,
-pub admin: Pubkey,
-pub flat_fees: Fees,
-pub fee_tiers: Vec<FeeTier>,
+    pub bump: u8,
+    pub admin: Pubkey,
+    pub flat_fees: Fees,
+    pub fee_tiers: Vec<FeeTier>,
 }
 
 impl FeeConfig {
     pub fn decode(data: &[u8]) -> Option<Self> {
-                
-                if data.len() < 8 {
-                    return None;
-                }
-                let discriminator = &data[0..8];
-                if discriminator != &[143, 52, 146, 187, 219, 123, 76, 155] {
-                    return None;
-                }
-            
-        
+        if data.len() < 8 {
+            return None;
+        }
+        let discriminator = &data[0..8];
+        if discriminator != &[143, 52, 146, 187, 219, 123, 76, 155] {
+            return None;
+        }
+
         let mut data_slice = data;
 
-                data_slice = &data_slice[8..];
-        
+        data_slice = &data_slice[8..];
+
         if let Ok(decoded) = Self::deserialize(&mut data_slice) {
             return Some(decoded);
         }
@@ -43,4 +46,3 @@ impl FeeConfig {
         None
     }
 }
-

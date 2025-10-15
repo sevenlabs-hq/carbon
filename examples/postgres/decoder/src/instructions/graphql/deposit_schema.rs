@@ -1,13 +1,13 @@
-use juniper::GraphQLObject;
 use carbon_core::graphql::primitives::U64;
+use juniper::GraphQLObject;
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "Deposit")]
 pub struct DepositGraphQL {
     pub metadata: crate::instructions::graphql::InstructionMetadataGraphQL,
-        pub lp_token_amount_out: U64,
-        pub max_base_amount_in: U64,
-        pub max_quote_amount_in: U64,
+    pub lp_token_amount_out: U64,
+    pub max_base_amount_in: U64,
+    pub max_quote_amount_in: U64,
 }
 
 impl From<crate::instructions::postgres::DepositRow> for DepositGraphQL {

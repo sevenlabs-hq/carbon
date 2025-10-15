@@ -7,12 +7,10 @@
 
 use carbon_core::borsh;
 
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct Fees {
-pub lp_fee_bps: u64,
-pub protocol_fee_bps: u64,
-pub creator_fee_bps: u64,
+    pub lp_fee_bps: u64,
+    pub protocol_fee_bps: u64,
+    pub creator_fee_bps: u64,
 }
-

@@ -11,7 +11,7 @@ pub mod postgres;
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
-use crate::{PROGRAM_ID, PumpAmmDecoder};
+use crate::{PumpAmmDecoder, PROGRAM_ID};
 
 pub mod admin_set_coin_creator;
 pub mod admin_update_token_incentives;
@@ -87,8 +87,8 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
         }
 
         let data = instruction.data.as_slice();
-        
-                // Try to decode AdminSetCoinCreator
+
+        // Try to decode AdminSetCoinCreator
         {
             if let Some(decoded) = admin_set_coin_creator::AdminSetCoinCreator::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -98,9 +98,11 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode AdminUpdateTokenIncentives
+        // Try to decode AdminUpdateTokenIncentives
         {
-            if let Some(decoded) = admin_update_token_incentives::AdminUpdateTokenIncentives::decode(data) {
+            if let Some(decoded) =
+                admin_update_token_incentives::AdminUpdateTokenIncentives::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: PumpAmmInstruction::AdminUpdateTokenIncentives(decoded),
@@ -108,7 +110,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode Buy
+        // Try to decode Buy
         {
             if let Some(decoded) = buy::Buy::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -118,7 +120,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode ClaimTokenIncentives
+        // Try to decode ClaimTokenIncentives
         {
             if let Some(decoded) = claim_token_incentives::ClaimTokenIncentives::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -128,9 +130,11 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode CloseUserVolumeAccumulator
+        // Try to decode CloseUserVolumeAccumulator
         {
-            if let Some(decoded) = close_user_volume_accumulator::CloseUserVolumeAccumulator::decode(data) {
+            if let Some(decoded) =
+                close_user_volume_accumulator::CloseUserVolumeAccumulator::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: PumpAmmInstruction::CloseUserVolumeAccumulator(decoded),
@@ -138,7 +142,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode CollectCoinCreatorFee
+        // Try to decode CollectCoinCreatorFee
         {
             if let Some(decoded) = collect_coin_creator_fee::CollectCoinCreatorFee::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -148,7 +152,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode CreateConfig
+        // Try to decode CreateConfig
         {
             if let Some(decoded) = create_config::CreateConfig::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -158,7 +162,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode CreatePool
+        // Try to decode CreatePool
         {
             if let Some(decoded) = create_pool::CreatePool::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -168,7 +172,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode Deposit
+        // Try to decode Deposit
         {
             if let Some(decoded) = deposit::Deposit::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -178,7 +182,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode Disable
+        // Try to decode Disable
         {
             if let Some(decoded) = disable::Disable::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -188,7 +192,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode ExtendAccount
+        // Try to decode ExtendAccount
         {
             if let Some(decoded) = extend_account::ExtendAccount::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -198,9 +202,11 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode InitUserVolumeAccumulator
+        // Try to decode InitUserVolumeAccumulator
         {
-            if let Some(decoded) = init_user_volume_accumulator::InitUserVolumeAccumulator::decode(data) {
+            if let Some(decoded) =
+                init_user_volume_accumulator::InitUserVolumeAccumulator::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: PumpAmmInstruction::InitUserVolumeAccumulator(decoded),
@@ -208,7 +214,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode Sell
+        // Try to decode Sell
         {
             if let Some(decoded) = sell::Sell::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -218,7 +224,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode SetCoinCreator
+        // Try to decode SetCoinCreator
         {
             if let Some(decoded) = set_coin_creator::SetCoinCreator::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -228,9 +234,11 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode SyncUserVolumeAccumulator
+        // Try to decode SyncUserVolumeAccumulator
         {
-            if let Some(decoded) = sync_user_volume_accumulator::SyncUserVolumeAccumulator::decode(data) {
+            if let Some(decoded) =
+                sync_user_volume_accumulator::SyncUserVolumeAccumulator::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: PumpAmmInstruction::SyncUserVolumeAccumulator(decoded),
@@ -238,7 +246,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode UpdateAdmin
+        // Try to decode UpdateAdmin
         {
             if let Some(decoded) = update_admin::UpdateAdmin::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -248,7 +256,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode UpdateFeeConfig
+        // Try to decode UpdateFeeConfig
         {
             if let Some(decoded) = update_fee_config::UpdateFeeConfig::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -258,7 +266,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode Withdraw
+        // Try to decode Withdraw
         {
             if let Some(decoded) = withdraw::Withdraw::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -268,8 +276,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpAmmDecoder {
                 });
             }
         }
-                
+
         None
     }
 }
-

@@ -8,14 +8,12 @@
 use carbon_core::borsh;
 use solana_pubkey::Pubkey;
 
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct ExtendAccountEvent {
-pub timestamp: i64,
-pub account: Pubkey,
-pub user: Pubkey,
-pub current_size: u64,
-pub new_size: u64,
+    pub timestamp: i64,
+    pub account: Pubkey,
+    pub user: Pubkey,
+    pub current_size: u64,
+    pub new_size: u64,
 }
-

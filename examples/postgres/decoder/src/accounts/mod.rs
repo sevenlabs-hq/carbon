@@ -5,7 +5,7 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
-use crate::{PROGRAM_ID, PumpAmmDecoder};
+use crate::{PumpAmmDecoder, PROGRAM_ID};
 
 #[cfg(feature = "postgres")]
 pub mod postgres;
@@ -41,7 +41,7 @@ pub enum PumpAmmAccount {
 
 impl<'a> carbon_core::account::AccountDecoder<'a> for PumpAmmDecoder {
     type AccountType = PumpAmmAccount;
-    
+
     fn decode_account(
         &self,
         account: &'a solana_account::Account,
@@ -49,10 +49,10 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for PumpAmmDecoder {
         if account.owner != PROGRAM_ID {
             return None;
         }
-        
+
         let data = account.data.as_slice();
-        
-                // Try to decode BondingCurve
+
+        // Try to decode BondingCurve
         {
             if let Some(decoded) = bonding_curve::BondingCurve::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
@@ -64,7 +64,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode FeeConfig
+        // Try to decode FeeConfig
         {
             if let Some(decoded) = fee_config::FeeConfig::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
@@ -76,7 +76,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode GlobalConfig
+        // Try to decode GlobalConfig
         {
             if let Some(decoded) = global_config::GlobalConfig::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
@@ -88,9 +88,10 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode GlobalVolumeAccumulator
+        // Try to decode GlobalVolumeAccumulator
         {
-            if let Some(decoded) = global_volume_accumulator::GlobalVolumeAccumulator::decode(data) {
+            if let Some(decoded) = global_volume_accumulator::GlobalVolumeAccumulator::decode(data)
+            {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: PumpAmmAccount::GlobalVolumeAccumulator(decoded),
@@ -100,7 +101,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode Pool
+        // Try to decode Pool
         {
             if let Some(decoded) = pool::Pool::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
@@ -112,7 +113,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for PumpAmmDecoder {
                 });
             }
         }
-                // Try to decode UserVolumeAccumulator
+        // Try to decode UserVolumeAccumulator
         {
             if let Some(decoded) = user_volume_accumulator::UserVolumeAccumulator::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
@@ -124,8 +125,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for PumpAmmDecoder {
                 });
             }
         }
-                
+
         None
     }
 }
-

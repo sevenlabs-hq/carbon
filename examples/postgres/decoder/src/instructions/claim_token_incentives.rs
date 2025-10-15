@@ -9,11 +9,15 @@ use carbon_core::account_utils::next_account;
 use carbon_core::borsh::{self, BorshDeserialize};
 use carbon_core::deserialize::ArrangeAccounts;
 
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
-pub struct ClaimTokenIncentives {
-}
+#[derive(
+    Debug,
+    Clone,
+    carbon_core::borsh::BorshSerialize,
+    carbon_core::borsh::BorshDeserialize,
+    PartialEq,
+)]
+pub struct ClaimTokenIncentives {}
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -35,20 +39,18 @@ pub struct ClaimTokenIncentivesInstructionAccounts {
 
 impl ClaimTokenIncentives {
     pub fn decode(data: &[u8]) -> Option<Self> {
-                
-                if data.len() < 8 {
-                    return None;
-                }
-                let discriminator = &data[0..8];
-                if discriminator != &[16, 4, 71, 28, 204, 1, 40, 27] {
-                    return None;
-                }
-            
-        
+        if data.len() < 8 {
+            return None;
+        }
+        let discriminator = &data[0..8];
+        if discriminator != &[16, 4, 71, 28, 204, 1, 40, 27] {
+            return None;
+        }
+
         let mut data_slice = data;
 
-                data_slice = &data_slice[8..];
-        
+        data_slice = &data_slice[8..];
+
         if let Ok(decoded) = Self::deserialize(&mut data_slice) {
             return Some(decoded);
         }
@@ -63,38 +65,37 @@ impl ArrangeAccounts for ClaimTokenIncentives {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-                let mut iter = accounts.iter();
+        let mut iter = accounts.iter();
 
-                let user = next_account(&mut iter)?;
-                let user_ata = next_account(&mut iter)?;
-                let global_volume_accumulator = next_account(&mut iter)?;
-                let global_incentive_token_account = next_account(&mut iter)?;
-                let user_volume_accumulator = next_account(&mut iter)?;
-                let mint = next_account(&mut iter)?;
-                let token_program = next_account(&mut iter)?;
-                let system_program = next_account(&mut iter)?;
-                let associated_token_program = next_account(&mut iter)?;
-                let event_authority = next_account(&mut iter)?;
-                let program = next_account(&mut iter)?;
-                let payer = next_account(&mut iter)?;
-        
+        let user = next_account(&mut iter)?;
+        let user_ata = next_account(&mut iter)?;
+        let global_volume_accumulator = next_account(&mut iter)?;
+        let global_incentive_token_account = next_account(&mut iter)?;
+        let user_volume_accumulator = next_account(&mut iter)?;
+        let mint = next_account(&mut iter)?;
+        let token_program = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let associated_token_program = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
+        let payer = next_account(&mut iter)?;
+
         let remaining = iter.as_slice();
 
         Some(ClaimTokenIncentivesInstructionAccounts {
-                        user: user,
-                        user_ata: user_ata,
-                        global_volume_accumulator: global_volume_accumulator,
-                        global_incentive_token_account: global_incentive_token_account,
-                        user_volume_accumulator: user_volume_accumulator,
-                        mint: mint,
-                        token_program: token_program,
-                        system_program: system_program,
-                        associated_token_program: associated_token_program,
-                        event_authority: event_authority,
-                        program: program,
-                        payer: payer,
-                        remaining: remaining.to_vec(),
+            user: user,
+            user_ata: user_ata,
+            global_volume_accumulator: global_volume_accumulator,
+            global_incentive_token_account: global_incentive_token_account,
+            user_volume_accumulator: user_volume_accumulator,
+            mint: mint,
+            token_program: token_program,
+            system_program: system_program,
+            associated_token_program: associated_token_program,
+            event_authority: event_authority,
+            program: program,
+            payer: payer,
+            remaining: remaining.to_vec(),
         })
-            }
+    }
 }
-

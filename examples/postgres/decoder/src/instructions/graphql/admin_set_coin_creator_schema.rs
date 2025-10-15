@@ -1,12 +1,12 @@
-use juniper::GraphQLObject;
 use carbon_core::graphql::primitives::Pubkey;
+use juniper::GraphQLObject;
 
 /// Overrides the coin creator for a canonical pump pool
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "AdminSetCoinCreator")]
 pub struct AdminSetCoinCreatorGraphQL {
     pub metadata: crate::instructions::graphql::InstructionMetadataGraphQL,
-        pub coin_creator: Pubkey,
+    pub coin_creator: Pubkey,
 }
 
 impl From<crate::instructions::postgres::AdminSetCoinCreatorRow> for AdminSetCoinCreatorGraphQL {

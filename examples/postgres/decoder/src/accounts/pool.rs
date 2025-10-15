@@ -8,38 +8,41 @@
 use carbon_core::borsh::{self, BorshDeserialize};
 use solana_pubkey::Pubkey;
 
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
+#[derive(
+    Debug,
+    Clone,
+    carbon_core::borsh::BorshSerialize,
+    carbon_core::borsh::BorshDeserialize,
+    PartialEq,
+)]
 pub struct Pool {
-pub pool_bump: u8,
-pub index: u16,
-pub creator: Pubkey,
-pub base_mint: Pubkey,
-pub quote_mint: Pubkey,
-pub lp_mint: Pubkey,
-pub pool_base_token_account: Pubkey,
-pub pool_quote_token_account: Pubkey,
-pub lp_supply: u64,
-pub coin_creator: Pubkey,
+    pub pool_bump: u8,
+    pub index: u16,
+    pub creator: Pubkey,
+    pub base_mint: Pubkey,
+    pub quote_mint: Pubkey,
+    pub lp_mint: Pubkey,
+    pub pool_base_token_account: Pubkey,
+    pub pool_quote_token_account: Pubkey,
+    pub lp_supply: u64,
+    pub coin_creator: Pubkey,
 }
 
 impl Pool {
     pub fn decode(data: &[u8]) -> Option<Self> {
-                
-                if data.len() < 8 {
-                    return None;
-                }
-                let discriminator = &data[0..8];
-                if discriminator != &[241, 154, 109, 4, 17, 177, 109, 188] {
-                    return None;
-                }
-            
-        
+        if data.len() < 8 {
+            return None;
+        }
+        let discriminator = &data[0..8];
+        if discriminator != &[241, 154, 109, 4, 17, 177, 109, 188] {
+            return None;
+        }
+
         let mut data_slice = data;
 
-                data_slice = &data_slice[8..];
-        
+        data_slice = &data_slice[8..];
+
         if let Ok(decoded) = Self::deserialize(&mut data_slice) {
             return Some(decoded);
         }
@@ -47,4 +50,3 @@ impl Pool {
         None
     }
 }
-

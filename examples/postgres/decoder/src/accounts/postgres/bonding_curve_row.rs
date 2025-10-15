@@ -5,38 +5,37 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
+use crate::accounts::BondingCurve;
 use carbon_core::account::AccountMetadata;
 use carbon_core::postgres::metadata::AccountRowMetadata;
 use carbon_core::postgres::primitives::Pubkey;
 use carbon_core::postgres::primitives::U64;
-use crate::accounts::BondingCurve;
-
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct BondingCurveRow {
     #[sqlx(flatten)]
-        pub metadata: AccountRowMetadata,
-            pub virtual_token_reserves: U64,
-        pub virtual_sol_reserves: U64,
-        pub real_token_reserves: U64,
-        pub real_sol_reserves: U64,
-        pub token_total_supply: U64,
-        pub complete: bool,
-        pub creator: Pubkey,
+    pub metadata: AccountRowMetadata,
+    pub virtual_token_reserves: U64,
+    pub virtual_sol_reserves: U64,
+    pub real_token_reserves: U64,
+    pub real_sol_reserves: U64,
+    pub token_total_supply: U64,
+    pub complete: bool,
+    pub creator: Pubkey,
 }
 
 impl BondingCurveRow {
     pub fn from_parts(source: BondingCurve, metadata: AccountMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-                        virtual_token_reserves: source.virtual_token_reserves.into(),
-                        virtual_sol_reserves: source.virtual_sol_reserves.into(),
-                        real_token_reserves: source.real_token_reserves.into(),
-                        real_sol_reserves: source.real_sol_reserves.into(),
-                        token_total_supply: source.token_total_supply.into(),
-                        complete: source.complete.into(),
-                        creator: source.creator.into(),
-                    }
+            virtual_token_reserves: source.virtual_token_reserves.into(),
+            virtual_sol_reserves: source.virtual_sol_reserves.into(),
+            real_token_reserves: source.real_token_reserves.into(),
+            real_sol_reserves: source.real_sol_reserves.into(),
+            token_total_supply: source.token_total_supply.into(),
+            complete: source.complete.into(),
+            creator: source.creator.into(),
+        }
     }
 }
 
@@ -44,14 +43,14 @@ impl TryFrom<BondingCurveRow> for BondingCurve {
     type Error = carbon_core::error::Error;
     fn try_from(source: BondingCurveRow) -> Result<Self, Self::Error> {
         Ok(Self {
-                        virtual_token_reserves: *source.virtual_token_reserves,
-                        virtual_sol_reserves: *source.virtual_sol_reserves,
-                        real_token_reserves: *source.real_token_reserves,
-                        real_sol_reserves: *source.real_sol_reserves,
-                        token_total_supply: *source.token_total_supply,
-                        complete: source.complete.into(),
-                        creator: *source.creator,
-                    })
+            virtual_token_reserves: *source.virtual_token_reserves,
+            virtual_sol_reserves: *source.virtual_sol_reserves,
+            real_token_reserves: *source.real_token_reserves,
+            real_sol_reserves: *source.real_sol_reserves,
+            token_total_supply: *source.token_total_supply,
+            complete: source.complete.into(),
+            creator: *source.creator,
+        })
     }
 }
 
@@ -62,16 +61,16 @@ impl carbon_core::postgres::operations::Table for BondingCurve {
 
     fn columns() -> Vec<&'static str> {
         vec![
-                        "__pubkey",
+            "__pubkey",
             "__slot",
-                                    "virtual_token_reserves",
-                        "virtual_sol_reserves",
-                        "real_token_reserves",
-                        "real_sol_reserves",
-                        "token_total_supply",
-                        "complete",
-                        "creator",
-                    ]
+            "virtual_token_reserves",
+            "virtual_sol_reserves",
+            "real_token_reserves",
+            "real_sol_reserves",
+            "token_total_supply",
+            "complete",
+            "creator",
+        ]
     }
 }
 
@@ -151,11 +150,14 @@ impl carbon_core::postgres::operations::Delete for BondingCurveRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM bonding_curve_account WHERE
+        sqlx::query(
+            r#"DELETE FROM bonding_curve_account WHERE
                         __pubkey = $1
-                    "#)
-                .bind(key)
-                .execute(pool).await
+                    "#,
+        )
+        .bind(key)
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(())
@@ -166,14 +168,19 @@ impl carbon_core::postgres::operations::Delete for BondingCurveRow {
 impl carbon_core::postgres::operations::LookUp for BondingCurveRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM bonding_curve_account WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM bonding_curve_account WHERE
                         __pubkey = $1
-                    "#)
-                .bind(key)
-                .fetch_optional(pool).await
-        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))
-        ?;
+                    "#,
+        )
+        .bind(key)
+        .fetch_optional(pool)
+        .await
+        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(row)
     }
@@ -183,8 +190,12 @@ pub struct BondingCurveMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for BondingCurveMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS bonding_curve_account (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS bonding_curve_account (
                         -- Account data
                                     "virtual_token_reserves" NUMERIC(20) NOT NULL,
                         "virtual_sol_reserves" NUMERIC(20) NOT NULL,
@@ -199,13 +210,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BondingCurveMigrationOperation
             __slot NUMERIC(20),
             
                         PRIMARY KEY (__pubkey)
-                    )"#).execute(connection).await?;
+                    )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS bonding_curve_account"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS bonding_curve_account"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }
-

@@ -5,29 +5,28 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
+use crate::instructions::Withdraw;
 use carbon_core::instruction::InstructionMetadata;
 use carbon_core::postgres::metadata::InstructionRowMetadata;
 use carbon_core::postgres::primitives::U64;
-use crate::instructions::Withdraw;
-
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct WithdrawRow {
     #[sqlx(flatten)]
-        pub metadata: InstructionRowMetadata,
-            pub lp_token_amount_in: U64,
-        pub min_base_amount_out: U64,
-        pub min_quote_amount_out: U64,
+    pub metadata: InstructionRowMetadata,
+    pub lp_token_amount_in: U64,
+    pub min_base_amount_out: U64,
+    pub min_quote_amount_out: U64,
 }
 
 impl WithdrawRow {
     pub fn from_parts(source: Withdraw, metadata: InstructionMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-                        lp_token_amount_in: source.lp_token_amount_in.into(),
-                        min_base_amount_out: source.min_base_amount_out.into(),
-                        min_quote_amount_out: source.min_quote_amount_out.into(),
-                    }
+            lp_token_amount_in: source.lp_token_amount_in.into(),
+            min_base_amount_out: source.min_base_amount_out.into(),
+            min_quote_amount_out: source.min_quote_amount_out.into(),
+        }
     }
 }
 
@@ -35,10 +34,10 @@ impl TryFrom<WithdrawRow> for Withdraw {
     type Error = carbon_core::error::Error;
     fn try_from(source: WithdrawRow) -> Result<Self, Self::Error> {
         Ok(Self {
-                        lp_token_amount_in: *source.lp_token_amount_in,
-                        min_base_amount_out: *source.min_base_amount_out,
-                        min_quote_amount_out: *source.min_quote_amount_out,
-                    })
+            lp_token_amount_in: *source.lp_token_amount_in,
+            min_base_amount_out: *source.min_base_amount_out,
+            min_quote_amount_out: *source.min_quote_amount_out,
+        })
     }
 }
 
@@ -49,14 +48,14 @@ impl carbon_core::postgres::operations::Table for Withdraw {
 
     fn columns() -> Vec<&'static str> {
         vec![
-                        "__signature",
+            "__signature",
             "__instruction_index",
             "__stack_height",
             "__slot",
-                                    "lp_token_amount_in",
-                        "min_base_amount_out",
-                        "min_quote_amount_out",
-                    ]
+            "lp_token_amount_in",
+            "min_base_amount_out",
+            "min_quote_amount_out",
+        ]
     }
 }
 
@@ -122,12 +121,15 @@ impl carbon_core::postgres::operations::Delete for WithdrawRow {
     type Key = (String, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM withdraw_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM withdraw_instruction WHERE
                         __signature = $1 AND __instruction_index = $2
-                    "#)
-                .bind(key.0)
+                    "#,
+        )
+        .bind(key.0)
         .bind(key.1)
-                .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(())
@@ -138,15 +140,20 @@ impl carbon_core::postgres::operations::Delete for WithdrawRow {
 impl carbon_core::postgres::operations::LookUp for WithdrawRow {
     type Key = (String, carbon_core::postgres::primitives::U32);
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM withdraw_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM withdraw_instruction WHERE
                         __signature = $1 AND __instruction_index = $2
-                    "#)
-                .bind(key.0)
+                    "#,
+        )
+        .bind(key.0)
         .bind(key.1)
-                .fetch_optional(pool).await
-        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))
-        ?;
+        .fetch_optional(pool)
+        .await
+        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(row)
     }
@@ -156,8 +163,12 @@ pub struct WithdrawMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS withdraw_instruction (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS withdraw_instruction (
                         -- Instruction data
                                     "lp_token_amount_in" NUMERIC(20) NOT NULL,
                         "min_base_amount_out" NUMERIC(20) NOT NULL,
@@ -170,13 +181,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawMigrationOperation {
             __slot NUMERIC(20),
             
                         PRIMARY KEY (__signature, __instruction_index)
-                    )"#).execute(connection).await?;
+                    )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }
-

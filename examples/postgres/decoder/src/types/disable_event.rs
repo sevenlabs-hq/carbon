@@ -8,16 +8,14 @@
 use carbon_core::borsh;
 use solana_pubkey::Pubkey;
 
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct DisableEvent {
-pub timestamp: i64,
-pub admin: Pubkey,
-pub disable_create_pool: bool,
-pub disable_deposit: bool,
-pub disable_withdraw: bool,
-pub disable_buy: bool,
-pub disable_sell: bool,
+    pub timestamp: i64,
+    pub admin: Pubkey,
+    pub disable_create_pool: bool,
+    pub disable_deposit: bool,
+    pub disable_withdraw: bool,
+    pub disable_buy: bool,
+    pub disable_sell: bool,
 }
-

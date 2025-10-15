@@ -8,14 +8,12 @@
 use carbon_core::borsh;
 use solana_pubkey::Pubkey;
 
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct SetBondingCurveCoinCreatorEvent {
-pub timestamp: i64,
-pub base_mint: Pubkey,
-pub pool: Pubkey,
-pub bonding_curve: Pubkey,
-pub coin_creator: Pubkey,
+    pub timestamp: i64,
+    pub base_mint: Pubkey,
+    pub pool: Pubkey,
+    pub bonding_curve: Pubkey,
+    pub coin_creator: Pubkey,
 }
-

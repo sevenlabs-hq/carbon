@@ -5,38 +5,37 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
+use crate::accounts::UserVolumeAccumulator;
 use carbon_core::account::AccountMetadata;
 use carbon_core::postgres::metadata::AccountRowMetadata;
 use carbon_core::postgres::primitives::Pubkey;
 use carbon_core::postgres::primitives::U64;
-use crate::accounts::UserVolumeAccumulator;
-
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct UserVolumeAccumulatorRow {
     #[sqlx(flatten)]
-        pub metadata: AccountRowMetadata,
-            pub user: Pubkey,
-        pub needs_claim: bool,
-        pub total_unclaimed_tokens: U64,
-        pub total_claimed_tokens: U64,
-        pub current_sol_volume: U64,
-        pub last_update_timestamp: i64,
-        pub has_total_claimed_tokens: bool,
+    pub metadata: AccountRowMetadata,
+    pub user: Pubkey,
+    pub needs_claim: bool,
+    pub total_unclaimed_tokens: U64,
+    pub total_claimed_tokens: U64,
+    pub current_sol_volume: U64,
+    pub last_update_timestamp: i64,
+    pub has_total_claimed_tokens: bool,
 }
 
 impl UserVolumeAccumulatorRow {
     pub fn from_parts(source: UserVolumeAccumulator, metadata: AccountMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-                        user: source.user.into(),
-                        needs_claim: source.needs_claim.into(),
-                        total_unclaimed_tokens: source.total_unclaimed_tokens.into(),
-                        total_claimed_tokens: source.total_claimed_tokens.into(),
-                        current_sol_volume: source.current_sol_volume.into(),
-                        last_update_timestamp: source.last_update_timestamp.into(),
-                        has_total_claimed_tokens: source.has_total_claimed_tokens.into(),
-                    }
+            user: source.user.into(),
+            needs_claim: source.needs_claim.into(),
+            total_unclaimed_tokens: source.total_unclaimed_tokens.into(),
+            total_claimed_tokens: source.total_claimed_tokens.into(),
+            current_sol_volume: source.current_sol_volume.into(),
+            last_update_timestamp: source.last_update_timestamp.into(),
+            has_total_claimed_tokens: source.has_total_claimed_tokens.into(),
+        }
     }
 }
 
@@ -44,14 +43,14 @@ impl TryFrom<UserVolumeAccumulatorRow> for UserVolumeAccumulator {
     type Error = carbon_core::error::Error;
     fn try_from(source: UserVolumeAccumulatorRow) -> Result<Self, Self::Error> {
         Ok(Self {
-                        user: *source.user,
-                        needs_claim: source.needs_claim.into(),
-                        total_unclaimed_tokens: *source.total_unclaimed_tokens,
-                        total_claimed_tokens: *source.total_claimed_tokens,
-                        current_sol_volume: *source.current_sol_volume,
-                        last_update_timestamp: source.last_update_timestamp.into(),
-                        has_total_claimed_tokens: source.has_total_claimed_tokens.into(),
-                    })
+            user: *source.user,
+            needs_claim: source.needs_claim.into(),
+            total_unclaimed_tokens: *source.total_unclaimed_tokens,
+            total_claimed_tokens: *source.total_claimed_tokens,
+            current_sol_volume: *source.current_sol_volume,
+            last_update_timestamp: source.last_update_timestamp.into(),
+            has_total_claimed_tokens: source.has_total_claimed_tokens.into(),
+        })
     }
 }
 
@@ -62,16 +61,16 @@ impl carbon_core::postgres::operations::Table for UserVolumeAccumulator {
 
     fn columns() -> Vec<&'static str> {
         vec![
-                        "__pubkey",
+            "__pubkey",
             "__slot",
-                                    "user",
-                        "needs_claim",
-                        "total_unclaimed_tokens",
-                        "total_claimed_tokens",
-                        "current_sol_volume",
-                        "last_update_timestamp",
-                        "has_total_claimed_tokens",
-                    ]
+            "user",
+            "needs_claim",
+            "total_unclaimed_tokens",
+            "total_claimed_tokens",
+            "current_sol_volume",
+            "last_update_timestamp",
+            "has_total_claimed_tokens",
+        ]
     }
 }
 
@@ -151,11 +150,14 @@ impl carbon_core::postgres::operations::Delete for UserVolumeAccumulatorRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM user_volume_accumulator_account WHERE
+        sqlx::query(
+            r#"DELETE FROM user_volume_accumulator_account WHERE
                         __pubkey = $1
-                    "#)
-                .bind(key)
-                .execute(pool).await
+                    "#,
+        )
+        .bind(key)
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(())
@@ -166,14 +168,19 @@ impl carbon_core::postgres::operations::Delete for UserVolumeAccumulatorRow {
 impl carbon_core::postgres::operations::LookUp for UserVolumeAccumulatorRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM user_volume_accumulator_account WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM user_volume_accumulator_account WHERE
                         __pubkey = $1
-                    "#)
-                .bind(key)
-                .fetch_optional(pool).await
-        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))
-        ?;
+                    "#,
+        )
+        .bind(key)
+        .fetch_optional(pool)
+        .await
+        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(row)
     }
@@ -183,8 +190,12 @@ pub struct UserVolumeAccumulatorMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for UserVolumeAccumulatorMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS user_volume_accumulator_account (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS user_volume_accumulator_account (
                         -- Account data
                                     "user" BYTEA NOT NULL,
                         "needs_claim" BOOLEAN NOT NULL,
@@ -199,13 +210,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UserVolumeAccumulatorMigration
             __slot NUMERIC(20),
             
                         PRIMARY KEY (__pubkey)
-                    )"#).execute(connection).await?;
+                    )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS user_volume_accumulator_account"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS user_volume_accumulator_account"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }
-

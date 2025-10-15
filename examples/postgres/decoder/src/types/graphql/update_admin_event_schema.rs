@@ -1,13 +1,13 @@
-use juniper::GraphQLObject;
-use carbon_core::graphql::primitives::I64;
 use carbon_core::graphql::primitives::Pubkey;
+use carbon_core::graphql::primitives::I64;
+use juniper::GraphQLObject;
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "UpdateAdminEvent")]
 pub struct UpdateAdminEventGraphQL {
-        pub timestamp: I64,
-        pub admin: Pubkey,
-        pub new_admin: Pubkey,
+    pub timestamp: I64,
+    pub admin: Pubkey,
+    pub new_admin: Pubkey,
 }
 
 impl From<crate::types::UpdateAdminEvent> for UpdateAdminEventGraphQL {

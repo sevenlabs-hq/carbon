@@ -1,15 +1,14 @@
 use juniper::GraphQLObject;
 
-
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "Disable")]
 pub struct DisableGraphQL {
     pub metadata: crate::instructions::graphql::InstructionMetadataGraphQL,
-        pub disable_create_pool: bool,
-        pub disable_deposit: bool,
-        pub disable_withdraw: bool,
-        pub disable_buy: bool,
-        pub disable_sell: bool,
+    pub disable_create_pool: bool,
+    pub disable_deposit: bool,
+    pub disable_withdraw: bool,
+    pub disable_buy: bool,
+    pub disable_sell: bool,
 }
 
 impl From<crate::instructions::postgres::DisableRow> for DisableGraphQL {

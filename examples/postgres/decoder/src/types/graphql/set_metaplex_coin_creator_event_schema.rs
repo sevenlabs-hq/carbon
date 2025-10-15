@@ -1,15 +1,15 @@
-use juniper::GraphQLObject;
-use carbon_core::graphql::primitives::I64;
 use carbon_core::graphql::primitives::Pubkey;
+use carbon_core::graphql::primitives::I64;
+use juniper::GraphQLObject;
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "SetMetaplexCoinCreatorEvent")]
 pub struct SetMetaplexCoinCreatorEventGraphQL {
-        pub timestamp: I64,
-        pub base_mint: Pubkey,
-        pub pool: Pubkey,
-        pub metadata: Pubkey,
-        pub coin_creator: Pubkey,
+    pub timestamp: I64,
+    pub base_mint: Pubkey,
+    pub pool: Pubkey,
+    pub metadata: Pubkey,
+    pub coin_creator: Pubkey,
 }
 
 impl From<crate::types::SetMetaplexCoinCreatorEvent> for SetMetaplexCoinCreatorEventGraphQL {

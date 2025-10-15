@@ -9,11 +9,15 @@ use carbon_core::account_utils::next_account;
 use carbon_core::borsh::{self, BorshDeserialize};
 use carbon_core::deserialize::ArrangeAccounts;
 
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
-pub struct ExtendAccount {
-}
+#[derive(
+    Debug,
+    Clone,
+    carbon_core::borsh::BorshSerialize,
+    carbon_core::borsh::BorshDeserialize,
+    PartialEq,
+)]
+pub struct ExtendAccount {}
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -28,20 +32,18 @@ pub struct ExtendAccountInstructionAccounts {
 
 impl ExtendAccount {
     pub fn decode(data: &[u8]) -> Option<Self> {
-                
-                if data.len() < 8 {
-                    return None;
-                }
-                let discriminator = &data[0..8];
-                if discriminator != &[234, 102, 194, 203, 150, 72, 62, 229] {
-                    return None;
-                }
-            
-        
+        if data.len() < 8 {
+            return None;
+        }
+        let discriminator = &data[0..8];
+        if discriminator != &[234, 102, 194, 203, 150, 72, 62, 229] {
+            return None;
+        }
+
         let mut data_slice = data;
 
-                data_slice = &data_slice[8..];
-        
+        data_slice = &data_slice[8..];
+
         if let Ok(decoded) = Self::deserialize(&mut data_slice) {
             return Some(decoded);
         }
@@ -56,24 +58,23 @@ impl ArrangeAccounts for ExtendAccount {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-                let mut iter = accounts.iter();
+        let mut iter = accounts.iter();
 
-                let account = next_account(&mut iter)?;
-                let user = next_account(&mut iter)?;
-                let system_program = next_account(&mut iter)?;
-                let event_authority = next_account(&mut iter)?;
-                let program = next_account(&mut iter)?;
-        
+        let account = next_account(&mut iter)?;
+        let user = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
+
         let remaining = iter.as_slice();
 
         Some(ExtendAccountInstructionAccounts {
-                        account: account,
-                        user: user,
-                        system_program: system_program,
-                        event_authority: event_authority,
-                        program: program,
-                        remaining: remaining.to_vec(),
+            account: account,
+            user: user,
+            system_program: system_program,
+            event_authority: event_authority,
+            program: program,
+            remaining: remaining.to_vec(),
         })
-            }
+    }
 }
-

@@ -6,14 +6,18 @@ pub struct QueryRoot;
 #[graphql_object(context = crate::graphql::context::GraphQLContext)]
 impl QueryRoot {
     // Accounts
-            async fn bonding_curve(
+    async fn bonding_curve(
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::BondingCurveGraphQL>> {
         use carbon_core::postgres::operations::LookUp;
         use carbon_core::postgres::primitives::Pubkey as PgPubkey;
-        let pk = PgPubkey(solana_pubkey::Pubkey::from_str(&pubkey).map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?);
-        let row = crate::accounts::postgres::BondingCurveRow::lookup(pk, &context.pool).await
+        let pk = PgPubkey(
+            solana_pubkey::Pubkey::from_str(&pubkey)
+                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
+        );
+        let row = crate::accounts::postgres::BondingCurveRow::lookup(pk, &context.pool)
+            .await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(row.map(Into::into))
     }
@@ -33,14 +37,18 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().map(Into::into).collect())
     }
-                async fn fee_config(
+    async fn fee_config(
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::FeeConfigGraphQL>> {
         use carbon_core::postgres::operations::LookUp;
         use carbon_core::postgres::primitives::Pubkey as PgPubkey;
-        let pk = PgPubkey(solana_pubkey::Pubkey::from_str(&pubkey).map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?);
-        let row = crate::accounts::postgres::FeeConfigRow::lookup(pk, &context.pool).await
+        let pk = PgPubkey(
+            solana_pubkey::Pubkey::from_str(&pubkey)
+                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
+        );
+        let row = crate::accounts::postgres::FeeConfigRow::lookup(pk, &context.pool)
+            .await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(row.map(Into::into))
     }
@@ -60,14 +68,18 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().map(Into::into).collect())
     }
-                async fn global_config(
+    async fn global_config(
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::GlobalConfigGraphQL>> {
         use carbon_core::postgres::operations::LookUp;
         use carbon_core::postgres::primitives::Pubkey as PgPubkey;
-        let pk = PgPubkey(solana_pubkey::Pubkey::from_str(&pubkey).map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?);
-        let row = crate::accounts::postgres::GlobalConfigRow::lookup(pk, &context.pool).await
+        let pk = PgPubkey(
+            solana_pubkey::Pubkey::from_str(&pubkey)
+                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
+        );
+        let row = crate::accounts::postgres::GlobalConfigRow::lookup(pk, &context.pool)
+            .await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(row.map(Into::into))
     }
@@ -87,14 +99,18 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().map(Into::into).collect())
     }
-                async fn global_volume_accumulator(
+    async fn global_volume_accumulator(
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::GlobalVolumeAccumulatorGraphQL>> {
         use carbon_core::postgres::operations::LookUp;
         use carbon_core::postgres::primitives::Pubkey as PgPubkey;
-        let pk = PgPubkey(solana_pubkey::Pubkey::from_str(&pubkey).map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?);
-        let row = crate::accounts::postgres::GlobalVolumeAccumulatorRow::lookup(pk, &context.pool).await
+        let pk = PgPubkey(
+            solana_pubkey::Pubkey::from_str(&pubkey)
+                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
+        );
+        let row = crate::accounts::postgres::GlobalVolumeAccumulatorRow::lookup(pk, &context.pool)
+            .await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(row.map(Into::into))
     }
@@ -114,14 +130,18 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().map(Into::into).collect())
     }
-                async fn pool(
+    async fn pool(
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::PoolGraphQL>> {
         use carbon_core::postgres::operations::LookUp;
         use carbon_core::postgres::primitives::Pubkey as PgPubkey;
-        let pk = PgPubkey(solana_pubkey::Pubkey::from_str(&pubkey).map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?);
-        let row = crate::accounts::postgres::PoolRow::lookup(pk, &context.pool).await
+        let pk = PgPubkey(
+            solana_pubkey::Pubkey::from_str(&pubkey)
+                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
+        );
+        let row = crate::accounts::postgres::PoolRow::lookup(pk, &context.pool)
+            .await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(row.map(Into::into))
     }
@@ -131,24 +151,27 @@ impl QueryRoot {
         limit: i32,
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::PoolGraphQL>> {
-        let rows: Vec<crate::accounts::postgres::PoolRow> = sqlx::query_as(
-            r#"SELECT * FROM pool_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
-        )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        let rows: Vec<crate::accounts::postgres::PoolRow> =
+            sqlx::query_as(r#"SELECT * FROM pool_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#)
+                .bind(limit)
+                .bind(offset)
+                .fetch_all(&*context.pool)
+                .await
+                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().map(Into::into).collect())
     }
-                async fn user_volume_accumulator(
+    async fn user_volume_accumulator(
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::UserVolumeAccumulatorGraphQL>> {
         use carbon_core::postgres::operations::LookUp;
         use carbon_core::postgres::primitives::Pubkey as PgPubkey;
-        let pk = PgPubkey(solana_pubkey::Pubkey::from_str(&pubkey).map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?);
-        let row = crate::accounts::postgres::UserVolumeAccumulatorRow::lookup(pk, &context.pool).await
+        let pk = PgPubkey(
+            solana_pubkey::Pubkey::from_str(&pubkey)
+                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
+        );
+        let row = crate::accounts::postgres::UserVolumeAccumulatorRow::lookup(pk, &context.pool)
+            .await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(row.map(Into::into))
     }
@@ -168,9 +191,9 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().map(Into::into).collect())
     }
-        
+
     // Instructions (per-instruction list and lookup by signature+index)
-            async fn admin_set_coin_creator(
+    async fn admin_set_coin_creator(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
@@ -201,7 +224,7 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().map(Into::into).collect())
     }
-                async fn admin_update_token_incentives(
+    async fn admin_update_token_incentives(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
@@ -232,7 +255,7 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().map(Into::into).collect())
     }
-                async fn buy(
+    async fn buy(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
@@ -263,7 +286,7 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().map(Into::into).collect())
     }
-                                        async fn create_config(
+    async fn create_config(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
@@ -294,7 +317,7 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().map(Into::into).collect())
     }
-                async fn create_pool(
+    async fn create_pool(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
@@ -325,7 +348,7 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().map(Into::into).collect())
     }
-                async fn deposit(
+    async fn deposit(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
@@ -356,7 +379,7 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().map(Into::into).collect())
     }
-                async fn disable(
+    async fn disable(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
@@ -387,7 +410,7 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().map(Into::into).collect())
     }
-                                async fn sell(
+    async fn sell(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
@@ -418,7 +441,7 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().map(Into::into).collect())
     }
-                                        async fn update_fee_config(
+    async fn update_fee_config(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
@@ -449,7 +472,7 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().map(Into::into).collect())
     }
-                async fn withdraw(
+    async fn withdraw(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
@@ -480,5 +503,4 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().map(Into::into).collect())
     }
-        }
-
+}

@@ -8,15 +8,13 @@
 use carbon_core::borsh;
 use solana_pubkey::Pubkey;
 
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct ClaimTokenIncentivesEvent {
-pub user: Pubkey,
-pub mint: Pubkey,
-pub amount: u64,
-pub timestamp: i64,
-pub total_claimed_tokens: u64,
-pub current_sol_volume: u64,
+    pub user: Pubkey,
+    pub mint: Pubkey,
+    pub amount: u64,
+    pub timestamp: i64,
+    pub total_claimed_tokens: u64,
+    pub current_sol_volume: u64,
 }
-

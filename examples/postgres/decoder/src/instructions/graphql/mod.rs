@@ -35,7 +35,9 @@ impl From<carbon_core::postgres::metadata::InstructionRowMetadata> for Instructi
     fn from(metadata: carbon_core::postgres::metadata::InstructionRowMetadata) -> Self {
         Self {
             signature: metadata.signature,
-            instruction_index: carbon_core::graphql::primitives::U32((*metadata.instruction_index) as u32),
+            instruction_index: carbon_core::graphql::primitives::U32(
+                (*metadata.instruction_index) as u32,
+            ),
             stack_height: carbon_core::graphql::primitives::U32((*metadata.stack_height) as u32),
             slot: metadata
                 .slot
