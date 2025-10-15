@@ -384,8 +384,6 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         instructionsToExport,
                         program,
                         root: node,
-                        carbonVersion: '0.9.1',
-                        solanaSdkVersion: '~2.2',
                     };
 
                     const map = new RenderMap();
@@ -581,7 +579,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 `.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?`
                             );
                         }
-                        // JSON-stored vectors of primitives/arrays need element-wise reverse then try_into at this level
+                        // JSON-stored vectors of primitives/arrays need element-level reverse then try_into at this level
                         return (
                             `${prefix}.0.into_iter().map(|element| Ok(${buildReverse(typeNode.item, 'element')})).collect::<Result<Vec<_>, _>>()?` +
                             `.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?`
