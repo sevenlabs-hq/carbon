@@ -8,12 +8,10 @@
 use carbon_core::borsh;
 use solana_pubkey::Pubkey;
 
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct UpdateAdminEvent {
-pub timestamp: i64,
-pub admin: Pubkey,
-pub new_admin: Pubkey,
+    pub timestamp: i64,
+    pub admin: Pubkey,
+    pub new_admin: Pubkey,
 }
-

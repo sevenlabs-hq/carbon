@@ -8,15 +8,13 @@
 use carbon_core::borsh;
 use solana_pubkey::Pubkey;
 
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct CloseUserVolumeAccumulatorEvent {
-pub user: Pubkey,
-pub timestamp: i64,
-pub total_unclaimed_tokens: u64,
-pub total_claimed_tokens: u64,
-pub current_sol_volume: u64,
-pub last_update_timestamp: i64,
+    pub user: Pubkey,
+    pub timestamp: i64,
+    pub total_unclaimed_tokens: u64,
+    pub total_claimed_tokens: u64,
+    pub current_sol_volume: u64,
+    pub last_update_timestamp: i64,
 }
-

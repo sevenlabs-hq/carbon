@@ -13,9 +13,15 @@ use solana_pubkey::Pubkey;
 /// Overrides the coin creator for a canonical pump pool
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
+#[derive(
+    Debug,
+    Clone,
+    carbon_core::borsh::BorshSerialize,
+    carbon_core::borsh::BorshDeserialize,
+    PartialEq,
+)]
 pub struct AdminSetCoinCreator {
-        pub coin_creator: Pubkey,
+    pub coin_creator: Pubkey,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -31,20 +37,18 @@ pub struct AdminSetCoinCreatorInstructionAccounts {
 
 impl AdminSetCoinCreator {
     pub fn decode(data: &[u8]) -> Option<Self> {
-                
-                if data.len() < 8 {
-                    return None;
-                }
-                let discriminator = &data[0..8];
-                if discriminator != &[242, 40, 117, 145, 73, 96, 105, 104] {
-                    return None;
-                }
-            
-        
+        if data.len() < 8 {
+            return None;
+        }
+        let discriminator = &data[0..8];
+        if discriminator != &[242, 40, 117, 145, 73, 96, 105, 104] {
+            return None;
+        }
+
         let mut data_slice = data;
 
-                data_slice = &data_slice[8..];
-        
+        data_slice = &data_slice[8..];
+
         if let Ok(decoded) = Self::deserialize(&mut data_slice) {
             return Some(decoded);
         }
@@ -59,24 +63,23 @@ impl ArrangeAccounts for AdminSetCoinCreator {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-                let mut iter = accounts.iter();
+        let mut iter = accounts.iter();
 
-                let admin_set_coin_creator_authority = next_account(&mut iter)?;
-                let global_config = next_account(&mut iter)?;
-                let pool = next_account(&mut iter)?;
-                let event_authority = next_account(&mut iter)?;
-                let program = next_account(&mut iter)?;
-        
+        let admin_set_coin_creator_authority = next_account(&mut iter)?;
+        let global_config = next_account(&mut iter)?;
+        let pool = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
+
         let remaining = iter.as_slice();
 
         Some(AdminSetCoinCreatorInstructionAccounts {
-                        admin_set_coin_creator_authority: admin_set_coin_creator_authority,
-                        global_config: global_config,
-                        pool: pool,
-                        event_authority: event_authority,
-                        program: program,
-                        remaining: remaining.to_vec(),
+            admin_set_coin_creator_authority: admin_set_coin_creator_authority,
+            global_config: global_config,
+            pool: pool,
+            event_authority: event_authority,
+            program: program,
+            remaining: remaining.to_vec(),
         })
-            }
+    }
 }
-

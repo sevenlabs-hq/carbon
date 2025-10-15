@@ -1,16 +1,16 @@
-use juniper::GraphQLObject;
-use carbon_core::graphql::primitives::I64;
 use carbon_core::graphql::primitives::Pubkey;
+use carbon_core::graphql::primitives::I64;
 use carbon_core::graphql::primitives::U64;
+use juniper::GraphQLObject;
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "ExtendAccountEvent")]
 pub struct ExtendAccountEventGraphQL {
-        pub timestamp: I64,
-        pub account: Pubkey,
-        pub user: Pubkey,
-        pub current_size: U64,
-        pub new_size: U64,
+    pub timestamp: I64,
+    pub account: Pubkey,
+    pub user: Pubkey,
+    pub current_size: U64,
+    pub new_size: U64,
 }
 
 impl From<crate::types::ExtendAccountEvent> for ExtendAccountEventGraphQL {

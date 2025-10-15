@@ -5,36 +5,43 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
+use crate::accounts::GlobalVolumeAccumulator;
 use carbon_core::account::AccountMetadata;
 use carbon_core::postgres::metadata::AccountRowMetadata;
 use carbon_core::postgres::primitives::Pubkey;
 use carbon_core::postgres::primitives::U64;
-use crate::accounts::GlobalVolumeAccumulator;
-
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct GlobalVolumeAccumulatorRow {
     #[sqlx(flatten)]
-        pub metadata: AccountRowMetadata,
-            pub start_time: i64,
-        pub end_time: i64,
-        pub seconds_in_a_day: i64,
-        pub mint: Pubkey,
-        pub total_token_supply: Vec<U64>,
-        pub sol_volumes: Vec<U64>,
+    pub metadata: AccountRowMetadata,
+    pub start_time: i64,
+    pub end_time: i64,
+    pub seconds_in_a_day: i64,
+    pub mint: Pubkey,
+    pub total_token_supply: Vec<U64>,
+    pub sol_volumes: Vec<U64>,
 }
 
 impl GlobalVolumeAccumulatorRow {
     pub fn from_parts(source: GlobalVolumeAccumulator, metadata: AccountMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-                        start_time: source.start_time.into(),
-                        end_time: source.end_time.into(),
-                        seconds_in_a_day: source.seconds_in_a_day.into(),
-                        mint: source.mint.into(),
-                        total_token_supply: source.total_token_supply.into_iter().map(|element| element.into()).collect(),
-                        sol_volumes: source.sol_volumes.into_iter().map(|element| element.into()).collect(),
-                    }
+            start_time: source.start_time.into(),
+            end_time: source.end_time.into(),
+            seconds_in_a_day: source.seconds_in_a_day.into(),
+            mint: source.mint.into(),
+            total_token_supply: source
+                .total_token_supply
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
+            sol_volumes: source
+                .sol_volumes
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
+        }
     }
 }
 
@@ -42,13 +49,33 @@ impl TryFrom<GlobalVolumeAccumulatorRow> for GlobalVolumeAccumulator {
     type Error = carbon_core::error::Error;
     fn try_from(source: GlobalVolumeAccumulatorRow) -> Result<Self, Self::Error> {
         Ok(Self {
-                        start_time: source.start_time.into(),
-                        end_time: source.end_time.into(),
-                        seconds_in_a_day: source.seconds_in_a_day.into(),
-                        mint: *source.mint,
-                        total_token_supply: source.total_token_supply.into_iter().map(|element| Ok(*element)).collect::<Result<Vec<_>, _>>()?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
-                        sol_volumes: source.sol_volumes.into_iter().map(|element| Ok(*element)).collect::<Result<Vec<_>, _>>()?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
-                    })
+            start_time: source.start_time.into(),
+            end_time: source.end_time.into(),
+            seconds_in_a_day: source.seconds_in_a_day.into(),
+            mint: *source.mint,
+            total_token_supply: source
+                .total_token_supply
+                .into_iter()
+                .map(|element| Ok(*element))
+                .collect::<Result<Vec<_>, _>>()?
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert array element to primitive".to_string(),
+                    )
+                })?,
+            sol_volumes: source
+                .sol_volumes
+                .into_iter()
+                .map(|element| Ok(*element))
+                .collect::<Result<Vec<_>, _>>()?
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert array element to primitive".to_string(),
+                    )
+                })?,
+        })
     }
 }
 
@@ -59,15 +86,15 @@ impl carbon_core::postgres::operations::Table for GlobalVolumeAccumulator {
 
     fn columns() -> Vec<&'static str> {
         vec![
-                        "__pubkey",
+            "__pubkey",
             "__slot",
-                                    "start_time",
-                        "end_time",
-                        "seconds_in_a_day",
-                        "mint",
-                        "total_token_supply",
-                        "sol_volumes",
-                    ]
+            "start_time",
+            "end_time",
+            "seconds_in_a_day",
+            "mint",
+            "total_token_supply",
+            "sol_volumes",
+        ]
     }
 }
 
@@ -142,11 +169,14 @@ impl carbon_core::postgres::operations::Delete for GlobalVolumeAccumulatorRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM global_volume_accumulator_account WHERE
+        sqlx::query(
+            r#"DELETE FROM global_volume_accumulator_account WHERE
                         __pubkey = $1
-                    "#)
-                .bind(key)
-                .execute(pool).await
+                    "#,
+        )
+        .bind(key)
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(())
@@ -157,14 +187,19 @@ impl carbon_core::postgres::operations::Delete for GlobalVolumeAccumulatorRow {
 impl carbon_core::postgres::operations::LookUp for GlobalVolumeAccumulatorRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM global_volume_accumulator_account WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM global_volume_accumulator_account WHERE
                         __pubkey = $1
-                    "#)
-                .bind(key)
-                .fetch_optional(pool).await
-        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))
-        ?;
+                    "#,
+        )
+        .bind(key)
+        .fetch_optional(pool)
+        .await
+        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(row)
     }
@@ -174,8 +209,12 @@ pub struct GlobalVolumeAccumulatorMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalVolumeAccumulatorMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS global_volume_accumulator_account (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS global_volume_accumulator_account (
                         -- Account data
                                     "start_time" INT8 NOT NULL,
                         "end_time" INT8 NOT NULL,
@@ -189,13 +228,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalVolumeAccumulatorMigrati
             __slot NUMERIC(20),
             
                         PRIMARY KEY (__pubkey)
-                    )"#).execute(connection).await?;
+                    )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS global_volume_accumulator_account"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS global_volume_accumulator_account"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }
-

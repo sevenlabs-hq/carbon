@@ -9,11 +9,15 @@ use carbon_core::account_utils::next_account;
 use carbon_core::borsh::{self, BorshDeserialize};
 use carbon_core::deserialize::ArrangeAccounts;
 
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
-pub struct SyncUserVolumeAccumulator {
-}
+#[derive(
+    Debug,
+    Clone,
+    carbon_core::borsh::BorshSerialize,
+    carbon_core::borsh::BorshDeserialize,
+    PartialEq,
+)]
+pub struct SyncUserVolumeAccumulator {}
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -28,20 +32,18 @@ pub struct SyncUserVolumeAccumulatorInstructionAccounts {
 
 impl SyncUserVolumeAccumulator {
     pub fn decode(data: &[u8]) -> Option<Self> {
-                
-                if data.len() < 8 {
-                    return None;
-                }
-                let discriminator = &data[0..8];
-                if discriminator != &[86, 31, 192, 87, 163, 87, 79, 238] {
-                    return None;
-                }
-            
-        
+        if data.len() < 8 {
+            return None;
+        }
+        let discriminator = &data[0..8];
+        if discriminator != &[86, 31, 192, 87, 163, 87, 79, 238] {
+            return None;
+        }
+
         let mut data_slice = data;
 
-                data_slice = &data_slice[8..];
-        
+        data_slice = &data_slice[8..];
+
         if let Ok(decoded) = Self::deserialize(&mut data_slice) {
             return Some(decoded);
         }
@@ -56,24 +58,23 @@ impl ArrangeAccounts for SyncUserVolumeAccumulator {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-                let mut iter = accounts.iter();
+        let mut iter = accounts.iter();
 
-                let user = next_account(&mut iter)?;
-                let global_volume_accumulator = next_account(&mut iter)?;
-                let user_volume_accumulator = next_account(&mut iter)?;
-                let event_authority = next_account(&mut iter)?;
-                let program = next_account(&mut iter)?;
-        
+        let user = next_account(&mut iter)?;
+        let global_volume_accumulator = next_account(&mut iter)?;
+        let user_volume_accumulator = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
+
         let remaining = iter.as_slice();
 
         Some(SyncUserVolumeAccumulatorInstructionAccounts {
-                        user: user,
-                        global_volume_accumulator: global_volume_accumulator,
-                        user_volume_accumulator: user_volume_accumulator,
-                        event_authority: event_authority,
-                        program: program,
-                        remaining: remaining.to_vec(),
+            user: user,
+            global_volume_accumulator: global_volume_accumulator,
+            user_volume_accumulator: user_volume_accumulator,
+            event_authority: event_authority,
+            program: program,
+            remaining: remaining.to_vec(),
         })
-            }
+    }
 }
-

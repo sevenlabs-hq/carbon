@@ -1,12 +1,12 @@
-use juniper::GraphQLObject;
 use carbon_core::graphql::primitives::U64;
+use juniper::GraphQLObject;
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "Fees")]
 pub struct FeesGraphQL {
-        pub lp_fee_bps: U64,
-        pub protocol_fee_bps: U64,
-        pub creator_fee_bps: U64,
+    pub lp_fee_bps: U64,
+    pub protocol_fee_bps: U64,
+    pub creator_fee_bps: U64,
 }
 
 impl From<crate::types::Fees> for FeesGraphQL {

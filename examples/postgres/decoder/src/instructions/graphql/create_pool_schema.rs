@@ -1,15 +1,15 @@
-use juniper::GraphQLObject;
 use carbon_core::graphql::primitives::Pubkey;
 use carbon_core::graphql::primitives::U64;
+use juniper::GraphQLObject;
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "CreatePool")]
 pub struct CreatePoolGraphQL {
     pub metadata: crate::instructions::graphql::InstructionMetadataGraphQL,
-        pub index: i32,
-        pub base_amount_in: U64,
-        pub quote_amount_in: U64,
-        pub coin_creator: Pubkey,
+    pub index: i32,
+    pub base_amount_in: U64,
+    pub quote_amount_in: U64,
+    pub coin_creator: Pubkey,
 }
 
 impl From<crate::instructions::postgres::CreatePoolRow> for CreatePoolGraphQL {

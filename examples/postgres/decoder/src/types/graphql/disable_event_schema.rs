@@ -1,17 +1,17 @@
-use juniper::GraphQLObject;
-use carbon_core::graphql::primitives::I64;
 use carbon_core::graphql::primitives::Pubkey;
+use carbon_core::graphql::primitives::I64;
+use juniper::GraphQLObject;
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "DisableEvent")]
 pub struct DisableEventGraphQL {
-        pub timestamp: I64,
-        pub admin: Pubkey,
-        pub disable_create_pool: bool,
-        pub disable_deposit: bool,
-        pub disable_withdraw: bool,
-        pub disable_buy: bool,
-        pub disable_sell: bool,
+    pub timestamp: I64,
+    pub admin: Pubkey,
+    pub disable_create_pool: bool,
+    pub disable_deposit: bool,
+    pub disable_withdraw: bool,
+    pub disable_buy: bool,
+    pub disable_sell: bool,
 }
 
 impl From<crate::types::DisableEvent> for DisableEventGraphQL {

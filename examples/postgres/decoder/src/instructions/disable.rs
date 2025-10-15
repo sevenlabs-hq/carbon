@@ -9,15 +9,20 @@ use carbon_core::account_utils::next_account;
 use carbon_core::borsh::{self, BorshDeserialize};
 use carbon_core::deserialize::ArrangeAccounts;
 
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
+#[derive(
+    Debug,
+    Clone,
+    carbon_core::borsh::BorshSerialize,
+    carbon_core::borsh::BorshDeserialize,
+    PartialEq,
+)]
 pub struct Disable {
-        pub disable_create_pool: bool,
-        pub disable_deposit: bool,
-        pub disable_withdraw: bool,
-        pub disable_buy: bool,
-        pub disable_sell: bool,
+    pub disable_create_pool: bool,
+    pub disable_deposit: bool,
+    pub disable_withdraw: bool,
+    pub disable_buy: bool,
+    pub disable_sell: bool,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -32,20 +37,18 @@ pub struct DisableInstructionAccounts {
 
 impl Disable {
     pub fn decode(data: &[u8]) -> Option<Self> {
-                
-                if data.len() < 8 {
-                    return None;
-                }
-                let discriminator = &data[0..8];
-                if discriminator != &[185, 173, 187, 90, 216, 15, 238, 233] {
-                    return None;
-                }
-            
-        
+        if data.len() < 8 {
+            return None;
+        }
+        let discriminator = &data[0..8];
+        if discriminator != &[185, 173, 187, 90, 216, 15, 238, 233] {
+            return None;
+        }
+
         let mut data_slice = data;
 
-                data_slice = &data_slice[8..];
-        
+        data_slice = &data_slice[8..];
+
         if let Ok(decoded) = Self::deserialize(&mut data_slice) {
             return Some(decoded);
         }
@@ -60,22 +63,21 @@ impl ArrangeAccounts for Disable {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-                let mut iter = accounts.iter();
+        let mut iter = accounts.iter();
 
-                let admin = next_account(&mut iter)?;
-                let global_config = next_account(&mut iter)?;
-                let event_authority = next_account(&mut iter)?;
-                let program = next_account(&mut iter)?;
-        
+        let admin = next_account(&mut iter)?;
+        let global_config = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
+
         let remaining = iter.as_slice();
 
         Some(DisableInstructionAccounts {
-                        admin: admin,
-                        global_config: global_config,
-                        event_authority: event_authority,
-                        program: program,
-                        remaining: remaining.to_vec(),
+            admin: admin,
+            global_config: global_config,
+            event_authority: event_authority,
+            program: program,
+            remaining: remaining.to_vec(),
         })
-            }
+    }
 }
-

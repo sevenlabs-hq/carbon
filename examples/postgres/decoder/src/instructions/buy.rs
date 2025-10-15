@@ -9,13 +9,18 @@ use carbon_core::account_utils::next_account;
 use carbon_core::borsh::{self, BorshDeserialize};
 use carbon_core::deserialize::ArrangeAccounts;
 
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
+#[derive(
+    Debug,
+    Clone,
+    carbon_core::borsh::BorshSerialize,
+    carbon_core::borsh::BorshDeserialize,
+    PartialEq,
+)]
 pub struct Buy {
-        pub base_amount_out: u64,
-        pub max_quote_amount_in: u64,
-        pub track_volume: bool,
+    pub base_amount_out: u64,
+    pub max_quote_amount_in: u64,
+    pub track_volume: bool,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -49,20 +54,18 @@ pub struct BuyInstructionAccounts {
 
 impl Buy {
     pub fn decode(data: &[u8]) -> Option<Self> {
-                
-                if data.len() < 8 {
-                    return None;
-                }
-                let discriminator = &data[0..8];
-                if discriminator != &[102, 6, 61, 18, 1, 218, 235, 234] {
-                    return None;
-                }
-            
-        
+        if data.len() < 8 {
+            return None;
+        }
+        let discriminator = &data[0..8];
+        if discriminator != &[102, 6, 61, 18, 1, 218, 235, 234] {
+            return None;
+        }
+
         let mut data_slice = data;
 
-                data_slice = &data_slice[8..];
-        
+        data_slice = &data_slice[8..];
+
         if let Ok(decoded) = Self::deserialize(&mut data_slice) {
             return Some(decoded);
         }
@@ -77,60 +80,59 @@ impl ArrangeAccounts for Buy {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-                let mut iter = accounts.iter();
+        let mut iter = accounts.iter();
 
-                let pool = next_account(&mut iter)?;
-                let user = next_account(&mut iter)?;
-                let global_config = next_account(&mut iter)?;
-                let base_mint = next_account(&mut iter)?;
-                let quote_mint = next_account(&mut iter)?;
-                let user_base_token_account = next_account(&mut iter)?;
-                let user_quote_token_account = next_account(&mut iter)?;
-                let pool_base_token_account = next_account(&mut iter)?;
-                let pool_quote_token_account = next_account(&mut iter)?;
-                let protocol_fee_recipient = next_account(&mut iter)?;
-                let protocol_fee_recipient_token_account = next_account(&mut iter)?;
-                let base_token_program = next_account(&mut iter)?;
-                let quote_token_program = next_account(&mut iter)?;
-                let system_program = next_account(&mut iter)?;
-                let associated_token_program = next_account(&mut iter)?;
-                let event_authority = next_account(&mut iter)?;
-                let program = next_account(&mut iter)?;
-                let coin_creator_vault_ata = next_account(&mut iter)?;
-                let coin_creator_vault_authority = next_account(&mut iter)?;
-                let global_volume_accumulator = next_account(&mut iter)?;
-                let user_volume_accumulator = next_account(&mut iter)?;
-                let fee_config = next_account(&mut iter)?;
-                let fee_program = next_account(&mut iter)?;
-        
+        let pool = next_account(&mut iter)?;
+        let user = next_account(&mut iter)?;
+        let global_config = next_account(&mut iter)?;
+        let base_mint = next_account(&mut iter)?;
+        let quote_mint = next_account(&mut iter)?;
+        let user_base_token_account = next_account(&mut iter)?;
+        let user_quote_token_account = next_account(&mut iter)?;
+        let pool_base_token_account = next_account(&mut iter)?;
+        let pool_quote_token_account = next_account(&mut iter)?;
+        let protocol_fee_recipient = next_account(&mut iter)?;
+        let protocol_fee_recipient_token_account = next_account(&mut iter)?;
+        let base_token_program = next_account(&mut iter)?;
+        let quote_token_program = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let associated_token_program = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
+        let coin_creator_vault_ata = next_account(&mut iter)?;
+        let coin_creator_vault_authority = next_account(&mut iter)?;
+        let global_volume_accumulator = next_account(&mut iter)?;
+        let user_volume_accumulator = next_account(&mut iter)?;
+        let fee_config = next_account(&mut iter)?;
+        let fee_program = next_account(&mut iter)?;
+
         let remaining = iter.as_slice();
 
         Some(BuyInstructionAccounts {
-                        pool: pool,
-                        user: user,
-                        global_config: global_config,
-                        base_mint: base_mint,
-                        quote_mint: quote_mint,
-                        user_base_token_account: user_base_token_account,
-                        user_quote_token_account: user_quote_token_account,
-                        pool_base_token_account: pool_base_token_account,
-                        pool_quote_token_account: pool_quote_token_account,
-                        protocol_fee_recipient: protocol_fee_recipient,
-                        protocol_fee_recipient_token_account: protocol_fee_recipient_token_account,
-                        base_token_program: base_token_program,
-                        quote_token_program: quote_token_program,
-                        system_program: system_program,
-                        associated_token_program: associated_token_program,
-                        event_authority: event_authority,
-                        program: program,
-                        coin_creator_vault_ata: coin_creator_vault_ata,
-                        coin_creator_vault_authority: coin_creator_vault_authority,
-                        global_volume_accumulator: global_volume_accumulator,
-                        user_volume_accumulator: user_volume_accumulator,
-                        fee_config: fee_config,
-                        fee_program: fee_program,
-                        remaining: remaining.to_vec(),
+            pool: pool,
+            user: user,
+            global_config: global_config,
+            base_mint: base_mint,
+            quote_mint: quote_mint,
+            user_base_token_account: user_base_token_account,
+            user_quote_token_account: user_quote_token_account,
+            pool_base_token_account: pool_base_token_account,
+            pool_quote_token_account: pool_quote_token_account,
+            protocol_fee_recipient: protocol_fee_recipient,
+            protocol_fee_recipient_token_account: protocol_fee_recipient_token_account,
+            base_token_program: base_token_program,
+            quote_token_program: quote_token_program,
+            system_program: system_program,
+            associated_token_program: associated_token_program,
+            event_authority: event_authority,
+            program: program,
+            coin_creator_vault_ata: coin_creator_vault_ata,
+            coin_creator_vault_authority: coin_creator_vault_authority,
+            global_volume_accumulator: global_volume_accumulator,
+            user_volume_accumulator: user_volume_accumulator,
+            fee_config: fee_config,
+            fee_program: fee_program,
+            remaining: remaining.to_vec(),
         })
-            }
+    }
 }
-

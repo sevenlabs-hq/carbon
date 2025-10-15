@@ -1,18 +1,20 @@
-use juniper::GraphQLObject;
-use carbon_core::graphql::primitives::I64;
 use carbon_core::graphql::primitives::Pubkey;
+use carbon_core::graphql::primitives::I64;
+use juniper::GraphQLObject;
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "SetBondingCurveCoinCreatorEvent")]
 pub struct SetBondingCurveCoinCreatorEventGraphQL {
-        pub timestamp: I64,
-        pub base_mint: Pubkey,
-        pub pool: Pubkey,
-        pub bonding_curve: Pubkey,
-        pub coin_creator: Pubkey,
+    pub timestamp: I64,
+    pub base_mint: Pubkey,
+    pub pool: Pubkey,
+    pub bonding_curve: Pubkey,
+    pub coin_creator: Pubkey,
 }
 
-impl From<crate::types::SetBondingCurveCoinCreatorEvent> for SetBondingCurveCoinCreatorEventGraphQL {
+impl From<crate::types::SetBondingCurveCoinCreatorEvent>
+    for SetBondingCurveCoinCreatorEventGraphQL
+{
     fn from(original: crate::types::SetBondingCurveCoinCreatorEvent) -> Self {
         Self {
             timestamp: carbon_core::graphql::primitives::I64(original.timestamp),

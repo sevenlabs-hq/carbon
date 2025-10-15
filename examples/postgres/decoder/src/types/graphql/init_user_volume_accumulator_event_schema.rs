@@ -1,13 +1,13 @@
-use juniper::GraphQLObject;
-use carbon_core::graphql::primitives::I64;
 use carbon_core::graphql::primitives::Pubkey;
+use carbon_core::graphql::primitives::I64;
+use juniper::GraphQLObject;
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "InitUserVolumeAccumulatorEvent")]
 pub struct InitUserVolumeAccumulatorEventGraphQL {
-        pub payer: Pubkey,
-        pub user: Pubkey,
-        pub timestamp: I64,
+    pub payer: Pubkey,
+    pub user: Pubkey,
+    pub timestamp: I64,
 }
 
 impl From<crate::types::InitUserVolumeAccumulatorEvent> for InitUserVolumeAccumulatorEventGraphQL {

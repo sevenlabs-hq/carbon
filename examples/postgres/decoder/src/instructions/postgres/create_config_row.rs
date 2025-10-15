@@ -5,34 +5,37 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
+use crate::instructions::CreateConfig;
 use carbon_core::instruction::InstructionMetadata;
 use carbon_core::postgres::metadata::InstructionRowMetadata;
 use carbon_core::postgres::primitives::Pubkey;
 use carbon_core::postgres::primitives::U64;
-use crate::instructions::CreateConfig;
-
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct CreateConfigRow {
     #[sqlx(flatten)]
-        pub metadata: InstructionRowMetadata,
-            pub lp_fee_basis_points: U64,
-        pub protocol_fee_basis_points: U64,
-        pub protocol_fee_recipients: Vec<Pubkey>,
-        pub coin_creator_fee_basis_points: U64,
-        pub admin_set_coin_creator_authority: Pubkey,
+    pub metadata: InstructionRowMetadata,
+    pub lp_fee_basis_points: U64,
+    pub protocol_fee_basis_points: U64,
+    pub protocol_fee_recipients: Vec<Pubkey>,
+    pub coin_creator_fee_basis_points: U64,
+    pub admin_set_coin_creator_authority: Pubkey,
 }
 
 impl CreateConfigRow {
     pub fn from_parts(source: CreateConfig, metadata: InstructionMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-                        lp_fee_basis_points: source.lp_fee_basis_points.into(),
-                        protocol_fee_basis_points: source.protocol_fee_basis_points.into(),
-                        protocol_fee_recipients: source.protocol_fee_recipients.into_iter().map(|element| element.into()).collect(),
-                        coin_creator_fee_basis_points: source.coin_creator_fee_basis_points.into(),
-                        admin_set_coin_creator_authority: source.admin_set_coin_creator_authority.into(),
-                    }
+            lp_fee_basis_points: source.lp_fee_basis_points.into(),
+            protocol_fee_basis_points: source.protocol_fee_basis_points.into(),
+            protocol_fee_recipients: source
+                .protocol_fee_recipients
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
+            coin_creator_fee_basis_points: source.coin_creator_fee_basis_points.into(),
+            admin_set_coin_creator_authority: source.admin_set_coin_creator_authority.into(),
+        }
     }
 }
 
@@ -40,12 +43,22 @@ impl TryFrom<CreateConfigRow> for CreateConfig {
     type Error = carbon_core::error::Error;
     fn try_from(source: CreateConfigRow) -> Result<Self, Self::Error> {
         Ok(Self {
-                        lp_fee_basis_points: *source.lp_fee_basis_points,
-                        protocol_fee_basis_points: *source.protocol_fee_basis_points,
-                        protocol_fee_recipients: source.protocol_fee_recipients.into_iter().map(|element| Ok(*element)).collect::<Result<Vec<_>, _>>()?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
-                        coin_creator_fee_basis_points: *source.coin_creator_fee_basis_points,
-                        admin_set_coin_creator_authority: *source.admin_set_coin_creator_authority,
-                    })
+            lp_fee_basis_points: *source.lp_fee_basis_points,
+            protocol_fee_basis_points: *source.protocol_fee_basis_points,
+            protocol_fee_recipients: source
+                .protocol_fee_recipients
+                .into_iter()
+                .map(|element| Ok(*element))
+                .collect::<Result<Vec<_>, _>>()?
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert array element to primitive".to_string(),
+                    )
+                })?,
+            coin_creator_fee_basis_points: *source.coin_creator_fee_basis_points,
+            admin_set_coin_creator_authority: *source.admin_set_coin_creator_authority,
+        })
     }
 }
 
@@ -56,16 +69,16 @@ impl carbon_core::postgres::operations::Table for CreateConfig {
 
     fn columns() -> Vec<&'static str> {
         vec![
-                        "__signature",
+            "__signature",
             "__instruction_index",
             "__stack_height",
             "__slot",
-                                    "lp_fee_basis_points",
-                        "protocol_fee_basis_points",
-                        "protocol_fee_recipients",
-                        "coin_creator_fee_basis_points",
-                        "admin_set_coin_creator_authority",
-                    ]
+            "lp_fee_basis_points",
+            "protocol_fee_basis_points",
+            "protocol_fee_recipients",
+            "coin_creator_fee_basis_points",
+            "admin_set_coin_creator_authority",
+        ]
     }
 }
 
@@ -141,12 +154,15 @@ impl carbon_core::postgres::operations::Delete for CreateConfigRow {
     type Key = (String, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM create_config_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM create_config_instruction WHERE
                         __signature = $1 AND __instruction_index = $2
-                    "#)
-                .bind(key.0)
+                    "#,
+        )
+        .bind(key.0)
         .bind(key.1)
-                .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(())
@@ -157,15 +173,20 @@ impl carbon_core::postgres::operations::Delete for CreateConfigRow {
 impl carbon_core::postgres::operations::LookUp for CreateConfigRow {
     type Key = (String, carbon_core::postgres::primitives::U32);
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM create_config_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM create_config_instruction WHERE
                         __signature = $1 AND __instruction_index = $2
-                    "#)
-                .bind(key.0)
+                    "#,
+        )
+        .bind(key.0)
         .bind(key.1)
-                .fetch_optional(pool).await
-        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))
-        ?;
+        .fetch_optional(pool)
+        .await
+        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(row)
     }
@@ -175,8 +196,12 @@ pub struct CreateConfigMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for CreateConfigMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS create_config_instruction (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS create_config_instruction (
                         -- Instruction data
                                     "lp_fee_basis_points" NUMERIC(20) NOT NULL,
                         "protocol_fee_basis_points" NUMERIC(20) NOT NULL,
@@ -191,13 +216,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateConfigMigrationOperation
             __slot NUMERIC(20),
             
                         PRIMARY KEY (__signature, __instruction_index)
-                    )"#).execute(connection).await?;
+                    )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_config_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS create_config_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }
-

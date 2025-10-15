@@ -5,31 +5,30 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
+use crate::instructions::SetCoinCreator;
 use carbon_core::instruction::InstructionMetadata;
 use carbon_core::postgres::metadata::InstructionRowMetadata;
-use crate::instructions::SetCoinCreator;
 
 /// Sets Pool::coin_creator from Metaplex metadata creator or BondingCurve::creator
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct SetCoinCreatorRow {
     #[sqlx(flatten)]
-        pub metadata: InstructionRowMetadata,
-    }
+    pub metadata: InstructionRowMetadata,
+}
 
 impl SetCoinCreatorRow {
     pub fn from_parts(_source: SetCoinCreator, metadata: InstructionMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-                    }
+        }
     }
 }
 
 impl TryFrom<SetCoinCreatorRow> for SetCoinCreator {
     type Error = carbon_core::error::Error;
     fn try_from(_source: SetCoinCreatorRow) -> Result<Self, Self::Error> {
-        Ok(Self {
-                    })
+        Ok(Self {})
     }
 }
 
@@ -40,11 +39,11 @@ impl carbon_core::postgres::operations::Table for SetCoinCreator {
 
     fn columns() -> Vec<&'static str> {
         vec![
-                        "__signature",
+            "__signature",
             "__instruction_index",
             "__stack_height",
             "__slot",
-                                ]
+        ]
     }
 }
 
@@ -95,12 +94,15 @@ impl carbon_core::postgres::operations::Delete for SetCoinCreatorRow {
     type Key = (String, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM set_coin_creator_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM set_coin_creator_instruction WHERE
                         __signature = $1 AND __instruction_index = $2
-                    "#)
-                .bind(key.0)
+                    "#,
+        )
+        .bind(key.0)
         .bind(key.1)
-                .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(())
@@ -111,15 +113,20 @@ impl carbon_core::postgres::operations::Delete for SetCoinCreatorRow {
 impl carbon_core::postgres::operations::LookUp for SetCoinCreatorRow {
     type Key = (String, carbon_core::postgres::primitives::U32);
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM set_coin_creator_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM set_coin_creator_instruction WHERE
                         __signature = $1 AND __instruction_index = $2
-                    "#)
-                .bind(key.0)
+                    "#,
+        )
+        .bind(key.0)
         .bind(key.1)
-                .fetch_optional(pool).await
-        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))
-        ?;
+        .fetch_optional(pool)
+        .await
+        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(row)
     }
@@ -129,8 +136,12 @@ pub struct SetCoinCreatorMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for SetCoinCreatorMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS set_coin_creator_instruction (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS set_coin_creator_instruction (
                         -- Instruction data
                         
                         -- Instruction metadata
@@ -140,13 +151,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetCoinCreatorMigrationOperati
             __slot NUMERIC(20),
             
                         PRIMARY KEY (__signature, __instruction_index)
-                    )"#).execute(connection).await?;
+                    )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_coin_creator_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS set_coin_creator_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }
-

@@ -8,14 +8,12 @@
 use carbon_core::borsh;
 use solana_pubkey::Pubkey;
 
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct CollectCoinCreatorFeeEvent {
-pub timestamp: i64,
-pub coin_creator: Pubkey,
-pub coin_creator_fee: u64,
-pub coin_creator_vault_ata: Pubkey,
-pub coin_creator_token_account: Pubkey,
+    pub timestamp: i64,
+    pub coin_creator: Pubkey,
+    pub coin_creator_fee: u64,
+    pub coin_creator_vault_ata: Pubkey,
+    pub coin_creator_token_account: Pubkey,
 }
-

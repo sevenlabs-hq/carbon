@@ -5,27 +5,26 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
+use crate::instructions::Sell;
 use carbon_core::instruction::InstructionMetadata;
 use carbon_core::postgres::metadata::InstructionRowMetadata;
 use carbon_core::postgres::primitives::U64;
-use crate::instructions::Sell;
-
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct SellRow {
     #[sqlx(flatten)]
-        pub metadata: InstructionRowMetadata,
-            pub base_amount_in: U64,
-        pub min_quote_amount_out: U64,
+    pub metadata: InstructionRowMetadata,
+    pub base_amount_in: U64,
+    pub min_quote_amount_out: U64,
 }
 
 impl SellRow {
     pub fn from_parts(source: Sell, metadata: InstructionMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-                        base_amount_in: source.base_amount_in.into(),
-                        min_quote_amount_out: source.min_quote_amount_out.into(),
-                    }
+            base_amount_in: source.base_amount_in.into(),
+            min_quote_amount_out: source.min_quote_amount_out.into(),
+        }
     }
 }
 
@@ -33,9 +32,9 @@ impl TryFrom<SellRow> for Sell {
     type Error = carbon_core::error::Error;
     fn try_from(source: SellRow) -> Result<Self, Self::Error> {
         Ok(Self {
-                        base_amount_in: *source.base_amount_in,
-                        min_quote_amount_out: *source.min_quote_amount_out,
-                    })
+            base_amount_in: *source.base_amount_in,
+            min_quote_amount_out: *source.min_quote_amount_out,
+        })
     }
 }
 
@@ -46,13 +45,13 @@ impl carbon_core::postgres::operations::Table for Sell {
 
     fn columns() -> Vec<&'static str> {
         vec![
-                        "__signature",
+            "__signature",
             "__instruction_index",
             "__stack_height",
             "__slot",
-                                    "base_amount_in",
-                        "min_quote_amount_out",
-                    ]
+            "base_amount_in",
+            "min_quote_amount_out",
+        ]
     }
 }
 
@@ -113,12 +112,15 @@ impl carbon_core::postgres::operations::Delete for SellRow {
     type Key = (String, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM sell_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM sell_instruction WHERE
                         __signature = $1 AND __instruction_index = $2
-                    "#)
-                .bind(key.0)
+                    "#,
+        )
+        .bind(key.0)
         .bind(key.1)
-                .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(())
@@ -129,15 +131,20 @@ impl carbon_core::postgres::operations::Delete for SellRow {
 impl carbon_core::postgres::operations::LookUp for SellRow {
     type Key = (String, carbon_core::postgres::primitives::U32);
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM sell_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM sell_instruction WHERE
                         __signature = $1 AND __instruction_index = $2
-                    "#)
-                .bind(key.0)
+                    "#,
+        )
+        .bind(key.0)
         .bind(key.1)
-                .fetch_optional(pool).await
-        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))
-        ?;
+        .fetch_optional(pool)
+        .await
+        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(row)
     }
@@ -147,8 +154,12 @@ pub struct SellMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for SellMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS sell_instruction (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS sell_instruction (
                         -- Instruction data
                                     "base_amount_in" NUMERIC(20) NOT NULL,
                         "min_quote_amount_out" NUMERIC(20) NOT NULL,
@@ -160,13 +171,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SellMigrationOperation {
             __slot NUMERIC(20),
             
                         PRIMARY KEY (__signature, __instruction_index)
-                    )"#).execute(connection).await?;
+                    )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS sell_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS sell_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }
-

@@ -5,34 +5,39 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
+use crate::accounts::FeeConfig;
+use crate::types::FeeTier;
+use crate::types::Fees;
 use carbon_core::account::AccountMetadata;
 use carbon_core::postgres::metadata::AccountRowMetadata;
 use carbon_core::postgres::primitives::Pubkey;
 use carbon_core::postgres::primitives::U8;
-use crate::accounts::FeeConfig;
-use crate::types::FeeTier;
-use crate::types::Fees;
-
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct FeeConfigRow {
     #[sqlx(flatten)]
-        pub metadata: AccountRowMetadata,
-            pub bump: U8,
-        pub admin: Pubkey,
-        pub flat_fees: sqlx::types::Json<Fees>,
-        pub fee_tiers: sqlx::types::Json<Vec<FeeTier>>,
+    pub metadata: AccountRowMetadata,
+    pub bump: U8,
+    pub admin: Pubkey,
+    pub flat_fees: sqlx::types::Json<Fees>,
+    pub fee_tiers: sqlx::types::Json<Vec<FeeTier>>,
 }
 
 impl FeeConfigRow {
     pub fn from_parts(source: FeeConfig, metadata: AccountMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-                        bump: source.bump.into(),
-                        admin: source.admin.into(),
-                        flat_fees: sqlx::types::Json(source.flat_fees.into()),
-                        fee_tiers: sqlx::types::Json(source.fee_tiers.into_iter().map(|element| element.into()).collect()),
-                    }
+            bump: source.bump.into(),
+            admin: source.admin.into(),
+            flat_fees: sqlx::types::Json(source.flat_fees.into()),
+            fee_tiers: sqlx::types::Json(
+                source
+                    .fee_tiers
+                    .into_iter()
+                    .map(|element| element.into())
+                    .collect(),
+            ),
+        }
     }
 }
 
@@ -40,11 +45,15 @@ impl TryFrom<FeeConfigRow> for FeeConfig {
     type Error = carbon_core::error::Error;
     fn try_from(source: FeeConfigRow) -> Result<Self, Self::Error> {
         Ok(Self {
-                        bump: source.bump.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
-                        admin: *source.admin,
-                        flat_fees: source.flat_fees.0,
-                        fee_tiers: source.fee_tiers.0,
-                    })
+            bump: source.bump.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            admin: *source.admin,
+            flat_fees: source.flat_fees.0,
+            fee_tiers: source.fee_tiers.0,
+        })
     }
 }
 
@@ -55,13 +64,13 @@ impl carbon_core::postgres::operations::Table for FeeConfig {
 
     fn columns() -> Vec<&'static str> {
         vec![
-                        "__pubkey",
+            "__pubkey",
             "__slot",
-                                    "bump",
-                        "admin",
-                        "flat_fees",
-                        "fee_tiers",
-                    ]
+            "bump",
+            "admin",
+            "flat_fees",
+            "fee_tiers",
+        ]
     }
 }
 
@@ -126,11 +135,14 @@ impl carbon_core::postgres::operations::Delete for FeeConfigRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM fee_config_account WHERE
+        sqlx::query(
+            r#"DELETE FROM fee_config_account WHERE
                         __pubkey = $1
-                    "#)
-                .bind(key)
-                .execute(pool).await
+                    "#,
+        )
+        .bind(key)
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(())
@@ -141,14 +153,19 @@ impl carbon_core::postgres::operations::Delete for FeeConfigRow {
 impl carbon_core::postgres::operations::LookUp for FeeConfigRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM fee_config_account WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM fee_config_account WHERE
                         __pubkey = $1
-                    "#)
-                .bind(key)
-                .fetch_optional(pool).await
-        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))
-        ?;
+                    "#,
+        )
+        .bind(key)
+        .fetch_optional(pool)
+        .await
+        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(row)
     }
@@ -158,8 +175,12 @@ pub struct FeeConfigMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for FeeConfigMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS fee_config_account (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS fee_config_account (
                         -- Account data
                                     "bump" INT2 NOT NULL,
                         "admin" BYTEA NOT NULL,
@@ -171,13 +192,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeConfigMigrationOperation {
             __slot NUMERIC(20),
             
                         PRIMARY KEY (__pubkey)
-                    )"#).execute(connection).await?;
+                    )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS fee_config_account"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS fee_config_account"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }
-

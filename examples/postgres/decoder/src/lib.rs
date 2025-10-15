@@ -7,10 +7,10 @@
 
 use solana_pubkey::Pubkey;
 pub struct PumpAmmDecoder;
-pub const PROGRAM_ID: Pubkey = solana_pubkey::Pubkey::from_str_const("pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA");
+pub const PROGRAM_ID: Pubkey =
+    solana_pubkey::Pubkey::from_str_const("pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA");
 
 pub mod accounts;
+pub mod graphql;
 pub mod instructions;
 pub mod types;
-pub mod graphql;
-

@@ -5,46 +5,45 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
+use crate::accounts::Pool;
 use carbon_core::account::AccountMetadata;
 use carbon_core::postgres::metadata::AccountRowMetadata;
 use carbon_core::postgres::primitives::Pubkey;
 use carbon_core::postgres::primitives::U16;
 use carbon_core::postgres::primitives::U64;
 use carbon_core::postgres::primitives::U8;
-use crate::accounts::Pool;
-
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct PoolRow {
     #[sqlx(flatten)]
-        pub metadata: AccountRowMetadata,
-            pub pool_bump: U8,
-        pub index: U16,
-        pub creator: Pubkey,
-        pub base_mint: Pubkey,
-        pub quote_mint: Pubkey,
-        pub lp_mint: Pubkey,
-        pub pool_base_token_account: Pubkey,
-        pub pool_quote_token_account: Pubkey,
-        pub lp_supply: U64,
-        pub coin_creator: Pubkey,
+    pub metadata: AccountRowMetadata,
+    pub pool_bump: U8,
+    pub index: U16,
+    pub creator: Pubkey,
+    pub base_mint: Pubkey,
+    pub quote_mint: Pubkey,
+    pub lp_mint: Pubkey,
+    pub pool_base_token_account: Pubkey,
+    pub pool_quote_token_account: Pubkey,
+    pub lp_supply: U64,
+    pub coin_creator: Pubkey,
 }
 
 impl PoolRow {
     pub fn from_parts(source: Pool, metadata: AccountMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-                        pool_bump: source.pool_bump.into(),
-                        index: source.index.into(),
-                        creator: source.creator.into(),
-                        base_mint: source.base_mint.into(),
-                        quote_mint: source.quote_mint.into(),
-                        lp_mint: source.lp_mint.into(),
-                        pool_base_token_account: source.pool_base_token_account.into(),
-                        pool_quote_token_account: source.pool_quote_token_account.into(),
-                        lp_supply: source.lp_supply.into(),
-                        coin_creator: source.coin_creator.into(),
-                    }
+            pool_bump: source.pool_bump.into(),
+            index: source.index.into(),
+            creator: source.creator.into(),
+            base_mint: source.base_mint.into(),
+            quote_mint: source.quote_mint.into(),
+            lp_mint: source.lp_mint.into(),
+            pool_base_token_account: source.pool_base_token_account.into(),
+            pool_quote_token_account: source.pool_quote_token_account.into(),
+            lp_supply: source.lp_supply.into(),
+            coin_creator: source.coin_creator.into(),
+        }
     }
 }
 
@@ -52,17 +51,25 @@ impl TryFrom<PoolRow> for Pool {
     type Error = carbon_core::error::Error;
     fn try_from(source: PoolRow) -> Result<Self, Self::Error> {
         Ok(Self {
-                        pool_bump: source.pool_bump.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
-                        index: source.index.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
-                        creator: *source.creator,
-                        base_mint: *source.base_mint,
-                        quote_mint: *source.quote_mint,
-                        lp_mint: *source.lp_mint,
-                        pool_base_token_account: *source.pool_base_token_account,
-                        pool_quote_token_account: *source.pool_quote_token_account,
-                        lp_supply: *source.lp_supply,
-                        coin_creator: *source.coin_creator,
-                    })
+            pool_bump: source.pool_bump.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            index: source.index.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            creator: *source.creator,
+            base_mint: *source.base_mint,
+            quote_mint: *source.quote_mint,
+            lp_mint: *source.lp_mint,
+            pool_base_token_account: *source.pool_base_token_account,
+            pool_quote_token_account: *source.pool_quote_token_account,
+            lp_supply: *source.lp_supply,
+            coin_creator: *source.coin_creator,
+        })
     }
 }
 
@@ -73,19 +80,19 @@ impl carbon_core::postgres::operations::Table for Pool {
 
     fn columns() -> Vec<&'static str> {
         vec![
-                        "__pubkey",
+            "__pubkey",
             "__slot",
-                                    "pool_bump",
-                        "index",
-                        "creator",
-                        "base_mint",
-                        "quote_mint",
-                        "lp_mint",
-                        "pool_base_token_account",
-                        "pool_quote_token_account",
-                        "lp_supply",
-                        "coin_creator",
-                    ]
+            "pool_bump",
+            "index",
+            "creator",
+            "base_mint",
+            "quote_mint",
+            "lp_mint",
+            "pool_base_token_account",
+            "pool_quote_token_account",
+            "lp_supply",
+            "coin_creator",
+        ]
     }
 }
 
@@ -180,11 +187,14 @@ impl carbon_core::postgres::operations::Delete for PoolRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM pool_account WHERE
+        sqlx::query(
+            r#"DELETE FROM pool_account WHERE
                         __pubkey = $1
-                    "#)
-                .bind(key)
-                .execute(pool).await
+                    "#,
+        )
+        .bind(key)
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(())
@@ -195,14 +205,19 @@ impl carbon_core::postgres::operations::Delete for PoolRow {
 impl carbon_core::postgres::operations::LookUp for PoolRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM pool_account WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM pool_account WHERE
                         __pubkey = $1
-                    "#)
-                .bind(key)
-                .fetch_optional(pool).await
-        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))
-        ?;
+                    "#,
+        )
+        .bind(key)
+        .fetch_optional(pool)
+        .await
+        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(row)
     }
@@ -212,8 +227,12 @@ pub struct PoolMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for PoolMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS pool_account (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS pool_account (
                         -- Account data
                                     "pool_bump" INT2 NOT NULL,
                         "index" INT4 NOT NULL,
@@ -231,13 +250,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolMigrationOperation {
             __slot NUMERIC(20),
             
                         PRIMARY KEY (__pubkey)
-                    )"#).execute(connection).await?;
+                    )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS pool_account"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS pool_account"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }
-

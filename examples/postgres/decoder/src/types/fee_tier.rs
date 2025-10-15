@@ -5,14 +5,12 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
-use carbon_core::borsh;
 use crate::types::Fees;
-
+use carbon_core::borsh;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct FeeTier {
-pub market_cap_lamports_threshold: u128,
-pub fees: Fees,
+    pub market_cap_lamports_threshold: u128,
+    pub fees: Fees,
 }
-

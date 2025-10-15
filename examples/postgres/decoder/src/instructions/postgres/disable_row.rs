@@ -5,32 +5,31 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
+use crate::instructions::Disable;
 use carbon_core::instruction::InstructionMetadata;
 use carbon_core::postgres::metadata::InstructionRowMetadata;
-use crate::instructions::Disable;
-
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct DisableRow {
     #[sqlx(flatten)]
-        pub metadata: InstructionRowMetadata,
-            pub disable_create_pool: bool,
-        pub disable_deposit: bool,
-        pub disable_withdraw: bool,
-        pub disable_buy: bool,
-        pub disable_sell: bool,
+    pub metadata: InstructionRowMetadata,
+    pub disable_create_pool: bool,
+    pub disable_deposit: bool,
+    pub disable_withdraw: bool,
+    pub disable_buy: bool,
+    pub disable_sell: bool,
 }
 
 impl DisableRow {
     pub fn from_parts(source: Disable, metadata: InstructionMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-                        disable_create_pool: source.disable_create_pool.into(),
-                        disable_deposit: source.disable_deposit.into(),
-                        disable_withdraw: source.disable_withdraw.into(),
-                        disable_buy: source.disable_buy.into(),
-                        disable_sell: source.disable_sell.into(),
-                    }
+            disable_create_pool: source.disable_create_pool.into(),
+            disable_deposit: source.disable_deposit.into(),
+            disable_withdraw: source.disable_withdraw.into(),
+            disable_buy: source.disable_buy.into(),
+            disable_sell: source.disable_sell.into(),
+        }
     }
 }
 
@@ -38,12 +37,12 @@ impl TryFrom<DisableRow> for Disable {
     type Error = carbon_core::error::Error;
     fn try_from(source: DisableRow) -> Result<Self, Self::Error> {
         Ok(Self {
-                        disable_create_pool: source.disable_create_pool.into(),
-                        disable_deposit: source.disable_deposit.into(),
-                        disable_withdraw: source.disable_withdraw.into(),
-                        disable_buy: source.disable_buy.into(),
-                        disable_sell: source.disable_sell.into(),
-                    })
+            disable_create_pool: source.disable_create_pool.into(),
+            disable_deposit: source.disable_deposit.into(),
+            disable_withdraw: source.disable_withdraw.into(),
+            disable_buy: source.disable_buy.into(),
+            disable_sell: source.disable_sell.into(),
+        })
     }
 }
 
@@ -54,16 +53,16 @@ impl carbon_core::postgres::operations::Table for Disable {
 
     fn columns() -> Vec<&'static str> {
         vec![
-                        "__signature",
+            "__signature",
             "__instruction_index",
             "__stack_height",
             "__slot",
-                                    "disable_create_pool",
-                        "disable_deposit",
-                        "disable_withdraw",
-                        "disable_buy",
-                        "disable_sell",
-                    ]
+            "disable_create_pool",
+            "disable_deposit",
+            "disable_withdraw",
+            "disable_buy",
+            "disable_sell",
+        ]
     }
 }
 
@@ -139,12 +138,15 @@ impl carbon_core::postgres::operations::Delete for DisableRow {
     type Key = (String, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM disable_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM disable_instruction WHERE
                         __signature = $1 AND __instruction_index = $2
-                    "#)
-                .bind(key.0)
+                    "#,
+        )
+        .bind(key.0)
         .bind(key.1)
-                .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(())
@@ -155,15 +157,20 @@ impl carbon_core::postgres::operations::Delete for DisableRow {
 impl carbon_core::postgres::operations::LookUp for DisableRow {
     type Key = (String, carbon_core::postgres::primitives::U32);
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM disable_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM disable_instruction WHERE
                         __signature = $1 AND __instruction_index = $2
-                    "#)
-                .bind(key.0)
+                    "#,
+        )
+        .bind(key.0)
         .bind(key.1)
-                .fetch_optional(pool).await
-        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))
-        ?;
+        .fetch_optional(pool)
+        .await
+        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(row)
     }
@@ -173,8 +180,12 @@ pub struct DisableMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for DisableMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS disable_instruction (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS disable_instruction (
                         -- Instruction data
                                     "disable_create_pool" BOOLEAN NOT NULL,
                         "disable_deposit" BOOLEAN NOT NULL,
@@ -189,13 +200,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for DisableMigrationOperation {
             __slot NUMERIC(20),
             
                         PRIMARY KEY (__signature, __instruction_index)
-                    )"#).execute(connection).await?;
+                    )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS disable_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS disable_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }
-
