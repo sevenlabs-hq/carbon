@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import { createFromRoot } from 'codama';
+import { createFromJson, createFromRoot } from 'codama';
 import { rootNodeFromAnchor } from '@codama/nodes-from-anchor';
 import renderer, { renderVisitor } from '@sevenlabs-hq/carbon-codama-renderer';
 import { exitWithError, isBase58Like, resolveRpcUrl } from './lib/utils';
@@ -91,7 +91,7 @@ program
                 }),
             );
         } else {
-            const codama = createFromRoot(idlJson as any);
+            const codama = createFromJson(readFileSync(idlPath, 'utf8'));
             codama.accept(
                 renderVisitor(outDir, {
                     deleteFolderBeforeRendering,
