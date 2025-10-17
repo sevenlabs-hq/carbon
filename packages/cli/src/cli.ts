@@ -9,7 +9,6 @@ import { fetchAnchorIdl } from './lib/anchor';
 
 const program = new Command();
 
-// Load version from package.json for OSS hygiene
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../package.json');
 program
@@ -113,11 +112,52 @@ program
     .description('Generate skeleton of the project')
     .requiredOption('-n, --name <string>', 'Name of your project')
     .requiredOption('-o, --out-dir <dir>', 'Output directory')
-    .requiredOption('-d, --decoders <csv>', 'Comma-separated names of decoders')
+    .requiredOption('-d, --decoder <name>', 'Decoder name (e.g. raydium-clmm)')
     .requiredOption('-s, --data-source <name>', 'Name of data source')
     .option('-m, --metrics <log|prometheus>', 'Metrics to use', 'log')
+    .option('--with-postgres', 'Include Postgres wiring and deps', true)
+    .option('--with-graphql', 'Include GraphQL wiring and deps', true)
+    .option('--force', 'Overwrite output directory if it exists', false)
     .action(async opts => {
-        exitWithError('scaffold not implemented yet. Flags received: ' + JSON.stringify(opts));
+        const name = String(opts.name);
+        const outDir = resolve(process.cwd(), String(opts.outDir));
+        const decoder = String(opts.decoder).trim().replace(/\s+/g, '-');
+        const dataSource = String(opts.dataSource);
+        const metrics = String(opts.metrics).toLowerCase() as 'log' | 'prometheus';
+        const withPostgres = opts.withPostgres !== false;
+        const withGraphql = opts.withGraphql !== false;
+        const force = Boolean(opts.force);
+
+        const validDatasources = [
+            'helius-atlas-ws',
+            'rpc-block-subscribe',
+            'rpc-program-subscribe',
+            'rpc-transaction-crawler',
+            'yellowstone-grpc',
+        ];
+        if (!validDatasources.includes(dataSource)) {
+            exitWithError('Invalid data source.');
+        }
+        if (metrics !== 'log' && metrics !== 'prometheus') {
+            exitWithError("--metrics must be 'log' or 'prometheus'");
+        }
+
+        const { renderScaffold } = await import('./lib/scaffold');
+        renderScaffold({
+            name,
+            outDir,
+            decoder,
+            dataSource,
+            metrics,
+            withPostgres,
+            withGraphql,
+            force,
+        });
+
+        // eslint-disable-next-line no-console
+        console.log('✅ Scaffold created');
+        // eslint-disable-next-line no-console
+        console.log(`  • location: ${outDir}/${name}`);
     });
 
 program.parseAsync(process.argv);
