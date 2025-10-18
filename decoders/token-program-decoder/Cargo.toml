@@ -13,9 +13,7 @@ categories = ["encoding"]
 crate-type = ["rlib"]
 
 [dependencies]
-async-trait = { workspace = true }
 carbon-core = { workspace = true }
-juniper = { workspace = true, optional = true }
 rust_decimal = { workspace = true, optional = true }
 serde = { workspace = true }
 solana-account = { workspace = true }
@@ -23,5 +21,3 @@ solana-instruction = { workspace = true, default-features = false }
 solana-program-pack = { workspace = true }
 solana-pubkey = { workspace = true }
 spl-token = { workspace = true }
-sqlx = { workspace = true, optional = true }
-sqlx_migrator = { workspace = true, optional = true }
