@@ -9,12 +9,14 @@ workspace_crates=(
     carbon-core
 
     carbon-helius-atlas-ws-datasource
+    carbon-helius-laserstream-datasource
     carbon-rpc-block-crawler-datasource
     carbon-rpc-block-subscribe-datasource
     carbon-rpc-program-subscribe-datasource
     carbon-rpc-transaction-crawler-datasource
     carbon-jito-shredstream-grpc-datasource
     carbon-yellowstone-grpc-datasource
+    carbon-stream-message-datasource
 
     carbon-log-metrics
     carbon-prometheus-metrics
