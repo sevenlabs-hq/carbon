@@ -23,6 +23,8 @@ where
     ))
 }
 
+type ExtensionSchema<Q, C> = Extension<Arc<RootNode<'static, Q, DefaultMutation<C>, DefaultSubscription<C>>>>;
+
 pub fn graphql_router<Q, C>(
     schema: Arc<RootNode<'static, Q, DefaultMutation<C>, DefaultSubscription<C>>>,
     context: C,
@@ -36,9 +38,7 @@ where
     C: juniper::Context + Clone + Send + Sync + 'static,
 {
     async fn handler<Q, C>(
-        #[allow(clippy::type_complexity)] Extension(schema): Extension<
-            Arc<RootNode<'static, Q, DefaultMutation<C>, DefaultSubscription<C>>>,
-        >,
+        Extension(schema): ExtensionSchema<Q, C>,
         Extension(ctx): Extension<C>,
         juniper_axum::extract::JuniperRequest(req): JuniperRequest<juniper::DefaultScalarValue>,
     ) -> JuniperResponse<juniper::DefaultScalarValue>
