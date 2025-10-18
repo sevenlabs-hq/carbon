@@ -3,6 +3,7 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import nunjucks from 'nunjucks';
 import { exitWithError } from './utils';
+import { kebabCase } from 'codama';
 
 export type ScaffoldOptions = {
     name: string;
@@ -24,15 +25,13 @@ function ensureDir(path: string) {
 }
 
 function buildIndexerCargoContext(opts: ScaffoldOptions) {
-    const carbonVersion = '0.9.1';
-    const solanaVersion = '=2.1.15';
     const featureParts: string[] = [];
 
     if (opts.withPostgres) featureParts.push('"postgres"');
     if (opts.withGraphql) featureParts.push('"graphql"');
 
     const hasLocalDecoder = opts.decoderMode === 'generate';
-    const decoderCrateName = opts.decoder.replace(/-/g, '_');
+    const decoderCrateName = kebabCase(opts.decoder)
     
     // Handle decoder dependency based on mode
     let decoderDependency: string;
@@ -47,20 +46,20 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
     } else {
         // Published Carbon decoder
         decoderDependency = featureParts.length
-            ? `carbon-${opts.decoder.toLowerCase()}-decoder = { version = "${carbonVersion}", features = [${featureParts.join(', ')}] }`
-            : `carbon-${opts.decoder.toLowerCase()}-decoder = "${carbonVersion}"`;
+            ? `carbon-${opts.decoder.toLowerCase()}-decoder = { version = "0.11.0", features = [${featureParts.join(', ')}] }`
+            : `carbon-${opts.decoder.toLowerCase()}-decoder = "0.11.0"`;
     }
 
-    const datasourceDep = `carbon-${opts.dataSource.toLowerCase()}-datasource = "${carbonVersion}"`;
-    const metricsDep = `carbon-${opts.metrics.toLowerCase()}-metrics = "${carbonVersion}"`;
+    const datasourceDep = `carbon-${opts.dataSource.toLowerCase()}-datasource = "0.11.0"`;
+    const metricsDep = `carbon-${opts.metrics.toLowerCase()}-metrics = "0.11.0"`;
 
     const grpcDeps =
         opts.dataSource === 'yellowstone-grpc'
-            ? `yellowstone-grpc-client = { version = "5.0.0" }\nyellowstone-grpc-proto = { version = "5.0.0" }`
+            ? `yellowstone-grpc-client = { version = "9.0.0" }\nyellowstone-grpc-proto = { version = "9.0.0" }`
             : '';
 
     const pgDeps = opts.withPostgres
-        ? `sqlx = { version = "0.7", features = ["postgres", "runtime-tokio-rustls", "macros"] }\nsqlx_migrator = "0.17.0"`
+        ? `sqlx = { version = "0.8.6", features = ["postgres", "runtime-tokio-rustls", "macros"] }\nsqlx_migrator = "0.17.0"`
         : '';
 
     const gqlDeps = opts.withGraphql ? `juniper = "0.15"\naxum = "0.7"` : '';
@@ -73,8 +72,6 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
 
     return {
         projectName: opts.name,
-        carbonVersion,
-        solanaVersion,
         hasLocalDecoder,
         decoderCrateName,
         decoderFeatures,

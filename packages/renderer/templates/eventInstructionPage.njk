@@ -52,8 +52,6 @@ impl ArrangeAccounts for CpiEvent {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let mut iter = accounts.iter();
-
         let [program, event_authority, remaining @ ..] = accounts else {
             return None;
         };
