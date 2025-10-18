@@ -24,9 +24,9 @@ impl SwapRow {
     pub fn from_parts(source: Swap, metadata: InstructionMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-            delta_in: sqlx::types::Json(source.delta_in.into()),
-            price_limit: sqlx::types::Json(source.price_limit.into()),
-            x_to_y: source.x_to_y.into(),
+            delta_in: sqlx::types::Json(source.delta_in),
+            price_limit: sqlx::types::Json(source.price_limit),
+            x_to_y: source.x_to_y,
         }
     }
 }
@@ -37,7 +37,7 @@ impl TryFrom<SwapRow> for Swap {
         Ok(Self {
             delta_in: source.delta_in.0,
             price_limit: source.price_limit.0,
-            x_to_y: source.x_to_y.into(),
+            x_to_y: source.x_to_y,
         })
     }
 }
@@ -73,10 +73,10 @@ impl carbon_core::postgres::operations::Insert for SwapRow {
                                                                             $1,                            $2,                            $3,                            $4,                            $5,                            $6,                            $7                    )"#)
                 .bind(self.delta_in.clone())
                 .bind(self.price_limit.clone())
-                .bind(self.x_to_y.clone())
+                .bind(self.x_to_y)
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.instruction_index.clone())
-        .bind(self.metadata.stack_height.clone())
+        .bind(self.metadata.instruction_index)
+        .bind(self.metadata.stack_height)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -105,10 +105,10 @@ impl carbon_core::postgres::operations::Upsert for SwapRow {
                     "#)
                 .bind(self.delta_in.clone())
                 .bind(self.price_limit.clone())
-                .bind(self.x_to_y.clone())
+                .bind(self.x_to_y)
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.instruction_index.clone())
-        .bind(self.metadata.stack_height.clone())
+        .bind(self.metadata.instruction_index)
+        .bind(self.metadata.stack_height)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

@@ -19,7 +19,7 @@ impl QueryRoot {
         let row = crate::accounts::postgres::FarmRow::lookup(pk, &context.pool)
             .await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(row.map(|row| row.try_into().ok()).flatten())
+        Ok(row.and_then(|row| row.try_into().ok()))
     }
 
     async fn list_farm(
@@ -52,7 +52,7 @@ impl QueryRoot {
         let row = crate::accounts::postgres::PoolV2Row::lookup(pk, &context.pool)
             .await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(row.map(|row| row.try_into().ok()).flatten())
+        Ok(row.and_then(|row| row.try_into().ok()))
     }
 
     async fn list_pool_v2(
@@ -86,7 +86,7 @@ impl QueryRoot {
         let row = crate::accounts::postgres::PoolRow::lookup(pk, &context.pool)
             .await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(row.map(|row| row.try_into().ok()).flatten())
+        Ok(row.and_then(|row| row.try_into().ok()))
     }
 
     async fn list_pool(
@@ -119,7 +119,7 @@ impl QueryRoot {
         let row = crate::accounts::postgres::ProviderRow::lookup(pk, &context.pool)
             .await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(row.map(|row| row.try_into().ok()).flatten())
+        Ok(row.and_then(|row| row.try_into().ok()))
     }
 
     async fn list_provider(
@@ -153,7 +153,7 @@ impl QueryRoot {
         let row = crate::accounts::postgres::StateRow::lookup(pk, &context.pool)
             .await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(row.map(|row| row.try_into().ok()).flatten())
+        Ok(row.and_then(|row| row.try_into().ok()))
     }
 
     async fn list_state(

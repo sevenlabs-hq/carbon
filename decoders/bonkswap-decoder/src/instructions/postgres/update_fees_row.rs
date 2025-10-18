@@ -24,10 +24,10 @@ impl UpdateFeesRow {
     pub fn from_parts(source: UpdateFees, metadata: InstructionMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-            new_buyback_fee: sqlx::types::Json(source.new_buyback_fee.into()),
-            new_project_fee: sqlx::types::Json(source.new_project_fee.into()),
-            new_provider_fee: sqlx::types::Json(source.new_provider_fee.into()),
-            new_mercanti_fee: sqlx::types::Json(source.new_mercanti_fee.into()),
+            new_buyback_fee: sqlx::types::Json(source.new_buyback_fee),
+            new_project_fee: sqlx::types::Json(source.new_project_fee),
+            new_provider_fee: sqlx::types::Json(source.new_provider_fee),
+            new_mercanti_fee: sqlx::types::Json(source.new_mercanti_fee),
         }
     }
 }
@@ -80,8 +80,8 @@ impl carbon_core::postgres::operations::Insert for UpdateFeesRow {
                 .bind(self.new_provider_fee.clone())
                 .bind(self.new_mercanti_fee.clone())
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.instruction_index.clone())
-        .bind(self.metadata.stack_height.clone())
+        .bind(self.metadata.instruction_index)
+        .bind(self.metadata.stack_height)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -115,8 +115,8 @@ impl carbon_core::postgres::operations::Upsert for UpdateFeesRow {
                 .bind(self.new_provider_fee.clone())
                 .bind(self.new_mercanti_fee.clone())
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.instruction_index.clone())
-        .bind(self.metadata.stack_height.clone())
+        .bind(self.metadata.instruction_index)
+        .bind(self.metadata.stack_height)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

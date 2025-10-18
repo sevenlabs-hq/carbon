@@ -48,29 +48,15 @@ impl FarmRow {
                 .into_iter()
                 .map(|element| element.into())
                 .collect(),
-            supply: sqlx::types::Json(
-                source
-                    .supply
-                    .into_iter()
-                    .map(|element| element.into())
-                    .collect(),
-            ),
-            supply_left: sqlx::types::Json(
-                source
-                    .supply_left
-                    .into_iter()
-                    .map(|element| element.into())
-                    .collect(),
-            ),
-            accumulated_seconds_per_share: sqlx::types::Json(
-                source.accumulated_seconds_per_share.into(),
-            ),
-            offset_seconds_per_share: sqlx::types::Json(source.offset_seconds_per_share.into()),
+            supply: sqlx::types::Json(source.supply.into_iter().collect()),
+            supply_left: sqlx::types::Json(source.supply_left.into_iter().collect()),
+            accumulated_seconds_per_share: sqlx::types::Json(source.accumulated_seconds_per_share),
+            offset_seconds_per_share: sqlx::types::Json(source.offset_seconds_per_share),
             start_time: source.start_time.into(),
             end_time: source.end_time.into(),
             last_update: source.last_update.into(),
             bump: source.bump.into(),
-            farm_type: sqlx::types::Json(source.farm_type.into()),
+            farm_type: sqlx::types::Json(source.farm_type),
         }
     }
 }
@@ -184,7 +170,7 @@ impl carbon_core::postgres::operations::Insert for FarmRow {
                                         __pubkey, __slot
                         ) VALUES (
                                                                             $1,                            $2,                            $3,                            $4,                            $5,                            $6,                            $7,                            $8,                            $9,                            $10,                            $11,                            $12,                            $13,                            $14                    )"#)
-                .bind(self.pool.clone())
+                .bind(self.pool)
                 .bind(self.tokens.clone())
                 .bind(self.token_accounts.clone())
                 .bind(self.supply.clone())
@@ -194,9 +180,9 @@ impl carbon_core::postgres::operations::Insert for FarmRow {
                 .bind(self.start_time.clone())
                 .bind(self.end_time.clone())
                 .bind(self.last_update.clone())
-                .bind(self.bump.clone())
+                .bind(self.bump)
                 .bind(self.farm_type.clone())
-                        .bind(self.metadata.pubkey.clone())
+                        .bind(self.metadata.pubkey)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -239,7 +225,7 @@ impl carbon_core::postgres::operations::Upsert for FarmRow {
                         "farm_type" = EXCLUDED."farm_type",
                                     __slot = EXCLUDED.__slot
                     "#)
-                .bind(self.pool.clone())
+                .bind(self.pool)
                 .bind(self.tokens.clone())
                 .bind(self.token_accounts.clone())
                 .bind(self.supply.clone())
@@ -249,7 +235,7 @@ impl carbon_core::postgres::operations::Upsert for FarmRow {
                 .bind(self.start_time.clone())
                 .bind(self.end_time.clone())
                 .bind(self.last_update.clone())
-                .bind(self.bump.clone())
+                .bind(self.bump)
                 .bind(self.farm_type.clone())
                         .bind(self.metadata.pubkey)
         .bind(self.metadata.slot.clone())

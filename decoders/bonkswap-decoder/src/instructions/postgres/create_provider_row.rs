@@ -24,8 +24,8 @@ impl CreateProviderRow {
     pub fn from_parts(source: CreateProvider, metadata: InstructionMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-            token_x_amount: sqlx::types::Json(source.token_x_amount.into()),
-            token_y_amount: sqlx::types::Json(source.token_y_amount.into()),
+            token_x_amount: sqlx::types::Json(source.token_x_amount),
+            token_y_amount: sqlx::types::Json(source.token_y_amount),
             bump: source.bump.into(),
         }
     }
@@ -77,10 +77,10 @@ impl carbon_core::postgres::operations::Insert for CreateProviderRow {
                                                                             $1,                            $2,                            $3,                            $4,                            $5,                            $6,                            $7                    )"#)
                 .bind(self.token_x_amount.clone())
                 .bind(self.token_y_amount.clone())
-                .bind(self.bump.clone())
+                .bind(self.bump)
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.instruction_index.clone())
-        .bind(self.metadata.stack_height.clone())
+        .bind(self.metadata.instruction_index)
+        .bind(self.metadata.stack_height)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -109,10 +109,10 @@ impl carbon_core::postgres::operations::Upsert for CreateProviderRow {
                     "#)
                 .bind(self.token_x_amount.clone())
                 .bind(self.token_y_amount.clone())
-                .bind(self.bump.clone())
+                .bind(self.bump)
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.instruction_index.clone())
-        .bind(self.metadata.stack_height.clone())
+        .bind(self.metadata.instruction_index)
+        .bind(self.metadata.stack_height)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

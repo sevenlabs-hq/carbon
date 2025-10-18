@@ -29,12 +29,12 @@ impl CreatePoolRow {
     pub fn from_parts(source: CreatePool, metadata: InstructionMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-            lp_fee: sqlx::types::Json(source.lp_fee.into()),
-            buyback_fee: sqlx::types::Json(source.buyback_fee.into()),
-            project_fee: sqlx::types::Json(source.project_fee.into()),
-            mercanti_fee: sqlx::types::Json(source.mercanti_fee.into()),
-            initial_token_x: sqlx::types::Json(source.initial_token_x.into()),
-            initial_token_y: sqlx::types::Json(source.initial_token_y.into()),
+            lp_fee: sqlx::types::Json(source.lp_fee),
+            buyback_fee: sqlx::types::Json(source.buyback_fee),
+            project_fee: sqlx::types::Json(source.project_fee),
+            mercanti_fee: sqlx::types::Json(source.mercanti_fee),
+            initial_token_x: sqlx::types::Json(source.initial_token_x),
+            initial_token_y: sqlx::types::Json(source.initial_token_y),
             bump: source.bump.into(),
         }
     }
@@ -102,10 +102,10 @@ impl carbon_core::postgres::operations::Insert for CreatePoolRow {
                 .bind(self.mercanti_fee.clone())
                 .bind(self.initial_token_x.clone())
                 .bind(self.initial_token_y.clone())
-                .bind(self.bump.clone())
+                .bind(self.bump)
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.instruction_index.clone())
-        .bind(self.metadata.stack_height.clone())
+        .bind(self.metadata.instruction_index)
+        .bind(self.metadata.stack_height)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -146,10 +146,10 @@ impl carbon_core::postgres::operations::Upsert for CreatePoolRow {
                 .bind(self.mercanti_fee.clone())
                 .bind(self.initial_token_x.clone())
                 .bind(self.initial_token_y.clone())
-                .bind(self.bump.clone())
+                .bind(self.bump)
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.instruction_index.clone())
-        .bind(self.metadata.stack_height.clone())
+        .bind(self.metadata.instruction_index)
+        .bind(self.metadata.stack_height)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
