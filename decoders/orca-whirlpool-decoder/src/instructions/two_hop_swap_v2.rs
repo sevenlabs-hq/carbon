@@ -1,7 +1,6 @@
-use {
-    super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use super::super::types::*;
+
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -18,7 +17,7 @@ pub struct TwoHopSwapV2 {
     pub remaining_accounts_info: Option<RemainingAccountsInfo>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct TwoHopSwapV2InstructionAccounts {
     pub whirlpool_one: solana_pubkey::Pubkey,
     pub whirlpool_two: solana_pubkey::Pubkey,
@@ -44,7 +43,6 @@ pub struct TwoHopSwapV2InstructionAccounts {
     pub oracle_one: solana_pubkey::Pubkey,
     pub oracle_two: solana_pubkey::Pubkey,
     pub memo_program: solana_pubkey::Pubkey,
-    pub remaining_accounts: Vec<solana_instruction::AccountMeta>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for TwoHopSwapV2 {
@@ -53,38 +51,57 @@ impl carbon_core::deserialize::ArrangeAccounts for TwoHopSwapV2 {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [whirlpool_one, whirlpool_two, token_mint_input, token_mint_intermediate, token_mint_output, token_program_input, token_program_intermediate, token_program_output, token_owner_account_input, token_vault_one_input, token_vault_one_intermediate, token_vault_two_intermediate, token_vault_two_output, token_owner_account_output, token_authority, tick_array_one0, tick_array_one1, tick_array_one2, tick_array_two0, tick_array_two1, tick_array_two2, oracle_one, oracle_two, memo_program, remaining_accounts @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let whirlpool_one = next_account(&mut iter)?;
+        let whirlpool_two = next_account(&mut iter)?;
+        let token_mint_input = next_account(&mut iter)?;
+        let token_mint_intermediate = next_account(&mut iter)?;
+        let token_mint_output = next_account(&mut iter)?;
+        let token_program_input = next_account(&mut iter)?;
+        let token_program_intermediate = next_account(&mut iter)?;
+        let token_program_output = next_account(&mut iter)?;
+        let token_owner_account_input = next_account(&mut iter)?;
+        let token_vault_one_input = next_account(&mut iter)?;
+        let token_vault_one_intermediate = next_account(&mut iter)?;
+        let token_vault_two_intermediate = next_account(&mut iter)?;
+        let token_vault_two_output = next_account(&mut iter)?;
+        let token_owner_account_output = next_account(&mut iter)?;
+        let token_authority = next_account(&mut iter)?;
+        let tick_array_one0 = next_account(&mut iter)?;
+        let tick_array_one1 = next_account(&mut iter)?;
+        let tick_array_one2 = next_account(&mut iter)?;
+        let tick_array_two0 = next_account(&mut iter)?;
+        let tick_array_two1 = next_account(&mut iter)?;
+        let tick_array_two2 = next_account(&mut iter)?;
+        let oracle_one = next_account(&mut iter)?;
+        let oracle_two = next_account(&mut iter)?;
+        let memo_program = next_account(&mut iter)?;
 
         Some(TwoHopSwapV2InstructionAccounts {
-            whirlpool_one: whirlpool_one.pubkey,
-            whirlpool_two: whirlpool_two.pubkey,
-            token_mint_input: token_mint_input.pubkey,
-            token_mint_intermediate: token_mint_intermediate.pubkey,
-            token_mint_output: token_mint_output.pubkey,
-            token_program_input: token_program_input.pubkey,
-            token_program_intermediate: token_program_intermediate.pubkey,
-            token_program_output: token_program_output.pubkey,
-            token_owner_account_input: token_owner_account_input.pubkey,
-            token_vault_one_input: token_vault_one_input.pubkey,
-            token_vault_one_intermediate: token_vault_one_intermediate.pubkey,
-            token_vault_two_intermediate: token_vault_two_intermediate.pubkey,
-            token_vault_two_output: token_vault_two_output.pubkey,
-            token_owner_account_output: token_owner_account_output.pubkey,
-            token_authority: token_authority.pubkey,
-            tick_array_one0: tick_array_one0.pubkey,
-            tick_array_one1: tick_array_one1.pubkey,
-            tick_array_one2: tick_array_one2.pubkey,
-            tick_array_two0: tick_array_two0.pubkey,
-            tick_array_two1: tick_array_two1.pubkey,
-            tick_array_two2: tick_array_two2.pubkey,
-            oracle_one: oracle_one.pubkey,
-            oracle_two: oracle_two.pubkey,
-            memo_program: memo_program.pubkey,
-            remaining_accounts: remaining_accounts.to_vec(),
+            whirlpool_one,
+            whirlpool_two,
+            token_mint_input,
+            token_mint_intermediate,
+            token_mint_output,
+            token_program_input,
+            token_program_intermediate,
+            token_program_output,
+            token_owner_account_input,
+            token_vault_one_input,
+            token_vault_one_intermediate,
+            token_vault_two_intermediate,
+            token_vault_two_output,
+            token_owner_account_output,
+            token_authority,
+            tick_array_one0,
+            tick_array_one1,
+            tick_array_one2,
+            tick_array_two0,
+            tick_array_two1,
+            tick_array_two2,
+            oracle_one,
+            oracle_two,
+            memo_program,
         })
     }
 }

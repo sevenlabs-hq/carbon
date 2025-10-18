@@ -42,15 +42,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ..
     } = tx;
     if let EncodedTransaction::Json(parsed_tx) = enc_tx.transaction {
-        let (account_keys, instructions) = match parsed_tx.message {
-            UiMessage::Parsed(UiParsedMessage {
-                account_keys,
-                instructions,
-                ..
-            }) => (account_keys, instructions),
-            _ => {
-                return Err("Unsupported message format".into());
-            }
+        let UiMessage::Parsed(UiParsedMessage {
+            account_keys,
+            instructions,
+            ..
+        }) = parsed_tx.message
+        else {
+            return Err("Unsupported message format".into());
         };
         let accounts_infos: Vec<AccountInfo> = account_keys
             .into_iter()

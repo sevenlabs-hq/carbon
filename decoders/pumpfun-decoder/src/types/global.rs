@@ -18,4 +18,5 @@ pub struct Global {
     pub creator_fee_basis_points: u64,
     pub fee_recipients: [solana_pubkey::Pubkey; 7],
     pub set_creator_authority: solana_pubkey::Pubkey,
+    pub admin_set_creator_authority: solana_pubkey::Pubkey,
 }

@@ -1,6 +1,4 @@
-use alloc::string::String;
-
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -37,27 +35,37 @@ impl carbon_core::deserialize::ArrangeAccounts for Create {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [mint, mint_authority, bonding_curve, associated_bonding_curve, global, mpl_token_metadata, metadata, user, system_program, token_program, associated_token_program, rent, event_authority, program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let mint = next_account(&mut iter)?;
+        let mint_authority = next_account(&mut iter)?;
+        let bonding_curve = next_account(&mut iter)?;
+        let associated_bonding_curve = next_account(&mut iter)?;
+        let global = next_account(&mut iter)?;
+        let mpl_token_metadata = next_account(&mut iter)?;
+        let metadata = next_account(&mut iter)?;
+        let user = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let token_program = next_account(&mut iter)?;
+        let associated_token_program = next_account(&mut iter)?;
+        let rent = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
 
         Some(CreateInstructionAccounts {
-            mint: mint.pubkey,
-            mint_authority: mint_authority.pubkey,
-            bonding_curve: bonding_curve.pubkey,
-            associated_bonding_curve: associated_bonding_curve.pubkey,
-            global: global.pubkey,
-            mpl_token_metadata: mpl_token_metadata.pubkey,
-            metadata: metadata.pubkey,
-            user: user.pubkey,
-            system_program: system_program.pubkey,
-            token_program: token_program.pubkey,
-            associated_token_program: associated_token_program.pubkey,
-            rent: rent.pubkey,
-            event_authority: event_authority.pubkey,
-            program: program.pubkey,
+            mint,
+            mint_authority,
+            bonding_curve,
+            associated_bonding_curve,
+            global,
+            mpl_token_metadata,
+            metadata,
+            user,
+            system_program,
+            token_program,
+            associated_token_program,
+            rent,
+            event_authority,
+            program,
         })
     }
 }

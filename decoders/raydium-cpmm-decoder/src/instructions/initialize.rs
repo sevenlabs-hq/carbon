@@ -1,33 +1,34 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
 #[carbon(discriminator = "0xafaf6d1f0d989bed")]
 pub struct Initialize {
-    pub init_amount0: u64,
-    pub init_amount1: u64,
+    pub init_amount_0: u64,
+    pub init_amount_1: u64,
     pub open_time: u64,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct InitializeInstructionAccounts {
     pub creator: solana_pubkey::Pubkey,
     pub amm_config: solana_pubkey::Pubkey,
     pub authority: solana_pubkey::Pubkey,
     pub pool_state: solana_pubkey::Pubkey,
-    pub token0_mint: solana_pubkey::Pubkey,
-    pub token1_mint: solana_pubkey::Pubkey,
+    pub token_0_mint: solana_pubkey::Pubkey,
+    pub token_1_mint: solana_pubkey::Pubkey,
     pub lp_mint: solana_pubkey::Pubkey,
-    pub creator_token0: solana_pubkey::Pubkey,
-    pub creator_token1: solana_pubkey::Pubkey,
+    pub creator_token_0: solana_pubkey::Pubkey,
+    pub creator_token_1: solana_pubkey::Pubkey,
     pub creator_lp_token: solana_pubkey::Pubkey,
-    pub token0_vault: solana_pubkey::Pubkey,
-    pub token1_vault: solana_pubkey::Pubkey,
+    pub token_0_vault: solana_pubkey::Pubkey,
+    pub token_1_vault: solana_pubkey::Pubkey,
     pub create_pool_fee: solana_pubkey::Pubkey,
     pub observation_state: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
-    pub token0_program: solana_pubkey::Pubkey,
-    pub token1_program: solana_pubkey::Pubkey,
+    pub token_0_program: solana_pubkey::Pubkey,
+    pub token_1_program: solana_pubkey::Pubkey,
     pub associated_token_program: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
     pub rent: solana_pubkey::Pubkey,
@@ -39,33 +40,49 @@ impl carbon_core::deserialize::ArrangeAccounts for Initialize {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [creator, amm_config, authority, pool_state, token0_mint, token1_mint, lp_mint, creator_token0, creator_token1, creator_lp_token, token0_vault, token1_vault, create_pool_fee, observation_state, token_program, token0_program, token1_program, associated_token_program, system_program, rent, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let creator = next_account(&mut iter)?;
+        let amm_config = next_account(&mut iter)?;
+        let authority = next_account(&mut iter)?;
+        let pool_state = next_account(&mut iter)?;
+        let token_0_mint = next_account(&mut iter)?;
+        let token_1_mint = next_account(&mut iter)?;
+        let lp_mint = next_account(&mut iter)?;
+        let creator_token_0 = next_account(&mut iter)?;
+        let creator_token_1 = next_account(&mut iter)?;
+        let creator_lp_token = next_account(&mut iter)?;
+        let token_0_vault = next_account(&mut iter)?;
+        let token_1_vault = next_account(&mut iter)?;
+        let create_pool_fee = next_account(&mut iter)?;
+        let observation_state = next_account(&mut iter)?;
+        let token_program = next_account(&mut iter)?;
+        let token_0_program = next_account(&mut iter)?;
+        let token_1_program = next_account(&mut iter)?;
+        let associated_token_program = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let rent = next_account(&mut iter)?;
 
         Some(InitializeInstructionAccounts {
-            creator: creator.pubkey,
-            amm_config: amm_config.pubkey,
-            authority: authority.pubkey,
-            pool_state: pool_state.pubkey,
-            token0_mint: token0_mint.pubkey,
-            token1_mint: token1_mint.pubkey,
-            lp_mint: lp_mint.pubkey,
-            creator_token0: creator_token0.pubkey,
-            creator_token1: creator_token1.pubkey,
-            creator_lp_token: creator_lp_token.pubkey,
-            token0_vault: token0_vault.pubkey,
-            token1_vault: token1_vault.pubkey,
-            create_pool_fee: create_pool_fee.pubkey,
-            observation_state: observation_state.pubkey,
-            token_program: token_program.pubkey,
-            token0_program: token0_program.pubkey,
-            token1_program: token1_program.pubkey,
-            associated_token_program: associated_token_program.pubkey,
-            system_program: system_program.pubkey,
-            rent: rent.pubkey,
+            creator,
+            amm_config,
+            authority,
+            pool_state,
+            token_0_mint,
+            token_1_mint,
+            lp_mint,
+            creator_token_0,
+            creator_token_1,
+            creator_lp_token,
+            token_0_vault,
+            token_1_vault,
+            create_pool_fee,
+            observation_state,
+            token_program,
+            token_0_program,
+            token_1_program,
+            associated_token_program,
+            system_program,
+            rent,
         })
     }
 }

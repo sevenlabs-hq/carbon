@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -39,31 +39,45 @@ impl carbon_core::deserialize::ArrangeAccounts for CreatePool {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [pool, global_config, creator, base_mint, quote_mint, lp_mint, user_base_token_account, user_quote_token_account, user_pool_token_account, pool_base_token_account, pool_quote_token_account, system_program, token_2022_program, base_token_program, quote_token_program, associated_token_program, event_authority, program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let pool = next_account(&mut iter)?;
+        let global_config = next_account(&mut iter)?;
+        let creator = next_account(&mut iter)?;
+        let base_mint = next_account(&mut iter)?;
+        let quote_mint = next_account(&mut iter)?;
+        let lp_mint = next_account(&mut iter)?;
+        let user_base_token_account = next_account(&mut iter)?;
+        let user_quote_token_account = next_account(&mut iter)?;
+        let user_pool_token_account = next_account(&mut iter)?;
+        let pool_base_token_account = next_account(&mut iter)?;
+        let pool_quote_token_account = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let token_2022_program = next_account(&mut iter)?;
+        let base_token_program = next_account(&mut iter)?;
+        let quote_token_program = next_account(&mut iter)?;
+        let associated_token_program = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
 
         Some(CreatePoolInstructionAccounts {
-            pool: pool.pubkey,
-            global_config: global_config.pubkey,
-            creator: creator.pubkey,
-            base_mint: base_mint.pubkey,
-            quote_mint: quote_mint.pubkey,
-            lp_mint: lp_mint.pubkey,
-            user_base_token_account: user_base_token_account.pubkey,
-            user_quote_token_account: user_quote_token_account.pubkey,
-            user_pool_token_account: user_pool_token_account.pubkey,
-            pool_base_token_account: pool_base_token_account.pubkey,
-            pool_quote_token_account: pool_quote_token_account.pubkey,
-            system_program: system_program.pubkey,
-            token_2022_program: token_2022_program.pubkey,
-            base_token_program: base_token_program.pubkey,
-            quote_token_program: quote_token_program.pubkey,
-            associated_token_program: associated_token_program.pubkey,
-            event_authority: event_authority.pubkey,
-            program: program.pubkey,
+            pool,
+            global_config,
+            creator,
+            base_mint,
+            quote_mint,
+            lp_mint,
+            user_base_token_account,
+            user_quote_token_account,
+            user_pool_token_account,
+            pool_base_token_account,
+            pool_quote_token_account,
+            system_program,
+            token_2022_program,
+            base_token_program,
+            quote_token_program,
+            associated_token_program,
+            event_authority,
+            program,
         })
     }
 }

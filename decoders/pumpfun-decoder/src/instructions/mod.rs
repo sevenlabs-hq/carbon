@@ -1,8 +1,21 @@
+use carbon_core::deserialize::CarbonDeserialize;
+use solana_instruction::Instruction;
+
 use crate::PROGRAM_ID;
 
 use super::PumpfunDecoder;
 
+pub mod admin_set_creator;
+pub mod admin_set_creator_event;
+pub mod admin_set_idl_authority;
+pub mod admin_set_idl_authority_event;
+pub mod admin_update_token_incentives;
+pub mod admin_update_token_incentives_event;
 pub mod buy;
+pub mod claim_token_incentives;
+pub mod claim_token_incentives_event;
+pub mod close_user_volume_accumulator;
+pub mod close_user_volume_accumulator_event;
 pub mod collect_creator_fee;
 pub mod collect_creator_fee_event;
 pub mod complete_event;
@@ -11,6 +24,8 @@ pub mod create;
 pub mod create_event;
 pub mod extend_account;
 pub mod extend_account_event;
+pub mod init_user_volume_accumulator;
+pub mod init_user_volume_accumulator_event;
 pub mod initialize;
 pub mod migrate;
 pub mod sell;
@@ -20,6 +35,8 @@ pub mod set_metaplex_creator;
 pub mod set_metaplex_creator_event;
 pub mod set_params;
 pub mod set_params_event;
+pub mod sync_user_volume_accumulator;
+pub mod sync_user_volume_accumulator_event;
 pub mod trade_event;
 pub mod update_global_authority;
 pub mod update_global_authority_event;
@@ -35,25 +52,47 @@ pub mod update_global_authority_event;
     Hash,
 )]
 pub enum PumpfunInstruction {
+    AdminSetCreator(admin_set_creator::AdminSetCreator),
+    AdminSetIdlAuthority(admin_set_idl_authority::AdminSetIdlAuthority),
+    AdminUpdateTokenIncentives(admin_update_token_incentives::AdminUpdateTokenIncentives),
     Buy(buy::Buy),
+    ClaimTokenIncentives(claim_token_incentives::ClaimTokenIncentives),
+    CloseUserVolumeAccumulator(close_user_volume_accumulator::CloseUserVolumeAccumulator),
     CollectCreatorFee(collect_creator_fee::CollectCreatorFee),
     Create(create::Create),
     ExtendAccount(extend_account::ExtendAccount),
+    InitUserVolumeAccumulator(init_user_volume_accumulator::InitUserVolumeAccumulator),
     Initialize(initialize::Initialize),
     Migrate(migrate::Migrate),
     Sell(sell::Sell),
     SetCreator(set_creator::SetCreator),
     SetMetaplexCreator(set_metaplex_creator::SetMetaplexCreator),
     SetParams(set_params::SetParams),
+    SyncUserVolumeAccumulator(sync_user_volume_accumulator::SyncUserVolumeAccumulator),
     UpdateGlobalAuthority(update_global_authority::UpdateGlobalAuthority),
+    AdminSetCreatorEvent(admin_set_creator_event::AdminSetCreatorEvent),
+    AdminSetIdlAuthorityEvent(admin_set_idl_authority_event::AdminSetIdlAuthorityEvent),
+    AdminUpdateTokenIncentivesEvent(
+        admin_update_token_incentives_event::AdminUpdateTokenIncentivesEvent,
+    ),
+    ClaimTokenIncentivesEvent(claim_token_incentives_event::ClaimTokenIncentivesEvent),
+    CloseUserVolumeAccumulatorEvent(
+        close_user_volume_accumulator_event::CloseUserVolumeAccumulatorEvent,
+    ),
     CollectCreatorFeeEvent(collect_creator_fee_event::CollectCreatorFeeEvent),
     CompleteEvent(complete_event::CompleteEvent),
     CompletePumpAmmMigrationEvent(complete_pump_amm_migration_event::CompletePumpAmmMigrationEvent),
     CreateEvent(create_event::CreateEvent),
     ExtendAccountEvent(extend_account_event::ExtendAccountEvent),
+    InitUserVolumeAccumulatorEvent(
+        init_user_volume_accumulator_event::InitUserVolumeAccumulatorEvent,
+    ),
     SetCreatorEvent(set_creator_event::SetCreatorEvent),
     SetMetaplexCreatorEvent(set_metaplex_creator_event::SetMetaplexCreatorEvent),
     SetParamsEvent(set_params_event::SetParamsEvent),
+    SyncUserVolumeAccumulatorEvent(
+        sync_user_volume_accumulator_event::SyncUserVolumeAccumulatorEvent,
+    ),
     TradeEvent(trade_event::TradeEvent),
     UpdateGlobalAuthorityEvent(update_global_authority_event::UpdateGlobalAuthorityEvent),
 }
@@ -68,32 +107,59 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpfunDecoder {
         if !instruction.program_id.eq(&PROGRAM_ID) {
             return None;
         }
+        let instruction = if !instruction.data.is_empty()
+            && instruction.data[..8] == *buy::Buy::DISCRIMINATOR
+            && instruction.data.len() == 24
+        {
+            let mut data = instruction.data.clone();
+            data.push(0);
+            &Instruction {
+                program_id: instruction.program_id,
+                accounts: instruction.accounts.clone(),
+                data,
+            }
+        } else {
+            instruction
+        };
         carbon_core::try_decode_instructions!(instruction,
+            PumpfunInstruction::AdminSetCreator => admin_set_creator::AdminSetCreator,
+            PumpfunInstruction::AdminSetIdlAuthority => admin_set_idl_authority::AdminSetIdlAuthority,
+            PumpfunInstruction::AdminUpdateTokenIncentives => admin_update_token_incentives::AdminUpdateTokenIncentives,
             PumpfunInstruction::Buy => buy::Buy,
+            PumpfunInstruction::ClaimTokenIncentives => claim_token_incentives::ClaimTokenIncentives,
+            PumpfunInstruction::CloseUserVolumeAccumulator => close_user_volume_accumulator::CloseUserVolumeAccumulator,
             PumpfunInstruction::CollectCreatorFee => collect_creator_fee::CollectCreatorFee,
             PumpfunInstruction::Create => create::Create,
             PumpfunInstruction::ExtendAccount => extend_account::ExtendAccount,
+            PumpfunInstruction::InitUserVolumeAccumulator => init_user_volume_accumulator::InitUserVolumeAccumulator,
             PumpfunInstruction::Initialize => initialize::Initialize,
             PumpfunInstruction::Migrate => migrate::Migrate,
             PumpfunInstruction::Sell => sell::Sell,
             PumpfunInstruction::SetCreator => set_creator::SetCreator,
             PumpfunInstruction::SetMetaplexCreator => set_metaplex_creator::SetMetaplexCreator,
             PumpfunInstruction::SetParams => set_params::SetParams,
+            PumpfunInstruction::SyncUserVolumeAccumulator => sync_user_volume_accumulator::SyncUserVolumeAccumulator,
             PumpfunInstruction::UpdateGlobalAuthority => update_global_authority::UpdateGlobalAuthority,
+            PumpfunInstruction::AdminSetCreatorEvent => admin_set_creator_event::AdminSetCreatorEvent,
+            PumpfunInstruction::AdminSetIdlAuthorityEvent => admin_set_idl_authority_event::AdminSetIdlAuthorityEvent,
+            PumpfunInstruction::AdminUpdateTokenIncentivesEvent => admin_update_token_incentives_event::AdminUpdateTokenIncentivesEvent,
+            PumpfunInstruction::ClaimTokenIncentivesEvent => claim_token_incentives_event::ClaimTokenIncentivesEvent,
+            PumpfunInstruction::CloseUserVolumeAccumulatorEvent => close_user_volume_accumulator_event::CloseUserVolumeAccumulatorEvent,
             PumpfunInstruction::CollectCreatorFeeEvent => collect_creator_fee_event::CollectCreatorFeeEvent,
             PumpfunInstruction::CompleteEvent => complete_event::CompleteEvent,
             PumpfunInstruction::CompletePumpAmmMigrationEvent => complete_pump_amm_migration_event::CompletePumpAmmMigrationEvent,
             PumpfunInstruction::CreateEvent => create_event::CreateEvent,
             PumpfunInstruction::ExtendAccountEvent => extend_account_event::ExtendAccountEvent,
+            PumpfunInstruction::InitUserVolumeAccumulatorEvent => init_user_volume_accumulator_event::InitUserVolumeAccumulatorEvent,
             PumpfunInstruction::SetCreatorEvent => set_creator_event::SetCreatorEvent,
             PumpfunInstruction::SetMetaplexCreatorEvent => set_metaplex_creator_event::SetMetaplexCreatorEvent,
             PumpfunInstruction::SetParamsEvent => set_params_event::SetParamsEvent,
+            PumpfunInstruction::SyncUserVolumeAccumulatorEvent => sync_user_volume_accumulator_event::SyncUserVolumeAccumulatorEvent,
             PumpfunInstruction::TradeEvent => trade_event::TradeEvent,
             PumpfunInstruction::UpdateGlobalAuthorityEvent => update_global_authority_event::UpdateGlobalAuthorityEvent,
         )
     }
 }
-
 #[cfg(test)]
 mod tests {
     use alloc::{borrow::ToOwned, vec};
@@ -101,15 +167,18 @@ mod tests {
     use solana_instruction::AccountMeta;
     use solana_pubkey::pubkey;
 
+    use crate::types::OptionBool;
+
     use super::*;
 
     #[test]
     fn test_decode_buy() {
-        // Arrange
         let expected_ix = PumpfunInstruction::Buy(buy::Buy {
-            amount: 34275561331820,
-            max_sol_cost: 1020000000,
+            amount: 1690358,
+            max_sol_cost: 195,
+            track_volume: OptionBool(false),
         });
+
         let expected_accounts = vec![
             AccountMeta {
                 pubkey: pubkey!("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
@@ -117,32 +186,32 @@ mod tests {
                 is_writable: false,
             },
             AccountMeta {
-                pubkey: pubkey!("CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM"),
+                pubkey: pubkey!("62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV"),
                 is_signer: false,
                 is_writable: true,
             },
             AccountMeta {
-                pubkey: pubkey!("AC69oJv1m7843mdRfoQDneZuyRxYrMq86i2mARMtpump"),
+                pubkey: pubkey!("7uUTzNs4UFgarqY6TyRnW3ZnMFpcsw1iookL8R5KCGwA"),
                 is_signer: false,
                 is_writable: false,
             },
             AccountMeta {
-                pubkey: pubkey!("623TpUDcZjKdmd9wybMveLKSSbgRs2hvwFjygzi4g15B"),
+                pubkey: pubkey!("CxHfPAgH6PNLnfq5n5mq4tZK1aQCsMdeygwqaUSjsceN"),
                 is_signer: false,
                 is_writable: true,
             },
             AccountMeta {
-                pubkey: pubkey!("5rQKu3z4SXShvQkNKSJu9mtsVmgM8AvLoeNbJGvTyQv6"),
+                pubkey: pubkey!("3AnftTe9GeUkp3HQJTm7tWLeVkojdFCyd33u4XEAMTpe"),
                 is_signer: false,
                 is_writable: true,
             },
             AccountMeta {
-                pubkey: pubkey!("BQN63TcxSjMtHsLUUJ6f6iGsoLE1qqMyvD3A4TBpY6ii"),
+                pubkey: pubkey!("A1C8VqECGc8CSjmiEpaaNTWeJVqVM3tQXnxcaSkfngxT"),
                 is_signer: false,
                 is_writable: true,
             },
             AccountMeta {
-                pubkey: pubkey!("CkdtUhQdH2sHXJYTJTNFbF1K5W33WVgVHG7zffaMkEmv"),
+                pubkey: pubkey!("9zR4L1w4cCvLndDYYiCBUvNfBPeZBAQWL57wQgW97Pau"),
                 is_signer: true,
                 is_writable: true,
             },
@@ -157,7 +226,7 @@ mod tests {
                 is_writable: false,
             },
             AccountMeta {
-                pubkey: pubkey!("8rsczKQ9bVT6AcGoD4CqoKySbVErCoXwQH8h7ZjAsUqE"),
+                pubkey: pubkey!("34D2HZjdrSfxhc4j6aduiwbN6uzXKaw73h2jjVBQfJ9p"),
                 is_signer: false,
                 is_writable: true,
             },
@@ -171,24 +240,49 @@ mod tests {
                 is_signer: false,
                 is_writable: false,
             },
+            AccountMeta {
+                pubkey: pubkey!("Hq2wp8uJ9jCPsYgNHex8RtqdvMPfVGoYwjvF1ATiwn2Y"),
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: pubkey!("3cm5x9jFRrZQzZxnYkm7jYkUy5srwamyMZZTsRPZqfgD"),
+                is_signer: false,
+                is_writable: true,
+            },
+            AccountMeta {
+                pubkey: pubkey!("8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt"),
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: pubkey!("pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ"),
+                is_signer: false,
+                is_writable: false,
+            },
         ];
         let expected_arranged_accounts = buy::BuyInstructionAccounts {
             global: pubkey!("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
-            fee_recipient: pubkey!("CebN5WGQ4jvEPvsVU4EoHEpgzq1VV7AbicfhtW4xC9iM"),
-            mint: pubkey!("AC69oJv1m7843mdRfoQDneZuyRxYrMq86i2mARMtpump"),
-            bonding_curve: pubkey!("623TpUDcZjKdmd9wybMveLKSSbgRs2hvwFjygzi4g15B"),
-            associated_bonding_curve: pubkey!("5rQKu3z4SXShvQkNKSJu9mtsVmgM8AvLoeNbJGvTyQv6"),
-            associated_user: pubkey!("BQN63TcxSjMtHsLUUJ6f6iGsoLE1qqMyvD3A4TBpY6ii"),
-            user: pubkey!("CkdtUhQdH2sHXJYTJTNFbF1K5W33WVgVHG7zffaMkEmv"),
+            fee_recipient: pubkey!("62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV"),
+            mint: pubkey!("7uUTzNs4UFgarqY6TyRnW3ZnMFpcsw1iookL8R5KCGwA"),
+            bonding_curve: pubkey!("CxHfPAgH6PNLnfq5n5mq4tZK1aQCsMdeygwqaUSjsceN"),
+            associated_bonding_curve: pubkey!("3AnftTe9GeUkp3HQJTm7tWLeVkojdFCyd33u4XEAMTpe"),
+            associated_user: pubkey!("A1C8VqECGc8CSjmiEpaaNTWeJVqVM3tQXnxcaSkfngxT"),
+            user: pubkey!("9zR4L1w4cCvLndDYYiCBUvNfBPeZBAQWL57wQgW97Pau"),
             system_program: pubkey!("11111111111111111111111111111111"),
             token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-            creator_vault: pubkey!("8rsczKQ9bVT6AcGoD4CqoKySbVErCoXwQH8h7ZjAsUqE"),
+            creator_vault: pubkey!("34D2HZjdrSfxhc4j6aduiwbN6uzXKaw73h2jjVBQfJ9p"),
             event_authority: pubkey!("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
             program: pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
+            global_volume_accumulator: pubkey!("Hq2wp8uJ9jCPsYgNHex8RtqdvMPfVGoYwjvF1ATiwn2Y"),
+            user_volume_accumulator: pubkey!("3cm5x9jFRrZQzZxnYkm7jYkUy5srwamyMZZTsRPZqfgD"),
+            fee_config: pubkey!("8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt"),
+            fee_program: pubkey!("pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ"),
         };
 
         // Act
         let decoder = PumpfunDecoder;
+        // The buy fixture is from devnet
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/buy_ix.json")
             .expect("read fixture");
         let decoded = decoder
@@ -208,8 +302,8 @@ mod tests {
     fn test_decode_sell() {
         // Arrange
         let expected_ix = PumpfunInstruction::Sell(sell::Sell {
-            amount: 88888000000,
-            min_sol_output: 2361153,
+            amount: 376599365021,
+            min_sol_output: 14065038,
         });
         let expected_accounts = vec![
             AccountMeta {
@@ -223,27 +317,27 @@ mod tests {
                 is_writable: true,
             },
             AccountMeta {
-                pubkey: pubkey!("AC69oJv1m7843mdRfoQDneZuyRxYrMq86i2mARMtpump"),
+                pubkey: pubkey!("7gym364csXoyZHvN8tswevxxXcYRZ9hHdP1PaS99XWtf"),
                 is_signer: false,
                 is_writable: false,
             },
             AccountMeta {
-                pubkey: pubkey!("623TpUDcZjKdmd9wybMveLKSSbgRs2hvwFjygzi4g15B"),
+                pubkey: pubkey!("7kEiL6XFg24xdPbTWnae8URUud9NxnDZX95rQyxKGQvB"),
                 is_signer: false,
                 is_writable: true,
             },
             AccountMeta {
-                pubkey: pubkey!("5rQKu3z4SXShvQkNKSJu9mtsVmgM8AvLoeNbJGvTyQv6"),
+                pubkey: pubkey!("ANq2idorZ1Ha9bjzWzUquKLho9H4ZpK5AHH7P3oTsRQA"),
                 is_signer: false,
                 is_writable: true,
             },
             AccountMeta {
-                pubkey: pubkey!("BFgJqMUhraJvzERrt2BbPqbqDcLgbiHMdfdPQAqLtPcR"),
+                pubkey: pubkey!("HVAi5g9JEMHTjBKFaBaNebtVNVVisRh8CAAPrddFVx5G"),
                 is_signer: false,
                 is_writable: true,
             },
             AccountMeta {
-                pubkey: pubkey!("D8h8aUEaQnBRALrcTxLkaLLCQVCASnLVx17E3m6qfuPF"),
+                pubkey: pubkey!("GGrcscAqEq4qJ1apGnQMv3XkFL7Dp68C6Cm8wx4ytjuf"),
                 is_signer: true,
                 is_writable: true,
             },
@@ -253,7 +347,7 @@ mod tests {
                 is_writable: false,
             },
             AccountMeta {
-                pubkey: pubkey!("8rsczKQ9bVT6AcGoD4CqoKySbVErCoXwQH8h7ZjAsUqE"),
+                pubkey: pubkey!("7stsnMwqhVnmUKdBdbKKHbLYm59V2W3NiihibhTwXq2b"),
                 is_signer: false,
                 is_writable: true,
             },
@@ -272,21 +366,33 @@ mod tests {
                 is_signer: false,
                 is_writable: false,
             },
+            AccountMeta {
+                pubkey: pubkey!("8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt"),
+                is_signer: false,
+                is_writable: false,
+            },
+            AccountMeta {
+                pubkey: pubkey!("pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ"),
+                is_signer: false,
+                is_writable: false,
+            },
         ];
 
         let expected_arranged_accounts = sell::SellInstructionAccounts {
             global: pubkey!("4wTV1YmiEkRvAtNtsSGPtUrqRYQMe5SKy2uB4Jjaxnjf"),
             fee_recipient: pubkey!("62qc2CNXwrYqQScmEdiZFFAnJR262PxWEuNQtxfafNgV"),
-            mint: pubkey!("AC69oJv1m7843mdRfoQDneZuyRxYrMq86i2mARMtpump"),
-            bonding_curve: pubkey!("623TpUDcZjKdmd9wybMveLKSSbgRs2hvwFjygzi4g15B"),
-            associated_bonding_curve: pubkey!("5rQKu3z4SXShvQkNKSJu9mtsVmgM8AvLoeNbJGvTyQv6"),
-            associated_user: pubkey!("BFgJqMUhraJvzERrt2BbPqbqDcLgbiHMdfdPQAqLtPcR"),
-            user: pubkey!("D8h8aUEaQnBRALrcTxLkaLLCQVCASnLVx17E3m6qfuPF"),
+            mint: pubkey!("7gym364csXoyZHvN8tswevxxXcYRZ9hHdP1PaS99XWtf"),
+            bonding_curve: pubkey!("7kEiL6XFg24xdPbTWnae8URUud9NxnDZX95rQyxKGQvB"),
+            associated_bonding_curve: pubkey!("ANq2idorZ1Ha9bjzWzUquKLho9H4ZpK5AHH7P3oTsRQA"),
+            associated_user: pubkey!("HVAi5g9JEMHTjBKFaBaNebtVNVVisRh8CAAPrddFVx5G"),
+            user: pubkey!("GGrcscAqEq4qJ1apGnQMv3XkFL7Dp68C6Cm8wx4ytjuf"),
             system_program: pubkey!("11111111111111111111111111111111"),
             token_program: pubkey!("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA"),
-            creator_vault: pubkey!("8rsczKQ9bVT6AcGoD4CqoKySbVErCoXwQH8h7ZjAsUqE"),
+            creator_vault: pubkey!("7stsnMwqhVnmUKdBdbKKHbLYm59V2W3NiihibhTwXq2b"),
             event_authority: pubkey!("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
             program: pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
+            fee_config: pubkey!("8Wf5TiAheLUqBrKXeYg2JtAFFMWtKdG2BSFgqUcPVwTt"),
+            fee_program: pubkey!("pfeeUxB6jkeY1Hxd7CsFCAjcbHA9rWtchMGdZ6VojVZ"),
         };
 
         // Act

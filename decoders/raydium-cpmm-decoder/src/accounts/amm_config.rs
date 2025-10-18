@@ -14,5 +14,6 @@ pub struct AmmConfig {
     pub create_pool_fee: u64,
     pub protocol_owner: solana_pubkey::Pubkey,
     pub fund_owner: solana_pubkey::Pubkey,
-    pub padding: [u64; 16],
+    pub creator_fee_rate: u64,
+    pub padding: [u64; 15],
 }

@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -22,13 +22,13 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdatePlatformConfig {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [platform_admin, platform_config, _remaining @ ..] = accounts else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let platform_admin = next_account(&mut iter)?;
+        let platform_config = next_account(&mut iter)?;
 
         Some(UpdatePlatformConfigInstructionAccounts {
-            platform_admin: platform_admin.pubkey,
-            platform_config: platform_config.pubkey,
+            platform_admin,
+            platform_config,
         })
     }
 }

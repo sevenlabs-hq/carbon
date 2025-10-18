@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -8,6 +8,7 @@ pub struct Claim {
     pub id: u8,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct ClaimInstructionAccounts {
     pub wallet: solana_pubkey::Pubkey,
     pub program_authority: solana_pubkey::Pubkey,
@@ -20,14 +21,15 @@ impl carbon_core::deserialize::ArrangeAccounts for Claim {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [wallet, program_authority, system_program, _remaining @ ..] = accounts else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let wallet = next_account(&mut iter)?;
+        let program_authority = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
 
         Some(ClaimInstructionAccounts {
-            wallet: wallet.pubkey,
-            program_authority: program_authority.pubkey,
-            system_program: system_program.pubkey,
+            wallet,
+            program_authority,
+            system_program,
         })
     }
 }

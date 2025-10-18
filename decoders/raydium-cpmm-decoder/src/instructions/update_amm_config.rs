@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -9,6 +9,7 @@ pub struct UpdateAmmConfig {
     pub value: u64,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct UpdateAmmConfigInstructionAccounts {
     pub owner: solana_pubkey::Pubkey,
     pub amm_config: solana_pubkey::Pubkey,
@@ -20,13 +21,10 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateAmmConfig {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [owner, amm_config, _remaining @ ..] = accounts else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let owner = next_account(&mut iter)?;
+        let amm_config = next_account(&mut iter)?;
 
-        Some(UpdateAmmConfigInstructionAccounts {
-            owner: owner.pubkey,
-            amm_config: amm_config.pubkey,
-        })
+        Some(UpdateAmmConfigInstructionAccounts { owner, amm_config })
     }
 }

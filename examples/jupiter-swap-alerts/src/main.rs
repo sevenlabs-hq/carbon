@@ -11,11 +11,14 @@ use {
         PROGRAM_ID as JUPITER_SWAP_PROGRAM_ID,
     },
     carbon_log_metrics::LogMetrics,
-    carbon_yellowstone_grpc_datasource::YellowstoneGrpcGeyserClient,
+    carbon_yellowstone_grpc_datasource::{
+        YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient,
+    },
     std::{
         collections::{HashMap, HashSet},
         env,
         sync::Arc,
+        time::Duration,
     },
     tokio::sync::RwLock,
     yellowstone_grpc_proto::geyser::{CommitmentLevel, SubscribeRequestFilterTransactions},
@@ -48,6 +51,15 @@ pub async fn main() -> CarbonResult<()> {
         transaction_filter,
     );
 
+    let geyser_config = YellowstoneGrpcClientConfig::new(
+        None,
+        Some(Duration::from_secs(15)),
+        Some(Duration::from_secs(15)),
+        None,
+        None,
+        None,
+    );
+
     let yellowstone_grpc = YellowstoneGrpcGeyserClient::new(
         env::var("GEYSER_URL").unwrap_or_default(),
         env::var("X_TOKEN").ok(),
@@ -56,6 +68,7 @@ pub async fn main() -> CarbonResult<()> {
         transaction_filters,
         Default::default(),
         Arc::new(RwLock::new(HashSet::new())),
+        geyser_config,
     );
 
     carbon_core::pipeline::Pipeline::builder()
@@ -94,12 +107,6 @@ impl Processor for JupiterSwapInstructionProcessor {
             }
             JupiterSwapInstruction::ClaimToken(claim_token) => {
                 log::info!("claim_token: signature: {signature}, claim_token: {claim_token:?}");
-            }
-            JupiterSwapInstruction::CreateOpenOrders(create_open_orders) => {
-                log::info!("create_open_orders: signature: {signature}, create_open_orders: {create_open_orders:?}");
-            }
-            JupiterSwapInstruction::CreateProgramOpenOrders(create_program_open_orders) => {
-                log::info!("create_program_open_orders: signature: {signature}, create_program_open_orders: {create_program_open_orders:?}");
             }
             JupiterSwapInstruction::CreateTokenLedger(create_token_ledger) => {
                 log::info!("create_token_ledger: signature: {signature}, create_token_ledger: {create_token_ledger:?}");
@@ -143,6 +150,40 @@ impl Processor for JupiterSwapInstructionProcessor {
                 );
                 log::info!("shared_accounts_exact_out_route: signature: {signature}, shared_accounts_exact_out_route: {shared_accounts_exact_out_route:?}");
             }
+            JupiterSwapInstruction::ExactOutRouteV2(exact_out_route_v2) => {
+                assert!(
+                    !nested_instructions.is_empty(),
+                    "nested instructions empty: {} ",
+                    signature
+                );
+                log::info!("exact_out_route_v2: signature: {signature}, exact_out_route_v2: {exact_out_route_v2:?}");
+            }
+            JupiterSwapInstruction::RouteV2(route_v2) => {
+                assert!(
+                    !nested_instructions.is_empty(),
+                    "nested instructions empty: {} ",
+                    signature
+                );
+                log::info!("route_v2: signature: {signature}, route_v2: {route_v2:?}");
+            }
+            JupiterSwapInstruction::SharedAccountsExactOutRouteV2(
+                shared_accounts_exact_out_route_v2,
+            ) => {
+                assert!(
+                    !nested_instructions.is_empty(),
+                    "nested instructions empty: {} ",
+                    signature
+                );
+                log::info!("shared_accounts_exact_out_route_v2: signature: {signature}, shared_accounts_exact_out_route_v2: {shared_accounts_exact_out_route_v2:?}");
+            }
+            JupiterSwapInstruction::SharedAccountsRouteV2(shared_accounts_route_v2) => {
+                assert!(
+                    !nested_instructions.is_empty(),
+                    "nested instructions empty: {} ",
+                    signature
+                );
+                log::info!("shared_accounts_route_v2: signature: {signature}, shared_accounts_route_v2: {shared_accounts_route_v2:?}");
+            }
             JupiterSwapInstruction::SharedAccountsRoute(shared_accounts_route) => {
                 assert!(
                     !nested_instructions.is_empty(),
@@ -166,6 +207,15 @@ impl Processor for JupiterSwapInstructionProcessor {
             }
             JupiterSwapInstruction::SwapEvent(swap_event) => {
                 log::info!("swap_event: signature: {signature}, swap_event: {swap_event:?}");
+            }
+            JupiterSwapInstruction::CloseToken(close_token) => {
+                log::info!("close_token: signature: {signature}, close_token: {close_token:?}");
+            }
+            JupiterSwapInstruction::CreateTokenAccount(create_token_account) => {
+                log::info!("create_token_account: signature: {signature}, create_token_account: {create_token_account:?}");
+            }
+            JupiterSwapInstruction::SwapsEvent(swaps_event) => {
+                log::info!("swaps_event: signature: {signature}, swaps_event: {swaps_event:?}");
             }
         };
 

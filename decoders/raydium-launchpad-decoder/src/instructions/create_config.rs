@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -29,21 +29,25 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateConfig {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [owner, global_config, quote_token_mint, protocol_fee_owner, migrate_fee_owner, migrate_to_amm_wallet, migrate_to_cpswap_wallet, system_program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let owner = next_account(&mut iter)?;
+        let global_config = next_account(&mut iter)?;
+        let quote_token_mint = next_account(&mut iter)?;
+        let protocol_fee_owner = next_account(&mut iter)?;
+        let migrate_fee_owner = next_account(&mut iter)?;
+        let migrate_to_amm_wallet = next_account(&mut iter)?;
+        let migrate_to_cpswap_wallet = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
 
         Some(CreateConfigInstructionAccounts {
-            owner: owner.pubkey,
-            global_config: global_config.pubkey,
-            quote_token_mint: quote_token_mint.pubkey,
-            protocol_fee_owner: protocol_fee_owner.pubkey,
-            migrate_fee_owner: migrate_fee_owner.pubkey,
-            migrate_to_amm_wallet: migrate_to_amm_wallet.pubkey,
-            migrate_to_cpswap_wallet: migrate_to_cpswap_wallet.pubkey,
-            system_program: system_program.pubkey,
+            owner,
+            global_config,
+            quote_token_mint,
+            protocol_fee_owner,
+            migrate_fee_owner,
+            migrate_to_amm_wallet,
+            migrate_to_cpswap_wallet,
+            system_program,
         })
     }
 }

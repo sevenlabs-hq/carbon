@@ -5,13 +5,19 @@ use crate::PROGRAM_ID;
 
 use super::PumpSwapDecoder;
 pub mod bonding_curve;
+pub mod fee_config;
 pub mod global_config;
+pub mod global_volume_accumulator;
 pub mod pool;
+pub mod user_volume_accumulator;
 
 pub enum PumpSwapAccount {
     BondingCurve(bonding_curve::BondingCurve),
+    FeeConfig(fee_config::FeeConfig),
     GlobalConfig(global_config::GlobalConfig),
+    GlobalVolumeAccumulator(global_volume_accumulator::GlobalVolumeAccumulator),
     Pool(pool::Pool),
+    UserVolumeAccumulator(user_volume_accumulator::UserVolumeAccumulator),
 }
 
 impl AccountDecoder<'_> for PumpSwapDecoder {
@@ -36,6 +42,16 @@ impl AccountDecoder<'_> for PumpSwapDecoder {
             });
         }
 
+        if let Some(decoded_account) = fee_config::FeeConfig::deserialize(account.data.as_slice()) {
+            return Some(carbon_core::account::DecodedAccount {
+                lamports: account.lamports,
+                data: PumpSwapAccount::FeeConfig(decoded_account),
+                owner: account.owner,
+                executable: account.executable,
+                rent_epoch: account.rent_epoch,
+            });
+        }
+
         if let Some(decoded_account) =
             global_config::GlobalConfig::deserialize(account.data.as_slice())
         {
@@ -48,10 +64,34 @@ impl AccountDecoder<'_> for PumpSwapDecoder {
             });
         }
 
+        if let Some(decoded_account) =
+            global_volume_accumulator::GlobalVolumeAccumulator::deserialize(account.data.as_slice())
+        {
+            return Some(carbon_core::account::DecodedAccount {
+                lamports: account.lamports,
+                data: PumpSwapAccount::GlobalVolumeAccumulator(decoded_account),
+                owner: account.owner,
+                executable: account.executable,
+                rent_epoch: account.rent_epoch,
+            });
+        }
+
         if let Some(decoded_account) = pool::Pool::deserialize(account.data.as_slice()) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
                 data: PumpSwapAccount::Pool(decoded_account),
+                owner: account.owner,
+                executable: account.executable,
+                rent_epoch: account.rent_epoch,
+            });
+        }
+
+        if let Some(decoded_account) =
+            user_volume_accumulator::UserVolumeAccumulator::deserialize(account.data.as_slice())
+        {
+            return Some(carbon_core::account::DecodedAccount {
+                lamports: account.lamports,
+                data: PumpSwapAccount::UserVolumeAccumulator(decoded_account),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

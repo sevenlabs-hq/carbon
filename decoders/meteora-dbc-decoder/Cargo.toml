@@ -1,0 +1,17 @@
+[package]
+name = "carbon-meteora-dbc-decoder"
+version = "0.10.0"
+license = "MIT"
+description = "Meteora DBC Decoder"
+edition = { workspace = true }
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+carbon-core = { workspace = true }
+solana-account = { workspace = true }
+solana-instruction = { workspace = true }
+solana-pubkey = { workspace = true }
+serde = { workspace = true }
+serde-big-array = { workspace = true }

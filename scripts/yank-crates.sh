@@ -24,9 +24,11 @@ workspace_crates=(
     carbon-address-lookup-table-decoder
     carbon-associated-token-account-decoder
     carbon-boop-decoder
+    carbon-bubblegum-decoder
     carbon-drift-v2-decoder
     carbon-fluxbeam-decoder
     carbon-gavel-decoder
+    carbon-heaven-decoder
     carbon-jupiter-dca-decoder
     carbon-jupiter-limit-order-2-decoder
     carbon-jupiter-limit-order-decoder
@@ -43,6 +45,8 @@ workspace_crates=(
     carbon-meteora-damm-v2-decoder
     carbon-meteora-dlmm-decoder
     carbon-meteora-pools-decoder
+    carbon-meteora-vault-decoder
+    carbon-meteora-dbc-decoder
     carbon-moonshot-decoder
     carbon-mpl-core-decoder
     carbon-mpl-token-metadata-decoder
@@ -52,6 +56,7 @@ workspace_crates=(
     carbon-orca-whirlpool-decoder
     carbon-phoenix-v1-decoder
     carbon-pump-swap-decoder
+    carbon-pump-fees-decoder
     carbon-pumpfun-decoder
     carbon-raydium-amm-v4-decoder
     carbon-raydium-clmm-decoder
@@ -67,7 +72,7 @@ workspace_crates=(
     carbon-system-program-decoder
     carbon-token-2022-decoder
     carbon-token-program-decoder
-    carbon-virtual-curve-decoder
+    carbon-vertigo-decoder
     carbon-virtuals-decoder
     carbon-zeta-decoder
 )

@@ -30,6 +30,33 @@ pub fn read_idl(idl_path: &str) -> Result<Idl> {
     }
 }
 
+pub fn is_primish(t: &LegacyIdlType) -> bool {
+    match t {
+        LegacyIdlType::Primitive(s) => matches!(
+            s.as_str(),
+            "bool"
+                | "u8"
+                | "i8"
+                | "u16"
+                | "i16"
+                | "u32"
+                | "i32"
+                | "u64"
+                | "i64"
+                | "u128"
+                | "i128"
+                | "f32"
+                | "f64"
+                | "bytes"
+                | "string"
+                | "pubkey"
+                | "publicKey"
+        ),
+        LegacyIdlType::OptionPrimitive { .. } => true,
+        _ => false,
+    }
+}
+
 pub fn idl_type_to_rust_type(idl_type: &LegacyIdlType) -> (String, bool) {
     match idl_type {
         LegacyIdlType::Primitive(s) => match s.as_str() {

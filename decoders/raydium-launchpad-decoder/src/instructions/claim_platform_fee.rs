@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -26,23 +26,29 @@ impl carbon_core::deserialize::ArrangeAccounts for ClaimPlatformFee {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [platform_fee_wallet, authority, pool_state, platform_config, quote_vault, recipient_token_account, quote_mint, token_program, system_program, associated_token_program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let platform_fee_wallet = next_account(&mut iter)?;
+        let authority = next_account(&mut iter)?;
+        let pool_state = next_account(&mut iter)?;
+        let platform_config = next_account(&mut iter)?;
+        let quote_vault = next_account(&mut iter)?;
+        let recipient_token_account = next_account(&mut iter)?;
+        let quote_mint = next_account(&mut iter)?;
+        let token_program = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let associated_token_program = next_account(&mut iter)?;
 
         Some(ClaimPlatformFeeInstructionAccounts {
-            platform_fee_wallet: platform_fee_wallet.pubkey,
-            authority: authority.pubkey,
-            pool_state: pool_state.pubkey,
-            platform_config: platform_config.pubkey,
-            quote_vault: quote_vault.pubkey,
-            recipient_token_account: recipient_token_account.pubkey,
-            quote_mint: quote_mint.pubkey,
-            token_program: token_program.pubkey,
-            system_program: system_program.pubkey,
-            associated_token_program: associated_token_program.pubkey,
+            platform_fee_wallet,
+            authority,
+            pool_state,
+            platform_config,
+            quote_vault,
+            recipient_token_account,
+            quote_mint,
+            token_program,
+            system_program,
+            associated_token_program,
         })
     }
 }

@@ -1,3 +1,6 @@
+use super::*;
+
+use alloc::vec::Vec;
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
@@ -17,6 +20,10 @@ pub struct PlatformConfig {
     pub web: [u8; 256],
     #[serde(with = "serde_big_array::BigArray")]
     pub img: [u8; 256],
+    pub cpswap_config: solana_pubkey::Pubkey,
+    pub creator_fee_rate: u64,
+    pub transfer_fee_extension_auth: solana_pubkey::Pubkey,
     #[serde(with = "serde_big_array::BigArray")]
-    pub padding: [u8; 256],
+    pub padding: [u8; 180],
+    pub curve_params: Vec<PlatformCurveParam>,
 }

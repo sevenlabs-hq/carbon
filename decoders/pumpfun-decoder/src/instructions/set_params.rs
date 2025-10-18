@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -15,6 +15,7 @@ pub struct SetParams {
     pub pool_migration_fee: u64,
     pub creator_fee_basis_points: u64,
     pub set_creator_authority: solana_pubkey::Pubkey,
+    pub admin_set_creator_authority: solana_pubkey::Pubkey,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
@@ -31,15 +32,17 @@ impl carbon_core::deserialize::ArrangeAccounts for SetParams {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [global, authority, event_authority, program, _remaining @ ..] = accounts else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let global = next_account(&mut iter)?;
+        let authority = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
 
         Some(SetParamsInstructionAccounts {
-            global: global.pubkey,
-            authority: authority.pubkey,
-            event_authority: event_authority.pubkey,
-            program: program.pubkey,
+            global,
+            authority,
+            event_authority,
+            program,
         })
     }
 }

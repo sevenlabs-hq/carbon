@@ -1,7 +1,6 @@
-use {
-    super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use super::super::types::*;
+
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -16,7 +15,7 @@ pub struct SwapV2 {
     pub remaining_accounts_info: Option<RemainingAccountsInfo>,
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct SwapV2InstructionAccounts {
     pub token_program_a: solana_pubkey::Pubkey,
     pub token_program_b: solana_pubkey::Pubkey,
@@ -33,7 +32,6 @@ pub struct SwapV2InstructionAccounts {
     pub tick_array1: solana_pubkey::Pubkey,
     pub tick_array2: solana_pubkey::Pubkey,
     pub oracle: solana_pubkey::Pubkey,
-    pub remaining_accounts: Vec<solana_instruction::AccountMeta>,
 }
 
 impl carbon_core::deserialize::ArrangeAccounts for SwapV2 {
@@ -42,29 +40,39 @@ impl carbon_core::deserialize::ArrangeAccounts for SwapV2 {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [token_program_a, token_program_b, memo_program, token_authority, whirlpool, token_mint_a, token_mint_b, token_owner_account_a, token_vault_a, token_owner_account_b, token_vault_b, tick_array0, tick_array1, tick_array2, oracle, remaining_accounts @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let token_program_a = next_account(&mut iter)?;
+        let token_program_b = next_account(&mut iter)?;
+        let memo_program = next_account(&mut iter)?;
+        let token_authority = next_account(&mut iter)?;
+        let whirlpool = next_account(&mut iter)?;
+        let token_mint_a = next_account(&mut iter)?;
+        let token_mint_b = next_account(&mut iter)?;
+        let token_owner_account_a = next_account(&mut iter)?;
+        let token_vault_a = next_account(&mut iter)?;
+        let token_owner_account_b = next_account(&mut iter)?;
+        let token_vault_b = next_account(&mut iter)?;
+        let tick_array0 = next_account(&mut iter)?;
+        let tick_array1 = next_account(&mut iter)?;
+        let tick_array2 = next_account(&mut iter)?;
+        let oracle = next_account(&mut iter)?;
 
         Some(SwapV2InstructionAccounts {
-            token_program_a: token_program_a.pubkey,
-            token_program_b: token_program_b.pubkey,
-            memo_program: memo_program.pubkey,
-            token_authority: token_authority.pubkey,
-            whirlpool: whirlpool.pubkey,
-            token_mint_a: token_mint_a.pubkey,
-            token_mint_b: token_mint_b.pubkey,
-            token_owner_account_a: token_owner_account_a.pubkey,
-            token_vault_a: token_vault_a.pubkey,
-            token_owner_account_b: token_owner_account_b.pubkey,
-            token_vault_b: token_vault_b.pubkey,
-            tick_array0: tick_array0.pubkey,
-            tick_array1: tick_array1.pubkey,
-            tick_array2: tick_array2.pubkey,
-            oracle: oracle.pubkey,
-            remaining_accounts: remaining_accounts.to_vec(),
+            token_program_a,
+            token_program_b,
+            memo_program,
+            token_authority,
+            whirlpool,
+            token_mint_a,
+            token_mint_b,
+            token_owner_account_a,
+            token_vault_a,
+            token_owner_account_b,
+            token_vault_b,
+            tick_array0,
+            tick_array1,
+            tick_array2,
+            oracle,
         })
     }
 }

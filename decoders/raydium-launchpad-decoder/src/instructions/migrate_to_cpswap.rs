@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -44,41 +44,65 @@ impl carbon_core::deserialize::ArrangeAccounts for MigrateToCpswap {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [payer, base_mint, quote_mint, platform_config, cpswap_program, cpswap_pool, cpswap_authority, cpswap_lp_mint, cpswap_base_vault, cpswap_quote_vault, cpswap_config, cpswap_create_pool_fee, cpswap_observation, lock_program, lock_authority, lock_lp_vault, authority, pool_state, global_config, base_vault, quote_vault, pool_lp_token, base_token_program, quote_token_program, associated_token_program, system_program, rent_program, metadata_program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let payer = next_account(&mut iter)?;
+        let base_mint = next_account(&mut iter)?;
+        let quote_mint = next_account(&mut iter)?;
+        let platform_config = next_account(&mut iter)?;
+        let cpswap_program = next_account(&mut iter)?;
+        let cpswap_pool = next_account(&mut iter)?;
+        let cpswap_authority = next_account(&mut iter)?;
+        let cpswap_lp_mint = next_account(&mut iter)?;
+        let cpswap_base_vault = next_account(&mut iter)?;
+        let cpswap_quote_vault = next_account(&mut iter)?;
+        let cpswap_config = next_account(&mut iter)?;
+        let cpswap_create_pool_fee = next_account(&mut iter)?;
+        let cpswap_observation = next_account(&mut iter)?;
+        let lock_program = next_account(&mut iter)?;
+        let lock_authority = next_account(&mut iter)?;
+        let lock_lp_vault = next_account(&mut iter)?;
+        let authority = next_account(&mut iter)?;
+        let pool_state = next_account(&mut iter)?;
+        let global_config = next_account(&mut iter)?;
+        let base_vault = next_account(&mut iter)?;
+        let quote_vault = next_account(&mut iter)?;
+        let pool_lp_token = next_account(&mut iter)?;
+        let base_token_program = next_account(&mut iter)?;
+        let quote_token_program = next_account(&mut iter)?;
+        let associated_token_program = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let rent_program = next_account(&mut iter)?;
+        let metadata_program = next_account(&mut iter)?;
 
         Some(MigrateToCpswapInstructionAccounts {
-            payer: payer.pubkey,
-            base_mint: base_mint.pubkey,
-            quote_mint: quote_mint.pubkey,
-            platform_config: platform_config.pubkey,
-            cpswap_program: cpswap_program.pubkey,
-            cpswap_pool: cpswap_pool.pubkey,
-            cpswap_authority: cpswap_authority.pubkey,
-            cpswap_lp_mint: cpswap_lp_mint.pubkey,
-            cpswap_base_vault: cpswap_base_vault.pubkey,
-            cpswap_quote_vault: cpswap_quote_vault.pubkey,
-            cpswap_config: cpswap_config.pubkey,
-            cpswap_create_pool_fee: cpswap_create_pool_fee.pubkey,
-            cpswap_observation: cpswap_observation.pubkey,
-            lock_program: lock_program.pubkey,
-            lock_authority: lock_authority.pubkey,
-            lock_lp_vault: lock_lp_vault.pubkey,
-            authority: authority.pubkey,
-            pool_state: pool_state.pubkey,
-            global_config: global_config.pubkey,
-            base_vault: base_vault.pubkey,
-            quote_vault: quote_vault.pubkey,
-            pool_lp_token: pool_lp_token.pubkey,
-            base_token_program: base_token_program.pubkey,
-            quote_token_program: quote_token_program.pubkey,
-            associated_token_program: associated_token_program.pubkey,
-            system_program: system_program.pubkey,
-            rent_program: rent_program.pubkey,
-            metadata_program: metadata_program.pubkey,
+            payer,
+            base_mint,
+            quote_mint,
+            platform_config,
+            cpswap_program,
+            cpswap_pool,
+            cpswap_authority,
+            cpswap_lp_mint,
+            cpswap_base_vault,
+            cpswap_quote_vault,
+            cpswap_config,
+            cpswap_create_pool_fee,
+            cpswap_observation,
+            lock_program,
+            lock_authority,
+            lock_lp_vault,
+            authority,
+            pool_state,
+            global_config,
+            base_vault,
+            quote_vault,
+            pool_lp_token,
+            base_token_program,
+            quote_token_program,
+            associated_token_program,
+            system_program,
+            rent_program,
+            metadata_program,
         })
     }
 }

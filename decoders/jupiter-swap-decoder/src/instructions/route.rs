@@ -1,7 +1,6 @@
-use {
-    super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use super::super::types::*;
+
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -15,6 +14,7 @@ pub struct Route {
     pub platform_fee_bps: u8,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct RouteInstructionAccounts {
     pub token_program: solana_pubkey::Pubkey,
     pub user_transfer_authority: solana_pubkey::Pubkey,
@@ -33,22 +33,27 @@ impl carbon_core::deserialize::ArrangeAccounts for Route {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [token_program, user_transfer_authority, user_source_token_account, user_destination_token_account, destination_token_account, destination_mint, platform_fee_account, event_authority, program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let token_program = next_account(&mut iter)?;
+        let user_transfer_authority = next_account(&mut iter)?;
+        let user_source_token_account = next_account(&mut iter)?;
+        let user_destination_token_account = next_account(&mut iter)?;
+        let destination_token_account = next_account(&mut iter)?;
+        let destination_mint = next_account(&mut iter)?;
+        let platform_fee_account = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
 
         Some(RouteInstructionAccounts {
-            token_program: token_program.pubkey,
-            user_transfer_authority: user_transfer_authority.pubkey,
-            user_source_token_account: user_source_token_account.pubkey,
-            user_destination_token_account: user_destination_token_account.pubkey,
-            destination_token_account: destination_token_account.pubkey,
-            destination_mint: destination_mint.pubkey,
-            platform_fee_account: platform_fee_account.pubkey,
-            event_authority: event_authority.pubkey,
-            program: program.pubkey,
+            token_program,
+            user_transfer_authority,
+            user_source_token_account,
+            user_destination_token_account,
+            destination_token_account,
+            destination_mint,
+            platform_fee_account,
+            event_authority,
+            program,
         })
     }
 }

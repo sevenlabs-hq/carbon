@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -6,23 +6,24 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[carbon(discriminator = "0xf223c68952e1f2b6")]
 pub struct Deposit {
     pub lp_token_amount: u64,
-    pub maximum_token0_amount: u64,
-    pub maximum_token1_amount: u64,
+    pub maximum_token_0_amount: u64,
+    pub maximum_token_1_amount: u64,
 }
 
+#[derive(Debug, PartialEq, Eq, Clone, Hash, serde::Serialize, serde::Deserialize)]
 pub struct DepositInstructionAccounts {
     pub owner: solana_pubkey::Pubkey,
     pub authority: solana_pubkey::Pubkey,
     pub pool_state: solana_pubkey::Pubkey,
     pub owner_lp_token: solana_pubkey::Pubkey,
-    pub token0_account: solana_pubkey::Pubkey,
-    pub token1_account: solana_pubkey::Pubkey,
-    pub token0_vault: solana_pubkey::Pubkey,
-    pub token1_vault: solana_pubkey::Pubkey,
+    pub token_0_account: solana_pubkey::Pubkey,
+    pub token_1_account: solana_pubkey::Pubkey,
+    pub token_0_vault: solana_pubkey::Pubkey,
+    pub token_1_vault: solana_pubkey::Pubkey,
     pub token_program: solana_pubkey::Pubkey,
-    pub token_program2022: solana_pubkey::Pubkey,
-    pub vault0_mint: solana_pubkey::Pubkey,
-    pub vault1_mint: solana_pubkey::Pubkey,
+    pub token_program_2022: solana_pubkey::Pubkey,
+    pub vault_0_mint: solana_pubkey::Pubkey,
+    pub vault_1_mint: solana_pubkey::Pubkey,
     pub lp_mint: solana_pubkey::Pubkey,
 }
 
@@ -32,26 +33,35 @@ impl carbon_core::deserialize::ArrangeAccounts for Deposit {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [owner, authority, pool_state, owner_lp_token, token0_account, token1_account, token0_vault, token1_vault, token_program, token_program2022, vault0_mint, vault1_mint, lp_mint, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let owner = next_account(&mut iter)?;
+        let authority = next_account(&mut iter)?;
+        let pool_state = next_account(&mut iter)?;
+        let owner_lp_token = next_account(&mut iter)?;
+        let token_0_account = next_account(&mut iter)?;
+        let token_1_account = next_account(&mut iter)?;
+        let token_0_vault = next_account(&mut iter)?;
+        let token_1_vault = next_account(&mut iter)?;
+        let token_program = next_account(&mut iter)?;
+        let token_program_2022 = next_account(&mut iter)?;
+        let vault_0_mint = next_account(&mut iter)?;
+        let vault_1_mint = next_account(&mut iter)?;
+        let lp_mint = next_account(&mut iter)?;
 
         Some(DepositInstructionAccounts {
-            owner: owner.pubkey,
-            authority: authority.pubkey,
-            pool_state: pool_state.pubkey,
-            owner_lp_token: owner_lp_token.pubkey,
-            token0_account: token0_account.pubkey,
-            token1_account: token1_account.pubkey,
-            token0_vault: token0_vault.pubkey,
-            token1_vault: token1_vault.pubkey,
-            token_program: token_program.pubkey,
-            token_program2022: token_program2022.pubkey,
-            vault0_mint: vault0_mint.pubkey,
-            vault1_mint: vault1_mint.pubkey,
-            lp_mint: lp_mint.pubkey,
+            owner,
+            authority,
+            pool_state,
+            owner_lp_token,
+            token_0_account,
+            token_1_account,
+            token_0_vault,
+            token_1_vault,
+            token_program,
+            token_program_2022,
+            vault_0_mint,
+            vault_1_mint,
+            lp_mint,
         })
     }
 }
