@@ -15,6 +15,7 @@ export type ScaffoldOptions = {
     metrics: 'log' | 'prometheus';
     withPostgres: boolean;
     withGraphql: boolean;
+    withSerde: boolean;
     force?: boolean;
 };
 
@@ -29,6 +30,7 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
 
     if (opts.withPostgres) featureParts.push('"postgres"');
     if (opts.withGraphql) featureParts.push('"graphql"');
+    if (opts.withSerde) featureParts.push('"serde"');
 
     const hasLocalDecoder = true;
     const decoderCrateName = kebabCase(opts.decoder)

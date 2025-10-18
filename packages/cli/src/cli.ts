@@ -102,6 +102,7 @@ program
     .option('-m, --metrics <log|prometheus>', 'Metrics to use', 'log')
     .option('--with-postgres <boolean>', 'Include Postgres wiring and deps (default: true)')
     .option('--with-graphql <boolean>', 'Include GraphQL wiring and deps (default: true)')
+    .option('--with-serde <boolean>', 'Include serde feature for decoder (default: false)')
     .option('--force', 'Overwrite output directory if it exists', false)
     .action(async opts => {
         showBanner();
@@ -127,6 +128,9 @@ program
         const withGraphql = opts.withGraphql !== undefined
             ? opts.withGraphql === 'true' || opts.withGraphql === true
             : true;
+        const withSerde = opts.withSerde !== undefined
+            ? opts.withSerde === 'true' || opts.withSerde === true
+            : false;
         const force = Boolean(opts.force);
 
         // Use provided decoder name or auto-detect from IDL
@@ -169,6 +173,7 @@ program
                 metrics,
                 withPostgres,
                 withGraphql,
+                withSerde,
                 force,
             });
             
