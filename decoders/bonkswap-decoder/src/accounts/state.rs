@@ -29,7 +29,7 @@ impl State {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[216, 146, 107, 94, 104, 75, 182, 177] {
+        if discriminator != [216, 146, 107, 94, 104, 75, 182, 177] {
             return None;
         }
 

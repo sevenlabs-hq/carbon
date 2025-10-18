@@ -50,7 +50,7 @@ impl AddSupply {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[80, 102, 70, 57, 235, 88, 239, 8] {
+        if discriminator != [80, 102, 70, 57, 235, 88, 239, 8] {
             return None;
         }
 

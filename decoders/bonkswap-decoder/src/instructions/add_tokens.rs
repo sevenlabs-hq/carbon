@@ -60,7 +60,7 @@ impl AddTokens {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[28, 218, 30, 209, 175, 155, 153, 240] {
+        if discriminator != [28, 218, 30, 209, 175, 155, 153, 240] {
             return None;
         }
 

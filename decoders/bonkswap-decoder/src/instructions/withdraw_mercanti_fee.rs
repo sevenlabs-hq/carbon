@@ -42,7 +42,7 @@ impl WithdrawMercantiFee {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[253, 229, 129, 37, 47, 72, 11, 240] {
+        if discriminator != [253, 229, 129, 37, 47, 72, 11, 240] {
             return None;
         }
 

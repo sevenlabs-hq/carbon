@@ -43,7 +43,7 @@ impl UpdateRewardTokens {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[249, 236, 71, 74, 104, 58, 225, 28] {
+        if discriminator != [249, 236, 71, 74, 104, 58, 225, 28] {
             return None;
         }
 

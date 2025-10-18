@@ -52,7 +52,7 @@ impl WithdrawRewards {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[10, 214, 219, 139, 205, 22, 251, 21] {
+        if discriminator != [10, 214, 219, 139, 205, 22, 251, 21] {
             return None;
         }
 

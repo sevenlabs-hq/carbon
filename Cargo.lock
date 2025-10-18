@@ -981,13 +981,10 @@ name = "carbon-bonkswap-decoder"
 version = "0.11.0"
 dependencies = [
  "async-trait",
- "base64 0.22.1",
  "carbon-core 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "carbon-test-utils 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "juniper",
  "serde",
- "serde-big-array",
- "serde_json",
  "solana-account",
  "solana-instruction",
  "solana-pubkey",

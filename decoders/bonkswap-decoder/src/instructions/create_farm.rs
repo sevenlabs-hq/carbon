@@ -49,7 +49,7 @@ impl CreateFarm {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[74, 59, 128, 160, 87, 174, 153, 194] {
+        if discriminator != [74, 59, 128, 160, 87, 174, 153, 194] {
             return None;
         }
 

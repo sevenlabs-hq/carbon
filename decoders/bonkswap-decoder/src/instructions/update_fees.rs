@@ -43,7 +43,7 @@ impl UpdateFees {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[225, 27, 13, 6, 69, 84, 172, 191] {
+        if discriminator != [225, 27, 13, 6, 69, 84, 172, 191] {
             return None;
         }
 

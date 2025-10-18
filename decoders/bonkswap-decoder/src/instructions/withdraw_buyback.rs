@@ -45,7 +45,7 @@ impl WithdrawBuyback {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[188, 75, 30, 198, 99, 43, 12, 54] {
+        if discriminator != [188, 75, 30, 198, 99, 43, 12, 54] {
             return None;
         }
 

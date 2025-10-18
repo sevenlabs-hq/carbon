@@ -37,7 +37,7 @@ impl CreateState {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[214, 211, 209, 79, 107, 105, 247, 222] {
+        if discriminator != [214, 211, 209, 79, 107, 105, 247, 222] {
             return None;
         }
 

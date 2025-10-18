@@ -53,7 +53,7 @@ impl CreateDualFarm {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[42, 180, 103, 138, 206, 43, 208, 98] {
+        if discriminator != [42, 180, 103, 138, 206, 43, 208, 98] {
             return None;
         }
 

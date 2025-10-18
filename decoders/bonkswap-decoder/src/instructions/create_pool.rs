@@ -55,7 +55,7 @@ impl CreatePool {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[233, 146, 209, 142, 207, 104, 64, 188] {
+        if discriminator != [233, 146, 209, 142, 207, 104, 64, 188] {
             return None;
         }
 

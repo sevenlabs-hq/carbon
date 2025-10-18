@@ -57,7 +57,7 @@ impl PoolV2 {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[91, 12, 214, 87, 7, 185, 167, 55] {
+        if discriminator != [91, 12, 214, 87, 7, 185, 167, 55] {
             return None;
         }
 

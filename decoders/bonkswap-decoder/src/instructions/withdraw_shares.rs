@@ -59,7 +59,7 @@ impl WithdrawShares {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[176, 104, 154, 105, 250, 80, 68, 244] {
+        if discriminator != [176, 104, 154, 105, 250, 80, 68, 244] {
             return None;
         }
 

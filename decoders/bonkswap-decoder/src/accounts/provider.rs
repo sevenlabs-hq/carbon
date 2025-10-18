@@ -39,7 +39,7 @@ impl Provider {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[164, 180, 71, 17, 75, 216, 80, 195] {
+        if discriminator != [164, 180, 71, 17, 75, 216, 80, 195] {
             return None;
         }
 
