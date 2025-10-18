@@ -214,6 +214,7 @@ export async function promptForScaffold(existingOpts: ScaffoldOptions = {}): Pro
         message: 'Data source:',
         choices: [
             { name: 'Helius Atlas WebSocket', value: 'helius-atlas-ws' },
+            { name: 'Helius Laserstream', value: 'helius-laserstream' },
             { name: 'RPC Block Subscribe', value: 'rpc-block-subscribe' },
             { name: 'RPC Program Subscribe', value: 'rpc-program-subscribe' },
             { name: 'RPC Transaction Crawler', value: 'rpc-transaction-crawler' },

@@ -44,17 +44,14 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
         }
         decoderDependency = ''; // Not used when hasLocalDecoder is true
     } else {
-        // Published Carbon decoder
-        decoderDependency = featureParts.length
-            ? `carbon-${opts.decoder.toLowerCase()}-decoder = { version = "0.11.0", features = [${featureParts.join(', ')}] }`
-            : `carbon-${opts.decoder.toLowerCase()}-decoder = "0.11.0"`;
+        decoderDependency = `carbon-${opts.decoder.toLowerCase()}-decoder = "0.11.0"`;
     }
 
     const datasourceDep = `carbon-${opts.dataSource.toLowerCase()}-datasource = "0.11.0"`;
     const metricsDep = `carbon-${opts.metrics.toLowerCase()}-metrics = "0.11.0"`;
 
     const grpcDeps =
-        opts.dataSource === 'yellowstone-grpc'
+        opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream'
             ? `yellowstone-grpc-client = { version = "9.0.0" }\nyellowstone-grpc-proto = { version = "9.0.0" }`
             : '';
 
@@ -64,7 +61,7 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
 
     const gqlDeps = opts.withGraphql ? `juniper = "0.15"\naxum = "0.7"` : '';
 
-    const rustlsDep = opts.dataSource === 'yellowstone-grpc' ? 'rustls = "0.23"' : '';
+    const rustlsDep = opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream' ? 'rustls = "0.23"' : '';
 
     const features = ['default = []', opts.withPostgres ? 'postgres = []' : '', opts.withGraphql ? 'graphql = []' : '']
         .filter(Boolean)
@@ -100,6 +97,9 @@ function getEnvContent(dataSource: string, withPostgres: boolean): string {
     switch (dataSourceLower) {
         case 'helius_atlas_ws':
             envContent += 'HELIUS_API_KEY=your-atlas-ws-url-here';
+            break;
+        case 'helius_laserstream':
+            envContent += 'GEYSER_URL=your-grpc-url-here\nX_TOKEN=your-x-token-here';
             break;
         case 'rpc_block_subscribe':
             envContent += 'RPC_WS_URL=your-rpc-ws-url-here';
