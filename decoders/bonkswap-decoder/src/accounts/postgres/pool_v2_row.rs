@@ -60,24 +60,24 @@ impl PoolV2Row {
             pool_y_account: source.pool_y_account.into(),
             admin: source.admin.into(),
             project_owner: source.project_owner.into(),
-            token_x_reserve: sqlx::types::Json(source.token_x_reserve.into()),
-            token_y_reserve: sqlx::types::Json(source.token_y_reserve.into()),
-            self_shares: sqlx::types::Json(source.self_shares.into()),
-            all_shares: sqlx::types::Json(source.all_shares.into()),
-            buyback_amount_x: sqlx::types::Json(source.buyback_amount_x.into()),
-            buyback_amount_y: sqlx::types::Json(source.buyback_amount_y.into()),
-            project_amount_x: sqlx::types::Json(source.project_amount_x.into()),
-            project_amount_y: sqlx::types::Json(source.project_amount_y.into()),
-            mercanti_amount_x: sqlx::types::Json(source.mercanti_amount_x.into()),
-            mercanti_amount_y: sqlx::types::Json(source.mercanti_amount_y.into()),
-            lp_accumulator_x: sqlx::types::Json(source.lp_accumulator_x.into()),
-            lp_accumulator_y: sqlx::types::Json(source.lp_accumulator_y.into()),
-            const_k: sqlx::types::Json(source.const_k.into()),
-            price: sqlx::types::Json(source.price.into()),
-            lp_fee: sqlx::types::Json(source.lp_fee.into()),
-            buyback_fee: sqlx::types::Json(source.buyback_fee.into()),
-            project_fee: sqlx::types::Json(source.project_fee.into()),
-            mercanti_fee: sqlx::types::Json(source.mercanti_fee.into()),
+            token_x_reserve: sqlx::types::Json(source.token_x_reserve),
+            token_y_reserve: sqlx::types::Json(source.token_y_reserve),
+            self_shares: sqlx::types::Json(source.self_shares),
+            all_shares: sqlx::types::Json(source.all_shares),
+            buyback_amount_x: sqlx::types::Json(source.buyback_amount_x),
+            buyback_amount_y: sqlx::types::Json(source.buyback_amount_y),
+            project_amount_x: sqlx::types::Json(source.project_amount_x),
+            project_amount_y: sqlx::types::Json(source.project_amount_y),
+            mercanti_amount_x: sqlx::types::Json(source.mercanti_amount_x),
+            mercanti_amount_y: sqlx::types::Json(source.mercanti_amount_y),
+            lp_accumulator_x: sqlx::types::Json(source.lp_accumulator_x),
+            lp_accumulator_y: sqlx::types::Json(source.lp_accumulator_y),
+            const_k: sqlx::types::Json(source.const_k),
+            price: sqlx::types::Json(source.price),
+            lp_fee: sqlx::types::Json(source.lp_fee),
+            buyback_fee: sqlx::types::Json(source.buyback_fee),
+            project_fee: sqlx::types::Json(source.project_fee),
+            mercanti_fee: sqlx::types::Json(source.mercanti_fee),
             farm_count: source.farm_count.into(),
             pool_bump: source.pool_bump.into(),
             lp_token: source.lp_token.into(),
@@ -225,12 +225,12 @@ impl carbon_core::postgres::operations::Insert for PoolV2Row {
                                         __pubkey, __slot
                         ) VALUES (
                                                                             $1,                            $2,                            $3,                            $4,                            $5,                            $6,                            $7,                            $8,                            $9,                            $10,                            $11,                            $12,                            $13,                            $14,                            $15,                            $16,                            $17,                            $18,                            $19,                            $20,                            $21,                            $22,                            $23,                            $24,                            $25,                            $26,                            $27,                            $28,                            $29,                            $30,                            $31                    )"#)
-                .bind(self.token_x.clone())
-                .bind(self.token_y.clone())
-                .bind(self.pool_x_account.clone())
-                .bind(self.pool_y_account.clone())
-                .bind(self.admin.clone())
-                .bind(self.project_owner.clone())
+                .bind(self.token_x)
+                .bind(self.token_y)
+                .bind(self.pool_x_account)
+                .bind(self.pool_y_account)
+                .bind(self.admin)
+                .bind(self.project_owner)
                 .bind(self.token_x_reserve.clone())
                 .bind(self.token_y_reserve.clone())
                 .bind(self.self_shares.clone())
@@ -250,11 +250,11 @@ impl carbon_core::postgres::operations::Insert for PoolV2Row {
                 .bind(self.project_fee.clone())
                 .bind(self.mercanti_fee.clone())
                 .bind(self.farm_count.clone())
-                .bind(self.pool_bump.clone())
-                .bind(self.lp_token.clone())
-                .bind(self.lp_token_mint_bump.clone())
+                .bind(self.pool_bump)
+                .bind(self.lp_token)
+                .bind(self.lp_token_mint_bump)
                 .bind(self.padding.clone())
-                        .bind(self.metadata.pubkey.clone())
+                        .bind(self.metadata.pubkey)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -331,12 +331,12 @@ impl carbon_core::postgres::operations::Upsert for PoolV2Row {
                         "padding" = EXCLUDED."padding",
                                     __slot = EXCLUDED.__slot
                     "#)
-                .bind(self.token_x.clone())
-                .bind(self.token_y.clone())
-                .bind(self.pool_x_account.clone())
-                .bind(self.pool_y_account.clone())
-                .bind(self.admin.clone())
-                .bind(self.project_owner.clone())
+                .bind(self.token_x)
+                .bind(self.token_y)
+                .bind(self.pool_x_account)
+                .bind(self.pool_y_account)
+                .bind(self.admin)
+                .bind(self.project_owner)
                 .bind(self.token_x_reserve.clone())
                 .bind(self.token_y_reserve.clone())
                 .bind(self.self_shares.clone())
@@ -356,9 +356,9 @@ impl carbon_core::postgres::operations::Upsert for PoolV2Row {
                 .bind(self.project_fee.clone())
                 .bind(self.mercanti_fee.clone())
                 .bind(self.farm_count.clone())
-                .bind(self.pool_bump.clone())
-                .bind(self.lp_token.clone())
-                .bind(self.lp_token_mint_bump.clone())
+                .bind(self.pool_bump)
+                .bind(self.lp_token)
+                .bind(self.lp_token_mint_bump)
                 .bind(self.padding.clone())
                         .bind(self.metadata.pubkey)
         .bind(self.metadata.slot.clone())

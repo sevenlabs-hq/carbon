@@ -25,9 +25,9 @@ impl AddSupplyRow {
     pub fn from_parts(source: AddSupply, metadata: InstructionMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-            supply_marco: sqlx::types::Json(source.supply_marco.into()),
-            supply_project_first: sqlx::types::Json(source.supply_project_first.into()),
-            supply_project_second: sqlx::types::Json(source.supply_project_second.into()),
+            supply_marco: sqlx::types::Json(source.supply_marco),
+            supply_project_first: sqlx::types::Json(source.supply_project_first),
+            supply_project_second: sqlx::types::Json(source.supply_project_second),
             duration: source.duration.into(),
         }
     }
@@ -81,8 +81,8 @@ impl carbon_core::postgres::operations::Insert for AddSupplyRow {
                 .bind(self.supply_project_second.clone())
                 .bind(self.duration.clone())
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.instruction_index.clone())
-        .bind(self.metadata.stack_height.clone())
+        .bind(self.metadata.instruction_index)
+        .bind(self.metadata.stack_height)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -116,8 +116,8 @@ impl carbon_core::postgres::operations::Upsert for AddSupplyRow {
                 .bind(self.supply_project_second.clone())
                 .bind(self.duration.clone())
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.instruction_index.clone())
-        .bind(self.metadata.stack_height.clone())
+        .bind(self.metadata.instruction_index)
+        .bind(self.metadata.stack_height)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

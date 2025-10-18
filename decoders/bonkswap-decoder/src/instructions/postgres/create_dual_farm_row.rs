@@ -26,8 +26,8 @@ impl CreateDualFarmRow {
     pub fn from_parts(source: CreateDualFarm, metadata: InstructionMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-            supply_marco: sqlx::types::Json(source.supply_marco.into()),
-            supply_project_first: sqlx::types::Json(source.supply_project_first.into()),
+            supply_marco: sqlx::types::Json(source.supply_marco),
+            supply_project_first: sqlx::types::Json(source.supply_project_first),
             duration: source.duration.into(),
             bump: source.bump.into(),
         }
@@ -84,10 +84,10 @@ impl carbon_core::postgres::operations::Insert for CreateDualFarmRow {
                 .bind(self.supply_marco.clone())
                 .bind(self.supply_project_first.clone())
                 .bind(self.duration.clone())
-                .bind(self.bump.clone())
+                .bind(self.bump)
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.instruction_index.clone())
-        .bind(self.metadata.stack_height.clone())
+        .bind(self.metadata.instruction_index)
+        .bind(self.metadata.stack_height)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -119,10 +119,10 @@ impl carbon_core::postgres::operations::Upsert for CreateDualFarmRow {
                 .bind(self.supply_marco.clone())
                 .bind(self.supply_project_first.clone())
                 .bind(self.duration.clone())
-                .bind(self.bump.clone())
+                .bind(self.bump)
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.instruction_index.clone())
-        .bind(self.metadata.stack_height.clone())
+        .bind(self.metadata.instruction_index)
+        .bind(self.metadata.stack_height)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

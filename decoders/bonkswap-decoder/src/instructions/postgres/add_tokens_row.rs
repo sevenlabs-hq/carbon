@@ -22,8 +22,8 @@ impl AddTokensRow {
     pub fn from_parts(source: AddTokens, metadata: InstructionMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-            delta_x: sqlx::types::Json(source.delta_x.into()),
-            delta_y: sqlx::types::Json(source.delta_y.into()),
+            delta_x: sqlx::types::Json(source.delta_x),
+            delta_y: sqlx::types::Json(source.delta_y),
         }
     }
 }
@@ -68,8 +68,8 @@ impl carbon_core::postgres::operations::Insert for AddTokensRow {
                 .bind(self.delta_x.clone())
                 .bind(self.delta_y.clone())
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.instruction_index.clone())
-        .bind(self.metadata.stack_height.clone())
+        .bind(self.metadata.instruction_index)
+        .bind(self.metadata.stack_height)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -97,8 +97,8 @@ impl carbon_core::postgres::operations::Upsert for AddTokensRow {
                 .bind(self.delta_x.clone())
                 .bind(self.delta_y.clone())
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.instruction_index.clone())
-        .bind(self.metadata.stack_height.clone())
+        .bind(self.metadata.instruction_index)
+        .bind(self.metadata.stack_height)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

@@ -39,13 +39,13 @@ impl ProviderRow {
             token_x: source.token_x.into(),
             token_y: source.token_y.into(),
             owner: source.owner.into(),
-            shares: sqlx::types::Json(source.shares.into()),
-            last_fee_accumulator_x: sqlx::types::Json(source.last_fee_accumulator_x.into()),
-            last_fee_accumulator_y: sqlx::types::Json(source.last_fee_accumulator_y.into()),
-            last_seconds_per_share: sqlx::types::Json(source.last_seconds_per_share.into()),
+            shares: sqlx::types::Json(source.shares),
+            last_fee_accumulator_x: sqlx::types::Json(source.last_fee_accumulator_x),
+            last_fee_accumulator_y: sqlx::types::Json(source.last_fee_accumulator_y),
+            last_seconds_per_share: sqlx::types::Json(source.last_seconds_per_share),
             last_withdraw_time: source.last_withdraw_time.into(),
-            tokens_owed_x: sqlx::types::Json(source.tokens_owed_x.into()),
-            tokens_owed_y: sqlx::types::Json(source.tokens_owed_y.into()),
+            tokens_owed_x: sqlx::types::Json(source.tokens_owed_x),
+            tokens_owed_y: sqlx::types::Json(source.tokens_owed_y),
             current_farm_count: source.current_farm_count.into(),
             bump: source.bump.into(),
         }
@@ -121,9 +121,9 @@ impl carbon_core::postgres::operations::Insert for ProviderRow {
                                         __pubkey, __slot
                         ) VALUES (
                                                                             $1,                            $2,                            $3,                            $4,                            $5,                            $6,                            $7,                            $8,                            $9,                            $10,                            $11,                            $12,                            $13,                            $14                    )"#)
-                .bind(self.token_x.clone())
-                .bind(self.token_y.clone())
-                .bind(self.owner.clone())
+                .bind(self.token_x)
+                .bind(self.token_y)
+                .bind(self.owner)
                 .bind(self.shares.clone())
                 .bind(self.last_fee_accumulator_x.clone())
                 .bind(self.last_fee_accumulator_y.clone())
@@ -132,8 +132,8 @@ impl carbon_core::postgres::operations::Insert for ProviderRow {
                 .bind(self.tokens_owed_x.clone())
                 .bind(self.tokens_owed_y.clone())
                 .bind(self.current_farm_count.clone())
-                .bind(self.bump.clone())
-                        .bind(self.metadata.pubkey.clone())
+                .bind(self.bump)
+                        .bind(self.metadata.pubkey)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -176,9 +176,9 @@ impl carbon_core::postgres::operations::Upsert for ProviderRow {
                         "bump" = EXCLUDED."bump",
                                     __slot = EXCLUDED.__slot
                     "#)
-                .bind(self.token_x.clone())
-                .bind(self.token_y.clone())
-                .bind(self.owner.clone())
+                .bind(self.token_x)
+                .bind(self.token_y)
+                .bind(self.owner)
                 .bind(self.shares.clone())
                 .bind(self.last_fee_accumulator_x.clone())
                 .bind(self.last_fee_accumulator_y.clone())
@@ -187,7 +187,7 @@ impl carbon_core::postgres::operations::Upsert for ProviderRow {
                 .bind(self.tokens_owed_x.clone())
                 .bind(self.tokens_owed_y.clone())
                 .bind(self.current_farm_count.clone())
-                .bind(self.bump.clone())
+                .bind(self.bump)
                         .bind(self.metadata.pubkey)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await

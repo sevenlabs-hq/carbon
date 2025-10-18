@@ -25,7 +25,7 @@ impl CreateFarmRow {
     pub fn from_parts(source: CreateFarm, metadata: InstructionMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-            supply: sqlx::types::Json(source.supply.into()),
+            supply: sqlx::types::Json(source.supply),
             duration: source.duration.into(),
             bump: source.bump.into(),
         }
@@ -78,10 +78,10 @@ impl carbon_core::postgres::operations::Insert for CreateFarmRow {
                                                                             $1,                            $2,                            $3,                            $4,                            $5,                            $6,                            $7                    )"#)
                 .bind(self.supply.clone())
                 .bind(self.duration.clone())
-                .bind(self.bump.clone())
+                .bind(self.bump)
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.instruction_index.clone())
-        .bind(self.metadata.stack_height.clone())
+        .bind(self.metadata.instruction_index)
+        .bind(self.metadata.stack_height)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -110,10 +110,10 @@ impl carbon_core::postgres::operations::Upsert for CreateFarmRow {
                     "#)
                 .bind(self.supply.clone())
                 .bind(self.duration.clone())
-                .bind(self.bump.clone())
+                .bind(self.bump)
                         .bind(self.metadata.signature.clone())
-        .bind(self.metadata.instruction_index.clone())
-        .bind(self.metadata.stack_height.clone())
+        .bind(self.metadata.instruction_index)
+        .bind(self.metadata.stack_height)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

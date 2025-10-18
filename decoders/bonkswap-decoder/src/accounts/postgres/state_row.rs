@@ -82,11 +82,11 @@ impl carbon_core::postgres::operations::Insert for StateRow {
                                         __pubkey, __slot
                         ) VALUES (
                                                                             $1,                            $2,                            $3,                            $4,                            $5,                            $6                    )"#)
-                .bind(self.admin.clone())
-                .bind(self.program_authority.clone())
-                .bind(self.bump.clone())
-                .bind(self.nonce.clone())
-                        .bind(self.metadata.pubkey.clone())
+                .bind(self.admin)
+                .bind(self.program_authority)
+                .bind(self.bump)
+                .bind(self.nonce)
+                        .bind(self.metadata.pubkey)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -113,10 +113,10 @@ impl carbon_core::postgres::operations::Upsert for StateRow {
                         "nonce" = EXCLUDED."nonce",
                                     __slot = EXCLUDED.__slot
                     "#)
-                .bind(self.admin.clone())
-                .bind(self.program_authority.clone())
-                .bind(self.bump.clone())
-                .bind(self.nonce.clone())
+                .bind(self.admin)
+                .bind(self.program_authority)
+                .bind(self.bump)
+                .bind(self.nonce)
                         .bind(self.metadata.pubkey)
         .bind(self.metadata.slot.clone())
                 .execute(pool).await
