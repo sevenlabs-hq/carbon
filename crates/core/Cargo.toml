@@ -10,7 +10,7 @@ keywords = ["solana", "indexer"]
 categories = ["encoding"]
 
 [features]
-default = ["macros", "postgres"]
+default = ["macros"]
 macros = ["carbon-macros", "carbon-proc-macros"]
 postgres = ["sqlx", "num-traits", "sqlx_migrator"]
 graphql = ["juniper", "axum", "juniper_axum"]
