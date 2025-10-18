@@ -49,7 +49,7 @@ impl CreateProvider {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[74, 53, 211, 174, 38, 168, 227, 177] {
+        if discriminator != [74, 53, 211, 174, 38, 168, 227, 177] {
             return None;
         }
 

@@ -46,7 +46,7 @@ impl ClosePool {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[140, 189, 209, 23, 239, 62, 239, 11] {
+        if discriminator != [140, 189, 209, 23, 239, 62, 239, 11] {
             return None;
         }
 

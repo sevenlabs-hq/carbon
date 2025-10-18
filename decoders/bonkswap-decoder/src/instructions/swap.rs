@@ -54,7 +54,7 @@ impl Swap {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[248, 198, 158, 145, 225, 117, 135, 200] {
+        if discriminator != [248, 198, 158, 145, 225, 117, 135, 200] {
             return None;
         }
 

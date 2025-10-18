@@ -46,7 +46,7 @@ impl WithdrawLpFee {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[149, 161, 2, 213, 195, 147, 42, 65] {
+        if discriminator != [149, 161, 2, 213, 195, 147, 42, 65] {
             return None;
         }
 

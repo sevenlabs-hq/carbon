@@ -48,7 +48,7 @@ impl ResetFarm {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[47, 77, 233, 117, 118, 55, 61, 113] {
+        if discriminator != [47, 77, 233, 117, 118, 55, 61, 113] {
             return None;
         }
 

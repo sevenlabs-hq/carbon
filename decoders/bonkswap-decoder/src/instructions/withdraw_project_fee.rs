@@ -45,7 +45,7 @@ impl WithdrawProjectFee {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[130, 201, 142, 156, 159, 207, 168, 22] {
+        if discriminator != [130, 201, 142, 156, 159, 207, 168, 22] {
             return None;
         }
 

@@ -40,7 +40,7 @@ impl Farm {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[161, 156, 211, 253, 250, 64, 53, 250] {
+        if discriminator != [161, 156, 211, 253, 250, 64, 53, 250] {
             return None;
         }
 

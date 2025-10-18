@@ -57,7 +57,7 @@ impl CreateTripleFarm {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[154, 26, 180, 145, 18, 201, 135, 171] {
+        if discriminator != [154, 26, 180, 145, 18, 201, 135, 171] {
             return None;
         }
 
