@@ -14,7 +14,6 @@ crate-type = ["rlib"]
 
 [dependencies]
 carbon-core = { workspace = true }
-rust_decimal = { workspace = true, optional = true }
 serde = { workspace = true }
 solana-account = { workspace = true }
 solana-instruction = { workspace = true, default-features = false }

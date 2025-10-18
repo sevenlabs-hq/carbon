@@ -1889,7 +1889,6 @@ name = "carbon-token-program-decoder"
 version = "0.10.0"
 dependencies = [
  "carbon-core",
- "rust_decimal",
  "serde",
  "solana-account",
  "solana-instruction",
@@ -2786,12 +2785,6 @@ dependencies = [
  "event-listener 5.4.0",
  "pin-project-lite",
 ]
-
-[[package]]
-name = "fallible-iterator"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4443176a9f2c162692bd3d352d745ef9413eec5782a80d8fd6f8a1ac692a07f7"
 
 [[package]]
 name = "fast-math"
@@ -4905,35 +4898,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "postgres-protocol"
-version = "0.6.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "76ff0abab4a9b844b93ef7b81f1efc0a366062aaef2cd702c76256b5dc075c54"
-dependencies = [
- "base64 0.22.1",
- "byteorder",
- "bytes",
- "fallible-iterator",
- "hmac 0.12.1",
- "md-5",
- "memchr",
- "rand 0.9.1",
- "sha2 0.10.9",
- "stringprep",
-]
-
-[[package]]
-name = "postgres-types"
-version = "0.2.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "613283563cd90e1dfc3518d548caee47e0e725455ed619881f5cf21f36de4b48"
-dependencies = [
- "bytes",
- "fallible-iterator",
- "postgres-protocol",
-]
-
-[[package]]
 name = "potential_utf"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5705,7 +5669,6 @@ dependencies = [
  "borsh 1.5.7",
  "bytes",
  "num-traits",
- "postgres-types",
  "rand 0.8.5",
  "rkyv",
  "serde",
