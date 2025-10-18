@@ -1,0 +1,50 @@
+[package]
+name = "carbon-bonkswap-decoder"
+version = "0.11.0"
+edition = "2021"
+
+[lib]
+crate-type = ["rlib"]
+
+[features]
+default = []
+serde = ["dep:serde", "dep:serde-big-array"]
+postgres = [
+    "carbon-core/postgres",
+    "dep:sqlx",
+    "dep:async-trait",
+    "dep:sqlx_migrator",
+    "serde",
+]
+graphql = [
+    "carbon-core/graphql",
+    "dep:juniper",
+    "dep:base64",
+    "serde",
+]
+
+[dependencies]
+# Core dependencies
+carbon-core = { version = "0.11.0", default-features = false }
+solana-pubkey = { version = "2.3" }
+solana-account = { version = "2.2" }
+solana-instruction = { version = "~2.3", default-features = false }
+serde_json = "1.0.138"
+
+# Serialization (optional)
+serde = { version = "1.0.219", features = ["derive"], optional = true }
+serde-big-array = { version = "0.5.1", optional = true }
+
+# Postgres dependencies (optional)
+sqlx = { version = "0.8.6", features = ["postgres", "rust_decimal"], optional = true }
+async-trait = { version = "0.1", optional = true }
+sqlx_migrator = { version = "0.17.0", optional = true }
+
+# GraphQL dependencies (optional)
+juniper = { version = "0.16.1", optional = true }
+base64 = { version = "0.22", optional = true }
+
+
+[dev-dependencies]
+carbon-test-utils = { version = "0.11.0" }
+
