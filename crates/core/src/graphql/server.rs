@@ -23,7 +23,8 @@ where
     ))
 }
 
-type ExtensionSchema<Q, C> = Extension<Arc<RootNode<'static, Q, DefaultMutation<C>, DefaultSubscription<C>>>>;
+type ExtensionSchema<Q, C> =
+    Extension<Arc<RootNode<'static, Q, DefaultMutation<C>, DefaultSubscription<C>>>>;
 
 pub fn graphql_router<Q, C>(
     schema: Arc<RootNode<'static, Q, DefaultMutation<C>, DefaultSubscription<C>>>,
