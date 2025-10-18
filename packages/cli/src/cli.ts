@@ -27,6 +27,9 @@ program.addHelpText(
   # Scaffold with published decoder
   $ carbon-cli scaffold -n my-project -o . -d raydium-clmm -s rpc-block-subscribe
   
+  # Scaffold with Helius Laserstream datasource
+  $ carbon-cli scaffold -n my-project -o . -d raydium-clmm -s helius-laserstream
+  
   # Scaffold with generated decoder
   $ carbon-cli scaffold -n my-project -o . -d my-decoder --decoder-mode generate --idl ./idl.json --idl-standard anchor -s rpc-block-subscribe
   

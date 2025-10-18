@@ -8,7 +8,7 @@ use {
         {%- endif %}
         error::CarbonResult,
         {%- if not withPostgres %}
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstruction},
+        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
         metrics::MetricsCollection,
         processor::Processor,
         {%- endif %}
@@ -49,14 +49,20 @@ use {
     solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
     {%- endif %}
     std::{env, sync::Arc},
-    {%- if data_source.module_name == "yellowstone_grpc" %}
+    {%- if data_source.module_name == "yellowstone_grpc" or data_source.module_name == "helius_laserstream" %}
     std::collections::{HashMap, HashSet},
+    {%- if data_source.module_name == "yellowstone_grpc" %}
     carbon_yellowstone_grpc_datasource::{YellowstoneGrpcGeyserClient, YellowstoneGrpcClientConfig},
+    {%- endif %}
+    {%- if data_source.module_name == "helius_laserstream" %}
+    carbon_helius_laserstream_datasource::{LaserStreamGeyserClient, LaserStreamClientConfig},
+    {%- endif %}
     tokio::sync::RwLock,
     yellowstone_grpc_proto::geyser::{
         CommitmentLevel, SubscribeRequestFilterAccounts, SubscribeRequestFilterTransactions,
     },
     {%- endif %}
+    solana_instruction::Instruction,
     {%- if withPostgres %}
     sqlx_migrator::{Info, Migrate, Plan},
     {%- endif %}
@@ -69,6 +75,13 @@ use {
 pub async fn main() -> CarbonResult<()> {
     env_logger::init();
     dotenv::dotenv().ok();
+
+    {%- if data_source.module_name == "yellowstone_grpc" or data_source.module_name == "helius_laserstream" %}
+    // NOTE: Workaround, that solving issue https://github.com/rustls/rustls/issues/1877
+    rustls::crypto::aws_lc_rs::default_provider()
+        .install_default()
+        .expect("Can't set crypto provider to aws_lc_rs");
+    {%- endif %}
 
     {%- if withPostgres %}
     // Database setup and migrations
@@ -139,6 +152,52 @@ pub async fn main() -> CarbonResult<()> {
         },
         Arc::new(RwLock::new(HashSet::new())),
         Cluster::MainnetBeta,
+    );
+    {%- endif %}
+
+    {%- if data_source.module_name == "helius_laserstream" %}
+    let mut account_filters: HashMap<String, SubscribeRequestFilterAccounts> = HashMap::new();
+    account_filters.insert(
+        "account_filter".to_string(),
+        SubscribeRequestFilterAccounts {
+            account: vec![],
+            owner: vec![
+                {%- for decoder in decoders %}
+                {{ decoder.name | upper }}_PROGRAM_ID.to_string().clone(),
+                {%- endfor %} 
+            ],
+            filters: vec![],
+            nonempty_txn_signature: None,
+        },
+    );
+
+    let transaction_filter = SubscribeRequestFilterTransactions {
+        vote: Some(false),
+        failed: Some(false),
+        account_include: vec![],
+        account_exclude: vec![],
+        account_required: vec![
+            {%- for decoder in decoders %}
+            {{ decoder.name | upper }}_PROGRAM_ID.to_string().clone(),
+            {%- endfor %} 
+        ],
+        signature: None,
+    };
+
+    let mut transaction_filters: HashMap<String, SubscribeRequestFilterTransactions> =
+        HashMap::new();
+
+    transaction_filters.insert("transaction_filter".to_string(), transaction_filter);
+
+    let datasource = carbon_helius_laserstream_datasource::LaserStreamGeyserClient::new(
+        env::var("GEYSER_URL").unwrap_or_default(),
+        env::var("X_TOKEN").ok(),
+        Some(CommitmentLevel::Confirmed),
+        account_filters,
+        transaction_filters,
+        Default::default(),
+        Arc::new(RwLock::new(HashSet::new())),
+        carbon_helius_laserstream_datasource::LaserStreamClientConfig::default(),        
     );
     {%- endif %}
 
@@ -274,11 +333,12 @@ impl Processor for {{ decoder.name }}InstructionProcessor {
         InstructionMetadata,
         DecodedInstruction<{{ decoder.name }}Instruction>,
         NestedInstructions,
+        solana_instruction::Instruction,
     );
 
     async fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions): Self::InputType,
+        (metadata, instruction, _nested_instructions, _raw_instruction): Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let signature = metadata.transaction_metadata.signature;
