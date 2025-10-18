@@ -295,10 +295,10 @@ impl Processor for {{ decoder.name }}InstructionProcessor {
         let signature = metadata.transaction_metadata.signature;
         let accounts = instruction.accounts;
 
+        log::info!("received the {{ decoder.name }} instruction, sig: {}, accounts len: {}", signature, accounts.len());
+        
         match instruction.data {
-            _ => {
-                log::info!("received the {{ decoder.name }} instruction, sig: {}, accounts len: {}", signature, accounts.len());
-            }
+            _ => {}
         };
 
         Ok(())

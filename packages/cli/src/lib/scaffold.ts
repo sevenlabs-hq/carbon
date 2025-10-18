@@ -8,6 +8,8 @@ export type ScaffoldOptions = {
     name: string;
     outDir: string;
     decoder: string;
+    decoderMode?: 'published' | 'generate';
+    decoderPath?: string; // Path to generated decoder
     dataSource: string;
     metrics: 'log' | 'prometheus';
     withPostgres: boolean;
@@ -21,7 +23,7 @@ function ensureDir(path: string) {
     }
 }
 
-function buildCargoToml(opts: ScaffoldOptions): string {
+function buildIndexerCargoContext(opts: ScaffoldOptions) {
     const carbonVersion = '0.9.1';
     const solanaVersion = '=2.1.15';
     const featureParts: string[] = [];
@@ -29,10 +31,25 @@ function buildCargoToml(opts: ScaffoldOptions): string {
     if (opts.withPostgres) featureParts.push('"postgres"');
     if (opts.withGraphql) featureParts.push('"graphql"');
 
-    // Fix: Properly format the decoder dependency with features
-    const decoderDep = featureParts.length
-        ? `carbon-${opts.decoder.toLowerCase()}-decoder = { version = "${carbonVersion}", features = [${featureParts.join(', ')}] }`
-        : `carbon-${opts.decoder.toLowerCase()}-decoder = "${carbonVersion}"`;
+    const hasLocalDecoder = opts.decoderMode === 'generate';
+    const decoderCrateName = opts.decoder.replace(/-/g, '_');
+    
+    // Handle decoder dependency based on mode
+    let decoderDependency: string;
+    let decoderFeatures = '';
+    
+    if (hasLocalDecoder) {
+        // Local decoder - features will be added in template
+        if (featureParts.length) {
+            decoderFeatures = `, features = [${featureParts.join(', ')}]`;
+        }
+        decoderDependency = ''; // Not used when hasLocalDecoder is true
+    } else {
+        // Published Carbon decoder
+        decoderDependency = featureParts.length
+            ? `carbon-${opts.decoder.toLowerCase()}-decoder = { version = "${carbonVersion}", features = [${featureParts.join(', ')}] }`
+            : `carbon-${opts.decoder.toLowerCase()}-decoder = "${carbonVersion}"`;
+    }
 
     const datasourceDep = `carbon-${opts.dataSource.toLowerCase()}-datasource = "${carbonVersion}"`;
     const metricsDep = `carbon-${opts.metrics.toLowerCase()}-metrics = "${carbonVersion}"`;
@@ -48,42 +65,28 @@ function buildCargoToml(opts: ScaffoldOptions): string {
 
     const gqlDeps = opts.withGraphql ? `juniper = "0.15"\naxum = "0.7"` : '';
 
-    // Add rustls workaround if using yellowstone-grpc
     const rustlsDep = opts.dataSource === 'yellowstone-grpc' ? 'rustls = "0.23"' : '';
 
     const features = ['default = []', opts.withPostgres ? 'postgres = []' : '', opts.withGraphql ? 'graphql = []' : '']
         .filter(Boolean)
         .join('\n');
 
-    return `[package]
-name = "${opts.name}"
-version = "0.0.1"
-edition = "2021"
-
-[dependencies]
-async-trait = "0.1.86"
-carbon-core = "${carbonVersion}"
-${decoderDep}
-${datasourceDep}
-${metricsDep}
-solana-sdk = "${solanaVersion}"
-solana-pubkey = "${solanaVersion}"
-solana-client = "${solanaVersion}"
-tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
-dotenv = "0.15.0"
-env_logger = "0.11.5"
-log = "0.4.25"
-anyhow = "1"
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
-${rustlsDep}
-${grpcDeps}
-${pgDeps}
-${gqlDeps}
-
-[features]
-${features}
-`;
+    return {
+        projectName: opts.name,
+        carbonVersion,
+        solanaVersion,
+        hasLocalDecoder,
+        decoderCrateName,
+        decoderFeatures,
+        decoderDependency,
+        datasourceDep,
+        metricsDep,
+        grpcDeps,
+        pgDeps,
+        gqlDeps,
+        rustlsDep,
+        features,
+    };
 }
 
 function getEnvContent(dataSource: string, withPostgres: boolean): string {
@@ -123,7 +126,11 @@ export function renderScaffold(opts: ScaffoldOptions) {
     }
 
     ensureDir(base);
-    ensureDir(join(base, 'src'));
+    
+    // Create workspace structure
+    const indexerDir = join(base, 'indexer');
+    ensureDir(indexerDir);
+    ensureDir(join(indexerDir, 'src'));
 
     const thisDir = dirname(fileURLToPath(import.meta.url));
     const templatesDir = join(thisDir, '..', 'templates');
@@ -137,7 +144,10 @@ export function renderScaffold(opts: ScaffoldOptions) {
         noCache: false,
     });
 
-    const context = {
+    const hasLocalDecoder = opts.decoderMode === 'generate';
+
+    // Context for main.rs
+    const mainContext = {
         projectName: opts.name,
         decoders: [
             {
@@ -160,15 +170,23 @@ export function renderScaffold(opts: ScaffoldOptions) {
         withGraphQL: opts.withGraphql,
     };
 
-    // Generate main.rs
-    const rendered = env.render('project.njk', context);
-    writeFileSync(join(base, 'src', 'main.rs'), rendered);
+    // Generate workspace Cargo.toml
+    const workspaceContext = {
+        hasLocalDecoder,
+    };
+    const workspaceToml = env.render('workspace.njk', workspaceContext);
+    writeFileSync(join(base, 'Cargo.toml'), workspaceToml);
 
-    // Generate Cargo.toml
-    const cargoToml = buildCargoToml(opts);
-    writeFileSync(join(base, 'Cargo.toml'), cargoToml);
+    // Generate indexer main.rs
+    const rendered = env.render('project.njk', mainContext);
+    writeFileSync(join(indexerDir, 'src', 'main.rs'), rendered);
 
-    // Generate .gitignore
+    // Generate indexer Cargo.toml
+    const indexerCargoContext = buildIndexerCargoContext(opts);
+    const indexerCargoToml = env.render('indexer-cargo.njk', indexerCargoContext);
+    writeFileSync(join(indexerDir, 'Cargo.toml'), indexerCargoToml);
+
+    // Generate .gitignore at workspace root
     const gitignore = `debug/
 target/
 
@@ -177,21 +195,26 @@ target/
 `;
     writeFileSync(join(base, '.gitignore'), gitignore);
 
-    // Generate .env
+    // Generate .env at workspace root
     const envContent = getEnvContent(opts.dataSource, opts.withPostgres);
     if (envContent) {
         writeFileSync(join(base, '.env'), envContent);
     }
 
-    // Generate README.md
+    // Generate README.md at workspace root
     const readme = `# ${opts.name}
 
 Generated by carbon-cli scaffold.
 
+## Structure
+
+This is a Cargo workspace containing:
+- \`indexer/\` - The main indexer application${hasLocalDecoder ? '\n- `decoder/` - Generated decoder from IDL' : ''}
+
 ## Run
 
 \`\`\`bash
-cargo run
+cargo run -p ${opts.name}-indexer
 \`\`\`
 
 ## Features
@@ -199,6 +222,7 @@ cargo run
 - Metrics: ${opts.metrics}
 - Postgres: ${opts.withPostgres}
 - GraphQL: ${opts.withGraphql}
+- Decoder: ${hasLocalDecoder ? 'Generated locally' : `Published (carbon-${opts.decoder}-decoder)`}
 `;
 
     writeFileSync(join(base, 'README.md'), readme);
