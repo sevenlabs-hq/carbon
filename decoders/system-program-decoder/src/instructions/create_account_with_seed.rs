@@ -1,6 +1,8 @@
 use carbon_core::{borsh, deserialize::U64PrefixString, CarbonDeserialize};
 
-#[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Clone)]
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Clone, Eq, Hash,
+)]
 #[carbon(discriminator = "0x03000000")]
 pub struct CreateAccountWithSeed {
     pub base: solana_pubkey::Pubkey,

@@ -1,0 +1,35 @@
+use carbon_core::{borsh, CarbonDeserialize};
+
+#[derive(
+    CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
+)]
+pub struct PoolState {
+    pub amm_config: solana_pubkey::Pubkey,
+    pub pool_creator: solana_pubkey::Pubkey,
+    pub token_0_vault: solana_pubkey::Pubkey,
+    pub token_1_vault: solana_pubkey::Pubkey,
+    pub lp_mint: solana_pubkey::Pubkey,
+    pub token_0_mint: solana_pubkey::Pubkey,
+    pub token_1_mint: solana_pubkey::Pubkey,
+    pub token_0_program: solana_pubkey::Pubkey,
+    pub token_1_program: solana_pubkey::Pubkey,
+    pub observation_key: solana_pubkey::Pubkey,
+    pub auth_bump: u8,
+    pub status: u8,
+    pub lp_mint_decimals: u8,
+    pub mint_0_decimals: u8,
+    pub mint_1_decimals: u8,
+    pub lp_supply: u64,
+    pub protocol_fees_token_0: u64,
+    pub protocol_fees_token_1: u64,
+    pub fund_fees_token_0: u64,
+    pub fund_fees_token_1: u64,
+    pub open_time: u64,
+    pub recent_epoch: u64,
+    pub creator_fee_on: u8,
+    pub enable_creator_fee: bool,
+    pub padding1: [u8; 6],
+    pub creator_fees_token_0: u64,
+    pub creator_fees_token_1: u64,
+    pub padding: [u64; 28],
+}

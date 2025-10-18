@@ -1,7 +1,6 @@
-use {
-    super::*,
-    carbon_core::{borsh, CarbonDeserialize},
-};
+use super::*;
+
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -105,8 +104,8 @@ pub enum Swap {
         remaining_accounts_info: Option<RemainingAccountsInfo>,
     },
     OneIntro,
-    PumpdotfunWrappedBuy,
-    PumpdotfunWrappedSell,
+    PumpWrappedBuy,
+    PumpWrappedSell,
     PerpsV2,
     PerpsV2AddLiquidity,
     PerpsV2RemoveLiquidity,
@@ -118,20 +117,14 @@ pub enum Swap {
         x_to_y: bool,
     },
     FoxBuyFromEstimatedCost,
-
-    //FoxClaimPartial [{"name":"is_y","type":"bool"}]
     FoxClaimPartial {
         is_y: bool,
     },
-
-    // SolFi [{"name":"is_quote_to_base","type":"bool"}]
     SolFi {
         is_quote_to_base: bool,
     },
     SolayerDelegateNoInit,
     SolayerUndelegateNoInit,
-
-    // TokenMill [{"name":"side","type":{"defined":{"name":"Side"}}}]
     TokenMill {
         side: Side,
     },
@@ -141,13 +134,67 @@ pub enum Swap {
     StakeDexWithdrawWrappedSol,
     VirtualsBuy,
     VirtualsSell,
-
-    // Perena [{"name":"in_index","type":"u8"},{"name":"out_index","type":"u8"}]
     Perena {
         in_index: u8,
         out_index: u8,
     },
-    PumpdotfunAmmBuy,
-    PumpdotfunAmmSell,
+    PumpSwapBuy,
+    PumpSwapSell,
     Gamma,
+    MeteoraDlmmSwapV2 {
+        remaining_accounts_info: RemainingAccountsInfo,
+    },
+    Woofi,
+    MeteoraDammV2,
+    MeteoraDynamicBondingCurveSwap,
+    StabbleStableSwapV2,
+    StabbleWeightedSwapV2,
+    RaydiumLaunchlabBuy {
+        share_fee_rate: u64,
+    },
+    RaydiumLaunchlabSell {
+        share_fee_rate: u64,
+    },
+    BoopdotfunWrappedBuy,
+    BoopdotfunWrappedSell,
+    Plasma {
+        side: Side,
+    },
+    GoonFi {
+        is_bid: bool,
+        blacklist_bump: u8,
+    },
+    HumidiFi {
+        swap_id: u64,
+        is_base_to_quote: bool,
+    },
+    MeteoraDynamicBondingCurveSwapWithRemainingAccounts,
+    TesseraV {
+        side: Side,
+    },
+    PumpWrappedBuyV2,
+    PumpWrappedSellV2,
+    PumpSwapBuyV2,
+    PumpSwapSellV2,
+    Heaven {
+        a_to_b: bool,
+    },
+    SolFiV2 {
+        is_quote_to_base: bool,
+    },
+    Aquifer,
+    PumpWrappedBuyV3,
+    PumpWrappedSellV3,
+    PumpSwapBuyV3,
+    PumpSwapSellV3,
+    JupiterLendDeposit,
+    JupiterLendRedeem,
+    DefiTuna {
+        a_to_b: bool,
+        remaining_accounts_info: Option<RemainingAccountsInfo>,
+    },
+    AlphaQ {
+        a_to_b: bool,
+    },
+    RaydiumV2,
 }

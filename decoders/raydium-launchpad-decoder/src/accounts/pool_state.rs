@@ -31,5 +31,8 @@ pub struct PoolState {
     pub base_vault: solana_pubkey::Pubkey,
     pub quote_vault: solana_pubkey::Pubkey,
     pub creator: solana_pubkey::Pubkey,
-    pub padding: [u64; 8],
+    pub token_program_flag: u8,
+    pub amm_creator_fee_on: AmmCreatorFeeOn,
+    #[serde(with = "serde_big_array::BigArray")]
+    pub padding: [u8; 62],
 }

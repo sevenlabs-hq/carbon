@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -24,21 +24,25 @@ impl carbon_core::deserialize::ArrangeAccounts for CollectFee {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [owner, authority, pool_state, global_config, quote_vault, quote_mint, recipient_token_account, token_program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let owner = next_account(&mut iter)?;
+        let authority = next_account(&mut iter)?;
+        let pool_state = next_account(&mut iter)?;
+        let global_config = next_account(&mut iter)?;
+        let quote_vault = next_account(&mut iter)?;
+        let quote_mint = next_account(&mut iter)?;
+        let recipient_token_account = next_account(&mut iter)?;
+        let token_program = next_account(&mut iter)?;
 
         Some(CollectFeeInstructionAccounts {
-            owner: owner.pubkey,
-            authority: authority.pubkey,
-            pool_state: pool_state.pubkey,
-            global_config: global_config.pubkey,
-            quote_vault: quote_vault.pubkey,
-            quote_mint: quote_mint.pubkey,
-            recipient_token_account: recipient_token_account.pubkey,
-            token_program: token_program.pubkey,
+            owner,
+            authority,
+            pool_state,
+            global_config,
+            quote_vault,
+            quote_mint,
+            recipient_token_account,
+            token_program,
         })
     }
 }

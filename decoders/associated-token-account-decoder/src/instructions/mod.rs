@@ -32,6 +32,14 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SplAssociatedTokenAcco
             return None;
         }
 
+        if instruction.data.is_empty() {
+            return Some(carbon_core::instruction::DecodedInstruction {
+                program_id: instruction.program_id,
+                accounts: instruction.accounts.clone(),
+                data: SplAssociatedTokenAccountInstruction::Create(create::Create {}),
+            });
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             SplAssociatedTokenAccountInstruction::Create => create::Create,
             SplAssociatedTokenAccountInstruction::CreateIdempotent => create_idempotent::CreateIdempotent,

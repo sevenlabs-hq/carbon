@@ -154,7 +154,7 @@ impl crate::borsh::BorshDeserialize for PrefixString {
 
 /// A wrapper type for strings that are prefixed with their length.
 
-#[derive(serde::Serialize, Default, serde::Deserialize, PartialEq, Eq, Clone)]
+#[derive(serde::Serialize, Default, serde::Deserialize, PartialEq, Eq, Clone, Hash)]
 pub struct U64PrefixString(pub String);
 
 impl Deref for U64PrefixString {

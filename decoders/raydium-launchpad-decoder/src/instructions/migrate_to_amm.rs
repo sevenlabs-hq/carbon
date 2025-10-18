@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -52,45 +52,73 @@ impl carbon_core::deserialize::ArrangeAccounts for MigrateToAmm {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [payer, base_mint, quote_mint, openbook_program, market, request_queue, event_queue, bids, asks, market_vault_signer, market_base_vault, market_quote_vault, amm_program, amm_pool, amm_authority, amm_open_orders, amm_lp_mint, amm_base_vault, amm_quote_vault, amm_target_orders, amm_config, amm_create_fee_destination, authority, pool_state, global_config, base_vault, quote_vault, pool_lp_token, spl_token_program, associated_token_program, system_program, rent_program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let payer = next_account(&mut iter)?;
+        let base_mint = next_account(&mut iter)?;
+        let quote_mint = next_account(&mut iter)?;
+        let openbook_program = next_account(&mut iter)?;
+        let market = next_account(&mut iter)?;
+        let request_queue = next_account(&mut iter)?;
+        let event_queue = next_account(&mut iter)?;
+        let bids = next_account(&mut iter)?;
+        let asks = next_account(&mut iter)?;
+        let market_vault_signer = next_account(&mut iter)?;
+        let market_base_vault = next_account(&mut iter)?;
+        let market_quote_vault = next_account(&mut iter)?;
+        let amm_program = next_account(&mut iter)?;
+        let amm_pool = next_account(&mut iter)?;
+        let amm_authority = next_account(&mut iter)?;
+        let amm_open_orders = next_account(&mut iter)?;
+        let amm_lp_mint = next_account(&mut iter)?;
+        let amm_base_vault = next_account(&mut iter)?;
+        let amm_quote_vault = next_account(&mut iter)?;
+        let amm_target_orders = next_account(&mut iter)?;
+        let amm_config = next_account(&mut iter)?;
+        let amm_create_fee_destination = next_account(&mut iter)?;
+        let authority = next_account(&mut iter)?;
+        let pool_state = next_account(&mut iter)?;
+        let global_config = next_account(&mut iter)?;
+        let base_vault = next_account(&mut iter)?;
+        let quote_vault = next_account(&mut iter)?;
+        let pool_lp_token = next_account(&mut iter)?;
+        let spl_token_program = next_account(&mut iter)?;
+        let associated_token_program = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let rent_program = next_account(&mut iter)?;
 
         Some(MigrateToAmmInstructionAccounts {
-            payer: payer.pubkey,
-            base_mint: base_mint.pubkey,
-            quote_mint: quote_mint.pubkey,
-            openbook_program: openbook_program.pubkey,
-            market: market.pubkey,
-            request_queue: request_queue.pubkey,
-            event_queue: event_queue.pubkey,
-            bids: bids.pubkey,
-            asks: asks.pubkey,
-            market_vault_signer: market_vault_signer.pubkey,
-            market_base_vault: market_base_vault.pubkey,
-            market_quote_vault: market_quote_vault.pubkey,
-            amm_program: amm_program.pubkey,
-            amm_pool: amm_pool.pubkey,
-            amm_authority: amm_authority.pubkey,
-            amm_open_orders: amm_open_orders.pubkey,
-            amm_lp_mint: amm_lp_mint.pubkey,
-            amm_base_vault: amm_base_vault.pubkey,
-            amm_quote_vault: amm_quote_vault.pubkey,
-            amm_target_orders: amm_target_orders.pubkey,
-            amm_config: amm_config.pubkey,
-            amm_create_fee_destination: amm_create_fee_destination.pubkey,
-            authority: authority.pubkey,
-            pool_state: pool_state.pubkey,
-            global_config: global_config.pubkey,
-            base_vault: base_vault.pubkey,
-            quote_vault: quote_vault.pubkey,
-            pool_lp_token: pool_lp_token.pubkey,
-            spl_token_program: spl_token_program.pubkey,
-            associated_token_program: associated_token_program.pubkey,
-            system_program: system_program.pubkey,
-            rent_program: rent_program.pubkey,
+            payer,
+            base_mint,
+            quote_mint,
+            openbook_program,
+            market,
+            request_queue,
+            event_queue,
+            bids,
+            asks,
+            market_vault_signer,
+            market_base_vault,
+            market_quote_vault,
+            amm_program,
+            amm_pool,
+            amm_authority,
+            amm_open_orders,
+            amm_lp_mint,
+            amm_base_vault,
+            amm_quote_vault,
+            amm_target_orders,
+            amm_config,
+            amm_create_fee_destination,
+            authority,
+            pool_state,
+            global_config,
+            base_vault,
+            quote_vault,
+            pool_lp_token,
+            spl_token_program,
+            associated_token_program,
+            system_program,
+            rent_program,
         })
     }
 }

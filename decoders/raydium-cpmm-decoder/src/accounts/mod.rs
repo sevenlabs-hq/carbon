@@ -5,12 +5,14 @@ use {
 };
 pub mod amm_config;
 pub mod observation_state;
+pub mod permission;
 pub mod pool_state;
 
 #[allow(clippy::large_enum_variant)]
 pub enum RaydiumCpmmAccount {
     AmmConfig(amm_config::AmmConfig),
     ObservationState(observation_state::ObservationState),
+    Permission(permission::Permission),
     PoolState(pool_state::PoolState),
 }
 
@@ -40,6 +42,17 @@ impl AccountDecoder<'_> for RaydiumCpmmDecoder {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
                 data: RaydiumCpmmAccount::ObservationState(decoded_account),
+                owner: account.owner,
+                executable: account.executable,
+                rent_epoch: account.rent_epoch,
+            });
+        }
+
+        if let Some(decoded_account) = permission::Permission::deserialize(account.data.as_slice())
+        {
+            return Some(carbon_core::account::DecodedAccount {
+                lamports: account.lamports,
+                data: RaydiumCpmmAccount::Permission(decoded_account),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,

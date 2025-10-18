@@ -489,6 +489,7 @@ pub fn transaction_metadata_from_original_meta(
             .compute_units_consumed
             .map(|compute_unit_consumed| compute_unit_consumed)
             .or(None),
+        cost_units: meta_original.cost_units.into(),
     })
 }
 
@@ -548,6 +549,7 @@ mod tests {
                 3695760,
                 1461600,
             ],
+            cost_units: None,
             inner_instructions: Some(vec![
                 InnerInstructions{
                     index: 1,
@@ -811,6 +813,7 @@ mod tests {
                 934087680,
                 4000000
             ],
+            cost_units: None,
             inner_instructions: Some(vec![
                 InnerInstructions {
                     index: 3,

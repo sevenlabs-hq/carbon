@@ -6,4 +6,4 @@ pub mod instructions;
 pub mod types;
 
 pub const PROGRAM_ID: Pubkey =
-    solana_pubkey::Pubkey::from_str_const("whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc");
+    Pubkey::from_str_const("whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc");

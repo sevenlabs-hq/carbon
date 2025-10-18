@@ -14,4 +14,6 @@ pub enum PlatformConfigParam {
     Name(String),
     Web(String),
     Img(String),
+    CpSwapConfig,
+    AllInfo(PlatformConfigInfo),
 }

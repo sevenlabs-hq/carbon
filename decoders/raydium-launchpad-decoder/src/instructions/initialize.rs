@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -40,31 +40,45 @@ impl carbon_core::deserialize::ArrangeAccounts for Initialize {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [payer, creator, global_config, platform_config, authority, pool_state, base_mint, quote_mint, base_vault, quote_vault, metadata_account, base_token_program, quote_token_program, metadata_program, system_program, rent_program, event_authority, program, _remaining @ ..] =
-            accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let payer = next_account(&mut iter)?;
+        let creator = next_account(&mut iter)?;
+        let global_config = next_account(&mut iter)?;
+        let platform_config = next_account(&mut iter)?;
+        let authority = next_account(&mut iter)?;
+        let pool_state = next_account(&mut iter)?;
+        let base_mint = next_account(&mut iter)?;
+        let quote_mint = next_account(&mut iter)?;
+        let base_vault = next_account(&mut iter)?;
+        let quote_vault = next_account(&mut iter)?;
+        let metadata_account = next_account(&mut iter)?;
+        let base_token_program = next_account(&mut iter)?;
+        let quote_token_program = next_account(&mut iter)?;
+        let metadata_program = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+        let rent_program = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
 
         Some(InitializeInstructionAccounts {
-            payer: payer.pubkey,
-            creator: creator.pubkey,
-            global_config: global_config.pubkey,
-            platform_config: platform_config.pubkey,
-            authority: authority.pubkey,
-            pool_state: pool_state.pubkey,
-            base_mint: base_mint.pubkey,
-            quote_mint: quote_mint.pubkey,
-            base_vault: base_vault.pubkey,
-            quote_vault: quote_vault.pubkey,
-            metadata_account: metadata_account.pubkey,
-            base_token_program: base_token_program.pubkey,
-            quote_token_program: quote_token_program.pubkey,
-            metadata_program: metadata_program.pubkey,
-            system_program: system_program.pubkey,
-            rent_program: rent_program.pubkey,
-            event_authority: event_authority.pubkey,
-            program: program.pubkey,
+            payer,
+            creator,
+            global_config,
+            platform_config,
+            authority,
+            pool_state,
+            base_mint,
+            quote_mint,
+            base_vault,
+            quote_vault,
+            metadata_account,
+            base_token_program,
+            quote_token_program,
+            metadata_program,
+            system_program,
+            rent_program,
+            event_authority,
+            program,
         })
     }
 }

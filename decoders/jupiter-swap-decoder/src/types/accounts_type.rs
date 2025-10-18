@@ -6,4 +6,11 @@ use carbon_core::{borsh, CarbonDeserialize};
 pub enum AccountsType {
     TransferHookA,
     TransferHookB,
+    TransferHookReward,
+    TransferHookInput,
+    TransferHookIntermediate,
+    TransferHookOutput,
+    SupplementalTickArrays,
+    SupplementalTickArraysOne,
+    SupplementalTickArraysTwo,
 }

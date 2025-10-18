@@ -21,4 +21,9 @@ pub struct TradeEvent {
     pub creator: solana_pubkey::Pubkey,
     pub creator_fee_basis_points: u64,
     pub creator_fee: u64,
+    pub track_volume: bool,
+    pub total_unclaimed_tokens: u64,
+    pub total_claimed_tokens: u64,
+    pub current_sol_volume: u64,
+    pub last_update_timestamp: i64,
 }

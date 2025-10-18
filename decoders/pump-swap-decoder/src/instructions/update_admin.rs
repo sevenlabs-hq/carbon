@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -21,17 +21,19 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateAdmin {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [admin, global_config, new_admin, event_authority, program, _remaining @ ..] = accounts
-        else {
-            return None;
-        };
+        let mut iter = accounts.iter();
+        let admin = next_account(&mut iter)?;
+        let global_config = next_account(&mut iter)?;
+        let new_admin = next_account(&mut iter)?;
+        let event_authority = next_account(&mut iter)?;
+        let program = next_account(&mut iter)?;
 
         Some(UpdateAdminInstructionAccounts {
-            admin: admin.pubkey,
-            global_config: global_config.pubkey,
-            new_admin: new_admin.pubkey,
-            event_authority: event_authority.pubkey,
-            program: program.pubkey,
+            admin,
+            global_config,
+            new_admin,
+            event_authority,
+            program,
         })
     }
 }

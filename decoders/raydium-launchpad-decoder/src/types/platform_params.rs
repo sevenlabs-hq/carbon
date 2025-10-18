@@ -12,4 +12,5 @@ pub struct PlatformParams {
     pub name: String,
     pub web: String,
     pub img: String,
+    pub creator_fee_rate: u64,
 }
