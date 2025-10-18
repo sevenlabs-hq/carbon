@@ -1,5 +1,6 @@
+import chalk from 'chalk';
+
 export function exitWithError(message: string): never {
-    const chalk = require('chalk');
     console.error(chalk.red('✗ Error: ') + chalk.white(message));
     process.exit(2);
 }
