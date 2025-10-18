@@ -1098,6 +1098,7 @@ name = "carbon-core"
 version = "0.10.0"
 dependencies = [
  "async-trait",
+ "axum",
  "base64 0.22.1",
  "borsh 0.10.4",
  "bs58",
@@ -1142,25 +1143,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "carbon-example-meteora-dlmm-decoder"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "base64 0.22.1",
- "carbon-core",
- "carbon-test-utils",
- "juniper",
- "serde",
- "serde-big-array",
- "serde_json",
- "solana-account",
- "solana-instruction",
- "solana-pubkey",
- "sqlx",
- "sqlx_migrator",
-]
-
-[[package]]
 name = "carbon-fetch-ix"
 version = "0.10.0"
 dependencies = [
@@ -1196,20 +1178,6 @@ dependencies = [
  "solana-account",
  "solana-instruction",
  "solana-pubkey",
-]
-
-[[package]]
-name = "carbon-gql-server"
-version = "0.10.0"
-dependencies = [
- "axum",
- "carbon-postgres-client",
- "juniper",
- "juniper_axum",
- "juniper_graphql_ws",
- "serde",
- "solana-pubkey",
- "tokio",
 ]
 
 [[package]]
@@ -1610,15 +1578,6 @@ dependencies = [
  "solana-account",
  "solana-instruction",
  "solana-pubkey",
-]
-
-[[package]]
-name = "carbon-postgres-client"
-version = "0.10.0"
-dependencies = [
- "juniper",
- "sqlx",
- "sqlx_migrator",
 ]
 
 [[package]]
@@ -4947,28 +4906,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d8a2f0d8d040d7848a709caf78912debcc3f33ee4b3cac47d73d1e1069e83507"
 dependencies = [
  "portable-atomic",
-]
-
-[[package]]
-name = "postgres-carbon-example"
-version = "0.2.1"
-dependencies = [
- "async-trait",
- "axum 0.8.4",
- "carbon-core",
- "carbon-example-meteora-dlmm-decoder",
- "carbon-log-metrics",
- "carbon-yellowstone-grpc-datasource",
- "dotenv",
- "env_logger 0.11.8",
- "log",
- "rustls 0.23.27",
- "solana-instruction",
- "solana-native-token",
- "sqlx",
- "sqlx_migrator",
- "tokio",
- "yellowstone-grpc-proto",
 ]
 
 [[package]]
@@ -9804,27 +9741,6 @@ name = "tinyvec_macros"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
-
-[[package]]
-name = "token-indexing-example"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "carbon-core",
- "carbon-gql-server",
- "carbon-log-metrics",
- "carbon-postgres-client",
- "carbon-token-program-decoder",
- "carbon-yellowstone-grpc-datasource",
- "dotenv",
- "juniper",
- "log",
- "rustls 0.23.27",
- "solana-account",
- "spl-token 7.0.0",
- "tokio",
- "yellowstone-grpc-proto",
-]
 
 [[package]]
 name = "tokio"
