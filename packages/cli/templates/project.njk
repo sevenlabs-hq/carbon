@@ -1,16 +1,19 @@
 use {
+    {%- if not withPostgres %}
     async_trait::async_trait,
+    {%- endif %}
     carbon_core::{
+        {%- if not withPostgres %}
         deserialize::ArrangeAccounts,
+        {%- endif %}
         error::CarbonResult,
+        {%- if not withPostgres %}
         instruction::{DecodedInstruction, InstructionMetadata, NestedInstruction},
         metrics::MetricsCollection,
         processor::Processor,
+        {%- endif %}
         {%- if withPostgres %}
-        postgres::{
-            processors::{PostgresAccountProcessor, PostgresInstructionProcessor},
-            rows::{GenericAccountsMigration, GenericInstructionMigration},
-        },
+        postgres::processors::{PostgresAccountProcessor, PostgresInstructionProcessor},
         {%- endif %}
     },
     carbon_{{ metrics.module_name }}_metrics::{{ metrics.name }}Metrics,
@@ -48,7 +51,7 @@ use {
     std::{env, sync::Arc},
     {%- if data_source.module_name == "yellowstone_grpc" %}
     std::collections::{HashMap, HashSet},
-    carbon_yellowstone_grpc_datasource::YellowstoneGrpcGeyserClient,
+    carbon_yellowstone_grpc_datasource::{YellowstoneGrpcGeyserClient, YellowstoneGrpcClientConfig},
     tokio::sync::RwLock,
     yellowstone_grpc_proto::geyser::{
         CommitmentLevel, SubscribeRequestFilterAccounts, SubscribeRequestFilterTransactions,
@@ -77,15 +80,7 @@ pub async fn main() -> CarbonResult<()> {
     let mut migrator = sqlx_migrator::Migrator::default();
     let mut conn = pool.acquire().await.unwrap();
 
-    // Generic Migrations
-    migrator
-        .add_migration(Box::new(GenericAccountsMigration))
-        .unwrap();
-    migrator
-        .add_migration(Box::new(GenericInstructionMigration))
-        .unwrap();
-
-    // Concrete Migrations
+    // Migrations
     {%- for decoder in decoders %}
     migrator
         .add_migration(Box::new({{ decoder.name }}AccountsMigration))
@@ -96,13 +91,6 @@ pub async fn main() -> CarbonResult<()> {
     {%- endfor %}
     
     migrator.run(&mut *conn, &Plan::apply_all()).await.unwrap();
-    {%- endif %}
-
-    {%- if data_source.module_name == "yellowstone_grpc" %}
-    // NOTE: Workaround for rustls issue https://github.com/rustls/rustls/issues/1877
-    rustls::crypto::aws_lc_rs::default_provider()
-        .install_default()
-        .expect("Can't set crypto provider to aws_lc_rs");
     {%- endif %}
 
     {%- if data_source.module_name == "rpc_block_subscribe" %}
@@ -215,6 +203,7 @@ pub async fn main() -> CarbonResult<()> {
         transaction_filters,
         Default::default(),
         Arc::new(RwLock::new(HashSet::new())),
+        YellowstoneGrpcClientConfig::default(),        
     );
     {%- endif %}
 
