@@ -1,0 +1,14 @@
+{% extends "layout.njk" %}
+
+{% block main %}
+
+{% for type in definedTypesToExport | sort(false, false, 'name') %}
+pub mod {{ type.name | snakeCase }}_row;
+{% endfor %}
+
+{% for type in definedTypesToExport | sort(false, false, 'name') %}
+pub use self::{{ type.name | snakeCase }}_row::*;
+{% endfor %}
+
+{% endblock %}
+=== END FILE: templates/typesSqlMod.njk ===

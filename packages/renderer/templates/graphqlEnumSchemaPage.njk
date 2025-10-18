@@ -1,0 +1,47 @@
+{% if isFieldless %}
+use juniper::GraphQLEnum;
+{{ imports }}
+
+{% if entityDocs and entityDocs.length > 0 %}
+{% for doc in entityDocs %}
+/// {{ doc }}
+{% endfor %}
+{% endif %}
+#[derive(Debug, Clone, GraphQLEnum)]
+#[graphql(name = "{{ entityName | pascalCase }}")]
+pub enum {{ entityName | pascalCase }}GraphQL {
+{% for v in variants %}
+    {% if v.docs and v.docs.length > 0 %}
+    {% for doc in v.docs %}
+    /// {{ doc }}
+    {% endfor %}
+    {% endif %}
+    {{ v.name | pascalCase }},
+{% endfor %}
+}
+
+impl From<crate::types::{{ entityName | pascalCase }}> for {{ entityName | pascalCase }}GraphQL {
+    fn from(original: crate::types::{{ entityName | pascalCase }}) -> Self {
+        match original {
+{% for v in variants %}
+            crate::types::{{ entityName | pascalCase }}::{{ v.name | pascalCase }} => Self::{{ v.name | pascalCase }},
+{% endfor %}
+        }
+    }
+}
+{% else %}
+{{ imports }}
+
+// Data-carrying enum exposed as Json in GraphQL
+pub type {{ entityName | pascalCase }}GraphQL = Json;
+
+impl From<crate::types::{{ entityName | pascalCase }}> for {{ entityName | pascalCase }}GraphQL {
+    fn from(original: crate::types::{{ entityName | pascalCase }}) -> Self {
+        carbon_core::graphql::primitives::Json(
+            serde_json::to_value(&original).unwrap_or(serde_json::Value::Null),
+        )
+    }
+}
+{% endif %}
+
+

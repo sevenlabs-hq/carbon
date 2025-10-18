@@ -38,9 +38,6 @@ carbon-drift-v2-decoder = { path = "decoders/drift-v2-decoder", version = "0.10.
 carbon-fluxbeam-decoder = { path = "decoders/fluxbeam-decoder", version = "0.10.0" }
 carbon-gavel-decoder = { path = "decoders/gavel-decoder", version = "0.10.0" }
 
-# storage and api
-carbon-gql-server = { path = "crates/gql-server", version = "0.10.0" }
-
 # datasources
 carbon-helius-atlas-ws-datasource = { path = "datasources/helius-atlas-ws-datasource", version = "0.10.0" }
 carbon-helius-laserstream-datasource = { path = "datasources/helius-laserstream-datasource", version = "0.10.0" }
@@ -77,7 +74,6 @@ carbon-okx-dex-decoder = { path = "decoders/okx-dex-decoder", version = "0.10.0"
 carbon-openbook-v2-decoder = { path = "decoders/openbook-v2-decoder", version = "0.10.0" }
 carbon-orca-whirlpool-decoder = { path = "decoders/orca-whirlpool-decoder", version = "0.10.0" }
 carbon-phoenix-v1-decoder = { path = "decoders/phoenix-v1-decoder", version = "0.10.0" }
-carbon-postgres-client = { path = "crates/postgres-client", version = "0.10.0" }
 carbon-proc-macros = { path = "crates/proc-macros", version = "0.10.0" }
 carbon-prometheus-metrics = { path = "metrics/prometheus-metrics", version = "0.10.0" }
 carbon-pump-fees-decoder = { path = "decoders/pump-fees-decoder", version = "0.10.0" }
@@ -131,6 +127,7 @@ juniper_graphql_ws = { version = "0.4.0", features = ["graphql-transport-ws"] }
 log = "0.4.25"
 metrics = "0.24.1"
 metrics-exporter-prometheus = "0.16.0"
+num-traits = { version = "0.2.19", features = ["i128"] }
 paste = "1.0.15"
 proc-macro2 = "1"
 prost = "0.13.5"

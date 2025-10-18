@@ -1,0 +1,23 @@
+{% extends "layout.njk" %}
+
+{% block main %}
+
+use solana_pubkey::Pubkey;
+pub struct {{ program.name | pascalCase }}Decoder;
+pub const PROGRAM_ID: Pubkey = solana_pubkey::Pubkey::from_str_const("{{ program.publicKey }}");
+
+{% if accountsToExport.length > 0 %}
+pub mod accounts;
+{% endif %}
+{% if instructionsToExport.length > 0 %}
+pub mod instructions;
+{% endif %}
+{% if definedTypesToExport.length > 0 %}
+pub mod types;
+{% endif %}
+{% if hasAnchorEvents %}
+pub mod events;
+{% endif%}
+pub mod graphql;
+
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "layout.njk" %}
+
+{% block main %}
+
+#[cfg(feature = "graphql")]
+pub mod graphql;
+
+{% for type in definedTypesToExport | sort(false, false, 'name') %}
+pub mod {{ type.name | snakeCase }};
+{% endfor %}
+
+{% for type in definedTypesToExport | sort(false, false, 'name') %}
+pub use self::{{ type.name | snakeCase }}::*;
+{% endfor %}
+
+{% endblock %}

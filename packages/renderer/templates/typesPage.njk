@@ -1,0 +1,21 @@
+{% extends "layout.njk" %}
+{% import "macros.njk" as macros %}
+
+{% block main %}
+
+{{ imports }}
+
+{{ macros.docblock(definedType.docs) }}
+{% if definedType.type.kind === 'enumTypeNode' %}
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
+pub enum {{ definedType.name | pascalCase }} {{ typeManifest.type }}
+{% elif definedType.type.kind === 'structTypeNode' %}
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
+pub struct {{ definedType.name | pascalCase }} {{ typeManifest.type }}
+{% else %}
+pub type {{ definedType.name | pascalCase }} = {{ typeManifest.type }};
+{% endif %}
+
+{% endblock %}

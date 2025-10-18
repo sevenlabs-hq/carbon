@@ -1,0 +1,6 @@
+{# Write a docblock from an array of strings. #}
+{% macro docblock(docs) %}
+{% for doc in docs %}
+/// {{ doc }}
+{% endfor %}
+{% endmacro %}

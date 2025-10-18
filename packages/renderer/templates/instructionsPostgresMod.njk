@@ -1,0 +1,102 @@
+{% extends "layout.njk" %}
+
+{% block main %}
+
+{% for instruction in instructionsToExport | sort(false, false, 'name') %}
+pub mod {{ instruction.name | snakeCase }}_row;
+{% endfor %}
+{% if hasAnchorEvents %}
+pub mod cpi_event_row;
+{% endif %}
+
+{% for instruction in instructionsToExport | sort(false, false, 'name') %}
+pub use self::{{ instruction.name | snakeCase }}_row::*;
+{% endfor %}
+{% if hasAnchorEvents %}
+pub use self::cpi_event_row::*;
+{% endif %}
+
+use super::{{ program.name | pascalCase }}Instruction;
+
+pub struct {{ program.name | pascalCase }}InstructionsMigration;
+
+impl sqlx_migrator::Migration<sqlx::Postgres> for {{program.name | pascalCase}}InstructionsMigration {
+    fn app(&self) -> &str {
+        "{{ program.name | kebabCase }}"
+    }
+
+    fn name(&self) -> &str {
+        "{{ program.name | snakeCase }}_instructions"
+    }
+
+    fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
+        vec![
+            {% for instruction in instructionsToExport | sort(false, false, 'name') %}
+            Box::new({{ instruction.name | pascalCase }}MigrationOperation),
+            {% endfor %}
+            {% if hasAnchorEvents %}
+            Box::new(CpiEventMigrationOperation),
+            {% endif %}
+        ]
+    }
+
+    fn parents(&self) -> Vec<Box<dyn sqlx_migrator::Migration<sqlx::Postgres>>> {
+        vec![]
+    }
+}
+
+pub struct {{ program.name | pascalCase }}InstructionWithMetadata(pub {{ program.name | pascalCase }}Instruction, pub carbon_core::instruction::InstructionMetadata);
+
+impl From<({{ program.name | pascalCase }}Instruction, carbon_core::instruction::InstructionMetadata)> for {{ program.name | pascalCase }}InstructionWithMetadata {
+    fn from(value: ({{ program.name | pascalCase }}Instruction, carbon_core::instruction::InstructionMetadata)) -> Self {
+        {{ program.name | pascalCase }}InstructionWithMetadata(value.0, value.1)
+    }
+}
+
+#[async_trait::async_trait]
+impl carbon_core::postgres::operations::Insert for {{ program.name | pascalCase }}InstructionWithMetadata {
+    async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
+        let {{ program.name | pascalCase }}InstructionWithMetadata(instruction, metadata) = self;
+        match instruction {
+            {% for instruction in instructionsToExport %}
+            {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) => {
+                let row = {{ instruction.name | snakeCase }}_row::{{ instruction.name | pascalCase }}Row::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            {% endfor %}
+            {% if hasAnchorEvents %}
+            {{ program.name | pascalCase }}Instruction::CpiEvent(instruction) => {
+                let row = cpi_event_row::CpiEventRow::from_parts(instruction.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            {% endif %}
+        }
+    }
+}
+
+#[async_trait::async_trait]
+impl carbon_core::postgres::operations::Upsert for {{ program.name | pascalCase }}InstructionWithMetadata {
+    async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
+        let {{ program.name | pascalCase }}InstructionWithMetadata(instruction, metadata) = self;
+        match instruction {
+            {% for instruction in instructionsToExport %}
+            {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) => {
+                let row = {{ instruction.name | snakeCase }}_row::{{ instruction.name | pascalCase }}Row::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            {% endfor %}
+            {% if hasAnchorEvents %}
+            {{ program.name | pascalCase }}Instruction::CpiEvent(instruction) => {
+                let row = cpi_event_row::CpiEventRow::from_parts(instruction.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            {% endif %}
+        }
+    }
+}
+
+{% endblock %}

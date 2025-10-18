@@ -1,0 +1,9 @@
+{% extends "layout.njk" %}
+
+{% block main %}
+
+{% for event in events | sort(false, false, 'name') %}
+pub mod {{ event.name | snakeCase }};
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends "layout.njk" %}
+
+{% block main %}
+
+use crate::{PROGRAM_ID, {{ program.name | pascalCase }}Decoder};
+
+#[cfg(feature = "postgres")]
+pub mod postgres;
+
+#[cfg(feature = "graphql")]
+pub mod graphql;
+
+{% for account in accountsToExport | sort(false, false, 'name') %}
+pub mod {{ account.name | snakeCase }};
+{% endfor %}
+
+{% for account in accountsToExport | sort(false, false, 'name') %}
+pub use self::{{ account.name | snakeCase }}::*;
+{% endfor %}
+
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
+pub enum {{ program.name | pascalCase }}Account {
+{% for account in accountsToExport | sort(false, false, 'name') %}
+    {{ account.name | pascalCase }}({{ account.name | pascalCase }}),
+{% endfor %}
+}
+
+impl<'a> carbon_core::account::AccountDecoder<'a> for {{ program.name | pascalCase }}Decoder {
+    type AccountType = {{ program.name | pascalCase }}Account;
+    
+    fn decode_account(
+        &self,
+        account: &'a solana_account::Account,
+    ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
+        if account.owner != PROGRAM_ID {
+            return None;
+        }
+        
+        let data = account.data.as_slice();
+        
+        {% for account in accountsToExport %}
+        // Try to decode {{ account.name | pascalCase }}
+        {
+            if let Some(decoded) = {{ account.name | snakeCase }}::{{ account.name | pascalCase }}::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: {{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(decoded),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {% endfor %}
+        
+        None
+    }
+}
+
+{% endblock %}
