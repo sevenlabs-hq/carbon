@@ -1,6 +1,6 @@
 export function exitWithError(message: string): never {
-    // eslint-disable-next-line no-console
-    console.error(message);
+    const chalk = require('chalk');
+    console.error(chalk.red('✗ Error: ') + chalk.white(message));
     process.exit(2);
 }
 

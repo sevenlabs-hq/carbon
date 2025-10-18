@@ -1,16 +1,16 @@
 import { Command } from 'commander';
-import { readFileSync } from 'fs';
-import { resolve } from 'path';
-import { createFromJson, createFromRoot } from 'codama';
-import { rootNodeFromAnchor } from '@codama/nodes-from-anchor';
-import renderer, { renderVisitor } from '@sevenlabs-hq/carbon-codama-renderer';
-import { exitWithError, isBase58Like, resolveRpcUrl } from './lib/utils';
-import { fetchAnchorIdl } from './lib/anchor';
+import { resolve, join } from 'path';
+import { promptForParse, promptForScaffold } from './lib/prompts';
+import { generateDecoder, parseIdlSource, getIdlMetadata } from './lib/decoder';
+import { validateDataSource, validateMetrics } from './lib/validation';
+import { resolveRpcUrl } from './lib/utils';
+import { logger, showBanner } from './lib/logger';
 
 const program = new Command();
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../package.json');
+
 program
     .name('carbon-cli')
     .description('Carbon CLI: Parse IDLs and generate decoders')
@@ -18,146 +18,196 @@ program
 
 program.addHelpText(
     'after',
-    `\nExamples:\n  $ carbon-cli parse -i packages/example/anchor-idl.json -o packages/example/generated -s anchor\n  $ carbon-cli parse -i packages/example/codama.json -o packages/example/generated -s codama --event-hints "BuyEvent,CreatePoolEvent"\n  $ carbon-cli parse -i <ProgramPubkey> -u devnet -o ./generated -s anchor\n`,
+    `\nExamples:
+  # Parse command (generate decoder only)
+  $ carbon-cli parse -i packages/example/anchor-idl.json -o packages/example/generated -s anchor
+  $ carbon-cli parse -i packages/example/codama.json -o packages/example/generated -s codama --event-hints "BuyEvent,CreatePoolEvent"
+  $ carbon-cli parse -i <ProgramPubkey> -u devnet -o ./generated -s anchor
+  
+  # Scaffold with published decoder
+  $ carbon-cli scaffold -n my-project -o . -d raydium-clmm -s rpc-block-subscribe
+  
+  # Scaffold with generated decoder
+  $ carbon-cli scaffold -n my-project -o . -d my-decoder --decoder-mode generate --idl ./idl.json --idl-standard anchor -s rpc-block-subscribe
+  
+  # Interactive mode (no options required)
+  $ carbon-cli parse
+  $ carbon-cli scaffold
+`,
 );
 
-// parse: main entry
+// Parse command
 program
     .command('parse')
     .description('Parse an IDL and generate a decoder')
-    .requiredOption('-i, --idl <fileOrAddress>', 'Path to an IDL json file or a Solana program address')
-    .requiredOption('-o, --out-dir <dir>', 'Output directory for generated code')
+    .option('-i, --idl <fileOrAddress>', 'Path to an IDL json file or a Solana program address')
+    .option('-o, --out-dir <dir>', 'Output directory for generated code')
     .option('-c, --as-crate', 'Generate as a Cargo crate layout', false)
     .option('-s, --standard <anchor|codama>', 'Specify the IDL standard to parse', 'anchor')
     .option('--event-hints <csv>', 'Comma-separated names of defined types to parse as CPI Events (Codama only)')
     .option('-u, --url <rpcUrl>', 'RPC URL for fetching IDL when using a program address')
     .option('--no-clean', 'Do not delete output directory before rendering', false)
     .action(async opts => {
+        showBanner();
+        
+        // Prompt for missing options
+        if (!opts.idl || !opts.outDir) {
+            const answers = await promptForParse(opts);
+            Object.assign(opts, answers);
+        }
+
         const outDir = resolve(process.cwd(), opts.outDir);
-        const deleteFolderBeforeRendering = Boolean(opts.clean);
-
-        const idlArg: string = String(opts.idl);
-        const looksLikeFile = idlArg.endsWith('.json');
-        const looksLikeProgram = !looksLikeFile && idlArg.length >= 32 && idlArg.length <= 44 && isBase58Like(idlArg);
-
-        if (!looksLikeFile && !looksLikeProgram) {
-            exitWithError('Invalid --idl: must be a .json file or a Solana program address');
+        
+        // Generate decoder with spinner
+        logger.startSpinner('Generating decoder...');
+        
+        try {
+            await generateDecoder({
+                idl: String(opts.idl),
+                outputDir: outDir,
+                standard: opts.standard,
+                url: opts.url,
+                eventHints: opts.eventHints,
+                deleteFolderBeforeRendering: Boolean(opts.clean),
+            });
+            
+            logger.succeedSpinner('Decoder generated');
+            
+            // Print success message
+            const idlSource = parseIdlSource(String(opts.idl));
+            const source = idlSource.type === 'program' 
+                ? `program-address (${opts.standard}) @ ${resolveRpcUrl(opts.url)}`
+                : `file (${opts.standard})`;
+            
+            logger.decoderSuccess(outDir, source);
+        } catch (error) {
+            logger.failSpinner('Failed to generate decoder');
+            throw error;
         }
-
-        const standard = String(opts.standard || 'anchor').toLowerCase() as 'anchor' | 'codama';
-        if (standard !== 'anchor' && standard !== 'codama') {
-            exitWithError("--standard must be 'anchor' or 'codama'");
-        }
-        if (standard === 'anchor' && typeof opts.eventHints === 'string') {
-            exitWithError("The '--event-hints' option can only be used with --standard codama");
-        }
-        if (standard === 'codama' && looksLikeProgram) {
-            exitWithError('--standard codama is only supported with --idl <codama.json>');
-        }
-
-        if (looksLikeProgram) {
-            if (!opts.url) {
-                exitWithError('When --idl is a program address, --url is required');
-            }
-            if (standard !== 'anchor') {
-                exitWithError('Only --standard anchor is supported when using a program address');
-            }
-            const idlJson = await fetchAnchorIdl(idlArg, opts.url);
-            const codama = createFromRoot(rootNodeFromAnchor(idlJson));
-            codama.accept(
-                renderVisitor(outDir, {
-                    deleteFolderBeforeRendering,
-                    anchorEvents: idlJson.events,
-                }),
-            );
-            // eslint-disable-next-line no-console
-            console.log('✅ Generated Rust decoder');
-            // eslint-disable-next-line no-console
-            console.log(`  • output: ${outDir}`);
-            // eslint-disable-next-line no-console
-            console.log(`  • source: program-address (${standard}) @ ${resolveRpcUrl(opts.url)}`);
-            return;
-        }
-
-        const idlPath = resolve(process.cwd(), idlArg);
-        const idlJson = JSON.parse(readFileSync(idlPath, 'utf8'));
-
-        if (standard === 'anchor') {
-            const codama = createFromRoot(rootNodeFromAnchor(idlJson));
-            codama.accept(
-                renderVisitor(outDir, {
-                    deleteFolderBeforeRendering,
-                    anchorEvents: idlJson.events,
-                }),
-            );
-        } else {
-            const codama = createFromJson(readFileSync(idlPath, 'utf8'));
-            codama.accept(
-                renderVisitor(outDir, {
-                    deleteFolderBeforeRendering,
-                }),
-            );
-        }
-
-        // eslint-disable-next-line no-console
-        console.log('✅ Generated Rust decoder');
-        // eslint-disable-next-line no-console
-        console.log(`  • output: ${outDir}`);
-        // eslint-disable-next-line no-console
-        console.log(`  • source: file (${standard})`);
     });
 
+// Scaffold command
 program
     .command('scaffold')
     .description('Generate skeleton of the project')
-    .requiredOption('-n, --name <string>', 'Name of your project')
-    .requiredOption('-o, --out-dir <dir>', 'Output directory')
-    .requiredOption('-d, --decoder <name>', 'Decoder name (e.g. raydium-clmm)')
-    .requiredOption('-s, --data-source <name>', 'Name of data source')
+    .option('-n, --name <string>', 'Name of your project')
+    .option('-o, --out-dir <dir>', 'Output directory')
+    .option('-d, --decoder <name>', 'Decoder name (e.g. raydium-clmm)')
+    .option('--decoder-mode <published|generate>', 'Use published decoder or generate from IDL')
+    .option('--idl <fileOrAddress>', 'IDL file or program address (when decoder-mode is generate)')
+    .option('--idl-standard <anchor|codama>', 'IDL standard (when decoder-mode is generate)')
+    .option('--idl-url <rpcUrl>', 'RPC URL for fetching IDL (when using program address)')
+    .option('--event-hints <csv>', 'Event hints for Codama IDL')
+    .option('-s, --data-source <name>', 'Name of data source')
     .option('-m, --metrics <log|prometheus>', 'Metrics to use', 'log')
-    .option('--with-postgres', 'Include Postgres wiring and deps', true)
-    .option('--with-graphql', 'Include GraphQL wiring and deps', true)
+    .option('--with-postgres <boolean>', 'Include Postgres wiring and deps (default: true)')
+    .option('--with-graphql <boolean>', 'Include GraphQL wiring and deps (default: true)')
     .option('--force', 'Overwrite output directory if it exists', false)
     .action(async opts => {
+        showBanner();
+        
+        // Prompt for missing options (interactive mode)
+        // We're in interactive mode if essential options are missing
+        const isInteractive = !opts.name || !opts.outDir || !opts.dataSource || 
+                             (!opts.decoder && !opts.decoderMode);
+        
+        if (isInteractive) {
+            const answers = await promptForScaffold(opts);
+            Object.assign(opts, answers);
+        }
+
+        // Normalize and validate options
         const name = String(opts.name);
         const outDir = resolve(process.cwd(), String(opts.outDir));
-        const decoder = String(opts.decoder).trim().replace(/\s+/g, '-');
+        const decoderMode = (opts.decoderMode || 'published') as 'published' | 'generate';
         const dataSource = String(opts.dataSource);
-        const metrics = String(opts.metrics).toLowerCase() as 'log' | 'prometheus';
-        const withPostgres = opts.withPostgres !== false;
-        const withGraphql = opts.withGraphql !== false;
+        const metrics = String(opts.metrics || 'log').toLowerCase();
+        const withPostgres = opts.withPostgres !== undefined 
+            ? opts.withPostgres === 'true' || opts.withPostgres === true
+            : true;
+        const withGraphql = opts.withGraphql !== undefined
+            ? opts.withGraphql === 'true' || opts.withGraphql === true
+            : true;
         const force = Boolean(opts.force);
 
-        const validDatasources = [
-            'helius-atlas-ws',
-            'rpc-block-subscribe',
-            'rpc-program-subscribe',
-            'rpc-transaction-crawler',
-            'yellowstone-grpc',
-        ];
-        if (!validDatasources.includes(dataSource)) {
-            exitWithError('Invalid data source.');
-        }
-        if (metrics !== 'log' && metrics !== 'prometheus') {
-            exitWithError("--metrics must be 'log' or 'prometheus'");
+        // Auto-detect decoder name from IDL if in generate mode
+        let decoder: string;
+        if (decoderMode === 'generate') {
+            logger.startSpinner('Detecting decoder name from IDL...');
+            try {
+                const metadata = await getIdlMetadata(
+                    String(opts.idl),
+                    opts.idlStandard,
+                    opts.idlUrl
+                );
+                decoder = metadata.name;
+                logger.succeedSpinner(`Detected decoder: ${decoder}`);
+            } catch (error) {
+                logger.failSpinner('Failed to detect decoder name');
+                throw error;
+            }
+        } else {
+            decoder = String(opts.decoder).trim().replace(/\s+/g, '-');
         }
 
-        const { renderScaffold } = await import('./lib/scaffold');
-        renderScaffold({
-            name,
-            outDir,
-            decoder,
-            dataSource,
-            metrics,
-            withPostgres,
-            withGraphql,
-            force,
-        });
+        // Validate
+        validateDataSource(dataSource);
+        validateMetrics(metrics);
 
-        // eslint-disable-next-line no-console
-        console.log('✅ Scaffold created');
-        // eslint-disable-next-line no-console
-        console.log(`  • location: ${outDir}/${name}`);
+        // Render scaffold structure
+        logger.startSpinner('Creating project structure...');
+        
+        try {
+            const { renderScaffold } = await import('./lib/scaffold');
+            renderScaffold({
+                name,
+                outDir,
+                decoder,
+                decoderMode,
+                decoderPath: decoderMode === 'generate' ? `./${decoder}` : undefined,
+                dataSource,
+                metrics,
+                withPostgres,
+                withGraphql,
+                force,
+            });
+            
+            logger.succeedSpinner('Project structure created');
+        } catch (error) {
+            logger.failSpinner('Failed to create project structure');
+            throw error;
+        }
+
+        // Generate decoder if needed
+        if (decoderMode === 'generate') {
+            const workspaceDir = join(outDir, name);
+            const decoderPath = join(workspaceDir, 'decoder');
+
+            logger.startSpinner('Generating decoder from IDL...');
+            
+            try {
+                await generateDecoder({
+                    idl: String(opts.idl),
+                    outputDir: decoderPath,
+                    standard: opts.idlStandard,
+                    url: opts.idlUrl,
+                    eventHints: opts.eventHints,
+                    deleteFolderBeforeRendering: true,
+                });
+                
+                logger.succeedSpinner('Decoder generated successfully');
+            } catch (error) {
+                logger.failSpinner('Failed to generate decoder');
+                throw error;
+            }
+        }
+
+        // Print success message
+        const decoderInfo = decoderMode === 'generate'
+            ? `${decoder} (generated from IDL)`
+            : `carbon-${decoder}-decoder (published)`;
+            
+        logger.scaffoldSuccess(join(outDir, name), decoderInfo);
     });
 
 program.parseAsync(process.argv);
