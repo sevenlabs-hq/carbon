@@ -97,7 +97,6 @@ export type ScaffoldOptions = {
     name?: string;
     outDir?: string;
     decoder?: string;
-    decoderMode?: 'published' | 'generate';
     idl?: string;
     idlStandard?: string;
     idlUrl?: string;
@@ -142,72 +141,58 @@ export async function promptForScaffold(existingOpts: ScaffoldOptions = {}): Pro
         }
     }
 
-    // Ask about decoder mode
-    const decoderMode = existingOpts.decoderMode || (existingOpts.decoder ? 'published' : await select({
-        message: 'Decoder source:',
-        choices: [
-            { name: 'Use published Carbon decoder', value: 'published' },
-            { name: 'Generate from IDL', value: 'generate' },
-        ],
-        default: 'published',
-    })) as 'published' | 'generate';
-
     let decoder: string | undefined = existingOpts.decoder;
     let idl: string | undefined = existingOpts.idl;
     let idlStandard: string | undefined = existingOpts.idlStandard;
     let idlUrl: string | undefined = existingOpts.idlUrl;
 
-    if (decoderMode === 'published') {
-        decoder = decoder || await input({
-            message: 'Published decoder name (e.g., raydium-clmm, jupiter-swap):',
-            validate: (value) => {
-                if (!value.trim()) return 'Decoder name is required';
-                return true;
-            },
-        });
-    } else {
-        // Generate mode - ask for IDL details
-        idl = idl || await input({
-            message: 'IDL file path or Solana program address:',
-            validate: (value) => {
-                if (!value.trim()) return 'IDL is required';
-                return true;
-            },
-        });
+    // Always generate mode - ask for IDL details
+    idl = idl || await input({
+        message: 'IDL file path or Solana program address:',
+        validate: (value) => {
+            if (!value.trim()) return 'IDL is required';
+            return true;
+        },
+    });
 
-        const idlArg = idl.trim();
-        const looksLikeFile = idlArg.endsWith('.json');
-        const looksLikeProgram = !looksLikeFile && idlArg.length >= 32 && idlArg.length <= 44;
+    const idlArg = idl.trim();
+    const looksLikeFile = idlArg.endsWith('.json');
+    const looksLikeProgram = !looksLikeFile && idlArg.length >= 32 && idlArg.length <= 44;
 
-        if (looksLikeProgram) {
-            // Program address - only supports anchor
-            if (!idlUrl) {
-                idlUrl = await input({
-                    message: 'RPC URL for fetching IDL:',
-                    default: 'mainnet-beta',
-                    validate: (value) => {
-                        if (!value.trim()) return 'RPC URL is required when using a program address';
-                        return true;
-                    },
-                });
-            }
-            idlStandard = 'anchor';
-        } else {
-            // File path
-            if (!idlStandard) {
-                idlStandard = (await select({
-                    message: 'IDL standard:',
-                    choices: [
-                        { name: 'Anchor', value: 'anchor' },
-                        { name: 'Codama', value: 'codama' },
-                    ],
-                    default: 'anchor',
-                })) as 'anchor' | 'codama';
-            }
+    if (looksLikeProgram) {
+        // Program address - only supports anchor
+        if (!idlUrl) {
+            idlUrl = await input({
+                message: 'RPC URL for fetching IDL:',
+                default: 'mainnet-beta',
+                validate: (value) => {
+                    if (!value.trim()) return 'RPC URL is required when using a program address';
+                    return true;
+                },
+            });
         }
+        idlStandard = 'anchor';
+    } else {
+        // File path
+        if (!idlStandard) {
+            idlStandard = (await select({
+                message: 'IDL standard:',
+                choices: [
+                    { name: 'Anchor', value: 'anchor' },
+                    { name: 'Codama', value: 'codama' },
+                ],
+                default: 'anchor',
+            })) as 'anchor' | 'codama';
+        }
+    }
 
-        // Decoder name will be auto-detected from IDL - don't prompt for it
-        decoder = 'auto-detect';
+    // Ask for decoder name (optional - will auto-detect from IDL if not provided)
+    if (!decoder) {
+        const decoderInput = await input({
+            message: 'Decoder name (press Enter to auto-detect from IDL):',
+            default: '',
+        });
+        decoder = decoderInput.trim() || 'auto-detect';
     }
 
     const dataSource = existingOpts.dataSource || await select({
@@ -245,7 +230,6 @@ export async function promptForScaffold(existingOpts: ScaffoldOptions = {}): Pro
         name,
         outDir,
         decoder,
-        decoderMode,
         idl,
         idlStandard,
         idlUrl,

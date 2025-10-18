@@ -30,21 +30,13 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
     if (opts.withPostgres) featureParts.push('"postgres"');
     if (opts.withGraphql) featureParts.push('"graphql"');
 
-    const hasLocalDecoder = opts.decoderMode === 'generate';
+    const hasLocalDecoder = true;
     const decoderCrateName = kebabCase(opts.decoder)
     
-    // Handle decoder dependency based on mode
-    let decoderDependency: string;
+    let decoderDependency: string = '';
     let decoderFeatures = '';
-    
-    if (hasLocalDecoder) {
-        // Local decoder - features will be added in template
-        if (featureParts.length) {
-            decoderFeatures = `, features = [${featureParts.join(', ')}]`;
-        }
-        decoderDependency = ''; // Not used when hasLocalDecoder is true
-    } else {
-        decoderDependency = `carbon-${opts.decoder.toLowerCase()}-decoder = "0.11.0"`;
+    if (featureParts.length) {
+        decoderFeatures = `, features = [${featureParts.join(', ')}]`;
     }
 
     const datasourceDep = `carbon-${opts.dataSource.toLowerCase()}-datasource = "0.11.0"`;
