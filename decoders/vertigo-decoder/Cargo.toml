@@ -1,6 +1,6 @@
 [package]
 name = "carbon-vertigo-decoder"
-version = "0.10.0"
+version = "0.11.0"
 description = "Vertigo DEX Program Decoder"
 edition = { workspace = true }
 license = { workspace = true }
