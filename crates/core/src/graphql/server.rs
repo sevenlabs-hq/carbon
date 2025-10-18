@@ -36,8 +36,7 @@ where
     C: juniper::Context + Clone + Send + Sync + 'static,
 {
     async fn handler<Q, C>(
-        #[allow(clippy::type_complexity)]
-        Extension(schema): Extension<
+        #[allow(clippy::type_complexity)] Extension(schema): Extension<
             Arc<RootNode<'static, Q, DefaultMutation<C>, DefaultSubscription<C>>>,
         >,
         Extension(ctx): Extension<C>,
