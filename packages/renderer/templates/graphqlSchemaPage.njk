@@ -1,0 +1,33 @@
+use juniper::GraphQLObject;
+{{ imports }}
+
+{% if entityDocs and entityDocs.length > 0 %}
+{% for doc in entityDocs %}
+/// {{ doc }}
+{% endfor %}
+{% endif %}
+#[derive(Debug, Clone, GraphQLObject)]
+#[graphql(name = "{{ entityName | pascalCase }}")]
+pub struct {{ entityName | pascalCase }}GraphQL {
+    pub metadata: {% if isAccount %}crate::accounts::graphql::AccountMetadataGraphQL{% else %}crate::instructions::graphql::InstructionMetadataGraphQL{% endif %},
+{% for field in graphqlFields %}
+    {% if field.docs and field.docs.length > 0 %}
+    {% for doc in field.docs %}
+    /// {{ doc }}
+    {% endfor %}
+    {% endif %}
+    pub {{ field.fieldName }}: {{ field.rustType }},
+{% endfor %}
+}
+
+impl TryFrom<crate::{% if isAccount %}accounts{% else %}instructions{% endif %}::postgres::{{ entityName | pascalCase }}Row> for {{ entityName | pascalCase }}GraphQL {
+    type Error = carbon_core::error::Error;
+    fn try_from(row: crate::{% if isAccount %}accounts{% else %}instructions{% endif %}::postgres::{{ entityName | pascalCase }}Row) -> Result<Self, Self::Error> {
+        Ok(Self {
+            metadata: row.metadata.into(),
+{% for field in graphqlFields %}
+            {{ field.fieldName }}: {{ field.fromRowExpr }},
+{% endfor %}
+        })
+    }
+}

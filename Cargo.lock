@@ -1098,13 +1098,17 @@ name = "carbon-core"
 version = "0.10.0"
 dependencies = [
  "async-trait",
+ "axum",
  "base64 0.22.1",
  "borsh 0.10.4",
  "bs58",
  "carbon-macros",
  "carbon-proc-macros",
  "carbon-test-utils",
+ "juniper",
+ "juniper_axum",
  "log",
+ "num-traits",
  "serde",
  "serde_json",
  "solana-account",
@@ -1118,6 +1122,8 @@ dependencies = [
  "solana-transaction",
  "solana-transaction-context",
  "solana-transaction-status",
+ "sqlx",
+ "sqlx_migrator",
  "thiserror 2.0.12",
  "tokio",
  "tokio-util",
@@ -1172,20 +1178,6 @@ dependencies = [
  "solana-account",
  "solana-instruction",
  "solana-pubkey",
-]
-
-[[package]]
-name = "carbon-gql-server"
-version = "0.10.0"
-dependencies = [
- "axum",
- "carbon-postgres-client",
- "juniper",
- "juniper_axum",
- "juniper_graphql_ws",
- "serde",
- "solana-pubkey",
- "tokio",
 ]
 
 [[package]]
@@ -1589,15 +1581,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "carbon-postgres-client"
-version = "0.10.0"
-dependencies = [
- "juniper",
- "sqlx",
- "sqlx_migrator",
-]
-
-[[package]]
 name = "carbon-proc-macros"
 version = "0.10.0"
 dependencies = [
@@ -1905,20 +1888,13 @@ dependencies = [
 name = "carbon-token-program-decoder"
 version = "0.10.0"
 dependencies = [
- "async-trait",
  "carbon-core",
- "carbon-gql-server",
- "carbon-postgres-client",
- "juniper",
- "rust_decimal",
  "serde",
  "solana-account",
  "solana-instruction",
  "solana-program-pack",
  "solana-pubkey",
  "spl-token 7.0.0",
- "sqlx",
- "sqlx_migrator",
 ]
 
 [[package]]
@@ -2809,12 +2785,6 @@ dependencies = [
  "event-listener 5.4.0",
  "pin-project-lite",
 ]
-
-[[package]]
-name = "fallible-iterator"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4443176a9f2c162692bd3d352d745ef9413eec5782a80d8fd6f8a1ac692a07f7"
 
 [[package]]
 name = "fast-math"
@@ -4928,35 +4898,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "postgres-protocol"
-version = "0.6.8"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "76ff0abab4a9b844b93ef7b81f1efc0a366062aaef2cd702c76256b5dc075c54"
-dependencies = [
- "base64 0.22.1",
- "byteorder",
- "bytes",
- "fallible-iterator",
- "hmac 0.12.1",
- "md-5",
- "memchr",
- "rand 0.9.1",
- "sha2 0.10.9",
- "stringprep",
-]
-
-[[package]]
-name = "postgres-types"
-version = "0.2.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "613283563cd90e1dfc3518d548caee47e0e725455ed619881f5cf21f36de4b48"
-dependencies = [
- "bytes",
- "fallible-iterator",
- "postgres-protocol",
-]
-
-[[package]]
 name = "potential_utf"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5728,7 +5669,6 @@ dependencies = [
  "borsh 1.5.7",
  "bytes",
  "num-traits",
- "postgres-types",
  "rand 0.8.5",
  "rkyv",
  "serde",
@@ -9760,27 +9700,6 @@ name = "tinyvec_macros"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
-
-[[package]]
-name = "token-indexing-example"
-version = "0.1.0"
-dependencies = [
- "async-trait",
- "carbon-core",
- "carbon-gql-server",
- "carbon-log-metrics",
- "carbon-postgres-client",
- "carbon-token-program-decoder",
- "carbon-yellowstone-grpc-datasource",
- "dotenv",
- "juniper",
- "log",
- "rustls 0.23.27",
- "solana-account",
- "spl-token 7.0.0",
- "tokio",
- "yellowstone-grpc-proto",
-]
 
 [[package]]
 name = "tokio"

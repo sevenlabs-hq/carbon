@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "indexer",
+{%- if hasLocalDecoder %}
+    "decoder",
+{%- endif %}
+]
+resolver = "2"

@@ -52,6 +52,11 @@
 //!   integrates data sources, processing pipes, and metrics to provide a
 //!   complete data processing solution.
 //!
+//! - **[`postgres`]**: Provides support for PostgreSQL database operations,
+//!   including table definitions, insert, upsert, and delete operations.
+//!   This module is designed to be used in conjunction with the `sqlx` crate
+//!   for database interactions.
+//!
 //! - **[`processor`]**: Contains traits and implementations for processing data
 //!   in the pipeline. This module allows for the creation of custom data
 //!   processors that can be integrated into various stages of the pipeline.
@@ -127,9 +132,13 @@ pub mod datasource;
 pub mod deserialize;
 pub mod error;
 pub mod filter;
+#[cfg(feature = "graphql")]
+pub mod graphql;
 pub mod instruction;
 pub mod metrics;
 pub mod pipeline;
+#[cfg(feature = "postgres")]
+pub mod postgres;
 pub mod processor;
 pub mod schema;
 pub mod transaction;

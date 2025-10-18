@@ -1,0 +1,41 @@
+[package]
+name = "{{ projectName }}-indexer"
+version = "0.0.1"
+edition = "2021"
+
+[dependencies]
+async-trait = "0.1.86"
+carbon-core = "{{ carbonVersion }}"
+{%- if hasLocalDecoder %}
+carbon-{{ decoderCrateName }}-decoder = { path = "../decoder"{{ decoderFeatures }} }
+{%- else %}
+{{ decoderDependency }}
+{%- endif %}
+{{ datasourceDep }}
+{{ metricsDep }}
+solana-sdk = "{{ solanaVersion }}"
+solana-pubkey = "{{ solanaVersion }}"
+solana-client = "{{ solanaVersion }}"
+tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
+dotenv = "0.15.0"
+env_logger = "0.11.5"
+log = "0.4.25"
+anyhow = "1"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+{%- if rustlsDep %}
+{{ rustlsDep }}
+{%- endif %}
+{%- if grpcDeps %}
+{{ grpcDeps }}
+{%- endif %}
+{%- if pgDeps %}
+{{ pgDeps }}
+{%- endif %}
+{%- if gqlDeps %}
+{{ gqlDeps }}
+{%- endif %}
+
+[features]
+{{ features }}
+

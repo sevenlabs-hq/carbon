@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "strict": true,
+        "useUnknownInCatchVariables": false,
+        "allowJs": true,
+        "skipLibCheck": true,
+        "forceConsistentCasingInFileNames": true,
+        "isolatedModules": true,
+        "verbatimModuleSyntax": false,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "jsx": "preserve",
+        "resolveJsonModule": true,
+        "moduleDetection": "force",
+        "target": "ES2022",
+        "module": "ESNext",
+        "moduleResolution": "Bundler",
+        "noEmit": true
+    },
+    "exclude": ["node_modules", "dist", "build"]
+}
