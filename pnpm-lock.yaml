@@ -45,8 +45,8 @@ importers:
         specifier: ^7.9.0
         version: 7.9.0(@types/node@24.0.10)
       '@sevenlabs-hq/carbon-codama-renderer':
-        specifier: 0.1.4
-        version: 0.1.4(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)
+        specifier: 0.2.0
+        version: 0.2.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)
       chalk:
         specifier: ^5.6.2
         version: 5.6.2
@@ -585,8 +585,8 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@sevenlabs-hq/carbon-codama-renderer@0.1.4':
-    resolution: {integrity: sha512-bAQjoGR52n6SOvIgJKxNCyX1Gd851o3SKZFQckv97wrMA/2ewtJ8toOae0IFa/Xw7ea1c8WVxb7xBqOwHQprZg==}
+  '@sevenlabs-hq/carbon-codama-renderer@0.2.0':
+    resolution: {integrity: sha512-+Fb4HxCKuMCgkEtGhzdnd3mkz5cnUIQSZRb2mxrc+EygddqIKkqlWX65ZMB8gzWS/BdYP0CZjmyCvr1Heh1c5g==}
     engines: {node: '>=18.0.0'}
 
   '@solana/buffer-layout@4.0.1':
@@ -1914,7 +1914,7 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.44.2':
     optional: true
 
-  '@sevenlabs-hq/carbon-codama-renderer@0.1.4(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)':
+  '@sevenlabs-hq/carbon-codama-renderer@0.2.0(fastestsmallesttextencoderdecoder@1.0.22)(typescript@5.8.3)':
     dependencies:
       '@codama/errors': 1.3.0
       '@codama/nodes': 1.3.0

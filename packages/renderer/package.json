@@ -1,6 +1,6 @@
 {
     "name": "@sevenlabs-hq/carbon-codama-renderer",
-    "version": "0.1.7",
+    "version": "0.2.0",
     "description": "Carbon codama renderer for Codama IDL",
     "keywords": [
         "solana",
