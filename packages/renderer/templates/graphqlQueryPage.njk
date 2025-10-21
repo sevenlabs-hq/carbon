@@ -73,6 +73,7 @@ impl QueryRoot {
         Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
     {% endif %}
+    {% endfor %}
 
     {% if hasAnchorEvents %}
     async fn list_cpi_events(
@@ -91,6 +92,5 @@ impl QueryRoot {
         Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
     {% endif %}
-    {% endfor %}
 }
 
