@@ -53,7 +53,7 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
         ? `sqlx = { version = "0.8.6", features = ["postgres", "runtime-tokio-rustls", "macros"] }\nsqlx_migrator = "0.17.0"`
         : '';
 
-    const gqlDeps = opts.withGraphql ? `juniper = "0.15"\naxum = "0.7"` : '';
+    const gqlDeps = opts.withGraphql ? `juniper = "0.15"\naxum = "0.8.4"` : '';
 
     const rustlsDep = opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream' ? 'rustls = "0.23"' : '';
 
