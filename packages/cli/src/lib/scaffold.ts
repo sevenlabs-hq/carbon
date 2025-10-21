@@ -3,6 +3,7 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import nunjucks from 'nunjucks';
 import { exitWithError } from './utils';
+import { kebabCase } from 'codama';
 
 export type ScaffoldOptions = {
     name: string;
@@ -14,6 +15,7 @@ export type ScaffoldOptions = {
     metrics: 'log' | 'prometheus';
     withPostgres: boolean;
     withGraphql: boolean;
+    withSerde: boolean;
     force?: boolean;
 };
 
@@ -24,48 +26,36 @@ function ensureDir(path: string) {
 }
 
 function buildIndexerCargoContext(opts: ScaffoldOptions) {
-    const carbonVersion = '0.9.1';
-    const solanaVersion = '=2.1.15';
     const featureParts: string[] = [];
 
     if (opts.withPostgres) featureParts.push('"postgres"');
     if (opts.withGraphql) featureParts.push('"graphql"');
+    if (opts.withSerde) featureParts.push('"serde"');
 
-    const hasLocalDecoder = opts.decoderMode === 'generate';
-    const decoderCrateName = opts.decoder.replace(/-/g, '_');
+    const hasLocalDecoder = true;
+    const decoderCrateName = kebabCase(opts.decoder)
     
-    // Handle decoder dependency based on mode
-    let decoderDependency: string;
+    let decoderDependency: string = '';
     let decoderFeatures = '';
-    
-    if (hasLocalDecoder) {
-        // Local decoder - features will be added in template
-        if (featureParts.length) {
-            decoderFeatures = `, features = [${featureParts.join(', ')}]`;
-        }
-        decoderDependency = ''; // Not used when hasLocalDecoder is true
-    } else {
-        // Published Carbon decoder
-        decoderDependency = featureParts.length
-            ? `carbon-${opts.decoder.toLowerCase()}-decoder = { version = "${carbonVersion}", features = [${featureParts.join(', ')}] }`
-            : `carbon-${opts.decoder.toLowerCase()}-decoder = "${carbonVersion}"`;
+    if (featureParts.length) {
+        decoderFeatures = `, features = [${featureParts.join(', ')}]`;
     }
 
-    const datasourceDep = `carbon-${opts.dataSource.toLowerCase()}-datasource = "${carbonVersion}"`;
-    const metricsDep = `carbon-${opts.metrics.toLowerCase()}-metrics = "${carbonVersion}"`;
+    const datasourceDep = `carbon-${opts.dataSource.toLowerCase()}-datasource = "0.11.0"`;
+    const metricsDep = `carbon-${opts.metrics.toLowerCase()}-metrics = "0.11.0"`;
 
     const grpcDeps =
-        opts.dataSource === 'yellowstone-grpc'
-            ? `yellowstone-grpc-client = { version = "5.0.0" }\nyellowstone-grpc-proto = { version = "5.0.0" }`
+        opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream'
+            ? `yellowstone-grpc-client = { version = "9.0.0" }\nyellowstone-grpc-proto = { version = "9.0.0" }`
             : '';
 
     const pgDeps = opts.withPostgres
-        ? `sqlx = { version = "0.7", features = ["postgres", "runtime-tokio-rustls", "macros"] }\nsqlx_migrator = "0.17.0"`
+        ? `sqlx = { version = "0.8.6", features = ["postgres", "runtime-tokio-rustls", "macros"] }\nsqlx_migrator = "0.17.0"`
         : '';
 
-    const gqlDeps = opts.withGraphql ? `juniper = "0.15"\naxum = "0.7"` : '';
+    const gqlDeps = opts.withGraphql ? `juniper = "0.15"\naxum = "0.8.4"` : '';
 
-    const rustlsDep = opts.dataSource === 'yellowstone-grpc' ? 'rustls = "0.23"' : '';
+    const rustlsDep = opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream' ? 'rustls = "0.23"' : '';
 
     const features = ['default = []', opts.withPostgres ? 'postgres = []' : '', opts.withGraphql ? 'graphql = []' : '']
         .filter(Boolean)
@@ -73,8 +63,6 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
 
     return {
         projectName: opts.name,
-        carbonVersion,
-        solanaVersion,
         hasLocalDecoder,
         decoderCrateName,
         decoderFeatures,
@@ -103,6 +91,9 @@ function getEnvContent(dataSource: string, withPostgres: boolean): string {
     switch (dataSourceLower) {
         case 'helius_atlas_ws':
             envContent += 'HELIUS_API_KEY=your-atlas-ws-url-here';
+            break;
+        case 'helius_laserstream':
+            envContent += 'GEYSER_URL=your-grpc-url-here\nX_TOKEN=your-x-token-here';
             break;
         case 'rpc_block_subscribe':
             envContent += 'RPC_WS_URL=your-rpc-ws-url-here';

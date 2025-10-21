@@ -26,10 +26,10 @@ graphql = [
 
 [dependencies]
 # Core dependencies
-carbon-core = { version = "0.9.1", default-features = false }
-solana-pubkey = { version = "~2.2" }
+carbon-core = { version = "0.11.0", default-features = false }
+solana-pubkey = { version = "^2.3.6" }
 solana-account = { version = "~2.2" }
-solana-instruction = { version = "~2.2", default-features = false }
+solana-instruction = { version = "~2.3", default-features = false }
 serde_json = "1.0.138"
 
 # Serialization (optional)
@@ -47,6 +47,6 @@ base64 = { version = "0.22", optional = true }
 
 
 [dev-dependencies]
-carbon-test-utils = { version = "0.9.1" }
+carbon-test-utils = { version = "0.11.0" }
 
 {% endblock %}

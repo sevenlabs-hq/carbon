@@ -24,11 +24,12 @@ program.addHelpText(
   $ carbon-cli parse -i packages/example/codama.json -o packages/example/generated -s codama --event-hints "BuyEvent,CreatePoolEvent"
   $ carbon-cli parse -i <ProgramPubkey> -u devnet -o ./generated -s anchor
   
-  # Scaffold with published decoder
-  $ carbon-cli scaffold -n my-project -o . -d raydium-clmm -s rpc-block-subscribe
+  # Scaffold with generated decoder from IDL
+  $ carbon-cli scaffold -n my-project -o . --idl ./idl.json --idl-standard anchor -s rpc-block-subscribe
   
-  # Scaffold with generated decoder
-  $ carbon-cli scaffold -n my-project -o . -d my-decoder --decoder-mode generate --idl ./idl.json --idl-standard anchor -s rpc-block-subscribe
+  # Scaffold with Helius Laserstream datasource
+  $ carbon-cli scaffold -n my-project -o . --idl ./idl.json --idl-standard anchor -s helius-laserstream
+  
   
   # Interactive mode (no options required)
   $ carbon-cli parse
@@ -92,24 +93,23 @@ program
     .description('Generate skeleton of the project')
     .option('-n, --name <string>', 'Name of your project')
     .option('-o, --out-dir <dir>', 'Output directory')
-    .option('-d, --decoder <name>', 'Decoder name (e.g. raydium-clmm)')
-    .option('--decoder-mode <published|generate>', 'Use published decoder or generate from IDL')
-    .option('--idl <fileOrAddress>', 'IDL file or program address (when decoder-mode is generate)')
-    .option('--idl-standard <anchor|codama>', 'IDL standard (when decoder-mode is generate)')
+    .option('-d, --decoder <name>', 'Decoder name (auto-detected from IDL)')
+    .option('--idl <fileOrAddress>', 'IDL file or program address')
+    .option('--idl-standard <anchor|codama>', 'IDL standard')
     .option('--idl-url <rpcUrl>', 'RPC URL for fetching IDL (when using program address)')
     .option('--event-hints <csv>', 'Event hints for Codama IDL')
     .option('-s, --data-source <name>', 'Name of data source')
     .option('-m, --metrics <log|prometheus>', 'Metrics to use', 'log')
     .option('--with-postgres <boolean>', 'Include Postgres wiring and deps (default: true)')
     .option('--with-graphql <boolean>', 'Include GraphQL wiring and deps (default: true)')
+    .option('--with-serde <boolean>', 'Include serde feature for decoder (default: false)')
     .option('--force', 'Overwrite output directory if it exists', false)
     .action(async opts => {
         showBanner();
         
         // Prompt for missing options (interactive mode)
         // We're in interactive mode if essential options are missing
-        const isInteractive = !opts.name || !opts.outDir || !opts.dataSource || 
-                             (!opts.decoder && !opts.decoderMode);
+        const isInteractive = !opts.name || !opts.outDir || !opts.dataSource || !opts.idl;
         
         if (isInteractive) {
             const answers = await promptForScaffold(opts);
@@ -119,7 +119,7 @@ program
         // Normalize and validate options
         const name = String(opts.name);
         const outDir = resolve(process.cwd(), String(opts.outDir));
-        const decoderMode = (opts.decoderMode || 'published') as 'published' | 'generate';
+        const decoderMode = 'generate' as const;
         const dataSource = String(opts.dataSource);
         const metrics = String(opts.metrics || 'log').toLowerCase();
         const withPostgres = opts.withPostgres !== undefined 
@@ -128,11 +128,17 @@ program
         const withGraphql = opts.withGraphql !== undefined
             ? opts.withGraphql === 'true' || opts.withGraphql === true
             : true;
+        const withSerde = opts.withSerde !== undefined
+            ? opts.withSerde === 'true' || opts.withSerde === true
+            : false;
         const force = Boolean(opts.force);
 
-        // Auto-detect decoder name from IDL if in generate mode
+        // Use provided decoder name or auto-detect from IDL
         let decoder: string;
-        if (decoderMode === 'generate') {
+        if (opts.decoder && opts.decoder !== 'auto-detect') {
+            decoder = String(opts.decoder).trim().replace(/\s+/g, '-');
+            logger.info(`Using provided decoder name: ${decoder}`);
+        } else {
             logger.startSpinner('Detecting decoder name from IDL...');
             try {
                 const metadata = await getIdlMetadata(
@@ -146,8 +152,6 @@ program
                 logger.failSpinner('Failed to detect decoder name');
                 throw error;
             }
-        } else {
-            decoder = String(opts.decoder).trim().replace(/\s+/g, '-');
         }
 
         // Validate
@@ -169,6 +173,7 @@ program
                 metrics,
                 withPostgres,
                 withGraphql,
+                withSerde,
                 force,
             });
             
@@ -178,34 +183,30 @@ program
             throw error;
         }
 
-        // Generate decoder if needed
-        if (decoderMode === 'generate') {
-            const workspaceDir = join(outDir, name);
-            const decoderPath = join(workspaceDir, 'decoder');
+        // Always generate decoder from IDL
+        const workspaceDir = join(outDir, name);
+        const decoderPath = join(workspaceDir, 'decoder');
 
-            logger.startSpinner('Generating decoder from IDL...');
+        logger.startSpinner('Generating decoder from IDL...');
+        
+        try {
+            await generateDecoder({
+                idl: String(opts.idl),
+                outputDir: decoderPath,
+                standard: opts.idlStandard,
+                url: opts.idlUrl,
+                eventHints: opts.eventHints,
+                deleteFolderBeforeRendering: true,
+            });
             
-            try {
-                await generateDecoder({
-                    idl: String(opts.idl),
-                    outputDir: decoderPath,
-                    standard: opts.idlStandard,
-                    url: opts.idlUrl,
-                    eventHints: opts.eventHints,
-                    deleteFolderBeforeRendering: true,
-                });
-                
-                logger.succeedSpinner('Decoder generated successfully');
-            } catch (error) {
-                logger.failSpinner('Failed to generate decoder');
-                throw error;
-            }
+            logger.succeedSpinner('Decoder generated successfully');
+        } catch (error) {
+            logger.failSpinner('Failed to generate decoder');
+            throw error;
         }
 
         // Print success message
-        const decoderInfo = decoderMode === 'generate'
-            ? `${decoder} (generated from IDL)`
-            : `carbon-${decoder}-decoder (published)`;
+        const decoderInfo = `${decoder} (generated from IDL)`;
             
         logger.scaffoldSuccess(join(outDir, name), decoderInfo);
     });
