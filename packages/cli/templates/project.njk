@@ -55,14 +55,12 @@ use {
     carbon_yellowstone_grpc_datasource::{YellowstoneGrpcGeyserClient, YellowstoneGrpcClientConfig},
     {%- endif %}
     {%- if data_source.module_name == "helius_laserstream" %}
-    carbon_helius_laserstream_datasource::{LaserStreamGeyserClient, LaserStreamClientConfig},
     {%- endif %}
     tokio::sync::RwLock,
     yellowstone_grpc_proto::geyser::{
         CommitmentLevel, SubscribeRequestFilterAccounts, SubscribeRequestFilterTransactions,
     },
     {%- endif %}
-    solana_instruction::Instruction,
     {%- if withPostgres %}
     sqlx_migrator::{Info, Migrate, Plan},
     {%- endif %}
