@@ -74,99 +74,67 @@ Carbon provides a CLI tool to generate decoders based on IDL files (Anchor, Coda
 
 #### CLI Installation
 
-You can install the Carbon CLI by downloading the pre-built binary for your operating system:
-
-##### Linux
+Install the Carbon CLI via npm:
 
 ```sh
-curl -LO https://github.com/sevenlabs-hq/carbon/releases/latest/download/carbon-cli-linux-amd64
-chmod +x carbon-cli-linux-amd64
-sudo mv carbon-cli-linux-amd64 /usr/local/bin/carbon-cli
-```
+# Install globally
+npm install -g @sevenlabs-hq/carbon-cli
 
-##### macOS
-
-```sh
-curl -LO https://github.com/sevenlabs-hq/carbon/releases/latest/download/carbon-cli-macos-amd64
-chmod +x carbon-cli-macos-amd64
-sudo mv carbon-cli-macos-amd64 /usr/local/bin/carbon-cli
-```
-
-##### Windows
-
-1. Download the latest release from <https://github.com/sevenlabs-hq/carbon/releases/latest/download/carbon-cli-windows-amd64.exe>
-2. Rename the downloaded file to `carbon-cli.exe`
-3. Move the file to a directory in your PATH
-
-Alternatively, you can build from source using Cargo:
-
-```sh
-cargo install --git https://github.com/sevenlabs-hq/carbon.git carbon-cli
+# Or use npx (no installation required)
+npx @sevenlabs-hq/carbon-cli
 ```
 
 #### CLI Usage
 
 ```sh
-carbon-cli parse [OPTIONS] --idl <IDL> --output <OUTPUT>
+carbon-cli parse [OPTIONS]
+carbon-cli scaffold [OPTIONS]
 ```
 
-#### Options
+#### Parse Options
 
-- `-i, --idl <IDL>`: Path to an IDL json file or a Solana program address.
-- `-o, --output <OUTPUT>`: Path to the desired output directory.
-- `-c, --as-crate`: Generate a directory or a crate.
-- `-s, --standard`: Specify the IDL standard to parse. Default: 'anchor' if not specified..
-- `-e, --event-hints`: Comma-separated names of defined types to parse as CPI Events (for '--standard codama' option only).
-- `-u, --url`: Network URL to fetch the IDL from. Required if input is a program address.
-- `-h, --help`: Print help information.
+- `-i, --idl <fileOrAddress>`: Path to an IDL json file or a Solana program address
+- `-o, --out-dir <dir>`: Output directory for generated code
+- `-c, --as-crate`: Generate as a Cargo crate layout
+- `-s, --standard <anchor|codama>`: Specify the IDL standard to parse (default: anchor)
+- `--event-hints <csv>`: Comma-separated names of defined types to parse as CPI Events (Codama only)
+- `-u, --url <rpcUrl>`: RPC URL for fetching IDL when using a program address
+- `--no-clean`: Do not delete output directory before rendering
+
+#### Scaffold Options
+
+- `-n, --name <string>`: Name of your project
+- `-o, --out-dir <dir>`: Output directory
+- `-d, --decoder <name>`: Decoder name (auto-detected from IDL)
+- `--idl <fileOrAddress>`: IDL file or program address
+- `--idl-standard <anchor|codama>`: IDL standard
+- `--idl-url <rpcUrl>`: RPC URL for fetching IDL (when using program address)
+- `--event-hints <csv>`: Event hints for Codama IDL
+- `-s, --data-source <name>`: Name of data source
+- `-m, --metrics <log|prometheus>`: Metrics to use (default: log)
+- `--with-postgres <boolean>`: Include Postgres wiring and deps (default: true)
+- `--with-graphql <boolean>`: Include GraphQL wiring and deps (default: true)
+- `--with-serde <boolean>`: Include serde feature for decoder (default: false)
+- `--force`: Overwrite output directory if it exists
 
 #### Examples
 
-##### Generate Decoder
-
-1. To generate a decoder from an Anchor IDL file:
-
+**Generate decoder from Anchor IDL:**
 ```sh
-carbon-cli parse --idl my_program.json --output ./src/decoders
+carbon-cli parse --idl my_program.json --out-dir ./src/decoders
 ```
 
-or with interactive mode:
-
-![Animated GIF making a demonstration of an anchor program parsing](./assets/parse_anchor.gif)
-
-This will parse the my_program.json Anchor IDL file and generate the corresponding decoder code in the ./src/decoders directory.
-
-2. To generate a decoder from an Anchor PDA IDL, specify a program address (Meteora DLMM program in this case):
-
+**Generate decoder from program address:**
 ```sh
-carbon-cli parse --idl LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo -u mainnet-beta --output ./src/decoders
+carbon-cli parse --idl LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo -u mainnet-beta --out-dir ./desired-folder
 ```
 
-This will fetch Meteora DLMM program's IDL from chain and generate the corresponding decoder code in the ./src/decoders directory.
-
-3. To generate a decoder from a Codama IDL:
-
+**Scaffold project using IDL file:**
 ```sh
-carbon-cli parse --idl my_program_codama.json --output ./src/decoders --standard codama
+carbon-cli scaffold --name my-project --out-dir ./desired-folder --idl ./idl.json --data-source yellowstone-grpc
 ```
 
-This will parse the my_program_codama.json Codama IDL file and generate the corresponding decoder code in the ./src/decoders directory.
-
-**Note**: in order to parse CPI Events for a provided Codama IDL, add `--event-hints` option with comma-separated names of corresponding defined Codama types:
-
-```sh
-carbon-cli parse --idl my_program_codama.json --output ./src/decoders --standard codama --event-hints event1,event2,event3
-```
-
-##### Scaffold Project
-
-```sh
-carbon-cli scaffold --name degen-paradize --output ./desired-folder --decoders pumpfun,moonshot,raydium-amm-v4 --data-source yellowstone-grpc
-```
-
-or with interactive mode:
-
-![Animated GIF making a demonstration of an scaffolding the project](./assets/scaffold.gif)
+For more detailed usage information and examples, check out the [npm package documentation](https://www.npmjs.com/package/@sevenlabs-hq/carbon-cli).
 
 ### Implementing Processors
 
