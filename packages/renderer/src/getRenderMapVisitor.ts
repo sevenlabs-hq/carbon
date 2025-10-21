@@ -248,6 +248,14 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 })),
                             }),
                         );
+                    } else {
+                        const typeManifestVisitor = getTypeManifestVisitor();
+                        const underlyingManifest = visit(node.type, typeManifestVisitor);
+                        
+                        renderMap.add(
+                            `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
+                            `pub type ${pascalCase(node.name)}GraphQL = ${underlyingManifest.type};\n`,
+                        );
                     }
 
                     return renderMap;

@@ -3,6 +3,8 @@
 pub mod {{ definedType.name | snakeCase }}_schema;
 {% elif definedType.type.kind == 'enumTypeNode' %}
 pub mod {{ definedType.name | snakeCase }}_schema;
+{% elif definedType.type.kind != 'structTypeNode' and definedType.type.kind != 'enumTypeNode' %}
+pub mod {{ definedType.name | snakeCase }}_schema;
 {% endif %}
 {% endfor %}
 
@@ -10,6 +12,8 @@ pub mod {{ definedType.name | snakeCase }}_schema;
 {% if definedType.type.kind == 'structTypeNode' and definedType.type.fields.length > 0 %}
 pub use {{ definedType.name | snakeCase }}_schema::*;
 {% elif definedType.type.kind == 'enumTypeNode' %}
+pub use {{ definedType.name | snakeCase }}_schema::*;
+{% elif definedType.type.kind != 'structTypeNode' and definedType.type.kind != 'enumTypeNode' %}
 pub use {{ definedType.name | snakeCase }}_schema::*;
 {% endif %}
 {% endfor %}

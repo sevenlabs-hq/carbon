@@ -5,7 +5,7 @@
 
 {{ imports }}
 pub use super::super::events;
-use carbon_core::borsh::{self, BorshDeserialize};
+use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -30,18 +30,17 @@ impl CpiEvent {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[29, 154, 203, 81, 46, 165, 69, 228] {
+        if discriminator != &[228, 69, 165, 46, 81, 203, 154, 29] {
             return None;
         }
 
-        let mut data_slice = data;
+        let event_data = &data[8..];
 
-        data_slice = &data_slice[8..];
-
-        if let Ok(decoded) = Self::deserialize(&mut data_slice) {
-            return Some(decoded);
+        {% for event in events %}
+        if let Some(decoded) = events::{{ event.name | snakeCase }}::{{ event.name | pascalCase }}Event::decode(event_data) {
+            return Some(CpiEvent::{{ event.name | pascalCase }}(decoded));
         }
-
+        {% endfor %}
         None
     }
 }
@@ -52,8 +51,6 @@ impl ArrangeAccounts for CpiEvent {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let mut iter = accounts.iter();
-
         let [program, event_authority, remaining @ ..] = accounts else {
             return None;
         };
