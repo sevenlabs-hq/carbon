@@ -5,7 +5,7 @@
 
 {{ imports }}
 pub use super::super::events;
-use carbon_core::borsh::{self, BorshDeserialize};
+use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
