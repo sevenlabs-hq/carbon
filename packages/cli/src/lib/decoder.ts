@@ -5,6 +5,7 @@ import { rootNodeFromAnchor } from '@codama/nodes-from-anchor';
 import { renderVisitor } from '@sevenlabs-hq/carbon-codama-renderer';
 import { exitWithError, isBase58Like } from './utils';
 import { fetchAnchorIdl } from './anchor';
+import { hasLegacyEvents, transformLegacyEvents, getTransformationInfo } from './idl-transformer';
 
 export type IdlSource = {
     type: 'file' | 'program';
@@ -129,7 +130,15 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
     validateDecoderOptions(standard, idlSource, url, options.eventHints);
 
     if (idlSource.type === 'program') {
-        const idlJson = await fetchAnchorIdl(idl, url!);
+        let idlJson = await fetchAnchorIdl(idl, url!);
+        
+        if (hasLegacyEvents(idlJson)) {
+            const info = getTransformationInfo(idlJson);
+            console.log(`🔄 Detected ${info.eventCount} legacy events, transforming to modern format...`);
+            console.log(`📝 Events: ${info.eventNames.join(', ')}`);
+            idlJson = transformLegacyEvents(idlJson);
+        }
+        
         const codama = createFromRoot(rootNodeFromAnchor(idlJson));
         codama.accept(
             renderVisitor(outputDir, {
@@ -142,7 +151,12 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
 
     // File-based IDL
     const idlPath = resolve(process.cwd(), idl);
-    const idlJson = JSON.parse(readFileSync(idlPath, 'utf8'));
+    let idlJson = JSON.parse(readFileSync(idlPath, 'utf8'));
+
+    if (hasLegacyEvents(idlJson)) {
+        const info = getTransformationInfo(idlJson);
+        idlJson = transformLegacyEvents(idlJson);
+    }
 
     if (standard === 'anchor') {
         const codama = createFromRoot(rootNodeFromAnchor(idlJson));
@@ -153,7 +167,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
             }),
         );
     } else {
-        const codama = createFromJson(readFileSync(idlPath, 'utf8'));
+        const codama = createFromJson(JSON.stringify(idlJson));
         codama.accept(
             renderVisitor(outputDir, {
                 deleteFolderBeforeRendering,
