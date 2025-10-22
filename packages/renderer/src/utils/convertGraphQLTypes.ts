@@ -90,6 +90,9 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
                 return `carbon_core::graphql::primitives::U8((*${fieldAccess}) as u8)`;
             case 'u16':
                 return `(*${fieldAccess}) as i32`;
+            case 'i8':
+            case 'i16':
+                return `${fieldAccess} as i32`;
             case 'u32':
                 return `carbon_core::graphql::primitives::U32((*${fieldAccess}) as u32)`;
             case 'i64':
