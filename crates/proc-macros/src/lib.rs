@@ -328,14 +328,15 @@ fn get_discriminator(attrs: &[syn::Attribute]) -> Option<quote::__private::Token
     })
 }
 
-/// Represents the parsed input for the `instruction_decoder_collection!` macro.
+/// Represents the parsed input for instruction decoder collection macros.
 ///
-/// The `InstructionMacroInput` struct holds the essential elements required
-/// to generate instruction decoding logic within the
-/// `instruction_decoder_collection!` macro. It includes the names of the enums
-/// for instructions, instruction types, and programs, along with a collection
-/// of `InstructionEntry` mappings that define the relationships between program
-/// variants, decoder expressions, and instruction types.
+/// The `InstructionMacroInput` struct holds the essential elements required to
+/// generate instruction decoding logic within
+/// `instruction_decoder_collection!` and `instruction_decoder_collection_fast!`.
+/// It includes the names of the enums for instructions, instruction types, and
+/// programs, along with a collection of `InstructionEntry` mappings that define
+/// the relationships between program variants, decoder expressions, and
+/// instruction types.
 ///
 /// # Fields
 ///
@@ -451,30 +452,30 @@ struct InstructionMacroInput {
 ///   that defines multiple program-instruction mappings for procedural macros.
 struct InstructionEntry {
     program_variant: Ident,
+    program_id_path: Option<syn::Path>,
     decoder_expr: syn::Expr,
     instruction_type: TypePath,
 }
 
-/// Parses input for the `instruction_decoder_collection!` macro.
+/// Parses input for the instruction decoder collection macros.
 ///
 /// This implementation of the `Parse` trait is responsible for parsing the
-/// input provided to the `instruction_decoder_collection!` macro. It expects a
-/// comma-separated sequence of identifiers followed by a series of
-/// `InstructionEntry` items, which define mappings between program variants,
-/// decoder expressions, and instruction types. These entries are collected into
-/// an `InstructionMacroInput` struct, which can then be used to generate
-/// instruction decoding logic.
+/// input provided to `instruction_decoder_collection!` and
+/// `instruction_decoder_collection_fast!`. It accepts either the legacy
+/// 3-part entry form or the new 4-part entry form, and produces a unified
+/// `InstructionMacroInput` structure used to generate decoding logic.
 ///
 /// # Syntax
 ///
 /// The input format for the macro should follow this structure:
 ///
 /// ```ignore
-/// instruction_decoder_collection!(
+/// instruction_decoder_collection_fast!(
 ///     InstructionsEnum, InstructionTypesEnum, ProgramsEnum,
-///     ProgramVariant => decoder_expr => InstructionType,
-///     ProgramVariant => decoder_expr => InstructionType,
-///     ...
+///     // 4-part: ProgramVariant => ProgramIdPath => DecoderExpr => InstructionType
+///     ProgramVariant => my_decoder_crate::PROGRAM_ID => decoder_expr => InstructionType,
+///     // 3-part (legacy): ProgramVariant => DecoderExpr => InstructionType
+///     AnotherVariant => decoder_expr => AnotherInstructionType,
 /// );
 /// ```
 ///
@@ -483,9 +484,10 @@ struct InstructionEntry {
 /// - `InstructionTypesEnum`: Identifier for the enum representing types of
 ///   instructions.
 /// - `ProgramsEnum`: Identifier for the enum representing program types.
-/// - Each `InstructionEntry` consists of a program variant, a decoder
-///   expression, and an instruction type, separated by `=>` and followed by a
-///   comma.
+/// - Each `InstructionEntry` is either:
+///   - 4-part: program variant, program id path, decoder expression, and
+///     instruction type; or
+///   - 3-part: program variant, decoder expression, and instruction type.
 ///
 /// # Example
 ///
@@ -545,15 +547,57 @@ impl Parse for InstructionMacroInput {
         while !input.is_empty() {
             let program_variant: Ident = input.parse()?;
             input.parse::<Token![=>]>()?;
-            let decoder_expr: syn::Expr = input.parse()?;
-            input.parse::<Token![=>]>()?;
-            let instruction_type: TypePath = input.parse()?;
 
-            entries.push(InstructionEntry {
-                program_variant,
-                decoder_expr,
-                instruction_type,
-            });
+            // Attempt to parse 4-part syntax: variant => PROGRAM_ID_PATH => DECODER => INSTRUCTION
+            // Use a forked parser to decide without consuming on failure.
+            let mut use_four_part = false;
+            let fork = input.fork();
+            let program_id_path_candidate: syn::Path = match fork.parse() {
+                Ok(p) => p,
+                Err(_) => {
+                    // Cannot parse path; must be legacy 3-part
+                    syn::Path {
+                        leading_colon: None,
+                        segments: syn::punctuated::Punctuated::new(),
+                    }
+                }
+            };
+
+            if !program_id_path_candidate.segments.is_empty()
+                && fork.parse::<Token![=>]>().is_ok()
+                && fork.parse::<syn::Expr>().is_ok()
+                && fork.parse::<Token![=>]>().is_ok()
+                && fork.parse::<TypePath>().is_ok()
+            {
+                use_four_part = true;
+            }
+
+            if use_four_part {
+                let program_id_path: syn::Path = input.parse()?;
+                input.parse::<Token![=>]>()?;
+                let decoder_expr: syn::Expr = input.parse()?;
+                input.parse::<Token![=>]>()?;
+                let instruction_type: TypePath = input.parse()?;
+
+                entries.push(InstructionEntry {
+                    program_variant,
+                    program_id_path: Some(program_id_path),
+                    decoder_expr,
+                    instruction_type,
+                });
+            } else {
+                // Legacy 3-part syntax: variant => DECODER => INSTRUCTION
+                let decoder_expr: syn::Expr = input.parse()?;
+                input.parse::<Token![=>]>()?;
+                let instruction_type: TypePath = input.parse()?;
+
+                entries.push(InstructionEntry {
+                    program_variant,
+                    program_id_path: None,
+                    decoder_expr,
+                    instruction_type,
+                });
+            }
 
             if input.peek(Token![,]) {
                 input.parse::<Token![,]>()?;
@@ -570,6 +614,9 @@ impl Parse for InstructionMacroInput {
 }
 
 /// Generates a collection of instruction decoders and associated enums.
+///
+/// Deprecated: Prefer `instruction_decoder_collection_fast!`, which dispatches
+/// by `program_id` using a `match` and is more efficient.
 ///
 /// This macro creates a set of enums and implementations to handle decoding
 /// of instructions for multiple Solana programs. It generates:
@@ -625,6 +672,12 @@ impl Parse for InstructionMacroInput {
 ///
 /// Ensure that all necessary types (e.g., DecodedInstruction,
 /// InstructionDecoderCollection) are in scope where this macro is used.
+///
+/// Deprecated: Prefer `instruction_decoder_collection_fast!`, which dispatches
+/// by `program_id` using a `match` and is more efficient.
+#[deprecated(
+    note = "Use `instruction_decoder_collection_fast!` for faster dispatch by program_id."
+)]
 #[proc_macro]
 pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as InstructionMacroInput);
@@ -704,6 +757,143 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
             ) -> Option<carbon_core::instruction::DecodedInstruction<Self>> {
                 #(#parse_instruction_arms)*
                 None
+            }
+
+            fn get_type(&self) -> Self::InstructionType {
+                match self {
+                    #(#get_type_arms),*
+                }
+            }
+        }
+    };
+
+    TokenStream::from(expanded)
+}
+
+/// Similar to `instruction_decoder_collection!` but dispatches by
+/// `program_id` via `match` for faster decoding.
+///
+/// Syntax
+///
+/// ```ignore
+/// instruction_decoder_collection_fast!(
+///     AllInstructionsEnum,
+///     AllInstructionTypesEnum,
+///     AllProgramsEnum,
+///     // 4-part (preferred): Variant => ProgramIdPath => DecoderExpr => InstructionTypePath
+///     Pumpfun => carbon_pumpfun_decoder::PROGRAM_ID => carbon_pumpfun_decoder::PumpfunDecoder => carbon_pumpfun_decoder::instructions::PumpfunInstruction,
+///     // 3-part (legacy): falls back to slow sequential decode
+///     PumpSwap => carbon_pump_swap_decoder::PumpSwapDecoder => carbon_pump_swap_decoder::instructions::PumpSwapInstruction,
+/// );
+/// ```
+#[proc_macro]
+pub fn instruction_decoder_collection_fast(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as InstructionMacroInput);
+
+    let instructions_enum_name = input.instructions_enum_name;
+    let instruction_types_enum_name = input.instruction_types_enum_name;
+    let programs_enum_name = input.programs_enum_name;
+    let entries = input.entries;
+
+    let mut instruction_variants = Vec::new();
+    let mut instruction_type_variants = Vec::new();
+    let mut program_variants = Vec::new();
+    let mut parse_instruction_match_arms = Vec::new();
+    let mut fallback_decode_blocks = Vec::new();
+    let mut get_type_arms = Vec::new();
+
+    for entry in entries {
+        let program_variant = entry.program_variant;
+        let decoder_expr = entry.decoder_expr;
+        let instruction_type = entry.instruction_type;
+
+        let instruction_enum_ident = &instruction_type
+            .path
+            .segments
+            .last()
+            .expect("segment")
+            .ident;
+        let instruction_type_ident = format_ident!("{}Type", instruction_enum_ident);
+
+        // Resolve the program id path for dispatch. Prefer explicitly provided
+        // path if available; otherwise, fall back to inferring `<crate>::PROGRAM_ID`
+        // from the first segment of the instruction type path for backward
+        // compatibility with older 3-part syntax.
+        let explicit_program_id_path = entry.program_id_path;
+
+        instruction_variants.push(quote! {
+            #program_variant(#instruction_enum_ident)
+        });
+        instruction_type_variants.push(quote! {
+            #program_variant(#instruction_type_ident)
+        });
+        program_variants.push(quote! {
+            #program_variant
+        });
+
+        if let Some(program_id_path) = explicit_program_id_path {
+            parse_instruction_match_arms.push(quote! {
+                #program_id_path => {
+                    if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
+                        Some(carbon_core::instruction::DecodedInstruction {
+                            program_id: instruction.program_id,
+                            accounts: instruction.accounts.clone(),
+                            data: #instructions_enum_name::#program_variant(decoded_instruction.data),
+                        })
+                    } else {
+                        None
+                    }
+                }
+            });
+        } else {
+            // No program id path: include in slow-path fallback.
+            fallback_decode_blocks.push(quote! {
+                if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
+                    return Some(carbon_core::instruction::DecodedInstruction {
+                        program_id: instruction.program_id,
+                        accounts: instruction.accounts.clone(),
+                        data: #instructions_enum_name::#program_variant(decoded_instruction.data),
+                    });
+                }
+            });
+        }
+
+        get_type_arms.push(quote! {
+            #instructions_enum_name::#program_variant(instruction) => {
+                #instruction_types_enum_name::#program_variant(instruction.get_instruction_type())
+            }
+        });
+    }
+
+    let expanded = quote! {
+        #[derive(Debug, Clone, std::hash::Hash, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
+        pub enum #instructions_enum_name {
+            #(#instruction_variants),*
+        }
+
+        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+        pub enum #instruction_types_enum_name {
+            #(#instruction_type_variants),*
+        }
+
+        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
+        pub enum #programs_enum_name {
+            #(#program_variants),*
+        }
+
+        impl carbon_core::collection::InstructionDecoderCollection for #instructions_enum_name {
+            type InstructionType = #instruction_types_enum_name;
+
+            fn parse_instruction(
+                instruction: &solana_instruction::Instruction
+            ) -> Option<carbon_core::instruction::DecodedInstruction<Self>> {
+                match instruction.program_id {
+                    #(#parse_instruction_match_arms),*
+                    _ => {
+                        #(#fallback_decode_blocks)*
+                        None
+                    }
+                }
             }
 
             fn get_type(&self) -> Self::InstructionType {
