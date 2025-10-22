@@ -1,6 +1,9 @@
 {# Write a docblock from an array of strings. #}
 {% macro docblock(docs) %}
 {% for doc in docs %}
-/// {{ doc }}
+{% set lines = doc.split('\n') %}
+{% for line in lines %}
+/// {{ line }}
+{% endfor %}
 {% endfor %}
 {% endmacro %}
