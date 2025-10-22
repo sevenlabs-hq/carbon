@@ -666,7 +666,12 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             }
         }
         if (isNode(typeNode, 'optionTypeNode')) {
-            return `${prefix}.map(|value| ${buildReverse(typeNode.item, 'value')})`;
+            const innerReverse = buildReverse(typeNode.item, 'value');
+            if (innerReverse.includes('?')) {
+                const innerWithoutQuestion = innerReverse.replace(/\?$/, '');
+                return `${prefix}.map(|value| ${innerWithoutQuestion}).transpose()?`;
+            }
+            return `${prefix}.map(|value| ${innerReverse})`;
         }
         if (isNode(typeNode, 'tupleTypeNode')) {
             if (typeNode.items.length === 1) {
