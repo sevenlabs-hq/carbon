@@ -598,6 +598,7 @@ impl Datasource for HeliusWebsocket {
                                                 slot: tx_event.slot,
                                                 block_time: None,
                                                 block_hash: None,
+                                                created_at: None,
                                             }));
 
                                             metrics

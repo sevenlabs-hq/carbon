@@ -227,14 +227,14 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                             }
 
                                             Some(UpdateOneof::Transaction(transaction_update)) => {
-                                                send_subscribe_update_transaction_info(transaction_update.transaction, &metrics, &sender, id_for_loop.clone(), transaction_update.slot, None).await
+                                                send_subscribe_update_transaction_info(transaction_update.transaction, &metrics, &sender, id_for_loop.clone(), transaction_update.slot, None, msg.created_at.map(|ts| ts.seconds)).await
                                             }
                                             Some(UpdateOneof::Block(block_update)) => {
                                                 let block_time = block_update.block_time.map(|ts| ts.timestamp);
 
                                                 for transaction_update in block_update.transactions {
                                                     if retain_block_failed_transactions || transaction_update.meta.as_ref().map(|meta| meta.err.is_none()).unwrap_or(false) {
-                                                        send_subscribe_update_transaction_info(Some(transaction_update), &metrics, &sender, id_for_loop.clone(), block_update.slot, block_time).await
+                                                        send_subscribe_update_transaction_info(Some(transaction_update), &metrics, &sender, id_for_loop.clone(), block_update.slot, block_time, msg.created_at.map(|ts| ts.seconds)).await
                                                     }
                                                 }
 
@@ -389,6 +389,7 @@ async fn send_subscribe_update_transaction_info(
     id: DatasourceId,
     slot: u64,
     block_time: Option<i64>,
+    created_at: Option<i64>,
 ) {
     let start_time = std::time::Instant::now();
 
@@ -420,6 +421,7 @@ async fn send_subscribe_update_transaction_info(
             slot,
             block_time,
             block_hash: None,
+            created_at,
         }));
         if let Err(e) = sender.try_send((update, id)) {
             log::error!(
