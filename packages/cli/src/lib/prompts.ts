@@ -1,6 +1,7 @@
 import { input, select, confirm } from '@inquirer/prompts';
-import { existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
+import { isBase58Like } from './utils';
 
 export type ParseOptions = {
     idl?: string;
@@ -10,6 +11,7 @@ export type ParseOptions = {
     eventHints?: string;
     clean?: boolean;
     asCrate?: boolean;
+    programId?: string;
 };
 
 export async function promptForParse(existingOpts: ParseOptions = {}): Promise<ParseOptions> {
@@ -82,6 +84,31 @@ export async function promptForParse(existingOpts: ParseOptions = {}): Promise<P
         });
     }
 
+    let programId: string | undefined = existingOpts.programId;
+    
+    if (!looksLikeProgram) {
+        try {
+            const idlPath = resolve(process.cwd(), idlArg);
+            const idlJson = JSON.parse(readFileSync(idlPath, 'utf8'));
+            const hasAddress = idlJson.address || idlJson.metadata?.address;
+            
+            if (!hasAddress && !programId) {
+                programId = await input({
+                    message: 'Program ID (IDL missing address field):',
+                    validate: (value) => {
+                        if (!value.trim()) return 'Program ID is required when IDL lacks address';
+                        if (!isBase58Like(value) || value.length < 32 || value.length > 44) {
+                            return 'Invalid Program ID format (must be base58)';
+                        }
+                        return true;
+                    },
+                });
+            }
+        } catch (error) {
+            // If we can't read the IDL file, we'll let the decoder generation handle the error
+        }
+    }
+
     return {
         idl: idlArg,
         outDir,
@@ -90,6 +117,7 @@ export async function promptForParse(existingOpts: ParseOptions = {}): Promise<P
         eventHints: eventHints?.trim() || undefined,
         clean,
         asCrate: existingOpts.asCrate || false,
+        programId,
     };
 }
 
@@ -105,6 +133,7 @@ export type ScaffoldOptions = {
     withPostgres?: boolean;
     withGraphql?: boolean;
     force?: boolean;
+    programId?: string;
 };
 
 export async function promptForScaffold(existingOpts: ScaffoldOptions = {}): Promise<ScaffoldOptions> {
@@ -186,6 +215,27 @@ export async function promptForScaffold(existingOpts: ScaffoldOptions = {}): Pro
         }
     }
 
+    let programId: string | undefined = existingOpts.programId;
+    
+    if (!looksLikeProgram) {
+        const idlPath = resolve(process.cwd(), idlArg);
+        const idlJson = JSON.parse(readFileSync(idlPath, 'utf8'));
+        const hasAddress = idlJson.address || idlJson.metadata?.address;
+        
+        if (!hasAddress && !programId) {
+            programId = await input({
+                message: 'Program ID (IDL missing address field):',
+                validate: (value) => {
+                    if (!value.trim()) return 'Program ID is required when IDL lacks address';
+                    if (!isBase58Like(value) || value.length < 32 || value.length > 44) {
+                        return 'Invalid Program ID format (must be base58, 32-44 chars)';
+                    }
+                    return true;
+                },
+            });
+        }
+    }
+
     // Ask for decoder name (optional - will auto-detect from IDL if not provided)
     if (!decoder) {
         const decoderInput = await input({
@@ -238,6 +288,7 @@ export async function promptForScaffold(existingOpts: ScaffoldOptions = {}): Pro
         withPostgres,
         withGraphql,
         force,
+        programId,
     };
 }
 
