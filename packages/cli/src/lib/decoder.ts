@@ -21,12 +21,14 @@ export type DecoderGenerationOptions = {
     url?: string;
     eventHints?: string;
     deleteFolderBeforeRendering?: boolean;
+    programId?: string;
 };
 
 export type IdlMetadata = {
     name: string;
     version?: string;
     address?: string;
+    programId?: string;
 };
 
 /**
@@ -64,6 +66,19 @@ export function validateIdlStandard(standard: string, idlSource: IdlSource): Idl
 }
 
 /**
+ * Validates program ID format
+ */
+export function validateProgramId(programId: string): void {
+    if (!programId || programId.trim() === '') {
+        exitWithError('Program ID cannot be empty');
+    }
+    
+    if (!isBase58Like(programId) || programId.length < 32 || programId.length > 44) {
+        exitWithError('Invalid Program ID format (must be base58, 32-44 characters)');
+    }
+}
+
+/**
  * Validates options for decoder generation
  */
 export function validateDecoderOptions(
@@ -71,6 +86,7 @@ export function validateDecoderOptions(
     idlSource: IdlSource,
     url?: string,
     eventHints?: string,
+    programId?: string,
 ): void {
     if (idlSource.type === 'program') {
         if (!url) {
@@ -84,12 +100,16 @@ export function validateDecoderOptions(
     if (standard === 'anchor' && eventHints) {
         exitWithError("Event hints can only be used with Codama standard");
     }
+    
+    if (programId) {
+        validateProgramId(programId);
+    }
 }
 
 /**
  * Extracts metadata from an IDL
  */
-export async function getIdlMetadata(idl: string, standard?: string, url?: string): Promise<IdlMetadata> {
+export async function getIdlMetadata(idl: string, standard?: string, url?: string, programId?: string): Promise<IdlMetadata> {
     const idlSource = parseIdlSource(idl);
     const normalizedStandard = validateIdlStandard(standard || 'anchor', idlSource);
     
@@ -112,10 +132,14 @@ export async function getIdlMetadata(idl: string, standard?: string, url?: strin
         .replace(/[\s_]+/g, '-')
         .toLowerCase();
     
+    const idlAddress = idlJson.address || idlJson.metadata?.address;
+    const finalAddress = idlAddress || (idlSource.type === 'program' ? idl : undefined) || programId;
+    
     return {
         name: kebabName,
         version: idlJson.version || idlJson.metadata?.version,
-        address: idlJson.metadata?.address || (idlSource.type === 'program' ? idl : undefined),
+        address: finalAddress,
+        programId: programId,
     };
 }
 
@@ -123,14 +147,24 @@ export async function getIdlMetadata(idl: string, standard?: string, url?: strin
  * Generates a decoder from an IDL
  */
 export async function generateDecoder(options: DecoderGenerationOptions): Promise<void> {
-    const { idl, outputDir, standard: standardOpt, url, deleteFolderBeforeRendering = true } = options;
+    const { idl, outputDir, standard: standardOpt, url, deleteFolderBeforeRendering = true, programId } = options;
     
     const idlSource = parseIdlSource(idl);
     const standard = validateIdlStandard(standardOpt || 'anchor', idlSource);
-    validateDecoderOptions(standard, idlSource, url, options.eventHints);
+    validateDecoderOptions(standard, idlSource, url, options.eventHints, programId);
 
     if (idlSource.type === 'program') {
         let idlJson = await fetchAnchorIdl(idl, url!);
+        
+        const programAddress = idlJson.address || idlJson.metadata?.address || programId;
+        if (!programAddress) {
+            exitWithError('Program ID is required. IDL missing address field - provide via --program-id parameter');
+        }
+        
+        if (!idlJson.address && !idlJson.metadata?.address) {
+            if (!idlJson.metadata) idlJson.metadata = {};
+            idlJson.metadata.address = programAddress;
+        }
         
         if (hasLegacyEvents(idlJson)) {
             const info = getTransformationInfo(idlJson);
@@ -152,6 +186,16 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
     // File-based IDL
     const idlPath = resolve(process.cwd(), idl);
     let idlJson = JSON.parse(readFileSync(idlPath, 'utf8'));
+
+    const programAddress = idlJson.address || idlJson.metadata?.address || programId;
+    if (!programAddress) {
+        exitWithError('Program ID is required. IDL missing address field - provide via --program-id parameter');
+    }
+    
+    if (!idlJson.address && !idlJson.metadata?.address) {
+        if (!idlJson.metadata) idlJson.metadata = {};
+        idlJson.metadata.address = programAddress;
+    }
 
     if (hasLegacyEvents(idlJson)) {
         const info = getTransformationInfo(idlJson);
