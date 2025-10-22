@@ -3,7 +3,10 @@ use juniper::GraphQLObject;
 
 {% if entityDocs and entityDocs.length > 0 %}
 {% for doc in entityDocs %}
-/// {{ doc }}
+{% set lines = doc.split('\n') %}
+{% for line in lines %}
+/// {{ line }}
+{% endfor %}
 {% endfor %}
 {% endif %}
 #[derive(Debug, Clone, GraphQLObject)]
