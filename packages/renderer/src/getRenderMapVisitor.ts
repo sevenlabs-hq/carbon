@@ -108,7 +108,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     // Postgres generation
                     const flatFields = flattenType(newNode.data, [], [], new Set());
                     const postgresImports = new ImportMap()
-                        .add(`crate::accounts::${pascalCase(node.name)}`)
+                        .add(`crate::accounts::${snakeCase(node.name)}::${pascalCase(node.name)}`)
                         .add('carbon_core::account::AccountMetadata')
                         .add('carbon_core::postgres::metadata::AccountRowMetadata');
                     flatFields.forEach(f => {
