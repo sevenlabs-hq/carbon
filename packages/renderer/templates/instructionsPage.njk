@@ -18,8 +18,13 @@ pub struct {{ instruction.name | pascalCase }} {
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct {{ instruction.name | pascalCase }}InstructionAccounts {
+{% set seenFields = [] %}
 {% for account in instruction.accounts %}
-    pub {{ account.name | snakeCase }}: {% if account.isOptional %}Option<solana_pubkey::Pubkey>{% else %}solana_pubkey::Pubkey{% endif %},
+    {% set fieldName = account.name | snakeCase %}
+    {% if not (fieldName in seenFields) %}
+    pub {{ fieldName }}: {% if account.isOptional %}Option<solana_pubkey::Pubkey>{% else %}solana_pubkey::Pubkey{% endif %},
+    {% set _ = seenFields.push(fieldName) %}
+    {% endif %}
 {% endfor %}
 {% if instruction.accounts | length > 0 %}
     pub remaining: Vec<solana_instruction::AccountMeta>,
@@ -55,15 +60,25 @@ impl ArrangeAccounts for {{ instruction.name | pascalCase }} {
         {% if instruction.accounts | length > 0 %}
         let mut iter = accounts.iter();
 
+        {% set seenFields = [] %}
         {% for account in instruction.accounts %}
-        let {{ account.name | snakeCase }} = next_account(&mut iter){% if not account.isOptional %}?{% endif %};
+            {% set fieldName = account.name | snakeCase %}
+            {% if not (fieldName in seenFields) %}
+        let {{ fieldName }} = next_account(&mut iter){% if not account.isOptional %}?{% endif %};
+            {% set _ = seenFields.push(fieldName) %}
+            {% endif %}
         {% endfor %}
 
         let remaining = iter.as_slice();
 
         Some({{ instruction.name | pascalCase }}InstructionAccounts {
+            {% set seenFields = [] %}
             {% for account in instruction.accounts %}
-            {{ account.name | snakeCase }}: {{ account.name | snakeCase }},
+                {% set fieldName = account.name | snakeCase %}
+                {% if not (fieldName in seenFields) %}
+            {{ fieldName }}: {{ fieldName }},
+                {% set _ = seenFields.push(fieldName) %}
+                {% endif %}
             {% endfor %}
             remaining: remaining.to_vec(),
         })
