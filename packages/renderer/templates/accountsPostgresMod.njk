@@ -52,7 +52,7 @@ impl carbon_core::postgres::operations::Insert for {{ program.name | pascalCase 
         match account {
             {% for account in accountsToExport %}
             {{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(account) => {
-                let row = {{ account.name | snakeCase }}_row::{{ account.name | pascalCase }}Row::from_parts(account.clone(), metadata.clone());
+                let row = {{ account.name | snakeCase }}_row::{{ account.name | pascalCase }}Row::from_parts(*account.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -68,7 +68,7 @@ impl carbon_core::postgres::operations::Upsert for {{ program.name | pascalCase 
         match account {
             {% for account in accountsToExport %}
             {{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(account) => {
-                let row = {{ account.name | snakeCase }}_row::{{ account.name | pascalCase }}Row::from_parts(account.clone(), metadata.clone());
+                let row = {{ account.name | snakeCase }}_row::{{ account.name | pascalCase }}Row::from_parts(*account.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
