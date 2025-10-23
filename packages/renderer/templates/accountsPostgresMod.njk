@@ -57,6 +57,9 @@ impl carbon_core::postgres::operations::Insert for {{ program.name | pascalCase 
                 Ok(())
             }
             {% endfor %}
+            {% if accountsToExport.length == 0 %}
+            _ => unreachable!("No accounts to decode"),
+            {% endif %}
         }
     }
 }
@@ -73,6 +76,9 @@ impl carbon_core::postgres::operations::Upsert for {{ program.name | pascalCase 
                 Ok(())
             }
             {% endfor %}
+            {% if accountsToExport.length == 0 %}
+            _ => unreachable!("No accounts to decode"),
+            {% endif %}
         }
     }
 }
