@@ -73,3 +73,41 @@ export function getTransformationInfo(idlJson: any): { hasLegacy: boolean; event
     
     return { hasLegacy, eventCount, eventNames };
 }
+
+/**
+ * Fixes nested PDA seed argument references in an IDL
+ */
+export function fixNestedPdaSeedPaths(idlJson: any): any {
+    const transformedIdl = JSON.parse(JSON.stringify(idlJson));
+    const types = transformedIdl.types || [];
+    
+    for (const instruction of transformedIdl.instructions || []) {
+        for (const account of instruction.accounts || []) {
+            if (!account.pda?.seeds) continue;
+            
+            for (const seed of account.pda.seeds) {
+                if (seed.kind !== 'arg' || !seed.path) continue;
+                
+                // Check if arg exists at top level
+                const topLevelArgs = instruction.args || [];
+                if (topLevelArgs.some((arg: any) => arg.name === seed.path)) continue;
+                
+                // Search within struct-typed arguments (one level deep only)
+                for (const arg of topLevelArgs) {
+                    if (!arg.type?.defined) continue;
+                    
+                    const typeDef = types.find((t: any) => t.name === arg.type.defined.name);
+                    if (!typeDef?.type?.fields) continue;
+                    
+                    const field = typeDef.type.fields.find((f: any) => f.name === seed.path);
+                    if (field) {
+                        seed.path = `${arg.name}.${seed.path}`;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    return transformedIdl;
+}
