@@ -5,7 +5,7 @@ import { rootNodeFromAnchor } from '@codama/nodes-from-anchor';
 import { renderVisitor } from '@sevenlabs-hq/carbon-codama-renderer';
 import { exitWithError, isBase58Like } from './utils';
 import { fetchAnchorIdl } from './anchor';
-import { hasLegacyEvents, transformLegacyEvents, getTransformationInfo, fixNestedPdaSeedPaths } from './idl-transformer';
+import { hasLegacyEvents, transformLegacyEvents, getTransformationInfo } from './idl-transformer';
 
 export type IdlSource = {
     type: 'file' | 'program';
@@ -179,8 +179,6 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
             idlJson = transformLegacyEvents(idlJson);
         }
         
-        idlJson = fixNestedPdaSeedPaths(idlJson);
-        
         const codama = createFromRoot(rootNodeFromAnchor(idlJson));
         codama.accept(
             renderVisitor(outputDir, {
@@ -217,8 +215,6 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
         const info = getTransformationInfo(idlJson);
         idlJson = transformLegacyEvents(idlJson);
     }
-
-    idlJson = fixNestedPdaSeedPaths(idlJson);
 
     if (standard === 'anchor') {
         const codama = createFromRoot(rootNodeFromAnchor(idlJson));
