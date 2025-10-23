@@ -309,6 +309,22 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         discriminators,
                     };
 
+                    const uniqueAccounts = [];
+                    const seenFieldNames = new Set();
+
+                    for (const account of newNode.accounts) {
+                        const fieldName = snakeCase(account.name);
+                        if (!seenFieldNames.has(fieldName)) {
+                            seenFieldNames.add(fieldName);
+                            uniqueAccounts.push(account);
+                        }
+                    }
+
+                    const instructionWithUniqueAccounts = {
+                        ...newNode,
+                        accounts: uniqueAccounts,
+                    };
+
                     const discriminatorManifest = getDiscriminatorManifest(discriminators);
 
                     // Postgres generation
@@ -339,7 +355,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             render('instructionsPage.njk', {
                                 argumentTypes,
                                 imports: imports.toString(),
-                                instruction: newNode,
+                                instruction: instructionWithUniqueAccounts,
                                 discriminatorManifest,
                                 program: currentProgram,
                             }),
