@@ -158,6 +158,10 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
 
     if (isNode(typeNode, 'sizePrefixTypeNode')) {
         // Size-prefixed types (like bytes with length prefix) - unwrap and convert inner type
+        // Special case: if the inner type is bytes, treat it as Vec<u8> -> Vec<U8>
+        if (isNode(typeNode.type, 'bytesTypeNode')) {
+            return `${fieldAccess}.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect()`;
+        }
         return buildConversionFromPostgresRow(typeNode.type, fieldAccess);
     }
 
