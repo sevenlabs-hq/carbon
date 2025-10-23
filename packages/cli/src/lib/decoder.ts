@@ -133,7 +133,11 @@ export async function getIdlMetadata(idl: string, standard?: string, url?: strin
         .toLowerCase();
     
     const idlAddress = idlJson.address || idlJson.metadata?.address;
-    const finalAddress = idlAddress || (idlSource.type === 'program' ? idl : undefined) || programId;
+    const isValidAddress = idlAddress && idlAddress.trim() !== '' && isBase58Like(idlAddress) && idlAddress.length >= 32 && idlAddress.length <= 44;
+    
+    const finalAddress = (isValidAddress ? idlAddress : undefined) 
+        || (idlSource.type === 'program' ? idl : undefined) 
+        || programId;
     
     return {
         name: kebabName,
@@ -156,20 +160,22 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
     if (idlSource.type === 'program') {
         let idlJson = await fetchAnchorIdl(idl, url!);
         
-        const programAddress = idlJson.address || idlJson.metadata?.address || programId;
+        const idlAddress = idlJson.address || idlJson.metadata?.address;
+        const isValidAddress = idlAddress && idlAddress.trim() !== '' && isBase58Like(idlAddress) && idlAddress.length >= 32 && idlAddress.length <= 44;
+        
+        const programAddress = (isValidAddress ? idlAddress : undefined) || idl || programId;
         if (!programAddress) {
-            exitWithError('Program ID is required. IDL missing address field - provide via --program-id parameter');
+            exitWithError('Program ID is required. IDL missing or invalid address field - provide via --program-id parameter');
         }
         
-        if (!idlJson.address && !idlJson.metadata?.address) {
+        if (!isValidAddress) {
+            idlJson.address = programAddress;
             if (!idlJson.metadata) idlJson.metadata = {};
             idlJson.metadata.address = programAddress;
         }
         
         if (hasLegacyEvents(idlJson)) {
             const info = getTransformationInfo(idlJson);
-            console.log(`🔄 Detected ${info.eventCount} legacy events, transforming to modern format...`);
-            console.log(`📝 Events: ${info.eventNames.join(', ')}`);
             idlJson = transformLegacyEvents(idlJson);
         }
         
@@ -187,12 +193,20 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
     const idlPath = resolve(process.cwd(), idl);
     let idlJson = JSON.parse(readFileSync(idlPath, 'utf8'));
 
-    const programAddress = idlJson.address || idlJson.metadata?.address || programId;
-    if (!programAddress) {
-        exitWithError('Program ID is required. IDL missing address field - provide via --program-id parameter');
+    const idlAddress = idlJson.address || idlJson.metadata?.address;
+    const isValidAddress = idlAddress && idlAddress.trim() !== '' && isBase58Like(idlAddress) && idlAddress.length >= 32 && idlAddress.length <= 44;
+    
+    if (!isValidAddress && !programId) {
+        exitWithError('Program ID is required. IDL missing or invalid address field - provide via --program-id parameter');
     }
     
-    if (!idlJson.address && !idlJson.metadata?.address) {
+    const programAddress = (isValidAddress ? idlAddress : undefined) || programId;
+    if (!programAddress) {
+        exitWithError('Program ID is required. IDL missing or invalid address field - provide via --program-id parameter');
+    }
+    
+    if (!isValidAddress) {
+        idlJson.address = programAddress;
         if (!idlJson.metadata) idlJson.metadata = {};
         idlJson.metadata.address = programAddress;
     }
