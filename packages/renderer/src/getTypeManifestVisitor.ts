@@ -230,7 +230,7 @@ export function getTypeManifestVisitor() {
 
                     return {
                         imports: fieldManifest.imports,
-                        type: `${serdeBigArray ? '#[serde(with = "serde_big_array::BigArray")] ' : ''}pub ${fieldName}: ${fieldManifest.type},`,
+                        type: `${serdeBigArray ? '#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))] ' : ''}pub ${fieldName}: ${fieldManifest.type},`,
                         borshType: `${fieldName}: ${fieldManifest.borshType},`,
                     };
                 },
