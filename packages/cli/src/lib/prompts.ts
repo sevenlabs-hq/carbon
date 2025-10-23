@@ -90,15 +90,16 @@ export async function promptForParse(existingOpts: ParseOptions = {}): Promise<P
         try {
             const idlPath = resolve(process.cwd(), idlArg);
             const idlJson = JSON.parse(readFileSync(idlPath, 'utf8'));
-            const hasAddress = idlJson.address || idlJson.metadata?.address;
+            const idlAddress = idlJson.address || idlJson.metadata?.address;
+            const hasValidAddress = idlAddress && idlAddress.trim() !== '' && isBase58Like(idlAddress) && idlAddress.length >= 32 && idlAddress.length <= 44;
             
-            if (!hasAddress && !programId) {
+            if (!hasValidAddress && !programId) {
                 programId = await input({
-                    message: 'Program ID (IDL missing address field):',
+                    message: 'Program ID (IDL missing or invalid address field):',
                     validate: (value) => {
-                        if (!value.trim()) return 'Program ID is required when IDL lacks address';
+                        if (!value.trim()) return 'Program ID is required when IDL lacks or has invalid address';
                         if (!isBase58Like(value) || value.length < 32 || value.length > 44) {
-                            return 'Invalid Program ID format (must be base58)';
+                            return 'Invalid Program ID format (must be base58, 32-44 chars)';
                         }
                         return true;
                     },
@@ -218,21 +219,26 @@ export async function promptForScaffold(existingOpts: ScaffoldOptions = {}): Pro
     let programId: string | undefined = existingOpts.programId;
     
     if (!looksLikeProgram) {
-        const idlPath = resolve(process.cwd(), idlArg);
-        const idlJson = JSON.parse(readFileSync(idlPath, 'utf8'));
-        const hasAddress = idlJson.address || idlJson.metadata?.address;
-        
-        if (!hasAddress && !programId) {
-            programId = await input({
-                message: 'Program ID (IDL missing address field):',
-                validate: (value) => {
-                    if (!value.trim()) return 'Program ID is required when IDL lacks address';
-                    if (!isBase58Like(value) || value.length < 32 || value.length > 44) {
-                        return 'Invalid Program ID format (must be base58, 32-44 chars)';
-                    }
-                    return true;
-                },
-            });
+        try {
+            const idlPath = resolve(process.cwd(), idlArg);
+            const idlJson = JSON.parse(readFileSync(idlPath, 'utf8'));
+            const idlAddress = idlJson.address || idlJson.metadata?.address;
+            const hasValidAddress = idlAddress && idlAddress.trim() !== '' && isBase58Like(idlAddress) && idlAddress.length >= 32 && idlAddress.length <= 44;
+            
+            if (!hasValidAddress && !programId) {
+                programId = await input({
+                    message: 'Program ID (IDL missing or invalid address field):',
+                    validate: (value) => {
+                        if (!value.trim()) return 'Program ID is required when IDL lacks or has invalid address';
+                        if (!isBase58Like(value) || value.length < 32 || value.length > 44) {
+                            return 'Invalid Program ID format (must be base58, 32-44 chars)';
+                        }
+                        return true;
+                    },
+                });
+            }
+        } catch (error) {
+            // If we can't read the IDL file, we'll let the decoder generation handle the error
         }
     }
 
