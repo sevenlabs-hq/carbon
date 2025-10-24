@@ -127,6 +127,7 @@ impl Datasource for JitoShredstreamGrpcClient {
                                     slot: message.slot,
                                     block_time,
                                     block_hash: None,
+                                    created_at: None,
                                 }));
 
                                 if let Err(e) = sender.try_send((update, id_for_closure.clone())) {

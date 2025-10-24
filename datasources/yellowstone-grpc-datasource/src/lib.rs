@@ -8,6 +8,7 @@ use {
         error::CarbonResult,
         metrics::MetricsCollection,
     },
+    chrono::{DateTime, TimeZone, Utc},
     futures::{sink::SinkExt, StreamExt},
     solana_account::Account,
     solana_pubkey::Pubkey,
@@ -29,6 +30,7 @@ use {
             SubscribeRequestFilterTransactions, SubscribeRequestPing, SubscribeUpdateAccountInfo,
             SubscribeUpdateTransactionInfo,
         },
+        prost_types::Timestamp,
         tonic::{codec::CompressionEncoding, transport::ClientTlsConfig},
     },
 };
@@ -66,6 +68,10 @@ impl Default for YellowstoneGrpcClientConfig {
             tcp_nodelay: None,
         }
     }
+}
+
+fn convert_created_at(timestamp: Option<Timestamp>) -> Option<DateTime<Utc>> {
+    timestamp.and_then(|ts| Utc.timestamp_opt(ts.seconds, ts.nanos as u32).single())
 }
 
 #[derive(Default, Debug, Clone)]
@@ -213,61 +219,92 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                     }
 
                                     match message {
-                                        Ok(msg) => match msg.update_oneof {
-                                            Some(UpdateOneof::Account(account_update)) => {
-                                                send_subscribe_account_update_info(
-                                                    account_update.account,
-                                                    &metrics,
-                                                    &sender,
-                                                    id_for_loop.clone(),
-                                                    account_update.slot,
-                                                    &account_deletions_tracked,
-                                                )
-                                                .await
-                                            }
-
-                                            Some(UpdateOneof::Transaction(transaction_update)) => {
-                                                send_subscribe_update_transaction_info(transaction_update.transaction, &metrics, &sender, id_for_loop.clone(), transaction_update.slot, None).await
-                                            }
-                                            Some(UpdateOneof::Block(block_update)) => {
-                                                let block_time = block_update.block_time.map(|ts| ts.timestamp);
-
-                                                for transaction_update in block_update.transactions {
-                                                    if retain_block_failed_transactions || transaction_update.meta.as_ref().map(|meta| meta.err.is_none()).unwrap_or(false) {
-                                                        send_subscribe_update_transaction_info(Some(transaction_update), &metrics, &sender, id_for_loop.clone(), block_update.slot, block_time).await
-                                                    }
-                                                }
-
-                                                for account_info in block_update.accounts {
+                                        Ok(msg) => {
+                                            let created_at = convert_created_at(msg.created_at);
+                                            match msg.update_oneof {
+                                                Some(UpdateOneof::Account(account_update)) => {
                                                     send_subscribe_account_update_info(
-                                                        Some(account_info),
+                                                        account_update.account,
                                                         &metrics,
                                                         &sender,
                                                         id_for_loop.clone(),
-                                                        block_update.slot,
+                    account_update.slot,
+                    created_at,
                                                         &account_deletions_tracked,
                                                     )
-                                                    .await;
+                                                    .await
                                                 }
-                                            }
 
-                                            Some(UpdateOneof::Ping(_)) => {
-                                                match subscribe_tx
-                                                    .send(SubscribeRequest {
-                                                        ping: Some(SubscribeRequestPing { id: 1 }),
-                                                        ..Default::default()
-                                                    })
-                                                    .await {
+                                                Some(UpdateOneof::Transaction(transaction_update)) => {
+                                                    send_subscribe_update_transaction_info(
+                                                        transaction_update.transaction,
+                                                        &metrics,
+                                                        &sender,
+                                                        id_for_loop.clone(),
+                    transaction_update.slot,
+                    created_at,
+                                                        None,
+                                                    )
+                                                    .await
+                                                }
+                                                Some(UpdateOneof::Block(block_update)) => {
+                                                    let block_time =
+                                                        block_update.block_time.map(|ts| ts.timestamp);
+
+                                                    for transaction_update in block_update.transactions {
+                                                        if retain_block_failed_transactions
+                                                            || transaction_update
+                                                                .meta
+                                                                .as_ref()
+                                                                .map(|meta| meta.err.is_none())
+                                                                .unwrap_or(false)
+                                                        {
+                                                            send_subscribe_update_transaction_info(
+                                                                Some(transaction_update),
+                                                                &metrics,
+                                                                &sender,
+                                                                id_for_loop.clone(),
+                                                                block_update.slot,
+                                                                created_at,
+                                                                block_time,
+                                                            )
+                                                            .await
+                                                        }
+                                                    }
+
+                                                    for account_info in block_update.accounts {
+                                                        send_subscribe_account_update_info(
+                                                            Some(account_info),
+                                                            &metrics,
+                                                            &sender,
+                                                            id_for_loop.clone(),
+                                                            block_update.slot,
+                                                            created_at,
+                                                            &account_deletions_tracked,
+                                                        )
+                                                        .await;
+                                                    }
+                                                }
+
+                                                Some(UpdateOneof::Ping(_)) => {
+                                                    match subscribe_tx
+                                                        .send(SubscribeRequest {
+                                                            ping: Some(SubscribeRequestPing { id: 1 }),
+                                                            ..Default::default()
+                                                        })
+                                                        .await
+                                                    {
                                                         Ok(()) => (),
                                                         Err(error) => {
                                                             log::error!("Failed to send ping error: {error:?}");
                                                             break;
                                                         },
                                                     }
-                                            }
+                                                }
 
-                                            _ => {}
-                                        },
+                                                _ => {}
+                                            }
+                                        }
                                         Err(error) => {
                                             log::error!("Geyser stream error: {error:?}");
                                             break;
@@ -302,6 +339,7 @@ async fn send_subscribe_account_update_info(
     sender: &Sender<(Update, DatasourceId)>,
     id: DatasourceId,
     slot: u64,
+    created_at: Option<DateTime<Utc>>,
     account_deletions_tracked: &RwLock<HashSet<Pubkey>>,
 ) {
     let start_time = std::time::Instant::now();
@@ -335,6 +373,7 @@ async fn send_subscribe_account_update_info(
                     transaction_signature: account_info
                         .txn_signature
                         .and_then(|sig| Signature::try_from(sig).ok()),
+                    created_at,
                 };
                 if let Err(e) = sender.try_send((Update::AccountDeletion(account_deletion), id)) {
                     log::error!(
@@ -353,6 +392,7 @@ async fn send_subscribe_account_update_info(
                 transaction_signature: account_info
                     .txn_signature
                     .and_then(|sig| Signature::try_from(sig).ok()),
+                created_at,
             });
 
             if let Err(e) = sender.try_send((update, id)) {
@@ -388,6 +428,7 @@ async fn send_subscribe_update_transaction_info(
     sender: &Sender<(Update, DatasourceId)>,
     id: DatasourceId,
     slot: u64,
+    created_at: Option<DateTime<Utc>>,
     block_time: Option<i64>,
 ) {
     let start_time = std::time::Instant::now();
@@ -420,6 +461,7 @@ async fn send_subscribe_update_transaction_info(
             slot,
             block_time,
             block_hash: None,
+            created_at,
         }));
         if let Err(e) = sender.try_send((update, id)) {
             log::error!(

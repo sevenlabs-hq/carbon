@@ -89,6 +89,7 @@ impl Datasource for GpaBackfillDatasource {
                     account,
                     slot,
                     transaction_signature: None,
+                    created_at: None,
                 }),
                 id_for_loop.clone(),
             )) {

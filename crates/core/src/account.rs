@@ -55,6 +55,7 @@ use {
         error::CarbonResult, filter::Filter, metrics::MetricsCollection, processor::Processor,
     },
     async_trait::async_trait,
+    chrono::{DateTime, Utc},
     solana_pubkey::Pubkey,
     solana_signature::Signature,
     std::sync::Arc,
@@ -72,11 +73,13 @@ use {
 /// - `slot`: The Solana slot number where the account was updated.
 /// - `pubkey`: The public key of the account.
 /// - `transaction_signature`: Signature of the transaction that caused the update.
+/// - `created_at`: The timestamp provided by the datasource, if available.
 #[derive(Debug, Clone)]
 pub struct AccountMetadata {
     pub slot: u64,
     pub pubkey: Pubkey,
     pub transaction_signature: Option<Signature>,
+    pub created_at: Option<DateTime<Utc>>,
 }
 
 /// Represents the decoded data of a Solana account, including account-specific

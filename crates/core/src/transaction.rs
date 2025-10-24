@@ -30,6 +30,7 @@
 //!   conforms to the schema.
 
 use crate::filter::Filter;
+use chrono::{DateTime, Utc};
 use solana_program::hash::Hash;
 
 use {
@@ -63,6 +64,7 @@ use {
 /// - `message`: The versioned message containing the transaction instructions
 ///   and account keys
 /// - `block_time`: The Unix timestamp of when the transaction was processed.
+/// - `created_at`: The timestamp from the datasource, if provided.
 ///
 /// Note: The `block_time` field may not be returned in all scenarios.
 #[derive(Debug, Clone, Default)]
@@ -74,6 +76,7 @@ pub struct TransactionMetadata {
     pub message: solana_program::message::VersionedMessage,
     pub block_time: Option<i64>,
     pub block_hash: Option<Hash>,
+    pub created_at: Option<DateTime<Utc>>,
 }
 
 /// Tries convert transaction update into the metadata.
@@ -113,6 +116,7 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
             message: value.transaction.message.clone(),
             block_time: value.block_time,
             block_hash: value.block_hash,
+            created_at: value.created_at,
         })
     }
 }

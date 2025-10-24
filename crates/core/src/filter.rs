@@ -19,8 +19,8 @@
 //! ```
 //! use carbon_core::{datasource::DatasourceId, filter::DatasourceFilter};
 //!
-//! let mainnet_id = DatasourceId::new_named("mainnet");
-//! let filter = DatasourceFilter::new(mainnet_id);
+//! let filter = DatasourceFilter::new(DatasourceId::new_named("mainnet"));
+//! assert_eq!(filter.allowed_datasources.len(), 1);
 //! ```
 //!
 //! Filtering multiple datasources:
@@ -31,13 +31,15 @@
 //!     DatasourceId::new_named("mainnet"),
 //!     DatasourceId::new_named("testnet"),
 //! ];
-//! let filter = DatasourceFilter::new_many(ids);
+//! let filter = DatasourceFilter::new_many(ids.clone());
+//!
+//! assert_eq!(filter.allowed_datasources, ids);
 //! ```
 //!
 //! Custom filter implementation:
 //! ```
 //! use carbon_core::{
-//!     datasource::{DatasourceId, BlockDetails},
+//!     datasource::{BlockDetails, DatasourceId},
 //!     filter::Filter,
 //! };
 //!
@@ -51,15 +53,23 @@
 //!         _datasource_id: &DatasourceId,
 //!         block_details: &BlockDetails,
 //!     ) -> bool {
-//!         block_details.block_height >= self.min_height
+//!         block_details.block_height.unwrap_or_default() >= self.min_height
 //!     }
-//!
-//!     // Implement other methods with default behavior
-//!     fn filter_account(&self, _: &DatasourceId, _: &_, _: &_) -> bool { true }
-//!     fn filter_instruction(&self, _: &DatasourceId, _: &_) -> bool { true }
-//!     fn filter_transaction(&self, _: &DatasourceId, _: &_, _: &_) -> bool { true }
-//!     fn filter_account_deletion(&self, _: &DatasourceId, _: &_) -> bool { true }
 //! }
+//!
+//! let filter = BlockHeightFilter { min_height: 100 };
+//! let datasource_id = DatasourceId::new_named("mainnet");
+//! let block_details = BlockDetails {
+//!     slot: 0,
+//!     block_hash: None,
+//!     previous_block_hash: None,
+//!     rewards: None,
+//!     num_reward_partitions: None,
+//!     block_time: None,
+//!     block_height: Some(150),
+//! };
+//!
+//! assert!(filter.filter_block_details(&datasource_id, &block_details));
 //! ```
 
 use crate::{
@@ -96,7 +106,7 @@ use crate::{
 /// A simple datasource-based filter:
 /// ```
 /// use carbon_core::{
-///     datasource::{DatasourceId, BlockDetails},
+///     datasource::{BlockDetails, DatasourceId},
 ///     filter::Filter,
 /// };
 ///
@@ -112,13 +122,25 @@ use crate::{
 ///     ) -> bool {
 ///         datasource_id == &self.allowed_datasource
 ///     }
-///
-///     // Implement other methods with default behavior
-///     fn filter_account(&self, _: &DatasourceId, _: &_, _: &_) -> bool { true }
-///     fn filter_instruction(&self, _: &DatasourceId, _: &_) -> bool { true }
-///     fn filter_transaction(&self, _: &DatasourceId, _: &_, _: &_) -> bool { true }
-///     fn filter_account_deletion(&self, _: &DatasourceId, _: &_) -> bool { true }
 /// }
+///
+/// let allowed = DatasourceId::new_named("mainnet");
+/// let denied = DatasourceId::new_named("testnet");
+/// let filter = MyFilter {
+///     allowed_datasource: allowed.clone(),
+/// };
+/// let block_details = BlockDetails {
+///     slot: 0,
+///     block_hash: None,
+///     previous_block_hash: None,
+///     rewards: None,
+///     num_reward_partitions: None,
+///     block_time: None,
+///     block_height: None,
+/// };
+///
+/// assert!(filter.filter_block_details(&allowed, &block_details));
+/// assert!(!filter.filter_block_details(&denied, &block_details));
 /// ```
 pub trait Filter {
     /// Filters account updates based on datasource ID and account data.
@@ -243,8 +265,8 @@ pub trait Filter {
 /// ```
 /// use carbon_core::{datasource::DatasourceId, filter::DatasourceFilter};
 ///
-/// let mainnet_id = DatasourceId::new_named("mainnet");
-/// let filter = DatasourceFilter::new(mainnet_id);
+/// let filter = DatasourceFilter::new(DatasourceId::new_named("mainnet"));
+/// assert_eq!(filter.allowed_datasources.len(), 1);
 /// ```
 ///
 /// Filter for multiple datasources:
@@ -255,18 +277,22 @@ pub trait Filter {
 ///     DatasourceId::new_named("mainnet"),
 ///     DatasourceId::new_named("testnet"),
 /// ];
-/// let filter = DatasourceFilter::new_many(ids);
+/// let filter = DatasourceFilter::new_many(ids.clone());
+///
+/// assert_eq!(filter.allowed_datasources, ids);
 /// ```
 ///
 /// Using with pipeline builders:
 /// ```
-/// use carbon_core::{datasource::DatasourceId, filter::DatasourceFilter};
+/// use carbon_core::{
+///     datasource::DatasourceId,
+///     filter::{DatasourceFilter, Filter},
+/// };
 ///
 /// let filter = DatasourceFilter::new(DatasourceId::new_named("mainnet"));
-/// let filters = vec![Box::new(filter) as Box<dyn Filter>];
+/// let filters: Vec<Box<dyn Filter>> = vec![Box::new(filter)];
 ///
-/// // Use with pipeline builder
-/// // pipeline.account_with_filters(decoder, processor, filters);
+/// assert_eq!(filters.len(), 1);
 /// ```
 pub struct DatasourceFilter {
     /// The list of datasource IDs that are allowed to pass through this filter.
@@ -295,8 +321,8 @@ impl DatasourceFilter {
     /// ```
     /// use carbon_core::{datasource::DatasourceId, filter::DatasourceFilter};
     ///
-    /// let mainnet_id = DatasourceId::new_named("mainnet");
-    /// let filter = DatasourceFilter::new(mainnet_id);
+    /// let filter = DatasourceFilter::new(DatasourceId::new_named("mainnet"));
+    /// assert_eq!(filter.allowed_datasources.len(), 1);
     /// ```
     pub fn new(datasource_id: DatasourceId) -> Self {
         Self {
@@ -326,7 +352,9 @@ impl DatasourceFilter {
     ///     DatasourceId::new_named("mainnet"),
     ///     DatasourceId::new_named("testnet"),
     /// ];
-    /// let filter = DatasourceFilter::new_many(ids);
+    /// let filter = DatasourceFilter::new_many(ids.clone());
+    ///
+    /// assert_eq!(filter.allowed_datasources, ids);
     /// ```
     pub fn new_many(datasource_ids: Vec<DatasourceId>) -> Self {
         Self {
