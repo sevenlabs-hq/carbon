@@ -16,7 +16,7 @@ import {
 import { assertIsNode } from '@codama/nodes';
 import { exitWithError, isBase58Like } from './utils';
 import { fetchAnchorIdl } from './anchor';
-import { hasLegacyEvents, transformLegacyEvents, getTransformationInfo, removePdaSeeds, hasNestedInstructionArguments, hasProblematicPdaSeeds } from './idl-transformer';
+import { hasLegacyEvents, transformLegacyEvents, getTransformationInfo, fixPdaSeedArgumentPaths, hasNestedInstructionArguments } from './idl-transformer';
 
 /**
  * Creates a Codama root node from Anchor IDL without flattening instruction arguments
@@ -221,13 +221,11 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
             idlJson = transformLegacyEvents(idlJson);
         }
         
+        // Apply IDL normalization for nested structure
+        idlJson = fixPdaSeedArgumentPaths(idlJson);
+        
         // Check if we need to preserve nested structure
         const needsNestedPreservation = hasNestedInstructionArguments(idlJson);
-        const needsPdaFix = hasProblematicPdaSeeds(idlJson);
-        
-        if (needsPdaFix) {
-            idlJson = removePdaSeeds(idlJson);
-        }
         
         // Use custom pipeline only if we have nested arguments to preserve
         const codama = needsNestedPreservation 
@@ -269,13 +267,8 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
         idlJson = transformLegacyEvents(idlJson);
     }
 
-    // Check if we need to preserve nested structure
-    const needsNestedPreservation = hasNestedInstructionArguments(idlJson);
-    const needsPdaFix = hasProblematicPdaSeeds(idlJson);
-    
-    if (needsPdaFix) {
-        idlJson = removePdaSeeds(idlJson);
-    }
+    // Apply IDL normalization for nested structure (fixes PDA seed paths)
+    idlJson = fixPdaSeedArgumentPaths(idlJson);
 
     if (standard === 'anchor') {
         // Check if we need to preserve nested structure
