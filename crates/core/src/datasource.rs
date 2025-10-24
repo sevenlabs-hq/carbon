@@ -33,6 +33,7 @@
 //! - Ensure implementations handle errors gracefully, especially when fetching
 //!   data and sending updates to the pipeline.
 
+use chrono::{DateTime, Utc};
 use solana_program::hash::Hash;
 use solana_transaction_status::Rewards;
 use {
@@ -236,12 +237,14 @@ pub enum UpdateType {
 /// - `account`: The new state of the account.
 /// - `slot`: The slot number in which this account update was recorded.
 /// - `transaction_signature`: Signature of the transaction that caused the update.
+/// - `created_at`: The timestamp from the datasource, if provided.
 #[derive(Debug, Clone)]
 pub struct AccountUpdate {
     pub pubkey: Pubkey,
     pub account: Account,
     pub slot: u64,
     pub transaction_signature: Option<Signature>,
+    pub created_at: Option<DateTime<Utc>>,
 }
 
 /// Represents the details of a Solana block, including its slot, hashes, rewards, and timing information.
@@ -277,11 +280,13 @@ pub struct BlockDetails {
 /// - `pubkey`: The public key of the deleted account.
 /// - `slot`: The slot number in which the account was deleted.
 /// - `transaction_signature`: Signature of the transaction that caused the update.
+/// - `created_at`: The timestamp from the datasource, if provided.
 #[derive(Debug, Clone)]
 pub struct AccountDeletion {
     pub pubkey: Pubkey,
     pub slot: u64,
     pub transaction_signature: Option<Signature>,
+    pub created_at: Option<DateTime<Utc>>,
 }
 
 /// Represents a transaction update in the Solana network, including transaction
@@ -301,6 +306,7 @@ pub struct AccountDeletion {
 /// - `slot`: The slot number in which the transaction was recorded.
 /// - `block_time`: The Unix timestamp of when the transaction was processed.
 /// - `block_hash`: Block hash that can be used to detect a fork.
+/// - `created_at`: The timestamp from the datasource, if provided.
 ///
 /// Note: The `block_time` field may not be returned in all scenarios.
 #[derive(Debug, Clone)]
@@ -312,4 +318,5 @@ pub struct TransactionUpdate {
     pub slot: u64,
     pub block_time: Option<i64>,
     pub block_hash: Option<Hash>,
+    pub created_at: Option<DateTime<Utc>>,
 }

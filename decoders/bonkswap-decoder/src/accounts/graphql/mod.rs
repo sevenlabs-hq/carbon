@@ -17,6 +17,7 @@ use juniper::GraphQLObject;
 pub struct AccountMetadataGraphQL {
     pub pubkey: carbon_core::graphql::primitives::Pubkey,
     pub slot: Option<carbon_core::graphql::primitives::U64>,
+    pub created_at: Option<String>,
 }
 
 impl From<carbon_core::postgres::metadata::AccountRowMetadata> for AccountMetadataGraphQL {
@@ -26,6 +27,7 @@ impl From<carbon_core::postgres::metadata::AccountRowMetadata> for AccountMetada
             slot: metadata
                 .slot
                 .map(|v| carbon_core::graphql::primitives::U64(*v)),
+            created_at: metadata.created_at.map(|v| v.to_rfc3339()),
         }
     }
 }

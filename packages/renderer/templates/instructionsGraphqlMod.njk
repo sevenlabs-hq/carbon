@@ -25,6 +25,7 @@ pub struct InstructionMetadataGraphQL {
     pub instruction_index: carbon_core::graphql::primitives::U32,
     pub stack_height: carbon_core::graphql::primitives::U32,
     pub slot: Option<carbon_core::graphql::primitives::U64>,
+    pub created_at: Option<String>,
 }
 
 impl From<carbon_core::postgres::metadata::InstructionRowMetadata> for InstructionMetadataGraphQL {
@@ -36,6 +37,7 @@ impl From<carbon_core::postgres::metadata::InstructionRowMetadata> for Instructi
             slot: metadata
                 .slot
                 .map(|v| carbon_core::graphql::primitives::U64(*v)),
+            created_at: metadata.created_at.map(|v| v.to_rfc3339()),
         }
     }
 }

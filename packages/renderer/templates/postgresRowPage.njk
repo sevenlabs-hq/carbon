@@ -54,11 +54,13 @@ impl carbon_core::postgres::operations::Table for {{ entityName | pascalCase }} 
             {% if isAccount %}
             "__pubkey",
             "__slot",
+            "__created_at",
             {% else %}
             "__signature",
             "__instruction_index",
             "__stack_height",
             "__slot",
+            "__created_at",
             {% endif %}
             {% for field in flatFields %}
             "{{ field.column }}",
@@ -76,16 +78,16 @@ impl carbon_core::postgres::operations::Insert for {{ entityName | pascalCase }}
                 "{{ field.column }}",
             {% endfor %}
             {% if isAccount %}
-                __pubkey, __slot
+                __pubkey, __slot, __created_at
             {% else %}
-                __signature, __instruction_index, __stack_height, __slot
+                __signature, __instruction_index, __stack_height, __slot, __created_at
             {% endif %}
             ) VALUES (
             {% set paramCount = flatFields.length %}
             {% if isAccount %}
-            {% set paramCount = paramCount + 2 %}
+            {% set paramCount = paramCount + 3 %}
             {% else %}
-            {% set paramCount = paramCount + 4 %}
+            {% set paramCount = paramCount + 5 %}
             {% endif %}
             {% for i in range(1, paramCount + 1) %}
                 ${{ i }}{% if not loop.last %},{% endif %}
@@ -97,11 +99,13 @@ impl carbon_core::postgres::operations::Insert for {{ entityName | pascalCase }}
         {% if isAccount %}
         .bind(self.metadata.pubkey.clone())
         .bind(self.metadata.slot.clone())
+        .bind(self.metadata.created_at.clone())
         {% else %}
         .bind(self.metadata.signature.clone())
         .bind(self.metadata.instruction_index.clone())
         .bind(self.metadata.stack_height.clone())
         .bind(self.metadata.slot.clone())
+        .bind(self.metadata.created_at.clone())
         {% endif %}
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -117,16 +121,16 @@ impl carbon_core::postgres::operations::Upsert for {{ entityName | pascalCase }}
             "{{ field.column }}",
             {% endfor %}
             {% if isAccount %}
-            __pubkey, __slot
+            __pubkey, __slot, __created_at
             {% else %}
-            __signature, __instruction_index, __stack_height, __slot
+            __signature, __instruction_index, __stack_height, __slot, __created_at
             {% endif %}
         ) VALUES (
             {% set paramCount = flatFields.length %}
             {% if isAccount %}
-            {% set paramCount = paramCount + 2 %}
+            {% set paramCount = paramCount + 3 %}
             {% else %}
-            {% set paramCount = paramCount + 4 %}
+            {% set paramCount = paramCount + 5 %}
             {% endif %}
             {% for i in range(1, paramCount + 1) %}
             ${{ i }}{% if not loop.last %},{% endif %}
@@ -142,11 +146,13 @@ impl carbon_core::postgres::operations::Upsert for {{ entityName | pascalCase }}
             "{{ field.column }}" = EXCLUDED."{{ field.column }}",
             {% endfor %}
             {% if isAccount %}
-            __slot = EXCLUDED.__slot
+            __slot = EXCLUDED.__slot,
+            __created_at = EXCLUDED.__created_at
             {% else %}
             __instruction_index = EXCLUDED.__instruction_index,
             __stack_height = EXCLUDED.__stack_height,
-            __slot = EXCLUDED.__slot
+            __slot = EXCLUDED.__slot,
+            __created_at = EXCLUDED.__created_at
             {% endif %}
         "#)
         {% for field in flatFields %}
@@ -155,11 +161,13 @@ impl carbon_core::postgres::operations::Upsert for {{ entityName | pascalCase }}
         {% if isAccount %}
         .bind(self.metadata.pubkey)
         .bind(self.metadata.slot.clone())
+        .bind(self.metadata.created_at.clone())
         {% else %}
         .bind(self.metadata.signature.clone())
         .bind(self.metadata.instruction_index.clone())
         .bind(self.metadata.stack_height.clone())
         .bind(self.metadata.slot.clone())
+        .bind(self.metadata.created_at.clone())
         {% endif %}
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -262,4 +270,3 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for {{ entityName | pascalCase }}M
 }
 
 {% endblock %}
-

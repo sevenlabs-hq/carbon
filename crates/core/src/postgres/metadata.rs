@@ -125,6 +125,7 @@ use crate::{
     instruction::InstructionMetadata,
     postgres::primitives::{Pubkey, U32, U64},
 };
+use chrono::{DateTime, Utc};
 
 /// PostgreSQL row metadata for account information.
 ///
@@ -147,6 +148,7 @@ use crate::{
 ///
 /// - **pubkey**: The account's public key, stored as `BYTEA` in PostgreSQL
 /// - **slot**: The slot when the account was last updated (optional)
+/// - **created_at**: Timestamp provided by the datasource, if available
 ///
 /// # Example
 ///
@@ -166,6 +168,8 @@ pub struct AccountRowMetadata {
     pub pubkey: Pubkey,
     #[sqlx(rename = "__slot")]
     pub slot: Option<U64>,
+    #[sqlx(rename = "__created_at")]
+    pub created_at: Option<DateTime<Utc>>,
 }
 
 impl From<AccountMetadata> for AccountRowMetadata {
@@ -173,6 +177,7 @@ impl From<AccountMetadata> for AccountRowMetadata {
         Self {
             pubkey: metadata.pubkey.into(),
             slot: Some(metadata.slot.into()),
+            created_at: metadata.created_at,
         }
     }
 }
@@ -202,6 +207,7 @@ impl From<AccountMetadata> for AccountRowMetadata {
 /// - **index**: The zero-based index of this instruction within the transaction
 /// - **stack_height**: The call stack height for nested instruction calls
 /// - **slot**: The slot when the instruction was executed (optional)
+/// - **created_at**: Timestamp provided by the datasource, if available
 ///
 /// # Example
 ///
@@ -230,6 +236,8 @@ pub struct InstructionRowMetadata {
     pub stack_height: U32,
     #[sqlx(rename = "__slot")]
     pub slot: Option<U64>,
+    #[sqlx(rename = "__created_at")]
+    pub created_at: Option<DateTime<Utc>>,
 }
 
 impl From<InstructionMetadata> for InstructionRowMetadata {
@@ -239,6 +247,7 @@ impl From<InstructionMetadata> for InstructionRowMetadata {
             instruction_index: metadata.index.into(),
             stack_height: metadata.stack_height.into(),
             slot: Some(metadata.transaction_metadata.slot.into()),
+            created_at: metadata.transaction_metadata.created_at.clone(),
         }
     }
 }
