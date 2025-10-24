@@ -75,37 +75,34 @@ export function getTransformationInfo(idlJson: any): { hasLegacy: boolean; event
 }
 
 /**
- * Detects if IDL has nested instruction arguments that should be preserved
+ * Fixes PDA seed argument paths for IDL v0.1 by adding "params." prefix
+ * when the path doesn't already have it and the argument is nested in params
  */
-export function hasNestedInstructionArguments(idlJson: any): boolean {
-    if (!idlJson.instructions || !Array.isArray(idlJson.instructions)) {
-        return false;
+export function fixPdaSeedArgumentPaths(idlJson: any): any {
+    // Check if this is IDL v0.1
+    if (!idlJson.metadata || idlJson.metadata.spec !== "0.1.0") {
+        return idlJson;
     }
     
-    for (const instruction of idlJson.instructions) {
-        if (!instruction.args || !Array.isArray(instruction.args)) {
-            continue;
-        }
-        
-        for (const arg of instruction.args) {
-            // Check for nested struct arguments (defined type references)
-            if (arg.type?.defined) {
-                // Check if it's a nested structure (not a primitive type)
-                if (typeof arg.type.defined === 'object' && arg.type.defined.name) {
-                    return true; // Found object-style defined type
-                }
-                if (typeof arg.type.defined === 'string') {
-                    // Check if this defined type exists in types section
-                    const typeExists = idlJson.types?.some((t: any) => t.name === arg.type.defined);
-                    if (typeExists) {
-                        return true; // Found string-style defined type that exists
+    const transformedIdl = JSON.parse(JSON.stringify(idlJson));
+    
+    // Process each instruction
+    for (const instruction of transformedIdl.instructions || []) {
+        // Check if instruction has accounts with PDA seeds
+        for (const account of instruction.accounts || []) {
+            if (account.pda && account.pda.seeds) {
+                // Process each seed in the PDA
+                for (const seed of account.pda.seeds) {
+                    if (seed.kind === 'arg' && seed.path && !seed.path.startsWith('params.')) {
+                        // Add "params." prefix to the path
+                        seed.path = `params.${seed.path}`;
                     }
                 }
             }
         }
     }
     
-    return false;
+    return transformedIdl;
 }
 
 /**
