@@ -278,6 +278,9 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
     }
 
     if (standard === 'anchor') {
+        // Check if we need to preserve nested structure
+        const needsNestedPreservation = hasNestedInstructionArguments(idlJson);
+        
         // Use custom pipeline only if we have nested arguments to preserve
         const codama = needsNestedPreservation 
             ? createFromRootWithoutFlattening(idlJson)
