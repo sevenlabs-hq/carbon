@@ -1,11 +1,53 @@
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { createFromJson, createFromRoot } from 'codama';
-import { rootNodeFromAnchor } from '@codama/nodes-from-anchor';
+import { rootNodeFromAnchorWithoutDefaultVisitor, rootNodeFromAnchor } from '@codama/nodes-from-anchor';
 import { renderVisitor } from '@sevenlabs-hq/carbon-codama-renderer';
+import { 
+    deduplicateIdenticalDefinedTypesVisitor,
+    setFixedAccountSizesVisitor,
+    setInstructionAccountDefaultValuesVisitor,
+    getCommonInstructionAccountDefaultRules,
+    unwrapInstructionArgsDefinedTypesVisitor,
+    transformU8ArraysToBytesVisitor,
+    rootNodeVisitor,
+    visit
+} from '@codama/visitors';
+import { assertIsNode } from '@codama/nodes';
 import { exitWithError, isBase58Like } from './utils';
 import { fetchAnchorIdl } from './anchor';
-import { hasLegacyEvents, transformLegacyEvents, getTransformationInfo } from './idl-transformer';
+import { hasLegacyEvents, transformLegacyEvents, getTransformationInfo, removePdaSeeds, hasNestedInstructionArguments, hasProblematicPdaSeeds } from './idl-transformer';
+
+/**
+ * Creates a Codama root node from Anchor IDL without flattening instruction arguments
+ * This preserves nested structure like Drift
+ */
+function createFromRootWithoutFlattening(idlJson: any) {
+    // First get the raw root node from Anchor IDL without default visitors
+    const rawRoot = rootNodeFromAnchorWithoutDefaultVisitor(idlJson);
+    
+    // Apply custom visitor pipeline WITHOUT flattenInstructionDataArgumentsVisitor
+    const customVisitor = rootNodeVisitor((currentRoot) => {
+        let root = currentRoot;
+        const updateRoot = (visitor: any) => {
+            const newRoot = visit(root, visitor) as any;
+            assertIsNode(newRoot, "rootNode");
+            root = newRoot;
+        };
+        
+        // Apply all the standard visitors EXCEPT flattenInstructionDataArgumentsVisitor and unwrapInstructionArgsDefinedTypesVisitor
+        updateRoot(deduplicateIdenticalDefinedTypesVisitor());
+        updateRoot(setFixedAccountSizesVisitor());
+        updateRoot(setInstructionAccountDefaultValuesVisitor(getCommonInstructionAccountDefaultRules()));
+        // SKIP: unwrapInstructionArgsDefinedTypesVisitor() - this inlines defined types, causing flattening
+        // SKIP: flattenInstructionDataArgumentsVisitor() - this is what preserves nested structure
+        updateRoot(transformU8ArraysToBytesVisitor());
+        
+        return root;
+    });
+    
+    return createFromRoot(visit(rawRoot, customVisitor));
+}
 
 export type IdlSource = {
     type: 'file' | 'program';
@@ -179,7 +221,18 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
             idlJson = transformLegacyEvents(idlJson);
         }
         
-        const codama = createFromRoot(rootNodeFromAnchor(idlJson));
+        // Check if we need to preserve nested structure
+        const needsNestedPreservation = hasNestedInstructionArguments(idlJson);
+        const needsPdaFix = hasProblematicPdaSeeds(idlJson);
+        
+        if (needsPdaFix) {
+            idlJson = removePdaSeeds(idlJson);
+        }
+        
+        // Use custom pipeline only if we have nested arguments to preserve
+        const codama = needsNestedPreservation 
+            ? createFromRootWithoutFlattening(idlJson)
+            : createFromRoot(rootNodeFromAnchorWithoutDefaultVisitor(idlJson));
         codama.accept(
             renderVisitor(outputDir, {
                 deleteFolderBeforeRendering,
@@ -216,8 +269,19 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
         idlJson = transformLegacyEvents(idlJson);
     }
 
+    // Check if we need to preserve nested structure
+    const needsNestedPreservation = hasNestedInstructionArguments(idlJson);
+    const needsPdaFix = hasProblematicPdaSeeds(idlJson);
+    
+    if (needsPdaFix) {
+        idlJson = removePdaSeeds(idlJson);
+    }
+
     if (standard === 'anchor') {
-        const codama = createFromRoot(rootNodeFromAnchor(idlJson));
+        // Use custom pipeline only if we have nested arguments to preserve
+        const codama = needsNestedPreservation 
+            ? createFromRootWithoutFlattening(idlJson)
+            : createFromRoot(rootNodeFromAnchorWithoutDefaultVisitor(idlJson));
         codama.accept(
             renderVisitor(outputDir, {
                 deleteFolderBeforeRendering,
