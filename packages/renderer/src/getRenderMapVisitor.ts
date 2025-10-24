@@ -108,7 +108,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     // Postgres generation
                     const flatFields = flattenType(newNode.data, [], [], new Set());
                     const postgresImports = new ImportMap()
-                        .add(`crate::accounts::${pascalCase(node.name)}`)
+                        .add(`crate::accounts::${snakeCase(node.name)}::${pascalCase(node.name)}`)
                         .add('carbon_core::account::AccountMetadata')
                         .add('carbon_core::postgres::metadata::AccountRowMetadata');
                     flatFields.forEach(f => {
@@ -309,6 +309,22 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         discriminators,
                     };
 
+                    const uniqueAccounts = [];
+                    const seenFieldNames = new Set();
+
+                    for (const account of newNode.accounts) {
+                        const fieldName = snakeCase(account.name);
+                        if (!seenFieldNames.has(fieldName)) {
+                            seenFieldNames.add(fieldName);
+                            uniqueAccounts.push(account);
+                        }
+                    }
+
+                    const instructionWithUniqueAccounts = {
+                        ...newNode,
+                        accounts: uniqueAccounts,
+                    };
+
                     const discriminatorManifest = getDiscriminatorManifest(discriminators);
 
                     // Postgres generation
@@ -339,7 +355,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             render('instructionsPage.njk', {
                                 argumentTypes,
                                 imports: imports.toString(),
-                                instruction: newNode,
+                                instruction: instructionWithUniqueAccounts,
                                 discriminatorManifest,
                                 program: currentProgram,
                             }),
@@ -434,11 +450,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const map = new RenderMap();
 
                     // Generate mod files
-                    if (accountsToExport.length > 0) {
-                        map.add('src/accounts/mod.rs', render('accountsMod.njk', ctx));
-                        map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
-                        map.add('src/accounts/graphql/mod.rs', render('accountsGraphQLMod.njk', ctx));
-                    }
+                    map.add('src/accounts/mod.rs', render('accountsMod.njk', ctx));
+                    map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
+                    map.add('src/accounts/graphql/mod.rs', render('accountsGraphQLMod.njk', ctx));
                     if (instructionsToExport.length > 0) {
                         map.add('src/instructions/mod.rs', render('instructionsMod.njk', ctx));
                         map.add('src/instructions/postgres/mod.rs', render('instructionsPostgresMod.njk', ctx));
@@ -666,7 +680,12 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             }
         }
         if (isNode(typeNode, 'optionTypeNode')) {
-            return `${prefix}.map(|value| ${buildReverse(typeNode.item, 'value')})`;
+            const innerReverse = buildReverse(typeNode.item, 'value');
+            if (innerReverse.includes('?')) {
+                const innerWithoutQuestion = innerReverse.replace(/\?$/, '');
+                return `${prefix}.map(|value| ${innerWithoutQuestion}).transpose()?`;
+            }
+            return `${prefix}.map(|value| ${innerReverse})`;
         }
         if (isNode(typeNode, 'tupleTypeNode')) {
             if (typeNode.items.length === 1) {

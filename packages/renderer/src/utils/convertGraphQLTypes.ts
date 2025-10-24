@@ -51,6 +51,11 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
     }
 
     if (isNode(typeNode, 'arrayTypeNode')) {
+        // Special case: Vec<u8> should be treated like bytes
+        if (isNode(typeNode.item, 'numberTypeNode') && typeNode.item.format === 'u8') {
+            return `${fieldAccess}.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect()`;
+        }
+        
         const innerExpr = buildConversionFromOriginal(typeNode.item, 'item');
         return `${fieldAccess}.into_iter().map(|item| ${innerExpr}).collect()`;
     }
@@ -62,6 +67,11 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
         }
         const innerExpr = buildConversionFromOriginal(typeNode.type, 'item');
         return `${fieldAccess}.into_iter().map(|item| ${innerExpr}).collect()`;
+    }
+
+    if (isNode(typeNode, 'sizePrefixTypeNode')) {
+        // Size-prefixed types (like bytes with length prefix) - unwrap and convert inner type
+        return buildConversionFromOriginal(typeNode.type, fieldAccess);
     }
 
     if (isNode(typeNode, 'definedTypeLinkNode')) {
@@ -90,6 +100,9 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
                 return `carbon_core::graphql::primitives::U8((*${fieldAccess}) as u8)`;
             case 'u16':
                 return `(*${fieldAccess}) as i32`;
+            case 'i8':
+            case 'i16':
+                return `${fieldAccess} as i32`;
             case 'u32':
                 return `carbon_core::graphql::primitives::U32((*${fieldAccess}) as u32)`;
             case 'i64':
@@ -109,6 +122,11 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
     }
 
     if (isNode(typeNode, 'arrayTypeNode')) {
+        // Special case: Vec<u8> should be treated like bytes
+        if (isNode(typeNode.item, 'numberTypeNode') && typeNode.item.format === 'u8') {
+            return `${fieldAccess}.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect()`;
+        }
+        
         // Generic nested-array handling: unwrap outer Json if present, then map inner with recursive converter
         if (isNode(typeNode.item, 'arrayTypeNode')) {
             const innerExpr = buildConversionFromPostgresRow(typeNode.item, 'item');
@@ -136,6 +154,15 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
         }
         const innerExpr = buildConversionFromPostgresRow(typeNode.type, 'item');
         return `${fieldAccess}.into_iter().map(|item| ${innerExpr}).collect()`;
+    }
+
+    if (isNode(typeNode, 'sizePrefixTypeNode')) {
+        // Size-prefixed types (like bytes with length prefix) - unwrap and convert inner type
+        // Special case: if the inner type is bytes, treat it as Vec<u8> -> Vec<U8>
+        if (isNode(typeNode.type, 'bytesTypeNode')) {
+            return `${fieldAccess}.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect()`;
+        }
+        return buildConversionFromPostgresRow(typeNode.type, fieldAccess);
     }
 
     if (isNode(typeNode, 'definedTypeLinkNode')) {

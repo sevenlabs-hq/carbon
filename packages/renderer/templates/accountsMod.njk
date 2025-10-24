@@ -14,16 +14,12 @@ pub mod graphql;
 pub mod {{ account.name | snakeCase }};
 {% endfor %}
 
-{% for account in accountsToExport | sort(false, false, 'name') %}
-pub use self::{{ account.name | snakeCase }}::*;
-{% endfor %}
-
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum {{ program.name | pascalCase }}Account {
 {% for account in accountsToExport | sort(false, false, 'name') %}
-    {{ account.name | pascalCase }}({{ account.name | pascalCase }}),
+    {{ account.name | pascalCase }}(Box<{{ account.name | snakeCase }}::{{ account.name | pascalCase }}>),
 {% endfor %}
 }
 
@@ -46,7 +42,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for {{ program.name | pascalCa
             if let Some(decoded) = {{ account.name | snakeCase }}::{{ account.name | pascalCase }}::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
-                    data: {{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(decoded),
+                    data: {{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

@@ -10,9 +10,9 @@
 pub struct {{ entityName | pascalCase }}Row {
     #[sqlx(flatten)]
     {% if isAccount %}
-    pub metadata: AccountRowMetadata,
+    pub account_metadata: AccountRowMetadata,
     {% else %}
-    pub metadata: InstructionRowMetadata,
+    pub instruction_metadata: InstructionRowMetadata,
     {% endif %}
 {% for field in flatFields %}
     {% if field.docs and field.docs.length > 0 %}
@@ -25,7 +25,7 @@ pub struct {{ entityName | pascalCase }}Row {
 impl {{ entityName | pascalCase }}Row {
     pub fn from_parts({% if flatFields.length == 0 %}_{% endif %}source: {{ entityName | pascalCase }}, metadata: {% if isAccount %}AccountMetadata{% else %}InstructionMetadata{% endif %}) -> Self {
         Self {
-            metadata: metadata.into(),
+            {% if isAccount %}account_metadata{% else %}instruction_metadata{% endif %}: metadata.into(),
             {% for field in flatFields %}
             {{ field.column }}: {{ field.expr }},
             {% endfor %}
@@ -95,13 +95,13 @@ impl carbon_core::postgres::operations::Insert for {{ entityName | pascalCase }}
         .bind(self.{{ field.column }}.clone())
         {% endfor %}
         {% if isAccount %}
-        .bind(self.metadata.pubkey.clone())
-        .bind(self.metadata.slot.clone())
+        .bind(self.account_metadata.pubkey.clone())
+        .bind(self.account_metadata.slot.clone())
         {% else %}
-        .bind(self.metadata.signature.clone())
-        .bind(self.metadata.instruction_index.clone())
-        .bind(self.metadata.stack_height.clone())
-        .bind(self.metadata.slot.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
         {% endif %}
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -153,13 +153,13 @@ impl carbon_core::postgres::operations::Upsert for {{ entityName | pascalCase }}
         .bind(self.{{ field.column }}.clone())
         {% endfor %}
         {% if isAccount %}
-        .bind(self.metadata.pubkey)
-        .bind(self.metadata.slot.clone())
+        .bind(self.account_metadata.pubkey)
+        .bind(self.account_metadata.slot.clone())
         {% else %}
-        .bind(self.metadata.signature.clone())
-        .bind(self.metadata.instruction_index.clone())
-        .bind(self.metadata.stack_height.clone())
-        .bind(self.metadata.slot.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
         {% endif %}
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

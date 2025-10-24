@@ -128,10 +128,15 @@ export function getTypeManifestVisitor() {
                 visitEnumTupleVariantType(node, { self }) {
                     const name = pascalCase(node.name);
                     const tupleManifest = visit(node.tuple, self);
+
+                    const needsParens = !tupleManifest.type.startsWith('(');
+                    const wrappedType = needsParens ? `(${tupleManifest.type})` : tupleManifest.type;
+                    const wrappedBorshType = needsParens ? `(${tupleManifest.borshType})` : tupleManifest.borshType;
+                    
                     return {
                         imports: tupleManifest.imports,
-                        type: `${name}${tupleManifest.type},`,
-                        borshType: `${name}${tupleManifest.borshType},`,
+                        type: `${name}${wrappedType},`,
+                        borshType: `${name}${wrappedBorshType},`,
                     };
                 },
 
@@ -225,7 +230,7 @@ export function getTypeManifestVisitor() {
 
                     return {
                         imports: fieldManifest.imports,
-                        type: `${serdeBigArray ? '#[serde(with = "serde_big_array::BigArray")] ' : ''}pub ${fieldName}: ${fieldManifest.type},`,
+                        type: `${serdeBigArray ? '#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))] ' : ''}pub ${fieldName}: ${fieldManifest.type},`,
                         borshType: `${fieldName}: ${fieldManifest.borshType},`,
                     };
                 },
