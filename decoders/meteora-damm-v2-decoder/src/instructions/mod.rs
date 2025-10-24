@@ -9,6 +9,7 @@ pub mod claim_reward;
 pub mod close_claim_fee_operator;
 pub mod close_config;
 pub mod close_position;
+pub mod close_token_badge;
 pub mod create_claim_fee_operator;
 pub mod create_config;
 pub mod create_dynamic_config;
@@ -34,6 +35,8 @@ pub mod evt_lock_position_event;
 pub mod evt_permanent_lock_position_event;
 pub mod evt_remove_liquidity_event;
 pub mod evt_set_pool_status_event;
+pub mod evt_split_position2_event;
+pub mod evt_swap2_event;
 pub mod evt_swap_event;
 pub mod evt_update_reward_duration_event;
 pub mod evt_update_reward_funder_event;
@@ -49,7 +52,10 @@ pub mod refresh_vesting;
 pub mod remove_all_liquidity;
 pub mod remove_liquidity;
 pub mod set_pool_status;
+pub mod split_position;
+pub mod split_position2;
 pub mod swap;
+pub mod swap2;
 pub mod update_reward_duration;
 pub mod update_reward_funder;
 pub mod withdraw_ineligible_reward;
@@ -91,7 +97,10 @@ pub enum MeteoraDammV2Instruction {
     RemoveAllLiquidity(remove_all_liquidity::RemoveAllLiquidity),
     RemoveLiquidity(remove_liquidity::RemoveLiquidity),
     SetPoolStatus(set_pool_status::SetPoolStatus),
+    SplitPosition(split_position::SplitPosition),
+    SplitPosition2(split_position2::SplitPosition2),
     Swap(swap::Swap),
+    Swap2(swap2::Swap2),
     UpdateRewardDuration(update_reward_duration::UpdateRewardDuration),
     UpdateRewardFunder(update_reward_funder::UpdateRewardFunder),
     WithdrawIneligibleReward(withdraw_ineligible_reward::WithdrawIneligibleReward),
@@ -120,11 +129,13 @@ pub enum MeteoraDammV2Instruction {
     EvtRemoveLiquidityEvent(evt_remove_liquidity_event::EvtRemoveLiquidityEvent),
     EvtSetPoolStatusEvent(evt_set_pool_status_event::EvtSetPoolStatusEvent),
     EvtSwapEvent(evt_swap_event::EvtSwapEvent),
+    EvtSwap2Event(evt_swap2_event::EvtSwap2Event),
     EvtUpdateRewardDurationEvent(evt_update_reward_duration_event::EvtUpdateRewardDurationEvent),
     EvtUpdateRewardFunderEvent(evt_update_reward_funder_event::EvtUpdateRewardFunderEvent),
     EvtWithdrawIneligibleRewardEvent(
         evt_withdraw_ineligible_reward_event::EvtWithdrawIneligibleRewardEvent,
     ),
+    EvtSplitPosition2Event(evt_split_position2_event::EvtSplitPosition2Event),
 }
 
 impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDammV2Decoder {
@@ -162,7 +173,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDammV2Decoder {
             MeteoraDammV2Instruction::RemoveAllLiquidity => remove_all_liquidity::RemoveAllLiquidity,
             MeteoraDammV2Instruction::RemoveLiquidity => remove_liquidity::RemoveLiquidity,
             MeteoraDammV2Instruction::SetPoolStatus => set_pool_status::SetPoolStatus,
+            MeteoraDammV2Instruction::SplitPosition => split_position::SplitPosition,
+            MeteoraDammV2Instruction::SplitPosition2 => split_position2::SplitPosition2,
             MeteoraDammV2Instruction::Swap => swap::Swap,
+            MeteoraDammV2Instruction::Swap2 => swap2::Swap2,
             MeteoraDammV2Instruction::UpdateRewardDuration => update_reward_duration::UpdateRewardDuration,
             MeteoraDammV2Instruction::UpdateRewardFunder => update_reward_funder::UpdateRewardFunder,
             MeteoraDammV2Instruction::WithdrawIneligibleReward => withdraw_ineligible_reward::WithdrawIneligibleReward,
@@ -187,9 +201,11 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDammV2Decoder {
             MeteoraDammV2Instruction::EvtRemoveLiquidityEvent => evt_remove_liquidity_event::EvtRemoveLiquidityEvent,
             MeteoraDammV2Instruction::EvtSetPoolStatusEvent => evt_set_pool_status_event::EvtSetPoolStatusEvent,
             MeteoraDammV2Instruction::EvtSwapEvent => evt_swap_event::EvtSwapEvent,
+            MeteoraDammV2Instruction::EvtSwap2Event => evt_swap2_event::EvtSwap2Event,
             MeteoraDammV2Instruction::EvtUpdateRewardDurationEvent => evt_update_reward_duration_event::EvtUpdateRewardDurationEvent,
             MeteoraDammV2Instruction::EvtUpdateRewardFunderEvent => evt_update_reward_funder_event::EvtUpdateRewardFunderEvent,
             MeteoraDammV2Instruction::EvtWithdrawIneligibleRewardEvent => evt_withdraw_ineligible_reward_event::EvtWithdrawIneligibleRewardEvent,
+            MeteoraDammV2Instruction::EvtSplitPosition2Event => evt_split_position2_event::EvtSplitPosition2Event,
         )
     }
 }
