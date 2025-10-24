@@ -109,41 +109,46 @@ export function hasNestedInstructionArguments(idlJson: any): boolean {
 }
 
 /**
- * Detects if IDL has problematic PDA seeds that need fixing
+ * Normalizes IDL for nested structure by fixing PDA seed argument paths
+ * and converting account field names to match expected format
  */
-export function hasProblematicPdaSeeds(idlJson: any): boolean {
+import { getDefinedTypeHistogramVisitor, getRecordLinkablesVisitor } from '@codama/visitors';
+import { LinkableDictionary, visit } from '@codama/visitors-core';
+import { definedTypeLinkNode, isNode } from '@codama/nodes';
+import { createFromRoot } from 'codama';
+import { rootNodeFromAnchorWithoutDefaultVisitor } from '@codama/nodes-from-anchor';
+
+/**
+ * Detects if an IDL has nested instruction arguments that need preservation
+ * Uses Codama's exact histogram logic to determine when types will be inlined/flattened
+ */
+export function hasNestedInstructionArguments(idlJson: any): boolean {
     if (!idlJson.instructions || !Array.isArray(idlJson.instructions)) {
         return false;
     }
     
-    for (const instruction of idlJson.instructions) {
-        if (!instruction.accounts || !Array.isArray(instruction.accounts)) {
-            continue;
-        }
-        
-        for (const account of instruction.accounts) {
-            if (account.pda?.seeds && Array.isArray(account.pda.seeds) && account.pda.seeds.length > 0) {
-                return true; // Found PDA seeds that need to be cleared
-            }
-        }
-    }
+    // Convert IDL to Codama root node
+    const rawRoot = rootNodeFromAnchorWithoutDefaultVisitor(idlJson);
+    const root = createFromRoot(rawRoot);
     
-    return false;
+    // Get the histogram (same as unwrapInstructionArgsDefinedTypesVisitor)
+    const histogram = visit(rawRoot, getDefinedTypeHistogramVisitor());
+    const linkables = new LinkableDictionary();
+    visit(rawRoot, getRecordLinkablesVisitor(linkables));
+    
+    // Check if any types would be inlined (exact same logic as Codama)
+    const definedTypesToInline = Object.keys(histogram)
+        .filter(key => {
+            const entry = histogram[key as keyof typeof histogram];
+            return (entry?.total ?? 0) === 1 && (entry?.directlyAsInstructionArgs ?? 0) === 1;
+        })
+        .filter(key => {
+            const names = key.split('.');
+            const link = names.length == 2 ? definedTypeLinkNode(names[1], names[0]) : definedTypeLinkNode(key);
+            const found = linkables.get([link]);
+            return found && !isNode(found.type, 'enumTypeNode');
+        });
+    
+    return definedTypesToInline.length > 0;
 }
 
-/**
- * Removes PDA seeds from IDL since we don't use them in generated code
- */
-export function removePdaSeeds(idlJson: any): any {
-    const transformedIdl = JSON.parse(JSON.stringify(idlJson));
-    
-    for (const instruction of transformedIdl.instructions || []) {
-        for (const account of instruction.accounts || []) {
-            if (account.pda?.seeds) {
-                account.pda.seeds = []; // Set to empty array instead of deleting
-            }
-        }
-    }
-    
-    return transformedIdl;
-}
