@@ -517,7 +517,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             return out;
         }
 
-        if (isNode(typeNode, 'optionTypeNode') && typeNode.item.kind == 'definedTypeLinkNode') {
+        if (isNode(typeNode, 'optionTypeNode')) {
             const column = makeName(prefix);
             const manifest = visit(typeNode.item, postgresTypeManifestVisitor) as PostgresTypeManifest;
             const isJson = (manifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
@@ -528,9 +528,10 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 ? `${`source.${prefix.join('.')}`}.map(|value| sqlx::types::Json(value.into()))`
                 : `${`source.${prefix.join('.')}`}.map(|value| value.into())`;
 
+            // Handle reverse conversion based on inner type
             const reverseExpr = isJson
                 ? `${`source.${column}`}.map(|value| value.0)`
-                : `${`source.${column}`}.map(|value| value.into())`;
+                : buildReverseOptionType(typeNode, `source.${column}`, manifest);
 
             out.push({
                 column,
@@ -614,6 +615,46 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             return `(${typeNode.items.map((item, i) => buildExpression(item, `${prefix}.${i}`)).join(', ')})`;
         } else {
             return `${prefix}.into()`;
+        }
+    }
+
+    function buildReverseOptionType(typeNode: TypeNode, prefix: string, manifest: PostgresTypeManifest): string {
+        if (!isNode(typeNode, 'optionTypeNode')) {
+            throw new Error('buildReverseOptionType should only be called for optionTypeNode');
+        }
+        
+        const innerType = typeNode.item;
+        
+        if (isNode(innerType, 'booleanTypeNode')) {
+            return `${prefix}.map(|value| value)`;
+        } else if (isNode(innerType, 'numberTypeNode')) {
+            const isPostgresPrimitive = manifest.sqlxType.includes('U8') || 
+                                       manifest.sqlxType.includes('U16') || 
+                                       manifest.sqlxType.includes('U32') ||
+                                       manifest.sqlxType.includes('U64') ||
+                                       manifest.sqlxType.includes('I128') ||
+                                       manifest.sqlxType.includes('U128');
+            
+            if (isPostgresPrimitive) {
+                if (manifest.sqlxType.includes('U16')) {
+                    return `${prefix}.map(|value| *value as u16)`;
+                } else if (manifest.sqlxType.includes('U32')) {
+                    return `${prefix}.map(|value| *value as u32)`;
+                } else if (manifest.sqlxType.includes('U8')) {
+                    return `${prefix}.map(|value| *value as u8)`;
+                } else {
+                    return `${prefix}.map(|value| *value)`;
+                }
+            } else {
+                return `${prefix}.map(|value| value)`;
+            }
+        } else if (isNode(innerType, 'publicKeyTypeNode')) {
+            return `${prefix}.map(|value| *value)`;
+        } else if (isNode(innerType, 'stringTypeNode') || 
+                   isNode(innerType, 'bytesTypeNode')) {
+            return `${prefix}.map(|value| *value)`;
+        } else {
+            return `${prefix}.map(|value| value.into())`;
         }
     }
 
