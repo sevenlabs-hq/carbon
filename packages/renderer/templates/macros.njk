@@ -7,3 +7,9 @@
 {% endfor %}
 {% endfor %}
 {% endmacro %}
+
+{# Escape Rust keywords by adding r# prefix #}
+{% macro escapeRustKeyword(name) %}
+{% set rustKeywords = ['use', 'type', 'const', 'static', 'fn', 'mod', 'pub', 'crate', 'super', 'self', 'async', 'await', 'break', 'continue', 'else', 'enum', 'extern', 'false', 'for', 'if', 'impl', 'in', 'let', 'loop', 'match', 'move', 'mut', 'ref', 'return', 'struct', 'trait', 'true', 'unsafe', 'where', 'while', 'dyn', 'abstract', 'become', 'box', 'do', 'final', 'macro', 'override', 'priv', 'typeof', 'unsized', 'virtual', 'yield', 'try', 'union', 'async', 'await'] %}
+{% if name in rustKeywords %}r#{{ name }}{% else %}{{ name }}{% endif %}
+{% endmacro %}

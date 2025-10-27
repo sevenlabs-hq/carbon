@@ -1,6 +1,10 @@
+{% extends "layout.njk" %}
+{% import "macros.njk" as macros %}
+
+{% block main %}
 {% for instruction in instructionsToExport %}
 {% if instruction.arguments.length > 1 %}
-pub mod {{ instruction.name | snakeCase }}_schema;
+pub mod {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_schema;
 {% endif %}
 {% endfor %}
 {% if hasAnchorEvents %}
@@ -9,7 +13,7 @@ pub mod cpi_event_schema;
 
 {% for instruction in instructionsToExport %}
 {% if instruction.arguments.length > 1 %}
-pub use {{ instruction.name | snakeCase }}_schema::*;
+pub use {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_schema::*;
 {% endif %}
 {% endfor %}
 {% if hasAnchorEvents %}
@@ -39,3 +43,5 @@ impl From<carbon_core::postgres::metadata::InstructionRowMetadata> for Instructi
         }
     }
 }
+
+{% endblock %}
