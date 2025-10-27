@@ -1,4 +1,5 @@
 {% extends "layout.njk" %}
+{% import "macros.njk" as macros %}
 
 {% block main %}
 
@@ -11,14 +12,14 @@ pub mod graphql;
 use crate::{PROGRAM_ID, {{ program.name | pascalCase }}Decoder};
 
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
-pub mod {{ instruction.name | snakeCase }};
+pub mod {{ macros.escapeRustKeyword(instruction.name | snakeCase) }};
 {% endfor %}
 {% if hasAnchorEvents %}
 pub mod cpi_event;
 {% endif %}
 
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
-pub use self::{{ instruction.name | snakeCase }}::*;
+pub use self::{{ macros.escapeRustKeyword(instruction.name | snakeCase) }}::*;
 {% endfor %}
 {% if hasAnchorEvents %}
 pub use self::cpi_event::*;
@@ -53,7 +54,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for {{ program.name | pasc
         {% for instruction in instructionsToExport %}
         // Try to decode {{ instruction.name | pascalCase }}
         {
-            if let Some(decoded) = {{ instruction.name | snakeCase }}::{{ instruction.name | pascalCase }}::decode(data) {
+            if let Some(decoded) = {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}::{{ instruction.name | pascalCase }}::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(decoded),

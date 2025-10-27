@@ -1,16 +1,17 @@
 {% extends "layout.njk" %}
+{% import "macros.njk" as macros %}
 
 {% block main %}
 
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
-pub mod {{ instruction.name | snakeCase }}_row;
+pub mod {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_row;
 {% endfor %}
 {% if hasAnchorEvents %}
 pub mod cpi_event_row;
 {% endif %}
 
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
-pub use self::{{ instruction.name | snakeCase }}_row::*;
+pub use self::{{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_row::*;
 {% endfor %}
 {% if hasAnchorEvents %}
 pub use self::cpi_event_row::*;
@@ -32,7 +33,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for {{program.name | pascalCase}}I
     fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
         vec![
             {% for instruction in instructionsToExport | sort(false, false, 'name') %}
-            Box::new({{ instruction.name | pascalCase }}MigrationOperation),
+            Box::new({{ macros.escapeRustKeyword(instruction.name | pascalCase) }}MigrationOperation),
             {% endfor %}
             {% if hasAnchorEvents %}
             Box::new(CpiEventMigrationOperation),
@@ -60,7 +61,7 @@ impl carbon_core::postgres::operations::Insert for {{ program.name | pascalCase 
         match instruction {
             {% for instruction in instructionsToExport %}
             {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) => {
-                let row = {{ instruction.name | snakeCase }}_row::{{ instruction.name | pascalCase }}Row::from_parts(instruction.clone(), metadata.clone());
+                let row = {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_row::{{ instruction.name | pascalCase }}Row::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -83,7 +84,7 @@ impl carbon_core::postgres::operations::Upsert for {{ program.name | pascalCase 
         match instruction {
             {% for instruction in instructionsToExport %}
             {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) => {
-                let row = {{ instruction.name | snakeCase }}_row::{{ instruction.name | pascalCase }}Row::from_parts(instruction.clone(), metadata.clone());
+                let row = {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_row::{{ instruction.name | pascalCase }}Row::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
