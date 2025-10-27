@@ -1,0 +1,17 @@
+use carbon_core::graphql::primitives::Json;
+
+{% if entityDocs and entityDocs.length > 0 %}
+{% for doc in entityDocs %}
+/// {{ doc }}
+{% endfor %}
+{% endif %}
+// Empty struct exposed as Json in GraphQL
+pub type {{ entityName | pascalCase }}GraphQL = Json;
+
+impl From<crate::types::{{ entityName | pascalCase }}> for {{ entityName | pascalCase }}GraphQL {
+    fn from(_original: crate::types::{{ entityName | pascalCase }}) -> Self {
+        carbon_core::graphql::primitives::Json(
+            serde_json::Value::Null,
+        )
+    }
+}
