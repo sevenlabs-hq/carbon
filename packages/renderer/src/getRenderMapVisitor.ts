@@ -209,14 +209,14 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     }
 
                     // GraphQL generation for structs and enums
-                    if (node.type.kind === 'structTypeNode' && node.type.fields.length > 0) {
-                        const graphqlFields = flattenTypeForGraphQL(node.type, [], [], new Set());
-                        const graphqlImports = new ImportMap();
-                        graphqlFields.forEach((f: FlattenedGraphQLField) => {
-                            graphqlImports.mergeWith(f.graphqlManifest.imports);
-                        });
+                    if (node.type.kind === 'structTypeNode') {
+                        if (node.type.fields.length > 0) {
+                            const graphqlFields = flattenTypeForGraphQL(node.type, [], [], new Set());
+                            const graphqlImports = new ImportMap();
+                            graphqlFields.forEach((f: FlattenedGraphQLField) => {
+                                graphqlImports.mergeWith(f.graphqlManifest.imports);
+                            });
 
-                        if (graphqlFields.length > 0) {
                             renderMap.add(
                                 `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
                                 render('graphqlTypeSchemaPage.njk', {
@@ -225,6 +225,14 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                     imports: graphqlImports.toString(),
                                     graphqlFields,
                                     isAccount: false,
+                                }),
+                            );
+                        } else {
+                            renderMap.add(
+                                `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
+                                render('graphqlEmptyStructSchemaPage.njk', {
+                                    entityDocs: node.docs,
+                                    entityName: node.name,
                                 }),
                             );
                         }
@@ -450,9 +458,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const map = new RenderMap();
 
                     // Generate mod files
-                    map.add('src/accounts/mod.rs', render('accountsMod.njk', ctx));
-                    map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
-                    map.add('src/accounts/graphql/mod.rs', render('accountsGraphQLMod.njk', ctx));
+                        map.add('src/accounts/mod.rs', render('accountsMod.njk', ctx));
+                        map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
+                        map.add('src/accounts/graphql/mod.rs', render('accountsGraphQLMod.njk', ctx));
                     if (instructionsToExport.length > 0) {
                         map.add('src/instructions/mod.rs', render('instructionsMod.njk', ctx));
                         map.add('src/instructions/postgres/mod.rs', render('instructionsPostgresMod.njk', ctx));
