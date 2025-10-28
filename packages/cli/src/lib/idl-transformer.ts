@@ -1,3 +1,9 @@
+import { getDefinedTypeHistogramVisitor, getRecordLinkablesVisitor } from '@codama/visitors';
+import { LinkableDictionary, visit } from '@codama/visitors-core';
+import { definedTypeLinkNode, isNode } from '@codama/nodes';
+import { createFromRoot } from 'codama';
+import { rootNodeFromAnchorWithoutDefaultVisitor } from '@codama/nodes-from-anchor';
+
 export function hasLegacyEvents(idlJson: any): boolean {
     if (!idlJson.events || !Array.isArray(idlJson.events) || idlJson.events.length === 0) {
         return false;
@@ -106,14 +112,39 @@ export function fixPdaSeedArgumentPaths(idlJson: any): any {
 }
 
 /**
- * Normalizes IDL for nested structure by fixing PDA seed argument paths
- * and converting account field names to match expected format
+ * Removes "kind": "account" problematic PDA references where target accounts lack address fields.
+ * Fixes: "CodamaError: Program ID kind [account] is not implemented."
  */
-import { getDefinedTypeHistogramVisitor, getRecordLinkablesVisitor } from '@codama/visitors';
-import { LinkableDictionary, visit } from '@codama/visitors-core';
-import { definedTypeLinkNode, isNode } from '@codama/nodes';
-import { createFromRoot } from 'codama';
-import { rootNodeFromAnchorWithoutDefaultVisitor } from '@codama/nodes-from-anchor';
+export function fixPdaSeedAccountReferences(idlJson: any): any {
+    if (!idlJson.metadata || idlJson.metadata.spec !== "0.1.0") {
+        return idlJson;
+    }
+    
+    const transformedIdl = JSON.parse(JSON.stringify(idlJson));
+    
+    for (const instruction of transformedIdl.instructions || []) {
+        const accountNames = (instruction.accounts || []).map((acc: any) => acc.name);
+        
+        for (const account of instruction.accounts || []) {
+            if (account.pda) {
+                if (account.pda.seeds) {
+                    account.pda.seeds = account.pda.seeds.filter((seed: any) => {
+                        if (seed.kind === 'account' && accountNames.includes(seed.path)) {
+                            return false;
+                        }
+                        return true;
+                    });
+                }
+                
+                if (account.pda.program && account.pda.program.kind === 'account') {
+                    delete account.pda.program;
+                }
+            }
+        }
+    }
+    
+    return transformedIdl;
+}
 
 /**
  * Detects if an IDL has nested instruction arguments that need preservation

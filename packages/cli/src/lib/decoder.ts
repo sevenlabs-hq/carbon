@@ -16,7 +16,7 @@ import {
 import { assertIsNode } from '@codama/nodes';
 import { exitWithError, isBase58Like } from './utils';
 import { fetchAnchorIdl } from './anchor';
-import { hasLegacyEvents, transformLegacyEvents, getTransformationInfo, fixPdaSeedArgumentPaths, hasNestedInstructionArguments } from './idl-transformer';
+import { hasLegacyEvents, transformLegacyEvents, getTransformationInfo, fixPdaSeedArgumentPaths, fixPdaSeedAccountReferences, hasNestedInstructionArguments } from './idl-transformer';
 
 /**
  * Creates a Codama root node from Anchor IDL without flattening instruction arguments
@@ -224,6 +224,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
         
         // Apply IDL normalization for nested structure
         idlJson = fixPdaSeedArgumentPaths(idlJson);
+        idlJson = fixPdaSeedAccountReferences(idlJson);
         
         // Check if we need to preserve nested structure
         const needsNestedPreservation = hasNestedInstructionArguments(idlJson);
@@ -271,6 +272,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
 
     // Apply IDL normalization for nested structure (fixes PDA seed paths)
     idlJson = fixPdaSeedArgumentPaths(idlJson);
+    idlJson = fixPdaSeedAccountReferences(idlJson);
 
     if (standard === 'anchor') {
         // Check if we need to preserve nested structure
