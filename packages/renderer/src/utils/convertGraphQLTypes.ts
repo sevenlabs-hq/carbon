@@ -24,6 +24,11 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
         return `${fieldAccess}.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect()`;
     }
 
+    if (isNode(typeNode, 'amountTypeNode')) {
+        // AmountTypeNode wraps a NumberTypeNode - unwrap and process
+        return buildConversionFromOriginal(typeNode.number, fieldAccess);
+    }
+
     if (isNode(typeNode, 'numberTypeNode')) {
         switch (typeNode.format) {
             case 'u8':
@@ -74,6 +79,21 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
         return buildConversionFromOriginal(typeNode.type, fieldAccess);
     }
 
+    if (isNode(typeNode, 'remainderOptionTypeNode')) {
+        const innerExpr = buildConversionFromOriginal(typeNode.item, 'v');
+        return `${fieldAccess}.map(|v| ${innerExpr})`;
+    }
+
+    if (isNode(typeNode, 'zeroableOptionTypeNode')) {
+        const innerExpr = buildConversionFromOriginal(typeNode.item, 'v');
+        const convertedExpr = innerExpr === 'v' ? 'v.into()' : innerExpr;
+        return `${fieldAccess}.map(|v| ${convertedExpr})`;
+    }
+
+    if (isNode(typeNode, 'hiddenPrefixTypeNode')) {
+        return buildConversionFromOriginal(typeNode.type, fieldAccess);
+    }
+
     if (isNode(typeNode, 'definedTypeLinkNode')) {
         return `${fieldAccess}.into()`;
     }
@@ -87,11 +107,16 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
 
 export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: string): string {
     if (isNode(typeNode, 'publicKeyTypeNode')) {
-        return `carbon_core::graphql::primitives::Pubkey(*${fieldAccess})`;
+        return `carbon_core::graphql::primitives::Pubkey(${fieldAccess}.0)`;
     }
 
     if (isNode(typeNode, 'bytesTypeNode')) {
         return `${fieldAccess}.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect()`;
+    }
+
+    if (isNode(typeNode, 'amountTypeNode')) {
+        // AmountTypeNode wraps a NumberTypeNode - unwrap and process
+        return buildConversionFromPostgresRow(typeNode.number, fieldAccess);
     }
 
     if (isNode(typeNode, 'numberTypeNode')) {
@@ -117,6 +142,11 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
     }
 
     if (isNode(typeNode, 'optionTypeNode')) {
+        // Check if inner is array of definedTypeLink stored as Json - needs .clone() to avoid move
+        if (isNode(typeNode.item, 'arrayTypeNode') && isNode(typeNode.item.item, 'definedTypeLinkNode')) {
+            const innerExpr = buildConversionFromPostgresRow(typeNode.item, 'v.0.clone()');
+            return `${fieldAccess}.map(|v| ${innerExpr})`;
+        }
         const innerExpr = buildConversionFromPostgresRow(typeNode.item, 'v');
         return `${fieldAccess}.map(|v| ${innerExpr})`;
     }
@@ -133,6 +163,10 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
             return `${fieldAccess}.0.into_iter().map(|item| ${innerExpr}).collect()`;
         }
         if (isNode(typeNode.item, 'definedTypeLinkNode')) {
+            // If fieldAccess contains .0 (unwrapping Json), use as_ref to avoid move
+            if (fieldAccess.includes('.0')) {
+                return `${fieldAccess}.as_ref().clone().into_iter().map(|item| item.into()).collect()`;
+            }
             return `${fieldAccess}.0.into_iter().map(|item| item.into()).collect()`;
         }
         if (
@@ -165,7 +199,42 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
         return buildConversionFromPostgresRow(typeNode.type, fieldAccess);
     }
 
+    if (isNode(typeNode, 'remainderOptionTypeNode')) {
+        // Check if inner is array of definedTypeLink stored as Json - needs .clone() to avoid move
+        if (isNode(typeNode.item, 'arrayTypeNode') && isNode(typeNode.item.item, 'definedTypeLinkNode')) {
+            const innerExpr = buildConversionFromPostgresRow(typeNode.item, 'v.0.clone()');
+            return `${fieldAccess}.map(|v| ${innerExpr})`;
+        }
+        const innerExpr = buildConversionFromPostgresRow(typeNode.item, 'v');
+        return `${fieldAccess}.map(|v| ${innerExpr})`;
+    }
+
+    if (isNode(typeNode, 'zeroableOptionTypeNode')) {
+        // Check if inner type is publicKeyTypeNode - needs special handling for wrapper
+        if (isNode(typeNode.item, 'publicKeyTypeNode')) {
+            return `${fieldAccess}.map(|v| carbon_core::graphql::primitives::Pubkey(v.0))`;
+        }
+        // Check if inner is array of definedTypeLink stored as Json - needs .clone() to avoid move
+        if (isNode(typeNode.item, 'arrayTypeNode') && isNode(typeNode.item.item, 'definedTypeLinkNode')) {
+            const innerExpr = buildConversionFromPostgresRow(typeNode.item, 'v.0.clone()');
+            return `${fieldAccess}.map(|v| ${innerExpr})`;
+        }
+        const innerExpr = buildConversionFromPostgresRow(typeNode.item, 'v');
+        return `${fieldAccess}.map(|v| ${innerExpr})`;
+    }
+
+    if (isNode(typeNode, 'hiddenPrefixTypeNode')) {
+        return buildConversionFromPostgresRow(typeNode.type, fieldAccess);
+    }
+
     if (isNode(typeNode, 'definedTypeLinkNode')) {
+        // Special handling for decryptable/ciphertext-style byte arrays (e.g., token-2022)
+        // These are defined types that resolve to Vec<u8> stored as JSONB
+        const typeName = typeNode.name.toLowerCase();
+        if (typeName.includes('decrypt') || typeName.includes('cipher') || typeName.includes('elgamal')) {
+            return `${fieldAccess}.0.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect()`;
+        }
+        // Default: unwrap once then into()
         return `${fieldAccess}.0.into()`;
     }
 

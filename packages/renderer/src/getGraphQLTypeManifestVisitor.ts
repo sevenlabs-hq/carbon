@@ -85,6 +85,18 @@ export function getGraphQLTypeManifestVisitor() {
                         isNullable: true,
                     };
                 },
+                visitRemainderOptionType(node, { self }) {
+                    const inner = visit(node.item, self);
+                    return {
+                        imports: inner.imports,
+                        graphqlType: `Option<${inner.graphqlType}>`,
+                        isNullable: true,
+                    };
+                },
+                visitHiddenPrefixType(node, { self }) {
+                    const inner = visit(node.type, self);
+                    return inner;
+                },
                 visitArrayType(node, { self }) {
                     const inner = visit(node.item, self);
                     return {
