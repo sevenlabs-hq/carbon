@@ -21,7 +21,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MemoProgramDecoder {
         &self,
         instruction: &solana_instruction::Instruction,
     ) -> Option<DecodedInstruction<Self::InstructionType>> {
-        if !instruction.program_id.eq(&spl_memo::ID) {
+        if !instruction.program_id.eq(&spl_memo_interface::v3::ID) {
             return None;
         }
 

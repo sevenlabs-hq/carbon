@@ -16,4 +16,4 @@ crate-type = ["rlib"]
 carbon-core = { workspace = true }
 serde = { workspace = true }
 solana-instruction = { workspace = true, default-features = false }
-spl-memo = { workspace = true }
+spl-memo-interface = { workspace = true }
