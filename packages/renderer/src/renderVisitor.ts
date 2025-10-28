@@ -4,6 +4,7 @@ import { getRenderMapVisitor, GetRenderMapOptions } from './getRenderMapVisitor'
 
 export type RenderOptions = GetRenderMapOptions & {
     deleteFolderBeforeRendering?: boolean;
+    packageName?: string;
     anchorEvents?: {
         name: string,
         discriminator: number[];

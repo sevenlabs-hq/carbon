@@ -64,6 +64,7 @@ export type DecoderGenerationOptions = {
     eventHints?: string;
     deleteFolderBeforeRendering?: boolean;
     programId?: string;
+    packageName?: string;
 };
 
 export type IdlMetadata = {
@@ -168,7 +169,7 @@ export async function getIdlMetadata(idl: string, standard?: string, url?: strin
     }
     
     // Extract name and convert to kebab-case
-    const name = idlJson.name || idlJson.metadata?.name || 'custom-decoder';
+    const name = idlJson.name || idlJson.program?.name || idlJson.metadata?.name || 'custom-decoder';
     const kebabName = name
         .replace(/([a-z])([A-Z])/g, '$1-$2')
         .replace(/[\s_]+/g, '-')
@@ -193,7 +194,7 @@ export async function getIdlMetadata(idl: string, standard?: string, url?: strin
  * Generates a decoder from an IDL
  */
 export async function generateDecoder(options: DecoderGenerationOptions): Promise<void> {
-    const { idl, outputDir, standard: standardOpt, url, deleteFolderBeforeRendering = true, programId } = options;
+    const { idl, outputDir, standard: standardOpt, url, deleteFolderBeforeRendering = true, programId, packageName } = options;
     
     const idlSource = parseIdlSource(idl);
     const standard = validateIdlStandard(standardOpt || 'anchor', idlSource);
@@ -234,6 +235,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
         codama.accept(
             renderVisitor(outputDir, {
                 deleteFolderBeforeRendering,
+                packageName,
                 anchorEvents: idlJson.events,
             }),
         );
@@ -281,6 +283,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
         codama.accept(
             renderVisitor(outputDir, {
                 deleteFolderBeforeRendering,
+                packageName,
                 anchorEvents: idlJson.events,
             }),
         );
@@ -289,6 +292,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
         codama.accept(
             renderVisitor(outputDir, {
                 deleteFolderBeforeRendering,
+                packageName,
             }),
         );
     }

@@ -1,6 +1,6 @@
 {% block main %}
 [package]
-name = "carbon-{{ program.name | kebabCase }}-decoder"
+name = "carbon-{{ packageName | default(program.name | kebabCase) }}-decoder"
 version = "0.1.0"
 edition = "2021"
 

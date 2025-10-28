@@ -27,6 +27,7 @@ import { FlattenedGraphQLField, flattenTypeForGraphQL } from './utils/flattenGra
 
 export type GetRenderMapOptions = {
     renderParentInstructions?: boolean;
+    packageName?: string;
     anchorEvents?: {
         name: string,
         discriminator: number[];
@@ -456,6 +457,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         instructionsToExport,
                         program,
                         root: node,
+                        packageName: options.packageName,
                         hasAnchorEvents: options.anchorEvents?.length ?? 0 > 0,
                         events: options.anchorEvents ?? []
                     };
