@@ -1,12 +1,16 @@
+{% extends "layout.njk" %}
+{% import "macros.njk" as macros %}
+
+{% block main %}
 {% for account in accountsToExport %}
 {% if account.data.kind == 'structTypeNode' and account.data.fields.length > 0 %}
-pub mod {{ account.name | snakeCase }}_schema;
+pub mod {{ macros.escapeRustKeyword(account.name | snakeCase) }}_schema;
 {% endif %}
 {% endfor %}
 
 {% for account in accountsToExport %}
 {% if account.data.kind == 'structTypeNode' and account.data.fields.length > 0 %}
-pub use {{ account.name | snakeCase }}_schema::*;
+pub use {{ macros.escapeRustKeyword(account.name | snakeCase) }}_schema::*;
 {% endif %}
 {% endfor %}
 
@@ -29,3 +33,5 @@ impl From<carbon_core::postgres::metadata::AccountRowMetadata> for AccountMetada
         }
     }
 }
+
+{% endblock %}

@@ -1,5 +1,6 @@
 use juniper::{graphql_object, FieldResult};
 use std::str::FromStr;
+{% import "macros.njk" as macros %}
 
 pub struct QueryRoot;
 
@@ -8,7 +9,7 @@ impl QueryRoot {
     // Accounts
     {% for account in accountsToExport %}
     {% if account.data.kind == 'structTypeNode' and account.data.fields.length > 0 %}
-    async fn {{ account.name | snakeCase }}(
+    async fn {{ macros.escapeRustKeyword(account.name | snakeCase) }}(
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
     ) -> FieldResult<Option<crate::accounts::graphql::{{ account.name | pascalCase }}GraphQL>> {
@@ -20,7 +21,7 @@ impl QueryRoot {
         Ok(row.map(|row| row.try_into().ok()).flatten())
     }
 
-    async fn list_{{ account.name | snakeCase }}(
+    async fn list_{{ macros.escapeRustKeyword(account.name | snakeCase) }}(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
@@ -41,7 +42,7 @@ impl QueryRoot {
     // Instructions (per-instruction list and lookup by signature+index)
     {% for instruction in instructionsToExport %}
     {% if instruction.arguments.length > 1 %}
-    async fn {{ instruction.name | snakeCase }}(
+    async fn {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,

@@ -143,9 +143,8 @@ export function renderScaffold(opts: ScaffoldOptions) {
         decoders: [
             {
                 name: opts.decoder
-                    .replace(/-/g, '_')
-                    .split('_')
-                    .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+                    .split('-')
+                    .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))
                     .join(''),
                 module_name: opts.decoder.replace(/-/g, '_'),
             },

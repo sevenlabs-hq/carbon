@@ -19,7 +19,7 @@ pub struct {{ instruction.name | pascalCase }} {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct {{ instruction.name | pascalCase }}InstructionAccounts {
 {% for account in instruction.accounts %}
-    pub {{ account.name | snakeCase }}: {% if account.isOptional %}Option<solana_pubkey::Pubkey>{% else %}solana_pubkey::Pubkey{% endif %},
+    pub {{ macros.escapeRustKeyword(account.name | snakeCase) }}: {% if account.isOptional %}Option<solana_pubkey::Pubkey>{% else %}solana_pubkey::Pubkey{% endif %},
 {% endfor %}
 {% if instruction.accounts | length > 0 %}
     pub remaining: Vec<solana_instruction::AccountMeta>,
@@ -56,14 +56,14 @@ impl ArrangeAccounts for {{ instruction.name | pascalCase }} {
         let mut iter = accounts.iter();
 
         {% for account in instruction.accounts %}
-        let {{ account.name | snakeCase }} = next_account(&mut iter){% if not account.isOptional %}?{% endif %};
+        let {{ macros.escapeRustKeyword(account.name | snakeCase) }} = next_account(&mut iter){% if not account.isOptional %}?{% endif %};
         {% endfor %}
 
         let remaining = iter.as_slice();
 
         Some({{ instruction.name | pascalCase }}InstructionAccounts {
             {% for account in instruction.accounts %}
-            {{ account.name | snakeCase }}: {{ account.name | snakeCase }},
+            {{ macros.escapeRustKeyword(account.name | snakeCase) }}: {{ macros.escapeRustKeyword(account.name | snakeCase) }},
             {% endfor %}
             remaining: remaining.to_vec(),
         })
