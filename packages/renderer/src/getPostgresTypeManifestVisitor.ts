@@ -55,7 +55,7 @@ export function getPostgresTypeManifestVisitor() {
                         case 'u8':
                             return m('U8', 'INT2', ['carbon_core::postgres::primitives::U8']);
                         case 'u16':
-                            return m('U16', 'INT4', ['carbon_core::postgres::primitives::U16']);
+                            return m('U16', 'INT2', ['carbon_core::postgres::primitives::U16']);
                         case 'i32':
                             return m('i32', 'INT4');
                         case 'u32':
@@ -84,6 +84,18 @@ export function getPostgresTypeManifestVisitor() {
                         sqlxType: `Option<${inner.sqlxType}>`,
                         postgresColumnType: inner.postgresColumnType,
                     };
+                },
+                visitRemainderOptionType(node, { self }) {
+                    const inner = visit(node.item, self);
+                    return {
+                        imports: inner.imports,
+                        sqlxType: `Option<${inner.sqlxType}>`,
+                        postgresColumnType: inner.postgresColumnType,
+                    };
+                },
+                visitHiddenPrefixType(node, { self }) {
+                    const inner = visit(node.type, self);
+                    return inner;
                 },
                 visitArrayType(node, { self }) {
                     const inner = visit(node.item, self);
@@ -123,7 +135,12 @@ export function getPostgresTypeManifestVisitor() {
                     return visit(node.type, self);
                 },
                 visitZeroableOptionType(node, { self }) {
-                    return visit(node.item, self);
+                    const inner = visit(node.item, self);
+                    return {
+                        imports: inner.imports,
+                        sqlxType: `Option<${inner.sqlxType}>`,
+                        postgresColumnType: inner.postgresColumnType,
+                    };
                 },
                 visitDefinedTypeLink(node) {
                     return m(`${pascalCase(node.name)}`, 'JSONB', [`crate::types::${pascalCase(node.name)}`]);

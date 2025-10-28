@@ -4,7 +4,7 @@ use juniper::GraphQLObject;
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "CpiEvent")]
 pub struct CpiEventGraphQL {
-    pub metadata: crate::instructions::graphql::InstructionMetadataGraphQL,
+    pub instruction_metadata: crate::instructions::graphql::InstructionMetadataGraphQL,
     pub name: String,
     pub data: carbon_core::graphql::primitives::Json,
 }
@@ -13,7 +13,7 @@ impl TryFrom<crate::instructions::postgres::CpiEventRow> for CpiEventGraphQL {
     type Error = carbon_core::error::Error;
     fn try_from(row: crate::instructions::postgres::CpiEventRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            metadata: row.metadata.into(),
+            instruction_metadata: row.instruction_metadata.into(),
             name: row.name,
             data: carbon_core::graphql::primitives::Json(
                 serde_json::to_value(row.data.0)

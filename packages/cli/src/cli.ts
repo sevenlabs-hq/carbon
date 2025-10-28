@@ -47,6 +47,7 @@ program
     .option('-s, --standard <anchor|codama>', 'Specify the IDL standard to parse', 'anchor')
     .option('--event-hints <csv>', 'Comma-separated names of defined types to parse as CPI Events (Codama only)')
     .option('-u, --url <rpcUrl>', 'RPC URL for fetching IDL when using a program address')
+    .option('--program-id <address>', 'Program ID (used if IDL lacks address field)')
     .option('--no-clean', 'Do not delete output directory before rendering', false)
     .action(async opts => {
         showBanner();
@@ -70,6 +71,7 @@ program
                 url: opts.url,
                 eventHints: opts.eventHints,
                 deleteFolderBeforeRendering: Boolean(opts.clean),
+                programId: opts.programId,
             });
             
             logger.succeedSpinner('Decoder generated');
@@ -98,6 +100,7 @@ program
     .option('--idl-standard <anchor|codama>', 'IDL standard')
     .option('--idl-url <rpcUrl>', 'RPC URL for fetching IDL (when using program address)')
     .option('--event-hints <csv>', 'Event hints for Codama IDL')
+    .option('--program-id <address>', 'Program ID (used if IDL lacks address field)')
     .option('-s, --data-source <name>', 'Name of data source')
     .option('-m, --metrics <log|prometheus>', 'Metrics to use', 'log')
     .option('--with-postgres <boolean>', 'Include Postgres wiring and deps (default: true)')
@@ -141,11 +144,12 @@ program
         } else {
             logger.startSpinner('Detecting decoder name from IDL...');
             try {
-                const metadata = await getIdlMetadata(
-                    String(opts.idl),
-                    opts.idlStandard,
-                    opts.idlUrl
-                );
+            const metadata = await getIdlMetadata(
+                String(opts.idl),
+                opts.idlStandard,
+                opts.idlUrl,
+                opts.programId
+            );
                 decoder = metadata.name;
                 logger.succeedSpinner(`Detected decoder: ${decoder}`);
             } catch (error) {
@@ -197,6 +201,8 @@ program
                 url: opts.idlUrl,
                 eventHints: opts.eventHints,
                 deleteFolderBeforeRendering: true,
+                programId: opts.programId,
+                packageName: decoder,
             });
             
             logger.succeedSpinner('Decoder generated successfully');
