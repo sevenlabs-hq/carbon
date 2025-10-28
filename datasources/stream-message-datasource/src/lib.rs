@@ -160,6 +160,7 @@ async fn send_subscribe_account_update_info(
                 pubkey: account_pubkey,
                 slot: account_update.slot,
                 transaction_signature: account_update.transaction_signature,
+                created_at: account_update.created_at,
             };
             if let Err(e) = sender
                 .send((Update::AccountDeletion(account_deletion), id.clone()))

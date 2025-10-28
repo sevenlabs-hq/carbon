@@ -38,13 +38,17 @@ impl<
     > Insert for AccountRow<T>
 {
     async fn insert(&self, pool: &sqlx::PgPool) -> CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO accounts (__pubkey, __slot, data) VALUES ($1, $2, $3)"#)
-            .bind(self.metadata.pubkey)
-            .bind(self.metadata.slot.clone())
-            .bind(self.data.clone())
-            .execute(pool)
-            .await
-            .map_err(|e| crate::error::Error::Custom(e.to_string()))?;
+        sqlx::query(
+            r#"INSERT INTO accounts (__pubkey, __slot, __created_at, data)
+               VALUES ($1, $2, $3, $4)"#,
+        )
+        .bind(self.metadata.pubkey)
+        .bind(self.metadata.slot.clone())
+        .bind(self.metadata.created_at.clone())
+        .bind(self.data.clone())
+        .execute(pool)
+        .await
+        .map_err(|e| crate::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
 }
@@ -55,13 +59,21 @@ impl<
     > Upsert for AccountRow<T>
 {
     async fn upsert(&self, pool: &sqlx::PgPool) -> CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO accounts (__pubkey, __slot, data) VALUES ($1, $2, $3) ON CONFLICT (__pubkey) DO UPDATE SET __slot = $2, data = $3"#)
-            .bind(self.metadata.pubkey)
-            .bind(self.metadata.slot.clone())
-            .bind(self.data.clone())
-            .execute(pool)
-            .await
-            .map_err(|e| crate::error::Error::Custom(e.to_string()))?;
+        sqlx::query(
+            r#"INSERT INTO accounts (__pubkey, __slot, __created_at, data)
+               VALUES ($1, $2, $3, $4)
+               ON CONFLICT (__pubkey)
+               DO UPDATE SET __slot = EXCLUDED.__slot,
+                             __created_at = EXCLUDED.__created_at,
+                             data = EXCLUDED.data"#,
+        )
+        .bind(self.metadata.pubkey)
+        .bind(self.metadata.slot.clone())
+        .bind(self.metadata.created_at.clone())
+        .bind(self.data.clone())
+        .execute(pool)
+        .await
+        .map_err(|e| crate::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
 }
@@ -112,9 +124,16 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AccountRowMigrationOperation {
             r#"CREATE TABLE IF NOT EXISTS accounts (
             __pubkey BYTEA NOT NULL,
             __slot BIGINT,
+            __created_at TIMESTAMPTZ,
             data JSONB NOT NULL,
             PRIMARY KEY (__pubkey)
         )"#,
+        )
+        .execute(connection)
+        .await?;
+        sqlx::query(
+            r#"ALTER TABLE accounts
+               ADD COLUMN IF NOT EXISTS __created_at TIMESTAMPTZ"#,
         )
         .execute(connection)
         .await?;
@@ -185,11 +204,15 @@ impl<
     > Insert for InstructionRow<T>
 {
     async fn insert(&self, pool: &sqlx::PgPool) -> CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO instructions (__signature, __index, __stack_height, __slot, data, accounts) VALUES ($1, $2, $3, $4, $5, $6)"#)
+        sqlx::query(
+            r#"INSERT INTO instructions (__signature, __index, __stack_height, __slot, __created_at, data, accounts)
+               VALUES ($1, $2, $3, $4, $5, $6, $7)"#,
+        )
             .bind(self.metadata.signature.clone())
             .bind(self.metadata.instruction_index)
             .bind(self.metadata.stack_height)
             .bind(self.metadata.slot.clone())
+            .bind(self.metadata.created_at.clone())
             .bind(self.data.clone())
             .bind(self.accounts.clone())
             .execute(pool)
@@ -205,11 +228,20 @@ impl<
     > Upsert for InstructionRow<T>
 {
     async fn upsert(&self, pool: &sqlx::PgPool) -> CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO instructions (__signature, __index, __stack_height, __slot, data, accounts) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (__signature, __index) DO UPDATE SET __slot = $4, data = $5, accounts = $6"#)
+        sqlx::query(
+            r#"INSERT INTO instructions (__signature, __index, __stack_height, __slot, __created_at, data, accounts)
+               VALUES ($1, $2, $3, $4, $5, $6, $7)
+               ON CONFLICT (__signature, __index)
+               DO UPDATE SET __slot = EXCLUDED.__slot,
+                             __created_at = EXCLUDED.__created_at,
+                             data = EXCLUDED.data,
+                             accounts = EXCLUDED.accounts"#,
+        )
             .bind(self.metadata.signature.clone())
             .bind(self.metadata.instruction_index)
             .bind(self.metadata.stack_height)
             .bind(self.metadata.slot.clone())
+            .bind(self.metadata.created_at.clone())
             .bind(self.data.clone())
             .bind(self.accounts.clone())
             .execute(pool)
@@ -270,10 +302,17 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InstructionRowMigrationOperati
             __index BIGINT NOT NULL,
             __stack_height BIGINT NOT NULL,
             __slot BIGINT,
+            __created_at TIMESTAMPTZ,
             data JSONB NOT NULL,
             accounts JSONB NOT NULL,
             PRIMARY KEY (__signature, __index)
         )"#,
+        )
+        .execute(connection)
+        .await?;
+        sqlx::query(
+            r#"ALTER TABLE instructions
+               ADD COLUMN IF NOT EXISTS __created_at TIMESTAMPTZ"#,
         )
         .execute(connection)
         .await?;

@@ -137,6 +137,7 @@ impl Datasource for RpcProgramSubscribe {
                                     account: decoded_account,
                                     slot: acc_event.context.slot,
                                     transaction_signature: None,
+                                    created_at: None,
                                 });
 
                                 metrics
