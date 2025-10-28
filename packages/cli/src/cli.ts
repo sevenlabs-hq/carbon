@@ -202,6 +202,7 @@ program
                 eventHints: opts.eventHints,
                 deleteFolderBeforeRendering: true,
                 programId: opts.programId,
+                packageName: decoder,
             });
             
             logger.succeedSpinner('Decoder generated successfully');
