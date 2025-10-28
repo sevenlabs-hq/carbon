@@ -19,6 +19,7 @@ import { RenderMap } from '@codama/renderers-core';
 import { extendVisitor, pipe, staticVisitor, visit } from '@codama/visitors-core';
 
 import { DiscriminatorManifest, getDiscriminatorManifest, getTypeManifestVisitor } from './getTypeManifestVisitor';
+import { getGraphQLTypeManifestVisitor } from './getGraphQLTypeManifestVisitor';
 import { ImportMap } from './ImportMap';
 import { partition, render } from './utils';
 import { getPostgresTypeManifestVisitor, PostgresTypeManifest } from './getPostgresTypeManifestVisitor';
@@ -103,7 +104,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         .mergeWithManifest(typeManifest)
                         .add('carbon_core::borsh::{self, BorshDeserialize}');
 
-                    const discriminatorManifest = getDiscriminatorManifest(discriminators);
+                    const discriminatorManifest = discriminators.length > 0
+                        ? getDiscriminatorManifest(discriminators)
+                        : undefined;
 
                     // Postgres generation
                     const flatFields = flattenType(newNode.data, [], [], new Set());
@@ -257,12 +260,14 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             }),
                         );
                     } else {
-                        const typeManifestVisitor = getTypeManifestVisitor();
-                        const underlyingManifest = visit(node.type, typeManifestVisitor);
+                        // For type aliases, use GraphQL type manifest to get proper GraphQL types
+                        const graphqlManifest = visit(node.type, getGraphQLTypeManifestVisitor());
+                        const imports = graphqlManifest.imports.toString();
+                        const importSection = imports ? `${imports}\n\n` : '';
                         
                         renderMap.add(
                             `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
-                            `pub type ${pascalCase(node.name)}GraphQL = ${underlyingManifest.type};\n`,
+                            `${importSection}pub type ${pascalCase(node.name)}GraphQL = ${graphqlManifest.graphqlType};\n`,
                         );
                     }
 
@@ -431,14 +436,14 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 },
 
                 visitRoot(node, { self }) {
-                    const programsToExport = getAllPrograms(node);
-
-                    if (programsToExport.length > 1) {
-                        throw new Error('Multiple programs are not supported');
+                    // Only use the main program, ignore additionalPrograms
+                    const program = node.program;
+                    
+                    if (!program) {
+                        throw new Error('No program found in IDL');
                     }
 
-                    const program = programsToExport[0];
-
+                    // Use getAll* functions but they will only process the main program
                     const accountsToExport = getAllAccounts(node);
                     const instructionsToExport = getAllInstructionsWithSubs(node, {
                         leavesOnly: !renderParentInstructions,
@@ -530,15 +535,21 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             const manifest = visit(typeNode.item, postgresTypeManifestVisitor) as PostgresTypeManifest;
             const isJson = (manifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
 
-            const rowType = isJson ? `Option<sqlx::types::Json<${manifest.sqlxType}>>` : `Option<${manifest.sqlxType}>`;
+            const rowType = isJson 
+                ? manifest.sqlxType.includes('Json<')
+                    ? `Option<${manifest.sqlxType}>`
+                    : `Option<sqlx::types::Json<${manifest.sqlxType}>>`
+                : `Option<${manifest.sqlxType}>`;
 
             const expr = isJson
-                ? `${`source.${prefix.join('.')}`}.map(|value| sqlx::types::Json(value.into()))`
+                ? manifest.sqlxType.includes('Json<')
+                    ? `${`source.${prefix.join('.')}`}.map(|value| value.into())`
+                    : `${`source.${prefix.join('.')}`}.map(|value| sqlx::types::Json(value.into()))`
                 : `${`source.${prefix.join('.')}`}.map(|value| value.into())`;
 
             // Handle reverse conversion based on inner type
             const reverseExpr = isJson
-                ? `${`source.${column}`}.map(|value| value.0)`
+                ? `${`source.${column}`}.map(|value| value.0)`  // Always single unwrap for JSONB types
                 : buildReverseOptionType(typeNode, `source.${column}`, manifest);
 
             out.push({
@@ -553,6 +564,48 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             });
 
             return out;
+        }
+
+        // Handle zeroableOptionTypeNode, remainderOptionTypeNode - same as optionTypeNode
+        if (isNode(typeNode, 'zeroableOptionTypeNode') || isNode(typeNode, 'remainderOptionTypeNode')) {
+            const column = makeName(prefix);
+            const manifest = visit(typeNode.item, postgresTypeManifestVisitor) as PostgresTypeManifest;
+            const isJson = (manifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
+
+            const rowType = isJson 
+                ? manifest.sqlxType.includes('Json<')
+                    ? `Option<${manifest.sqlxType}>`
+                    : `Option<sqlx::types::Json<${manifest.sqlxType}>>`
+                : `Option<${manifest.sqlxType}>`;
+
+            const expr = isJson
+                ? manifest.sqlxType.includes('Json<')
+                    ? `${`source.${prefix.join('.')}`}.map(|value| value.into())`
+                    : `${`source.${prefix.join('.')}`}.map(|value| sqlx::types::Json(value.into()))`
+                : `${`source.${prefix.join('.')}`}.map(|value| value.into())`;
+
+            // Handle reverse conversion based on inner type
+            const reverseExpr = isJson
+                ? `${`source.${column}`}.map(|value| value.0)`  // Always single unwrap for JSONB types
+                : buildReverseOptionType(typeNode, `source.${column}`, manifest);
+
+            out.push({
+                column,
+                rustPath: prefix.join('.'),
+                rowType,
+                postgresColumnType: `${manifest.postgresColumnType}`,
+                docs: docsPrefix,
+                postgresManifest: manifest,
+                expr,
+                reverseExpr,
+            });
+
+            return out;
+        }
+
+        // Handle hiddenPrefixTypeNode - unwrap and process inner type
+        if (isNode(typeNode, 'hiddenPrefixTypeNode')) {
+            return flattenType(typeNode.type, prefix, docsPrefix, seen, opts);
         }
 
         if (isNode(typeNode, 'definedTypeLinkNode')) {
@@ -614,8 +667,10 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             } else {
                 return `sqlx::types::Json(${prefix}.into_iter().map(|element| ${buildExpression(typeNode.item, `element`)}).collect())`;
             }
-        } else if (isNode(typeNode, 'optionTypeNode')) {
+        } else if (isNode(typeNode, 'optionTypeNode') || isNode(typeNode, 'zeroableOptionTypeNode') || isNode(typeNode, 'remainderOptionTypeNode')) {
             return `${prefix}.map(|value| ${buildExpression(typeNode.item, `value`)})`;
+        } else if (isNode(typeNode, 'hiddenPrefixTypeNode')) {
+            return buildExpression(typeNode.type, prefix);
         } else if (isNode(typeNode, 'tupleTypeNode')) {
             if (typeNode.items.length === 1) {
                 return `${buildExpression(typeNode.items[0], `${prefix}`)}`;
@@ -627,8 +682,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
     }
 
     function buildReverseOptionType(typeNode: TypeNode, prefix: string, manifest: PostgresTypeManifest): string {
-        if (!isNode(typeNode, 'optionTypeNode')) {
-            throw new Error('buildReverseOptionType should only be called for optionTypeNode');
+        if (!isNode(typeNode, 'optionTypeNode') && !isNode(typeNode, 'zeroableOptionTypeNode') && !isNode(typeNode, 'remainderOptionTypeNode')) {
+            throw new Error('buildReverseOptionType should only be called for option-like types');
         }
         
         const innerType = typeNode.item;
@@ -722,9 +777,22 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         return `${prefix}.into_iter().map(|element| element.try_into()).collect::<Result<_, _>>().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
                     }
                     break;
-                // TODO: implement this
                 case 'remainderCountNode':
-                    return `unimplemented!()`;
+                    if (isJson) {
+                        if (
+                            isNode(typeNode.item, 'definedTypeLinkNode') ||
+                            isNode(typeNode.item, 'structTypeNode') ||
+                            isNode(typeNode.item, 'enumTypeNode')
+                        ) {
+                            return `${prefix}.0`;
+                        }
+                        return `${prefix}.0.into_iter().map(|element| ${buildReverse(typeNode.item, 'element')}).collect()`;
+                    } else {
+                        if (isNode(typeNode.item, 'publicKeyTypeNode')) {
+                            return `${prefix}.into_iter().map(|element| *element).collect()`;
+                        }
+                        return `${prefix}.into_iter().map(|element| element.try_into()).collect::<Result<_, _>>().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
+                    }
                     break;
             }
         }

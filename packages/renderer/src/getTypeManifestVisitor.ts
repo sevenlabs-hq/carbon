@@ -188,6 +188,20 @@ export function getTypeManifestVisitor() {
                     };
                 },
 
+                visitRemainderOptionType(node, { self }) {
+                    const itemManifest = visit(node.item, self);
+                    return {
+                        imports: itemManifest.imports,
+                        type: `Option<${itemManifest.type}>`,
+                        borshType: `Option<${itemManifest.borshType}>`,
+                    };
+                },
+
+                visitHiddenPrefixType(node, { self }) {
+                    const typeManifest = visit(node.type, self);
+                    return typeManifest;
+                },
+
                 visitPublicKeyType() {
                     return {
                         imports: new ImportMap().add('solana_pubkey::Pubkey'),

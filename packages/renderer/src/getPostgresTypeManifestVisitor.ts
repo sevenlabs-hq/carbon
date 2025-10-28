@@ -85,6 +85,18 @@ export function getPostgresTypeManifestVisitor() {
                         postgresColumnType: inner.postgresColumnType,
                     };
                 },
+                visitRemainderOptionType(node, { self }) {
+                    const inner = visit(node.item, self);
+                    return {
+                        imports: inner.imports,
+                        sqlxType: `Option<${inner.sqlxType}>`,
+                        postgresColumnType: inner.postgresColumnType,
+                    };
+                },
+                visitHiddenPrefixType(node, { self }) {
+                    const inner = visit(node.type, self);
+                    return inner;
+                },
                 visitArrayType(node, { self }) {
                     const inner = visit(node.item, self);
                     if (
@@ -123,7 +135,12 @@ export function getPostgresTypeManifestVisitor() {
                     return visit(node.type, self);
                 },
                 visitZeroableOptionType(node, { self }) {
-                    return visit(node.item, self);
+                    const inner = visit(node.item, self);
+                    return {
+                        imports: inner.imports,
+                        sqlxType: `Option<${inner.sqlxType}>`,
+                        postgresColumnType: inner.postgresColumnType,
+                    };
                 },
                 visitDefinedTypeLink(node) {
                     return m(`${pascalCase(node.name)}`, 'JSONB', [`crate::types::${pascalCase(node.name)}`]);
