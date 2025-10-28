@@ -69,7 +69,7 @@ export function getGraphQLTypeManifestVisitor() {
                         case 'u128':
                             return m('U128', ['carbon_core::graphql::primitives::U128']);
                         case 'f32':
-                            return m('f32');
+                            return m('f64');
                         case 'f64':
                             return m('f64');
                         default:

@@ -350,6 +350,13 @@ macro_rules! big_unsigned {
             }
         }
 
+        impl TryFrom<$name> for $src {
+            type Error = crate::error::Error;
+            fn try_from(v: $name) -> Result<Self, Self::Error> {
+                Ok(v.0)
+            }
+        }
+
         /* NUMERIC <=-> BigDecimal bridge */
         impl Type<Postgres> for $name {
             fn type_info() -> PgTypeInfo {
