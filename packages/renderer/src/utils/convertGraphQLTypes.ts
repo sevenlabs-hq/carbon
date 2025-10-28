@@ -47,6 +47,10 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
                 return `carbon_core::graphql::primitives::I128(${fieldAccess})`;
             case 'u128':
                 return `carbon_core::graphql::primitives::U128(${fieldAccess})`;
+            case 'f32':
+                return `${fieldAccess} as f64`;
+            case 'f64':
+                return `${fieldAccess}`;
         }
     }
 
@@ -138,6 +142,10 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
                 return `carbon_core::graphql::primitives::I128(*${fieldAccess})`;
             case 'u128':
                 return `carbon_core::graphql::primitives::U128(*${fieldAccess})`;
+            case 'f32':
+                return `${fieldAccess} as f64`;
+            case 'f64':
+                return `${fieldAccess}`;
         }
     }
 
