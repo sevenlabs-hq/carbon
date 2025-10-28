@@ -437,12 +437,12 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     if (accountsToExport.length > 0) {
                         map.add('src/accounts/mod.rs', render('accountsMod.njk', ctx));
                         map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
-                        map.add('src/accounts/graphql/mod.rs', render('accountsGraphQLMod.njk', ctx));
+                        map.add('src/accounts/graphql/mod.rs', render('accountsGraphqlMod.njk', ctx));
                     }
                     if (instructionsToExport.length > 0) {
                         map.add('src/instructions/mod.rs', render('instructionsMod.njk', ctx));
                         map.add('src/instructions/postgres/mod.rs', render('instructionsPostgresMod.njk', ctx));
-                        map.add('src/instructions/graphql/mod.rs', render('instructionsGraphQLMod.njk', ctx));
+                        map.add('src/instructions/graphql/mod.rs', render('instructionsGraphqlMod.njk', ctx));
                     }
                     
                     if (options.anchorEvents?.length ?? 0 > 0) {
@@ -454,7 +454,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                     if (definedTypesToExport.length > 0) {
                         map.add('src/types/mod.rs', render('typesMod.njk', ctx));
-                        map.add('src/types/graphql/mod.rs', render('typesGraphQLMod.njk', ctx));
+                        map.add('src/types/graphql/mod.rs', render('typesGraphqlMod.njk', ctx));
                     }
 
                     // GraphQL root (context + query)
