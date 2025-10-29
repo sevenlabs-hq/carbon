@@ -155,9 +155,10 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                     // GraphQLObject doesn't support empty structs
                     if (graphqlFields.length > 0) {
+                        const schemaTemplate = options.postgresMode === 'generic' ? 'graphqlSchemaPageGeneric.njk' : 'graphqlSchemaPage.njk';
                         renderMap.add(
                             `src/accounts/graphql/${snakeCase(node.name)}_schema.rs`,
-                            render('graphqlSchemaPage.njk', {
+                            render(schemaTemplate, {
                                 entityDocs: node.docs,
                                 entityName: node.name,
                                 imports: graphqlImports.toString(),
@@ -415,9 +416,10 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                     // GraphQLObject doesn't support empty structs
                     if (graphqlFields.length > 0) {
+                        const schemaTemplate = options.postgresMode === 'generic' ? 'graphqlSchemaPageGeneric.njk' : 'graphqlSchemaPage.njk';
                         renderMap.add(
                             `src/instructions/graphql/${snakeCase(node.name)}_schema.rs`,
-                            render('graphqlSchemaPage.njk', {
+                            render(schemaTemplate, {
                                 entityDocs: node.docs,
                                 entityName: node.name,
                                 imports: graphqlImports.toString(),
@@ -479,13 +481,15 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         if (options.postgresMode !== 'generic') {
                             map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
                         }
-                        map.add('src/accounts/graphql/mod.rs', render('accountsGraphqlMod.njk', ctx));
+                        const accountsGraphqlTemplate = options.postgresMode === 'generic' ? 'accountsGraphqlModGeneric.njk' : 'accountsGraphqlMod.njk';
+                        map.add('src/accounts/graphql/mod.rs', render(accountsGraphqlTemplate, ctx));
                     if (instructionsToExport.length > 0) {
                         map.add('src/instructions/mod.rs', render('instructionsMod.njk', ctx));
                         if (options.postgresMode !== 'generic') {
                             map.add('src/instructions/postgres/mod.rs', render('instructionsPostgresMod.njk', ctx));
                         }
-                        map.add('src/instructions/graphql/mod.rs', render('instructionsGraphqlMod.njk', ctx));
+                        const instructionsGraphqlTemplate = options.postgresMode === 'generic' ? 'instructionsGraphqlModGeneric.njk' : 'instructionsGraphqlMod.njk';
+                        map.add('src/instructions/graphql/mod.rs', render(instructionsGraphqlTemplate, ctx));
                     }
                     
                     if (options.anchorEvents?.length ?? 0 > 0) {
@@ -493,7 +497,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         if (options.postgresMode !== 'generic') {
                             map.add('src/instructions/postgres/cpi_event_row.rs', render('eventInstructionRowPage.njk', ctx));
                         }
-                        map.add('src/instructions/graphql/cpi_event_schema.rs', render('eventInstructionGraphqlSchemaPage.njk', ctx));
+                        const cpiEventSchemaTemplate = options.postgresMode === 'generic' ? 'eventInstructionGraphqlSchemaPageGeneric.njk' : 'eventInstructionGraphqlSchemaPage.njk';
+                        map.add('src/instructions/graphql/cpi_event_schema.rs', render(cpiEventSchemaTemplate, ctx));
                         map.add('src/events/mod.rs', render('eventsMod.njk', ctx));
                     }
 
@@ -505,7 +510,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     // GraphQL root (context + query)
                     map.add('src/graphql/mod.rs', render('graphqlRootMod.njk', ctx));
                     map.add('src/graphql/context.rs', render('graphqlContextPage.njk', ctx));
-                    map.add('src/graphql/query.rs', render('graphqlQueryPage.njk', ctx));
+                    
+                    // Use different query template based on postgres mode
+                    if (options.postgresMode === 'generic') {
+                        map.add('src/graphql/query.rs', render('graphqlQueryPageGeneric.njk', ctx));
+                    } else {
+                        map.add('src/graphql/query.rs', render('graphqlQueryPage.njk', ctx));
+                    }
 
                     // Generate lib.rs
                     map.add('src/lib.rs', render('lib.njk', ctx));
