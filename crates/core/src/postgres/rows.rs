@@ -111,7 +111,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AccountRowMigrationOperation {
         sqlx::query(
             r#"CREATE TABLE IF NOT EXISTS accounts (
             __pubkey BYTEA NOT NULL,
-            __slot BIGINT,
+            __slot NUMERIC,
             data JSONB NOT NULL,
             PRIMARY KEY (__pubkey)
         )"#,
@@ -185,7 +185,7 @@ impl<
     > Insert for InstructionRow<T>
 {
     async fn insert(&self, pool: &sqlx::PgPool) -> CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO instructions (__signature, __index, __stack_height, __slot, data, accounts) VALUES ($1, $2, $3, $4, $5, $6)"#)
+        sqlx::query(r#"INSERT INTO instructions (__signature, __instruction_index, __stack_height, __slot, data, accounts) VALUES ($1, $2, $3, $4, $5, $6)"#)
             .bind(self.metadata.signature.clone())
             .bind(self.metadata.instruction_index)
             .bind(self.metadata.stack_height)
@@ -205,7 +205,7 @@ impl<
     > Upsert for InstructionRow<T>
 {
     async fn upsert(&self, pool: &sqlx::PgPool) -> CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO instructions (__signature, __index, __stack_height, __slot, data, accounts) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (__signature, __index) DO UPDATE SET __slot = $4, data = $5, accounts = $6"#)
+        sqlx::query(r#"INSERT INTO instructions (__signature, __instruction_index, __stack_height, __slot, data, accounts) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (__signature, __instruction_index) DO UPDATE SET __slot = $4, data = $5, accounts = $6"#)
             .bind(self.metadata.signature.clone())
             .bind(self.metadata.instruction_index)
             .bind(self.metadata.stack_height)
@@ -227,7 +227,7 @@ impl<
     type Key = (String, U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM instructions WHERE __signature = $1 AND __index = $2"#)
+        sqlx::query(r#"DELETE FROM instructions WHERE __signature = $1 AND __instruction_index = $2"#)
             .bind(key.0)
             .bind(key.1)
             .execute(pool)
@@ -246,7 +246,7 @@ impl<
 
     async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> CarbonResult<Option<Self>> {
         let row =
-            sqlx::query_as(r#"SELECT * FROM instructions WHERE __signature = $1 AND __index = $2"#)
+            sqlx::query_as(r#"SELECT * FROM instructions WHERE __signature = $1 AND __instruction_index = $2"#)
                 .bind(key.0)
                 .bind(key.1)
                 .fetch_optional(pool)
@@ -267,12 +267,12 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InstructionRowMigrationOperati
         sqlx::query(
             r#"CREATE TABLE IF NOT EXISTS instructions (
             __signature TEXT NOT NULL,
-            __index BIGINT NOT NULL,
+            __instruction_index BIGINT NOT NULL,
             __stack_height BIGINT NOT NULL,
-            __slot BIGINT,
+            __slot NUMERIC,
             data JSONB NOT NULL,
             accounts JSONB NOT NULL,
-            PRIMARY KEY (__signature, __index)
+            PRIMARY KEY (__signature, __instruction_index)
         )"#,
         )
         .execute(connection)

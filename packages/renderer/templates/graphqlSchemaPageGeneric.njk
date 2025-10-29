@@ -1,0 +1,36 @@
+use juniper::GraphQLObject;
+{{ imports }}
+
+{% if entityDocs and entityDocs.length > 0 %}
+{% for doc in entityDocs %}
+{% set lines = doc.split('\n') %}
+{% for line in lines %}
+/// {{ line }}
+{% endfor %}
+{% endfor %}
+{% endif %}
+#[derive(Debug, Clone, GraphQLObject)]
+#[graphql(name = "{{ entityName | pascalCase }}")]
+pub struct {{ entityName | pascalCase }}GraphQL {
+    pub {% if isAccount %}account_metadata{% else %}instruction_metadata{% endif %}: {% if isAccount %}crate::accounts::graphql::AccountMetadataGraphQL{% else %}crate::instructions::graphql::InstructionMetadataGraphQL{% endif %},
+{% for field in graphqlFields %}
+    {% if field.docs and field.docs.length > 0 %}
+    {% for doc in field.docs %}
+    /// {{ doc }}
+    {% endfor %}
+    {% endif %}
+    pub {{ field.fieldName }}: {{ field.rustType }},
+{% endfor %}
+}
+
+impl TryFrom<{% if isAccount %}crate::accounts::{{ entityName | snakeCase }}::{{ entityName | pascalCase }}{% else %}crate::instructions::{{ entityName | snakeCase }}::{{ entityName | pascalCase }}{% endif %}> for {{ entityName | pascalCase }}GraphQL {
+    type Error = carbon_core::error::Error;
+    fn try_from(original: {% if isAccount %}crate::accounts::{{ entityName | snakeCase }}::{{ entityName | pascalCase }}{% else %}crate::instructions::{{ entityName | snakeCase }}::{{ entityName | pascalCase }}{% endif %}) -> Result<Self, Self::Error> {
+        Ok(Self {
+            {% if isAccount %}account_metadata{% else %}instruction_metadata{% endif %}: {% if isAccount %}crate::accounts::graphql::AccountMetadataGraphQL::default(){% else %}crate::instructions::graphql::InstructionMetadataGraphQL::default(){% endif %},
+{% for field in graphqlFields %}
+            {{ field.fieldName }}: {{ field.fromOriginalExpr }},
+{% endfor %}
+        })
+    }
+}
