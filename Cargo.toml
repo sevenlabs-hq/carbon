@@ -170,7 +170,9 @@ sqlx = { version = "0.8.5", features = [
     "uuid",
     "chrono",
     "rust_decimal",
+    "bigdecimal",
 ] }
+bigdecimal = "0.4.5"
 sqlx_migrator = { version = "0.17.0", features = ["postgres"] }
 syn = { version = "1.0", features = ["full"] }
 thiserror = { version = "2.0.12", default-features = false }
@@ -187,3 +189,7 @@ yellowstone-grpc-proto = { version = "9.0.0", features = ["convert"] }
 [patch.crates-io.curve25519-dalek]
 git = "https://github.com/anza-xyz/curve25519-dalek.git"
 rev = "b500cdc2a920cd5bff9e2dd974d7b97349d61464"
+
+[patch.crates-io]
+carbon-core = { path = "crates/core" }
+carbon-test-utils = { path = "crates/test-utils" }
