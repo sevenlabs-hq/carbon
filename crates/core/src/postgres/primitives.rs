@@ -101,6 +101,8 @@ use borsh::BorshDeserialize;
 use num_traits::cast::{FromPrimitive, ToPrimitive};
 use sqlx::postgres::{PgArgumentBuffer, PgHasArrayType, PgTypeInfo, PgValueRef};
 use sqlx::types::Decimal;
+use bigdecimal::BigDecimal;
+use std::str::FromStr;
 use sqlx::{Decode, Encode, Postgres, Type};
 use std::{convert::TryFrom, ops::Deref};
 
@@ -374,20 +376,32 @@ macro_rules! big_unsigned {
                 buf: &mut sqlx::postgres::PgArgumentBuffer,
             ) -> Result<sqlx::encode::IsNull, Box<dyn std::error::Error + Send + Sync + 'static>>
             {
-                let bd = Decimal::from_u128(self.0 as u128)
-                    .ok_or(crate::error::Error::Custom("out of range".to_string()))?;
-                bd.encode_by_ref(buf)
+                // Encode via BigDecimal -> PgNumeric (true NUMERIC binary)
+                let s = self.0.to_string();
+                let bd = BigDecimal::from_str(&s)
+                    .map_err(|e| Box::new(crate::error::Error::Custom(e.to_string())) as Box<dyn std::error::Error + Send + Sync + 'static>)?;
+                <BigDecimal as Encode<'_, Postgres>>::encode_by_ref(&bd, buf)
             }
         }
         impl<'r> Decode<'r, Postgres> for $name {
             fn decode(
                 value: sqlx::postgres::PgValueRef<'r>,
             ) -> Result<Self, sqlx::error::BoxDynError> {
-                let bd = Decimal::decode(value)?;
-                match bd.to_u128() {
-                    Some(v) => Ok(Self(v as $src)),
-                    None => Err(Box::new(crate::error::Error::Custom(
-                        "out of range".to_string(),
+                // Decode NUMERIC via BigDecimal, expect integer (dscale == 0)
+                let bd: BigDecimal = <BigDecimal as Decode<'r, Postgres>>::decode(value)?;
+                let s = bd.to_string();
+                if s.contains('.') || s.contains('-') {
+                    return Err(Box::new(crate::error::Error::Custom(
+                        "invalid sign/scale for unsigned integer".to_string(),
+                    )));
+                }
+                match s.parse::<u128>() {
+                    Ok(v) if v <= (<$src>::MAX as u128) => Ok(Self(v as $src)),
+                    Ok(_) => Err(Box::new(crate::error::Error::Custom(
+                        "value exceeds maximum for target type".to_string(),
+                    ))),
+                    Err(_) => Err(Box::new(crate::error::Error::Custom(
+                        "invalid numeric string".to_string(),
                     ))),
                 }
             }
@@ -488,18 +502,27 @@ impl Encode<'_, Postgres> for I128 {
         &self,
         buf: &mut sqlx::postgres::PgArgumentBuffer,
     ) -> Result<sqlx::encode::IsNull, Box<dyn std::error::Error + Send + Sync + 'static>> {
-        let bd = Decimal::from_i128(self.0)
-            .ok_or(crate::error::Error::Custom("out of range".to_string()))?;
-        bd.encode_by_ref(buf)
+        // Encode via BigDecimal -> PgNumeric to support full i128 range
+        let s = self.0.to_string();
+        let bd = BigDecimal::from_str(&s)
+            .map_err(|e| Box::new(crate::error::Error::Custom(e.to_string())) as Box<dyn std::error::Error + Send + Sync + 'static>)?;
+        <BigDecimal as Encode<'_, Postgres>>::encode_by_ref(&bd, buf)
     }
 }
 impl Decode<'_, Postgres> for I128 {
     fn decode(value: sqlx::postgres::PgValueRef<'_>) -> Result<Self, sqlx::error::BoxDynError> {
-        let bd = Decimal::decode(value)?;
-        match bd.to_i128() {
-            Some(v) => Ok(Self(v)),
-            None => Err(Box::new(crate::error::Error::Custom(
-                "out of range".to_string(),
+        // Decode via BigDecimal and parse as i128 (require integer scale)
+        let bd: BigDecimal = <BigDecimal as Decode<'_, Postgres>>::decode(value)?;
+        let s = bd.to_string();
+        if s.contains('.') {
+            return Err(Box::new(crate::error::Error::Custom(
+                "invalid scale for i128".to_string(),
+            )));
+        }
+        match s.parse::<i128>() {
+            Ok(v) => Ok(Self(v)),
+            Err(_) => Err(Box::new(crate::error::Error::Custom(
+                "invalid numeric string".to_string(),
             ))),
         }
     }
