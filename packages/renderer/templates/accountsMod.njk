@@ -5,8 +5,10 @@
 
 use crate::{PROGRAM_ID, {{ program.name | pascalCase }}Decoder};
 
+{% if postgresMode !== 'generic' %}
 #[cfg(feature = "postgres")]
 pub mod postgres;
+{% endif %}
 
 #[cfg(feature = "graphql")]
 pub mod graphql;

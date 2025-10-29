@@ -32,6 +32,7 @@ export type GetRenderMapOptions = {
         name: string,
         discriminator: number[];
     }[];
+    postgresMode?: 'generic' | 'typed';
 };
 
 type FlattenedField = {
@@ -129,8 +130,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 discriminatorManifest,
                                 typeManifest,
                             }),
-                        )
-                        .add(
+                        );
+
+                    // Only generate postgres files if not in generic mode
+                    if (options.postgresMode !== 'generic') {
+                        renderMap.add(
                             `src/accounts/postgres/${snakeCase(node.name)}_row.rs`,
                             render('postgresRowPage.njk', {
                                 entityDocs: node.docs,
@@ -140,6 +144,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 isAccount: true,
                             }),
                         );
+                    }
 
                     // GraphQL generation
                     const graphqlFields = flattenTypeForGraphQL(newNode.data, [], [], new Set());
@@ -373,8 +378,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 discriminatorManifest,
                                 program: currentProgram,
                             }),
-                        )
-                        .add(
+                        );
+
+                    // Only generate postgres files if not in generic mode
+                    if (options.postgresMode !== 'generic') {
+                        renderMap.add(
                             `src/instructions/postgres/${snakeCase(node.name)}_row.rs`,
                             render('postgresRowPage.njk', {
                                 entityDocs: node.docs,
@@ -384,6 +392,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 isAccount: false,
                             }),
                         );
+                    }
 
                     // GraphQL generation
                     const graphqlFields = flattenTypeForGraphQL(
@@ -459,24 +468,31 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         root: node,
                         packageName: options.packageName,
                         hasAnchorEvents: options.anchorEvents?.length ?? 0 > 0,
-                        events: options.anchorEvents ?? []
+                        events: options.anchorEvents ?? [],
+                        postgresMode: options.postgresMode || 'typed'
                     };
 
                     const map = new RenderMap();
 
                     // Generate mod files
                         map.add('src/accounts/mod.rs', render('accountsMod.njk', ctx));
-                        map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
+                        if (options.postgresMode !== 'generic') {
+                            map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
+                        }
                         map.add('src/accounts/graphql/mod.rs', render('accountsGraphqlMod.njk', ctx));
                     if (instructionsToExport.length > 0) {
                         map.add('src/instructions/mod.rs', render('instructionsMod.njk', ctx));
-                        map.add('src/instructions/postgres/mod.rs', render('instructionsPostgresMod.njk', ctx));
+                        if (options.postgresMode !== 'generic') {
+                            map.add('src/instructions/postgres/mod.rs', render('instructionsPostgresMod.njk', ctx));
+                        }
                         map.add('src/instructions/graphql/mod.rs', render('instructionsGraphqlMod.njk', ctx));
                     }
                     
                     if (options.anchorEvents?.length ?? 0 > 0) {
                         map.add('src/instructions/cpi_event.rs', render('eventInstructionPage.njk', ctx));
-                        map.add('src/instructions/postgres/cpi_event_row.rs', render('eventInstructionRowPage.njk', ctx));
+                        if (options.postgresMode !== 'generic') {
+                            map.add('src/instructions/postgres/cpi_event_row.rs', render('eventInstructionRowPage.njk', ctx));
+                        }
                         map.add('src/instructions/graphql/cpi_event_schema.rs', render('eventInstructionGraphqlSchemaPage.njk', ctx));
                         map.add('src/events/mod.rs', render('eventsMod.njk', ctx));
                     }

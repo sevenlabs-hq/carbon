@@ -13,13 +13,19 @@ use {
         processor::Processor,
         {%- endif %}
         {%- if withPostgres %}
+        {%- if useGenericPostgres %}
+        postgres::processors::{PostgresJsonAccountProcessor, PostgresJsonInstructionProcessor},
+        postgres::rows::{GenericAccountsMigration, GenericInstructionMigration},
+        {%- else %}
         postgres::processors::{PostgresAccountProcessor, PostgresInstructionProcessor},
+        {%- endif %}
         {%- endif %}
     },
     carbon_{{ metrics.module_name }}_metrics::{{ metrics.name }}Metrics,
     {%- for decoder in decoders %} 
     carbon_{{ decoder.module_name }}_decoder::{
         {%- if withPostgres %}
+        {%- if not useGenericPostgres %}
         accounts::{
             postgres::{
                 {{ decoder.name }}AccountWithMetadata, 
@@ -34,6 +40,10 @@ use {
             },
             {{ decoder.name }}Instruction,
         },
+        {%- else %}
+        accounts::{{ decoder.name }}Account,
+        instructions::{{ decoder.name }}Instruction,
+        {%- endif %}
         {%- else %}
         instructions::{{ decoder.name }}Instruction,
         {%- endif %}
@@ -92,6 +102,14 @@ pub async fn main() -> CarbonResult<()> {
     let mut conn = pool.acquire().await.unwrap();
 
     // Migrations
+    {%- if useGenericPostgres %}
+    migrator
+        .add_migration(Box::new(GenericAccountsMigration))
+        .unwrap();
+    migrator
+        .add_migration(Box::new(GenericInstructionMigration))
+        .unwrap();
+    {%- else %}
     {%- for decoder in decoders %}
     migrator
         .add_migration(Box::new({{ decoder.name }}AccountsMigration))
@@ -100,6 +118,7 @@ pub async fn main() -> CarbonResult<()> {
         .add_migration(Box::new({{ decoder.name }}InstructionsMigration))
         .unwrap();
     {%- endfor %}
+    {%- endif %}
     
     migrator.run(&mut *conn, &Plan::apply_all()).await.unwrap();
     {%- endif %}
@@ -269,6 +288,18 @@ pub async fn main() -> CarbonResult<()> {
         .metrics(Arc::new({{ metrics.name }}Metrics::new()))
         .metrics_flush_interval(5)
         {%- if withPostgres %}
+        {%- if useGenericPostgres %}
+        {%- for decoder in decoders %}
+        .account(
+            {{ decoder.name }}Decoder,
+            PostgresJsonAccountProcessor::<{{ decoder.name }}Account>::new(pool.clone()),
+        )
+        .instruction(
+            {{ decoder.name }}Decoder,
+            PostgresJsonInstructionProcessor::<{{ decoder.name }}Instruction>::new(pool.clone()),
+        )
+        {%- endfor %}
+        {%- else %}
         {%- for decoder in decoders %}
         .account(
             {{ decoder.name }}Decoder,
@@ -279,6 +310,7 @@ pub async fn main() -> CarbonResult<()> {
             PostgresInstructionProcessor::<{{ decoder.name }}Instruction, {{ decoder.name }}InstructionWithMetadata>::new(pool.clone()),
         )
         {%- endfor %}
+        {%- endif %}
         {%- else %}
         {%- for decoder in decoders %}
         .instruction({{ decoder.name }}Decoder, {{ decoder.name }}InstructionProcessor)
