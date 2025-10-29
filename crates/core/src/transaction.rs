@@ -74,6 +74,8 @@ pub struct TransactionMetadata {
     pub message: solana_program::message::VersionedMessage,
     pub block_time: Option<i64>,
     pub block_hash: Option<Hash>,
+    /// The index of this transaction in the block
+    pub index: u64,
 }
 
 /// Tries convert transaction update into the metadata.
@@ -113,6 +115,7 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
             message: value.transaction.message.clone(),
             block_time: value.block_time,
             block_hash: value.block_hash,
+            index: value.index,
         })
     }
 }

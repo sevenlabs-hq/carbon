@@ -312,4 +312,5 @@ pub struct TransactionUpdate {
     pub slot: u64,
     pub block_time: Option<i64>,
     pub block_hash: Option<Hash>,
+    pub index: u64,
 }

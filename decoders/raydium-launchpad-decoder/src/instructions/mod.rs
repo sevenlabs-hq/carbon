@@ -1,4 +1,4 @@
-use crate::PROGRAM_ID;
+use crate::{PROGRAM_ID, DEVNET_PROGRAM_ID};
 
 use super::RaydiumLaunchpadDecoder;
 pub mod buy_exact_in;
@@ -74,7 +74,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumLaunchpadDecode
         &self,
         instruction: &solana_instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
-        if !instruction.program_id.eq(&PROGRAM_ID) {
+        if !instruction.program_id.eq(&PROGRAM_ID) && !instruction.program_id.eq(&DEVNET_PROGRAM_ID) {
             return None;
         }
 
