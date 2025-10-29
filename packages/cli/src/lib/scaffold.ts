@@ -17,6 +17,7 @@ export type ScaffoldOptions = {
     withGraphql: boolean;
     withSerde: boolean;
     force?: boolean;
+    postgresMode?: 'generic' | 'typed';
 };
 
 function ensureDir(path: string) {
@@ -158,6 +159,7 @@ export function renderScaffold(opts: ScaffoldOptions) {
         },
         withPostgres: opts.withPostgres,
         withGraphQL: opts.withGraphql,
+        useGenericPostgres: opts.postgresMode === 'generic',
     };
 
     // Generate workspace Cargo.toml

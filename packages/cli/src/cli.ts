@@ -48,6 +48,7 @@ program
     .option('--event-hints <csv>', 'Comma-separated names of defined types to parse as CPI Events (Codama only)')
     .option('-u, --url <rpcUrl>', 'RPC URL for fetching IDL when using a program address')
     .option('--program-id <address>', 'Program ID (used if IDL lacks address field)')
+    .option('--postgres-mode <generic|typed>', 'Postgres table storage mode', 'typed')
     .option('--no-clean', 'Do not delete output directory before rendering', false)
     .action(async opts => {
         showBanner();
@@ -72,6 +73,7 @@ program
                 eventHints: opts.eventHints,
                 deleteFolderBeforeRendering: Boolean(opts.clean),
                 programId: opts.programId,
+                postgresMode: opts.postgresMode,
             });
             
             logger.succeedSpinner('Decoder generated');
@@ -106,6 +108,7 @@ program
     .option('--with-postgres <boolean>', 'Include Postgres wiring and deps (default: true)')
     .option('--with-graphql <boolean>', 'Include GraphQL wiring and deps (default: true)')
     .option('--with-serde <boolean>', 'Include serde feature for decoder (default: false)')
+    .option('--postgres-mode <generic|typed>', 'Postgres table storage mode', 'typed')
     .option('--force', 'Overwrite output directory if it exists', false)
     .action(async opts => {
         showBanner();
@@ -179,6 +182,7 @@ program
                 withGraphql,
                 withSerde,
                 force,
+                postgresMode: opts.postgresMode,
             });
             
             logger.succeedSpinner('Project structure created');
@@ -203,6 +207,7 @@ program
                 deleteFolderBeforeRendering: true,
                 programId: opts.programId,
                 packageName: decoder,
+                postgresMode: opts.postgresMode,
             });
             
             logger.succeedSpinner('Decoder generated successfully');
