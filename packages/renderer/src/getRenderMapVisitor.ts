@@ -152,6 +152,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     graphqlFields.forEach((f: FlattenedGraphQLField) => {
                         graphqlImports.mergeWith(f.graphqlManifest.imports);
                     });
+                    // Ensure GraphQL derive is imported consistently via ImportMap
+                    graphqlImports.add('juniper::GraphQLObject');
 
                     // GraphQLObject doesn't support empty structs
                     if (graphqlFields.length > 0) {
@@ -413,6 +415,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     graphqlFields.forEach((f: FlattenedGraphQLField) => {
                         graphqlImports.mergeWith(f.graphqlManifest.imports);
                     });
+                    // Ensure GraphQL derive is imported consistently via ImportMap
+                    graphqlImports.add('juniper::GraphQLObject');
 
                     // GraphQLObject doesn't support empty structs
                     if (graphqlFields.length > 0) {
@@ -477,14 +481,21 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const map = new RenderMap();
 
                     // Generate mod files
-                        map.add('src/accounts/mod.rs', render('accountsMod.njk', ctx));
+                        // Build mod-level imports via ImportMap
+                        const accountsModImports = new ImportMap()
+                            .add('crate::PROGRAM_ID')
+                            .add(`crate::${pascalCase(program.name)}Decoder`);
+                        map.add('src/accounts/mod.rs', render('accountsMod.njk', { ...ctx, imports: accountsModImports.toString() }));
                         if (options.postgresMode !== 'generic') {
                             map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
                         }
                         const accountsGraphqlTemplate = options.postgresMode === 'generic' ? 'accountsGraphqlModGeneric.njk' : 'accountsGraphqlMod.njk';
                         map.add('src/accounts/graphql/mod.rs', render(accountsGraphqlTemplate, ctx));
                     if (instructionsToExport.length > 0) {
-                        map.add('src/instructions/mod.rs', render('instructionsMod.njk', ctx));
+                        const instructionsModImports = new ImportMap()
+                            .add('crate::PROGRAM_ID')
+                            .add(`crate::${pascalCase(program.name)}Decoder`);
+                        map.add('src/instructions/mod.rs', render('instructionsMod.njk', { ...ctx, imports: instructionsModImports.toString() }));
                         if (options.postgresMode !== 'generic') {
                             map.add('src/instructions/postgres/mod.rs', render('instructionsPostgresMod.njk', ctx));
                         }
