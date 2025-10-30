@@ -13,6 +13,15 @@ carbon-{{ decoderCrateName }}-decoder = { path = "../decoder"{{ decoderFeatures 
 {%- endif %}
 {{ datasourceDep }}
 {{ metricsDep }}
+{%- if atlasDeps %}
+{{ atlasDeps }}
+{%- endif %}
+{%- if crawlerDeps %}
+{{ crawlerDeps }}
+{%- endif %}
+{%- if programDeps %}
+{{ programDeps }}
+{%- endif %}
 solana-pubkey = "^2.3.6"
 solana-client = "^2.3.6"
 solana-instruction = "^2.3.0"

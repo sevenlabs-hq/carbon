@@ -54,23 +54,7 @@ use {
         PROGRAM_ID as {{ decoder.name | upper }}_PROGRAM_ID,
     }, 
     {%- endfor %} 
-    {%- if data_source.module_name == "rpc_block_subscribe" %}
-    carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
-    solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
-    {%- endif %}
     std::{env, sync::Arc},
-    {%- if data_source.module_name == "yellowstone_grpc" or data_source.module_name == "helius_laserstream" %}
-    std::collections::{HashMap, HashSet},
-    {%- if data_source.module_name == "yellowstone_grpc" %}
-    carbon_yellowstone_grpc_datasource::{YellowstoneGrpcGeyserClient, YellowstoneGrpcClientConfig},
-    {%- endif %}
-    {%- if data_source.module_name == "helius_laserstream" %}
-    {%- endif %}
-    tokio::sync::RwLock,
-    yellowstone_grpc_proto::geyser::{
-        CommitmentLevel, SubscribeRequestFilterAccounts, SubscribeRequestFilterTransactions,
-    },
-    {%- endif %}
     {%- if withPostgres %}
     sqlx_migrator::{Info, Migrate, Plan},
     {%- endif %}
@@ -78,6 +62,8 @@ use {
     std::net::SocketAddr,
     {%- endif %}
 };
+
+{{ datasource_imports | safe }}
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
@@ -123,165 +109,7 @@ pub async fn main() -> CarbonResult<()> {
     migrator.run(&mut *conn, &Plan::apply_all()).await.unwrap();
     {%- endif %}
 
-    {%- if data_source.module_name == "rpc_block_subscribe" %}
-    let filters = Filters::new(
-        RpcBlockSubscribeFilter::All,
-        Some(RpcBlockSubscribeConfig {
-            max_supported_transaction_version: Some(0),
-            ..RpcBlockSubscribeConfig::default()
-        }),
-    );
-
-    let rpc_ws_url =
-        env::var("RPC_WS_URL").unwrap_or("wss://api.mainnet-beta.solana.com/".to_string());
-
-    log::info!("Starting with RPC: {}", rpc_ws_url);
-    
-    let datasource = RpcBlockSubscribe::new(rpc_ws_url, filters);
-    {%- endif %}
-
-    {%- if data_source.module_name == "helius_atlas_ws" %}
-    let datasource = carbon_helius_atlas_ws_datasource::HeliusWebsocket::new(
-        std::env::var("HELIUS_API_KEY").unwrap(),
-        carbon_helius_atlas_ws_datasource::Filters {
-            accounts: vec![],
-            transactions: Some(RpcTransactionsConfig {
-                filter: TransactionSubscribeFilter {
-                    account_include: Some(vec![
-                        {%- for decoder in decoders %}
-                        {{ decoder.name | upper }}_PROGRAM_ID.to_string().clone(),
-                        {%- endfor %}
-                    ]),
-                    account_exclude: None,
-                    account_required: None,
-                    vote: None,
-                    failed: None,
-                    signature: None,
-                },
-                options: TransactionSubscribeOptions {
-                    commitment: Some(TransactionCommitment::Confirmed),
-                    encoding: Some(UiEnhancedTransactionEncoding::Base64),
-                    transaction_details: Some(TransactionDetails::Full),
-                    show_rewards: None,
-                    max_supported_transaction_version: Some(0),
-                },
-            }),
-        },
-        Arc::new(RwLock::new(HashSet::new())),
-        Cluster::MainnetBeta,
-    );
-    {%- endif %}
-
-    {%- if data_source.module_name == "helius_laserstream" %}
-    let mut account_filters: HashMap<String, SubscribeRequestFilterAccounts> = HashMap::new();
-    account_filters.insert(
-        "account_filter".to_string(),
-        SubscribeRequestFilterAccounts {
-            account: vec![],
-            owner: vec![
-                {%- for decoder in decoders %}
-                {{ decoder.name | upper }}_PROGRAM_ID.to_string().clone(),
-                {%- endfor %} 
-            ],
-            filters: vec![],
-            nonempty_txn_signature: None,
-        },
-    );
-
-    let transaction_filter = SubscribeRequestFilterTransactions {
-        vote: Some(false),
-        failed: Some(false),
-        account_include: vec![],
-        account_exclude: vec![],
-        account_required: vec![
-            {%- for decoder in decoders %}
-            {{ decoder.name | upper }}_PROGRAM_ID.to_string().clone(),
-            {%- endfor %} 
-        ],
-        signature: None,
-    };
-
-    let mut transaction_filters: HashMap<String, SubscribeRequestFilterTransactions> =
-        HashMap::new();
-
-    transaction_filters.insert("transaction_filter".to_string(), transaction_filter);
-
-    let datasource = carbon_helius_laserstream_datasource::LaserStreamGeyserClient::new(
-        env::var("GEYSER_URL").unwrap_or_default(),
-        env::var("X_TOKEN").ok(),
-        Some(CommitmentLevel::Confirmed),
-        account_filters,
-        transaction_filters,
-        Default::default(),
-        Arc::new(RwLock::new(HashSet::new())),
-        carbon_helius_laserstream_datasource::LaserStreamClientConfig::default(),        
-    );
-    {%- endif %}
-
-    {%- if data_source.module_name == "rpc_transaction_crawler" %}
-    let connection_config = ConnectionConfig::new(
-        100,                                                                 // Batch limit
-        Duration::from_secs(5),                                              // Polling interval
-        5,                                                                   // Max Concurrent Requests
-        RetryConfig::default(),                                              // Retry config
-    );
-
-    let datasource = RpcTransactionCrawler::new(
-        env::var("RPC_URL").unwrap_or_default(),
-        {%- for decoder in decoders %}
-        {{ decoder.name | upper }}_PROGRAM_ID,
-        {%- endfor %}
-        connection_config,
-        filters,
-        Some(solana_sdk::commitment_config::CommitmentConfig::finalized()),
-    );
-    {%- endif %}
-
-    {%- if data_source.module_name == "yellowstone_grpc" %}
-    let mut account_filters: HashMap<String, SubscribeRequestFilterAccounts> = HashMap::new();
-    account_filters.insert(
-        "account_filter".to_string(),
-        SubscribeRequestFilterAccounts {
-            account: vec![],
-            owner: vec![
-                {%- for decoder in decoders %}
-                {{ decoder.name | upper }}_PROGRAM_ID.to_string().clone(),
-                {%- endfor %} 
-            ],
-            filters: vec![],
-            nonempty_txn_signature: None,
-        },
-    );
-
-    let transaction_filter = SubscribeRequestFilterTransactions {
-        vote: Some(false),
-        failed: Some(false),
-        account_include: vec![],
-        account_exclude: vec![],
-        account_required: vec![
-            {%- for decoder in decoders %}
-            {{ decoder.name | upper }}_PROGRAM_ID.to_string().clone(),
-            {%- endfor %} 
-        ],
-        signature: None,
-    };
-
-    let mut transaction_filters: HashMap<String, SubscribeRequestFilterTransactions> =
-        HashMap::new();
-
-    transaction_filters.insert("transaction_filter".to_string(), transaction_filter);
-
-    let datasource = YellowstoneGrpcGeyserClient::new(
-        env::var("GEYSER_URL").unwrap_or_default(),
-        env::var("X_TOKEN").ok(),
-        Some(CommitmentLevel::Confirmed),
-        account_filters,
-        transaction_filters,
-        Default::default(),
-        Arc::new(RwLock::new(HashSet::new())),
-        YellowstoneGrpcClientConfig::default(),        
-    );
-    {%- endif %}
+    let datasource = {{ datasource_init | safe }};
 
     let mut pipeline = carbon_core::pipeline::Pipeline::builder()
         .datasource(datasource)
