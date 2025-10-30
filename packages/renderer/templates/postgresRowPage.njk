@@ -135,7 +135,7 @@ impl carbon_core::postgres::operations::Upsert for {{ entityName | pascalCase }}
             {% if isAccount %}
             __pubkey
             {% else %}
-            __signature, __instruction_index
+            __signature, __instruction_index, __stack_height
             {% endif %}
         ) DO UPDATE SET
             {% for field in flatFields %}
@@ -170,14 +170,14 @@ impl carbon_core::postgres::operations::Upsert for {{ entityName | pascalCase }}
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for {{ entityName | pascalCase }}Row {
-    type Key = {% if isAccount %}carbon_core::postgres::primitives::Pubkey{% else %}(String, carbon_core::postgres::primitives::U32){% endif %};
+    type Key = {% if isAccount %}carbon_core::postgres::primitives::Pubkey{% else %}(String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32){% endif %};
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"DELETE FROM {{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %} WHERE
             {% if isAccount %}
             __pubkey = $1
             {% else %}
-            __signature = $1 AND __instruction_index = $2
+            __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             {% endif %}
         "#)
         {% if isAccount %}
@@ -185,6 +185,7 @@ impl carbon_core::postgres::operations::Delete for {{ entityName | pascalCase }}
         {% else %}
         .bind(key.0)
         .bind(key.1)
+        .bind(key.2)
         {% endif %}
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -195,14 +196,14 @@ impl carbon_core::postgres::operations::Delete for {{ entityName | pascalCase }}
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for {{ entityName | pascalCase }}Row {
-    type Key = {% if isAccount %}carbon_core::postgres::primitives::Pubkey{% else %}(String, carbon_core::postgres::primitives::U32){% endif %};
+    type Key = {% if isAccount %}carbon_core::postgres::primitives::Pubkey{% else %}(String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32){% endif %};
 
     async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(r#"SELECT * FROM {{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %} WHERE
             {% if isAccount %}
             __pubkey = $1
             {% else %}
-            __signature = $1 AND __instruction_index = $2
+            __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             {% endif %}
         "#)
         {% if isAccount %}
@@ -210,6 +211,7 @@ impl carbon_core::postgres::operations::LookUp for {{ entityName | pascalCase }}
         {% else %}
         .bind(key.0)
         .bind(key.1)
+        .bind(key.2)
         {% endif %}
         .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))
@@ -249,7 +251,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for {{ entityName | pascalCase }}M
             {% if isAccount %}
             PRIMARY KEY (__pubkey)
             {% else %}
-            PRIMARY KEY (__signature, __instruction_index)
+            PRIMARY KEY (__signature, __instruction_index, __stack_height)
             {% endif %}
         )"#).execute(connection).await?;
         Ok(())

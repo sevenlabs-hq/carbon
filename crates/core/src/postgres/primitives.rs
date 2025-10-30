@@ -97,13 +97,13 @@
 //! - Array types are supported for all primitives (e.g., `_BYTEA` for `Pubkey`)
 //! - Error handling uses the crate's `CarbonResult` type for consistency
 
+use bigdecimal::BigDecimal;
 use borsh::BorshDeserialize;
 use num_traits::cast::{FromPrimitive, ToPrimitive};
 use sqlx::postgres::{PgArgumentBuffer, PgHasArrayType, PgTypeInfo, PgValueRef};
 use sqlx::types::Decimal;
-use bigdecimal::BigDecimal;
-use std::str::FromStr;
 use sqlx::{Decode, Encode, Postgres, Type};
+use std::str::FromStr;
 use std::{convert::TryFrom, ops::Deref};
 
 /// A PostgreSQL-compatible wrapper around Solana's `Pubkey` type.
@@ -378,8 +378,10 @@ macro_rules! big_unsigned {
             {
                 // Encode via BigDecimal -> PgNumeric (true NUMERIC binary)
                 let s = self.0.to_string();
-                let bd = BigDecimal::from_str(&s)
-                    .map_err(|e| Box::new(crate::error::Error::Custom(e.to_string())) as Box<dyn std::error::Error + Send + Sync + 'static>)?;
+                let bd = BigDecimal::from_str(&s).map_err(|e| {
+                    Box::new(crate::error::Error::Custom(e.to_string()))
+                        as Box<dyn std::error::Error + Send + Sync + 'static>
+                })?;
                 <BigDecimal as Encode<'_, Postgres>>::encode_by_ref(&bd, buf)
             }
         }
@@ -504,8 +506,10 @@ impl Encode<'_, Postgres> for I128 {
     ) -> Result<sqlx::encode::IsNull, Box<dyn std::error::Error + Send + Sync + 'static>> {
         // Encode via BigDecimal -> PgNumeric to support full i128 range
         let s = self.0.to_string();
-        let bd = BigDecimal::from_str(&s)
-            .map_err(|e| Box::new(crate::error::Error::Custom(e.to_string())) as Box<dyn std::error::Error + Send + Sync + 'static>)?;
+        let bd = BigDecimal::from_str(&s).map_err(|e| {
+            Box::new(crate::error::Error::Custom(e.to_string()))
+                as Box<dyn std::error::Error + Send + Sync + 'static>
+        })?;
         <BigDecimal as Encode<'_, Postgres>>::encode_by_ref(&bd, buf)
     }
 }
