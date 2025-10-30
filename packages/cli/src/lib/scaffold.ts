@@ -28,6 +28,73 @@ function ensureDir(path: string) {
     }
 }
 
+function buildProjectImports(ctx: any): string {
+    const lines: string[] = [];
+
+    // Common
+    lines.push('use std::{env, sync::Arc};');
+
+    // Feature-dependent
+    if (!ctx.withPostgres) {
+        lines.push('use async_trait::async_trait;');
+        lines.push('use carbon_core::deserialize::ArrangeAccounts;');
+        lines.push('use carbon_core::instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions};');
+        lines.push('use carbon_core::metrics::MetricsCollection;');
+        lines.push('use carbon_core::processor::Processor;');
+    }
+
+    lines.push('use carbon_core::error::CarbonResult;');
+
+    if (ctx.withPostgres) {
+        if (ctx.useGenericPostgres) {
+            lines.push('use carbon_core::postgres::processors::{PostgresJsonAccountProcessor, PostgresJsonInstructionProcessor};');
+            lines.push('use carbon_core::postgres::rows::{GenericAccountsMigration, GenericInstructionMigration};');
+        } else {
+            lines.push('use carbon_core::postgres::processors::{PostgresAccountProcessor, PostgresInstructionProcessor};');
+        }
+        lines.push('use sqlx_migrator::{Info, Migrate, Plan};');
+    }
+
+    // Metrics
+    lines.push(`use carbon_${ctx.metrics.module_name}_metrics::${ctx.metrics.name}Metrics;`);
+
+    // Decoders
+    for (const d of ctx.decoders as Array<{ name: string; module_name: string }>) {
+        const crate = `carbon_${d.module_name}_decoder`;
+        if (ctx.withPostgres) {
+            if (!ctx.useGenericPostgres) {
+                lines.push(`use ${crate}::accounts::postgres::{${d.name}AccountWithMetadata, ${d.name}AccountsMigration};`);
+                lines.push(`use ${crate}::accounts::${d.name}Account;`);
+                lines.push(`use ${crate}::instructions::postgres::{${d.name}InstructionWithMetadata, ${d.name}InstructionsMigration};`);
+                lines.push(`use ${crate}::instructions::${d.name}Instruction;`);
+            } else {
+                lines.push(`use ${crate}::accounts::${d.name}Account;`);
+                lines.push(`use ${crate}::instructions::${d.name}Instruction;`);
+            }
+        } else {
+            lines.push(`use ${crate}::instructions::${d.name}Instruction;`);
+        }
+        if (ctx.withGraphQL) {
+            lines.push(`use ${crate}::graphql::{QueryRoot, context::GraphQLContext};`);
+        }
+        lines.push(`use ${crate}::${d.name}Decoder;`);
+        lines.push(`use ${crate}::PROGRAM_ID as ${d.name.toUpperCase()}_PROGRAM_ID;`);
+    }
+
+    // Datasource-specific imports are provided exclusively by the datasource builders
+
+    if (ctx.withGraphQL) {
+        lines.push('use std::net::SocketAddr;');
+    }
+
+    // Include datasource-specific imports from TS builders (authoritative)
+    if (ctx.datasource_imports) {
+        lines.push(ctx.datasource_imports);
+    }
+
+    return lines.join('\n');
+}
+
 function buildIndexerCargoContext(opts: ScaffoldOptions) {
     const featureParts: string[] = [];
 
@@ -217,6 +284,9 @@ export function renderScaffold(opts: ScaffoldOptions) {
     };
     const workspaceToml = env.render('workspace.njk', workspaceContext);
     writeFileSync(join(base, 'Cargo.toml'), workspaceToml);
+
+    // Compute dynamic imports for main.rs
+    mainContext.imports = buildProjectImports(mainContext);
 
     // Generate indexer main.rs
     const rendered = env.render('project.njk', mainContext);

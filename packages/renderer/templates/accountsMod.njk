@@ -3,7 +3,7 @@
 
 {% block main %}
 
-use crate::{PROGRAM_ID, {{ program.name | pascalCase }}Decoder};
+{{ imports }}
 
 {% if postgresMode !== 'generic' %}
 #[cfg(feature = "postgres")]

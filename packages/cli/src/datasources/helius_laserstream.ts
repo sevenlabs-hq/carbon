@@ -11,7 +11,6 @@ export function buildHeliusLaserstream(decoders: DecoderMeta[]): DatasourceArtif
         'std::collections::{HashMap, HashSet}',
         'tokio::sync::RwLock',
         'yellowstone_grpc_proto::geyser::{CommitmentLevel, SubscribeRequestFilterAccounts, SubscribeRequestFilterTransactions}',
-        'carbon_helius_laserstream_datasource::LaserStreamGeyserClient',
         'carbon_helius_laserstream_datasource::LaserStreamClientConfig',
     ];
 
