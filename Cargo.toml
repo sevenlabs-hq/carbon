@@ -18,6 +18,7 @@ async-stream = "0.3.6"
 async-trait = { version = "0.1.86" }
 axum = "0.8.4"
 base64 = "0.22.1"
+bigdecimal = "0.4.5"
 bincode = "1.3.3"
 borsh = { version = "1.5.1" }
 borsh-derive-internal = "0.10.3"
@@ -172,7 +173,6 @@ sqlx = { version = "0.8.5", features = [
     "rust_decimal",
     "bigdecimal",
 ] }
-bigdecimal = "0.4.5"
 sqlx_migrator = { version = "0.17.0", features = ["postgres"] }
 syn = { version = "1.0", features = ["full"] }
 thiserror = { version = "2.0.12", default-features = false }
