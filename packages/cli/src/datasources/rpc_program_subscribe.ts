@@ -5,14 +5,21 @@ export function buildRpcProgramSubscribe(decoders: DecoderMeta[]): DatasourceArt
 
     const imports = [
         'carbon_rpc_program_subscribe_datasource::{Filters, RpcProgramSubscribe}',
-        'solana_client::rpc_config::RpcProgramAccountsConfig',
+        'solana_account_decoder::UiAccountEncoding',
+        'solana_client::rpc_config::{RpcAccountInfoConfig, RpcProgramAccountsConfig}',
     ];
 
     const init = `
 {
     let filters = Filters::new(
         ${firstProgram}_PROGRAM_ID,
-        None::<RpcProgramAccountsConfig>,
+        Some(RpcProgramAccountsConfig {
+            account_config: RpcAccountInfoConfig {
+                encoding: Some(UiAccountEncoding::Base64),
+                ..Default::default()
+            },
+            ..Default::default()
+        }),
     );
 
     carbon_rpc_program_subscribe_datasource::RpcProgramSubscribe::new(
