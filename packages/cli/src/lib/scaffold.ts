@@ -81,6 +81,7 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
         .join('\n');
 
     const crawlerDeps = opts.dataSource === 'rpc-transaction-crawler' ? 'solana-commitment-config = "^2.2.1"' : '';
+    const programDeps = opts.dataSource === 'rpc-program-subscribe' ? 'solana-account-decoder = "^2.3.6"' : '';
 
     return {
         projectName: opts.name,
@@ -95,6 +96,7 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
         gqlDeps,
         rustlsDep,
         crawlerDeps,
+        programDeps,
         atlasDeps,
         features,
     };
