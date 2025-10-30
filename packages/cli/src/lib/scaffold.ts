@@ -4,6 +4,8 @@ import { fileURLToPath } from 'url';
 import nunjucks from 'nunjucks';
 import { exitWithError } from './utils';
 import { kebabCase } from 'codama';
+import * as Datasources from '../datasources';
+import type { DecoderMeta } from '../datasources';
 
 export type ScaffoldOptions = {
     name: string;
@@ -42,8 +44,23 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
         decoderFeatures = `, features = [${featureParts.join(', ')}]`;
     }
 
-    const datasourceDep = `carbon-${opts.dataSource.toLowerCase()}-datasource = "0.11.0"`;
-    const metricsDep = `carbon-${opts.metrics.toLowerCase()}-metrics = "0.11.0"`;
+    const dsModule = opts.dataSource.toLowerCase();
+    const dsPathDir = dsModule.replace(/-/g, '_') === 'helius_laserstream'
+        ? 'helius-laserstream-datasource'
+        : dsModule === 'yellowstone-grpc'
+            ? 'yellowstone-grpc-datasource'
+            : dsModule === 'rpc-block-subscribe'
+                ? 'rpc-block-subscribe-datasource'
+                : dsModule === 'rpc-program-subscribe'
+                    ? 'rpc-program-subscribe-datasource'
+                    : dsModule === 'rpc-transaction-crawler'
+                        ? 'rpc-transaction-crawler-datasource'
+                        : dsModule === 'helius-atlas-ws'
+                            ? 'helius-atlas-ws-datasource'
+                            : `${dsModule}-datasource`;
+    const datasourceDep = `carbon-${opts.dataSource.toLowerCase()}-datasource = { path = "../../../datasources/${dsPathDir}" }`;
+    const metricsPathDir = opts.metrics.toLowerCase() === 'prometheus' ? 'prometheus-metrics' : 'log-metrics';
+    const metricsDep = `carbon-${opts.metrics.toLowerCase()}-metrics = { path = "../../../metrics/${metricsPathDir}" }`;
 
     const grpcDeps =
         opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream'
@@ -57,10 +74,13 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
     const gqlDeps = opts.withGraphql ? `juniper = "0.15"\naxum = "0.8.4"` : '';
 
     const rustlsDep = opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream' ? 'rustls = "0.23"' : '';
+    const atlasDeps = opts.dataSource === 'helius-atlas-ws' ? 'helius = "0.3.2"' : '';
 
     const features = ['default = []', opts.withPostgres ? 'postgres = []' : '', opts.withGraphql ? 'graphql = []' : '']
         .filter(Boolean)
         .join('\n');
+
+    const crawlerDeps = opts.dataSource === 'rpc-transaction-crawler' ? 'solana-commitment-config = "^2.2.1"' : '';
 
     return {
         projectName: opts.name,
@@ -74,6 +94,8 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
         pgDeps,
         gqlDeps,
         rustlsDep,
+        crawlerDeps,
+        atlasDeps,
         features,
     };
 }
@@ -138,8 +160,8 @@ export function renderScaffold(opts: ScaffoldOptions) {
 
     const hasLocalDecoder = opts.decoderMode === 'generate';
 
-    // Context for main.rs
-    const mainContext = {
+    // Context base for main.rs
+    const mainContext: any = {
         projectName: opts.name,
         decoders: [
             {
@@ -161,6 +183,31 @@ export function renderScaffold(opts: ScaffoldOptions) {
         withGraphQL: opts.withGraphql,
         useGenericPostgres: opts.postgresMode === 'generic',
     };
+
+    // Build datasource artifacts from TS module
+    const dsModuleName = mainContext.data_source.module_name as string;
+    const builder = Datasources.getDatasourceBuilder(dsModuleName);
+    if (builder) {
+        const decodersMeta = mainContext.decoders as DecoderMeta[];
+        const artifact = builder(decodersMeta);
+        // Compose import lines
+        const datasource_imports = artifact.imports
+            .map((i: string) => `use ${i};`)
+            .join('\n');
+        mainContext.datasource_imports = datasource_imports;
+        mainContext.datasource_init = artifact.init;
+    } else {
+        // Provide a clearer error message if no builder is found
+        const available = Object.keys((Datasources as unknown as { getDatasourceBuilder: any }).getDatasourceBuilder ? {
+            helius_laserstream: true,
+            rpc_block_subscribe: true,
+            yellowstone_grpc: true,
+            helius_atlas_ws: true,
+            rpc_transaction_crawler: true,
+            rpc_program_subscribe: true,
+        } : {});
+        exitWithError(`No datasource builder found for '${dsModuleName}'. Available: ${available.join(', ')}`);
+    }
 
     // Generate workspace Cargo.toml
     const workspaceContext = {
