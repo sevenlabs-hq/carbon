@@ -67,6 +67,7 @@ carbon-meteora-damm-v2-decoder = { path = "decoders/meteora-damm-v2-decoder", ve
 carbon-meteora-dbc-decoder = { path = "decoders/meteora-dbc-decoder", version = "0.11.0" }
 carbon-meteora-dlmm-decoder = { path = "decoders/meteora-dlmm-decoder", version = "0.11.0" }
 carbon-meteora-pools-decoder = { path = "decoders/meteora-pools-decoder", version = "0.11.0" }
+carbon-meteora-vault-decoder = { path = "decoders/meteora-vault-decoder", version = "0.11.0" }
 carbon-moonshot-decoder = { path = "decoders/moonshot-decoder", version = "0.11.0" }
 carbon-mpl-core-decoder = { path = "decoders/mpl-core-decoder", version = "0.11.0" }
 carbon-mpl-token-metadata-decoder = { path = "decoders/mpl-token-metadata-decoder", version = "0.11.0" }
