@@ -3,8 +3,6 @@
 {% block main %}
 
 {{ imports }}
-use carbon_core::{postgres::metadata::InstructionRowMetadata, instruction::InstructionMetadata};
-use super::super::cpi_event::CpiEvent;
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct CpiEventRow {

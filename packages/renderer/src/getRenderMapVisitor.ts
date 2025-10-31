@@ -224,7 +224,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     if (node.type.kind === 'structTypeNode') {
                         if (node.type.fields.length > 0) {
                             const graphqlFields = flattenTypeForGraphQL(node.type, [], [], new Set());
-                            const graphqlImports = new ImportMap();
+                            const graphqlImports = new ImportMap()
+                                .add('juniper::GraphQLObject');
                             graphqlFields.forEach((f: FlattenedGraphQLField) => {
                                 graphqlImports.mergeWith(f.graphqlManifest.imports);
                             });
@@ -240,18 +241,23 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 }),
                             );
                         } else {
+                            const emptyStructImports = new ImportMap()
+                                .add('carbon_core::graphql::primitives::Json');
                             renderMap.add(
                                 `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
                                 render('graphqlEmptyStructSchemaPage.njk', {
                                     entityDocs: node.docs,
                                     entityName: node.name,
+                                    imports: emptyStructImports.toString(),
                                 }),
                             );
                         }
                     } else if (node.type.kind === 'enumTypeNode') {
                         const isFieldless = node.type.variants.every(v => v.kind === 'enumEmptyVariantTypeNode');
                         const imports = new ImportMap();
-                        if (!isFieldless) {
+                        if (isFieldless) {
+                            imports.add('juniper::GraphQLEnum');
+                        } else {
                             imports.add('serde_json');
                             imports.add('carbon_core::graphql::primitives::Json');
                         }
@@ -490,7 +496,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
                         }
                         const accountsGraphqlTemplate = options.postgresMode === 'generic' ? 'accountsGraphqlModGeneric.njk' : 'accountsGraphqlMod.njk';
-                        map.add('src/accounts/graphql/mod.rs', render(accountsGraphqlTemplate, ctx));
+                        const accountsGraphqlImports = new ImportMap()
+                            .add('juniper::GraphQLObject');
+                        map.add('src/accounts/graphql/mod.rs', render(accountsGraphqlTemplate, { ...ctx, imports: accountsGraphqlImports.toString() }));
                     if (instructionsToExport.length > 0) {
                         const instructionsModImports = new ImportMap()
                             .add('crate::PROGRAM_ID')
@@ -500,16 +508,27 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             map.add('src/instructions/postgres/mod.rs', render('instructionsPostgresMod.njk', ctx));
                         }
                         const instructionsGraphqlTemplate = options.postgresMode === 'generic' ? 'instructionsGraphqlModGeneric.njk' : 'instructionsGraphqlMod.njk';
-                        map.add('src/instructions/graphql/mod.rs', render(instructionsGraphqlTemplate, ctx));
+                        const instructionsGraphqlImports = new ImportMap()
+                            .add('juniper::GraphQLObject');
+                        map.add('src/instructions/graphql/mod.rs', render(instructionsGraphqlTemplate, { ...ctx, imports: instructionsGraphqlImports.toString() }));
                     }
                     
                     if (options.anchorEvents?.length ?? 0 > 0) {
-                        map.add('src/instructions/cpi_event.rs', render('eventInstructionPage.njk', ctx));
+                        const eventInstructionImports = new ImportMap()
+                            .add('carbon_core::borsh')
+                            .add('carbon_core::deserialize::ArrangeAccounts');
+                        map.add('src/instructions/cpi_event.rs', render('eventInstructionPage.njk', { ...ctx, imports: eventInstructionImports.toString() }));
                         if (options.postgresMode !== 'generic') {
-                            map.add('src/instructions/postgres/cpi_event_row.rs', render('eventInstructionRowPage.njk', ctx));
+                            const eventInstructionRowImports = new ImportMap()
+                                .add('carbon_core::postgres::metadata::InstructionRowMetadata')
+                                .add('carbon_core::instruction::InstructionMetadata')
+                                .add('super::super::cpi_event::CpiEvent');
+                            map.add('src/instructions/postgres/cpi_event_row.rs', render('eventInstructionRowPage.njk', { ...ctx, imports: eventInstructionRowImports.toString() }));
                         }
                         const cpiEventSchemaTemplate = options.postgresMode === 'generic' ? 'eventInstructionGraphqlSchemaPageGeneric.njk' : 'eventInstructionGraphqlSchemaPage.njk';
-                        map.add('src/instructions/graphql/cpi_event_schema.rs', render(cpiEventSchemaTemplate, ctx));
+                        const cpiEventSchemaImports = new ImportMap()
+                            .add('juniper::GraphQLObject');
+                        map.add('src/instructions/graphql/cpi_event_schema.rs', render(cpiEventSchemaTemplate, { ...ctx, imports: cpiEventSchemaImports.toString() }));
                         map.add('src/events/mod.rs', render('eventsMod.njk', ctx));
                     }
 
@@ -524,9 +543,15 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     
                     // Use different query template based on postgres mode
                     if (options.postgresMode === 'generic') {
-                        map.add('src/graphql/query.rs', render('graphqlQueryPageGeneric.njk', ctx));
+                        const graphqlQueryGenericImports = new ImportMap()
+                            .add('juniper::{graphql_object, FieldResult}')
+                            .add('carbon_core::postgres::rows::{AccountRow, InstructionRow}');
+                        map.add('src/graphql/query.rs', render('graphqlQueryPageGeneric.njk', { ...ctx, imports: graphqlQueryGenericImports.toString() }));
                     } else {
-                        map.add('src/graphql/query.rs', render('graphqlQueryPage.njk', ctx));
+                        const graphqlQueryImports = new ImportMap()
+                            .add('juniper::{graphql_object, FieldResult}')
+                            .add('std::str::FromStr');
+                        map.add('src/graphql/query.rs', render('graphqlQueryPage.njk', { ...ctx, imports: graphqlQueryImports.toString() }));
                     }
 
                     // Generate lib.rs

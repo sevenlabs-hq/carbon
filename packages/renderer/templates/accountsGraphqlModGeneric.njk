@@ -14,7 +14,7 @@ pub use {{ macros.escapeRustKeyword(account.name | snakeCase) }}_schema::*;
 {% endif %}
 {% endfor %}
 
-use juniper::GraphQLObject;
+{{ imports }}
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "AccountMetadata")]
