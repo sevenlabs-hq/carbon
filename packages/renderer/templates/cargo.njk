@@ -26,10 +26,10 @@ graphql = [
 
 [dependencies]
 # Core dependencies
-carbon-core = { version = "0.11.0", default-features = false }
-solana-pubkey = { version = "^2.3.6" }
-solana-account = { version = "~2.2" }
-solana-instruction = { version = "~2.3", default-features = false }
+carbon-core = { version = "{{ versions['carbon-core'] }}", default-features = false }
+solana-pubkey = { version = "{{ versions['solana-pubkey'] }}" }
+solana-account = { version = "{{ versions['solana-account'] }}" }
+solana-instruction = { version = "{{ versions['solana-instruction'] }}", default-features = false }
 serde_json = "1.0.138"
 
 # Serialization (optional)
@@ -37,16 +37,16 @@ serde = { version = "1.0.219", features = ["derive"], optional = true }
 serde-big-array = { version = "0.5.1", optional = true }
 
 # Postgres dependencies (optional)
-sqlx = { version = "0.8.6", features = ["postgres", "rust_decimal"], optional = true }
+sqlx = { version = "{{ versions['sqlx'] }}", features = ["postgres", "rust_decimal"], optional = true }
 async-trait = { version = "0.1", optional = true }
-sqlx_migrator = { version = "0.17.0", optional = true }
+sqlx_migrator = { version = "{{ versions['sqlx_migrator'] }}", optional = true }
 
 # GraphQL dependencies (optional)
-juniper = { version = "0.16.1", optional = true }
+juniper = { version = "{{ versions['juniper'] }}", optional = true }
 base64 = { version = "0.22", optional = true }
 
 
 [dev-dependencies]
-carbon-test-utils = { version = "0.11.0" }
+carbon-test-utils = { version = "{{ versions['carbon-test-utils'] }}" }
 
 {% endblock %}

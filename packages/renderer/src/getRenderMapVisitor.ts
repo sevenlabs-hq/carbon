@@ -24,6 +24,7 @@ import { ImportMap } from './ImportMap';
 import { partition, render } from './utils';
 import { getPostgresTypeManifestVisitor, PostgresTypeManifest } from './getPostgresTypeManifestVisitor';
 import { FlattenedGraphQLField, flattenTypeForGraphQL } from './utils/flattenGraphqlFields';
+import { VERSIONS } from '@sevenlabs-hq/carbon-versions';
 
 export type GetRenderMapOptions = {
     renderParentInstructions?: boolean;
@@ -491,7 +492,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         hasAnchorEvents: options.anchorEvents?.length ?? 0 > 0,
                         events: options.anchorEvents ?? [],
                         postgresMode: options.postgresMode || 'typed',
-                        withGraphQL: options.withGraphql !== false
+                        withGraphQL: options.withGraphql !== false,
+                        versions: VERSIONS,
                     };
 
                     const map = new RenderMap();

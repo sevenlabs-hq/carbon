@@ -6,6 +6,7 @@ import { exitWithError } from './utils';
 import { kebabCase } from 'codama';
 import * as Datasources from '../datasources';
 import type { DecoderMeta } from '../datasources';
+import { VERSIONS } from '@sevenlabs-hq/carbon-versions';
 
 export type ScaffoldOptions = {
     name: string;
@@ -120,44 +121,33 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
         decoderFeatures = `, features = [${featureParts.join(', ')}]`;
     }
 
-    const dsModule = opts.dataSource.toLowerCase();
-    const dsPathDir = dsModule.replace(/-/g, '_') === 'helius_laserstream'
-        ? 'helius-laserstream-datasource'
-        : dsModule === 'yellowstone-grpc'
-            ? 'yellowstone-grpc-datasource'
-            : dsModule === 'rpc-block-subscribe'
-                ? 'rpc-block-subscribe-datasource'
-                : dsModule === 'rpc-program-subscribe'
-                    ? 'rpc-program-subscribe-datasource'
-                    : dsModule === 'rpc-transaction-crawler'
-                        ? 'rpc-transaction-crawler-datasource'
-                        : dsModule === 'helius-atlas-ws'
-                            ? 'helius-atlas-ws-datasource'
-                            : `${dsModule}-datasource`;
-    const datasourceDep = `carbon-${opts.dataSource.toLowerCase()}-datasource = { path = "../../../datasources/${dsPathDir}" }`;
-    const metricsPathDir = opts.metrics.toLowerCase() === 'prometheus' ? 'prometheus-metrics' : 'log-metrics';
-    const metricsDep = `carbon-${opts.metrics.toLowerCase()}-metrics = { path = "../../../metrics/${metricsPathDir}" }`;
+    const datasourceCrateName = `carbon-${opts.dataSource.toLowerCase()}-datasource`;
+    const datasourceVersion = VERSIONS[datasourceCrateName as keyof typeof VERSIONS] || VERSIONS["carbon-core"];
+    const datasourceDep = `${datasourceCrateName} = { version = "${datasourceVersion}" }`;
+    const metricsCrateName = `carbon-${opts.metrics.toLowerCase()}-metrics`;
+    const metricsVersion = VERSIONS[metricsCrateName as keyof typeof VERSIONS] || VERSIONS["carbon-core"];
+    const metricsDep = `${metricsCrateName} = { version = "${metricsVersion}" }`;
 
     const grpcDeps =
         opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream'
-            ? `yellowstone-grpc-client = { version = "9.0.0" }\nyellowstone-grpc-proto = { version = "9.0.0" }`
+            ? `yellowstone-grpc-client = { version = "${VERSIONS["yellowstone-grpc-client"]}" }\nyellowstone-grpc-proto = { version = "${VERSIONS["yellowstone-grpc-proto"]}" }`
             : '';
 
     const pgDeps = opts.withPostgres
-        ? `sqlx = { version = "0.8.6", features = ["postgres", "runtime-tokio-rustls", "macros"] }\nsqlx_migrator = "0.17.0"`
+        ? `sqlx = { version = "${VERSIONS.sqlx}", features = ["postgres", "runtime-tokio-rustls", "macros"] }\nsqlx_migrator = "${VERSIONS["sqlx_migrator"]}"`
         : '';
 
-    const gqlDeps = opts.withGraphql ? `juniper = "0.15"\naxum = "0.8.4"` : '';
+    const gqlDeps = opts.withGraphql ? `juniper = "${VERSIONS.juniper}"\naxum = "${VERSIONS.axum}"` : '';
 
-    const rustlsDep = opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream' ? 'rustls = "0.23"' : '';
-    const atlasDeps = opts.dataSource === 'helius-atlas-ws' ? 'helius = "0.3.2"' : '';
+    const rustlsDep = opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream' ? `rustls = "${VERSIONS.rustls}"` : '';
+    const atlasDeps = opts.dataSource === 'helius-atlas-ws' ? `helius = "${VERSIONS.helius}"` : '';
 
     const features = ['default = []', opts.withPostgres ? 'postgres = []' : '', opts.withGraphql ? 'graphql = []' : '']
         .filter(Boolean)
         .join('\n');
 
-    const crawlerDeps = opts.dataSource === 'rpc-transaction-crawler' ? 'solana-commitment-config = "^2.2.1"' : '';
-    const programDeps = opts.dataSource === 'rpc-program-subscribe' ? 'solana-account-decoder = "^2.3.6"' : '';
+    const crawlerDeps = opts.dataSource === 'rpc-transaction-crawler' ? `solana-commitment-config = "${VERSIONS["solana-commitment-config"]}"` : '';
+    const programDeps = opts.dataSource === 'rpc-program-subscribe' ? `solana-account-decoder = "${VERSIONS["solana-account-decoder"]}"` : '';
 
     return {
         projectName: opts.name,
@@ -175,6 +165,7 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
         programDeps,
         atlasDeps,
         features,
+        versions: VERSIONS,
     };
 }
 
