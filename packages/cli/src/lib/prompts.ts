@@ -12,6 +12,7 @@ export type ParseOptions = {
     clean?: boolean;
     asCrate?: boolean;
     programId?: string;
+    postgresMode?: 'generic' | 'typed';
 };
 
 export async function promptForParse(existingOpts: ParseOptions = {}): Promise<ParseOptions> {
@@ -84,6 +85,20 @@ export async function promptForParse(existingOpts: ParseOptions = {}): Promise<P
         });
     }
 
+    let postgresMode: 'generic' | 'typed' = existingOpts.postgresMode || 'typed';
+    
+    // Only ask about postgres mode if not explicitly set
+    if (existingOpts.postgresMode === undefined) {
+        postgresMode = (await select({
+            message: 'Postgres table storage mode:',
+            choices: [
+                { name: 'Typed (generated schema with typed columns)', value: 'typed' },
+                { name: 'Generic (JSON-based storage)', value: 'generic' },
+            ],
+            default: 'typed',
+        })) as 'generic' | 'typed';
+    }
+
     let programId: string | undefined = existingOpts.programId;
     
     if (!looksLikeProgram) {
@@ -119,6 +134,7 @@ export async function promptForParse(existingOpts: ParseOptions = {}): Promise<P
         clean,
         asCrate: existingOpts.asCrate || false,
         programId,
+        postgresMode,
     };
 }
 
@@ -135,6 +151,7 @@ export type ScaffoldOptions = {
     withGraphql?: boolean;
     force?: boolean;
     programId?: string;
+    postgresMode?: 'generic' | 'typed';
 };
 
 export async function promptForScaffold(existingOpts: ScaffoldOptions = {}): Promise<ScaffoldOptions> {
@@ -277,6 +294,20 @@ export async function promptForScaffold(existingOpts: ScaffoldOptions = {}): Pro
         default: true,
     });
 
+    let postgresMode: 'generic' | 'typed' = existingOpts.postgresMode || 'typed';
+    
+    // Only ask about postgres mode if postgres is enabled and not explicitly set
+    if (withPostgres && existingOpts.postgresMode === undefined) {
+        postgresMode = (await select({
+            message: 'Postgres table storage mode:',
+            choices: [
+                { name: 'Typed (generated schema with typed columns)', value: 'typed' },
+                { name: 'Generic (JSON-based storage)', value: 'generic' },
+            ],
+            default: 'typed',
+        })) as 'generic' | 'typed';
+    }
+
     const withGraphql = existingOpts.withGraphql !== undefined ? existingOpts.withGraphql : await confirm({
         message: 'Enable GraphQL API for querying data?',
         default: true,
@@ -295,6 +326,7 @@ export async function promptForScaffold(existingOpts: ScaffoldOptions = {}): Pro
         withGraphql,
         force,
         programId,
+        postgresMode,
     };
 }
 

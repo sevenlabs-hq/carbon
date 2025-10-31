@@ -9,6 +9,7 @@ export type RenderOptions = GetRenderMapOptions & {
         name: string,
         discriminator: number[];
     }[];
+    postgresMode?: 'generic' | 'typed';
 };
 
 export function renderVisitor(path: string, options: RenderOptions = {}) {

@@ -2,14 +2,14 @@
 {% import "macros.njk" as macros %}
 
 {% block main %}
-
+{{ imports }}
+{% if postgresMode !== 'generic' %}
 #[cfg(feature = "postgres")]
 pub mod postgres;
+{% endif %}
 
 #[cfg(feature = "graphql")]
 pub mod graphql;
-
-use crate::{PROGRAM_ID, {{ program.name | pascalCase }}Decoder};
 
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
 pub mod {{ macros.escapeRustKeyword(instruction.name | snakeCase) }};
@@ -33,7 +33,7 @@ pub enum {{ program.name | pascalCase }}Instruction {
     {{ instruction.name | pascalCase }}({{ instruction.name | pascalCase }}),
 {% endfor %}
 {% if hasAnchorEvents %}
-// Anchor CPI Event Instruction
+    // Anchor CPI Event Instruction
     CpiEvent(CpiEvent)
 {% endif %}
 }
@@ -50,9 +50,8 @@ impl carbon_core::instruction::InstructionDecoder<'_> for {{ program.name | pasc
         }
 
         let data = instruction.data.as_slice();
-        
-        {% for instruction in instructionsToExport %}
-        // Try to decode {{ instruction.name | pascalCase }}
+
+{% for instruction in instructionsToExport %}
         {
             if let Some(decoded) = {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}::{{ instruction.name | pascalCase }}::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -62,8 +61,8 @@ impl carbon_core::instruction::InstructionDecoder<'_> for {{ program.name | pasc
                 });
             }
         }
-        {% endfor %}
-        {% if hasAnchorEvents %}
+{% endfor %}
+{% if hasAnchorEvents %}
         {
             if let Some(decoded) = cpi_event::CpiEvent::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -73,10 +72,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for {{ program.name | pasc
                 });
             }
         }
-        {% endif %}
-        
+{% endif %}
+
         None
     }
 }
-
 {% endblock %}

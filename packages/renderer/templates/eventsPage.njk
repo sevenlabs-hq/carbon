@@ -2,7 +2,6 @@
 {% import "macros.njk" as macros %}
 
 {% block main %}
-
 {{ imports }}
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -11,15 +10,15 @@ pub struct {{ event.name | pascalCase }}Event {{ typeManifest.type }}
 
 impl {{ event.name | pascalCase }}Event {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        {% if discriminatorManifest %}
-        {{ discriminatorManifest.checkCode | safe }}
-        {% endif %}
+{% if discriminatorManifest -%}
+{{ discriminatorManifest.checkCode | safe }}
+{% endif %}
 
         let mut data_slice = data;
 
-        {% if discriminatorManifest %}
+{% if discriminatorManifest %}
         data_slice = &data_slice[{{ discriminatorManifest.size }}..];
-        {% endif %}
+{% endif %}
 
         if let Ok(decoded) = Self::deserialize(&mut data_slice) {
             return Some(decoded);
@@ -28,5 +27,4 @@ impl {{ event.name | pascalCase }}Event {
         None
     }
 }
-
 {% endblock %}

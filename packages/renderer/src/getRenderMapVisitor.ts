@@ -24,6 +24,7 @@ import { ImportMap } from './ImportMap';
 import { partition, render } from './utils';
 import { getPostgresTypeManifestVisitor, PostgresTypeManifest } from './getPostgresTypeManifestVisitor';
 import { FlattenedGraphQLField, flattenTypeForGraphQL } from './utils/flattenGraphqlFields';
+import { VERSIONS } from '@sevenlabs-hq/carbon-versions';
 
 export type GetRenderMapOptions = {
     renderParentInstructions?: boolean;
@@ -32,6 +33,9 @@ export type GetRenderMapOptions = {
         name: string,
         discriminator: number[];
     }[];
+    postgresMode?: 'generic' | 'typed';
+    withPostgres?: boolean;
+    withGraphql?: boolean;
 };
 
 type FlattenedField = {
@@ -129,8 +133,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 discriminatorManifest,
                                 typeManifest,
                             }),
-                        )
-                        .add(
+                        );
+
+                    // Only generate postgres files if not in generic mode and withPostgres is enabled
+                    if (options.postgresMode !== 'generic' && options.withPostgres !== false) {
+                        renderMap.add(
                             `src/accounts/postgres/${snakeCase(node.name)}_row.rs`,
                             render('postgresRowPage.njk', {
                                 entityDocs: node.docs,
@@ -140,26 +147,32 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 isAccount: true,
                             }),
                         );
+                    }
 
-                    // GraphQL generation
-                    const graphqlFields = flattenTypeForGraphQL(newNode.data, [], [], new Set());
-                    const graphqlImports = new ImportMap();
-                    graphqlFields.forEach((f: FlattenedGraphQLField) => {
-                        graphqlImports.mergeWith(f.graphqlManifest.imports);
-                    });
+                    // GraphQL generation - only if withGraphql is enabled
+                    if (options.withGraphql !== false) {
+                        const graphqlFields = flattenTypeForGraphQL(newNode.data, [], [], new Set());
+                        const graphqlImports = new ImportMap();
+                        graphqlFields.forEach((f: FlattenedGraphQLField) => {
+                            graphqlImports.mergeWith(f.graphqlManifest.imports);
+                        });
+                        // Ensure GraphQL derive is imported consistently via ImportMap
+                        graphqlImports.add('juniper::GraphQLObject');
 
-                    // GraphQLObject doesn't support empty structs
-                    if (graphqlFields.length > 0) {
-                        renderMap.add(
-                            `src/accounts/graphql/${snakeCase(node.name)}_schema.rs`,
-                            render('graphqlSchemaPage.njk', {
-                                entityDocs: node.docs,
-                                entityName: node.name,
-                                imports: graphqlImports.toString(),
-                                graphqlFields,
-                                isAccount: true,
-                            }),
-                        );
+                        // GraphQLObject doesn't support empty structs
+                        if (graphqlFields.length > 0) {
+                            const schemaTemplate = options.postgresMode === 'generic' ? 'graphqlSchemaPageGeneric.njk' : 'graphqlSchemaPage.njk';
+                            renderMap.add(
+                                `src/accounts/graphql/${snakeCase(node.name)}_schema.rs`,
+                                render(schemaTemplate, {
+                                    entityDocs: node.docs,
+                                    entityName: node.name,
+                                    imports: graphqlImports.toString(),
+                                    graphqlFields,
+                                    isAccount: true,
+                                }),
+                            );
+                        }
                     }
 
                     return renderMap;
@@ -189,15 +202,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             let discriminatorManifest: DiscriminatorManifest = {
                                 bytes: `[${event.discriminator.join(", ")}]`,
                                 size: event.discriminator.length,
-                                checkCode: `
-                                    if data.len() < ${event.discriminator.length} {
-                                        return None;
-                                    }
-                                    let discriminator = &data[0..${event.discriminator.length}];
-                                    if discriminator != &[${event.discriminator.join(", ")}] {
-                                        return None;
-                                    }
-                                `,
+                                checkCode: `        if data.len() < ${event.discriminator.length} {
+            return None;
+        }
+        let discriminator = &data[0..${event.discriminator.length}];
+        if discriminator != &[${event.discriminator.join(", ")}] {
+            return None;
+        }`,
                             };
 
                             renderMap.add(
@@ -212,64 +223,72 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         }
                     }
 
-                    // GraphQL generation for structs and enums
-                    if (node.type.kind === 'structTypeNode') {
-                        if (node.type.fields.length > 0) {
-                            const graphqlFields = flattenTypeForGraphQL(node.type, [], [], new Set());
-                            const graphqlImports = new ImportMap();
-                            graphqlFields.forEach((f: FlattenedGraphQLField) => {
-                                graphqlImports.mergeWith(f.graphqlManifest.imports);
-                            });
+                    // GraphQL generation for structs and enums - only if withGraphql is enabled
+                    if (options.withGraphql !== false) {
+                        if (node.type.kind === 'structTypeNode') {
+                            if (node.type.fields.length > 0) {
+                                const graphqlFields = flattenTypeForGraphQL(node.type, [], [], new Set());
+                                const graphqlImports = new ImportMap()
+                                    .add('juniper::GraphQLObject');
+                                graphqlFields.forEach((f: FlattenedGraphQLField) => {
+                                    graphqlImports.mergeWith(f.graphqlManifest.imports);
+                                });
 
+                                renderMap.add(
+                                    `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
+                                    render('graphqlTypeSchemaPage.njk', {
+                                        entityDocs: node.docs,
+                                        entityName: node.name,
+                                        imports: graphqlImports.toString(),
+                                        graphqlFields,
+                                        isAccount: false,
+                                    }),
+                                );
+                            } else {
+                                const emptyStructImports = new ImportMap()
+                                    .add('carbon_core::graphql::primitives::Json');
+                                renderMap.add(
+                                    `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
+                                    render('graphqlEmptyStructSchemaPage.njk', {
+                                        entityDocs: node.docs,
+                                        entityName: node.name,
+                                        imports: emptyStructImports.toString(),
+                                    }),
+                                );
+                            }
+                        } else if (node.type.kind === 'enumTypeNode') {
+                            const isFieldless = node.type.variants.every(v => v.kind === 'enumEmptyVariantTypeNode');
+                            const imports = new ImportMap();
+                            if (isFieldless) {
+                                imports.add('juniper::GraphQLEnum');
+                            } else {
+                                imports.add('serde_json');
+                                imports.add('carbon_core::graphql::primitives::Json');
+                            }
                             renderMap.add(
                                 `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
-                                render('graphqlTypeSchemaPage.njk', {
+                                render('graphqlEnumSchemaPage.njk', {
                                     entityDocs: node.docs,
                                     entityName: node.name,
-                                    imports: graphqlImports.toString(),
-                                    graphqlFields,
-                                    isAccount: false,
+                                    imports: imports.toString(),
+                                    isFieldless,
+                                    variants: node.type.variants.map(v => ({
+                                        name: v.name,
+                                        docs: [],
+                                    })),
                                 }),
                             );
                         } else {
+                            // For type aliases, use GraphQL type manifest to get proper GraphQL types
+                            const graphqlManifest = visit(node.type, getGraphQLTypeManifestVisitor());
+                            const imports = graphqlManifest.imports.toString();
+                            const importSection = imports ? `${imports}\n\n` : '';
+                            
                             renderMap.add(
                                 `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
-                                render('graphqlEmptyStructSchemaPage.njk', {
-                                    entityDocs: node.docs,
-                                    entityName: node.name,
-                                }),
+                                `${importSection}pub type ${pascalCase(node.name)}GraphQL = ${graphqlManifest.graphqlType};\n`,
                             );
                         }
-                    } else if (node.type.kind === 'enumTypeNode') {
-                        const isFieldless = node.type.variants.every(v => v.kind === 'enumEmptyVariantTypeNode');
-                        const imports = new ImportMap();
-                        if (!isFieldless) {
-                            imports.add('serde_json');
-                            imports.add('carbon_core::graphql::primitives::Json');
-                        }
-                        renderMap.add(
-                            `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
-                            render('graphqlEnumSchemaPage.njk', {
-                                entityDocs: node.docs,
-                                entityName: node.name,
-                                imports: imports.toString(),
-                                isFieldless,
-                                variants: node.type.variants.map(v => ({
-                                    name: v.name,
-                                    docs: [],
-                                })),
-                            }),
-                        );
-                    } else {
-                        // For type aliases, use GraphQL type manifest to get proper GraphQL types
-                        const graphqlManifest = visit(node.type, getGraphQLTypeManifestVisitor());
-                        const imports = graphqlManifest.imports.toString();
-                        const importSection = imports ? `${imports}\n\n` : '';
-                        
-                        renderMap.add(
-                            `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
-                            `${importSection}pub type ${pascalCase(node.name)}GraphQL = ${graphqlManifest.graphqlType};\n`,
-                        );
                     }
 
                     return renderMap;
@@ -278,8 +297,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 visitInstruction(node) {
                     const imports = new ImportMap()
                         .add('carbon_core::borsh::{self, BorshDeserialize}')
-                        .add('carbon_core::deserialize::ArrangeAccounts')
-                        .add('carbon_core::account_utils::next_account');
+                        .add('carbon_core::deserialize::ArrangeAccounts');
+
+                    if (node.accounts && node.accounts.length > 0) {
+                        imports.add('carbon_core::account_utils::next_account');
+                    }
 
                     const [discriminatorArguments, regularArguments] = partition(
                         node.arguments,
@@ -373,8 +395,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 discriminatorManifest,
                                 program: currentProgram,
                             }),
-                        )
-                        .add(
+                        );
+
+                    // Only generate postgres files if not in generic mode and withPostgres is enabled
+                    if (options.postgresMode !== 'generic' && options.withPostgres !== false) {
+                        renderMap.add(
                             `src/instructions/postgres/${snakeCase(node.name)}_row.rs`,
                             render('postgresRowPage.njk', {
                                 entityDocs: node.docs,
@@ -384,38 +409,44 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 isAccount: false,
                             }),
                         );
+                    }
 
-                    // GraphQL generation
-                    const graphqlFields = flattenTypeForGraphQL(
-                        structTypeNode(
-                            newNode.arguments.map(a =>
-                                structFieldTypeNode({
-                                    type: a.type,
-                                    name: a.name,
-                                }),
+                    // GraphQL generation - only if withGraphql is enabled
+                    if (options.withGraphql !== false) {
+                        const graphqlFields = flattenTypeForGraphQL(
+                            structTypeNode(
+                                newNode.arguments.map(a =>
+                                    structFieldTypeNode({
+                                        type: a.type,
+                                        name: a.name,
+                                    }),
+                                ),
                             ),
-                        ),
-                        [],
-                        [],
-                        new Set(),
-                    );
-                    const graphqlImports = new ImportMap();
-                    graphqlFields.forEach((f: FlattenedGraphQLField) => {
-                        graphqlImports.mergeWith(f.graphqlManifest.imports);
-                    });
-
-                    // GraphQLObject doesn't support empty structs
-                    if (graphqlFields.length > 0) {
-                        renderMap.add(
-                            `src/instructions/graphql/${snakeCase(node.name)}_schema.rs`,
-                            render('graphqlSchemaPage.njk', {
-                                entityDocs: node.docs,
-                                entityName: node.name,
-                                imports: graphqlImports.toString(),
-                                graphqlFields,
-                                isAccount: false,
-                            }),
+                            [],
+                            [],
+                            new Set(),
                         );
+                        const graphqlImports = new ImportMap();
+                        graphqlFields.forEach((f: FlattenedGraphQLField) => {
+                            graphqlImports.mergeWith(f.graphqlManifest.imports);
+                        });
+                        // Ensure GraphQL derive is imported consistently via ImportMap
+                        graphqlImports.add('juniper::GraphQLObject');
+
+                        // GraphQLObject doesn't support empty structs
+                        if (graphqlFields.length > 0) {
+                            const schemaTemplate = options.postgresMode === 'generic' ? 'graphqlSchemaPageGeneric.njk' : 'graphqlSchemaPage.njk';
+                            renderMap.add(
+                                `src/instructions/graphql/${snakeCase(node.name)}_schema.rs`,
+                                render(schemaTemplate, {
+                                    entityDocs: node.docs,
+                                    entityName: node.name,
+                                    imports: graphqlImports.toString(),
+                                    graphqlFields,
+                                    isAccount: false,
+                                }),
+                            );
+                        }
                     }
 
                     return renderMap;
@@ -459,37 +490,92 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         root: node,
                         packageName: options.packageName,
                         hasAnchorEvents: options.anchorEvents?.length ?? 0 > 0,
-                        events: options.anchorEvents ?? []
+                        events: options.anchorEvents ?? [],
+                        postgresMode: options.postgresMode || 'typed',
+                        withPostgres: options.withPostgres !== false,
+                        withGraphQL: options.withGraphql !== false,
+                        versions: VERSIONS,
                     };
 
                     const map = new RenderMap();
 
                     // Generate mod files
-                        map.add('src/accounts/mod.rs', render('accountsMod.njk', ctx));
-                        map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
-                        map.add('src/accounts/graphql/mod.rs', render('accountsGraphqlMod.njk', ctx));
+                        // Build mod-level imports via ImportMap
+                        const accountsModImports = new ImportMap()
+                            .add('crate::PROGRAM_ID')
+                            .add(`crate::${pascalCase(program.name)}Decoder`);
+                        map.add('src/accounts/mod.rs', render('accountsMod.njk', { ...ctx, imports: accountsModImports.toString() }));
+                        if (options.postgresMode !== 'generic' && options.withPostgres !== false) {
+                            map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
+                        }
+                        if (options.withGraphql !== false) {
+                            const accountsGraphqlTemplate = options.postgresMode === 'generic' ? 'accountsGraphqlModGeneric.njk' : 'accountsGraphqlMod.njk';
+                            const accountsGraphqlImports = new ImportMap()
+                                .add('juniper::GraphQLObject');
+                            map.add('src/accounts/graphql/mod.rs', render(accountsGraphqlTemplate, { ...ctx, imports: accountsGraphqlImports.toString() }));
+                        }
                     if (instructionsToExport.length > 0) {
-                        map.add('src/instructions/mod.rs', render('instructionsMod.njk', ctx));
-                        map.add('src/instructions/postgres/mod.rs', render('instructionsPostgresMod.njk', ctx));
-                        map.add('src/instructions/graphql/mod.rs', render('instructionsGraphqlMod.njk', ctx));
+                        const instructionsModImports = new ImportMap()
+                            .add('crate::PROGRAM_ID')
+                            .add(`crate::${pascalCase(program.name)}Decoder`);
+                        map.add('src/instructions/mod.rs', render('instructionsMod.njk', { ...ctx, imports: instructionsModImports.toString() }));
+                        if (options.postgresMode !== 'generic' && options.withPostgres !== false) {
+                            map.add('src/instructions/postgres/mod.rs', render('instructionsPostgresMod.njk', ctx));
+                        }
+                        if (options.withGraphql !== false) {
+                            const instructionsGraphqlTemplate = options.postgresMode === 'generic' ? 'instructionsGraphqlModGeneric.njk' : 'instructionsGraphqlMod.njk';
+                            const instructionsGraphqlImports = new ImportMap()
+                                .add('juniper::GraphQLObject');
+                            map.add('src/instructions/graphql/mod.rs', render(instructionsGraphqlTemplate, { ...ctx, imports: instructionsGraphqlImports.toString() }));
+                        }
                     }
                     
                     if (options.anchorEvents?.length ?? 0 > 0) {
-                        map.add('src/instructions/cpi_event.rs', render('eventInstructionPage.njk', ctx));
-                        map.add('src/instructions/postgres/cpi_event_row.rs', render('eventInstructionRowPage.njk', ctx));
-                        map.add('src/instructions/graphql/cpi_event_schema.rs', render('eventInstructionGraphqlSchemaPage.njk', ctx));
+                        const eventInstructionImports = new ImportMap()
+                            .add('carbon_core::borsh')
+                            .add('carbon_core::deserialize::ArrangeAccounts');
+                        map.add('src/instructions/cpi_event.rs', render('eventInstructionPage.njk', { ...ctx, imports: eventInstructionImports.toString() }));
+                        if (options.postgresMode !== 'generic' && options.withPostgres !== false) {
+                            const eventInstructionRowImports = new ImportMap()
+                                .add('carbon_core::postgres::metadata::InstructionRowMetadata')
+                                .add('carbon_core::instruction::InstructionMetadata')
+                                .add('super::super::cpi_event::CpiEvent');
+                            map.add('src/instructions/postgres/cpi_event_row.rs', render('eventInstructionRowPage.njk', { ...ctx, imports: eventInstructionRowImports.toString() }));
+                        }
+                        if (options.withGraphql !== false) {
+                            const cpiEventSchemaTemplate = options.postgresMode === 'generic' ? 'eventInstructionGraphqlSchemaPageGeneric.njk' : 'eventInstructionGraphqlSchemaPage.njk';
+                            const cpiEventSchemaImports = new ImportMap()
+                                .add('juniper::GraphQLObject');
+                            map.add('src/instructions/graphql/cpi_event_schema.rs', render(cpiEventSchemaTemplate, { ...ctx, imports: cpiEventSchemaImports.toString() }));
+                        }
                         map.add('src/events/mod.rs', render('eventsMod.njk', ctx));
                     }
 
                     if (definedTypesToExport.length > 0) {
                         map.add('src/types/mod.rs', render('typesMod.njk', ctx));
-                        map.add('src/types/graphql/mod.rs', render('typesGraphqlMod.njk', ctx));
+                        if (options.withGraphql !== false) {
+                            map.add('src/types/graphql/mod.rs', render('typesGraphqlMod.njk', ctx));
+                        }
                     }
 
-                    // GraphQL root (context + query)
-                    map.add('src/graphql/mod.rs', render('graphqlRootMod.njk', ctx));
-                    map.add('src/graphql/context.rs', render('graphqlContextPage.njk', ctx));
-                    map.add('src/graphql/query.rs', render('graphqlQueryPage.njk', ctx));
+                    // GraphQL root (context + query) - only if withGraphql is enabled
+                    if (options.withGraphql !== false) {
+                        map.add('src/graphql/mod.rs', render('graphqlRootMod.njk', ctx));
+                        map.add('src/graphql/context.rs', render('graphqlContextPage.njk', ctx));
+                        
+                        // Use different query template based on postgres mode
+                        if (options.postgresMode === 'generic') {
+                            const graphqlQueryGenericImports = new ImportMap()
+                                .add('juniper::{graphql_object, FieldResult}')
+                                .add('carbon_core::postgres::rows::{AccountRow, InstructionRow}');
+                            map.add('src/graphql/query.rs', render('graphqlQueryPageGeneric.njk', { ...ctx, imports: graphqlQueryGenericImports.toString() }));
+                        } else {
+                            const graphqlQueryImports = new ImportMap()
+                                .add('juniper::{graphql_object, FieldResult}')
+                                .add('std::str::FromStr');
+                            map.add('src/graphql/query.rs', render('graphqlQueryPage.njk', { ...ctx, imports: graphqlQueryImports.toString() }));
+                        }
+                    }
 
                     // Generate lib.rs
                     map.add('src/lib.rs', render('lib.njk', ctx));

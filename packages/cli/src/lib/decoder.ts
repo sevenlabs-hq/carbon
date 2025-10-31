@@ -65,6 +65,9 @@ export type DecoderGenerationOptions = {
     deleteFolderBeforeRendering?: boolean;
     programId?: string;
     packageName?: string;
+    postgresMode?: 'generic' | 'typed';
+    withPostgres?: boolean;
+    withGraphql?: boolean;
 };
 
 export type IdlMetadata = {
@@ -194,7 +197,7 @@ export async function getIdlMetadata(idl: string, standard?: string, url?: strin
  * Generates a decoder from an IDL
  */
 export async function generateDecoder(options: DecoderGenerationOptions): Promise<void> {
-    const { idl, outputDir, standard: standardOpt, url, deleteFolderBeforeRendering = true, programId, packageName } = options;
+    const { idl, outputDir, standard: standardOpt, url, deleteFolderBeforeRendering = true, programId, packageName, postgresMode, withPostgres, withGraphql } = options;
     
     const idlSource = parseIdlSource(idl);
     const standard = validateIdlStandard(standardOpt || 'anchor', idlSource);
@@ -238,6 +241,9 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
                 deleteFolderBeforeRendering,
                 packageName,
                 anchorEvents: idlJson.events,
+                postgresMode,
+                withPostgres,
+                withGraphql,
             }),
         );
         return;
@@ -287,6 +293,9 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
                 deleteFolderBeforeRendering,
                 packageName,
                 anchorEvents: idlJson.events,
+                postgresMode,
+                withPostgres,
+                withGraphql,
             }),
         );
     } else {
@@ -295,6 +304,9 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
             renderVisitor(outputDir, {
                 deleteFolderBeforeRendering,
                 packageName,
+                postgresMode,
+                withPostgres,
+                withGraphql,
             }),
         );
     }

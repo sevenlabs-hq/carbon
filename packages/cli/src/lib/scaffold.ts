@@ -4,6 +4,9 @@ import { fileURLToPath } from 'url';
 import nunjucks from 'nunjucks';
 import { exitWithError } from './utils';
 import { kebabCase } from 'codama';
+import * as Datasources from '../datasources';
+import type { DecoderMeta } from '../datasources';
+import { VERSIONS } from '@sevenlabs-hq/carbon-versions';
 
 export type ScaffoldOptions = {
     name: string;
@@ -17,12 +20,89 @@ export type ScaffoldOptions = {
     withGraphql: boolean;
     withSerde: boolean;
     force?: boolean;
+    postgresMode?: 'generic' | 'typed';
 };
 
 function ensureDir(path: string) {
     if (!existsSync(path)) {
         mkdirSync(path, { recursive: true });
     }
+}
+
+function buildProjectImports(ctx: any): string {
+    const lines: string[] = [];
+
+    // Common
+    lines.push('use std::{env, sync::Arc};');
+
+    // Feature-dependent
+    if (!ctx.withPostgres) {
+        lines.push('use async_trait::async_trait;');
+        lines.push('use carbon_core::deserialize::ArrangeAccounts;');
+        lines.push('use carbon_core::instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions};');
+        lines.push('use carbon_core::metrics::MetricsCollection;');
+        lines.push('use carbon_core::processor::Processor;');
+    }
+
+    lines.push('use carbon_core::error::CarbonResult;');
+
+    if (ctx.withPostgres) {
+        if (ctx.useGenericPostgres) {
+            lines.push('use carbon_core::postgres::processors::{PostgresJsonAccountProcessor, PostgresJsonInstructionProcessor};');
+            lines.push('use carbon_core::postgres::rows::{GenericAccountsMigration, GenericInstructionMigration};');
+        } else {
+            lines.push('use carbon_core::postgres::processors::{PostgresAccountProcessor, PostgresInstructionProcessor};');
+        }
+        lines.push('use sqlx_migrator::{Info, Migrate, Plan};');
+    }
+
+    // Metrics
+    lines.push(`use carbon_${ctx.metrics.module_name}_metrics::${ctx.metrics.name}Metrics;`);
+
+    // Decoders
+    for (const d of ctx.decoders as Array<{ name: string; module_name: string }>) {
+        const crate = `carbon_${d.module_name}_decoder`;
+        if (ctx.withPostgres) {
+            if (!ctx.useGenericPostgres) {
+                lines.push(`use ${crate}::accounts::postgres::{${d.name}AccountWithMetadata, ${d.name}AccountsMigration};`);
+                lines.push(`use ${crate}::accounts::${d.name}Account;`);
+                lines.push(`use ${crate}::instructions::postgres::{${d.name}InstructionWithMetadata, ${d.name}InstructionsMigration};`);
+                lines.push(`use ${crate}::instructions::${d.name}Instruction;`);
+            } else {
+                lines.push(`use ${crate}::accounts::${d.name}Account;`);
+                lines.push(`use ${crate}::instructions::${d.name}Instruction;`);
+            }
+        } else {
+            lines.push(`use ${crate}::instructions::${d.name}Instruction;`);
+        }
+        if (ctx.withGraphQL) {
+            lines.push(`use ${crate}::graphql::{QueryRoot, context::GraphQLContext};`);
+        }
+        lines.push(`use ${crate}::${d.name}Decoder;`);
+        
+        const dsModule = ctx.data_source.module_name as string;
+        const usesProgramIds = dsModule === 'yellowstone_grpc' || 
+                              dsModule === 'helius_laserstream' || 
+                              dsModule === 'helius_atlas_ws' || 
+                              dsModule === 'rpc_program_subscribe' || 
+                              dsModule === 'rpc_transaction_crawler';
+        if (usesProgramIds) {
+            lines.push(`use ${crate}::PROGRAM_ID as ${d.name.toUpperCase()}_PROGRAM_ID;`);
+        }
+    }
+
+    // Datasource-specific imports are provided exclusively by the datasource builders
+
+    if (ctx.withGraphQL) {
+        lines.push('use std::net::SocketAddr;');
+    }
+
+    // Include datasource-specific imports from TS builders (authoritative)
+    if (ctx.datasource_imports) {
+        lines.push(ctx.datasource_imports);
+    }
+
+    return lines.join('\n');
 }
 
 function buildIndexerCargoContext(opts: ScaffoldOptions) {
@@ -41,25 +121,33 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
         decoderFeatures = `, features = [${featureParts.join(', ')}]`;
     }
 
-    const datasourceDep = `carbon-${opts.dataSource.toLowerCase()}-datasource = "0.11.0"`;
-    const metricsDep = `carbon-${opts.metrics.toLowerCase()}-metrics = "0.11.0"`;
+    const datasourceCrateName = `carbon-${opts.dataSource.toLowerCase()}-datasource`;
+    const datasourceVersion = VERSIONS[datasourceCrateName as keyof typeof VERSIONS] || VERSIONS["carbon-core"];
+    const datasourceDep = `${datasourceCrateName} = { version = "${datasourceVersion}" }`;
+    const metricsCrateName = `carbon-${opts.metrics.toLowerCase()}-metrics`;
+    const metricsVersion = VERSIONS[metricsCrateName as keyof typeof VERSIONS] || VERSIONS["carbon-core"];
+    const metricsDep = `${metricsCrateName} = { version = "${metricsVersion}" }`;
 
     const grpcDeps =
         opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream'
-            ? `yellowstone-grpc-client = { version = "9.0.0" }\nyellowstone-grpc-proto = { version = "9.0.0" }`
+            ? `yellowstone-grpc-client = { version = "${VERSIONS["yellowstone-grpc-client"]}" }\nyellowstone-grpc-proto = { version = "${VERSIONS["yellowstone-grpc-proto"]}" }`
             : '';
 
     const pgDeps = opts.withPostgres
-        ? `sqlx = { version = "0.8.6", features = ["postgres", "runtime-tokio-rustls", "macros"] }\nsqlx_migrator = "0.17.0"`
+        ? `sqlx = { version = "${VERSIONS.sqlx}", features = ["postgres", "runtime-tokio-rustls", "macros"] }\nsqlx_migrator = "${VERSIONS["sqlx_migrator"]}"`
         : '';
 
-    const gqlDeps = opts.withGraphql ? `juniper = "0.15"\naxum = "0.8.4"` : '';
+    const gqlDeps = opts.withGraphql ? `juniper = "${VERSIONS.juniper}"\naxum = "${VERSIONS.axum}"` : '';
 
-    const rustlsDep = opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream' ? 'rustls = "0.23"' : '';
+    const rustlsDep = opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream' ? `rustls = "${VERSIONS.rustls}"` : '';
+    const atlasDeps = opts.dataSource === 'helius-atlas-ws' ? `helius = "${VERSIONS.helius}"` : '';
 
     const features = ['default = []', opts.withPostgres ? 'postgres = []' : '', opts.withGraphql ? 'graphql = []' : '']
         .filter(Boolean)
         .join('\n');
+
+    const crawlerDeps = opts.dataSource === 'rpc-transaction-crawler' ? `solana-commitment-config = "${VERSIONS["solana-commitment-config"]}"` : '';
+    const programDeps = opts.dataSource === 'rpc-program-subscribe' ? `solana-account-decoder = "${VERSIONS["solana-account-decoder"]}"` : '';
 
     return {
         projectName: opts.name,
@@ -73,7 +161,11 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
         pgDeps,
         gqlDeps,
         rustlsDep,
+        crawlerDeps,
+        programDeps,
+        atlasDeps,
         features,
+        versions: VERSIONS,
     };
 }
 
@@ -137,8 +229,8 @@ export function renderScaffold(opts: ScaffoldOptions) {
 
     const hasLocalDecoder = opts.decoderMode === 'generate';
 
-    // Context for main.rs
-    const mainContext = {
+    // Context base for main.rs
+    const mainContext: any = {
         projectName: opts.name,
         decoders: [
             {
@@ -158,7 +250,33 @@ export function renderScaffold(opts: ScaffoldOptions) {
         },
         withPostgres: opts.withPostgres,
         withGraphQL: opts.withGraphql,
+        useGenericPostgres: opts.postgresMode === 'generic',
     };
+
+    // Build datasource artifacts from TS module
+    const dsModuleName = mainContext.data_source.module_name as string;
+    const builder = Datasources.getDatasourceBuilder(dsModuleName);
+    if (builder) {
+        const decodersMeta = mainContext.decoders as DecoderMeta[];
+        const artifact = builder(decodersMeta);
+        // Compose import lines
+        const datasource_imports = artifact.imports
+            .map((i: string) => `use ${i};`)
+            .join('\n');
+        mainContext.datasource_imports = datasource_imports;
+        mainContext.datasource_init = artifact.init;
+    } else {
+        // Provide a clearer error message if no builder is found
+        const available = Object.keys((Datasources as unknown as { getDatasourceBuilder: any }).getDatasourceBuilder ? {
+            helius_laserstream: true,
+            rpc_block_subscribe: true,
+            yellowstone_grpc: true,
+            helius_atlas_ws: true,
+            rpc_transaction_crawler: true,
+            rpc_program_subscribe: true,
+        } : {});
+        exitWithError(`No datasource builder found for '${dsModuleName}'. Available: ${available.join(', ')}`);
+    }
 
     // Generate workspace Cargo.toml
     const workspaceContext = {
@@ -166,6 +284,9 @@ export function renderScaffold(opts: ScaffoldOptions) {
     };
     const workspaceToml = env.render('workspace.njk', workspaceContext);
     writeFileSync(join(base, 'Cargo.toml'), workspaceToml);
+
+    // Compute dynamic imports for main.rs
+    mainContext.imports = buildProjectImports(mainContext);
 
     // Generate indexer main.rs
     const rendered = env.render('project.njk', mainContext);

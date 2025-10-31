@@ -111,7 +111,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AccountRowMigrationOperation {
         sqlx::query(
             r#"CREATE TABLE IF NOT EXISTS accounts (
             __pubkey BYTEA NOT NULL,
-            __slot BIGINT,
+            __slot NUMERIC,
             data JSONB NOT NULL,
             PRIMARY KEY (__pubkey)
         )"#,
@@ -185,7 +185,7 @@ impl<
     > Insert for InstructionRow<T>
 {
     async fn insert(&self, pool: &sqlx::PgPool) -> CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO instructions (__signature, __index, __stack_height, __slot, data, accounts) VALUES ($1, $2, $3, $4, $5, $6)"#)
+        sqlx::query(r#"INSERT INTO instructions (__signature, __instruction_index, __stack_height, __slot, data, accounts) VALUES ($1, $2, $3, $4, $5, $6)"#)
             .bind(self.metadata.signature.clone())
             .bind(self.metadata.instruction_index)
             .bind(self.metadata.stack_height)
@@ -205,7 +205,7 @@ impl<
     > Upsert for InstructionRow<T>
 {
     async fn upsert(&self, pool: &sqlx::PgPool) -> CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO instructions (__signature, __index, __stack_height, __slot, data, accounts) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (__signature, __index) DO UPDATE SET __slot = $4, data = $5, accounts = $6"#)
+        sqlx::query(r#"INSERT INTO instructions (__signature, __instruction_index, __stack_height, __slot, data, accounts) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (__signature, __instruction_index, __stack_height) DO UPDATE SET __slot = $4, data = $5, accounts = $6"#)
             .bind(self.metadata.signature.clone())
             .bind(self.metadata.instruction_index)
             .bind(self.metadata.stack_height)
@@ -224,12 +224,13 @@ impl<
         T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
     > Delete for InstructionRow<T>
 {
-    type Key = (String, U32);
+    type Key = (String, U32, U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM instructions WHERE __signature = $1 AND __index = $2"#)
+        sqlx::query(r#"DELETE FROM instructions WHERE __signature = $1 AND __instruction_index = $2 AND __stack_height = $3"#)
             .bind(key.0)
             .bind(key.1)
+            .bind(key.2)
             .execute(pool)
             .await
             .map_err(|e| crate::error::Error::Custom(e.to_string()))?;
@@ -242,13 +243,14 @@ impl<
         T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
     > LookUp for InstructionRow<T>
 {
-    type Key = (String, U32);
+    type Key = (String, U32, U32);
 
     async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> CarbonResult<Option<Self>> {
         let row =
-            sqlx::query_as(r#"SELECT * FROM instructions WHERE __signature = $1 AND __index = $2"#)
+            sqlx::query_as(r#"SELECT * FROM instructions WHERE __signature = $1 AND __instruction_index = $2 AND __stack_height = $3"#)
                 .bind(key.0)
                 .bind(key.1)
+                .bind(key.2)
                 .fetch_optional(pool)
                 .await
                 .map_err(|e| crate::error::Error::Custom(e.to_string()))?;
@@ -267,12 +269,12 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InstructionRowMigrationOperati
         sqlx::query(
             r#"CREATE TABLE IF NOT EXISTS instructions (
             __signature TEXT NOT NULL,
-            __index BIGINT NOT NULL,
+            __instruction_index BIGINT NOT NULL,
             __stack_height BIGINT NOT NULL,
-            __slot BIGINT,
+            __slot NUMERIC,
             data JSONB NOT NULL,
             accounts JSONB NOT NULL,
-            PRIMARY KEY (__signature, __index)
+            PRIMARY KEY (__signature, __instruction_index, __stack_height)
         )"#,
         )
         .execute(connection)
