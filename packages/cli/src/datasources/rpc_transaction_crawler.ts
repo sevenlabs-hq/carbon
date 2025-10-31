@@ -10,25 +10,25 @@ export function buildRpcTransactionCrawler(decoders: DecoderMeta[]): DatasourceA
     ];
 
     const init = `
-{
-    let connection_config = ConnectionConfig::new(
-        100,
-        Duration::from_secs(5),
-        5,
-        RetryConfig::default(),
-        None,
-        None,
-        false,
-    );
+    {
+        let connection_config = ConnectionConfig::new(
+            100,
+            Duration::from_secs(5),
+            5,
+            RetryConfig::default(),
+            None,
+            None,
+            false,
+        );
 
-    RpcTransactionCrawler::new(
-        std::env::var("RPC_URL").unwrap_or_default(),
-        ${firstProgram}_PROGRAM_ID,
-        connection_config,
-        Filters::new(None, None, None),
-        Some(CommitmentConfig::finalized()),
-    )
-}`.trim();
+        RpcTransactionCrawler::new(
+            std::env::var("RPC_URL").unwrap_or_default(),
+            ${firstProgram}_PROGRAM_ID,
+            connection_config,
+            Filters::new(None, None, None),
+            Some(CommitmentConfig::finalized()),
+        )
+    }`.trim();
 
     return {
         id: 'rpc_transaction_crawler',

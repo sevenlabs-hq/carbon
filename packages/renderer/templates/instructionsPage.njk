@@ -2,17 +2,18 @@
 {% import "macros.njk" as macros %}
 
 {% block main %}
-
 {{ imports }}
 
+{% if instruction.docs and instruction.docs.length > 0 %}
 {{ macros.docblock(instruction.docs) }}
+{% endif %}
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
 pub struct {{ instruction.name | pascalCase }} {
-{% for arg in instruction.arguments %}
+{% for arg in instruction.arguments -%}
     {% if arg.docs %}{{ macros.docblock(arg.docs) }}{% endif %}
     pub {{ arg.name | snakeCase }}: {{ argumentTypes[loop.index0].type }},
-{% endfor %}
+{% endfor -%}
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -28,15 +29,15 @@ pub struct {{ instruction.name | pascalCase }}InstructionAccounts {
 
 impl {{ instruction.name | pascalCase }} {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        {% if discriminatorManifest %}
-        {{ discriminatorManifest.checkCode | safe }}
-        {% endif %}
+{% if discriminatorManifest -%}
+{{ discriminatorManifest.checkCode | safe }}
+{% endif %}
 
         let mut data_slice = data;
 
-        {% if discriminatorManifest %}
+{% if discriminatorManifest %}
         data_slice = &data_slice[{{ discriminatorManifest.size }}..];
-        {% endif %}
+{% endif %}
 
         if let Ok(decoded) = Self::deserialize(&mut data_slice) {
             return Some(decoded);
@@ -52,25 +53,24 @@ impl ArrangeAccounts for {{ instruction.name | pascalCase }} {
     fn arrange_accounts(
         {% if instruction.accounts | length > 0 %}accounts{% else %}_accounts{% endif %}: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        {% if instruction.accounts | length > 0 %}
+{% if instruction.accounts | length > 0 %}
         let mut iter = accounts.iter();
 
-        {% for account in instruction.accounts %}
+{% for account in instruction.accounts %}
         let {{ macros.escapeRustKeyword(account.name | snakeCase) }} = next_account(&mut iter){% if not account.isOptional %}?{% endif %};
-        {% endfor %}
+{% endfor %}
 
         let remaining = iter.as_slice();
 
         Some({{ instruction.name | pascalCase }}InstructionAccounts {
-            {% for account in instruction.accounts %}
-            {{ macros.escapeRustKeyword(account.name | snakeCase) }}: {{ macros.escapeRustKeyword(account.name | snakeCase) }},
-            {% endfor %}
+{% for account in instruction.accounts %}
+            {{ macros.escapeRustKeyword(account.name | snakeCase) }},
+{% endfor %}
             remaining: remaining.to_vec(),
         })
-        {% else %}
+{% else %}
         Some({{ instruction.name | pascalCase }}InstructionAccounts {})
-        {% endif %}
+{% endif %}
     }
 }
-
 {% endblock %}

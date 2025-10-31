@@ -197,15 +197,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             let discriminatorManifest: DiscriminatorManifest = {
                                 bytes: `[${event.discriminator.join(", ")}]`,
                                 size: event.discriminator.length,
-                                checkCode: `
-                                    if data.len() < ${event.discriminator.length} {
-                                        return None;
-                                    }
-                                    let discriminator = &data[0..${event.discriminator.length}];
-                                    if discriminator != &[${event.discriminator.join(", ")}] {
-                                        return None;
-                                    }
-                                `,
+                                checkCode: `        if data.len() < ${event.discriminator.length} {
+            return None;
+        }
+        let discriminator = &data[0..${event.discriminator.length}];
+        if discriminator != &[${event.discriminator.join(", ")}] {
+            return None;
+        }`,
                             };
 
                             renderMap.add(

@@ -4,15 +4,13 @@
 pub async fn main() -> CarbonResult<()> {
     env_logger::init();
     dotenv::dotenv().ok();
-
-    {%- if data_source.module_name == "yellowstone_grpc" or data_source.module_name == "helius_laserstream" %}
+{% if data_source.module_name == "yellowstone_grpc" or data_source.module_name == "helius_laserstream" %}
     // NOTE: Workaround, that solving issue https://github.com/rustls/rustls/issues/1877
     rustls::crypto::aws_lc_rs::default_provider()
         .install_default()
         .expect("Can't set crypto provider to aws_lc_rs");
-    {%- endif %}
-
-    {%- if withPostgres %}
+{% endif %}
+{%- if withPostgres %}
     // Database setup and migrations
     let db_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
     let pool = sqlx::Pool::<sqlx::Postgres>::connect(&db_url)
@@ -81,8 +79,7 @@ pub async fn main() -> CarbonResult<()> {
         {%- endif %}
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
         .build()?;
-
-    {%- if withGraphQL %}
+{% if withGraphQL %}
     tokio::select! {
         res = run_graphql(Arc::new(pool.clone())) => {
             res?;
@@ -97,8 +94,8 @@ pub async fn main() -> CarbonResult<()> {
 
     Ok(())
 }
-
 {%- if withGraphQL %}
+
 async fn run_graphql(pool: Arc<sqlx::PgPool>) -> CarbonResult<()> {
     {%- for decoder in decoders %}
     let schema = carbon_core::graphql::server::build_schema(QueryRoot);

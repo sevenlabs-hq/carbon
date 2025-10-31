@@ -39,8 +39,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for {{ program.name | pascalCa
         
         let data = account.data.as_slice();
         
-        {% for account in accountsToExport %}
-        // Try to decode {{ account.name | pascalCase }}
+{% for account in accountsToExport %}
         {
             if let Some(decoded) = {{ macros.escapeRustKeyword(account.name | snakeCase) }}::{{ account.name | pascalCase }}::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
@@ -52,7 +51,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for {{ program.name | pascalCa
                 });
             }
         }
-        {% endfor %}
+{% endfor %}
         
         None
     }

@@ -10,23 +10,23 @@ export function buildRpcProgramSubscribe(decoders: DecoderMeta[]): DatasourceArt
     ];
 
     const init = `
-{
-    let filters = Filters::new(
-        ${firstProgram}_PROGRAM_ID,
-        Some(RpcProgramAccountsConfig {
-            account_config: RpcAccountInfoConfig {
-                encoding: Some(UiAccountEncoding::Base64),
+    {
+        let filters = Filters::new(
+            ${firstProgram}_PROGRAM_ID,
+            Some(RpcProgramAccountsConfig {
+                account_config: RpcAccountInfoConfig {
+                    encoding: Some(UiAccountEncoding::Base64),
+                    ..Default::default()
+                },
                 ..Default::default()
-            },
-            ..Default::default()
-        }),
-    );
+            }),
+        );
 
-    carbon_rpc_program_subscribe_datasource::RpcProgramSubscribe::new(
-        std::env::var("RPC_WS_URL").unwrap_or("wss://api.mainnet-beta.solana.com/".to_string()),
-        filters,
-    )
-}`.trim();
+        carbon_rpc_program_subscribe_datasource::RpcProgramSubscribe::new(
+            std::env::var("RPC_WS_URL").unwrap_or("wss://api.mainnet-beta.solana.com/".to_string()),
+            filters,
+        )
+    }`.trim();
 
     return {
         id: 'rpc_program_subscribe',
