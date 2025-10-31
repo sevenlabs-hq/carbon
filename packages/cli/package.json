@@ -50,6 +50,7 @@
         "@codama/nodes": "1.3.0",
         "@codama/nodes-from-anchor": "1.2.1",
         "@sevenlabs-hq/carbon-codama-renderer": "0.2.0",
+        "@sevenlabs-hq/carbon-versions": "file:../versions",
         "@coral-xyz/anchor": "^0.30.1",
         "@inquirer/prompts": "^7.9.0",
         "chalk": "^5.6.2",

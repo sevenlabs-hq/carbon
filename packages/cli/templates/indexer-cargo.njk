@@ -5,7 +5,7 @@ edition = "2021"
 
 [dependencies]
 async-trait = "0.1.86"
-carbon-core = "0.11.0"
+carbon-core = { version = "{{ versions['carbon-core'] }}" }
 {%- if hasLocalDecoder %}
 carbon-{{ decoderCrateName }}-decoder = { path = "../decoder"{{ decoderFeatures }} }
 {%- else %}
@@ -22,9 +22,9 @@ carbon-{{ decoderCrateName }}-decoder = { path = "../decoder"{{ decoderFeatures 
 {%- if programDeps %}
 {{ programDeps }}
 {%- endif %}
-solana-pubkey = "^2.3.6"
-solana-client = "^2.3.6"
-solana-instruction = "^2.3.0"
+solana-pubkey = "{{ versions['solana-pubkey'] }}"
+solana-client = "{{ versions['solana-client'] }}"
+solana-instruction = "{{ versions['solana-instruction'] }}"
 tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
 dotenv = "0.15.0"
 env_logger = "0.11.5"
