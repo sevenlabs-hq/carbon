@@ -78,7 +78,16 @@ function buildProjectImports(ctx: any): string {
             lines.push(`use ${crate}::graphql::{QueryRoot, context::GraphQLContext};`);
         }
         lines.push(`use ${crate}::${d.name}Decoder;`);
-        lines.push(`use ${crate}::PROGRAM_ID as ${d.name.toUpperCase()}_PROGRAM_ID;`);
+        
+        const dsModule = ctx.data_source.module_name as string;
+        const usesProgramIds = dsModule === 'yellowstone_grpc' || 
+                              dsModule === 'helius_laserstream' || 
+                              dsModule === 'helius_atlas_ws' || 
+                              dsModule === 'rpc_program_subscribe' || 
+                              dsModule === 'rpc_transaction_crawler';
+        if (usesProgramIds) {
+            lines.push(`use ${crate}::PROGRAM_ID as ${d.name.toUpperCase()}_PROGRAM_ID;`);
+        }
     }
 
     // Datasource-specific imports are provided exclusively by the datasource builders

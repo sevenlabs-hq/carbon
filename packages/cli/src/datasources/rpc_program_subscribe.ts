@@ -4,7 +4,7 @@ export function buildRpcProgramSubscribe(decoders: DecoderMeta[]): DatasourceArt
     const firstProgram = decoders[0]?.name.toUpperCase() ?? 'PROGRAM_ID';
 
     const imports = [
-        'carbon_rpc_program_subscribe_datasource::{Filters, RpcProgramSubscribe}',
+        'carbon_rpc_program_subscribe_datasource::Filters',
         'solana_account_decoder::UiAccountEncoding',
         'solana_client::rpc_config::{RpcAccountInfoConfig, RpcProgramAccountsConfig}',
     ];

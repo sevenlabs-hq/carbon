@@ -50,7 +50,7 @@ impl ArrangeAccounts for {{ instruction.name | pascalCase }} {
     type ArrangedAccounts = {{ instruction.name | pascalCase }}InstructionAccounts;
 
     fn arrange_accounts(
-        accounts: &[solana_instruction::AccountMeta],
+        {% if instruction.accounts | length > 0 %}accounts{% else %}_accounts{% endif %}: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
         {% if instruction.accounts | length > 0 %}
         let mut iter = accounts.iter();
