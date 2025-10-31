@@ -15,9 +15,9 @@ export function buildHeliusAtlasWs(decoders: DecoderMeta[]): DatasourceArtifact 
     ];
 
     const init = `
-carbon_helius_atlas_ws_datasource::HeliusWebsocket::new(
+HeliusWebsocket::new(
     std::env::var("HELIUS_API_KEY").unwrap(),
-    carbon_helius_atlas_ws_datasource::Filters::new(
+    Filters::new(
         vec![],
         Some(RpcTransactionsConfig {
             filter: TransactionSubscribeFilter {

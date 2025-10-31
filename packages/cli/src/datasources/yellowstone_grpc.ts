@@ -43,7 +43,7 @@ export function buildYellowstoneGrpc(decoders: DecoderMeta[]): DatasourceArtifac
     let mut transaction_filters: HashMap<String, SubscribeRequestFilterTransactions> = HashMap::new();
     transaction_filters.insert("transaction_filter".to_string(), transaction_filter);
 
-    carbon_yellowstone_grpc_datasource::YellowstoneGrpcGeyserClient::new(
+    YellowstoneGrpcGeyserClient::new(
         std::env::var("GEYSER_URL").unwrap_or_default(),
         std::env::var("X_TOKEN").ok(),
         Some(CommitmentLevel::Confirmed),

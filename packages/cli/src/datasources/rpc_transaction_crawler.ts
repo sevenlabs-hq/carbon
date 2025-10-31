@@ -21,7 +21,7 @@ export function buildRpcTransactionCrawler(decoders: DecoderMeta[]): DatasourceA
         false,
     );
 
-    carbon_rpc_transaction_crawler_datasource::RpcTransactionCrawler::new(
+    RpcTransactionCrawler::new(
         std::env::var("RPC_URL").unwrap_or_default(),
         ${firstProgram}_PROGRAM_ID,
         connection_config,
