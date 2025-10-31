@@ -492,6 +492,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         hasAnchorEvents: options.anchorEvents?.length ?? 0 > 0,
                         events: options.anchorEvents ?? [],
                         postgresMode: options.postgresMode || 'typed',
+                        withPostgres: options.withPostgres !== false,
                         withGraphQL: options.withGraphql !== false,
                         versions: VERSIONS,
                     };
