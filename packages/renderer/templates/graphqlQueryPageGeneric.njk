@@ -9,7 +9,7 @@ pub struct QueryRoot;
 #[graphql_object(context = crate::graphql::context::GraphQLContext)]
 impl QueryRoot {
     // Account queries
-    {% for account in accountsToExport %}
+{% for account in accountsToExport %}
     async fn {{ macros.escapeRustKeyword(account.name | snakeCase) }}(
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
@@ -84,11 +84,14 @@ impl QueryRoot {
             }
         }).collect())
     }
-    {% endfor %}
+{% if not loop.last %}
+
+{% endif %}
+{% endfor %}
 
     // Instruction queries
-    {% for instruction in instructionsToExport %}
-    {% if instruction.arguments.length > 1 %}
+{% for instruction in instructionsToExport %}
+{% if instruction.arguments.length > 1 %}
     async fn {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -170,10 +173,13 @@ impl QueryRoot {
             }
         }).collect())
     }
-    {% endif %}
-    {% endfor %}
+{% if not loop.last %}
 
-    {% if hasAnchorEvents %}
+{% endif %}
+{% endif %}
+{% endfor %}
+
+{% if hasAnchorEvents %}
     // CPI Events
     async fn cpi_event(
         context: &crate::graphql::context::GraphQLContext,
@@ -254,7 +260,6 @@ impl QueryRoot {
             }
         }).collect())
     }
-    {% endif %}
+{% endif %}
 }
-
 {% endblock %}

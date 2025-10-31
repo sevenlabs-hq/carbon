@@ -242,10 +242,20 @@ export function getTypeManifestVisitor() {
                         isNode(node.type.count, 'fixedCountNode') &&
                         node.type.count.value > 32;
 
+                    const docs = node.docs || [];
+                    const docComments = docs.length > 0
+                        ? docs
+                            .map(doc => {
+                                const lines = doc.split('\n');
+                                return lines.map(line => `    /// ${line}`).join('\n');
+                            })
+                            .join('\n') + '\n'
+                        : '';
+
                     return {
                         imports: fieldManifest.imports,
-                        type: `${serdeBigArray ? '#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))] ' : ''}pub ${fieldName}: ${fieldManifest.type},`,
-                        borshType: `${fieldName}: ${fieldManifest.borshType},`,
+                        type: `${docComments}    ${serdeBigArray ? '#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))] ' : ''}pub ${fieldName}: ${fieldManifest.type},`,
+                        borshType: `    ${fieldName}: ${fieldManifest.borshType},`,
                     };
                 },
 
@@ -306,33 +316,27 @@ export function getDiscriminatorManifest(
         case 'constantDiscriminatorNode': {
             const bytes = getDiscriminatorBytes(discriminator.constant);
             const size = bytes.length;
-            const checkCode = `
-                if data.len() < ${discriminator.offset + size} {
-                    return None;
-                }
-                let discriminator = &data[${discriminator.offset}..${discriminator.offset + size}];
-                if discriminator != &[${bytes.join(', ')}] {
-                    return None;
-                }
-            `;
+            const checkCode = `        if data.len() < ${discriminator.offset + size} {
+            return None;
+        }
+        let discriminator = &data[${discriminator.offset}..${discriminator.offset + size}];
+        if discriminator != &[${bytes.join(', ')}] {
+            return None;
+        }`;
             return { bytes: `[${bytes.join(', ')}]`, size, checkCode };
         }
 
         case 'fieldDiscriminatorNode': {
             // Field discriminators check a specific field value after deserialization
-            const checkCode = `
-                // Field discriminator: ${discriminator.name} at offset ${discriminator.offset}
-                // This check happens after deserialization
-            `;
+            const checkCode = `        // Field discriminator: ${discriminator.name} at offset ${discriminator.offset}
+        // This check happens after deserialization`;
             return { bytes: '[]', size: 0, checkCode };
         }
 
         case 'sizeDiscriminatorNode': {
-            const checkCode = `
-                if data.len() != ${discriminator.size} {
-                    return None;
-                }
-            `;
+            const checkCode = `        if data.len() != ${discriminator.size} {
+            return None;
+        }`;
             return { bytes: '[]', size: 0, checkCode };
         }
 
