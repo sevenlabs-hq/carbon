@@ -208,6 +208,8 @@ program
                 programId: opts.programId,
                 packageName: decoder,
                 postgresMode: opts.postgresMode,
+                withPostgres,
+                withGraphql,
             });
             
             logger.succeedSpinner('Decoder generated successfully');

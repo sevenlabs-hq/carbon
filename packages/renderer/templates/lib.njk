@@ -15,6 +15,8 @@ pub mod types;
 {% if hasAnchorEvents %}
 pub mod events;
 {% endif%}
+{% if withGraphQL %}
 #[cfg(feature = "graphql")]
 pub mod graphql;
+{% endif %}
 {% endblock %}
