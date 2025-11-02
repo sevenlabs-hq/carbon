@@ -1591,6 +1591,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-pancake-swap-decoder"
+version = "0.11.0"
+dependencies = [
+ "carbon-core 0.11.0",
+ "carbon-macros",
+ "carbon-proc-macros",
+ "serde",
+ "serde-big-array",
+ "solana-account 3.1.0",
+ "solana-instruction 3.0.0",
+ "solana-pubkey 3.0.0",
+]
+
+[[package]]
 name = "carbon-phoenix-v1-decoder"
 version = "0.11.0"
 dependencies = [

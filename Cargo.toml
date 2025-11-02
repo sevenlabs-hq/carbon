@@ -73,6 +73,7 @@ carbon-name-service-decoder = { path = "decoders/name-service-decoder", version 
 carbon-okx-dex-decoder = { path = "decoders/okx-dex-decoder", version = "0.11.0" }
 carbon-openbook-v2-decoder = { path = "decoders/openbook-v2-decoder", version = "0.11.0" }
 carbon-orca-whirlpool-decoder = { path = "decoders/orca-whirlpool-decoder", version = "0.11.0" }
+carbon-pancake-swap-decoder = { path = "decoders/pancake-swap-decoder", version = "0.11.0" }
 carbon-phoenix-v1-decoder = { path = "decoders/phoenix-v1-decoder", version = "0.11.0" }
 carbon-proc-macros = { path = "crates/proc-macros", version = "0.11.0" }
 carbon-prometheus-metrics = { path = "metrics/prometheus-metrics", version = "0.11.0" }
