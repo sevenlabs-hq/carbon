@@ -43,7 +43,7 @@
 //! functionality of `carbon_macros`, please consider submitting a pull request
 //! or opening an issue on the project’s GitHub repository.
 use {
-    borsh_derive_internal::*,
+    borsh_derive_internal_satellite::*,
     proc_macro::TokenStream,
     proc_macro2::{Span, TokenStream as TokenStream2},
     quote::{format_ident, quote},

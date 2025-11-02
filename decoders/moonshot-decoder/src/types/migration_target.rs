@@ -1,3 +1,4 @@
+use alloc::format;
 use carbon_core::{borsh, CarbonDeserialize};
 
 #[repr(u8)]

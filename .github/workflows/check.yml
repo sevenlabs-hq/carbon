@@ -25,7 +25,7 @@ jobs:
           toolchain: stable
 
       - name: Install `rustfmt`
-        run: rustup component add  rustfmt --toolchain 1.84.1
+        run: rustup component add  rustfmt --toolchain 1.86.0
 
       - name: cargo fmt --check
         run: cargo fmt --check
@@ -47,7 +47,7 @@ jobs:
           toolchain: stable
 
       - name: Install `clippy`
-        run: rustup component add  clippy --toolchain 1.84.1
+        run: rustup component add  clippy --toolchain 1.86.0
 
       - name: cargo clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
