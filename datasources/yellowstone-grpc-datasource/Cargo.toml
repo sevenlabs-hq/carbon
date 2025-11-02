@@ -14,9 +14,9 @@ crate-type = ["rlib"]
 
 [dependencies]
 solana-account = { workspace = true }
-solana-program = { workspace = true }
 solana-pubkey = { workspace = true }
 solana-signature = { workspace = true }
+solana-system-interface = { workspace = true }
 
 carbon-core = { workspace = true }
 

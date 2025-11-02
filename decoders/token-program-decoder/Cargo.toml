@@ -17,6 +17,6 @@ carbon-core = { workspace = true }
 serde = { workspace = true }
 solana-account = { workspace = true }
 solana-instruction = { workspace = true, default-features = false }
-solana-program-pack = { workspace = true }
+solana-program = { workspace = true }
 solana-pubkey = { workspace = true }
-spl-token = { workspace = true }
+spl-token-interface = { workspace = true }

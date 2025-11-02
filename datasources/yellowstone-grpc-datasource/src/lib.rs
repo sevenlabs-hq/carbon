@@ -325,7 +325,7 @@ async fn send_subscribe_account_update_info(
 
         if account.lamports == 0
             && account.data.is_empty()
-            && account_owner_pubkey == solana_program::system_program::ID
+            && account_owner_pubkey == solana_system_interface::program::ID
         {
             let accounts = account_deletions_tracked.read().await;
             if accounts.contains(&account_pubkey) {

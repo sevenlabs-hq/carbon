@@ -14,7 +14,6 @@ crate-type = ["rlib"]
 
 [dependencies]
 solana-account = { workspace = true }
-solana-program = { workspace = true }
 solana-pubkey = { workspace = true }
 solana-signature = { workspace = true }
 
@@ -23,6 +22,7 @@ carbon-core = { workspace = true }
 async-trait = { workspace = true }
 futures = { workspace = true }
 log = { workspace = true }
+solana-system-interface = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tokio-util = { workspace = true }
 uuid = { workspace = true }
