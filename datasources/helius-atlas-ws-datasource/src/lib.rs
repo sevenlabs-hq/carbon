@@ -16,7 +16,7 @@ use {
     },
     solana_account::Account,
     solana_clock::Clock,
-    solana_program::{instruction::CompiledInstruction, message::v0::LoadedAddresses},
+    solana_message::{compiled_instruction::CompiledInstruction, v0::LoadedAddresses},
     solana_pubkey::Pubkey,
     solana_signature::Signature,
     solana_transaction_context::TransactionReturnData,
@@ -311,7 +311,7 @@ impl Datasource for HeliusWebsocket {
                                                     }
                                                 };
 
-                                                if decoded_account.lamports == 0 && decoded_account.data.is_empty() && decoded_account.owner == solana_program::system_program::ID {
+                                                if decoded_account.lamports == 0 && decoded_account.data.is_empty() && decoded_account.owner == solana_system_interface::program::ID {
                                                     let accounts_tracked =
                                                         account_deletions_tracked.read().await;
                                                     if !accounts_tracked.is_empty() && accounts_tracked.contains(&account) {
@@ -434,7 +434,7 @@ impl Datasource for HeliusWebsocket {
                                             };
 
                                             let meta_needed = TransactionStatusMeta {
-                                                status: meta_original.status,
+                                                status: meta_original.status.map_err(Into::into),
                                                 fee: meta_original.fee,
                                                 pre_balances: meta_original.pre_balances,
                                                 post_balances: meta_original.post_balances,

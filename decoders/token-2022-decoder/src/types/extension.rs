@@ -1,6 +1,6 @@
 use {
     super::*,
-    alloc::{string::String, vec::Vec},
+    alloc::{format, string::String, vec::Vec},
     carbon_core::{borsh, CarbonDeserialize},
 };
 
