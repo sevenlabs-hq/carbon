@@ -2,9 +2,7 @@
 {% import "macros.njk" as macros %}
 
 {% block main %}
-
 {{ imports }}
-
 {{ macros.docblock(definedType.docs) }}
 {% if definedType.type.kind === 'enumTypeNode' %}
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

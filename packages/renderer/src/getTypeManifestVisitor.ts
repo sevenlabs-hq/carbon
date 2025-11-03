@@ -180,7 +180,7 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
 
                             return {
                                 imports: fieldManifest.imports,
-                                type: `${docComments}    ${needsBigArray ? '#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))] ' : ''}${fieldName}: ${fieldManifest.type},`,
+                                type: `${docComments}${needsBigArray ? '    #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]\n' : ''}    ${fieldName}: ${fieldManifest.type},`,
                                 borshType: `${fieldName}: ${fieldManifest.borshType},`,
                             };
                         },
@@ -212,8 +212,8 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                 visitEnumType(node, { self }) {
                     const variants = node.variants.map(variant => visit(variant, self));
                     const mergedImports = new ImportMap().mergeWith(...variants.map(v => v.imports));
-                    const variantTypes = variants.map(v => v.type).join('\n');
-                    const variantBorshTypes = variants.map(v => v.borshType).join('\n');
+                    const variantTypes = variants.map(v => '    ' + v.type).join('\n');
+                    const variantBorshTypes = variants.map(v => '    ' + v.borshType).join('\n');
 
                     return {
                         imports: mergedImports,
@@ -337,7 +337,7 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
 
                     return {
                         imports: fieldManifest.imports,
-                        type: `${docComments}    ${needsBigArray ? '#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))] ' : ''}pub ${fieldName}: ${fieldManifest.type},`,
+                        type: `${docComments}${needsBigArray ? '    #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]\n' : ''}    pub ${fieldName}: ${fieldManifest.type},`,
                         borshType: `    ${fieldName}: ${fieldManifest.borshType},`,
                     };
                 },

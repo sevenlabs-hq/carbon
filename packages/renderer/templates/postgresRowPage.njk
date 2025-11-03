@@ -18,8 +18,8 @@ pub struct {{ entityName | pascalCase }}Row {
     pub instruction_metadata: InstructionRowMetadata,
 {% endif %}
 {% for field in flatFields %}
-    {% if field.needsBigArray %}#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]{% endif %}
-    pub {{ field.column }}: {{ field.rowType }},
+  {% if field.needsBigArray %}#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]{% endif %}
+  pub {{ field.column }}: {{ field.rowType }},
 {% endfor %}
 }
 
