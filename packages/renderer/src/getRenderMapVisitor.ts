@@ -9,6 +9,7 @@ import {
     isNode,
     pascalCase,
     ProgramNode,
+    resolveNestedTypeNode,
     snakeCase,
     SnakeCaseString,
     structFieldTypeNode,
@@ -24,7 +25,7 @@ import { ImportMap } from './ImportMap';
 import { partition, render } from './utils';
 import { getPostgresTypeManifestVisitor, PostgresTypeManifest } from './getPostgresTypeManifestVisitor';
 import { FlattenedGraphQLField, flattenTypeForGraphQL } from './utils/flattenGraphqlFields';
-import { VERSIONS } from '@sevenlabs-hq/carbon-versions';
+import { VERSIONS, getCrateDependencyString } from '@sevenlabs-hq/carbon-versions';
 
 export type GetRenderMapOptions = {
     renderParentInstructions?: boolean;
@@ -47,11 +48,17 @@ type FlattenedField = {
     reverseExpr?: string;
     docs: string[];
     postgresManifest: PostgresTypeManifest;
+    needsBigArray?: boolean;
 };
 
 export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
     const renderParentInstructions = options.renderParentInstructions ?? false;
-    const typeManifestVisitor = getTypeManifestVisitor();
+    // We'll create a map of defined types when we visit the root node
+    // and pass it to a factory function that creates the visitor
+    let definedTypesMap: Map<string, any> | null = null;
+    const newtypeWrapperTypes = new Set<string>(); // Track which types were converted to newtype wrappers
+    const createTypeManifestVisitor = () => getTypeManifestVisitor(definedTypesMap, newtypeWrapperTypes);
+    let typeManifestVisitor = createTypeManifestVisitor();
     const postgresTypeManifestVisitor = getPostgresTypeManifestVisitor();
 
     let currentProgram: ProgramNode | null = null;
@@ -187,12 +194,60 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         imports.add('carbon_core::borsh');
                     }
 
+                    // Check if this is a type alias that resolves to a large fixed-size array
+                    // If so, we need to use a newtype wrapper instead of a type alias to allow BigArray attribute
+                    let needsNewtypeWrapper = false;
+                    let arraySize: number | undefined = undefined;
+                    if (node.type.kind !== 'structTypeNode' && node.type.kind !== 'enumTypeNode') {
+                        // Resolve the underlying type to check if it's a large array
+                        let resolvedRaw: any = undefined;
+                        // First check if the type node itself is a fixed-size array
+                        if (isNode(node.type, 'fixedSizeTypeNode')) {
+                            resolvedRaw = node.type;
+                        } else if (isNode(node.type, 'arrayTypeNode')) {
+                            resolvedRaw = node.type;
+                        } else if (isNode(node.type, 'definedTypeLinkNode')) {
+                            // For type aliases, resolve through the map or nested resolution
+                            if (definedTypesMap) {
+                                const typeName = node.type.name;
+                                const definedType = definedTypesMap.get(typeName);
+                                if (definedType && definedType.type) {
+                                    resolvedRaw = definedType.type;
+                                }
+                            }
+                            if (!resolvedRaw) {
+                                resolvedRaw = resolveNestedTypeNode(node.type);
+                            }
+                        }
+                        if (resolvedRaw) {
+                            const resolved = resolvedRaw as TypeNode;
+                            if (isNode(resolved, 'fixedSizeTypeNode')) {
+                                if (isNode(resolved.type, 'bytesTypeNode') && resolved.size > 32) {
+                                    needsNewtypeWrapper = true;
+                                    arraySize = resolved.size;
+                                }
+                            } else if (isNode(resolved, 'arrayTypeNode')) {
+                                if (isNode(resolved.count, 'fixedCountNode') && resolved.count.value > 32) {
+                                    needsNewtypeWrapper = true;
+                                    arraySize = resolved.count.value;
+                                }
+                            }
+                        }
+                    }
+
+                    // Track if this type was converted to a newtype wrapper
+                    if (needsNewtypeWrapper) {
+                        newtypeWrapperTypes.add(node.name);
+                    }
+
                     let renderMap = new RenderMap().add(
                         `src/types/${snakeCase(node.name)}.rs`,
                         render('typesPage.njk', {
                             definedType: node,
                             imports: imports.toString(),
                             typeManifest,
+                            needsNewtypeWrapper,
+                            arraySize,
                         }),
                     );
 
@@ -314,7 +369,18 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const argumentTypes = regularArguments.map(arg => {
                         const manifest = visit(arg.type, typeManifestVisitor);
                         imports.mergeWithManifest(manifest);
-                        return manifest;
+                        
+                        // visitDefinedTypeLink already sets requiredBigArray appropriately (including undefined for newtype wrappers)
+                        // Only need to override if it's a newtype wrapper to ensure it's undefined
+                        let requiredBigArray = manifest.requiredBigArray;
+                        if (isNode(arg.type, 'definedTypeLinkNode') && newtypeWrapperTypes.has(arg.type.name)) {
+                            requiredBigArray = undefined; // Newtype wrapper handles serialization itself
+                        }
+                        
+                        return {
+                            ...manifest,
+                            requiredBigArray,
+                        };
                     });
 
                     let discriminators = node.discriminators ?? [];
@@ -477,12 +543,21 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         throw new Error('No program found in IDL');
                     }
 
+                    // Build a map of defined types for type resolution
+                    definedTypesMap = new Map();
+                    const allDefinedTypes = getAllDefinedTypes(node);
+                    for (const definedType of allDefinedTypes) {
+                        definedTypesMap.set(definedType.name, definedType);
+                    }
+                    // Recreate the type manifest visitor with the defined types map
+                    typeManifestVisitor = createTypeManifestVisitor();
+
                     // Use getAll* functions but they will only process the main program
                     const accountsToExport = getAllAccounts(node);
                     const instructionsToExport = getAllInstructionsWithSubs(node, {
                         leavesOnly: !renderParentInstructions,
                     });
-                    const definedTypesToExport = getAllDefinedTypes(node);
+                    const definedTypesToExport = allDefinedTypes;
 
                     const ctx = {
                         accountsToExport,
@@ -497,6 +572,12 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         withPostgres: options.withPostgres !== false,
                         withGraphQL: options.withGraphql !== false,
                         versions: VERSIONS,
+                        carbonCoreDep: getCrateDependencyString("carbon-core", VERSIONS["carbon-core"], ["macros"]),
+                        carbonTestUtilsDep: getCrateDependencyString("carbon-test-utils", VERSIONS["carbon-test-utils"]),
+                        borshDep: getCrateDependencyString("borsh", VERSIONS["borsh"], ["derive"]),
+                        solanaPubkeyDep: getCrateDependencyString("solana-pubkey", VERSIONS["solana-pubkey"]),
+                        solanaAccountDep: getCrateDependencyString("solana-account", VERSIONS["solana-account"]),
+                        solanaInstructionDep: getCrateDependencyString("solana-instruction", VERSIONS["solana-instruction"]),
                     };
 
                     const map = new RenderMap();
@@ -711,6 +792,32 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
             const reverseExpr = isJson ? `${`source.${column}`}.0` : `${`source.${column}`}.into()`;
 
+            // Check if this defined type alias resolves to a large fixed-size array that needs BigArray
+            // But skip if it's a newtype wrapper (which handles serialization itself)
+            let needsBigArray = false;
+            // If this type was converted to a newtype wrapper, don't apply BigArray attribute
+            if (!newtypeWrapperTypes.has(typeNode.name)) {
+                // Resolve to check if underlying type is a large array
+                let resolvedRaw: any = undefined;
+                if (definedTypesMap) {
+                    const definedType = definedTypesMap.get(typeNode.name);
+                    if (definedType && definedType.type) {
+                        resolvedRaw = definedType.type;
+                    }
+                }
+                if (!resolvedRaw) {
+                    resolvedRaw = resolveNestedTypeNode(typeNode);
+                }
+                if (resolvedRaw) {
+                    const resolved = resolvedRaw as TypeNode;
+                    if (isNode(resolved, 'fixedSizeTypeNode') && isNode(resolved.type, 'bytesTypeNode') && resolved.size > 32) {
+                        needsBigArray = true;
+                    } else if (isNode(resolved, 'arrayTypeNode') && isNode(resolved.count, 'fixedCountNode') && resolved.count.value > 32) {
+                        needsBigArray = true;
+                    }
+                }
+            }
+
             out.push({
                 column,
                 rustPath: prefix.join('.'),
@@ -720,6 +827,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 postgresManifest: manifest,
                 expr,
                 reverseExpr,
+                needsBigArray,
             });
             return out;
         }
@@ -757,6 +865,12 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             } else {
                 return `sqlx::types::Json(${prefix}.into_iter().map(|element| ${buildExpression(typeNode.item, `element`)}).collect())`;
             }
+        } else if (isNode(typeNode, 'fixedSizeTypeNode')) {
+            // Fixed-size bytes [u8; N] → Vec<u8> for Postgres storage
+            if (isNode(typeNode.type, 'bytesTypeNode')) {
+                return `${prefix}.to_vec()`;
+            }
+            return buildExpression(typeNode.type, prefix);
         } else if (isNode(typeNode, 'optionTypeNode') || isNode(typeNode, 'zeroableOptionTypeNode') || isNode(typeNode, 'remainderOptionTypeNode')) {
             return `${prefix}.map(|value| ${buildExpression(typeNode.item, `value`)})`;
         } else if (isNode(typeNode, 'hiddenPrefixTypeNode')) {
@@ -885,6 +999,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     }
                     break;
             }
+        }
+        if (isNode(typeNode, 'fixedSizeTypeNode')) {
+            // Fixed-size bytes: Vec<u8> → [u8; N] with proper error handling
+            if (isNode(typeNode.type, 'bytesTypeNode')) {
+                return `${prefix}.as_slice().try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert padding from postgres primitive: expected ${typeNode.size} bytes".to_string()))?`;
+            }
+            return buildReverse(typeNode.type, prefix);
         }
         if (isNode(typeNode, 'optionTypeNode')) {
             const innerReverse = buildReverse(typeNode.item, 'value');
