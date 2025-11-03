@@ -121,16 +121,31 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
         decoderFeatures = `, features = [${featureParts.join(', ')}]`;
     }
 
+    const dsModule = opts.dataSource.toLowerCase();
+    const dsPathDir = dsModule.replace(/-/g, '_') === 'helius_laserstream'
+        ? 'helius-laserstream-datasource'
+        : dsModule === 'yellowstone-grpc'
+            ? 'yellowstone-grpc-datasource'
+            : dsModule === 'rpc-block-subscribe'
+                ? 'rpc-block-subscribe-datasource'
+                : dsModule === 'rpc-program-subscribe'
+                    ? 'rpc-program-subscribe-datasource'
+                    : dsModule === 'rpc-transaction-crawler'
+                        ? 'rpc-transaction-crawler-datasource'
+                        : dsModule === 'helius-atlas-ws'
+                            ? 'helius-atlas-ws-datasource'
+                            : `${dsModule}-datasource`;
     const datasourceCrateName = `carbon-${opts.dataSource.toLowerCase()}-datasource`;
     const datasourceVersion = VERSIONS[datasourceCrateName as keyof typeof VERSIONS] || VERSIONS["carbon-core"];
-    const datasourceDep = `${datasourceCrateName} = { version = "${datasourceVersion}" }`;
+    const datasourceDep = `${datasourceCrateName} = { path = "../../../datasources/${dsPathDir}", version = "${datasourceVersion}" }`;
+    const metricsPathDir = opts.metrics.toLowerCase() === 'prometheus' ? 'prometheus-metrics' : 'log-metrics';
     const metricsCrateName = `carbon-${opts.metrics.toLowerCase()}-metrics`;
     const metricsVersion = VERSIONS[metricsCrateName as keyof typeof VERSIONS] || VERSIONS["carbon-core"];
-    const metricsDep = `${metricsCrateName} = { version = "${metricsVersion}" }`;
+    const metricsDep = `${metricsCrateName} = { path = "../../../metrics/${metricsPathDir}", version = "${metricsVersion}" }`;
 
     const grpcDeps =
         opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream'
-            ? `yellowstone-grpc-client = { version = "${VERSIONS["yellowstone-grpc-client"]}" }\nyellowstone-grpc-proto = { version = "${VERSIONS["yellowstone-grpc-proto"]}" }`
+            ? `yellowstone-grpc-client = { git = "https://github.com/rpcpool/yellowstone-grpc", rev = "73c43e1112f6b3432a6b2df9bad73438f6c51034" }\nyellowstone-grpc-proto = { git = "https://github.com/rpcpool/yellowstone-grpc", rev = "73c43e1112f6b3432a6b2df9bad73438f6c51034", features = ["convert"] }`
             : '';
 
     const pgDeps = opts.withPostgres
@@ -140,7 +155,7 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
     const gqlDeps = opts.withGraphql ? `juniper = "${VERSIONS.juniper}"\naxum = "${VERSIONS.axum}"` : '';
 
     const rustlsDep = opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream' ? `rustls = "${VERSIONS.rustls}"` : '';
-    const atlasDeps = opts.dataSource === 'helius-atlas-ws' ? `helius = "${VERSIONS.helius}"` : '';
+    const atlasDeps = opts.dataSource === 'helius-atlas-ws' ? `helius = { git = "https://github.com/helius-labs/helius-rust-sdk", rev = "f62d528283ca009acacebdd343a8cf2bc0fd09cd" }` : '';
 
     const features = ['default = []', opts.withPostgres ? 'postgres = []' : '', opts.withGraphql ? 'graphql = []' : '']
         .filter(Boolean)

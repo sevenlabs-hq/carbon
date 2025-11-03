@@ -143,25 +143,12 @@ pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream
                     return None;
                 }
 
-
-                let (disc, mut rest) = data.split_at(Self::DISCRIMINATOR.len());
+                let (disc, rest) = data.split_at(Self::DISCRIMINATOR.len());
                 if disc != Self::DISCRIMINATOR {
                     return None;
                 }
 
-                 match carbon_core::borsh::BorshDeserialize::deserialize(&mut rest) {
-                    Ok(res) => {
-                        if !rest.is_empty() {
-                            carbon_core::log::debug!(
-                                "Not all bytes were read when deserializing {}: {} bytes remaining",
-                                stringify!(#name),
-                                rest.len(),
-                            );
-                        }
-                        Some(res)
-                    }
-                    Err(_) => None,
-                }
+                carbon_core::borsh::BorshDeserialize::try_from_slice(rest).ok()
             }
         }
     };
