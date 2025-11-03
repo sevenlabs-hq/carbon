@@ -1,9 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{
-    borsh::{self, maybestd::vec::Vec},
-    CarbonDeserialize,
-};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
