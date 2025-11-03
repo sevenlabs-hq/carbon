@@ -5,13 +5,15 @@
 
 {{ imports }}
 
-{% if postgresMode !== 'generic' %}
+{% if withPostgres and postgresMode !== 'generic' %}
 #[cfg(feature = "postgres")]
 pub mod postgres;
 {% endif %}
 
+{% if withGraphQL %}
 #[cfg(feature = "graphql")]
 pub mod graphql;
+{% endif %}
 
 {% for account in accountsToExport | sort(false, false, 'name') %}
 pub mod {{ macros.escapeRustKeyword(account.name | snakeCase) }};
