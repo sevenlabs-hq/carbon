@@ -32,11 +32,11 @@ graphql = [
 
 [dependencies]
 # Core dependencies
-carbon-core = { path = "../../../crates/core", version = "{{ versions['carbon-core'] }}", default-features = false, features = ["macros"] }
-borsh = { version = "{{ versions['borsh'] }}", features = ["derive"] }
-solana-pubkey = { version = "{{ versions['solana-pubkey'] }}", features = ["borsh"] }
-solana-account = { version = "{{ versions['solana-account'] }}" }
-solana-instruction = { version = "{{ versions['solana-instruction'] }}", default-features = false }
+{{ carbonCoreDep }}
+{{ borshDep }}
+{{ solanaPubkeyDep }}
+{{ solanaAccountDep }}
+{{ solanaInstructionDep }}
 serde_json = "1.0.138"
 
 # Serialization (optional)
@@ -54,6 +54,6 @@ base64 = { version = "0.22", optional = true }
 
 
 [dev-dependencies]
-carbon-test-utils = { path = "../../../crates/test-utils", version = "{{ versions['carbon-test-utils'] }}" }
+{{ carbonTestUtilsDep }}
 
 {% endblock %}

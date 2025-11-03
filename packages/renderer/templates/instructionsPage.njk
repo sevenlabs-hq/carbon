@@ -33,17 +33,13 @@ impl {{ instruction.name | pascalCase }} {
 {{ discriminatorManifest.checkCode | safe }}
 {% endif %}
 
-        let mut data_slice = data;
+        let data_slice = data;
 
 {% if discriminatorManifest %}
         let data_slice = &data_slice[{{ discriminatorManifest.size }}..];
 {% endif %}
 
-        if let Ok(decoded) = Self::deserialize(&mut data_slice) {
-            return Some(decoded);
-        }
-
-        None
+        <Self as carbon_core::deserialize::CarbonDeserialize>::deserialize(data_slice)
     }
 }
 
