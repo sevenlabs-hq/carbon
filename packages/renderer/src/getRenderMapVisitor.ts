@@ -107,7 +107,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const typeManifest = visit(newNode.data, typeManifestVisitor);
                     const imports = new ImportMap()
                         .mergeWithManifest(typeManifest)
-                        .add('carbon_core::borsh::{self, BorshDeserialize}');
+                        .add('carbon_core::borsh')
+                        .add('carbon_core::CarbonDeserialize');
 
                     const discriminatorManifest = discriminators.length > 0
                         ? getDiscriminatorManifest(discriminators)
@@ -196,7 +197,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     );
 
                     for (let event of options.anchorEvents ?? []) {
-                        imports.add('carbon_core::borsh::BorshDeserialize');
+                        imports.add('carbon_core::CarbonDeserialize');
 
                         if (camelCase(event.name) == node.name) {
                             let discriminatorManifest: DiscriminatorManifest = {
@@ -296,7 +297,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                 visitInstruction(node) {
                     const imports = new ImportMap()
-                        .add('carbon_core::borsh::{self, BorshDeserialize}')
+                        .add('carbon_core::borsh')
+                        .add('carbon_core::CarbonDeserialize')
                         .add('carbon_core::deserialize::ArrangeAccounts');
 
                     if (node.accounts && node.accounts.length > 0) {

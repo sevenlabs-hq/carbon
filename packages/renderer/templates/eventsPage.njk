@@ -5,7 +5,7 @@
 {{ imports }}
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
+#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct {{ event.name | pascalCase }}Event {{ typeManifest.type }}
 
 impl {{ event.name | pascalCase }}Event {
@@ -14,17 +14,13 @@ impl {{ event.name | pascalCase }}Event {
 {{ discriminatorManifest.checkCode | safe }}
 {% endif %}
 
-        let mut data_slice = data;
+        let data_slice = data;
 
 {% if discriminatorManifest %}
-        data_slice = &data_slice[{{ discriminatorManifest.size }}..];
+        let data_slice = &data_slice[{{ discriminatorManifest.size }}..];
 {% endif %}
 
-        if let Ok(decoded) = Self::deserialize(&mut data_slice) {
-            return Some(decoded);
-        }
-
-        None
+        <Self as carbon_core::deserialize::CarbonDeserialize>::deserialize(data_slice)
     }
 }
 {% endblock %}
