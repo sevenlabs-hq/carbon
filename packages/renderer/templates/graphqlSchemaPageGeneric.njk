@@ -8,7 +8,8 @@
 {% if not isAccount %}
 
 {% endif %}
-#[derive(Debug, Clone, GraphQLObject)]
+{% import "macros.njk" as macros %}
+{{ macros.graphqlObjectDerives() }}
 #[graphql(name = "{{ entityName | pascalCase }}")]
 pub struct {{ entityName | pascalCase }}GraphQL {
     pub {% if isAccount %}account_metadata{% else %}instruction_metadata{% endif %}: {% if isAccount %}crate::accounts::graphql::AccountMetadataGraphQL{% else %}crate::instructions::graphql::InstructionMetadataGraphQL{% endif %},

@@ -5,12 +5,10 @@
 {{ imports }}
 {{ macros.docblock(definedType.docs) }}
 {% if definedType.type.kind === 'enumTypeNode' %}
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
+{{ macros.coreTypeDerives() }}
 pub enum {{ definedType.name | pascalCase }} {{ typeManifest.type }}
 {% elif definedType.type.kind === 'structTypeNode' %}
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
+{{ macros.coreTypeDerives() }}
 pub struct {{ definedType.name | pascalCase }} {{ typeManifest.type }}
 {% elif needsNewtypeWrapper %}
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]

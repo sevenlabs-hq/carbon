@@ -19,9 +19,7 @@ pub mod graphql;
 pub mod {{ macros.escapeRustKeyword(account.name | snakeCase) }};
 {% endfor %}
 
-#[derive(Debug, Clone, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
+{{ macros.enumWrapperDerives() }}
 pub enum {{ program.name | pascalCase }}Account {
 {% for account in accountsToExport | sort(false, false, 'name') %}
     {{ account.name | pascalCase }}(Box<{{ account.name | snakeCase }}::{{ account.name | pascalCase }}>),

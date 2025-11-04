@@ -1,8 +1,9 @@
 {% block main %}
 
 {{ imports }}
+{% import "macros.njk" as macros %}
 
-#[derive(sqlx::FromRow, Debug, Clone)]
+{{ macros.postgresRowDerives() }}
 pub struct CpiEventRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,

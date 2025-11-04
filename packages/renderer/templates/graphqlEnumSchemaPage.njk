@@ -9,7 +9,8 @@
 /// {{ doc }}
 {% endfor %}
 {% endif %}
-#[derive(Debug, Clone, GraphQLEnum)]
+{% import "macros.njk" as macros %}
+{{ macros.graphqlEnumDerives() }}
 #[graphql(name = "{{ entityName | pascalCase }}")]
 pub enum {{ entityName | pascalCase }}GraphQL {
 {% for v in variants %}

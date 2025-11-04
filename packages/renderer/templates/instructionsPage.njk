@@ -7,8 +7,7 @@
 {% if instruction.docs and instruction.docs.length > 0 %}
 {{ macros.docblock(instruction.docs) }}
 {% endif %}
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+{{ macros.coreDecoderDerives() }}
 pub struct {{ instruction.name | pascalCase }} {
 {% for arg in instruction.arguments -%}
   {% if arg.docs %}{% for doc in arg.docs %}{% set lines = doc.split('\n') %}{% for line in lines %}    /// {{ line }}
@@ -19,8 +18,7 @@ pub struct {{ instruction.name | pascalCase }} {
 {% endfor -%}
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+{{ macros.simpleStructDerives() }}
 pub struct {{ instruction.name | pascalCase }}InstructionAccounts {
 {% for account in instruction.accounts %}
     pub {{ macros.escapeRustKeyword(account.name | snakeCase) }}: {% if account.isOptional %}Option<solana_pubkey::Pubkey>{% else %}solana_pubkey::Pubkey{% endif %},

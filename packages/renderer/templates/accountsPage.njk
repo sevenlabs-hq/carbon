@@ -4,8 +4,7 @@
 {% block main %}
 {{ imports }}
 {{ macros.docblock(account.docs) }}
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+{{ macros.coreDecoderDerives() }}
 pub struct {{ account.name | pascalCase }} {{ typeManifest.type }}
 
 impl {{ account.name | pascalCase }} {

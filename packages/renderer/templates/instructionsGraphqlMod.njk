@@ -22,7 +22,7 @@ pub use cpi_event_schema::*;
 
 {{ imports }}
 
-#[derive(Debug, Clone, GraphQLObject)]
+{{ macros.graphqlObjectDerives() }}
 #[graphql(name = "InstructionMetadata")]
 pub struct InstructionMetadataGraphQL {
     pub signature: String,
