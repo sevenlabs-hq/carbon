@@ -49,6 +49,9 @@ program
     .option('-u, --url <rpcUrl>', 'RPC URL for fetching IDL when using a program address')
     .option('--program-id <address>', 'Program ID (used if IDL lacks address field)')
     .option('--postgres-mode <generic|typed>', 'Postgres table storage mode', 'typed')
+    .option('--with-postgres <boolean>', 'Include Postgres wiring and deps (default: true)')
+    .option('--with-graphql <boolean>', 'Include GraphQL wiring and deps (default: true)')
+    .option('--with-serde <boolean>', 'Include serde feature for decoder (default: false)')
     .option('--no-clean', 'Do not delete output directory before rendering', false)
     .action(async opts => {
         showBanner();
@@ -58,6 +61,17 @@ program
             const answers = await promptForParse(opts);
             Object.assign(opts, answers);
         }
+
+        // Normalize boolean options
+        const withPostgres = opts.withPostgres !== undefined 
+            ? opts.withPostgres === 'true' || opts.withPostgres === true
+            : true;
+        const withGraphql = opts.withGraphql !== undefined
+            ? opts.withGraphql === 'true' || opts.withGraphql === true
+            : true;
+        const withSerde = opts.withSerde !== undefined
+            ? opts.withSerde === 'true' || opts.withSerde === true
+            : false;
 
         const outDir = resolve(process.cwd(), opts.outDir);
         
@@ -74,6 +88,9 @@ program
                 deleteFolderBeforeRendering: Boolean(opts.clean),
                 programId: opts.programId,
                 postgresMode: opts.postgresMode,
+                withPostgres,
+                withGraphql,
+                withSerde,
             });
             
             logger.succeedSpinner('Decoder generated');
@@ -210,6 +227,7 @@ program
                 postgresMode: opts.postgresMode,
                 withPostgres,
                 withGraphql,
+                withSerde,
             });
             
             logger.succeedSpinner('Decoder generated successfully');

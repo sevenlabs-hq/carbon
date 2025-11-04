@@ -9,7 +9,9 @@ crate-type = ["rlib"]
 
 [features]
 default = []
+{%- if withSerde or withPostgres or withGraphQL %}
 serde = ["dep:serde", "dep:serde-big-array"]
+{%- endif %}
 {%- if withPostgres %}
 
 postgres = [
