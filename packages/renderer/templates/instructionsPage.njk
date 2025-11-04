@@ -42,7 +42,7 @@ impl {{ instruction.name | pascalCase }} {
         let data_slice = &data_slice[{{ discriminatorManifest.size }}..];
 {% endif %}
 
-        <Self as carbon_core::deserialize::CarbonDeserialize>::deserialize(data_slice)
+        Self::deserialize(data_slice)
     }
 }
 
