@@ -27,9 +27,7 @@ pub use self::{{ macros.escapeRustKeyword(instruction.name | snakeCase) }}::*;
 pub use self::cpi_event::*;
 {% endif %}
 
-#[derive(Debug, Clone, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
+{{ macros.enumWrapperDerives() }}
 pub enum {{ program.name | pascalCase }}Instruction {
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
     {{ instruction.name | pascalCase }}({{ instruction.name | pascalCase }}),

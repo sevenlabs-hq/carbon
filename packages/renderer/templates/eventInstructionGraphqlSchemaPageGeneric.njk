@@ -2,8 +2,9 @@
 
 {% block main %}
 {{ imports }}
+{% import "macros.njk" as macros %}
 
-#[derive(Debug, Clone, GraphQLObject)]
+{{ macros.graphqlObjectDerives() }}
 #[graphql(name = "CpiEvent")]
 pub struct CpiEventGraphQL {
     pub instruction_metadata: crate::instructions::graphql::InstructionMetadataGraphQL,

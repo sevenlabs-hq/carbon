@@ -9,7 +9,7 @@
 {% if not isAccount %}
 
 {% endif %}
-#[derive(sqlx::FromRow, Debug, Clone)]
+{{ macros.postgresRowDerives() }}
 pub struct {{ entityName | pascalCase }}Row {
     #[sqlx(flatten)]
 {% if isAccount %}
