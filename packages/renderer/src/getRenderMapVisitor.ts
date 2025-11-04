@@ -37,6 +37,7 @@ export type GetRenderMapOptions = {
     postgresMode?: 'generic' | 'typed';
     withPostgres?: boolean;
     withGraphql?: boolean;
+    withSerde?: boolean;
 };
 
 type FlattenedField = {
@@ -574,6 +575,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         postgresMode: options.postgresMode || 'typed',
                         withPostgres: options.withPostgres !== false,
                         withGraphQL: options.withGraphql !== false,
+                        withSerde: options.withSerde ?? false,
                         versions: VERSIONS,
                         carbonCoreDep: getCrateDependencyString("carbon-core", VERSIONS["carbon-core"], ["macros"]),
                         carbonTestUtilsDep: getCrateDependencyString("carbon-test-utils", VERSIONS["carbon-test-utils"]),
