@@ -649,8 +649,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         // Use different query template based on postgres mode
                         if (options.postgresMode === 'generic') {
                             const graphqlQueryGenericImports = new ImportMap()
-                                .add('juniper::{graphql_object, FieldResult}')
-                                .add('carbon_core::postgres::rows::{AccountRow, InstructionRow}');
+                                .add('juniper::{graphql_object, FieldResult}');
                             map.add('src/graphql/query.rs', render('graphqlQueryPageGeneric.njk', { ...ctx, imports: graphqlQueryGenericImports.toString() }));
                         } else {
                             const graphqlQueryImports = new ImportMap()
