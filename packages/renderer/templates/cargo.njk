@@ -10,8 +10,9 @@ crate-type = ["rlib"]
 [features]
 default = []
 {%- if withSerde or withPostgres or withGraphQL %}
+
 serde = ["dep:serde", "dep:serde-big-array"]
-{%- endif %}
+{% endif %}
 {%- if withPostgres %}
 
 postgres = [
@@ -21,7 +22,7 @@ postgres = [
     "dep:sqlx_migrator",
     "serde",
 ]
-{%- endif %}
+{% endif %}
 {%- if withGraphQL %}
 
 graphql = [
@@ -30,7 +31,7 @@ graphql = [
     "dep:base64",
     "serde",
 ]
-{%- endif %}
+{% endif %}
 
 [dependencies]
 # Core dependencies
