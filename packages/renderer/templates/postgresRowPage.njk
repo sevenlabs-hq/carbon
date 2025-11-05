@@ -3,12 +3,7 @@
 
 {% block main %}
 {{ imports }}
-{% if isAccount %}
-{{ macros.docblock(entityDocs) }}
-{% endif %}
-{% if not isAccount %}
 
-{% endif %}
 {{ macros.postgresRowDerives() }}
 pub struct {{ entityName | pascalCase }}Row {
     #[sqlx(flatten)]

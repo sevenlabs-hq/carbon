@@ -40,20 +40,20 @@ graphql = [
 {{ solanaPubkeyDep }}
 {{ solanaAccountDep }}
 {{ solanaInstructionDep }}
-serde_json = "1.0.138"
+{{ serdeJsonDep }}
 
 # Serialization (optional)
-serde = { version = "1.0.219", features = ["derive"], optional = true }
-serde-big-array = { version = "0.5.1", optional = true }
+{{ serdeDep }}
+{{ serdeBigArrayDep }}
 
 # Postgres dependencies (optional)
-sqlx = { version = "{{ versions['sqlx'] }}", features = ["postgres", "rust_decimal"], optional = true }
-async-trait = { version = "0.1", optional = true }
-sqlx_migrator = { version = "{{ versions['sqlx_migrator'] }}", optional = true }
+{{ sqlxDep }}
+{{ asyncTraitDep }}
+{{ sqlxMigratorDep }}
 
 # GraphQL dependencies (optional)
-juniper = { version = "{{ versions['juniper'] }}", optional = true }
-base64 = { version = "0.22", optional = true }
+{{ juniperDep }}
+{{ base64Dep }}
 
 
 [dev-dependencies]

@@ -6,17 +6,26 @@ import type { CrateDependency } from './index';
  * @param crateName - The crate name (e.g., "yellowstone-grpc-client")
  * @param dependency - The dependency definition (string or object)
  * @param additionalFeatures - Optional features to add/override
+ * @param optional - Whether the dependency should be marked as optional
  * @returns TOML-formatted string like: `crate = { git = "...", rev = "..." }`
  */
 export function getCrateDependencyString(
     crateName: string,
     dependency: CrateDependency,
-    additionalFeatures?: string[]
+    additionalFeatures?: string[],
+    optional?: boolean
 ): string {
     if (typeof dependency === 'string') {
-        if (additionalFeatures && additionalFeatures.length > 0) {
-            const featuresStr = additionalFeatures.map(f => `"${f}"`).join(', ');
-            return `${crateName} = { version = "${dependency}", features = [${featuresStr}] }`;
+        if (optional || (additionalFeatures && additionalFeatures.length > 0)) {
+            const parts: string[] = [`version = "${dependency}"`];
+            if (additionalFeatures && additionalFeatures.length > 0) {
+                const featuresStr = additionalFeatures.map(f => `"${f}"`).join(', ');
+                parts.push(`features = [${featuresStr}]`);
+            }
+            if (optional) {
+                parts.push('optional = true');
+            }
+            return `${crateName} = { ${parts.join(', ')} }`;
         }
         return `${crateName} = "${dependency}"`;
     }
@@ -50,6 +59,10 @@ export function getCrateDependencyString(
     
     if (dependency.defaultFeatures === false) {
         parts.push('default-features = false');
+    }
+    
+    if (optional) {
+        parts.push('optional = true');
     }
     
     return `${crateName} = { ${parts.join(', ')} }`;

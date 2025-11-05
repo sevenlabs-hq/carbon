@@ -99,6 +99,27 @@ export const VERSIONS: Record<string, CrateDependency> = {
         rev: "f62d528283ca009acacebdd343a8cf2bc0fd09cd",
     },
     "futures-util": "0.3.1",
+    "serde": {
+        version: "1.0.208",
+        features: ["derive"],
+    },
+    "serde_json": "1.0.138",
+    "serde-big-array": "0.5.1",
+    "async-trait": "0.1.86",
+    "base64": "0.22.1",
+    "tokio": {
+        version: "1",
+        features: ["rt-multi-thread", "macros"],
+    },
+    "dotenv": "0.15.0",
+    "env_logger": "0.11.5",
+    "log": "0.4.25",
+    "anyhow": "1.0.96",
+    "tracing": "0.1",
+    "tracing-subscriber": {
+        version: "0.3",
+        features: ["fmt", "env-filter"],
+    },
 } as const;
 
 export { getCrateDependencyString } from './utils';

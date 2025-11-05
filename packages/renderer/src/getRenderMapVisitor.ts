@@ -583,6 +583,14 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         solanaPubkeyDep: getCrateDependencyString("solana-pubkey", VERSIONS["solana-pubkey"]),
                         solanaAccountDep: getCrateDependencyString("solana-account", VERSIONS["solana-account"]),
                         solanaInstructionDep: getCrateDependencyString("solana-instruction", VERSIONS["solana-instruction"]),
+                        serdeDep: getCrateDependencyString("serde", VERSIONS["serde"], undefined, true),
+                        serdeJsonDep: getCrateDependencyString("serde_json", VERSIONS["serde_json"]),
+                        serdeBigArrayDep: getCrateDependencyString("serde-big-array", VERSIONS["serde-big-array"], undefined, true),
+                        asyncTraitDep: getCrateDependencyString("async-trait", VERSIONS["async-trait"], undefined, true),
+                        sqlxDep: getCrateDependencyString("sqlx", VERSIONS["sqlx"], ["postgres", "rust_decimal"], true),
+                        sqlxMigratorDep: getCrateDependencyString("sqlx_migrator", VERSIONS["sqlx_migrator"], undefined, true),
+                        juniperDep: getCrateDependencyString("juniper", VERSIONS["juniper"], undefined, true),
+                        base64Dep: getCrateDependencyString("base64", VERSIONS["base64"], undefined, true),
                     };
 
                     const map = new RenderMap();
