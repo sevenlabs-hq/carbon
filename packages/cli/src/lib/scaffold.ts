@@ -179,6 +179,14 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
     const solanaPubkeyDep = getCrateDependencyString("solana-pubkey", VERSIONS["solana-pubkey"]);
     const solanaClientDep = getCrateDependencyString("solana-client", VERSIONS["solana-client"]);
     const solanaInstructionDep = getCrateDependencyString("solana-instruction", VERSIONS["solana-instruction"]);
+    const asyncTraitDep = getCrateDependencyString("async-trait", VERSIONS["async-trait"]);
+    const tokioDep = getCrateDependencyString("tokio", VERSIONS["tokio"]);
+    const dotenvDep = getCrateDependencyString("dotenv", VERSIONS["dotenv"]);
+    const envLoggerDep = getCrateDependencyString("env_logger", VERSIONS["env_logger"]);
+    const logDep = getCrateDependencyString("log", VERSIONS["log"]);
+    const anyhowDep = getCrateDependencyString("anyhow", VERSIONS["anyhow"]);
+    const tracingDep = getCrateDependencyString("tracing", VERSIONS["tracing"]);
+    const tracingSubscriberDep = getCrateDependencyString("tracing-subscriber", VERSIONS["tracing-subscriber"]);
 
     return {
         projectName: opts.name,
@@ -189,6 +197,14 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
         solanaPubkeyDep,
         solanaClientDep,
         solanaInstructionDep,
+        asyncTraitDep,
+        tokioDep,
+        dotenvDep,
+        envLoggerDep,
+        logDep,
+        anyhowDep,
+        tracingDep,
+        tracingSubscriberDep,
         decoderDependency,
         datasourceDep,
         metricsDep,

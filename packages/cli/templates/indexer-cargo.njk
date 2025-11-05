@@ -4,7 +4,7 @@ version = "0.0.1"
 edition = "2021"
 
 [dependencies]
-async-trait = "0.1.86"
+{{ asyncTraitDep }}
 {{ carbonCoreDep }}
 {%- if hasLocalDecoder %}
 carbon-{{ decoderCrateName }}-decoder = { path = "../decoder"{{ decoderFeatures }} }
@@ -25,13 +25,13 @@ carbon-{{ decoderCrateName }}-decoder = { path = "../decoder"{{ decoderFeatures 
 {{ solanaPubkeyDep }}
 {{ solanaClientDep }}
 {{ solanaInstructionDep }}
-tokio = { version = "1", features = ["rt-multi-thread", "macros"] }
-dotenv = "0.15.0"
-env_logger = "0.11.5"
-log = "0.4.25"
-anyhow = "1.0.96"
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["fmt", "env-filter"] }
+{{ tokioDep }}
+{{ dotenvDep }}
+{{ envLoggerDep }}
+{{ logDep }}
+{{ anyhowDep }}
+{{ tracingDep }}
+{{ tracingSubscriberDep }}
 {%- if rustlsDep %}
 {{ rustlsDep }}
 {%- endif %}
