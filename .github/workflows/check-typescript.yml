@@ -27,9 +27,19 @@ jobs:
           cache: 'pnpm'
       
       - run: pnpm install --frozen-lockfile
+      - name: Clean build artifacts
+        run: pnpm clean || true
       - run: pnpm build
+      - name: Verify renderer package types are available
+        run: |
+          if ! grep -q "packageName.*string" packages/renderer/dist/index.d.ts; then
+            echo "ERROR: packageName not found in RenderOptions type definition"
+            cat packages/renderer/dist/index.d.ts | grep -A 10 "type RenderOptions" || true
+            exit 1
+          fi
       - run: pnpm format:check
-      - run: pnpm type-check
+      - name: Type check all packages
+        run: pnpm type-check
 
 
 
