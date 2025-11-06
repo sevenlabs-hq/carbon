@@ -1,30 +1,30 @@
 {
-  "accounts": [
-    {
-      "pubkey": "C9U2Ksk6KKWvLEeo5yUQ7Xu46X7NzeBJtd9PBfuXaUSM",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "whirlpool"
-    },
-    {
-      "pubkey": "3QzmtmQZWK4kbCCrvCPgMwx3jzpPHEpiP4bqFGGfzfYZ",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "position"
-    },
-    {
-      "pubkey": "8BMs46yZnuqiWa2WVdwZreYYsemRNS5Smjnw5x3Kyi75",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tickArrayLower"
-    },
-    {
-      "pubkey": "GPhfHEJjRVx5hnSkh3jcqWdJo3LthY31BmPZ6QRaRzDb",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tickArrayUpper"
-    }
-  ],
-  "data": "9ae6fa0decd14bdf",
-  "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+    "accounts": [
+        {
+            "pubkey": "C9U2Ksk6KKWvLEeo5yUQ7Xu46X7NzeBJtd9PBfuXaUSM",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "whirlpool"
+        },
+        {
+            "pubkey": "3QzmtmQZWK4kbCCrvCPgMwx3jzpPHEpiP4bqFGGfzfYZ",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "position"
+        },
+        {
+            "pubkey": "8BMs46yZnuqiWa2WVdwZreYYsemRNS5Smjnw5x3Kyi75",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tickArrayLower"
+        },
+        {
+            "pubkey": "GPhfHEJjRVx5hnSkh3jcqWdJo3LthY31BmPZ6QRaRzDb",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tickArrayUpper"
+        }
+    ],
+    "data": "9ae6fa0decd14bdf",
+    "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
 }

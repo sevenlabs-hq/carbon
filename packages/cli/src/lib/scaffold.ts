@@ -3,20 +3,22 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import nunjucks from 'nunjucks';
 import { exitWithError } from './utils';
-import { kebabCase } from 'codama';
+import { kebabCase } from '@codama/nodes';
+import * as Datasources from '../datasources';
+import type { DecoderMeta } from '../datasources';
+import { generateIndexerCargoToml } from './cargoTomlGenerator';
 
 export type ScaffoldOptions = {
     name: string;
     outDir: string;
     decoder: string;
-    decoderMode?: 'published' | 'generate';
-    decoderPath?: string; // Path to generated decoder
     dataSource: string;
     metrics: 'log' | 'prometheus';
     withPostgres: boolean;
     withGraphql: boolean;
     withSerde: boolean;
     force?: boolean;
+    postgresMode?: 'generic' | 'typed';
 };
 
 function ensureDir(path: string) {
@@ -25,56 +27,88 @@ function ensureDir(path: string) {
     }
 }
 
-function buildIndexerCargoContext(opts: ScaffoldOptions) {
-    const featureParts: string[] = [];
+function buildProjectImports(ctx: any): string {
+    const lines: string[] = [];
 
-    if (opts.withPostgres) featureParts.push('"postgres"');
-    if (opts.withGraphql) featureParts.push('"graphql"');
-    if (opts.withSerde) featureParts.push('"serde"');
+    // Common
+    lines.push('use std::{env, sync::Arc};');
 
-    const hasLocalDecoder = true;
-    const decoderCrateName = kebabCase(opts.decoder)
-    
-    let decoderDependency: string = '';
-    let decoderFeatures = '';
-    if (featureParts.length) {
-        decoderFeatures = `, features = [${featureParts.join(', ')}]`;
+    // Feature-dependent
+    if (!ctx.withPostgres) {
+        lines.push('use async_trait::async_trait;');
+        lines.push('use carbon_core::deserialize::ArrangeAccounts;');
+        lines.push('use carbon_core::instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions};');
+        lines.push('use carbon_core::metrics::MetricsCollection;');
+        lines.push('use carbon_core::processor::Processor;');
     }
 
-    const datasourceDep = `carbon-${opts.dataSource.toLowerCase()}-datasource = "0.11.0"`;
-    const metricsDep = `carbon-${opts.metrics.toLowerCase()}-metrics = "0.11.0"`;
+    lines.push('use carbon_core::error::CarbonResult;');
 
-    const grpcDeps =
-        opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream'
-            ? `yellowstone-grpc-client = { version = "9.0.0" }\nyellowstone-grpc-proto = { version = "9.0.0" }`
-            : '';
+    if (ctx.withPostgres) {
+        if (ctx.useGenericPostgres) {
+            lines.push(
+                'use carbon_core::postgres::processors::{PostgresJsonAccountProcessor, PostgresJsonInstructionProcessor};',
+            );
+            lines.push('use carbon_core::postgres::rows::{GenericAccountsMigration, GenericInstructionMigration};');
+        } else {
+            lines.push(
+                'use carbon_core::postgres::processors::{PostgresAccountProcessor, PostgresInstructionProcessor};',
+            );
+        }
+        lines.push('use sqlx_migrator::{Info, Migrate, Plan};');
+    }
 
-    const pgDeps = opts.withPostgres
-        ? `sqlx = { version = "0.8.6", features = ["postgres", "runtime-tokio-rustls", "macros"] }\nsqlx_migrator = "0.17.0"`
-        : '';
+    // Metrics
+    lines.push(`use carbon_${ctx.metrics.module_name}_metrics::${ctx.metrics.name}Metrics;`);
 
-    const gqlDeps = opts.withGraphql ? `juniper = "0.15"\naxum = "0.8.4"` : '';
+    // Decoders
+    for (const d of ctx.decoders as Array<{ name: string; module_name: string }>) {
+        const crate = `carbon_${d.module_name}_decoder`;
+        if (ctx.withPostgres) {
+            if (!ctx.useGenericPostgres) {
+                lines.push(
+                    `use ${crate}::accounts::postgres::{${d.name}AccountWithMetadata, ${d.name}AccountsMigration};`,
+                );
+                lines.push(`use ${crate}::accounts::${d.name}Account;`);
+                lines.push(
+                    `use ${crate}::instructions::postgres::{${d.name}InstructionWithMetadata, ${d.name}InstructionsMigration};`,
+                );
+                lines.push(`use ${crate}::instructions::${d.name}Instruction;`);
+            } else {
+                lines.push(`use ${crate}::accounts::${d.name}Account;`);
+                lines.push(`use ${crate}::instructions::${d.name}Instruction;`);
+            }
+        } else {
+            lines.push(`use ${crate}::instructions::${d.name}Instruction;`);
+        }
+        if (ctx.withGraphQL) {
+            lines.push(`use ${crate}::graphql::{QueryRoot, context::GraphQLContext};`);
+        }
+        lines.push(`use ${crate}::${d.name}Decoder;`);
 
-    const rustlsDep = opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream' ? 'rustls = "0.23"' : '';
+        const dsModule = ctx.data_source.module_name as string;
+        const usesProgramIds =
+            dsModule === 'yellowstone_grpc' ||
+            dsModule === 'helius_laserstream' ||
+            dsModule === 'rpc_program_subscribe' ||
+            dsModule === 'rpc_transaction_crawler';
+        if (usesProgramIds) {
+            lines.push(`use ${crate}::PROGRAM_ID as ${d.name.toUpperCase()}_PROGRAM_ID;`);
+        }
+    }
 
-    const features = ['default = []', opts.withPostgres ? 'postgres = []' : '', opts.withGraphql ? 'graphql = []' : '']
-        .filter(Boolean)
-        .join('\n');
+    // Datasource-specific imports are provided exclusively by the datasource builders
 
-    return {
-        projectName: opts.name,
-        hasLocalDecoder,
-        decoderCrateName,
-        decoderFeatures,
-        decoderDependency,
-        datasourceDep,
-        metricsDep,
-        grpcDeps,
-        pgDeps,
-        gqlDeps,
-        rustlsDep,
-        features,
-    };
+    if (ctx.withGraphQL) {
+        lines.push('use std::net::SocketAddr;');
+    }
+
+    // Include datasource-specific imports from TS builders (authoritative)
+    if (ctx.datasource_imports) {
+        lines.push(ctx.datasource_imports);
+    }
+
+    return lines.join('\n');
 }
 
 function getEnvContent(dataSource: string, withPostgres: boolean): string {
@@ -89,9 +123,6 @@ function getEnvContent(dataSource: string, withPostgres: boolean): string {
 
     // Add datasource-specific env vars
     switch (dataSourceLower) {
-        case 'helius_atlas_ws':
-            envContent += 'HELIUS_API_KEY=your-atlas-ws-url-here';
-            break;
         case 'helius_laserstream':
             envContent += 'GEYSER_URL=your-grpc-url-here\nX_TOKEN=your-x-token-here';
             break;
@@ -117,7 +148,7 @@ export function renderScaffold(opts: ScaffoldOptions) {
     }
 
     ensureDir(base);
-    
+
     // Create workspace structure
     const indexerDir = join(base, 'indexer');
     ensureDir(indexerDir);
@@ -135,10 +166,8 @@ export function renderScaffold(opts: ScaffoldOptions) {
         noCache: false,
     });
 
-    const hasLocalDecoder = opts.decoderMode === 'generate';
-
-    // Context for main.rs
-    const mainContext = {
+    // Context base for main.rs
+    const mainContext: any = {
         projectName: opts.name,
         decoders: [
             {
@@ -158,22 +187,48 @@ export function renderScaffold(opts: ScaffoldOptions) {
         },
         withPostgres: opts.withPostgres,
         withGraphQL: opts.withGraphql,
+        useGenericPostgres: opts.postgresMode === 'generic',
     };
 
+    // Build datasource artifacts from TS module
+    const dsModuleName = mainContext.data_source.module_name as string;
+    const builder = Datasources.getDatasourceBuilder(dsModuleName);
+    if (builder) {
+        const decodersMeta = mainContext.decoders as DecoderMeta[];
+        const artifact = builder(decodersMeta);
+        // Compose import lines
+        const datasource_imports = artifact.imports.map((i: string) => `use ${i};`).join('\n');
+        mainContext.datasource_imports = datasource_imports;
+        mainContext.datasource_init = artifact.init;
+    } else {
+        // Provide a clearer error message if no builder is found
+        const available = Object.keys(
+            (Datasources as unknown as { getDatasourceBuilder: any }).getDatasourceBuilder
+                ? {
+                      helius_laserstream: true,
+                      rpc_block_subscribe: true,
+                      yellowstone_grpc: true,
+                      rpc_transaction_crawler: true,
+                      rpc_program_subscribe: true,
+                  }
+                : {},
+        );
+        exitWithError(`No datasource builder found for '${dsModuleName}'. Available: ${available.join(', ')}`);
+    }
+
     // Generate workspace Cargo.toml
-    const workspaceContext = {
-        hasLocalDecoder,
-    };
-    const workspaceToml = env.render('workspace.njk', workspaceContext);
+    const workspaceToml = env.render('workspace.njk', {});
     writeFileSync(join(base, 'Cargo.toml'), workspaceToml);
+
+    // Compute dynamic imports for main.rs
+    mainContext.imports = buildProjectImports(mainContext);
 
     // Generate indexer main.rs
     const rendered = env.render('project.njk', mainContext);
     writeFileSync(join(indexerDir, 'src', 'main.rs'), rendered);
 
     // Generate indexer Cargo.toml
-    const indexerCargoContext = buildIndexerCargoContext(opts);
-    const indexerCargoToml = env.render('indexer-cargo.njk', indexerCargoContext);
+    const indexerCargoToml = generateIndexerCargoToml(opts);
     writeFileSync(join(indexerDir, 'Cargo.toml'), indexerCargoToml);
 
     // Generate .gitignore at workspace root
@@ -199,7 +254,8 @@ Generated by carbon-cli scaffold.
 ## Structure
 
 This is a Cargo workspace containing:
-- \`indexer/\` - The main indexer application${hasLocalDecoder ? '\n- `decoder/` - Generated decoder from IDL' : ''}
+- \`indexer/\` - The main indexer application
+- \`decoder/\` - Generated decoder from IDL
 
 ## Run
 
@@ -212,7 +268,7 @@ cargo run -p ${opts.name}-indexer
 - Metrics: ${opts.metrics}
 - Postgres: ${opts.withPostgres}
 - GraphQL: ${opts.withGraphql}
-- Decoder: ${hasLocalDecoder ? 'Generated locally' : `Published (carbon-${opts.decoder}-decoder)`}
+- Decoder: carbon-${opts.decoder}-decoder (generated)
 `;
 
     writeFileSync(join(base, 'README.md'), readme);

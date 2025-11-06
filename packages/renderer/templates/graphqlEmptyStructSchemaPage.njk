@@ -1,4 +1,7 @@
-use carbon_core::graphql::primitives::Json;
+{% extends "layout.njk" %}
+
+{% block main %}
+{{ imports }}
 
 {% if entityDocs and entityDocs.length > 0 %}
 {% for doc in entityDocs %}
@@ -15,3 +18,5 @@ impl From<crate::types::{{ entityName | pascalCase }}> for {{ entityName | pasca
         )
     }
 }
+
+{% endblock %}

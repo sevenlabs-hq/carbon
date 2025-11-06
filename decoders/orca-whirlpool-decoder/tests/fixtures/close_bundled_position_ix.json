@@ -1,36 +1,36 @@
 {
-  "accounts": [
-    {
-      "pubkey": "FSXUZE8ZiRmwBJqghEjKmENqU1JaSnVcxaYc7mDL2YVc",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "bundledPosition"
-    },
-    {
-      "pubkey": "Ek7JsLsfsWLspYKF6Rx9xrez16kYrRfo59kfWg6mu6ye",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "positionBundle"
-    },
-    {
-      "pubkey": "GpqwMcGqb8zc7CUUYWtGyDKeCwmHXnSj9z2KE9wWM9fF",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "positionBundleTokenAccount"
-    },
-    {
-      "pubkey": "6Pg1AsSovedLHBgtAzm4i3A7AoZDTo28qkV9U46Zj8iA",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "positionBundleAuthority"
-    },
-    {
-      "pubkey": "6Pg1AsSovedLHBgtAzm4i3A7AoZDTo28qkV9U46Zj8iA",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "receiver"
-    }
-  ],
-  "data": "2924d8f51b5567430000",
-  "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+    "accounts": [
+        {
+            "pubkey": "FSXUZE8ZiRmwBJqghEjKmENqU1JaSnVcxaYc7mDL2YVc",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "bundledPosition"
+        },
+        {
+            "pubkey": "Ek7JsLsfsWLspYKF6Rx9xrez16kYrRfo59kfWg6mu6ye",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "positionBundle"
+        },
+        {
+            "pubkey": "GpqwMcGqb8zc7CUUYWtGyDKeCwmHXnSj9z2KE9wWM9fF",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "positionBundleTokenAccount"
+        },
+        {
+            "pubkey": "6Pg1AsSovedLHBgtAzm4i3A7AoZDTo28qkV9U46Zj8iA",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "positionBundleAuthority"
+        },
+        {
+            "pubkey": "6Pg1AsSovedLHBgtAzm4i3A7AoZDTo28qkV9U46Zj8iA",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "receiver"
+        }
+    ],
+    "data": "2924d8f51b5567430000",
+    "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
 }

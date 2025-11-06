@@ -2,32 +2,27 @@
 {% import "macros.njk" as macros %}
 
 {% block main %}
-
 {{ imports }}
 
+{% if account.docs and account.docs.length > 0 %}
 {{ macros.docblock(account.docs) }}
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
+{% endif %}
+{{ macros.coreDecoderDerives() }}
 pub struct {{ account.name | pascalCase }} {{ typeManifest.type }}
 
 impl {{ account.name | pascalCase }} {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        {% if discriminatorManifest %}
-        {{ discriminatorManifest.checkCode | safe }}
-        {% endif %}
+{% if discriminatorManifest -%}
+{{ discriminatorManifest.checkCode | safe }}
+{% endif %}
 
-        let mut data_slice = data;
+        let data_slice = data;
 
-        {% if discriminatorManifest %}
-        data_slice = &data_slice[{{ discriminatorManifest.size }}..];
-        {% endif %}
+{% if discriminatorManifest %}
+        let data_slice = &data_slice[{{ discriminatorManifest.size }}..];
+{% endif %}
 
-        if let Ok(decoded) = Self::deserialize(&mut data_slice) {
-            return Some(decoded);
-        }
-
-        None
+        Self::deserialize(data_slice)
     }
 }
-
 {% endblock %}

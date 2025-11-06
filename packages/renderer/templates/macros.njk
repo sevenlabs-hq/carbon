@@ -13,3 +13,49 @@
 {% set rustKeywords = ['use', 'type', 'const', 'static', 'fn', 'mod', 'pub', 'crate', 'super', 'self', 'async', 'await', 'break', 'continue', 'else', 'enum', 'extern', 'false', 'for', 'if', 'impl', 'in', 'let', 'loop', 'match', 'move', 'mut', 'ref', 'return', 'struct', 'trait', 'true', 'unsafe', 'where', 'while', 'dyn', 'abstract', 'become', 'box', 'do', 'final', 'macro', 'override', 'priv', 'typeof', 'unsized', 'virtual', 'yield', 'try', 'union', 'async', 'await'] %}
 {% if name in rustKeywords %}r#{{ name }}{% else %}{{ name }}{% endif %}
 {% endmacro %}
+
+{# Core derives for decoder types (accounts, instructions, events) - uses CarbonDeserialize #}
+{% macro coreDecoderDerives() -%}
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+{%- endmacro %}
+
+{# Core derives for types - uses BorshDeserialize instead of CarbonDeserialize #}
+{% macro coreTypeDerives() -%}
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
+{%- endmacro %}
+
+{# Derives for account/instruction wrapper enums #}
+{% macro enumWrapperDerives() -%}
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
+{%- endmacro %}
+
+{# GraphQL object derives #}
+{% macro graphqlObjectDerives() -%}
+#[derive(Debug, Clone, GraphQLObject)]
+{%- endmacro %}
+
+{# GraphQL enum derives #}
+{% macro graphqlEnumDerives() -%}
+#[derive(Debug, Clone, GraphQLEnum)]
+{%- endmacro %}
+
+{# Postgres row derives #}
+{% macro postgresRowDerives() -%}
+#[derive(sqlx::FromRow, Debug, Clone)]
+{%- endmacro %}
+
+{# Simple struct derives (for instruction account structs) - no serde tag attribute #}
+{% macro simpleStructDerives() -%}
+#[derive(Debug, Clone, PartialEq)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+{%- endmacro %}
+
+{# CpiEvent enum derives - uses carbon_core::borsh and BorshDeserialize instead of CarbonDeserialize #}
+{% macro cpiEventDerives() -%}
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
+{%- endmacro %}

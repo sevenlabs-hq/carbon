@@ -12,25 +12,30 @@ export type ParseOptions = {
     clean?: boolean;
     asCrate?: boolean;
     programId?: string;
+    postgresMode?: 'generic' | 'typed';
 };
 
 export async function promptForParse(existingOpts: ParseOptions = {}): Promise<ParseOptions> {
-    const idl = existingOpts.idl || await input({
-        message: 'IDL file path or Solana program address:',
-        validate: (value) => {
-            if (!value.trim()) return 'IDL is required';
-            return true;
-        },
-    });
+    const idl =
+        existingOpts.idl ||
+        (await input({
+            message: 'IDL file path or Solana program address:',
+            validate: value => {
+                if (!value.trim()) return 'IDL is required';
+                return true;
+            },
+        }));
 
-    const outDir = existingOpts.outDir || await input({
-        message: 'Output directory:',
-        default: './generated',
-        validate: (value) => {
-            if (!value.trim()) return 'Output directory is required';
-            return true;
-        },
-    });
+    const outDir =
+        existingOpts.outDir ||
+        (await input({
+            message: 'Output directory:',
+            default: './generated',
+            validate: value => {
+                if (!value.trim()) return 'Output directory is required';
+                return true;
+            },
+        }));
 
     const idlArg = idl.trim();
     const looksLikeFile = idlArg.endsWith('.json');
@@ -47,7 +52,7 @@ export async function promptForParse(existingOpts: ParseOptions = {}): Promise<P
             url = await input({
                 message: 'RPC URL for fetching IDL:',
                 default: 'mainnet-beta',
-                validate: (value) => {
+                validate: value => {
                     if (!value.trim()) return 'RPC URL is required when using a program address';
                     return true;
                 },
@@ -84,19 +89,38 @@ export async function promptForParse(existingOpts: ParseOptions = {}): Promise<P
         });
     }
 
+    let postgresMode: 'generic' | 'typed' = existingOpts.postgresMode || 'typed';
+
+    // Only ask about postgres mode if not explicitly set
+    if (existingOpts.postgresMode === undefined) {
+        postgresMode = (await select({
+            message: 'Postgres table storage mode:',
+            choices: [
+                { name: 'Typed (generated schema with typed columns)', value: 'typed' },
+                { name: 'Generic (JSON-based storage)', value: 'generic' },
+            ],
+            default: 'typed',
+        })) as 'generic' | 'typed';
+    }
+
     let programId: string | undefined = existingOpts.programId;
-    
+
     if (!looksLikeProgram) {
         try {
             const idlPath = resolve(process.cwd(), idlArg);
             const idlJson = JSON.parse(readFileSync(idlPath, 'utf8'));
             const idlAddress = idlJson.address || idlJson.metadata?.address;
-            const hasValidAddress = idlAddress && idlAddress.trim() !== '' && isBase58Like(idlAddress) && idlAddress.length >= 32 && idlAddress.length <= 44;
-            
+            const hasValidAddress =
+                idlAddress &&
+                idlAddress.trim() !== '' &&
+                isBase58Like(idlAddress) &&
+                idlAddress.length >= 32 &&
+                idlAddress.length <= 44;
+
             if (!hasValidAddress && !programId) {
                 programId = await input({
                     message: 'Program ID (IDL missing or invalid address field):',
-                    validate: (value) => {
+                    validate: value => {
                         if (!value.trim()) return 'Program ID is required when IDL lacks or has invalid address';
                         if (!isBase58Like(value) || value.length < 32 || value.length > 44) {
                             return 'Invalid Program ID format (must be base58, 32-44 chars)';
@@ -119,6 +143,7 @@ export async function promptForParse(existingOpts: ParseOptions = {}): Promise<P
         clean,
         asCrate: existingOpts.asCrate || false,
         programId,
+        postgresMode,
     };
 }
 
@@ -135,28 +160,33 @@ export type ScaffoldOptions = {
     withGraphql?: boolean;
     force?: boolean;
     programId?: string;
+    postgresMode?: 'generic' | 'typed';
 };
 
 export async function promptForScaffold(existingOpts: ScaffoldOptions = {}): Promise<ScaffoldOptions> {
-    const name = existingOpts.name || await input({
-        message: 'Project name:',
-        validate: (value) => {
-            if (!value.trim()) return 'Project name is required';
-            if (!/^[a-z0-9-]+$/.test(value)) {
-                return 'Project name should contain only lowercase letters, numbers, and hyphens';
-            }
-            return true;
-        },
-    });
+    const name =
+        existingOpts.name ||
+        (await input({
+            message: 'Project name:',
+            validate: value => {
+                if (!value.trim()) return 'Project name is required';
+                if (!/^[a-z0-9-]+$/.test(value)) {
+                    return 'Project name should contain only lowercase letters, numbers, and hyphens';
+                }
+                return true;
+            },
+        }));
 
-    const outDir = existingOpts.outDir || await input({
-        message: 'Output directory:',
-        default: '.',
-        validate: (value) => {
-            if (!value.trim()) return 'Output directory is required';
-            return true;
-        },
-    });
+    const outDir =
+        existingOpts.outDir ||
+        (await input({
+            message: 'Output directory:',
+            default: '.',
+            validate: value => {
+                if (!value.trim()) return 'Output directory is required';
+                return true;
+            },
+        }));
 
     // Check if directory already exists
     const fullPath = resolve(process.cwd(), outDir, name);
@@ -177,13 +207,15 @@ export async function promptForScaffold(existingOpts: ScaffoldOptions = {}): Pro
     let idlUrl: string | undefined = existingOpts.idlUrl;
 
     // Always generate mode - ask for IDL details
-    idl = idl || await input({
-        message: 'IDL file path or Solana program address:',
-        validate: (value) => {
-            if (!value.trim()) return 'IDL is required';
-            return true;
-        },
-    });
+    idl =
+        idl ||
+        (await input({
+            message: 'IDL file path or Solana program address:',
+            validate: value => {
+                if (!value.trim()) return 'IDL is required';
+                return true;
+            },
+        }));
 
     const idlArg = idl.trim();
     const looksLikeFile = idlArg.endsWith('.json');
@@ -195,7 +227,7 @@ export async function promptForScaffold(existingOpts: ScaffoldOptions = {}): Pro
             idlUrl = await input({
                 message: 'RPC URL for fetching IDL:',
                 default: 'mainnet-beta',
-                validate: (value) => {
+                validate: value => {
                     if (!value.trim()) return 'RPC URL is required when using a program address';
                     return true;
                 },
@@ -217,18 +249,23 @@ export async function promptForScaffold(existingOpts: ScaffoldOptions = {}): Pro
     }
 
     let programId: string | undefined = existingOpts.programId;
-    
+
     if (!looksLikeProgram) {
         try {
             const idlPath = resolve(process.cwd(), idlArg);
             const idlJson = JSON.parse(readFileSync(idlPath, 'utf8'));
             const idlAddress = idlJson.address || idlJson.metadata?.address;
-            const hasValidAddress = idlAddress && idlAddress.trim() !== '' && isBase58Like(idlAddress) && idlAddress.length >= 32 && idlAddress.length <= 44;
-            
+            const hasValidAddress =
+                idlAddress &&
+                idlAddress.trim() !== '' &&
+                isBase58Like(idlAddress) &&
+                idlAddress.length >= 32 &&
+                idlAddress.length <= 44;
+
             if (!hasValidAddress && !programId) {
                 programId = await input({
                     message: 'Program ID (IDL missing or invalid address field):',
-                    validate: (value) => {
+                    validate: value => {
                         if (!value.trim()) return 'Program ID is required when IDL lacks or has invalid address';
                         if (!isBase58Like(value) || value.length < 32 || value.length > 44) {
                             return 'Invalid Program ID format (must be base58, 32-44 chars)';
@@ -251,36 +288,59 @@ export async function promptForScaffold(existingOpts: ScaffoldOptions = {}): Pro
         decoder = decoderInput.trim() || 'auto-detect';
     }
 
-    const dataSource = existingOpts.dataSource || await select({
-        message: 'Data source:',
-        choices: [
-            { name: 'Helius Atlas WebSocket', value: 'helius-atlas-ws' },
-            { name: 'Helius Laserstream', value: 'helius-laserstream' },
-            { name: 'RPC Block Subscribe', value: 'rpc-block-subscribe' },
-            { name: 'RPC Program Subscribe', value: 'rpc-program-subscribe' },
-            { name: 'RPC Transaction Crawler', value: 'rpc-transaction-crawler' },
-            { name: 'Yellowstone gRPC', value: 'yellowstone-grpc' },
-        ],
-    });
+    const dataSource =
+        existingOpts.dataSource ||
+        (await select({
+            message: 'Data source:',
+            choices: [
+                { name: 'Helius Laserstream', value: 'helius-laserstream' },
+                { name: 'RPC Block Subscribe', value: 'rpc-block-subscribe' },
+                { name: 'RPC Program Subscribe', value: 'rpc-program-subscribe' },
+                { name: 'RPC Transaction Crawler', value: 'rpc-transaction-crawler' },
+                { name: 'Yellowstone gRPC', value: 'yellowstone-grpc' },
+            ],
+        }));
 
-    const metrics = existingOpts.metrics || (await select({
-        message: 'Metrics type:',
-        choices: [
-            { name: 'Log', value: 'log' },
-            { name: 'Prometheus', value: 'prometheus' },
-        ],
-        default: 'log',
-    })) as 'log' | 'prometheus';
+    const metrics =
+        existingOpts.metrics ||
+        ((await select({
+            message: 'Metrics type:',
+            choices: [
+                { name: 'Log', value: 'log' },
+                { name: 'Prometheus', value: 'prometheus' },
+            ],
+            default: 'log',
+        })) as 'log' | 'prometheus');
 
-    const withPostgres = existingOpts.withPostgres !== undefined ? existingOpts.withPostgres : await confirm({
-        message: 'Add Postgres processors for data persistence?',
-        default: true,
-    });
+    const withPostgres =
+        existingOpts.withPostgres !== undefined
+            ? existingOpts.withPostgres
+            : await confirm({
+                  message: 'Add Postgres processors for data persistence?',
+                  default: true,
+              });
 
-    const withGraphql = existingOpts.withGraphql !== undefined ? existingOpts.withGraphql : await confirm({
-        message: 'Enable GraphQL API for querying data?',
-        default: true,
-    });
+    let postgresMode: 'generic' | 'typed' = existingOpts.postgresMode || 'typed';
+
+    // Only ask about postgres mode if postgres is enabled and not explicitly set
+    if (withPostgres && existingOpts.postgresMode === undefined) {
+        postgresMode = (await select({
+            message: 'Postgres table storage mode:',
+            choices: [
+                { name: 'Typed (generated schema with typed columns)', value: 'typed' },
+                { name: 'Generic (JSON-based storage)', value: 'generic' },
+            ],
+            default: 'typed',
+        })) as 'generic' | 'typed';
+    }
+
+    const withGraphql =
+        existingOpts.withGraphql !== undefined
+            ? existingOpts.withGraphql
+            : await confirm({
+                  message: 'Enable GraphQL API for querying data?',
+                  default: true,
+              });
 
     return {
         name,
@@ -295,6 +355,6 @@ export async function promptForScaffold(existingOpts: ScaffoldOptions = {}): Pro
         withGraphql,
         force,
         programId,
+        postgresMode,
     };
 }
-

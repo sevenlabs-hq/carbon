@@ -1,0 +1,48 @@
+{
+    "name": "@sevenlabs-hq/carbon-versions",
+    "version": "0.3.0",
+    "description": "Carbon version registry for Rust crate versions",
+    "keywords": [
+        "carbon",
+        "versions",
+        "rust",
+        "solana"
+    ],
+    "license": "MIT",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/sevenlabs-hq/carbon"
+    },
+    "homepage": "https://github.com/sevenlabs-hq/carbon#readme",
+    "private": false,
+    "publishConfig": {
+        "access": "public"
+    },
+    "main": "./dist/index.js",
+    "module": "./dist/index.mjs",
+    "types": "./dist/index.d.ts",
+    "exports": {
+        ".": {
+            "types": "./dist/index.d.ts",
+            "import": "./dist/index.mjs",
+            "require": "./dist/index.js"
+        }
+    },
+    "files": [
+        "dist/**"
+    ],
+    "scripts": {
+        "build": "tsup",
+        "dev": "tsup --watch",
+        "type-check": "tsc --noEmit",
+        "clean": "rimraf dist"
+    },
+    "devDependencies": {
+        "rimraf": "^6.0.1",
+        "tsup": "^8.5.0",
+        "typescript": "^5.8.3"
+    },
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}

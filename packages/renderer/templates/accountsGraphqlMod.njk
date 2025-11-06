@@ -14,9 +14,9 @@ pub use {{ macros.escapeRustKeyword(account.name | snakeCase) }}_schema::*;
 {% endif %}
 {% endfor %}
 
-use juniper::GraphQLObject;
+{{ imports }}
 
-#[derive(Debug, Clone, GraphQLObject)]
+{{ macros.graphqlObjectDerives() }}
 #[graphql(name = "AccountMetadata")]
 pub struct AccountMetadataGraphQL {
     pub pubkey: carbon_core::graphql::primitives::Pubkey,

@@ -2,7 +2,6 @@
 {% import "macros.njk" as macros %}
 
 {% block main %}
-
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
 pub mod {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_row;
 {% endfor %}
@@ -32,12 +31,12 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for {{program.name | pascalCase}}I
 
     fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
         vec![
-            {% for instruction in instructionsToExport | sort(false, false, 'name') %}
+{% for instruction in instructionsToExport | sort(false, false, 'name') %}
             Box::new({{ macros.escapeRustKeyword(instruction.name | pascalCase) }}MigrationOperation),
-            {% endfor %}
-            {% if hasAnchorEvents %}
+{% endfor %}
+{% if hasAnchorEvents %}
             Box::new(CpiEventMigrationOperation),
-            {% endif %}
+{% endif %}
         ]
     }
 
@@ -59,20 +58,20 @@ impl carbon_core::postgres::operations::Insert for {{ program.name | pascalCase 
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         let {{ program.name | pascalCase }}InstructionWithMetadata(instruction, metadata) = self;
         match instruction {
-            {% for instruction in instructionsToExport %}
+{% for instruction in instructionsToExport %}
             {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) => {
                 let row = {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_row::{{ instruction.name | pascalCase }}Row::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            {% endfor %}
-            {% if hasAnchorEvents %}
+{% endfor %}
+{% if hasAnchorEvents %}
             {{ program.name | pascalCase }}Instruction::CpiEvent(instruction) => {
                 let row = cpi_event_row::CpiEventRow::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            {% endif %}
+{% endif %}
         }
     }
 }
@@ -82,22 +81,21 @@ impl carbon_core::postgres::operations::Upsert for {{ program.name | pascalCase 
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         let {{ program.name | pascalCase }}InstructionWithMetadata(instruction, metadata) = self;
         match instruction {
-            {% for instruction in instructionsToExport %}
+{% for instruction in instructionsToExport %}
             {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) => {
                 let row = {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_row::{{ instruction.name | pascalCase }}Row::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            {% endfor %}
-            {% if hasAnchorEvents %}
+{% endfor %}
+{% if hasAnchorEvents %}
             {{ program.name | pascalCase }}Instruction::CpiEvent(instruction) => {
                 let row = cpi_event_row::CpiEventRow::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            {% endif %}
+{% endif %}
         }
     }
 }
-
 {% endblock %}

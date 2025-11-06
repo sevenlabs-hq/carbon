@@ -1,12 +1,12 @@
 {
-  "accounts": [
-    {
-      "pubkey": "EEkMbgYJzgYNUJsnURtL3jkDdkAws5RbDL7ukCUFNRMV",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "poolState"
-    }
-  ],
-  "data": "a3ace0340b9a6adf",
-  "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
+    "accounts": [
+        {
+            "pubkey": "EEkMbgYJzgYNUJsnURtL3jkDdkAws5RbDL7ukCUFNRMV",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "poolState"
+        }
+    ],
+    "data": "a3ace0340b9a6adf",
+    "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
 }

@@ -1,36 +1,36 @@
 {
-  "accounts": [
-    {
-      "pubkey": "DUAyeevUnXv1ePfyRJby7fdBqhezEdvXZonFnQa6j6fM",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "config"
-    },
-    {
-      "pubkey": "2qX12HjWr4b4LYc7oAQfmst5drcmNCUZxs5c3jz2e3Tv",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "feeTier"
-    },
-    {
-      "pubkey": "DDGbigvGH49guY7PaaSdaNd3FiF5fyMzywzkF35bjZz7",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "funder"
-    },
-    {
-      "pubkey": "DDGbigvGH49guY7PaaSdaNd3FiF5fyMzywzkF35bjZz7",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "feeAuthority"
-    },
-    {
-      "pubkey": "11111111111111111111111111111111",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "systemProgram"
-    }
-  ],
-  "data": "b74a9ca070022a1e00010000",
-  "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+    "accounts": [
+        {
+            "pubkey": "DUAyeevUnXv1ePfyRJby7fdBqhezEdvXZonFnQa6j6fM",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "config"
+        },
+        {
+            "pubkey": "2qX12HjWr4b4LYc7oAQfmst5drcmNCUZxs5c3jz2e3Tv",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "feeTier"
+        },
+        {
+            "pubkey": "DDGbigvGH49guY7PaaSdaNd3FiF5fyMzywzkF35bjZz7",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "funder"
+        },
+        {
+            "pubkey": "DDGbigvGH49guY7PaaSdaNd3FiF5fyMzywzkF35bjZz7",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "feeAuthority"
+        },
+        {
+            "pubkey": "11111111111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "systemProgram"
+        }
+    ],
+    "data": "b74a9ca070022a1e00010000",
+    "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
 }

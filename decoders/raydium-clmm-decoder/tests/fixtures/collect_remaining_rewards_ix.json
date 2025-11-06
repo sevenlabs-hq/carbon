@@ -1,54 +1,54 @@
 {
-  "accounts": [
-    {
-      "pubkey": "CC6ofKsD2YE82ZzCDaCSvhm3NqbipSDF216ry1c5GcNE",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "rewardFunder"
-    },
-    {
-      "pubkey": "HUQaPaUe83v6F3i6PyE5L4LAfp7wURYXmdtA6RdLMsgZ",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "funderTokenAccount"
-    },
-    {
-      "pubkey": "7QKDXuYPV7bWxBrX4bZozjNK8sztHw1gBzPUi5oRnG5t",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "poolState"
-    },
-    {
-      "pubkey": "JAuec9nZVzx6Ytmn6UHKro1JS3GckC6nLPaA8qUSwXnL",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "rewardTokenVault"
-    },
-    {
-      "pubkey": "So11111111111111111111111111111111111111112",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "rewardVaultMint"
-    },
-    {
-      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenProgram"
-    },
-    {
-      "pubkey": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenProgram2022"
-    },
-    {
-      "pubkey": "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "memoProgram"
-    }
-  ],
-  "data": "12eda6c52210d59000",
-  "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
+    "accounts": [
+        {
+            "pubkey": "CC6ofKsD2YE82ZzCDaCSvhm3NqbipSDF216ry1c5GcNE",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "rewardFunder"
+        },
+        {
+            "pubkey": "HUQaPaUe83v6F3i6PyE5L4LAfp7wURYXmdtA6RdLMsgZ",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "funderTokenAccount"
+        },
+        {
+            "pubkey": "7QKDXuYPV7bWxBrX4bZozjNK8sztHw1gBzPUi5oRnG5t",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "poolState"
+        },
+        {
+            "pubkey": "JAuec9nZVzx6Ytmn6UHKro1JS3GckC6nLPaA8qUSwXnL",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "rewardTokenVault"
+        },
+        {
+            "pubkey": "So11111111111111111111111111111111111111112",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "rewardVaultMint"
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenProgram"
+        },
+        {
+            "pubkey": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenProgram2022"
+        },
+        {
+            "pubkey": "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "memoProgram"
+        }
+    ],
+    "data": "12eda6c52210d59000",
+    "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
 }

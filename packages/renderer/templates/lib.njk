@@ -1,7 +1,6 @@
 {% extends "layout.njk" %}
 
 {% block main %}
-
 use solana_pubkey::Pubkey;
 pub struct {{ program.name | pascalCase }}Decoder;
 pub const PROGRAM_ID: Pubkey = solana_pubkey::Pubkey::from_str_const("{{ program.publicKey }}");
@@ -16,7 +15,8 @@ pub mod types;
 {% if hasAnchorEvents %}
 pub mod events;
 {% endif%}
+{% if withGraphQL %}
 #[cfg(feature = "graphql")]
 pub mod graphql;
-
+{% endif %}
 {% endblock %}

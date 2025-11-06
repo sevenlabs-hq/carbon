@@ -1,6 +1,6 @@
 {
     "name": "@sevenlabs-hq/carbon-codama-renderer",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "description": "Carbon codama renderer for Codama IDL",
     "keywords": [
         "solana",
@@ -47,6 +47,7 @@
         "@codama/nodes": "1.3.0",
         "@codama/renderers-core": "1.0.16",
         "@codama/visitors-core": "1.3.0",
+        "@sevenlabs-hq/carbon-versions": "0.3.0",
         "@solana/codecs-strings": "^2.2.0",
         "nunjucks": "^3.2.4"
     },

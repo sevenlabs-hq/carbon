@@ -1,14 +1,16 @@
-use juniper::{graphql_object, FieldResult};
-use std::str::FromStr;
+{% extends "layout.njk" %}
 {% import "macros.njk" as macros %}
+
+{% block main %}
+{{ imports }}
 
 pub struct QueryRoot;
 
 #[graphql_object(context = crate::graphql::context::GraphQLContext)]
 impl QueryRoot {
     // Accounts
-    {% for account in accountsToExport %}
-    {% if account.data.kind == 'structTypeNode' and account.data.fields.length > 0 %}
+{% for account in accountsToExport %}
+{% if account.data.kind == 'structTypeNode' and account.data.fields.length > 0 %}
     async fn {{ macros.escapeRustKeyword(account.name | snakeCase) }}(
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
@@ -36,12 +38,15 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
-    {% endif %}
-    {% endfor %}
+{% if not loop.last %}
+
+{% endif %}
+{% endif %}
+{% endfor %}
 
     // Instructions (per-instruction list and lookup by signature+index)
-    {% for instruction in instructionsToExport %}
-    {% if instruction.arguments.length > 1 %}
+{% for instruction in instructionsToExport %}
+{% if instruction.arguments.length > 1 %}
     async fn {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -73,10 +78,13 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
-    {% endif %}
-    {% endfor %}
+{% if not loop.last %}
 
-    {% if hasAnchorEvents %}
+{% endif %}
+{% endif %}
+{% endfor %}
+
+{% if hasAnchorEvents %}
     async fn list_cpi_events(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
@@ -92,6 +100,7 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
     }
-    {% endif %}
+{% endif %}
 }
+{% endblock %}
 

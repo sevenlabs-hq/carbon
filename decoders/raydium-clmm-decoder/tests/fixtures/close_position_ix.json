@@ -1,42 +1,42 @@
 {
-  "accounts": [
-    {
-      "pubkey": "8yXy8QbeVEWFLTsfG9sZCpnkePxZDWfTkiT3pSvPCS1",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "nftOwner"
-    },
-    {
-      "pubkey": "7f7wprTVee5xZnfjNhGwKhPwH4bfzdkGezhbSvPF9SAE",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "positionNftMint"
-    },
-    {
-      "pubkey": "G2jJSkDvTcH5Sd4dk5XkGKMZdfisU9pWoUqvcQPrXyZK",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "positionNftAccount"
-    },
-    {
-      "pubkey": "ExAA7ypa9knMqF22c2kgR1jUKvUXx97J7FjpKpUeMW6u",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "personalPosition"
-    },
-    {
-      "pubkey": "11111111111111111111111111111111",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "systemProgram"
-    },
-    {
-      "pubkey": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenProgram"
-    }
-  ],
-  "data": "7b86510031446262",
-  "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
+    "accounts": [
+        {
+            "pubkey": "8yXy8QbeVEWFLTsfG9sZCpnkePxZDWfTkiT3pSvPCS1",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "nftOwner"
+        },
+        {
+            "pubkey": "7f7wprTVee5xZnfjNhGwKhPwH4bfzdkGezhbSvPF9SAE",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "positionNftMint"
+        },
+        {
+            "pubkey": "G2jJSkDvTcH5Sd4dk5XkGKMZdfisU9pWoUqvcQPrXyZK",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "positionNftAccount"
+        },
+        {
+            "pubkey": "ExAA7ypa9knMqF22c2kgR1jUKvUXx97J7FjpKpUeMW6u",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "personalPosition"
+        },
+        {
+            "pubkey": "11111111111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "systemProgram"
+        },
+        {
+            "pubkey": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenProgram"
+        }
+    ],
+    "data": "7b86510031446262",
+    "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
 }

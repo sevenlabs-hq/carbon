@@ -55,7 +55,7 @@ export function getPostgresTypeManifestVisitor() {
                         case 'u8':
                             return m('U8', 'INT2', ['carbon_core::postgres::primitives::U8']);
                         case 'u16':
-                            return m('U16', 'INT2', ['carbon_core::postgres::primitives::U16']);
+                            return m('U16', 'INT4', ['carbon_core::postgres::primitives::U16']);
                         case 'i32':
                             return m('i32', 'INT4');
                         case 'u32':
@@ -130,6 +130,11 @@ export function getPostgresTypeManifestVisitor() {
                         sqlxType: `(${inners.map(i => i.sqlxType).join(', ')})`,
                         postgresColumnType: `(${inners.map(i => i.postgresColumnType).join(', ')})`,
                     };
+                },
+                visitFixedSizeType(node, { self }) {
+                    // Fixed-size bytes stored as Vec<u8> (BYTEA) in Postgres
+                    // The inner type visitor will handle bytesTypeNode → Vec<u8>
+                    return visit(node.type, self);
                 },
                 visitSizePrefixType(node, { self }) {
                     return visit(node.type, self);

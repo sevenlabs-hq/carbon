@@ -1,0 +1,37 @@
+{% extends "layout.njk" %}
+{% import "macros.njk" as macros %}
+
+{% block main %}
+{% for account in accountsToExport %}
+{% if account.data.kind == 'structTypeNode' and account.data.fields.length > 0 %}
+pub mod {{ macros.escapeRustKeyword(account.name | snakeCase) }}_schema;
+{% endif %}
+{% endfor %}
+
+{% for account in accountsToExport %}
+{% if account.data.kind == 'structTypeNode' and account.data.fields.length > 0 %}
+pub use {{ macros.escapeRustKeyword(account.name | snakeCase) }}_schema::*;
+{% endif %}
+{% endfor %}
+
+{{ imports }}
+
+{{ macros.graphqlObjectDerives() }}
+#[graphql(name = "AccountMetadata")]
+pub struct AccountMetadataGraphQL {
+    pub pubkey: carbon_core::graphql::primitives::Pubkey,
+    pub slot: Option<carbon_core::graphql::primitives::U64>,
+}
+
+// In generic mode, we don't have AccountRowMetadata, so we provide a default implementation
+impl Default for AccountMetadataGraphQL {
+    fn default() -> Self {
+        Self {
+            pubkey: carbon_core::graphql::primitives::Pubkey(solana_pubkey::Pubkey::default()),
+            slot: None,
+        }
+    }
+}
+
+{% endblock %}
+

@@ -1,71 +1,71 @@
 {
-  "accounts": [
-    {
-      "pubkey": "4nsDuDcB47yRPBxtuhSNDxUynTXEqGWHG3tmY7H2tGVW",
-      "is_signer": false,
-      "is_writable": true
-    },
-    {
-      "pubkey": "DdNbmJSE6EJsbXcHkZhfsyqhbLzGYaRpKa3nxufeURuu",
-      "is_signer": true,
-      "is_writable": true
-    },
-    {
-      "pubkey": "DdNbmJSE6EJsbXcHkZhfsyqhbLzGYaRpKa3nxufeURuu",
-      "is_signer": true,
-      "is_writable": true
-    },
-    {
-      "pubkey": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
-      "is_signer": false,
-      "is_writable": false
-    },
-    {
-      "pubkey": "3NZ9JMVBmGAqocybic2c7LQCJScmgsAZ6vQqTDzcqmJh",
-      "is_signer": false,
-      "is_writable": false
-    },
-    {
-      "pubkey": "FQtvkDXHNjsx2v9XYnTw9pASHJPqHycKd5cyds6h7NeM",
-      "is_signer": false,
-      "is_writable": true
-    },
-    {
-      "pubkey": "7raHTbUE3SnxmeXUcTzMqPjsBunz7VEDcc4cCagZ8njz",
-      "is_signer": false,
-      "is_writable": true
-    },
-    {
-      "pubkey": "5NKVYpXyAgPDRfBZSWXPG657UZvaQXY8n2pjBTF9L4Gq",
-      "is_signer": false,
-      "is_writable": true
-    },
-    {
-      "pubkey": "11111111111111111111111111111111",
-      "is_signer": false,
-      "is_writable": false
-    },
-    {
-      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      "is_signer": false,
-      "is_writable": false
-    },
-    {
-      "pubkey": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
-      "is_signer": false,
-      "is_writable": false
-    },
-    {
-      "pubkey": "Cspp27eGUDMXxPEdhmEXFVRn6Lt1L7xJyALF3nmnWoBj",
-      "is_signer": false,
-      "is_writable": false
-    },
-    {
-      "pubkey": "DCA265Vj8a9CEuX1eb1LWRnDT7uK6q1xMipnNyatn23M",
-      "is_signer": false,
-      "is_writable": false
-    }
-  ],
-  "data": "8e772b6da2340bb11eb2c6670000000015f902950000000000e1f5050000000080510100000000000197a801000000000001fa01020000000000010000000000000000",
-  "program_id": "DCA265Vj8a9CEuX1eb1LWRnDT7uK6q1xMipnNyatn23M"
+    "accounts": [
+        {
+            "pubkey": "4nsDuDcB47yRPBxtuhSNDxUynTXEqGWHG3tmY7H2tGVW",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "DdNbmJSE6EJsbXcHkZhfsyqhbLzGYaRpKa3nxufeURuu",
+            "is_signer": true,
+            "is_writable": true
+        },
+        {
+            "pubkey": "DdNbmJSE6EJsbXcHkZhfsyqhbLzGYaRpKa3nxufeURuu",
+            "is_signer": true,
+            "is_writable": true
+        },
+        {
+            "pubkey": "Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "3NZ9JMVBmGAqocybic2c7LQCJScmgsAZ6vQqTDzcqmJh",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "FQtvkDXHNjsx2v9XYnTw9pASHJPqHycKd5cyds6h7NeM",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "7raHTbUE3SnxmeXUcTzMqPjsBunz7VEDcc4cCagZ8njz",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "5NKVYpXyAgPDRfBZSWXPG657UZvaQXY8n2pjBTF9L4Gq",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "11111111111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "Cspp27eGUDMXxPEdhmEXFVRn6Lt1L7xJyALF3nmnWoBj",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "DCA265Vj8a9CEuX1eb1LWRnDT7uK6q1xMipnNyatn23M",
+            "is_signer": false,
+            "is_writable": false
+        }
+    ],
+    "data": "8e772b6da2340bb11eb2c6670000000015f902950000000000e1f5050000000080510100000000000197a801000000000001fa01020000000000010000000000000000",
+    "program_id": "DCA265Vj8a9CEuX1eb1LWRnDT7uK6q1xMipnNyatn23M"
 }

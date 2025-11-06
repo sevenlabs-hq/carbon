@@ -5,19 +5,15 @@
 
 {{ imports }}
 pub use super::super::events;
-use carbon_core::borsh;
-use carbon_core::deserialize::ArrangeAccounts;
 
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
+{{ macros.cpiEventDerives() }}
 pub enum CpiEvent {
 {% for event in events %}
     {{ event.name | pascalCase }}(events::{{ event.name | snakeCase }}::{{event.name | pascalCase }}Event),
 {% endfor %}
 }
 
-#[derive(Debug, Clone, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+{{ macros.simpleStructDerives() }}
 pub struct CpiEventInstructionAccounts {
     pub program: solana_pubkey::Pubkey,
     pub event_authority: solana_pubkey::Pubkey,

@@ -1,74 +1,74 @@
 {
-  "accounts": [
-    {
-      "pubkey": "5zpyutJu9ee6jFymDGoK7F6S5Kczqtc9FomP3ueKuyA9",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "whirlpool"
-    },
-    {
-      "pubkey": "HJ8tXpJA62BHbEQyoXnmLZz1Tifek9WVM3GTrzd4NyUa",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "positionAuthority"
-    },
-    {
-      "pubkey": "4aQCMsowSNTqWQq5sbZbF3GBBUhzPkyLYsbdKUHXVory",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "position"
-    },
-    {
-      "pubkey": "D7TpS9Tj7mva9hK71y9MQfGow2WFRkcroDw6t1zfbUpk",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "positionTokenAccount"
-    },
-    {
-      "pubkey": "HxPt8A4GDq7SBRnp4Seyau1Pf17KiH2633Wi9svoRRbi",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "rewardOwnerAccount"
-    },
-    {
-      "pubkey": "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "rewardMint"
-    },
-    {
-      "pubkey": "AfHnr4bRa7jgNnq9PfkwdMDKeiwFwSWqvJTnqqN6T3kq",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "rewardVault"
-    },
-    {
-      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "rewardTokenProgram"
-    },
-    {
-      "pubkey": "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "memoProgram"
-    }
-  ],
-  "data": "b16b25b4a01331d10000",
-  "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc",
-  "data_decoded": {
-    "rewardIndex": {
-      "type": "u8",
-      "data": 0
-    },
-    "remainingAccountsInfo": {
-      "type": {
-        "option": {
-          "defined": "RemainingAccountsInfo"
+    "accounts": [
+        {
+            "pubkey": "5zpyutJu9ee6jFymDGoK7F6S5Kczqtc9FomP3ueKuyA9",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "whirlpool"
+        },
+        {
+            "pubkey": "HJ8tXpJA62BHbEQyoXnmLZz1Tifek9WVM3GTrzd4NyUa",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "positionAuthority"
+        },
+        {
+            "pubkey": "4aQCMsowSNTqWQq5sbZbF3GBBUhzPkyLYsbdKUHXVory",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "position"
+        },
+        {
+            "pubkey": "D7TpS9Tj7mva9hK71y9MQfGow2WFRkcroDw6t1zfbUpk",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "positionTokenAccount"
+        },
+        {
+            "pubkey": "HxPt8A4GDq7SBRnp4Seyau1Pf17KiH2633Wi9svoRRbi",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "rewardOwnerAccount"
+        },
+        {
+            "pubkey": "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "rewardMint"
+        },
+        {
+            "pubkey": "AfHnr4bRa7jgNnq9PfkwdMDKeiwFwSWqvJTnqqN6T3kq",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "rewardVault"
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "rewardTokenProgram"
+        },
+        {
+            "pubkey": "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "memoProgram"
         }
-      },
-      "data": null
+    ],
+    "data": "b16b25b4a01331d10000",
+    "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc",
+    "data_decoded": {
+        "rewardIndex": {
+            "type": "u8",
+            "data": 0
+        },
+        "remainingAccountsInfo": {
+            "type": {
+                "option": {
+                    "defined": "RemainingAccountsInfo"
+                }
+            },
+            "data": null
+        }
     }
-  }
 }

@@ -1,0 +1,272 @@
+{% extends "layout.njk" %}
+{% import "macros.njk" as macros %}
+
+{% block main %}
+{{ imports }}
+
+pub struct QueryRoot;
+
+#[graphql_object(context = crate::graphql::context::GraphQLContext)]
+impl QueryRoot {
+    // Account queries
+{% for account in accountsToExport %}
+    async fn {{ macros.escapeRustKeyword(account.name | snakeCase) }}(
+        context: &crate::graphql::context::GraphQLContext,
+        pubkey: String,
+    ) -> FieldResult<Option<crate::accounts::graphql::{{ account.name | pascalCase }}GraphQL>> {
+        use carbon_core::postgres::rows::AccountRow;
+        use carbon_core::postgres::primitives::Pubkey as PgPubkey;
+        use std::str::FromStr;
+        
+        let pg_pubkey = PgPubkey(
+            solana_pubkey::Pubkey::from_str(&pubkey)
+                .map_err(|e| juniper::FieldError::new(format!("Invalid pubkey: {}", e), juniper::Value::null()))?
+        );
+        
+        let row: Option<AccountRow<crate::accounts::{{ program.name | pascalCase }}Account>> = sqlx::query_as(
+            r#"SELECT * FROM accounts WHERE __pubkey = $1"#
+        )
+        .bind(&pg_pubkey)
+        .fetch_optional(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        
+        Ok(row.and_then(|r| {
+            if let crate::accounts::{{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(account) = r.data.0 {
+                // Create metadata from database values
+                let metadata = crate::accounts::graphql::AccountMetadataGraphQL {
+                    pubkey: carbon_core::graphql::primitives::Pubkey(*r.metadata.pubkey.clone()),
+                    slot: r.metadata.slot.map(|s| carbon_core::graphql::primitives::U64(s.0)),
+                };
+                
+                // Convert account and override metadata
+                if let Ok(graphql) = (*account).try_into() {
+                    let mut graphql: crate::accounts::graphql::{{ account.name | pascalCase }}GraphQL = graphql;
+                    graphql.account_metadata = metadata;
+                    Some(graphql)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        }))
+    }
+
+    async fn list_{{ macros.escapeRustKeyword(account.name | snakeCase) }}(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::accounts::graphql::{{ account.name | pascalCase }}GraphQL>> {
+        use carbon_core::postgres::rows::AccountRow;
+        
+        let rows: Vec<AccountRow<crate::accounts::{{ program.name | pascalCase }}Account>> = sqlx::query_as(
+            r#"SELECT * FROM accounts WHERE data->>'type' = $1 ORDER BY __slot DESC LIMIT $2 OFFSET $3"#
+        )
+        .bind("{{ account.name | pascalCase }}")
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        
+        Ok(rows.into_iter().filter_map(|r| {
+            if let crate::accounts::{{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(account) = r.data.0 {
+                // Create metadata from database values
+                let metadata = crate::accounts::graphql::AccountMetadataGraphQL {
+                    pubkey: carbon_core::graphql::primitives::Pubkey(*r.metadata.pubkey.clone()),
+                    slot: r.metadata.slot.map(|s| carbon_core::graphql::primitives::U64(s.0)),
+                };
+                
+                // Convert account and override metadata
+                if let Ok(graphql) = (*account).try_into() {
+                    let mut graphql: crate::accounts::graphql::{{ account.name | pascalCase }}GraphQL = graphql;
+                    graphql.account_metadata = metadata;
+                    Some(graphql)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        }).collect())
+    }
+{% if not loop.last %}
+
+{% endif %}
+{% endfor %}
+
+    // Instruction queries
+{% for instruction in instructionsToExport %}
+{% if instruction.arguments.length > 1 %}
+    async fn {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::{{ instruction.name | pascalCase }}GraphQL>> {
+        use carbon_core::postgres::rows::InstructionRow;
+        
+        let rows: Vec<InstructionRow<crate::instructions::{{ program.name | pascalCase }}Instruction>> = sqlx::query_as(
+            r#"SELECT * FROM instructions WHERE __signature = $1 AND __instruction_index = $2 AND data->>'type' = $3 ORDER BY __stack_height ASC"#
+        )
+        .bind(&signature)
+        .bind(instruction_index)
+        .bind("{{ instruction.name | pascalCase }}")
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        
+        Ok(rows.into_iter().filter_map(|r| {
+            if let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) = r.data.0 {
+                // Create metadata from database values
+                let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
+                    signature: r.metadata.signature.clone(),
+                    instruction_index: carbon_core::graphql::primitives::U32(r.metadata.instruction_index.0 as u32),
+                    stack_height: carbon_core::graphql::primitives::U32(r.metadata.stack_height.0 as u32),
+                    slot: r.metadata.slot.map(|s| carbon_core::graphql::primitives::U64(s.0)),
+                };
+                
+                // Convert instruction and override metadata
+                if let Ok(graphql) = instruction.try_into() {
+                    let mut graphql: crate::instructions::graphql::{{ instruction.name | pascalCase }}GraphQL = graphql;
+                    graphql.instruction_metadata = metadata;
+                    Some(graphql)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        }).collect())
+    }
+
+    async fn list_{{ macros.escapeRustKeyword(instruction.name | snakeCase) }}(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::{{ instruction.name | pascalCase }}GraphQL>> {
+        use carbon_core::postgres::rows::InstructionRow;
+        
+        let rows: Vec<InstructionRow<crate::instructions::{{ program.name | pascalCase }}Instruction>> = sqlx::query_as(
+            r#"SELECT * FROM instructions WHERE data->>'type' = $1 ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $2 OFFSET $3"#
+        )
+        .bind("{{ instruction.name | pascalCase }}")
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        
+        Ok(rows.into_iter().filter_map(|r| {
+            if let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) = r.data.0 {
+                // Create metadata from database values
+                let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
+                    signature: r.metadata.signature.clone(),
+                    instruction_index: carbon_core::graphql::primitives::U32(r.metadata.instruction_index.0 as u32),
+                    stack_height: carbon_core::graphql::primitives::U32(r.metadata.stack_height.0 as u32),
+                    slot: r.metadata.slot.map(|s| carbon_core::graphql::primitives::U64(s.0)),
+                };
+                
+                // Convert instruction and override metadata
+                if let Ok(graphql) = instruction.try_into() {
+                    let mut graphql: crate::instructions::graphql::{{ instruction.name | pascalCase }}GraphQL = graphql;
+                    graphql.instruction_metadata = metadata;
+                    Some(graphql)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        }).collect())
+    }
+{% if not loop.last %}
+
+{% endif %}
+{% endif %}
+{% endfor %}
+
+{% if hasAnchorEvents %}
+    // CPI Events
+    async fn cpi_event(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CpiEventGraphQL>> {
+        use carbon_core::postgres::rows::InstructionRow;
+        
+        let rows: Vec<InstructionRow<crate::instructions::{{ program.name | pascalCase }}Instruction>> = sqlx::query_as(
+            r#"SELECT * FROM instructions WHERE __signature = $1 AND __instruction_index = $2 AND data->>'type' = 'CpiEvent' ORDER BY __stack_height ASC"#
+        )
+        .bind(&signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        
+        Ok(rows.into_iter().filter_map(|r| {
+            if let crate::instructions::{{ program.name | pascalCase }}Instruction::CpiEvent(instruction) = r.data.0 {
+                // Create metadata from database values
+                let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
+                    signature: r.metadata.signature.clone(),
+                    instruction_index: carbon_core::graphql::primitives::U32(r.metadata.instruction_index.0 as u32),
+                    stack_height: carbon_core::graphql::primitives::U32(r.metadata.stack_height.0 as u32),
+                    slot: r.metadata.slot.map(|s| carbon_core::graphql::primitives::U64(s.0)),
+                };
+                
+                // Convert instruction and override metadata
+                if let Ok(graphql) = instruction.try_into() {
+                    let mut graphql: crate::instructions::graphql::CpiEventGraphQL = graphql;
+                    graphql.instruction_metadata = metadata;
+                    Some(graphql)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        }).collect())
+    }
+
+    async fn list_cpi_event(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CpiEventGraphQL>> {
+        use carbon_core::postgres::rows::InstructionRow;
+        
+        let rows: Vec<InstructionRow<crate::instructions::{{ program.name | pascalCase }}Instruction>> = sqlx::query_as(
+            r#"SELECT * FROM instructions WHERE data->>'type' = 'CpiEvent' ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        
+        Ok(rows.into_iter().filter_map(|r| {
+            if let crate::instructions::{{ program.name | pascalCase }}Instruction::CpiEvent(instruction) = r.data.0 {
+                // Create metadata from database values
+                let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
+                    signature: r.metadata.signature.clone(),
+                    instruction_index: carbon_core::graphql::primitives::U32(r.metadata.instruction_index.0 as u32),
+                    stack_height: carbon_core::graphql::primitives::U32(r.metadata.stack_height.0 as u32),
+                    slot: r.metadata.slot.map(|s| carbon_core::graphql::primitives::U64(s.0)),
+                };
+                
+                // Convert instruction and override metadata
+                if let Ok(graphql) = instruction.try_into() {
+                    let mut graphql: crate::instructions::graphql::CpiEventGraphQL = graphql;
+                    graphql.instruction_metadata = metadata;
+                    Some(graphql)
+                } else {
+                    None
+                }
+            } else {
+                None
+            }
+        }).collect())
+    }
+{% endif %}
+}
+{% endblock %}

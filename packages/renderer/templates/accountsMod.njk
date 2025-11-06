@@ -2,22 +2,23 @@
 {% import "macros.njk" as macros %}
 
 {% block main %}
+{{ imports }}
 
-use crate::{PROGRAM_ID, {{ program.name | pascalCase }}Decoder};
-
+{% if withPostgres and postgresMode !== 'generic' %}
 #[cfg(feature = "postgres")]
 pub mod postgres;
+{% endif %}
 
+{% if withGraphQL %}
 #[cfg(feature = "graphql")]
 pub mod graphql;
+{% endif %}
 
 {% for account in accountsToExport | sort(false, false, 'name') %}
 pub mod {{ macros.escapeRustKeyword(account.name | snakeCase) }};
 {% endfor %}
 
-#[derive(Debug, Clone, PartialEq)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
+{{ macros.enumWrapperDerives() }}
 pub enum {{ program.name | pascalCase }}Account {
 {% for account in accountsToExport | sort(false, false, 'name') %}
     {{ account.name | pascalCase }}(Box<{{ account.name | snakeCase }}::{{ account.name | pascalCase }}>),
@@ -37,8 +38,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for {{ program.name | pascalCa
         
         let data = account.data.as_slice();
         
-        {% for account in accountsToExport %}
-        // Try to decode {{ account.name | pascalCase }}
+{% for account in accountsToExport %}
         {
             if let Some(decoded) = {{ macros.escapeRustKeyword(account.name | snakeCase) }}::{{ account.name | pascalCase }}::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
@@ -50,7 +50,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for {{ program.name | pascalCa
                 });
             }
         }
-        {% endfor %}
+{% endfor %}
         
         None
     }
