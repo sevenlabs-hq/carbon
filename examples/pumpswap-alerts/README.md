@@ -24,6 +24,7 @@ API_KEY=...
 - `API_KEY` should point your Helius API key.
 
 **Available LaserStream Endpoints:**
+
 - `https://laserstream-mainnet-ewr.helius-rpc.com` (US East - Newark)
 - `https://laserstream-mainnet-pitt.helius-rpc.com` (US Central - Pittsburgh)
 - `https://laserstream-mainnet-slc.helius-rpc.com` (US West - Salt Lake City)

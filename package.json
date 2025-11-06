@@ -13,6 +13,7 @@
         "test": "turbo run test",
         "clean": "turbo run clean && rm -rf node_modules .turbo",
         "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\"",
+        "format:check": "prettier --check \"packages/**/*.{ts,tsx,js,jsx,json}\" \"*.{ts,tsx,js,jsx,json,md}\"",
         "type-check": "turbo run type-check"
     },
     "devDependencies": {

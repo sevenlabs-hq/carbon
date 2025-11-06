@@ -1,99 +1,99 @@
 {
-  "accounts": [
-    {
-      "pubkey": "5ukRnMzZfZUa3gNy2ECDsE63HSuMqL52pWa2ryAcnzPW",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "payer"
-    },
-    {
-      "pubkey": "9iFER3bpjf1PTTCQCfTRu17EJgvsxo9pVyA9QWwEuX4x",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "ammConfig"
-    },
-    {
-      "pubkey": "945czrk5A4uSUH46xE8PLz4SMjqLXPDKqAyaGvA76bUg",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "poolState"
-    },
-    {
-      "pubkey": "DBVe5zJdfMDtoZ8y93Nz7aKCmraq1XNKQodMfKiWPdAG",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "inputTokenAccount"
-    },
-    {
-      "pubkey": "6QRRR7s1KThgYxSBzaFbVTBnkR9XpbVhYumfJMK9hv3x",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "outputTokenAccount"
-    },
-    {
-      "pubkey": "GkYAvt7ecy7juVHyPBssmJsw6DQLZ5r1YTzf58DMLFxu",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "inputVault"
-    },
-    {
-      "pubkey": "anQHGFzjoUf6F663ZVzC1irEgvXdgHdgp35knPg3wNj",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "outputVault"
-    },
-    {
-      "pubkey": "2uiwPb51HMsNPfk6C2MF7mx9vcjN2coDGct1cYM96nCt",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "observationState"
-    },
-    {
-      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenProgram"
-    },
-    {
-      "pubkey": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenProgram2022"
-    },
-    {
-      "pubkey": "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "memoProgram"
-    },
-    {
-      "pubkey": "3hiYB9c4VYhWbwkDgSbEv22cpsNvdYZHuVWMnnNgpump",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "inputVaultMint"
-    },
-    {
-      "pubkey": "So11111111111111111111111111111111111111112",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "outputVaultMint"
-    },
-    {
-      "pubkey": "8yxZqXeguBG6fDSGLxTVTDMGEzUgatvhDzUC4CJv6KbQ",
-      "is_signer": false,
-      "is_writable": true
-    },
-    {
-      "pubkey": "3DGHSf9AYkon5ESJv6uJaVziuMVZ5Td7GBzuLU4w5cFt",
-      "is_signer": false,
-      "is_writable": true
-    },
-    {
-      "pubkey": "HeV2hQbj6sxHZ8P3XW2Bho7iDzNpgC1MXiYmdTDvLpup",
-      "is_signer": false,
-      "is_writable": true
-    }
-  ],
-  "data": "2b04ed0b1ac91e6244dcfe020100000000406352bfc601009a57694ea91a5c84b1c4feff0000000000",
-  "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
+    "accounts": [
+        {
+            "pubkey": "5ukRnMzZfZUa3gNy2ECDsE63HSuMqL52pWa2ryAcnzPW",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "payer"
+        },
+        {
+            "pubkey": "9iFER3bpjf1PTTCQCfTRu17EJgvsxo9pVyA9QWwEuX4x",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "ammConfig"
+        },
+        {
+            "pubkey": "945czrk5A4uSUH46xE8PLz4SMjqLXPDKqAyaGvA76bUg",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "poolState"
+        },
+        {
+            "pubkey": "DBVe5zJdfMDtoZ8y93Nz7aKCmraq1XNKQodMfKiWPdAG",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "inputTokenAccount"
+        },
+        {
+            "pubkey": "6QRRR7s1KThgYxSBzaFbVTBnkR9XpbVhYumfJMK9hv3x",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "outputTokenAccount"
+        },
+        {
+            "pubkey": "GkYAvt7ecy7juVHyPBssmJsw6DQLZ5r1YTzf58DMLFxu",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "inputVault"
+        },
+        {
+            "pubkey": "anQHGFzjoUf6F663ZVzC1irEgvXdgHdgp35knPg3wNj",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "outputVault"
+        },
+        {
+            "pubkey": "2uiwPb51HMsNPfk6C2MF7mx9vcjN2coDGct1cYM96nCt",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "observationState"
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenProgram"
+        },
+        {
+            "pubkey": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenProgram2022"
+        },
+        {
+            "pubkey": "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "memoProgram"
+        },
+        {
+            "pubkey": "3hiYB9c4VYhWbwkDgSbEv22cpsNvdYZHuVWMnnNgpump",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "inputVaultMint"
+        },
+        {
+            "pubkey": "So11111111111111111111111111111111111111112",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "outputVaultMint"
+        },
+        {
+            "pubkey": "8yxZqXeguBG6fDSGLxTVTDMGEzUgatvhDzUC4CJv6KbQ",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "3DGHSf9AYkon5ESJv6uJaVziuMVZ5Td7GBzuLU4w5cFt",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "HeV2hQbj6sxHZ8P3XW2Bho7iDzNpgC1MXiYmdTDvLpup",
+            "is_signer": false,
+            "is_writable": true
+        }
+    ],
+    "data": "2b04ed0b1ac91e6244dcfe020100000000406352bfc601009a57694ea91a5c84b1c4feff0000000000",
+    "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
 }

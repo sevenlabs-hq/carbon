@@ -1,42 +1,42 @@
 {
-  "accounts": [
-    {
-      "pubkey": "3ndiEELaGFnzf5gH8MtZQNAoAsiYkzjLGogFYfsugKdX",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "payer"
-    },
-    {
-      "pubkey": "6A9EP2fdrtoNYcFQBjRimzJ4zmUijPm5nd2xappexRR4",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "inputTokenAccount"
-    },
-    {
-      "pubkey": "4TB5TXF6VJTgYMsYrubEAvtiNKVgNE2KRfw6TiruWvFp",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "inputTokenMint"
-    },
-    {
-      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenProgram"
-    },
-    {
-      "pubkey": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenProgram2022"
-    },
-    {
-      "pubkey": "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "memoProgram"
-    }
-  ],
-  "data": "457d73daf5baf2c400c2eb0b000000000000000000000000",
-  "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
+    "accounts": [
+        {
+            "pubkey": "3ndiEELaGFnzf5gH8MtZQNAoAsiYkzjLGogFYfsugKdX",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "payer"
+        },
+        {
+            "pubkey": "6A9EP2fdrtoNYcFQBjRimzJ4zmUijPm5nd2xappexRR4",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "inputTokenAccount"
+        },
+        {
+            "pubkey": "4TB5TXF6VJTgYMsYrubEAvtiNKVgNE2KRfw6TiruWvFp",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "inputTokenMint"
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenProgram"
+        },
+        {
+            "pubkey": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenProgram2022"
+        },
+        {
+            "pubkey": "MemoSq4gqABAXKb96qnH8TysNcWxMyWCqXgDLGmfcHr",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "memoProgram"
+        }
+    ],
+    "data": "457d73daf5baf2c400c2eb0b000000000000000000000000",
+    "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
 }

@@ -1,84 +1,84 @@
 {
-  "accounts": [
-    {
-      "pubkey": "7XiakBmwHdVVXmPKjT35JFDUMzP8aszSg3tU4SaL16KU",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "poolCreator"
-    },
-    {
-      "pubkey": "E64NGkDLLCdQ2yFNPcavaKptrEgmiQaNykUuLC1Qgwyp",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "ammConfig"
-    },
-    {
-      "pubkey": "7ypbduGATyfEhTCMCLhhGtCTsPudEKTbMgJfA5gS44Qh",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "poolState"
-    },
-    {
-      "pubkey": "6NcdiK8B5KK2DzKvzvCfqi8EHaEqu48fyEzC8Mm9pump",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenMint0"
-    },
-    {
-      "pubkey": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenMint1"
-    },
-    {
-      "pubkey": "3Rkt6v35Z3vXeBBYRFiF3GY6RX1DWB7RkL7AHmY9VGsM",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tokenVault0"
-    },
-    {
-      "pubkey": "FR8XJ3DhoBCV6M8Rc15V16N4Mpv76NG2ktsWpZqKUEM8",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tokenVault1"
-    },
-    {
-      "pubkey": "HYivBDMTU5AaGY6NmGxwGjqLBsLEqVroQA2V3iQxi2vK",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "observationState"
-    },
-    {
-      "pubkey": "DsFfPkzPibWm734yasxctaT1A3Q6y27qbo6uYVTDtUqj",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tickArrayBitmap"
-    },
-    {
-      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenProgram0"
-    },
-    {
-      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenProgram1"
-    },
-    {
-      "pubkey": "11111111111111111111111111111111",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "systemProgram"
-    },
-    {
-      "pubkey": "SysvarRent111111111111111111111111111111111",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "rent"
-    }
-  ],
-  "data": "e992d18ecf6840bc82d1704d7361f03300000000000000000000000000000000",
-  "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
+    "accounts": [
+        {
+            "pubkey": "7XiakBmwHdVVXmPKjT35JFDUMzP8aszSg3tU4SaL16KU",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "poolCreator"
+        },
+        {
+            "pubkey": "E64NGkDLLCdQ2yFNPcavaKptrEgmiQaNykUuLC1Qgwyp",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "ammConfig"
+        },
+        {
+            "pubkey": "7ypbduGATyfEhTCMCLhhGtCTsPudEKTbMgJfA5gS44Qh",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "poolState"
+        },
+        {
+            "pubkey": "6NcdiK8B5KK2DzKvzvCfqi8EHaEqu48fyEzC8Mm9pump",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenMint0"
+        },
+        {
+            "pubkey": "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenMint1"
+        },
+        {
+            "pubkey": "3Rkt6v35Z3vXeBBYRFiF3GY6RX1DWB7RkL7AHmY9VGsM",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tokenVault0"
+        },
+        {
+            "pubkey": "FR8XJ3DhoBCV6M8Rc15V16N4Mpv76NG2ktsWpZqKUEM8",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tokenVault1"
+        },
+        {
+            "pubkey": "HYivBDMTU5AaGY6NmGxwGjqLBsLEqVroQA2V3iQxi2vK",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "observationState"
+        },
+        {
+            "pubkey": "DsFfPkzPibWm734yasxctaT1A3Q6y27qbo6uYVTDtUqj",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tickArrayBitmap"
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenProgram0"
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenProgram1"
+        },
+        {
+            "pubkey": "11111111111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "systemProgram"
+        },
+        {
+            "pubkey": "SysvarRent111111111111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "rent"
+        }
+    ],
+    "data": "e992d18ecf6840bc82d1704d7361f03300000000000000000000000000000000",
+    "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
 }

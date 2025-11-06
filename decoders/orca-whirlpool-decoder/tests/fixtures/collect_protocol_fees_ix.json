@@ -1,54 +1,54 @@
 {
-  "accounts": [
-    {
-      "pubkey": "HDE78Mg7ukJht34qd9yifnDGkdZoAFu5K5dSGQiHDDRq",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "whirlpoolsConfig"
-    },
-    {
-      "pubkey": "EEEEBfiPZbNDNnzwAgJJSHqsWz7u4iuDfTWfpzfZqgzT",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "whirlpool"
-    },
-    {
-      "pubkey": "89VB5UmvopuCFmp5Mf8YPX28fGvvqn79afCgouQuPyhY",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "collectProtocolFeesAuthority"
-    },
-    {
-      "pubkey": "4YRsbqv8PL7XtJspEHswDtm7YYyvmpvCQ4EjtijmmQk9",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tokenVaultA"
-    },
-    {
-      "pubkey": "39XJsPJStL3H6QVsCqvENFJ4QPXSKmoSvcuTbhC4nnyk",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tokenVaultB"
-    },
-    {
-      "pubkey": "5K9KFLPwkskr3V5mrHfENE8EGYa85heKfW9YpCMowNJC",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tokenDestinationA"
-    },
-    {
-      "pubkey": "3RCQzb4yyWPb99L99C16uokdV8ktmeEQnLsTF2S7wABz",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tokenDestinationB"
-    },
-    {
-      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenProgram"
-    }
-  ],
-  "data": "1643176296b246dc",
-  "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+    "accounts": [
+        {
+            "pubkey": "HDE78Mg7ukJht34qd9yifnDGkdZoAFu5K5dSGQiHDDRq",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "whirlpoolsConfig"
+        },
+        {
+            "pubkey": "EEEEBfiPZbNDNnzwAgJJSHqsWz7u4iuDfTWfpzfZqgzT",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "whirlpool"
+        },
+        {
+            "pubkey": "89VB5UmvopuCFmp5Mf8YPX28fGvvqn79afCgouQuPyhY",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "collectProtocolFeesAuthority"
+        },
+        {
+            "pubkey": "4YRsbqv8PL7XtJspEHswDtm7YYyvmpvCQ4EjtijmmQk9",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tokenVaultA"
+        },
+        {
+            "pubkey": "39XJsPJStL3H6QVsCqvENFJ4QPXSKmoSvcuTbhC4nnyk",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tokenVaultB"
+        },
+        {
+            "pubkey": "5K9KFLPwkskr3V5mrHfENE8EGYa85heKfW9YpCMowNJC",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tokenDestinationA"
+        },
+        {
+            "pubkey": "3RCQzb4yyWPb99L99C16uokdV8ktmeEQnLsTF2S7wABz",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tokenDestinationB"
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenProgram"
+        }
+    ],
+    "data": "1643176296b246dc",
+    "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
 }

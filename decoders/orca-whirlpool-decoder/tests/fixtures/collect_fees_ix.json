@@ -1,60 +1,60 @@
 {
-  "accounts": [
-    {
-      "pubkey": "GDL9697QALucFPpMt2q9xJKYQsqYYsXmNt2jSii8g3Fa",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "whirlpool"
-    },
-    {
-      "pubkey": "EjGi7MvfXYeumngY4makPAkKdrshZ98aXZPbGyf2maM6",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "positionAuthority"
-    },
-    {
-      "pubkey": "6nToW8ErR2K3op2tyjcLG2bEKWsBFW3W2HLVdiEs3T9p",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "position"
-    },
-    {
-      "pubkey": "2NaKgz8WPtxtzDwHPZ2gnRmNQd3qBx51Uyji1hqTc72U",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "positionTokenAccount"
-    },
-    {
-      "pubkey": "EzwAfPbWcTR2WTPEdfzpsDLWY3hbeLFqiWBnhk64AKDd",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "tokenOwnerAccountA"
-    },
-    {
-      "pubkey": "BrNQmGP4FJ88LMA4PE5ecR75L2gxRi3JcvdtiBd58nnn",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tokenVaultA"
-    },
-    {
-      "pubkey": "AeEHBAYv9g4iBNyipSqB4PmpXCnXUbieNw9pVN5J4oZu",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tokenOwnerAccountB"
-    },
-    {
-      "pubkey": "71hf61PcLXRBQQ2jn8C7nFM1FrRk6eYmtCNkqrL2my5M",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tokenVaultB"
-    },
-    {
-      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenProgram"
-    }
-  ],
-  "data": "a498cf631eba13b6",
-  "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+    "accounts": [
+        {
+            "pubkey": "GDL9697QALucFPpMt2q9xJKYQsqYYsXmNt2jSii8g3Fa",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "whirlpool"
+        },
+        {
+            "pubkey": "EjGi7MvfXYeumngY4makPAkKdrshZ98aXZPbGyf2maM6",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "positionAuthority"
+        },
+        {
+            "pubkey": "6nToW8ErR2K3op2tyjcLG2bEKWsBFW3W2HLVdiEs3T9p",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "position"
+        },
+        {
+            "pubkey": "2NaKgz8WPtxtzDwHPZ2gnRmNQd3qBx51Uyji1hqTc72U",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "positionTokenAccount"
+        },
+        {
+            "pubkey": "EzwAfPbWcTR2WTPEdfzpsDLWY3hbeLFqiWBnhk64AKDd",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "tokenOwnerAccountA"
+        },
+        {
+            "pubkey": "BrNQmGP4FJ88LMA4PE5ecR75L2gxRi3JcvdtiBd58nnn",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tokenVaultA"
+        },
+        {
+            "pubkey": "AeEHBAYv9g4iBNyipSqB4PmpXCnXUbieNw9pVN5J4oZu",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tokenOwnerAccountB"
+        },
+        {
+            "pubkey": "71hf61PcLXRBQQ2jn8C7nFM1FrRk6eYmtCNkqrL2my5M",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tokenVaultB"
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenProgram"
+        }
+    ],
+    "data": "a498cf631eba13b6",
+    "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
 }

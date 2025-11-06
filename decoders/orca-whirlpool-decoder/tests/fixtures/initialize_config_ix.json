@@ -1,24 +1,24 @@
 {
-  "accounts": [
-    {
-      "pubkey": "DUAyeevUnXv1ePfyRJby7fdBqhezEdvXZonFnQa6j6fM",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "config"
-    },
-    {
-      "pubkey": "DDGbigvGH49guY7PaaSdaNd3FiF5fyMzywzkF35bjZz7",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "funder"
-    },
-    {
-      "pubkey": "11111111111111111111111111111111",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "systemProgram"
-    }
-  ],
-  "data": "d07f1501c2bec446b570d9a7dd3bc670786949a74ea38a0926a217179c3923c48899485ea389cb20b570d9a7dd3bc670786949a74ea38a0926a217179c3923c48899485ea389cb20b570d9a7dd3bc670786949a74ea38a0926a217179c3923c48899485ea389cb200000",
-  "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+    "accounts": [
+        {
+            "pubkey": "DUAyeevUnXv1ePfyRJby7fdBqhezEdvXZonFnQa6j6fM",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "config"
+        },
+        {
+            "pubkey": "DDGbigvGH49guY7PaaSdaNd3FiF5fyMzywzkF35bjZz7",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "funder"
+        },
+        {
+            "pubkey": "11111111111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "systemProgram"
+        }
+    ],
+    "data": "d07f1501c2bec446b570d9a7dd3bc670786949a74ea38a0926a217179c3923c48899485ea389cb20b570d9a7dd3bc670786949a74ea38a0926a217179c3923c48899485ea389cb20b570d9a7dd3bc670786949a74ea38a0926a217179c3923c48899485ea389cb200000",
+    "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
 }

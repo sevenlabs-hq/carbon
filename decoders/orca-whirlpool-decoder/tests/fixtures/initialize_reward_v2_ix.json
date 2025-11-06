@@ -1,60 +1,60 @@
 {
-  "accounts": [
-    {
-      "pubkey": "DjDsi34mSB66p2nhBL6YvhbcLtZbkGfNybFeLDjJqxJW",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "rewardAuthority"
-    },
-    {
-      "pubkey": "DjDsi34mSB66p2nhBL6YvhbcLtZbkGfNybFeLDjJqxJW",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "funder"
-    },
-    {
-      "pubkey": "FWDvLqKFt5H514ov22XXGLopGVsf4w34SD1CEnhfMyJW",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "whirlpool"
-    },
-    {
-      "pubkey": "orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "rewardMint"
-    },
-    {
-      "pubkey": "2emiLJvgkofybvvADYrJJwAaTUpCTU9YJcdhpGGMbGtb",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "rewardTokenBadge"
-    },
-    {
-      "pubkey": "3jxf1SxwM76sHp65NUMdwphYHoT1b1WKSofZiLou6SyK",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "rewardVault"
-    },
-    {
-      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "rewardTokenProgram"
-    },
-    {
-      "pubkey": "11111111111111111111111111111111",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "systemProgram"
-    },
-    {
-      "pubkey": "SysvarRent111111111111111111111111111111111",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "rent"
-    }
-  ],
-  "data": "5b014d32ebe5853101",
-  "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+    "accounts": [
+        {
+            "pubkey": "DjDsi34mSB66p2nhBL6YvhbcLtZbkGfNybFeLDjJqxJW",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "rewardAuthority"
+        },
+        {
+            "pubkey": "DjDsi34mSB66p2nhBL6YvhbcLtZbkGfNybFeLDjJqxJW",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "funder"
+        },
+        {
+            "pubkey": "FWDvLqKFt5H514ov22XXGLopGVsf4w34SD1CEnhfMyJW",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "whirlpool"
+        },
+        {
+            "pubkey": "orcaEKTdK7LKz57vaAYr9QeNsVEPfiu6QeMU1kektZE",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "rewardMint"
+        },
+        {
+            "pubkey": "2emiLJvgkofybvvADYrJJwAaTUpCTU9YJcdhpGGMbGtb",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "rewardTokenBadge"
+        },
+        {
+            "pubkey": "3jxf1SxwM76sHp65NUMdwphYHoT1b1WKSofZiLou6SyK",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "rewardVault"
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "rewardTokenProgram"
+        },
+        {
+            "pubkey": "11111111111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "systemProgram"
+        },
+        {
+            "pubkey": "SysvarRent111111111111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "rent"
+        }
+    ],
+    "data": "5b014d32ebe5853101",
+    "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
 }

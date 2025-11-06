@@ -1,8 +1,8 @@
 {
-  "data": "OEufTI5EvmkT5EH4ORPKaLBjT7Al/eqohzfoQRDRJV41ezN33e4czYCAECc=",
-  "executable": false,
-  "lamports": 1197220,
-  "owner": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc",
-  "space": 44,
-  "rent_epoch": 18446744073709551615
+    "data": "OEufTI5EvmkT5EH4ORPKaLBjT7Al/eqohzfoQRDRJV41ezN33e4czYCAECc=",
+    "executable": false,
+    "lamports": 1197220,
+    "owner": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc",
+    "space": 44,
+    "rent_epoch": 18446744073709551615
 }
