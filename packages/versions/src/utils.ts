@@ -44,8 +44,8 @@ export function getCrateDependencyString(
         parts.push(`rev = "${dependency.rev}"`);
     }
     
-    if (dependency.path) {
-        parts.push(`path = "${dependency.path}"`);
+    if (dependency.branch) {
+        parts.push(`branch = "${dependency.branch}"`);
     }
     
     const allFeatures = [
