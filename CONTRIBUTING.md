@@ -31,21 +31,21 @@ Carbon is an indexing framework for Solana that provides a modular pipeline for 
 
 1. **Clone the repository**:
 
-   ```bash
-   git clone https://github.com/sevenlabs-hq/carbon.git
-   cd carbon
-   ```
+    ```bash
+    git clone https://github.com/sevenlabs-hq/carbon.git
+    cd carbon
+    ```
 
 2. **Install dependencies**:
 
-   ```bash
-   cargo build
-   ```
+    ```bash
+    cargo build
+    ```
 
 3. **Run tests**:
-   ```bash
-   cargo test
-   ```
+    ```bash
+    cargo test
+    ```
 
 ### Pre-commit Hooks
 
@@ -189,11 +189,11 @@ The `carbon-test-utils` crate provides common testing utilities and fixtures for
 4. **Update documentation** including README files and doc comments
 
 5. **Run quality checks**:
-   ```bash
-   ./scripts/cargo-clippy.sh
-   ./scripts/cargo-fmt.sh
-   cargo test
-   ```
+    ```bash
+    ./scripts/cargo-clippy.sh
+    ./scripts/cargo-fmt.sh
+    cargo test
+    ```
 
 ### Adding New Crates
 
@@ -201,12 +201,12 @@ When adding a new crate to the workspace:
 
 1. **Create the crate structure** in the appropriate directory
 2. **Add to workspace** in `Cargo.toml`:
-   ```toml
-   members = [
-       # ... existing members
-       "your-new-crate"
-   ]
-   ```
+    ```toml
+    members = [
+        # ... existing members
+        "your-new-crate"
+    ]
+    ```
 3. **Add dependencies** to the workspace dependencies section
 4. **Update publish script** in `scripts/publish-crate.sh` if the crate should be published
 
@@ -239,20 +239,19 @@ decoders/your-program-decoder/
 
 1. **Generate decoder using CLI** (recommended):
 
-   ```bash
-   carbon-cli parse --idl program_address -u mainnet-beta --output ./decoders/your-program-decoder
-   ```
+    ```bash
+    carbon-cli parse --idl program_address -u mainnet-beta --output ./decoders/your-program-decoder
+    ```
 
 2. **Manual creation**:
-
-   - Create the directory structure
-   - Implement `AccountDecoder` and `InstructionDecoder` traits
-   - Add proper error handling
-   - Include comprehensive tests
+    - Create the directory structure
+    - Implement `AccountDecoder` and `InstructionDecoder` traits
+    - Add proper error handling
+    - Include comprehensive tests
 
 3. **Add to workspace**:
-   - Update `Cargo.toml` workspace dependencies
-   - Add to publish script if needed
+    - Update `Cargo.toml` workspace dependencies
+    - Add to publish script if needed
 
 ### Decoder Best Practices
 
@@ -279,27 +278,27 @@ datasources/your-datasource/
 
 1. **Implement the `Datasource` trait**:
 
-   ```rust
-   use carbon_core::datasource::{Datasource, Update, UpdateType};
-   use async_trait::async_trait;
+    ```rust
+    use carbon_core::datasource::{Datasource, Update, UpdateType};
+    use async_trait::async_trait;
 
-   pub struct YourDatasource;
+    pub struct YourDatasource;
 
-   #[async_trait]
-   impl Datasource for YourDatasource {
-       async fn consume(
-           &self,
-           sender: &tokio::sync::mpsc::UnboundedSender<Update>,
-           cancellation_token: CancellationToken,
-       ) -> CarbonResult<()> {
-           // Implementation
-       }
+    #[async_trait]
+    impl Datasource for YourDatasource {
+        async fn consume(
+            &self,
+            sender: &tokio::sync::mpsc::UnboundedSender<Update>,
+            cancellation_token: CancellationToken,
+        ) -> CarbonResult<()> {
+            // Implementation
+        }
 
-       fn update_types(&self) -> Vec<UpdateType> {
-           vec![UpdateType::AccountUpdate, UpdateType::Transaction]
-       }
-   }
-   ```
+        fn update_types(&self) -> Vec<UpdateType> {
+            vec![UpdateType::AccountUpdate, UpdateType::Transaction]
+        }
+    }
+    ```
 
 2. **Add configuration options** for flexibility
 3. **Include proper error handling** and retry logic
@@ -322,18 +321,18 @@ datasources/your-datasource/
 
 3. **Test thoroughly**:
 
-   ```bash
-   cargo test
-   ./scripts/cargo-clippy.sh
-   ./scripts/cargo-fmt.sh
-   ```
+    ```bash
+    cargo test
+    ./scripts/cargo-clippy.sh
+    ./scripts/cargo-fmt.sh
+    ```
 
 4. **Update documentation** as needed
 
 5. **Create a pull request** with:
-   - Clear description of changes
-   - Link to any related issues
-   - Screenshots or examples if applicable
+    - Clear description of changes
+    - Link to any related issues
+    - Screenshots or examples if applicable
 
 ### Pull Request Guidelines
 
