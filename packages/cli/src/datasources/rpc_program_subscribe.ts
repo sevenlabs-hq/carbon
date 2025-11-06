@@ -38,6 +38,3 @@ export function buildRpcProgramSubscribe(decoders: DecoderMeta[]): DatasourceArt
         },
     };
 }
-
-
-

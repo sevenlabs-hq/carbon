@@ -27,10 +27,9 @@ export function buildRpcBlockSubscribe(_decoders: DecoderMeta[]): DatasourceArti
         init,
         env: {
             required: ['RPC_WS_URL'],
-            validate: () => { /* optional for this source */ },
+            validate: () => {
+                /* optional for this source */
+            },
         },
     };
 }
-
-
-

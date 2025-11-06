@@ -65,6 +65,3 @@ export function buildYellowstoneGrpc(decoders: DecoderMeta[]): DatasourceArtifac
         },
     };
 }
-
-
-

@@ -8,7 +8,7 @@ export const VALID_DATASOURCES = [
     'yellowstone-grpc',
 ] as const;
 
-export type DataSource = typeof VALID_DATASOURCES[number];
+export type DataSource = (typeof VALID_DATASOURCES)[number];
 export type MetricsType = 'log' | 'prometheus';
 
 export function validateDataSource(dataSource: string): asserts dataSource is DataSource {
@@ -22,4 +22,3 @@ export function validateMetrics(metrics: string): asserts metrics is MetricsType
         exitWithError("Metrics must be 'log' or 'prometheus'");
     }
 }
-
