@@ -1,3 +1,5 @@
+{% extends "layout.njk" %}
+
 {% block main %}
 
 {% for type in definedTypesToExport | sort(false, false, 'name') %}
