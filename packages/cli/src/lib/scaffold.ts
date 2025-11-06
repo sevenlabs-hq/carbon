@@ -83,7 +83,6 @@ function buildProjectImports(ctx: any): string {
         const dsModule = ctx.data_source.module_name as string;
         const usesProgramIds = dsModule === 'yellowstone_grpc' || 
                               dsModule === 'helius_laserstream' || 
-                              dsModule === 'helius_atlas_ws' || 
                               dsModule === 'rpc_program_subscribe' || 
                               dsModule === 'rpc_transaction_crawler';
         if (usesProgramIds) {
@@ -132,9 +131,7 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
                     ? 'rpc-program-subscribe-datasource'
                     : dsModule === 'rpc-transaction-crawler'
                         ? 'rpc-transaction-crawler-datasource'
-                        : dsModule === 'helius-atlas-ws'
-                            ? 'helius-atlas-ws-datasource'
-                            : `${dsModule}-datasource`;
+                        : `${dsModule}-datasource`;
     const datasourceCrateName = `carbon-${opts.dataSource.toLowerCase()}-datasource`;
     const datasourceDep = getCrateDependencyString(
         datasourceCrateName,
@@ -162,7 +159,6 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
     const rustlsDep = opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream' 
         ? getCrateDependencyString("rustls", VERSIONS.rustls)
         : '';
-    const atlasDeps = opts.dataSource === 'helius-atlas-ws' ? getCrateDependencyString("helius", VERSIONS["helius"]) : '';
 
     const features = ['default = []', opts.withPostgres ? 'postgres = []' : '', opts.withGraphql ? 'graphql = []' : '']
         .filter(Boolean)
@@ -214,7 +210,6 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
         rustlsDep,
         crawlerDeps,
         programDeps,
-        atlasDeps,
         features,
         versions: VERSIONS,
     };
@@ -232,9 +227,6 @@ function getEnvContent(dataSource: string, withPostgres: boolean): string {
 
     // Add datasource-specific env vars
     switch (dataSourceLower) {
-        case 'helius_atlas_ws':
-            envContent += 'HELIUS_API_KEY=your-atlas-ws-url-here';
-            break;
         case 'helius_laserstream':
             envContent += 'GEYSER_URL=your-grpc-url-here\nX_TOKEN=your-x-token-here';
             break;
@@ -322,7 +314,6 @@ export function renderScaffold(opts: ScaffoldOptions) {
             helius_laserstream: true,
             rpc_block_subscribe: true,
             yellowstone_grpc: true,
-            helius_atlas_ws: true,
             rpc_transaction_crawler: true,
             rpc_program_subscribe: true,
         } : {});

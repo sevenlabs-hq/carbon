@@ -108,7 +108,6 @@ carbon-cli scaffold
 - `rpc-program-subscribe` - Uses Solana WS JSON RPC programSubscribe
 - `rpc-transaction-crawler` - Crawls historical transactions
 - `helius-laserstream` - Helius Laserstream datasource
-- `helius-atlas-ws` - Helius Atlas WebSocket
 - `yellowstone-grpc` - Yellowstone gRPC datasource
 - `jito-shredstream-grpc` - JITO Shredstream gRPC
 

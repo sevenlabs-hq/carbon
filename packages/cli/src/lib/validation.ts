@@ -1,7 +1,6 @@
 import { exitWithError } from './utils';
 
 export const VALID_DATASOURCES = [
-    'helius-atlas-ws',
     'helius-laserstream',
     'rpc-block-subscribe',
     'rpc-program-subscribe',
