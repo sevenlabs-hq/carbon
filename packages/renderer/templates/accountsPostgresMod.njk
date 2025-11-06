@@ -2,7 +2,6 @@
 {% import "macros.njk" as macros %}
 
 {% block main %}
-
 {% for account in accountsToExport | sort(false, false, 'name') %}
 pub mod {{ macros.escapeRustKeyword(account.name | snakeCase) }}_row;
 {% endfor %}
@@ -26,9 +25,9 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for {{program.name | pascalCase}}A
 
     fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
         vec![
-            {% for account in accountsToExport | sort(false, false, 'name') %}
+{% for account in accountsToExport | sort(false, false, 'name') %}
             Box::new({{ macros.escapeRustKeyword(account.name | pascalCase) }}MigrationOperation),
-            {% endfor %}
+{% endfor %}
         ]
     }
 
@@ -51,16 +50,16 @@ impl carbon_core::postgres::operations::Insert for {{ program.name | pascalCase 
         let {{ program.name | pascalCase }}AccountWithMetadata(account, metadata) = self;
 
         match account {
-            {% for account in accountsToExport %}
+{% for account in accountsToExport %}
             {{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(account) => {
                 let row = {{ macros.escapeRustKeyword(account.name | snakeCase) }}_row::{{ account.name | pascalCase }}Row::from_parts(*account.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            {% endfor %}
-            {% if accountsToExport.length == 0 %}
+{% endfor %}
+{% if accountsToExport.length == 0 %}
             _ => unreachable!("No accounts to decode"),
-            {% endif %}
+{% endif %}
         }
     }
 }
@@ -70,16 +69,16 @@ impl carbon_core::postgres::operations::Upsert for {{ program.name | pascalCase 
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         let {{ program.name | pascalCase}}AccountWithMetadata(account, metadata) = self;
         match account {
-            {% for account in accountsToExport %}
+{% for account in accountsToExport %}
             {{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(account) => {
                 let row = {{ macros.escapeRustKeyword(account.name | snakeCase) }}_row::{{ account.name | pascalCase }}Row::from_parts(*account.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            {% endfor %}
-            {% if accountsToExport.length == 0 %}
+{% endfor %}
+{% if accountsToExport.length == 0 %}
             _ => unreachable!("No accounts to decode"),
-            {% endif %}
+{% endif %}
         }
     }
 }

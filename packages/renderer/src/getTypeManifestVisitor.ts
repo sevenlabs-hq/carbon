@@ -5,6 +5,7 @@ import {
     REGISTERED_TYPE_NODE_KINDS,
     resolveNestedTypeNode,
     snakeCase,
+    TypeNode,
 } from '@codama/nodes';
 import { extendVisitor, mergeVisitor, pipe, visit } from '@codama/visitors-core';
 
@@ -15,6 +16,7 @@ export type TypeManifest = {
     imports: ImportMap;
     type: string;
     borshType: string;
+    requiredBigArray?: number;
 };
 
 export type DiscriminatorManifest = {
@@ -23,8 +25,8 @@ export type DiscriminatorManifest = {
     checkCode: string;
 };
 
-export function getTypeManifestVisitor() {
-    return pipe(
+export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null, newtypeWrapperTypes?: Set<string>) {
+    const baseVisitor = pipe(
         mergeVisitor(
             (): TypeManifest => ({
                 imports: new ImportMap(),
@@ -38,8 +40,8 @@ export function getTypeManifestVisitor() {
             }),
             { keys: [...REGISTERED_TYPE_NODE_KINDS, 'definedTypeLinkNode'] },
         ),
-        v =>
-            extendVisitor(v, {
+        v => {
+            const extended = extendVisitor(v, {
                 visitArrayType(arrayType, { self }) {
                     const childManifest = visit(arrayType.item, self);
 
@@ -85,10 +87,41 @@ export function getTypeManifestVisitor() {
 
                 visitDefinedTypeLink(node) {
                     const pascalCaseType = pascalCase(node.name);
+                    // Resolve the underlying type to check if it needs BigArray
+                    // But skip if it's a newtype wrapper (which handles serialization itself)
+                    let requiredBigArray: number | undefined = undefined;
+                    // If this type was converted to a newtype wrapper, don't set requiredBigArray
+                    if (!newtypeWrapperTypes || !newtypeWrapperTypes.has(node.name)) {
+                        // Prioritize definedTypesMap lookup when available, then fall back to resolveNestedTypeNode
+                        let resolvedRaw: any = undefined;
+                        if (definedTypesMap) {
+                            const typeName = node.name;
+                            const definedType = definedTypesMap.get(typeName);
+                            if (definedType && definedType.type) {
+                                resolvedRaw = definedType.type;
+                            }
+                        }
+                        if (!resolvedRaw) {
+                            resolvedRaw = resolveNestedTypeNode(node);
+                        }
+                        if (resolvedRaw) {
+                            const resolved = resolvedRaw as TypeNode;
+                            if (isNode(resolved, 'fixedSizeTypeNode')) {
+                                if (isNode(resolved.type, 'bytesTypeNode') && resolved.size > 32) {
+                                    requiredBigArray = resolved.size;
+                                }
+                            } else if (isNode(resolved, 'arrayTypeNode')) {
+                                if (isNode(resolved.count, 'fixedCountNode') && resolved.count.value > 32) {
+                                    requiredBigArray = resolved.count.value;
+                                }
+                            }
+                        }
+                    }
                     return {
                         imports: new ImportMap().add(`crate::types::${pascalCaseType}`),
                         type: pascalCaseType,
                         borshType: pascalCaseType,
+                        requiredBigArray,
                     };
                 },
 
@@ -103,15 +136,62 @@ export function getTypeManifestVisitor() {
 
                 visitEnumStructVariantType(node, { self }) {
                     const name = pascalCase(node.name);
+                    // Get the definedTypesMap and newtypeWrapperTypes from the original visitor (self)
+                    // This is a workaround since we can't pass it through visitor context
+                    const getDefinedTypesMap = (self as any).__definedTypesMap;
+                    const enumDefinedTypesMap =
+                        typeof getDefinedTypesMap === 'function' ? getDefinedTypesMap() : undefined;
+                    const getNewtypeWrapperTypes = (self as any).__newtypeWrapperTypes;
+                    const enumNewtypeWrapperTypes =
+                        typeof getNewtypeWrapperTypes === 'function' ? getNewtypeWrapperTypes() : undefined;
+                    // Store reference to original self for accessing definedTypesMap
+                    const originalSelf = self;
+
                     // Create a custom visitor for enum struct variant fields that doesn't add 'pub'
-                    const enumStructVisitor = extendVisitor(self, {
-                        visitStructFieldType(node, { self }) {
-                            const fieldManifest = visit(node.type, self);
+                    // but includes BigArray detection logic
+                    // Use originalSelf for visiting field types to ensure access to __definedTypesMap
+                    const enumStructVisitor = extendVisitor(originalSelf, {
+                        visitStructFieldType(node, { self: fieldSelf }) {
+                            // Visit the field type with originalSelf to get proper type resolution
+                            const fieldManifest = visit(node.type, originalSelf);
                             const fieldName = snakeCase(node.name);
+
+                            // visitDefinedTypeLink already sets requiredBigArray appropriately (including undefined for newtype wrappers)
+                            // Only need to override if it's a newtype wrapper to ensure it's undefined
+                            let needsBigArray = fieldManifest.requiredBigArray !== undefined;
+                            if (
+                                isNode(node.type, 'definedTypeLinkNode') &&
+                                enumNewtypeWrapperTypes &&
+                                enumNewtypeWrapperTypes.has(node.type.name)
+                            ) {
+                                needsBigArray = false; // Newtype wrapper handles serialization itself
+                            }
+
+                            // Also check direct array types (not defined type links)
+                            if (
+                                !needsBigArray &&
+                                !isNode(node.type, 'definedTypeLinkNode') &&
+                                isNode(node.type, 'arrayTypeNode') &&
+                                isNode(node.type.count, 'fixedCountNode') &&
+                                node.type.count.value > 32
+                            ) {
+                                needsBigArray = true;
+                            }
+
+                            const docs = node.docs || [];
+                            const docComments =
+                                docs.length > 0
+                                    ? docs
+                                          .map(doc => {
+                                              const lines = doc.split('\n');
+                                              return lines.map(line => `    /// ${line}`).join('\n');
+                                          })
+                                          .join('\n') + '\n'
+                                    : '';
 
                             return {
                                 imports: fieldManifest.imports,
-                                type: `${fieldName}: ${fieldManifest.type},`,
+                                type: `${docComments}${needsBigArray ? '    #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]\n' : ''}    ${fieldName}: ${fieldManifest.type},`,
                                 borshType: `${fieldName}: ${fieldManifest.borshType},`,
                             };
                         },
@@ -132,7 +212,7 @@ export function getTypeManifestVisitor() {
                     const needsParens = !tupleManifest.type.startsWith('(');
                     const wrappedType = needsParens ? `(${tupleManifest.type})` : tupleManifest.type;
                     const wrappedBorshType = needsParens ? `(${tupleManifest.borshType})` : tupleManifest.borshType;
-                    
+
                     return {
                         imports: tupleManifest.imports,
                         type: `${name}${wrappedType},`,
@@ -143,8 +223,8 @@ export function getTypeManifestVisitor() {
                 visitEnumType(node, { self }) {
                     const variants = node.variants.map(variant => visit(variant, self));
                     const mergedImports = new ImportMap().mergeWith(...variants.map(v => v.imports));
-                    const variantTypes = variants.map(v => v.type).join('\n');
-                    const variantBorshTypes = variants.map(v => v.borshType).join('\n');
+                    const variantTypes = variants.map(v => '    ' + v.type).join('\n');
+                    const variantBorshTypes = variants.map(v => '    ' + v.borshType).join('\n');
 
                     return {
                         imports: mergedImports,
@@ -154,6 +234,15 @@ export function getTypeManifestVisitor() {
                 },
 
                 visitFixedSizeType(node, { self }) {
+                    // Special case: fixed-size bytes should be [u8; N] not Vec<u8>
+                    if (isNode(node.type, 'bytesTypeNode')) {
+                        return {
+                            imports: new ImportMap(),
+                            type: `[u8; ${node.size}]`,
+                            borshType: `[u8; ${node.size}]`,
+                            requiredBigArray: node.size > 32 ? node.size : undefined,
+                        };
+                    }
                     return visit(node.type, self);
                 },
 
@@ -237,15 +326,35 @@ export function getTypeManifestVisitor() {
                     const fieldManifest = visit(node.type, self);
                     const fieldName = snakeCase(node.name);
 
-                    const serdeBigArray =
+                    // visitDefinedTypeLink already sets requiredBigArray appropriately (including undefined for newtype wrappers)
+                    // Only check direct array types and use manifest's requiredBigArray
+                    let needsBigArray = fieldManifest.requiredBigArray !== undefined;
+                    // Also check direct array types (not defined type links, as those are handled by visitDefinedTypeLink)
+                    if (
+                        !needsBigArray &&
+                        !isNode(node.type, 'definedTypeLinkNode') &&
                         isNode(node.type, 'arrayTypeNode') &&
                         isNode(node.type.count, 'fixedCountNode') &&
-                        node.type.count.value > 32;
+                        node.type.count.value > 32
+                    ) {
+                        needsBigArray = true;
+                    }
+
+                    const docs = node.docs || [];
+                    const docComments =
+                        docs.length > 0
+                            ? docs
+                                  .map(doc => {
+                                      const lines = doc.split('\n');
+                                      return lines.map(line => `    /// ${line}`).join('\n');
+                                  })
+                                  .join('\n') + '\n'
+                            : '';
 
                     return {
                         imports: fieldManifest.imports,
-                        type: `${serdeBigArray ? '#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))] ' : ''}pub ${fieldName}: ${fieldManifest.type},`,
-                        borshType: `${fieldName}: ${fieldManifest.borshType},`,
+                        type: `${docComments}${needsBigArray ? '    #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]\n' : ''}    pub ${fieldName}: ${fieldManifest.type},`,
+                        borshType: `    ${fieldName}: ${fieldManifest.borshType},`,
                     };
                 },
 
@@ -290,8 +399,14 @@ export function getTypeManifestVisitor() {
                         borshType: `Option<${childManifest.borshType}>`,
                     };
                 },
-            }),
+            });
+            // Attach definedTypesMap and newtypeWrapperTypes getters to the visitor so enum variants can access them
+            (extended as any).__definedTypesMap = () => definedTypesMap;
+            (extended as any).__newtypeWrapperTypes = () => newtypeWrapperTypes;
+            return extended;
+        },
     );
+    return baseVisitor;
 }
 
 export function getDiscriminatorManifest(
@@ -306,33 +421,27 @@ export function getDiscriminatorManifest(
         case 'constantDiscriminatorNode': {
             const bytes = getDiscriminatorBytes(discriminator.constant);
             const size = bytes.length;
-            const checkCode = `
-                if data.len() < ${discriminator.offset + size} {
-                    return None;
-                }
-                let discriminator = &data[${discriminator.offset}..${discriminator.offset + size}];
-                if discriminator != &[${bytes.join(', ')}] {
-                    return None;
-                }
-            `;
+            const checkCode = `        if data.len() < ${discriminator.offset + size} {
+            return None;
+        }
+        let discriminator = &data[${discriminator.offset}..${discriminator.offset + size}];
+        if discriminator != &[${bytes.join(', ')}] {
+            return None;
+        }`;
             return { bytes: `[${bytes.join(', ')}]`, size, checkCode };
         }
 
         case 'fieldDiscriminatorNode': {
             // Field discriminators check a specific field value after deserialization
-            const checkCode = `
-                // Field discriminator: ${discriminator.name} at offset ${discriminator.offset}
-                // This check happens after deserialization
-            `;
+            const checkCode = `        // Field discriminator: ${discriminator.name} at offset ${discriminator.offset}
+        // This check happens after deserialization`;
             return { bytes: '[]', size: 0, checkCode };
         }
 
         case 'sizeDiscriminatorNode': {
-            const checkCode = `
-                if data.len() != ${discriminator.size} {
-                    return None;
-                }
-            `;
+            const checkCode = `        if data.len() != ${discriminator.size} {
+            return None;
+        }`;
             return { bytes: '[]', size: 0, checkCode };
         }
 

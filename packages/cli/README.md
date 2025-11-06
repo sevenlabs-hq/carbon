@@ -40,16 +40,19 @@ carbon-cli parse [OPTIONS]
 #### Examples
 
 **Parse Anchor IDL file:**
+
 ```sh
 carbon-cli parse --idl my_program.json --out-dir ./src/decoders
 ```
 
 **Parse from program address:**
+
 ```sh
 carbon-cli parse --idl LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo --url mainnet-beta --out-dir ./src/decoders
 ```
 
 **Parse Codama IDL with event hints:**
+
 ```sh
 carbon-cli parse --idl my_program_codama.json --out-dir ./src/decoders --standard codama --event-hints "BuyEvent,CreatePoolEvent"
 ```
@@ -81,11 +84,13 @@ carbon-cli scaffold [OPTIONS]
 #### Examples
 
 **Scaffold with generated decoder from IDL:**
+
 ```sh
 carbon-cli scaffold --name my-project --out-dir . --idl ./idl.json --idl-standard anchor --data-source rpc-block-subscribe
 ```
 
 **Scaffold with Helius Laserstream datasource:**
+
 ```sh
 carbon-cli scaffold --name my-project --out-dir . --idl ./idl.json --idl-standard anchor --data-source helius-laserstream
 ```
@@ -108,7 +113,6 @@ carbon-cli scaffold
 - `rpc-program-subscribe` - Uses Solana WS JSON RPC programSubscribe
 - `rpc-transaction-crawler` - Crawls historical transactions
 - `helius-laserstream` - Helius Laserstream datasource
-- `helius-atlas-ws` - Helius Atlas WebSocket
 - `yellowstone-grpc` - Yellowstone gRPC datasource
 - `jito-shredstream-grpc` - JITO Shredstream gRPC
 

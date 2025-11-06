@@ -1,87 +1,87 @@
 {
-  "accounts": [
-    {
-      "pubkey": "7JLCEKwakzV2J9iHmku2jUfeqRtK2q23hdYFfcrBzZWF",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "rewardFunder"
-    },
-    {
-      "pubkey": "FGgVG1Zpn8kbfD8BgzbkRiPLTh3phy2NCsrF8y1vkq95",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "funderTokenAccount"
-    },
-    {
-      "pubkey": "E64NGkDLLCdQ2yFNPcavaKptrEgmiQaNykUuLC1Qgwyp",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "ammConfig"
-    },
-    {
-      "pubkey": "EuMCL5TYaNSg4FomojmFEmS4okjRYNNq7Ydvxw4yGdUC",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "poolState"
-    },
-    {
-      "pubkey": "7EJTuZgJKbWZCX7R2cLm54asioKQk61VijX56s2RAGwN",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "operationState"
-    },
-    {
-      "pubkey": "So11111111111111111111111111111111111111112",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "rewardTokenMint"
-    },
-    {
-      "pubkey": "92RUVMYCFYyFj5pYE6NSjRXBXvSe1iEmhDVjtY3EHwTf",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "rewardTokenVault"
-    },
-    {
-      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "rewardTokenProgram"
-    },
-    {
-      "pubkey": "11111111111111111111111111111111",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "systemProgram"
-    },
-    {
-      "pubkey": "SysvarRent111111111111111111111111111111111",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "rent"
-    }
-  ],
-  "data": "5f87c0c4f281e6446cf03a68000000006c0a8a680000000000000000000000000100000000000000",
-  "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK",
-  "data_decoded": {
-    "param": {
-      "type": {
-        "defined": "InitializeRewardParam"
-      },
-      "data": {
-        "openTime": {
-          "type": "u64",
-          "data": "1748693100"
+    "accounts": [
+        {
+            "pubkey": "7JLCEKwakzV2J9iHmku2jUfeqRtK2q23hdYFfcrBzZWF",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "rewardFunder"
         },
-        "endTime": {
-          "type": "u64",
-          "data": "1753877100"
+        {
+            "pubkey": "FGgVG1Zpn8kbfD8BgzbkRiPLTh3phy2NCsrF8y1vkq95",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "funderTokenAccount"
         },
-        "emissionsPerSecondX64": {
-          "type": "u128",
-          "data": "18446744073709551616"
+        {
+            "pubkey": "E64NGkDLLCdQ2yFNPcavaKptrEgmiQaNykUuLC1Qgwyp",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "ammConfig"
+        },
+        {
+            "pubkey": "EuMCL5TYaNSg4FomojmFEmS4okjRYNNq7Ydvxw4yGdUC",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "poolState"
+        },
+        {
+            "pubkey": "7EJTuZgJKbWZCX7R2cLm54asioKQk61VijX56s2RAGwN",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "operationState"
+        },
+        {
+            "pubkey": "So11111111111111111111111111111111111111112",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "rewardTokenMint"
+        },
+        {
+            "pubkey": "92RUVMYCFYyFj5pYE6NSjRXBXvSe1iEmhDVjtY3EHwTf",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "rewardTokenVault"
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "rewardTokenProgram"
+        },
+        {
+            "pubkey": "11111111111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "systemProgram"
+        },
+        {
+            "pubkey": "SysvarRent111111111111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "rent"
         }
-      }
+    ],
+    "data": "5f87c0c4f281e6446cf03a68000000006c0a8a680000000000000000000000000100000000000000",
+    "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK",
+    "data_decoded": {
+        "param": {
+            "type": {
+                "defined": "InitializeRewardParam"
+            },
+            "data": {
+                "openTime": {
+                    "type": "u64",
+                    "data": "1748693100"
+                },
+                "endTime": {
+                    "type": "u64",
+                    "data": "1753877100"
+                },
+                "emissionsPerSecondX64": {
+                    "type": "u128",
+                    "data": "18446744073709551616"
+                }
+            }
+        }
     }
-  }
 }

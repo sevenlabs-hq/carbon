@@ -19,7 +19,7 @@ export function showBanner(): void {
                                                       
 Generate decoders and scaffold indexers for your Solana programs.
     `;
-    
+
     console.log(carbonGradient.multiline(banner));
 }
 
@@ -154,4 +154,3 @@ export class Logger {
 
 // Export singleton instance
 export const logger = new Logger();
-

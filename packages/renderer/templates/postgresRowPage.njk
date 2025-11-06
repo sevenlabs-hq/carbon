@@ -2,67 +2,63 @@
 {% import "macros.njk" as macros %}
 
 {% block main %}
-
 {{ imports }}
 
-{{ macros.docblock(entityDocs) }}
-#[derive(sqlx::FromRow, Debug, Clone)]
+{{ macros.postgresRowDerives() }}
 pub struct {{ entityName | pascalCase }}Row {
     #[sqlx(flatten)]
-    {% if isAccount %}
+{% if isAccount %}
     pub account_metadata: AccountRowMetadata,
-    {% else %}
+{% else %}
     pub instruction_metadata: InstructionRowMetadata,
-    {% endif %}
+{% endif %}
 {% for field in flatFields %}
-    {% if field.docs and field.docs.length > 0 %}
-{{ macros.docblock(field.docs) -}}
-    {% endif %}
-    pub {{ field.column }}: {{ field.rowType }},
+  {% if field.needsBigArray %}#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]{% endif %}
+  pub {{ field.column }}: {{ field.rowType }},
 {% endfor %}
 }
 
 impl {{ entityName | pascalCase }}Row {
-    pub fn from_parts({% if flatFields.length == 0 %}_{% endif %}source: {{ entityName | pascalCase }}, metadata: {% if isAccount %}AccountMetadata{% else %}InstructionMetadata{% endif %}) -> Self {
+    pub fn from_parts({% if flatFields.length == 0 %}_{% endif %}source: {% if isAccount %}crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% else %}crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% endif %}, metadata: {% if isAccount %}AccountMetadata{% else %}InstructionMetadata{% endif %}) -> Self {
         Self {
             {% if isAccount %}account_metadata{% else %}instruction_metadata{% endif %}: metadata.into(),
-            {% for field in flatFields %}
+{% for field in flatFields %}
             {{ field.column }}: {{ field.expr }},
-            {% endfor %}
+{% endfor %}
         }
     }
 }
 
-impl TryFrom<{{ entityName | pascalCase }}Row> for {{ entityName | pascalCase }} {
+impl TryFrom<{{ entityName | pascalCase }}Row> for {% if isAccount %}crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% else %}crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% endif %} {
     type Error = carbon_core::error::Error;
     fn try_from({% if flatFields.length == 0 %}_{% endif %}source: {{ entityName | pascalCase }}Row) -> Result<Self, Self::Error> {
         Ok(Self {
-            {% for f in flatFields %}
+{% for f in flatFields %}
             {{ f.rustPath.split('.').pop() }}: {{ f.reverseExpr }},
-            {% endfor %}
+{% endfor %}
         })
     }
 }
 
-impl carbon_core::postgres::operations::Table for {{ entityName | pascalCase }} {
+impl carbon_core::postgres::operations::Table for {% if isAccount %}crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% else %}crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% endif %} {
     fn table() -> &'static str {
         "{{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %}"
     }
 
     fn columns() -> Vec<&'static str> {
         vec![
-            {% if isAccount %}
+{% if isAccount %}
             "__pubkey",
             "__slot",
-            {% else %}
+{% else %}
             "__signature",
             "__instruction_index",
             "__stack_height",
             "__slot",
-            {% endif %}
-            {% for field in flatFields %}
+{% endif %}
+{% for field in flatFields %}
             "{{ field.column }}",
-            {% endfor %}
+{% endfor %}
         ]
     }
 }
@@ -72,37 +68,36 @@ impl carbon_core::postgres::operations::Insert for {{ entityName | pascalCase }}
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
             INSERT INTO {{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %} (
-            {% for field in flatFields %}
+{% for field in flatFields %}
                 "{{ field.column }}",
-            {% endfor %}
-            {% if isAccount %}
+{% endfor %}
+{% if isAccount %}
                 __pubkey, __slot
-            {% else %}
+{% else %}
                 __signature, __instruction_index, __stack_height, __slot
-            {% endif %}
+{% endif %}
             ) VALUES (
-            {% set paramCount = flatFields.length %}
-            {% if isAccount %}
-            {% set paramCount = paramCount + 2 %}
-            {% else %}
-            {% set paramCount = paramCount + 4 %}
-            {% endif %}
-            {% for i in range(1, paramCount + 1) %}
-                ${{ i }}{% if not loop.last %},{% endif %}
-            {% endfor %}
-        )"#)
-        {% for field in flatFields %}
+{% set paramCount = flatFields.length %}
+{% if isAccount %}
+{% set paramCount = paramCount + 2 %}
+{% else %}
+{% set paramCount = paramCount + 4 %}
+{% endif %}
+                {% for i in range(1, paramCount + 1) %}${{ i }}{% if not loop.last %}, {% endif %}{% endfor %}
+
+            )"#)
+{% for field in flatFields %}
         .bind(self.{{ field.column }}.clone())
-        {% endfor %}
-        {% if isAccount %}
+{% endfor %}
+{% if isAccount %}
         .bind(self.account_metadata.pubkey.clone())
         .bind(self.account_metadata.slot.clone())
-        {% else %}
+{% else %}
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        {% endif %}
+{% endif %}
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
@@ -113,108 +108,105 @@ impl carbon_core::postgres::operations::Insert for {{ entityName | pascalCase }}
 impl carbon_core::postgres::operations::Upsert for {{ entityName | pascalCase }}Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"INSERT INTO {{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %} (
-            {% for field in flatFields %}
-            "{{ field.column }}",
-            {% endfor %}
-            {% if isAccount %}
-            __pubkey, __slot
-            {% else %}
-            __signature, __instruction_index, __stack_height, __slot
-            {% endif %}
-        ) VALUES (
-            {% set paramCount = flatFields.length %}
-            {% if isAccount %}
-            {% set paramCount = paramCount + 2 %}
-            {% else %}
-            {% set paramCount = paramCount + 4 %}
-            {% endif %}
-            {% for i in range(1, paramCount + 1) %}
-            ${{ i }}{% if not loop.last %},{% endif %}
-            {% endfor %}
-        ) ON CONFLICT (
-            {% if isAccount %}
-            __pubkey
-            {% else %}
-            __signature, __instruction_index
-            {% endif %}
-        ) DO UPDATE SET
-            {% for field in flatFields %}
-            "{{ field.column }}" = EXCLUDED."{{ field.column }}",
-            {% endfor %}
-            {% if isAccount %}
-            __slot = EXCLUDED.__slot
-            {% else %}
-            __instruction_index = EXCLUDED.__instruction_index,
-            __stack_height = EXCLUDED.__stack_height,
-            __slot = EXCLUDED.__slot
-            {% endif %}
-        "#)
-        {% for field in flatFields %}
+{% for field in flatFields %}
+                "{{ field.column }}",
+{% endfor %}
+{% if isAccount %}
+                __pubkey, __slot
+{% else %}
+                __signature, __instruction_index, __stack_height, __slot
+{% endif %}
+            ) VALUES (
+{% set paramCount = flatFields.length %}
+{% if isAccount %}
+{% set paramCount = paramCount + 2 %}
+{% else %}
+{% set paramCount = paramCount + 4 %}
+{% endif %}
+                {% for i in range(1, paramCount + 1) %}${{ i }}{% if not loop.last %}, {% endif %}{% endfor %}
+
+            ) ON CONFLICT (
+{% if isAccount %}
+                __pubkey
+{% else %}
+                __signature, __instruction_index, __stack_height
+{% endif %}
+            ) DO UPDATE SET
+{% for field in flatFields %}
+                "{{ field.column }}" = EXCLUDED."{{ field.column }}",
+{% endfor %}
+{% if isAccount %}
+                __slot = EXCLUDED.__slot
+{% else %}
+                __instruction_index = EXCLUDED.__instruction_index,
+                __stack_height = EXCLUDED.__stack_height,
+                __slot = EXCLUDED.__slot
+{% endif %}
+            "#)
+{% for field in flatFields %}
         .bind(self.{{ field.column }}.clone())
-        {% endfor %}
-        {% if isAccount %}
+{% endfor %}
+{% if isAccount %}
         .bind(self.account_metadata.pubkey)
         .bind(self.account_metadata.slot.clone())
-        {% else %}
+{% else %}
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        {% endif %}
+{% endif %}
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
-
         Ok(())
     }
 }
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for {{ entityName | pascalCase }}Row {
-    type Key = {% if isAccount %}carbon_core::postgres::primitives::Pubkey{% else %}(String, carbon_core::postgres::primitives::U32){% endif %};
+    type Key = {% if isAccount %}carbon_core::postgres::primitives::Pubkey{% else %}(String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32){% endif %};
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"DELETE FROM {{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %} WHERE
-            {% if isAccount %}
-            __pubkey = $1
-            {% else %}
-            __signature = $1 AND __instruction_index = $2
-            {% endif %}
-        "#)
-        {% if isAccount %}
+{% if isAccount %}
+                __pubkey = $1
+{% else %}
+                __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
+{% endif %}
+            "#)
+{% if isAccount %}
         .bind(key)
-        {% else %}
+{% else %}
         .bind(key.0)
         .bind(key.1)
-        {% endif %}
+        .bind(key.2)
+{% endif %}
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
-
         Ok(())
     }
 }
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for {{ entityName | pascalCase }}Row {
-    type Key = {% if isAccount %}carbon_core::postgres::primitives::Pubkey{% else %}(String, carbon_core::postgres::primitives::U32){% endif %};
+    type Key = {% if isAccount %}carbon_core::postgres::primitives::Pubkey{% else %}(String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32){% endif %};
 
     async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(r#"SELECT * FROM {{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %} WHERE
-            {% if isAccount %}
-            __pubkey = $1
-            {% else %}
-            __signature = $1 AND __instruction_index = $2
-            {% endif %}
-        "#)
-        {% if isAccount %}
+{% if isAccount %}
+                __pubkey = $1
+{% else %}
+                __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
+{% endif %}
+            "#)
+{% if isAccount %}
         .bind(key)
-        {% else %}
+{% else %}
         .bind(key.0)
         .bind(key.1)
-        {% endif %}
+        .bind(key.2)
+{% endif %}
         .fetch_optional(pool).await
-        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))
-        ?;
-
+        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
 }
@@ -225,33 +217,31 @@ pub struct {{ entityName | pascalCase }}MigrationOperation;
 impl sqlx_migrator::Operation<sqlx::Postgres> for {{ entityName | pascalCase }}MigrationOperation {
     async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(r#"CREATE TABLE IF NOT EXISTS {{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %} (
-            {% if isAccount %}
-            -- Account data
-            {% else %}
-            -- Instruction data
-            {% endif %}
-            {% for field in flatFields %}
-            "{{ field.column }}" {{ field.postgresColumnType }},
-            {% endfor %}
-
-            {% if isAccount %}
-            -- Account metadata
-            __pubkey BYTEA NOT NULL,
-            __slot NUMERIC(20),
-            {% else %}
-            -- Instruction metadata
-            __signature TEXT NOT NULL,
-            __instruction_index BIGINT NOT NULL,
-            __stack_height BIGINT NOT NULL,
-            __slot NUMERIC(20),
-            {% endif %}
-
-            {% if isAccount %}
-            PRIMARY KEY (__pubkey)
-            {% else %}
-            PRIMARY KEY (__signature, __instruction_index)
-            {% endif %}
-        )"#).execute(connection).await?;
+{% if isAccount %}
+                -- Account data
+{% else %}
+                -- Instruction data
+{% endif %}
+{% for field in flatFields %}
+                "{{ field.column }}" {{ field.postgresColumnType }},
+{% endfor %}
+{% if isAccount %}
+                -- Account metadata
+                __pubkey BYTEA NOT NULL,
+                __slot NUMERIC(20),
+{% else %}
+                -- Instruction metadata
+                __signature TEXT NOT NULL,
+                __instruction_index BIGINT NOT NULL,
+                __stack_height BIGINT NOT NULL,
+                __slot NUMERIC(20),
+{% endif %}
+{% if isAccount %}
+                PRIMARY KEY (__pubkey)
+{% else %}
+                PRIMARY KEY (__signature, __instruction_index, __stack_height)
+{% endif %}
+            )"#).execute(connection).await?;
         Ok(())
     }
 
@@ -260,6 +250,5 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for {{ entityName | pascalCase }}M
         Ok(())
     }
 }
-
 {% endblock %}
 

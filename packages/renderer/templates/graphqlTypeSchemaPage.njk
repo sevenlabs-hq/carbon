@@ -1,20 +1,12 @@
-use juniper::GraphQLObject;
-{{ imports }}
+{% extends "layout.njk" %}
+{% import "macros.njk" as macros %}
 
-{% if entityDocs and entityDocs.length > 0 %}
-{% for doc in entityDocs %}
-/// {{ doc }}
-{% endfor %}
-{% endif %}
-#[derive(Debug, Clone, GraphQLObject)]
+{% block main %}
+{{ imports }}
+{{ macros.graphqlObjectDerives() }}
 #[graphql(name = "{{ entityName | pascalCase }}")]
 pub struct {{ entityName | pascalCase }}GraphQL {
 {% for field in graphqlFields %}
-    {% if field.docs and field.docs.length > 0 %}
-    {% for doc in field.docs %}
-    /// {{ doc }}
-    {% endfor %}
-    {% endif %}
     pub {{ field.fieldName }}: {{ field.rustType }},
 {% endfor %}
 }
@@ -28,3 +20,4 @@ impl From<crate::types::{{ entityName | pascalCase }}> for {{ entityName | pasca
         }
     }
 }
+{% endblock %}

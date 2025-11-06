@@ -1,0 +1,32 @@
+{% extends "layout.njk" %}
+
+{% block main %}
+{{ imports }}
+{% if isAccount %}
+
+{% endif %}
+{% if not isAccount %}
+
+{% endif %}
+{% import "macros.njk" as macros %}
+{{ macros.graphqlObjectDerives() }}
+#[graphql(name = "{{ entityName | pascalCase }}")]
+pub struct {{ entityName | pascalCase }}GraphQL {
+    pub {% if isAccount %}account_metadata{% else %}instruction_metadata{% endif %}: {% if isAccount %}crate::accounts::graphql::AccountMetadataGraphQL{% else %}crate::instructions::graphql::InstructionMetadataGraphQL{% endif %},
+{% for field in graphqlFields %}
+    pub {{ field.fieldName }}: {{ field.rustType }},
+{% endfor %}
+}
+
+impl TryFrom<{% if isAccount %}crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% else %}crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% endif %}> for {{ entityName | pascalCase }}GraphQL {
+    type Error = carbon_core::error::Error;
+    fn try_from(original: {% if isAccount %}crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% else %}crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% endif %}) -> Result<Self, Self::Error> {
+        Ok(Self {
+            {% if isAccount %}account_metadata{% else %}instruction_metadata{% endif %}: {% if isAccount %}crate::accounts::graphql::AccountMetadataGraphQL::default(){% else %}crate::instructions::graphql::InstructionMetadataGraphQL::default(){% endif %},
+{% for field in graphqlFields %}
+            {{ field.fieldName }}: {{ field.fromOriginalExpr }},
+{% endfor %}
+        })
+    }
+}
+{% endblock %}

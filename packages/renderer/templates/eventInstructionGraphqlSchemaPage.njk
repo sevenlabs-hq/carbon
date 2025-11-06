@@ -1,7 +1,10 @@
-use juniper::GraphQLObject;
-{{ imports }}
+{% extends "layout.njk" %}
 
-#[derive(Debug, Clone, GraphQLObject)]
+{% block main %}
+{{ imports }}
+{% import "macros.njk" as macros %}
+
+{{ macros.graphqlObjectDerives() }}
 #[graphql(name = "CpiEvent")]
 pub struct CpiEventGraphQL {
     pub instruction_metadata: crate::instructions::graphql::InstructionMetadataGraphQL,
@@ -22,3 +25,5 @@ impl TryFrom<crate::instructions::postgres::CpiEventRow> for CpiEventGraphQL {
         })
     }
 }
+
+{% endblock %}

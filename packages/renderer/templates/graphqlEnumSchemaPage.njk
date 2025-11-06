@@ -1,5 +1,7 @@
+{% extends "layout.njk" %}
+
+{% block main %}
 {% if isFieldless %}
-use juniper::GraphQLEnum;
 {{ imports }}
 
 {% if entityDocs and entityDocs.length > 0 %}
@@ -7,7 +9,8 @@ use juniper::GraphQLEnum;
 /// {{ doc }}
 {% endfor %}
 {% endif %}
-#[derive(Debug, Clone, GraphQLEnum)]
+{% import "macros.njk" as macros %}
+{{ macros.graphqlEnumDerives() }}
 #[graphql(name = "{{ entityName | pascalCase }}")]
 pub enum {{ entityName | pascalCase }}GraphQL {
 {% for v in variants %}
@@ -43,5 +46,7 @@ impl From<crate::types::{{ entityName | pascalCase }}> for {{ entityName | pasca
     }
 }
 {% endif %}
+
+{% endblock %}
 
 

@@ -20,9 +20,9 @@ pub use {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_schema::*;
 pub use cpi_event_schema::*;
 {% endif %}
 
-use juniper::GraphQLObject;
+{{ imports }}
 
-#[derive(Debug, Clone, GraphQLObject)]
+{{ macros.graphqlObjectDerives() }}
 #[graphql(name = "InstructionMetadata")]
 pub struct InstructionMetadataGraphQL {
     pub signature: String,

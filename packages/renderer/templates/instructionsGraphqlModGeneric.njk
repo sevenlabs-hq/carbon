@@ -1,0 +1,47 @@
+{% extends "layout.njk" %}
+{% import "macros.njk" as macros %}
+
+{% block main %}
+{% for instruction in instructionsToExport %}
+{% if instruction.arguments.length > 1 %}
+pub mod {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_schema;
+{% endif %}
+{% endfor %}
+{% if hasAnchorEvents %}
+pub mod cpi_event_schema;
+{% endif %}
+
+{% for instruction in instructionsToExport %}
+{% if instruction.arguments.length > 1 %}
+pub use {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_schema::*;
+{% endif %}
+{% endfor %}
+{% if hasAnchorEvents %}
+pub use cpi_event_schema::*;
+{% endif %}
+
+{{ imports }}
+
+{{ macros.graphqlObjectDerives() }}
+#[graphql(name = "InstructionMetadata")]
+pub struct InstructionMetadataGraphQL {
+    pub signature: String,
+    pub instruction_index: carbon_core::graphql::primitives::U32,
+    pub stack_height: carbon_core::graphql::primitives::U32,
+    pub slot: Option<carbon_core::graphql::primitives::U64>,
+}
+
+// In generic mode, we don't have InstructionRowMetadata, so we provide a default implementation
+impl Default for InstructionMetadataGraphQL {
+    fn default() -> Self {
+        Self {
+            signature: String::new(),
+            instruction_index: carbon_core::graphql::primitives::U32(0),
+            stack_height: carbon_core::graphql::primitives::U32(0),
+            slot: None,
+        }
+    }
+}
+
+{% endblock %}
+

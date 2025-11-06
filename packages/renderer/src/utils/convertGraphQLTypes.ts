@@ -64,7 +64,7 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
         if (isNode(typeNode.item, 'numberTypeNode') && typeNode.item.format === 'u8') {
             return `${fieldAccess}.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect()`;
         }
-        
+
         const innerExpr = buildConversionFromOriginal(typeNode.item, 'item');
         return `${fieldAccess}.into_iter().map(|item| ${innerExpr}).collect()`;
     }
@@ -164,7 +164,7 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
         if (isNode(typeNode.item, 'numberTypeNode') && typeNode.item.format === 'u8') {
             return `${fieldAccess}.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect()`;
         }
-        
+
         // Generic nested-array handling: unwrap outer Json if present, then map inner with recursive converter
         if (isNode(typeNode.item, 'arrayTypeNode')) {
             const innerExpr = buildConversionFromPostgresRow(typeNode.item, 'item');

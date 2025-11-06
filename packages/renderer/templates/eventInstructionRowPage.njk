@@ -3,10 +3,9 @@
 {% block main %}
 
 {{ imports }}
-use carbon_core::{postgres::metadata::InstructionRowMetadata, instruction::InstructionMetadata};
-use super::super::cpi_event::CpiEvent;
+{% import "macros.njk" as macros %}
 
-#[derive(sqlx::FromRow, Debug, Clone)]
+{{ macros.postgresRowDerives() }}
 pub struct CpiEventRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,
@@ -80,7 +79,7 @@ impl carbon_core::postgres::operations::Upsert for CpiEventRow {
             __signature, __instruction_index, __stack_height, __slot, "name", "data"
         ) VALUES (
             $1, $2, $3, $4, $5, $6
-        ) ON CONFLICT (__signature, __instruction_index) DO UPDATE SET
+        ) ON CONFLICT (__signature, __instruction_index, __stack_height) DO UPDATE SET
             __slot = EXCLUDED.__slot,
             "name" = EXCLUDED."name",
             "data" = EXCLUDED."data"
@@ -99,14 +98,15 @@ impl carbon_core::postgres::operations::Upsert for CpiEventRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for CpiEventRow {
-    type Key = (String, carbon_core::postgres::primitives::U32);
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"DELETE FROM cpi_events WHERE
-            __signature = $1 AND __instruction_index = $2
+            __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
         "#)
         .bind(key.0)
         .bind(key.1)
+        .bind(key.2)
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
@@ -116,14 +116,15 @@ impl carbon_core::postgres::operations::Delete for CpiEventRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for CpiEventRow {
-    type Key = (String, carbon_core::postgres::primitives::U32);
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
     async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(r#"SELECT * FROM cpi_events WHERE
-            __signature = $1 AND __instruction_index = $2
+            __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
         "#)
         .bind(key.0)
         .bind(key.1)
+        .bind(key.2)
         .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))
         ?;
@@ -148,7 +149,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CpiEventMigrationOperation {
             __stack_height BIGINT NOT NULL,
             __slot NUMERIC(20),
 
-            PRIMARY KEY (__signature, __instruction_index)
+            PRIMARY KEY (__signature, __instruction_index, __stack_height)
         )"#).execute(connection).await?;
         Ok(())
     }

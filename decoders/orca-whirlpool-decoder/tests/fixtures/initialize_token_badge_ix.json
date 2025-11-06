@@ -1,48 +1,48 @@
 {
-  "accounts": [
-    {
-      "pubkey": "2LecshUwdy9xi7meFgHtFJQNSKk4KdTrcpvaB56dP2NQ",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "whirlpoolsConfig"
-    },
-    {
-      "pubkey": "777H5H3Tp9U11uRVRzFwM8BinfiakbaLT8vQpeuhvEiH",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "whirlpoolsConfigExtension"
-    },
-    {
-      "pubkey": "r21Gamwd9DtyjHeGywsneoQYR39C1VDwrw7tWxHAwh6",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "tokenBadgeAuthority"
-    },
-    {
-      "pubkey": "mzeroXDoBpRVhnEXBra27qzAMdxgpWVY3DzQW7xMVJp",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenMint"
-    },
-    {
-      "pubkey": "G4bXf8kkJ9Dq9cXNZV5jfUSe21nsu8712mUrDZSXysQM",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tokenBadge"
-    },
-    {
-      "pubkey": "r21Gamwd9DtyjHeGywsneoQYR39C1VDwrw7tWxHAwh6",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "funder"
-    },
-    {
-      "pubkey": "11111111111111111111111111111111",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "systemProgram"
-    }
-  ],
-  "data": "fd4dcd5f1be059df",
-  "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+    "accounts": [
+        {
+            "pubkey": "2LecshUwdy9xi7meFgHtFJQNSKk4KdTrcpvaB56dP2NQ",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "whirlpoolsConfig"
+        },
+        {
+            "pubkey": "777H5H3Tp9U11uRVRzFwM8BinfiakbaLT8vQpeuhvEiH",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "whirlpoolsConfigExtension"
+        },
+        {
+            "pubkey": "r21Gamwd9DtyjHeGywsneoQYR39C1VDwrw7tWxHAwh6",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "tokenBadgeAuthority"
+        },
+        {
+            "pubkey": "mzeroXDoBpRVhnEXBra27qzAMdxgpWVY3DzQW7xMVJp",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenMint"
+        },
+        {
+            "pubkey": "G4bXf8kkJ9Dq9cXNZV5jfUSe21nsu8712mUrDZSXysQM",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tokenBadge"
+        },
+        {
+            "pubkey": "r21Gamwd9DtyjHeGywsneoQYR39C1VDwrw7tWxHAwh6",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "funder"
+        },
+        {
+            "pubkey": "11111111111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "systemProgram"
+        }
+    ],
+    "data": "fd4dcd5f1be059df",
+    "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
 }

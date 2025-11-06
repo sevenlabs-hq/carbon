@@ -1,18 +1,18 @@
 {
-  "accounts": [
-    {
-      "pubkey": "GThUX1Atko4tqhN2NaiTazWSeFWMuiUvfFnyJyUghFMJ",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "authority"
-    },
-    {
-      "pubkey": "3tD34VtprDSkYCnATtQLCiVgTkECU3d12KtjupeR6N2X",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "poolState"
-    }
-  ],
-  "data": "82576c062ee0757b11",
-  "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
+    "accounts": [
+        {
+            "pubkey": "GThUX1Atko4tqhN2NaiTazWSeFWMuiUvfFnyJyUghFMJ",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "authority"
+        },
+        {
+            "pubkey": "3tD34VtprDSkYCnATtQLCiVgTkECU3d12KtjupeR6N2X",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "poolState"
+        }
+    ],
+    "data": "82576c062ee0757b11",
+    "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
 }
