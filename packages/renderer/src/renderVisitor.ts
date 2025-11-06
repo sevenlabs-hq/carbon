@@ -6,7 +6,7 @@ export type RenderOptions = GetRenderMapOptions & {
     deleteFolderBeforeRendering?: boolean;
     packageName?: string;
     anchorEvents?: {
-        name: string,
+        name: string;
         discriminator: number[];
     }[];
     postgresMode?: 'generic' | 'typed';

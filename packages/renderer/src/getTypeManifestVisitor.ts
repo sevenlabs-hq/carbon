@@ -139,12 +139,14 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                     // Get the definedTypesMap and newtypeWrapperTypes from the original visitor (self)
                     // This is a workaround since we can't pass it through visitor context
                     const getDefinedTypesMap = (self as any).__definedTypesMap;
-                    const enumDefinedTypesMap = typeof getDefinedTypesMap === 'function' ? getDefinedTypesMap() : undefined;
+                    const enumDefinedTypesMap =
+                        typeof getDefinedTypesMap === 'function' ? getDefinedTypesMap() : undefined;
                     const getNewtypeWrapperTypes = (self as any).__newtypeWrapperTypes;
-                    const enumNewtypeWrapperTypes = typeof getNewtypeWrapperTypes === 'function' ? getNewtypeWrapperTypes() : undefined;
+                    const enumNewtypeWrapperTypes =
+                        typeof getNewtypeWrapperTypes === 'function' ? getNewtypeWrapperTypes() : undefined;
                     // Store reference to original self for accessing definedTypesMap
                     const originalSelf = self;
-                    
+
                     // Create a custom visitor for enum struct variant fields that doesn't add 'pub'
                     // but includes BigArray detection logic
                     // Use originalSelf for visiting field types to ensure access to __definedTypesMap
@@ -157,26 +159,35 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                             // visitDefinedTypeLink already sets requiredBigArray appropriately (including undefined for newtype wrappers)
                             // Only need to override if it's a newtype wrapper to ensure it's undefined
                             let needsBigArray = fieldManifest.requiredBigArray !== undefined;
-                            if (isNode(node.type, 'definedTypeLinkNode') && enumNewtypeWrapperTypes && enumNewtypeWrapperTypes.has(node.type.name)) {
+                            if (
+                                isNode(node.type, 'definedTypeLinkNode') &&
+                                enumNewtypeWrapperTypes &&
+                                enumNewtypeWrapperTypes.has(node.type.name)
+                            ) {
                                 needsBigArray = false; // Newtype wrapper handles serialization itself
                             }
-                            
+
                             // Also check direct array types (not defined type links)
-                            if (!needsBigArray && !isNode(node.type, 'definedTypeLinkNode') && isNode(node.type, 'arrayTypeNode') &&
+                            if (
+                                !needsBigArray &&
+                                !isNode(node.type, 'definedTypeLinkNode') &&
+                                isNode(node.type, 'arrayTypeNode') &&
                                 isNode(node.type.count, 'fixedCountNode') &&
-                                node.type.count.value > 32) {
+                                node.type.count.value > 32
+                            ) {
                                 needsBigArray = true;
                             }
 
                             const docs = node.docs || [];
-                            const docComments = docs.length > 0
-                                ? docs
-                                    .map(doc => {
-                                        const lines = doc.split('\n');
-                                        return lines.map(line => `    /// ${line}`).join('\n');
-                                    })
-                                    .join('\n') + '\n'
-                                : '';
+                            const docComments =
+                                docs.length > 0
+                                    ? docs
+                                          .map(doc => {
+                                              const lines = doc.split('\n');
+                                              return lines.map(line => `    /// ${line}`).join('\n');
+                                          })
+                                          .join('\n') + '\n'
+                                    : '';
 
                             return {
                                 imports: fieldManifest.imports,
@@ -201,7 +212,7 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                     const needsParens = !tupleManifest.type.startsWith('(');
                     const wrappedType = needsParens ? `(${tupleManifest.type})` : tupleManifest.type;
                     const wrappedBorshType = needsParens ? `(${tupleManifest.borshType})` : tupleManifest.borshType;
-                    
+
                     return {
                         imports: tupleManifest.imports,
                         type: `${name}${wrappedType},`,
@@ -319,21 +330,26 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                     // Only check direct array types and use manifest's requiredBigArray
                     let needsBigArray = fieldManifest.requiredBigArray !== undefined;
                     // Also check direct array types (not defined type links, as those are handled by visitDefinedTypeLink)
-                    if (!needsBigArray && !isNode(node.type, 'definedTypeLinkNode') && isNode(node.type, 'arrayTypeNode') &&
+                    if (
+                        !needsBigArray &&
+                        !isNode(node.type, 'definedTypeLinkNode') &&
+                        isNode(node.type, 'arrayTypeNode') &&
                         isNode(node.type.count, 'fixedCountNode') &&
-                        node.type.count.value > 32) {
+                        node.type.count.value > 32
+                    ) {
                         needsBigArray = true;
                     }
 
                     const docs = node.docs || [];
-                    const docComments = docs.length > 0
-                        ? docs
-                            .map(doc => {
-                                const lines = doc.split('\n');
-                                return lines.map(line => `    /// ${line}`).join('\n');
-                            })
-                            .join('\n') + '\n'
-                        : '';
+                    const docComments =
+                        docs.length > 0
+                            ? docs
+                                  .map(doc => {
+                                      const lines = doc.split('\n');
+                                      return lines.map(line => `    /// ${line}`).join('\n');
+                                  })
+                                  .join('\n') + '\n'
+                            : '';
 
                     return {
                         imports: fieldManifest.imports,
@@ -384,10 +400,10 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                     };
                 },
             });
-                    // Attach definedTypesMap and newtypeWrapperTypes getters to the visitor so enum variants can access them
-                    (extended as any).__definedTypesMap = () => definedTypesMap;
-                    (extended as any).__newtypeWrapperTypes = () => newtypeWrapperTypes;
-                    return extended;
+            // Attach definedTypesMap and newtypeWrapperTypes getters to the visitor so enum variants can access them
+            (extended as any).__definedTypesMap = () => definedTypesMap;
+            (extended as any).__newtypeWrapperTypes = () => newtypeWrapperTypes;
+            return extended;
         },
     );
     return baseVisitor;

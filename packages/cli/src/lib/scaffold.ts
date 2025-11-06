@@ -46,10 +46,14 @@ function buildProjectImports(ctx: any): string {
 
     if (ctx.withPostgres) {
         if (ctx.useGenericPostgres) {
-            lines.push('use carbon_core::postgres::processors::{PostgresJsonAccountProcessor, PostgresJsonInstructionProcessor};');
+            lines.push(
+                'use carbon_core::postgres::processors::{PostgresJsonAccountProcessor, PostgresJsonInstructionProcessor};',
+            );
             lines.push('use carbon_core::postgres::rows::{GenericAccountsMigration, GenericInstructionMigration};');
         } else {
-            lines.push('use carbon_core::postgres::processors::{PostgresAccountProcessor, PostgresInstructionProcessor};');
+            lines.push(
+                'use carbon_core::postgres::processors::{PostgresAccountProcessor, PostgresInstructionProcessor};',
+            );
         }
         lines.push('use sqlx_migrator::{Info, Migrate, Plan};');
     }
@@ -62,9 +66,13 @@ function buildProjectImports(ctx: any): string {
         const crate = `carbon_${d.module_name}_decoder`;
         if (ctx.withPostgres) {
             if (!ctx.useGenericPostgres) {
-                lines.push(`use ${crate}::accounts::postgres::{${d.name}AccountWithMetadata, ${d.name}AccountsMigration};`);
+                lines.push(
+                    `use ${crate}::accounts::postgres::{${d.name}AccountWithMetadata, ${d.name}AccountsMigration};`,
+                );
                 lines.push(`use ${crate}::accounts::${d.name}Account;`);
-                lines.push(`use ${crate}::instructions::postgres::{${d.name}InstructionWithMetadata, ${d.name}InstructionsMigration};`);
+                lines.push(
+                    `use ${crate}::instructions::postgres::{${d.name}InstructionWithMetadata, ${d.name}InstructionsMigration};`,
+                );
                 lines.push(`use ${crate}::instructions::${d.name}Instruction;`);
             } else {
                 lines.push(`use ${crate}::accounts::${d.name}Account;`);
@@ -77,12 +85,13 @@ function buildProjectImports(ctx: any): string {
             lines.push(`use ${crate}::graphql::{QueryRoot, context::GraphQLContext};`);
         }
         lines.push(`use ${crate}::${d.name}Decoder;`);
-        
+
         const dsModule = ctx.data_source.module_name as string;
-        const usesProgramIds = dsModule === 'yellowstone_grpc' || 
-                              dsModule === 'helius_laserstream' || 
-                              dsModule === 'rpc_program_subscribe' || 
-                              dsModule === 'rpc_transaction_crawler';
+        const usesProgramIds =
+            dsModule === 'yellowstone_grpc' ||
+            dsModule === 'helius_laserstream' ||
+            dsModule === 'rpc_program_subscribe' ||
+            dsModule === 'rpc_transaction_crawler';
         if (usesProgramIds) {
             lines.push(`use ${crate}::PROGRAM_ID as ${d.name.toUpperCase()}_PROGRAM_ID;`);
         }
@@ -139,7 +148,7 @@ export function renderScaffold(opts: ScaffoldOptions) {
     }
 
     ensureDir(base);
-    
+
     // Create workspace structure
     const indexerDir = join(base, 'indexer');
     ensureDir(indexerDir);
@@ -188,20 +197,22 @@ export function renderScaffold(opts: ScaffoldOptions) {
         const decodersMeta = mainContext.decoders as DecoderMeta[];
         const artifact = builder(decodersMeta);
         // Compose import lines
-        const datasource_imports = artifact.imports
-            .map((i: string) => `use ${i};`)
-            .join('\n');
+        const datasource_imports = artifact.imports.map((i: string) => `use ${i};`).join('\n');
         mainContext.datasource_imports = datasource_imports;
         mainContext.datasource_init = artifact.init;
     } else {
         // Provide a clearer error message if no builder is found
-        const available = Object.keys((Datasources as unknown as { getDatasourceBuilder: any }).getDatasourceBuilder ? {
-            helius_laserstream: true,
-            rpc_block_subscribe: true,
-            yellowstone_grpc: true,
-            rpc_transaction_crawler: true,
-            rpc_program_subscribe: true,
-        } : {});
+        const available = Object.keys(
+            (Datasources as unknown as { getDatasourceBuilder: any }).getDatasourceBuilder
+                ? {
+                      helius_laserstream: true,
+                      rpc_block_subscribe: true,
+                      yellowstone_grpc: true,
+                      rpc_transaction_crawler: true,
+                      rpc_program_subscribe: true,
+                  }
+                : {},
+        );
         exitWithError(`No datasource builder found for '${dsModuleName}'. Available: ${available.join(', ')}`);
     }
 

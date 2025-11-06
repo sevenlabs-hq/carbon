@@ -40,5 +40,3 @@ export function buildRpcTransactionCrawler(decoders: DecoderMeta[]): DatasourceA
         },
     };
 }
-
-

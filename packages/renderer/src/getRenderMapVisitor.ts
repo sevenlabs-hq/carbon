@@ -30,7 +30,7 @@ export type GetRenderMapOptions = {
     renderParentInstructions?: boolean;
     packageName?: string;
     anchorEvents?: {
-        name: string,
+        name: string;
         discriminator: number[];
     }[];
     postgresMode?: 'generic' | 'typed';
@@ -119,9 +119,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         .add('carbon_core::CarbonDeserialize')
                         .add('carbon_core::deserialize::CarbonDeserialize');
 
-                    const discriminatorManifest = discriminators.length > 0
-                        ? getDiscriminatorManifest(discriminators)
-                        : undefined;
+                    const discriminatorManifest =
+                        discriminators.length > 0 ? getDiscriminatorManifest(discriminators) : undefined;
 
                     // Postgres generation
                     const flatFields = flattenType(newNode.data, [], [], new Set());
@@ -132,17 +131,16 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         postgresImports.mergeWith(f.postgresManifest.imports);
                     });
 
-                    let renderMap = new RenderMap()
-                        .add(
-                            `src/accounts/${snakeCase(node.name)}.rs`,
-                            render('accountsPage.njk', {
-                                account: newNode,
-                                imports: imports.toString(),
-                                program: currentProgram,
-                                discriminatorManifest,
-                                typeManifest,
-                            }),
-                        );
+                    let renderMap = new RenderMap().add(
+                        `src/accounts/${snakeCase(node.name)}.rs`,
+                        render('accountsPage.njk', {
+                            account: newNode,
+                            imports: imports.toString(),
+                            program: currentProgram,
+                            discriminatorManifest,
+                            typeManifest,
+                        }),
+                    );
 
                     // Only generate postgres files if not in generic mode and withPostgres is enabled
                     if (options.postgresMode !== 'generic' && options.withPostgres !== false) {
@@ -170,7 +168,10 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                         // GraphQLObject doesn't support empty structs
                         if (graphqlFields.length > 0) {
-                            const schemaTemplate = options.postgresMode === 'generic' ? 'graphqlSchemaPageGeneric.njk' : 'graphqlSchemaPage.njk';
+                            const schemaTemplate =
+                                options.postgresMode === 'generic'
+                                    ? 'graphqlSchemaPageGeneric.njk'
+                                    : 'graphqlSchemaPage.njk';
                             renderMap.add(
                                 `src/accounts/graphql/${snakeCase(node.name)}_schema.rs`,
                                 render(schemaTemplate, {
@@ -258,13 +259,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                         if (camelCase(event.name) == node.name) {
                             let discriminatorManifest: DiscriminatorManifest = {
-                                bytes: `[${event.discriminator.join(", ")}]`,
+                                bytes: `[${event.discriminator.join(', ')}]`,
                                 size: event.discriminator.length,
                                 checkCode: `        if data.len() < ${event.discriminator.length} {
             return None;
         }
         let discriminator = &data[0..${event.discriminator.length}];
-        if discriminator != &[${event.discriminator.join(", ")}] {
+        if discriminator != &[${event.discriminator.join(', ')}] {
             return None;
         }`,
                             };
@@ -286,8 +287,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         if (node.type.kind === 'structTypeNode') {
                             if (node.type.fields.length > 0) {
                                 const graphqlFields = flattenTypeForGraphQL(node.type, [], [], new Set());
-                                const graphqlImports = new ImportMap()
-                                    .add('juniper::GraphQLObject');
+                                const graphqlImports = new ImportMap().add('juniper::GraphQLObject');
                                 graphqlFields.forEach((f: FlattenedGraphQLField) => {
                                     graphqlImports.mergeWith(f.graphqlManifest.imports);
                                 });
@@ -303,8 +303,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                     }),
                                 );
                             } else {
-                                const emptyStructImports = new ImportMap()
-                                    .add('carbon_core::graphql::primitives::Json');
+                                const emptyStructImports = new ImportMap().add(
+                                    'carbon_core::graphql::primitives::Json',
+                                );
                                 renderMap.add(
                                     `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
                                     render('graphqlEmptyStructSchemaPage.njk', {
@@ -341,7 +342,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             const graphqlManifest = visit(node.type, getGraphQLTypeManifestVisitor());
                             const imports = graphqlManifest.imports.toString();
                             const importSection = imports ? `${imports}\n\n` : '';
-                            
+
                             renderMap.add(
                                 `src/types/graphql/${snakeCase(node.name)}_schema.rs`,
                                 `${importSection}pub type ${pascalCase(node.name)}GraphQL = ${graphqlManifest.graphqlType};\n`,
@@ -372,14 +373,14 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const argumentTypes = regularArguments.map(arg => {
                         const manifest = visit(arg.type, typeManifestVisitor);
                         imports.mergeWithManifest(manifest);
-                        
+
                         // visitDefinedTypeLink already sets requiredBigArray appropriately (including undefined for newtype wrappers)
                         // Only need to override if it's a newtype wrapper to ensure it's undefined
                         let requiredBigArray = manifest.requiredBigArray;
                         if (isNode(arg.type, 'definedTypeLinkNode') && newtypeWrapperTypes.has(arg.type.name)) {
                             requiredBigArray = undefined; // Newtype wrapper handles serialization itself
                         }
-                        
+
                         return {
                             ...manifest,
                             requiredBigArray,
@@ -455,17 +456,16 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         postgresImports.mergeWith(f.postgresManifest.imports);
                     });
 
-                    let renderMap = new RenderMap()
-                        .add(
-                            `src/instructions/${snakeCase(node.name)}.rs`,
-                            render('instructionsPage.njk', {
-                                argumentTypes,
-                                imports: imports.toString(),
-                                instruction: instructionWithUniqueAccounts,
-                                discriminatorManifest,
-                                program: currentProgram,
-                            }),
-                        );
+                    let renderMap = new RenderMap().add(
+                        `src/instructions/${snakeCase(node.name)}.rs`,
+                        render('instructionsPage.njk', {
+                            argumentTypes,
+                            imports: imports.toString(),
+                            instruction: instructionWithUniqueAccounts,
+                            discriminatorManifest,
+                            program: currentProgram,
+                        }),
+                    );
 
                     // Only generate postgres files if not in generic mode and withPostgres is enabled
                     if (options.postgresMode !== 'generic' && options.withPostgres !== false) {
@@ -505,7 +505,10 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                         // GraphQLObject doesn't support empty structs
                         if (graphqlFields.length > 0) {
-                            const schemaTemplate = options.postgresMode === 'generic' ? 'graphqlSchemaPageGeneric.njk' : 'graphqlSchemaPage.njk';
+                            const schemaTemplate =
+                                options.postgresMode === 'generic'
+                                    ? 'graphqlSchemaPageGeneric.njk'
+                                    : 'graphqlSchemaPage.njk';
                             renderMap.add(
                                 `src/instructions/graphql/${snakeCase(node.name)}_schema.rs`,
                                 render(schemaTemplate, {
@@ -540,7 +543,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 visitRoot(node, { self }) {
                     // Only use the main program, ignore additionalPrograms
                     const program = node.program;
-                    
+
                     if (!program) {
                         throw new Error('No program found in IDL');
                     }
@@ -579,53 +582,86 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const map = new RenderMap();
 
                     // Generate mod files
-                        // Build mod-level imports via ImportMap
-                        const accountsModImports = new ImportMap()
-                            .add('crate::PROGRAM_ID')
-                            .add(`crate::${pascalCase(program.name)}Decoder`);
-                        map.add('src/accounts/mod.rs', render('accountsMod.njk', { ...ctx, imports: accountsModImports.toString() }));
-                        if (options.postgresMode !== 'generic' && options.withPostgres !== false) {
-                            map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
-                        }
-                        if (options.withGraphql !== false) {
-                            const accountsGraphqlTemplate = options.postgresMode === 'generic' ? 'accountsGraphqlModGeneric.njk' : 'accountsGraphqlMod.njk';
-                            const accountsGraphqlImports = new ImportMap()
-                                .add('juniper::GraphQLObject');
-                            map.add('src/accounts/graphql/mod.rs', render(accountsGraphqlTemplate, { ...ctx, imports: accountsGraphqlImports.toString() }));
-                        }
+                    // Build mod-level imports via ImportMap
+                    const accountsModImports = new ImportMap()
+                        .add('crate::PROGRAM_ID')
+                        .add(`crate::${pascalCase(program.name)}Decoder`);
+                    map.add(
+                        'src/accounts/mod.rs',
+                        render('accountsMod.njk', { ...ctx, imports: accountsModImports.toString() }),
+                    );
+                    if (options.postgresMode !== 'generic' && options.withPostgres !== false) {
+                        map.add('src/accounts/postgres/mod.rs', render('accountsPostgresMod.njk', ctx));
+                    }
+                    if (options.withGraphql !== false) {
+                        const accountsGraphqlTemplate =
+                            options.postgresMode === 'generic'
+                                ? 'accountsGraphqlModGeneric.njk'
+                                : 'accountsGraphqlMod.njk';
+                        const accountsGraphqlImports = new ImportMap().add('juniper::GraphQLObject');
+                        map.add(
+                            'src/accounts/graphql/mod.rs',
+                            render(accountsGraphqlTemplate, { ...ctx, imports: accountsGraphqlImports.toString() }),
+                        );
+                    }
                     if (instructionsToExport.length > 0) {
                         const instructionsModImports = new ImportMap()
                             .add('crate::PROGRAM_ID')
                             .add(`crate::${pascalCase(program.name)}Decoder`);
-                        map.add('src/instructions/mod.rs', render('instructionsMod.njk', { ...ctx, imports: instructionsModImports.toString() }));
+                        map.add(
+                            'src/instructions/mod.rs',
+                            render('instructionsMod.njk', { ...ctx, imports: instructionsModImports.toString() }),
+                        );
                         if (options.postgresMode !== 'generic' && options.withPostgres !== false) {
                             map.add('src/instructions/postgres/mod.rs', render('instructionsPostgresMod.njk', ctx));
                         }
                         if (options.withGraphql !== false) {
-                            const instructionsGraphqlTemplate = options.postgresMode === 'generic' ? 'instructionsGraphqlModGeneric.njk' : 'instructionsGraphqlMod.njk';
-                            const instructionsGraphqlImports = new ImportMap()
-                                .add('juniper::GraphQLObject');
-                            map.add('src/instructions/graphql/mod.rs', render(instructionsGraphqlTemplate, { ...ctx, imports: instructionsGraphqlImports.toString() }));
+                            const instructionsGraphqlTemplate =
+                                options.postgresMode === 'generic'
+                                    ? 'instructionsGraphqlModGeneric.njk'
+                                    : 'instructionsGraphqlMod.njk';
+                            const instructionsGraphqlImports = new ImportMap().add('juniper::GraphQLObject');
+                            map.add(
+                                'src/instructions/graphql/mod.rs',
+                                render(instructionsGraphqlTemplate, {
+                                    ...ctx,
+                                    imports: instructionsGraphqlImports.toString(),
+                                }),
+                            );
                         }
                     }
-                    
+
                     if (options.anchorEvents?.length ?? 0 > 0) {
                         const eventInstructionImports = new ImportMap()
                             .add('carbon_core::borsh')
                             .add('carbon_core::deserialize::ArrangeAccounts');
-                        map.add('src/instructions/cpi_event.rs', render('eventInstructionPage.njk', { ...ctx, imports: eventInstructionImports.toString() }));
+                        map.add(
+                            'src/instructions/cpi_event.rs',
+                            render('eventInstructionPage.njk', { ...ctx, imports: eventInstructionImports.toString() }),
+                        );
                         if (options.postgresMode !== 'generic' && options.withPostgres !== false) {
                             const eventInstructionRowImports = new ImportMap()
                                 .add('carbon_core::postgres::metadata::InstructionRowMetadata')
                                 .add('carbon_core::instruction::InstructionMetadata')
                                 .add('super::super::cpi_event::CpiEvent');
-                            map.add('src/instructions/postgres/cpi_event_row.rs', render('eventInstructionRowPage.njk', { ...ctx, imports: eventInstructionRowImports.toString() }));
+                            map.add(
+                                'src/instructions/postgres/cpi_event_row.rs',
+                                render('eventInstructionRowPage.njk', {
+                                    ...ctx,
+                                    imports: eventInstructionRowImports.toString(),
+                                }),
+                            );
                         }
                         if (options.withGraphql !== false) {
-                            const cpiEventSchemaTemplate = options.postgresMode === 'generic' ? 'eventInstructionGraphqlSchemaPageGeneric.njk' : 'eventInstructionGraphqlSchemaPage.njk';
-                            const cpiEventSchemaImports = new ImportMap()
-                                .add('juniper::GraphQLObject');
-                            map.add('src/instructions/graphql/cpi_event_schema.rs', render(cpiEventSchemaTemplate, { ...ctx, imports: cpiEventSchemaImports.toString() }));
+                            const cpiEventSchemaTemplate =
+                                options.postgresMode === 'generic'
+                                    ? 'eventInstructionGraphqlSchemaPageGeneric.njk'
+                                    : 'eventInstructionGraphqlSchemaPage.njk';
+                            const cpiEventSchemaImports = new ImportMap().add('juniper::GraphQLObject');
+                            map.add(
+                                'src/instructions/graphql/cpi_event_schema.rs',
+                                render(cpiEventSchemaTemplate, { ...ctx, imports: cpiEventSchemaImports.toString() }),
+                            );
                         }
                         map.add('src/events/mod.rs', render('eventsMod.njk', ctx));
                     }
@@ -641,17 +677,27 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     if (options.withGraphql !== false) {
                         map.add('src/graphql/mod.rs', render('graphqlRootMod.njk', ctx));
                         map.add('src/graphql/context.rs', render('graphqlContextPage.njk', ctx));
-                        
+
                         // Use different query template based on postgres mode
                         if (options.postgresMode === 'generic') {
-                            const graphqlQueryGenericImports = new ImportMap()
-                                .add('juniper::{graphql_object, FieldResult}');
-                            map.add('src/graphql/query.rs', render('graphqlQueryPageGeneric.njk', { ...ctx, imports: graphqlQueryGenericImports.toString() }));
+                            const graphqlQueryGenericImports = new ImportMap().add(
+                                'juniper::{graphql_object, FieldResult}',
+                            );
+                            map.add(
+                                'src/graphql/query.rs',
+                                render('graphqlQueryPageGeneric.njk', {
+                                    ...ctx,
+                                    imports: graphqlQueryGenericImports.toString(),
+                                }),
+                            );
                         } else {
                             const graphqlQueryImports = new ImportMap()
                                 .add('juniper::{graphql_object, FieldResult}')
                                 .add('std::str::FromStr');
-                            map.add('src/graphql/query.rs', render('graphqlQueryPage.njk', { ...ctx, imports: graphqlQueryImports.toString() }));
+                            map.add(
+                                'src/graphql/query.rs',
+                                render('graphqlQueryPage.njk', { ...ctx, imports: graphqlQueryImports.toString() }),
+                            );
                         }
                     }
 
@@ -709,7 +755,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             const manifest = visit(typeNode.item, postgresTypeManifestVisitor) as PostgresTypeManifest;
             const isJson = (manifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
 
-            const rowType = isJson 
+            const rowType = isJson
                 ? manifest.sqlxType.includes('Json<')
                     ? `Option<${manifest.sqlxType}>`
                     : `Option<sqlx::types::Json<${manifest.sqlxType}>>`
@@ -723,7 +769,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
             // Handle reverse conversion based on inner type
             const reverseExpr = isJson
-                ? `${`source.${column}`}.map(|value| value.0)`  // Always single unwrap for JSONB types
+                ? `${`source.${column}`}.map(|value| value.0)` // Always single unwrap for JSONB types
                 : buildReverseOptionType(typeNode, `source.${column}`, manifest);
 
             out.push({
@@ -746,7 +792,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             const manifest = visit(typeNode.item, postgresTypeManifestVisitor) as PostgresTypeManifest;
             const isJson = (manifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
 
-            const rowType = isJson 
+            const rowType = isJson
                 ? manifest.sqlxType.includes('Json<')
                     ? `Option<${manifest.sqlxType}>`
                     : `Option<sqlx::types::Json<${manifest.sqlxType}>>`
@@ -760,7 +806,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
             // Handle reverse conversion based on inner type
             const reverseExpr = isJson
-                ? `${`source.${column}`}.map(|value| value.0)`  // Always single unwrap for JSONB types
+                ? `${`source.${column}`}.map(|value| value.0)` // Always single unwrap for JSONB types
                 : buildReverseOptionType(typeNode, `source.${column}`, manifest);
 
             out.push({
@@ -813,9 +859,17 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 }
                 if (resolvedRaw) {
                     const resolved = resolvedRaw as TypeNode;
-                    if (isNode(resolved, 'fixedSizeTypeNode') && isNode(resolved.type, 'bytesTypeNode') && resolved.size > 32) {
+                    if (
+                        isNode(resolved, 'fixedSizeTypeNode') &&
+                        isNode(resolved.type, 'bytesTypeNode') &&
+                        resolved.size > 32
+                    ) {
                         needsBigArray = true;
-                    } else if (isNode(resolved, 'arrayTypeNode') && isNode(resolved.count, 'fixedCountNode') && resolved.count.value > 32) {
+                    } else if (
+                        isNode(resolved, 'arrayTypeNode') &&
+                        isNode(resolved.count, 'fixedCountNode') &&
+                        resolved.count.value > 32
+                    ) {
                         needsBigArray = true;
                     }
                 }
@@ -874,7 +928,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 return `${prefix}.to_vec()`;
             }
             return buildExpression(typeNode.type, prefix);
-        } else if (isNode(typeNode, 'optionTypeNode') || isNode(typeNode, 'zeroableOptionTypeNode') || isNode(typeNode, 'remainderOptionTypeNode')) {
+        } else if (
+            isNode(typeNode, 'optionTypeNode') ||
+            isNode(typeNode, 'zeroableOptionTypeNode') ||
+            isNode(typeNode, 'remainderOptionTypeNode')
+        ) {
             return `${prefix}.map(|value| ${buildExpression(typeNode.item, `value`)})`;
         } else if (isNode(typeNode, 'hiddenPrefixTypeNode')) {
             return buildExpression(typeNode.type, prefix);
@@ -889,22 +947,27 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
     }
 
     function buildReverseOptionType(typeNode: TypeNode, prefix: string, manifest: PostgresTypeManifest): string {
-        if (!isNode(typeNode, 'optionTypeNode') && !isNode(typeNode, 'zeroableOptionTypeNode') && !isNode(typeNode, 'remainderOptionTypeNode')) {
+        if (
+            !isNode(typeNode, 'optionTypeNode') &&
+            !isNode(typeNode, 'zeroableOptionTypeNode') &&
+            !isNode(typeNode, 'remainderOptionTypeNode')
+        ) {
             throw new Error('buildReverseOptionType should only be called for option-like types');
         }
-        
+
         const innerType = typeNode.item;
-        
+
         if (isNode(innerType, 'booleanTypeNode')) {
             return `${prefix}.map(|value| value)`;
         } else if (isNode(innerType, 'numberTypeNode')) {
-            const isPostgresPrimitive = manifest.sqlxType.includes('U8') || 
-                                       manifest.sqlxType.includes('U16') || 
-                                       manifest.sqlxType.includes('U32') ||
-                                       manifest.sqlxType.includes('U64') ||
-                                       manifest.sqlxType.includes('I128') ||
-                                       manifest.sqlxType.includes('U128');
-            
+            const isPostgresPrimitive =
+                manifest.sqlxType.includes('U8') ||
+                manifest.sqlxType.includes('U16') ||
+                manifest.sqlxType.includes('U32') ||
+                manifest.sqlxType.includes('U64') ||
+                manifest.sqlxType.includes('I128') ||
+                manifest.sqlxType.includes('U128');
+
             if (isPostgresPrimitive) {
                 // For postgres primitives that need try_into(), use transpose() to handle Result
                 if (manifest.sqlxType.includes('U16')) {
@@ -921,8 +984,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             }
         } else if (isNode(innerType, 'publicKeyTypeNode')) {
             return `${prefix}.map(|value| *value)`;
-        } else if (isNode(innerType, 'stringTypeNode') || 
-                   isNode(innerType, 'bytesTypeNode')) {
+        } else if (isNode(innerType, 'stringTypeNode') || isNode(innerType, 'bytesTypeNode')) {
             return `${prefix}.map(|value| *value)`;
         } else {
             return `${prefix}.map(|value| value.into())`;

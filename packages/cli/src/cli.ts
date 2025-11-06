@@ -55,7 +55,7 @@ program
     .option('--no-clean', 'Do not delete output directory before rendering', false)
     .action(async opts => {
         showBanner();
-        
+
         // Prompt for missing options
         if (!opts.idl || !opts.outDir) {
             const answers = await promptForParse(opts);
@@ -63,21 +63,17 @@ program
         }
 
         // Normalize boolean options
-        const withPostgres = opts.withPostgres !== undefined 
-            ? opts.withPostgres === 'true' || opts.withPostgres === true
-            : true;
-        const withGraphql = opts.withGraphql !== undefined
-            ? opts.withGraphql === 'true' || opts.withGraphql === true
-            : true;
-        const withSerde = opts.withSerde !== undefined
-            ? opts.withSerde === 'true' || opts.withSerde === true
-            : false;
+        const withPostgres =
+            opts.withPostgres !== undefined ? opts.withPostgres === 'true' || opts.withPostgres === true : true;
+        const withGraphql =
+            opts.withGraphql !== undefined ? opts.withGraphql === 'true' || opts.withGraphql === true : true;
+        const withSerde = opts.withSerde !== undefined ? opts.withSerde === 'true' || opts.withSerde === true : false;
 
         const outDir = resolve(process.cwd(), opts.outDir);
-        
+
         // Generate decoder with spinner
         logger.startSpinner('Generating decoder...');
-        
+
         try {
             await generateDecoder({
                 idl: String(opts.idl),
@@ -93,15 +89,16 @@ program
                 withSerde,
                 standalone: true,
             });
-            
+
             logger.succeedSpinner('Decoder generated');
-            
+
             // Print success message
             const idlSource = parseIdlSource(String(opts.idl));
-            const source = idlSource.type === 'program' 
-                ? `program-address (${opts.standard}) @ ${resolveRpcUrl(opts.url)}`
-                : `file (${opts.standard})`;
-            
+            const source =
+                idlSource.type === 'program'
+                    ? `program-address (${opts.standard}) @ ${resolveRpcUrl(opts.url)}`
+                    : `file (${opts.standard})`;
+
             logger.decoderSuccess(outDir, source);
         } catch (error) {
             logger.failSpinner('Failed to generate decoder');
@@ -130,11 +127,11 @@ program
     .option('--force', 'Overwrite output directory if it exists', false)
     .action(async opts => {
         showBanner();
-        
+
         // Prompt for missing options (interactive mode)
         // We're in interactive mode if essential options are missing
         const isInteractive = !opts.name || !opts.outDir || !opts.dataSource || !opts.idl;
-        
+
         if (isInteractive) {
             const answers = await promptForScaffold(opts);
             Object.assign(opts, answers);
@@ -145,15 +142,11 @@ program
         const outDir = resolve(process.cwd(), String(opts.outDir));
         const dataSource = String(opts.dataSource);
         const metrics = String(opts.metrics || 'log').toLowerCase();
-        const withPostgres = opts.withPostgres !== undefined 
-            ? opts.withPostgres === 'true' || opts.withPostgres === true
-            : true;
-        const withGraphql = opts.withGraphql !== undefined
-            ? opts.withGraphql === 'true' || opts.withGraphql === true
-            : true;
-        const withSerde = opts.withSerde !== undefined
-            ? opts.withSerde === 'true' || opts.withSerde === true
-            : false;
+        const withPostgres =
+            opts.withPostgres !== undefined ? opts.withPostgres === 'true' || opts.withPostgres === true : true;
+        const withGraphql =
+            opts.withGraphql !== undefined ? opts.withGraphql === 'true' || opts.withGraphql === true : true;
+        const withSerde = opts.withSerde !== undefined ? opts.withSerde === 'true' || opts.withSerde === true : false;
         const force = Boolean(opts.force);
 
         // Use provided decoder name or auto-detect from IDL
@@ -164,12 +157,7 @@ program
         } else {
             logger.startSpinner('Detecting decoder name from IDL...');
             try {
-            const metadata = await getIdlMetadata(
-                String(opts.idl),
-                opts.idlStandard,
-                opts.idlUrl,
-                opts.programId
-            );
+                const metadata = await getIdlMetadata(String(opts.idl), opts.idlStandard, opts.idlUrl, opts.programId);
                 decoder = metadata.name;
                 logger.succeedSpinner(`Detected decoder: ${decoder}`);
             } catch (error) {
@@ -184,7 +172,7 @@ program
 
         // Render scaffold structure
         logger.startSpinner('Creating project structure...');
-        
+
         try {
             const { renderScaffold } = await import('./lib/scaffold');
             renderScaffold({
@@ -199,7 +187,7 @@ program
                 force,
                 postgresMode: opts.postgresMode,
             });
-            
+
             logger.succeedSpinner('Project structure created');
         } catch (error) {
             logger.failSpinner('Failed to create project structure');
@@ -211,7 +199,7 @@ program
         const decoderPath = join(workspaceDir, 'decoder');
 
         logger.startSpinner('Generating decoder from IDL...');
-        
+
         try {
             await generateDecoder({
                 idl: String(opts.idl),
@@ -228,7 +216,7 @@ program
                 withSerde,
                 standalone: false,
             });
-            
+
             logger.succeedSpinner('Decoder generated successfully');
         } catch (error) {
             logger.failSpinner('Failed to generate decoder');
@@ -237,7 +225,7 @@ program
 
         // Print success message
         const decoderInfo = `${decoder} (generated from IDL)`;
-            
+
         logger.scaffoldSuccess(join(outDir, name), decoderInfo);
     });
 

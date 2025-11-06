@@ -29,5 +29,3 @@ const REGISTRY: Record<string, DatasourceBuilder> = {
 export function getDatasourceBuilder(moduleName: string): DatasourceBuilder | undefined {
     return REGISTRY[moduleName];
 }
-
-
