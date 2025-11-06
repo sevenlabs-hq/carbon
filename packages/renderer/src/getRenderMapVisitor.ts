@@ -25,7 +25,7 @@ import { ImportMap } from './ImportMap';
 import { partition, render } from './utils';
 import { getPostgresTypeManifestVisitor, PostgresTypeManifest } from './getPostgresTypeManifestVisitor';
 import { FlattenedGraphQLField, flattenTypeForGraphQL } from './utils/flattenGraphqlFields';
-import { VERSIONS, getCrateDependencyString } from '@sevenlabs-hq/carbon-versions';
+import { generateDecoderCargoToml } from './cargoTomlGenerator';
 
 export type GetRenderMapOptions = {
     renderParentInstructions?: boolean;
@@ -38,6 +38,7 @@ export type GetRenderMapOptions = {
     withPostgres?: boolean;
     withGraphql?: boolean;
     withSerde?: boolean;
+    standalone?: boolean;
 };
 
 type FlattenedField = {
@@ -576,21 +577,6 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         withPostgres: options.withPostgres !== false,
                         withGraphQL: options.withGraphql !== false,
                         withSerde: options.withSerde ?? false,
-                        versions: VERSIONS,
-                        carbonCoreDep: getCrateDependencyString("carbon-core", VERSIONS["carbon-core"], ["macros"]),
-                        carbonTestUtilsDep: getCrateDependencyString("carbon-test-utils", VERSIONS["carbon-test-utils"]),
-                        borshDep: getCrateDependencyString("borsh", VERSIONS["borsh"], ["derive"]),
-                        solanaPubkeyDep: getCrateDependencyString("solana-pubkey", VERSIONS["solana-pubkey"]),
-                        solanaAccountDep: getCrateDependencyString("solana-account", VERSIONS["solana-account"]),
-                        solanaInstructionDep: getCrateDependencyString("solana-instruction", VERSIONS["solana-instruction"]),
-                        serdeDep: getCrateDependencyString("serde", VERSIONS["serde"], undefined, true),
-                        serdeJsonDep: getCrateDependencyString("serde_json", VERSIONS["serde_json"]),
-                        serdeBigArrayDep: getCrateDependencyString("serde-big-array", VERSIONS["serde-big-array"], undefined, true),
-                        asyncTraitDep: getCrateDependencyString("async-trait", VERSIONS["async-trait"], undefined, true),
-                        sqlxDep: getCrateDependencyString("sqlx", VERSIONS["sqlx"], ["postgres", "rust_decimal"], true),
-                        sqlxMigratorDep: getCrateDependencyString("sqlx_migrator", VERSIONS["sqlx_migrator"], undefined, true),
-                        juniperDep: getCrateDependencyString("juniper", VERSIONS["juniper"], undefined, true),
-                        base64Dep: getCrateDependencyString("base64", VERSIONS["base64"], undefined, true),
                     };
 
                     const map = new RenderMap();
@@ -676,7 +662,15 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     map.add('src/lib.rs', render('lib.njk', ctx));
 
                     // Generate Cargo.toml
-                    map.add('Cargo.toml', render('cargo.njk', ctx));
+                    const cargoToml = generateDecoderCargoToml({
+                        packageName: options.packageName,
+                        programName: program.name,
+                        withPostgres: options.withPostgres !== false,
+                        withGraphQL: options.withGraphql !== false,
+                        withSerde: options.withSerde ?? false,
+                        standalone: options.standalone !== false,
+                    });
+                    map.add('Cargo.toml', cargoToml);
 
                     // Process all programs
                     return map.mergeWith(...getAllPrograms(node).map(p => visit(p, self)));

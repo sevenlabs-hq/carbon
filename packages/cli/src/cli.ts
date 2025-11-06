@@ -91,6 +91,7 @@ program
                 withPostgres,
                 withGraphql,
                 withSerde,
+                standalone: true,
             });
             
             logger.succeedSpinner('Decoder generated');
@@ -142,7 +143,6 @@ program
         // Normalize and validate options
         const name = String(opts.name);
         const outDir = resolve(process.cwd(), String(opts.outDir));
-        const decoderMode = 'generate' as const;
         const dataSource = String(opts.dataSource);
         const metrics = String(opts.metrics || 'log').toLowerCase();
         const withPostgres = opts.withPostgres !== undefined 
@@ -191,8 +191,6 @@ program
                 name,
                 outDir,
                 decoder,
-                decoderMode,
-                decoderPath: decoderMode === 'generate' ? `./${decoder}` : undefined,
                 dataSource,
                 metrics,
                 withPostgres,
@@ -228,6 +226,7 @@ program
                 withPostgres,
                 withGraphql,
                 withSerde,
+                standalone: false,
             });
             
             logger.succeedSpinner('Decoder generated successfully');

@@ -3,17 +3,15 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import nunjucks from 'nunjucks';
 import { exitWithError } from './utils';
-import { kebabCase } from 'codama';
+import { kebabCase } from '@codama/nodes';
 import * as Datasources from '../datasources';
 import type { DecoderMeta } from '../datasources';
-import { VERSIONS, getCrateDependencyString } from '@sevenlabs-hq/carbon-versions';
+import { generateIndexerCargoToml } from './cargoTomlGenerator';
 
 export type ScaffoldOptions = {
     name: string;
     outDir: string;
     decoder: string;
-    decoderMode?: 'published' | 'generate';
-    decoderPath?: string; // Path to generated decoder
     dataSource: string;
     metrics: 'log' | 'prometheus';
     withPostgres: boolean;
@@ -104,105 +102,6 @@ function buildProjectImports(ctx: any): string {
     return lines.join('\n');
 }
 
-function buildIndexerCargoContext(opts: ScaffoldOptions) {
-    const featureParts: string[] = [];
-
-    if (opts.withPostgres) featureParts.push('"postgres"');
-    if (opts.withGraphql) featureParts.push('"graphql"');
-    if (opts.withSerde) featureParts.push('"serde"');
-
-    const hasLocalDecoder = true;
-    const decoderCrateName = kebabCase(opts.decoder)
-    
-    let decoderDependency: string = '';
-    let decoderFeatures = '';
-    if (featureParts.length) {
-        decoderFeatures = `, features = [${featureParts.join(', ')}]`;
-    }
-
-    const datasourceCrateName = `carbon-${opts.dataSource.toLowerCase()}-datasource`;
-    const datasourceDep = getCrateDependencyString(
-        datasourceCrateName,
-        VERSIONS[datasourceCrateName as keyof typeof VERSIONS] || VERSIONS["carbon-core"]
-    );
-    const metricsCrateName = `carbon-${opts.metrics.toLowerCase()}-metrics`;
-    const metricsDep = getCrateDependencyString(
-        metricsCrateName,
-        VERSIONS[metricsCrateName as keyof typeof VERSIONS] || VERSIONS["carbon-core"]
-    );
-
-    const grpcDeps =
-        opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream'
-            ? `${getCrateDependencyString("yellowstone-grpc-client", VERSIONS["yellowstone-grpc-client"])}\n${getCrateDependencyString("yellowstone-grpc-proto", VERSIONS["yellowstone-grpc-proto"])}`
-            : '';
-
-    const pgDeps = opts.withPostgres
-        ? `${getCrateDependencyString("sqlx", VERSIONS.sqlx, ["postgres", "runtime-tokio-rustls", "macros"])}\n${getCrateDependencyString("sqlx_migrator", VERSIONS["sqlx_migrator"])}`
-        : '';
-
-    const gqlDeps = opts.withGraphql 
-        ? `${getCrateDependencyString("juniper", VERSIONS.juniper)}\n${getCrateDependencyString("axum", VERSIONS.axum)}`
-        : '';
-
-    const rustlsDep = opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream' 
-        ? getCrateDependencyString("rustls", VERSIONS.rustls)
-        : '';
-
-    const features = ['default = []', opts.withPostgres ? 'postgres = []' : '', opts.withGraphql ? 'graphql = []' : '']
-        .filter(Boolean)
-        .join('\n');
-
-    const crawlerDeps = opts.dataSource === 'rpc-transaction-crawler' 
-        ? getCrateDependencyString("solana-commitment-config", VERSIONS["solana-commitment-config"])
-        : '';
-    const programDeps = opts.dataSource === 'rpc-program-subscribe' 
-        ? getCrateDependencyString("solana-account-decoder", VERSIONS["solana-account-decoder"])
-        : '';
-
-    const carbonCoreDep = getCrateDependencyString("carbon-core", VERSIONS["carbon-core"], ["postgres", "graphql"]);
-    const solanaPubkeyDep = getCrateDependencyString("solana-pubkey", VERSIONS["solana-pubkey"]);
-    const solanaClientDep = getCrateDependencyString("solana-client", VERSIONS["solana-client"]);
-    const solanaInstructionDep = getCrateDependencyString("solana-instruction", VERSIONS["solana-instruction"]);
-    const asyncTraitDep = getCrateDependencyString("async-trait", VERSIONS["async-trait"]);
-    const tokioDep = getCrateDependencyString("tokio", VERSIONS["tokio"]);
-    const dotenvDep = getCrateDependencyString("dotenv", VERSIONS["dotenv"]);
-    const envLoggerDep = getCrateDependencyString("env_logger", VERSIONS["env_logger"]);
-    const logDep = getCrateDependencyString("log", VERSIONS["log"]);
-    const anyhowDep = getCrateDependencyString("anyhow", VERSIONS["anyhow"]);
-    const tracingDep = getCrateDependencyString("tracing", VERSIONS["tracing"]);
-    const tracingSubscriberDep = getCrateDependencyString("tracing-subscriber", VERSIONS["tracing-subscriber"]);
-
-    return {
-        projectName: opts.name,
-        hasLocalDecoder,
-        decoderCrateName,
-        decoderFeatures,
-        carbonCoreDep,
-        solanaPubkeyDep,
-        solanaClientDep,
-        solanaInstructionDep,
-        asyncTraitDep,
-        tokioDep,
-        dotenvDep,
-        envLoggerDep,
-        logDep,
-        anyhowDep,
-        tracingDep,
-        tracingSubscriberDep,
-        decoderDependency,
-        datasourceDep,
-        metricsDep,
-        grpcDeps,
-        pgDeps,
-        gqlDeps,
-        rustlsDep,
-        crawlerDeps,
-        programDeps,
-        features,
-        versions: VERSIONS,
-    };
-}
-
 function getEnvContent(dataSource: string, withPostgres: boolean): string {
     const dataSourceLower = dataSource.toLowerCase().replace(/-/g, '_');
 
@@ -258,8 +157,6 @@ export function renderScaffold(opts: ScaffoldOptions) {
         noCache: false,
     });
 
-    const hasLocalDecoder = opts.decoderMode === 'generate';
-
     // Context base for main.rs
     const mainContext: any = {
         projectName: opts.name,
@@ -309,10 +206,7 @@ export function renderScaffold(opts: ScaffoldOptions) {
     }
 
     // Generate workspace Cargo.toml
-    const workspaceContext = {
-        hasLocalDecoder,
-    };
-    const workspaceToml = env.render('workspace.njk', workspaceContext);
+    const workspaceToml = env.render('workspace.njk', {});
     writeFileSync(join(base, 'Cargo.toml'), workspaceToml);
 
     // Compute dynamic imports for main.rs
@@ -323,8 +217,7 @@ export function renderScaffold(opts: ScaffoldOptions) {
     writeFileSync(join(indexerDir, 'src', 'main.rs'), rendered);
 
     // Generate indexer Cargo.toml
-    const indexerCargoContext = buildIndexerCargoContext(opts);
-    const indexerCargoToml = env.render('indexer-cargo.njk', indexerCargoContext);
+    const indexerCargoToml = generateIndexerCargoToml(opts);
     writeFileSync(join(indexerDir, 'Cargo.toml'), indexerCargoToml);
 
     // Generate .gitignore at workspace root
@@ -350,7 +243,8 @@ Generated by carbon-cli scaffold.
 ## Structure
 
 This is a Cargo workspace containing:
-- \`indexer/\` - The main indexer application${hasLocalDecoder ? '\n- `decoder/` - Generated decoder from IDL' : ''}
+- \`indexer/\` - The main indexer application
+- \`decoder/\` - Generated decoder from IDL
 
 ## Run
 
@@ -363,7 +257,7 @@ cargo run -p ${opts.name}-indexer
 - Metrics: ${opts.metrics}
 - Postgres: ${opts.withPostgres}
 - GraphQL: ${opts.withGraphql}
-- Decoder: ${hasLocalDecoder ? 'Generated locally' : `Published (carbon-${opts.decoder}-decoder)`}
+- Decoder: carbon-${opts.decoder}-decoder (generated)
 `;
 
     writeFileSync(join(base, 'README.md'), readme);
