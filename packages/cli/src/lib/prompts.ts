@@ -271,7 +271,6 @@ export async function promptForScaffold(existingOpts: ScaffoldOptions = {}): Pro
     const dataSource = existingOpts.dataSource || await select({
         message: 'Data source:',
         choices: [
-            { name: 'Helius Atlas WebSocket', value: 'helius-atlas-ws' },
             { name: 'Helius Laserstream', value: 'helius-laserstream' },
             { name: 'RPC Block Subscribe', value: 'rpc-block-subscribe' },
             { name: 'RPC Program Subscribe', value: 'rpc-program-subscribe' },
