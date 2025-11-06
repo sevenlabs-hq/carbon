@@ -19,7 +19,7 @@ pub struct {{ entityName | pascalCase }}Row {
 }
 
 impl {{ entityName | pascalCase }}Row {
-    pub fn from_parts({% if flatFields.length == 0 %}_{% endif %}source: {{ entityName | pascalCase }}, metadata: {% if isAccount %}AccountMetadata{% else %}InstructionMetadata{% endif %}) -> Self {
+    pub fn from_parts({% if flatFields.length == 0 %}_{% endif %}source: {% if isAccount %}crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% else %}crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% endif %}, metadata: {% if isAccount %}AccountMetadata{% else %}InstructionMetadata{% endif %}) -> Self {
         Self {
             {% if isAccount %}account_metadata{% else %}instruction_metadata{% endif %}: metadata.into(),
 {% for field in flatFields %}
@@ -29,7 +29,7 @@ impl {{ entityName | pascalCase }}Row {
     }
 }
 
-impl TryFrom<{{ entityName | pascalCase }}Row> for {{ entityName | pascalCase }} {
+impl TryFrom<{{ entityName | pascalCase }}Row> for {% if isAccount %}crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% else %}crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% endif %} {
     type Error = carbon_core::error::Error;
     fn try_from({% if flatFields.length == 0 %}_{% endif %}source: {{ entityName | pascalCase }}Row) -> Result<Self, Self::Error> {
         Ok(Self {
@@ -40,7 +40,7 @@ impl TryFrom<{{ entityName | pascalCase }}Row> for {{ entityName | pascalCase }}
     }
 }
 
-impl carbon_core::postgres::operations::Table for {{ entityName | pascalCase }} {
+impl carbon_core::postgres::operations::Table for {% if isAccount %}crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% else %}crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% endif %} {
     fn table() -> &'static str {
         "{{ entityName | snakeCase }}_{% if isAccount %}account{% else %}instruction{% endif %}"
     }
