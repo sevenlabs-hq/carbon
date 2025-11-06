@@ -5,7 +5,6 @@ import {
     getAllAccounts,
     getAllDefinedTypes,
     getAllInstructionsWithSubs,
-    getAllPrograms,
     isNode,
     pascalCase,
     ProgramNode,
@@ -127,7 +126,6 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     // Postgres generation
                     const flatFields = flattenType(newNode.data, [], [], new Set());
                     const postgresImports = new ImportMap()
-                        .add(`crate::accounts::${snakeCase(node.name)}::${pascalCase(node.name)}`)
                         .add('carbon_core::account::AccountMetadata')
                         .add('carbon_core::postgres::metadata::AccountRowMetadata');
                     flatFields.forEach(f => {
@@ -451,7 +449,6 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         new Set(),
                     );
                     const postgresImports = new ImportMap()
-                        .add(`crate::instructions::${pascalCase(node.name)}`)
                         .add('carbon_core::instruction::InstructionMetadata')
                         .add('carbon_core::postgres::metadata::InstructionRowMetadata');
                     flatFields.forEach(f => {
@@ -559,7 +556,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                     // Use getAll* functions but they will only process the main program
                     const accountsToExport = getAllAccounts(node);
-                    const instructionsToExport = getAllInstructionsWithSubs(node, {
+                    const instructionsToExport = getAllInstructionsWithSubs(program, {
                         leavesOnly: !renderParentInstructions,
                     });
                     const definedTypesToExport = allDefinedTypes;
@@ -672,8 +669,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     });
                     map.add('Cargo.toml', cargoToml);
 
-                    // Process all programs
-                    return map.mergeWith(...getAllPrograms(node).map(p => visit(p, self)));
+                    // Process only the main program (ignore additionalPrograms)
+                    return map.mergeWith(visit(program, self));
                 },
             }),
     );
@@ -909,12 +906,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                        manifest.sqlxType.includes('U128');
             
             if (isPostgresPrimitive) {
+                // For postgres primitives that need try_into(), use transpose() to handle Result
                 if (manifest.sqlxType.includes('U16')) {
-                    return `${prefix}.map(|value| *value as u16)`;
+                    return `${prefix}.map(|value| value.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))).transpose()?`;
                 } else if (manifest.sqlxType.includes('U32')) {
-                    return `${prefix}.map(|value| *value as u32)`;
+                    return `${prefix}.map(|value| value.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))).transpose()?`;
                 } else if (manifest.sqlxType.includes('U8')) {
-                    return `${prefix}.map(|value| *value as u8)`;
+                    return `${prefix}.map(|value| value.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))).transpose()?`;
                 } else {
                     return `${prefix}.map(|value| *value)`;
                 }
