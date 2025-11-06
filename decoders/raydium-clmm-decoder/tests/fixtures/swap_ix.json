@@ -1,71 +1,71 @@
 {
-  "accounts": [
-    {
-      "pubkey": "G55uUb8EpRrFzudVaYe2QGpRHj6WT6erm4H3UttnJ1oC",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "payer"
-    },
-    {
-      "pubkey": "E64NGkDLLCdQ2yFNPcavaKptrEgmiQaNykUuLC1Qgwyp",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "ammConfig"
-    },
-    {
-      "pubkey": "6GiB4gYn9ZMKK5r654rZAnpYR747EjKX3KwKBxPMy98b",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "poolState"
-    },
-    {
-      "pubkey": "E7p2yWDZZDErC4hNsYKazgLfjqBwcnYohNno4fSpGWhv",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "inputTokenAccount"
-    },
-    {
-      "pubkey": "8VrjZTc99eXswEkv9eTk7soVjajTejsgmBHzzenNbjEm",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "outputTokenAccount"
-    },
-    {
-      "pubkey": "B7T7idkMzAbxtMYTcTNLVAcFwozZqGWnqfwwA5h7ZiJn",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "inputVault"
-    },
-    {
-      "pubkey": "FWDmGjcFhKKgW8mR3VFoxnHqFTX8D9oewQX73CkgPMJd",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "outputVault"
-    },
-    {
-      "pubkey": "ZFYeyGsqNK3qGjjqCPJqtLxzriwWWBAYztrrn3CYPvg",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "observationState"
-    },
-    {
-      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenProgram"
-    },
-    {
-      "pubkey": "2JSG8ATm5DWcdwtvokvgFyHGrGrTM4iKtkceMaYRJRLg",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tickArray"
-    },
-    {
-      "pubkey": "H1UQZrJXsDQ7qcfZGsvGhe1v9R3pi1nNwpNaRF363W4V",
-      "is_signer": false,
-      "is_writable": true
-    }
-  ],
-  "data": "f8c69e91e17587c8e06f1c000000000000000000000000000000000000000000000000000000000001",
-  "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
+    "accounts": [
+        {
+            "pubkey": "G55uUb8EpRrFzudVaYe2QGpRHj6WT6erm4H3UttnJ1oC",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "payer"
+        },
+        {
+            "pubkey": "E64NGkDLLCdQ2yFNPcavaKptrEgmiQaNykUuLC1Qgwyp",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "ammConfig"
+        },
+        {
+            "pubkey": "6GiB4gYn9ZMKK5r654rZAnpYR747EjKX3KwKBxPMy98b",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "poolState"
+        },
+        {
+            "pubkey": "E7p2yWDZZDErC4hNsYKazgLfjqBwcnYohNno4fSpGWhv",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "inputTokenAccount"
+        },
+        {
+            "pubkey": "8VrjZTc99eXswEkv9eTk7soVjajTejsgmBHzzenNbjEm",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "outputTokenAccount"
+        },
+        {
+            "pubkey": "B7T7idkMzAbxtMYTcTNLVAcFwozZqGWnqfwwA5h7ZiJn",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "inputVault"
+        },
+        {
+            "pubkey": "FWDmGjcFhKKgW8mR3VFoxnHqFTX8D9oewQX73CkgPMJd",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "outputVault"
+        },
+        {
+            "pubkey": "ZFYeyGsqNK3qGjjqCPJqtLxzriwWWBAYztrrn3CYPvg",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "observationState"
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenProgram"
+        },
+        {
+            "pubkey": "2JSG8ATm5DWcdwtvokvgFyHGrGrTM4iKtkceMaYRJRLg",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tickArray"
+        },
+        {
+            "pubkey": "H1UQZrJXsDQ7qcfZGsvGhe1v9R3pi1nNwpNaRF363W4V",
+            "is_signer": false,
+            "is_writable": true
+        }
+    ],
+    "data": "f8c69e91e17587c8e06f1c000000000000000000000000000000000000000000000000000000000001",
+    "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
 }

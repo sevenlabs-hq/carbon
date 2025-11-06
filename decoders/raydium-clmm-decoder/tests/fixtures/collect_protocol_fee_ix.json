@@ -1,72 +1,72 @@
 {
-  "accounts": [
-    {
-      "pubkey": "projjosVCPQH49d5em7VYS7fJZzaqKixqKtus7yk416",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "owner"
-    },
-    {
-      "pubkey": "GEacZ94pW7egZsPLgNWXrWBnA5qPTfbRUU5epdfjaLF2",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "poolState"
-    },
-    {
-      "pubkey": "E64NGkDLLCdQ2yFNPcavaKptrEgmiQaNykUuLC1Qgwyp",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "ammConfig"
-    },
-    {
-      "pubkey": "74HfZjYRV3QM5STo8NyReh9tXk4c6EjMyiFgwVgncXXh",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tokenVault0"
-    },
-    {
-      "pubkey": "6oLppZGXQdhCoNCKrwd6KUQCQ2ArMVDh8WiuuYUYXSyM",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tokenVault1"
-    },
-    {
-      "pubkey": "So11111111111111111111111111111111111111112",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "vault0Mint"
-    },
-    {
-      "pubkey": "Hg8bKz4mvs8KNj9zew1cEF9tDw1x2GViB4RFZjVEmfrD",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "vault1Mint"
-    },
-    {
-      "pubkey": "8awFmuH8YGXpm4geYYRcqDsLiqrzPUnJrNCDi8rfmFPg",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "recipientTokenAccount0"
-    },
-    {
-      "pubkey": "EPKH1qtVPrmofbcHjqhz5R5D4fEC5GdgxXNCv5qqBts7",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "recipientTokenAccount1"
-    },
-    {
-      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenProgram"
-    },
-    {
-      "pubkey": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenProgram2022"
-    }
-  ],
-  "data": "8888fcddc2427e59ffffffffffffffffffffffffffffffff",
-  "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
+    "accounts": [
+        {
+            "pubkey": "projjosVCPQH49d5em7VYS7fJZzaqKixqKtus7yk416",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "owner"
+        },
+        {
+            "pubkey": "GEacZ94pW7egZsPLgNWXrWBnA5qPTfbRUU5epdfjaLF2",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "poolState"
+        },
+        {
+            "pubkey": "E64NGkDLLCdQ2yFNPcavaKptrEgmiQaNykUuLC1Qgwyp",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "ammConfig"
+        },
+        {
+            "pubkey": "74HfZjYRV3QM5STo8NyReh9tXk4c6EjMyiFgwVgncXXh",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tokenVault0"
+        },
+        {
+            "pubkey": "6oLppZGXQdhCoNCKrwd6KUQCQ2ArMVDh8WiuuYUYXSyM",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tokenVault1"
+        },
+        {
+            "pubkey": "So11111111111111111111111111111111111111112",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "vault0Mint"
+        },
+        {
+            "pubkey": "Hg8bKz4mvs8KNj9zew1cEF9tDw1x2GViB4RFZjVEmfrD",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "vault1Mint"
+        },
+        {
+            "pubkey": "8awFmuH8YGXpm4geYYRcqDsLiqrzPUnJrNCDi8rfmFPg",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "recipientTokenAccount0"
+        },
+        {
+            "pubkey": "EPKH1qtVPrmofbcHjqhz5R5D4fEC5GdgxXNCv5qqBts7",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "recipientTokenAccount1"
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenProgram"
+        },
+        {
+            "pubkey": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenProgram2022"
+        }
+    ],
+    "data": "8888fcddc2427e59ffffffffffffffffffffffffffffffff",
+    "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
 }

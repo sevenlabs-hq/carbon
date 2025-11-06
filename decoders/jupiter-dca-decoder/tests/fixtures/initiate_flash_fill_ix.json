@@ -1,56 +1,56 @@
 {
-  "accounts": [
-    {
-      "pubkey": "JD25qVdtd65FoiXNmR89JjmoJdYk9sjYQeSTZAALFiMy",
-      "is_signer": true,
-      "is_writable": true
-    },
-    {
-      "pubkey": "ArmGhb7enKa3kq11qUi7bPVpX8r2ZQfsPTiZWqZfGosH",
-      "is_signer": false,
-      "is_writable": true
-    },
-    {
-      "pubkey": "6dKCoWjpj5MFU5gWDEFdpUUeBasBLK3wLEwhUzQPAa1e",
-      "is_signer": false,
-      "is_writable": false
-    },
-    {
-      "pubkey": "BeEZ5YRyD7Wnoasygh7tRGZpchH4rMbR7qjKP6rEF14i",
-      "is_signer": false,
-      "is_writable": true
-    },
-    {
-      "pubkey": "7VKRDWs6BBei2W6qC5sLM2DpoVEu1WeijtuAqhFMcdkF",
-      "is_signer": false,
-      "is_writable": true
-    },
-    {
-      "pubkey": "93KgX1YnywD3qx1YnLxznyWGLQAiiUJ9TgRpqp4c4F5Z",
-      "is_signer": false,
-      "is_writable": true
-    },
-    {
-      "pubkey": "Sysvar1nstructions1111111111111111111111111",
-      "is_signer": false,
-      "is_writable": false
-    },
-    {
-      "pubkey": "11111111111111111111111111111111",
-      "is_signer": false,
-      "is_writable": false
-    },
-    {
-      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      "is_signer": false,
-      "is_writable": false
-    },
-    {
-      "pubkey": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
-      "is_signer": false,
-      "is_writable": false
-    }
-  ],
-  "data": "8fcd03bfa2d7f531",
-  "program_id": "DCA265Vj8a9CEuX1eb1LWRnDT7uK6q1xMipnNyatn23M"
+    "accounts": [
+        {
+            "pubkey": "JD25qVdtd65FoiXNmR89JjmoJdYk9sjYQeSTZAALFiMy",
+            "is_signer": true,
+            "is_writable": true
+        },
+        {
+            "pubkey": "ArmGhb7enKa3kq11qUi7bPVpX8r2ZQfsPTiZWqZfGosH",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "6dKCoWjpj5MFU5gWDEFdpUUeBasBLK3wLEwhUzQPAa1e",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "BeEZ5YRyD7Wnoasygh7tRGZpchH4rMbR7qjKP6rEF14i",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "7VKRDWs6BBei2W6qC5sLM2DpoVEu1WeijtuAqhFMcdkF",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "93KgX1YnywD3qx1YnLxznyWGLQAiiUJ9TgRpqp4c4F5Z",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "Sysvar1nstructions1111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "11111111111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false
+        },
+        {
+            "pubkey": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL",
+            "is_signer": false,
+            "is_writable": false
+        }
+    ],
+    "data": "8fcd03bfa2d7f531",
+    "program_id": "DCA265Vj8a9CEuX1eb1LWRnDT7uK6q1xMipnNyatn23M"
 }

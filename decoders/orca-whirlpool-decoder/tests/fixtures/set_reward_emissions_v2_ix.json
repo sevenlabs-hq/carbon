@@ -1,24 +1,24 @@
 {
-  "accounts": [
-    {
-      "pubkey": "FWDvLqKFt5H514ov22XXGLopGVsf4w34SD1CEnhfMyJW",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "whirlpool"
-    },
-    {
-      "pubkey": "DjDsi34mSB66p2nhBL6YvhbcLtZbkGfNybFeLDjJqxJW",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "rewardAuthority"
-    },
-    {
-      "pubkey": "Dm5a5zgHGCbrjKufQJbJMoFQspQGV6kWk6PXD2iqgwx2",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "rewardVault"
-    }
-  ],
-  "data": "72e44820c130a0660046bc19f166c49b11ef96f80100000000",
-  "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+    "accounts": [
+        {
+            "pubkey": "FWDvLqKFt5H514ov22XXGLopGVsf4w34SD1CEnhfMyJW",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "whirlpool"
+        },
+        {
+            "pubkey": "DjDsi34mSB66p2nhBL6YvhbcLtZbkGfNybFeLDjJqxJW",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "rewardAuthority"
+        },
+        {
+            "pubkey": "Dm5a5zgHGCbrjKufQJbJMoFQspQGV6kWk6PXD2iqgwx2",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "rewardVault"
+        }
+    ],
+    "data": "72e44820c130a0660046bc19f166c49b11ef96f80100000000",
+    "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
 }

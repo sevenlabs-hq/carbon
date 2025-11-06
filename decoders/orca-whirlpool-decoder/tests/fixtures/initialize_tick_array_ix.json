@@ -1,30 +1,30 @@
 {
-  "accounts": [
-    {
-      "pubkey": "3xerTvpyKck7FB5drkikkn7cCdafuoe5qgMMtPVsGs5K",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "whirlpool"
-    },
-    {
-      "pubkey": "4zDe2QNMcGU8vyyRwnzkxLH4rrhe9VBNNGNz9yaYAL3",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "funder"
-    },
-    {
-      "pubkey": "Fgmcorxso1tXtEGWYjwTsEttZBdNqcA9jx2HccqSwGGc",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tickArray"
-    },
-    {
-      "pubkey": "11111111111111111111111111111111",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "systemProgram"
-    }
-  ],
-  "data": "0bbcc1d68d5b95b800000000",
-  "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+    "accounts": [
+        {
+            "pubkey": "3xerTvpyKck7FB5drkikkn7cCdafuoe5qgMMtPVsGs5K",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "whirlpool"
+        },
+        {
+            "pubkey": "4zDe2QNMcGU8vyyRwnzkxLH4rrhe9VBNNGNz9yaYAL3",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "funder"
+        },
+        {
+            "pubkey": "Fgmcorxso1tXtEGWYjwTsEttZBdNqcA9jx2HccqSwGGc",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tickArray"
+        },
+        {
+            "pubkey": "11111111111111111111111111111111",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "systemProgram"
+        }
+    ],
+    "data": "0bbcc1d68d5b95b800000000",
+    "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
 }

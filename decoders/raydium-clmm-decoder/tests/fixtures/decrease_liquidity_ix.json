@@ -1,88 +1,88 @@
 {
-  "accounts": [
-    {
-      "pubkey": "5XZZSAGds4q8fFbLbhpTTKRVqcjeiSDi3FK4JpVGUV4T",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "nftOwner"
-    },
-    {
-      "pubkey": "Bw1X9wJzufooPWSE1D5s58x73n9qneaAmAEgaZKmQSwK",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "nftAccount"
-    },
-    {
-      "pubkey": "FT2KHaZDuAFRpxwgQSgvbi4CEPP4hkGPHA9sQHyuEhST",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "personalPosition"
-    },
-    {
-      "pubkey": "BZtgQEyS6eXUXicYPHecYQ7PybqodXQMvkjUbP4R8mUU",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "poolState"
-    },
-    {
-      "pubkey": "EsVnksUtMXigpha6QyPmbbM4NXpwBgscG45c2sf7Vg9i",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "protocolPosition"
-    },
-    {
-      "pubkey": "4iJQGzZpys4N13rGXbsB3NqehPkrgrcmDUEcLw7D6GKL",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tokenVault0"
-    },
-    {
-      "pubkey": "7NQjToK5NenQZvhPRc1nC1URuKJ4nuLxGPdTbpTiz9EN",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tokenVault1"
-    },
-    {
-      "pubkey": "FULWc1hWdGMBGSB4Ut3QZBCU74muZmLmM9z9UqheWoUw",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tickArrayLower"
-    },
-    {
-      "pubkey": "Cxhs239pddZBnZc4adCjjfqUMRWG2JjGoRPrBvPmvGGa",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "tickArrayUpper"
-    },
-    {
-      "pubkey": "28VCpWUPgLM6VQToWsoYKM5ParBsPAN1XL3AfQ4q5h2s",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "recipientTokenAccount0"
-    },
-    {
-      "pubkey": "7XXCgU4QBrwArfNtayTeL8jxGygDALV1FKRNcXgQKzZo",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "recipientTokenAccount1"
-    },
-    {
-      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenProgram"
-    },
-    {
-      "pubkey": "2aSRZzpyqcii2TD27gZnb5emgJ1cJZ9E3WebwHbb9Lbw",
-      "is_signer": false,
-      "is_writable": true
-    },
-    {
-      "pubkey": "ErQK4fXFz6gPP3K6YRrzL1MimoTZ133d52GDVnvBCRrd",
-      "is_signer": false,
-      "is_writable": true
-    }
-  ],
-  "data": "a026d06f685b2c010000000000000000000000000000000000000000000000000000000000000000",
-  "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
+    "accounts": [
+        {
+            "pubkey": "5XZZSAGds4q8fFbLbhpTTKRVqcjeiSDi3FK4JpVGUV4T",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "nftOwner"
+        },
+        {
+            "pubkey": "Bw1X9wJzufooPWSE1D5s58x73n9qneaAmAEgaZKmQSwK",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "nftAccount"
+        },
+        {
+            "pubkey": "FT2KHaZDuAFRpxwgQSgvbi4CEPP4hkGPHA9sQHyuEhST",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "personalPosition"
+        },
+        {
+            "pubkey": "BZtgQEyS6eXUXicYPHecYQ7PybqodXQMvkjUbP4R8mUU",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "poolState"
+        },
+        {
+            "pubkey": "EsVnksUtMXigpha6QyPmbbM4NXpwBgscG45c2sf7Vg9i",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "protocolPosition"
+        },
+        {
+            "pubkey": "4iJQGzZpys4N13rGXbsB3NqehPkrgrcmDUEcLw7D6GKL",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tokenVault0"
+        },
+        {
+            "pubkey": "7NQjToK5NenQZvhPRc1nC1URuKJ4nuLxGPdTbpTiz9EN",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tokenVault1"
+        },
+        {
+            "pubkey": "FULWc1hWdGMBGSB4Ut3QZBCU74muZmLmM9z9UqheWoUw",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tickArrayLower"
+        },
+        {
+            "pubkey": "Cxhs239pddZBnZc4adCjjfqUMRWG2JjGoRPrBvPmvGGa",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "tickArrayUpper"
+        },
+        {
+            "pubkey": "28VCpWUPgLM6VQToWsoYKM5ParBsPAN1XL3AfQ4q5h2s",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "recipientTokenAccount0"
+        },
+        {
+            "pubkey": "7XXCgU4QBrwArfNtayTeL8jxGygDALV1FKRNcXgQKzZo",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "recipientTokenAccount1"
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenProgram"
+        },
+        {
+            "pubkey": "2aSRZzpyqcii2TD27gZnb5emgJ1cJZ9E3WebwHbb9Lbw",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "ErQK4fXFz6gPP3K6YRrzL1MimoTZ133d52GDVnvBCRrd",
+            "is_signer": false,
+            "is_writable": true
+        }
+    ],
+    "data": "a026d06f685b2c010000000000000000000000000000000000000000000000000000000000000000",
+    "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
 }

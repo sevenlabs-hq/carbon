@@ -1,1052 +1,544 @@
 {
-  "data": "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",
-  "executable": false,
-  "lamports": 32092560,
-  "owner": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK",
-  "space": 4483,
-  "rent_epoch": 18446744073709551615,
-  "data_decoded": {
-    "initialized": {
-      "type": "bool",
-      "data": true
-    },
-    "recentEpoch": {
-      "type": "u64",
-      "data": "688"
-    },
-    "observationIndex": {
-      "type": "u16",
-      "data": "45"
-    },
-    "poolId": {
-      "type": "publicKey",
-      "data": "6U4TBh3aJgiJ5EqCDEua4rP75HsqcfHapMKhhyuTqGuo"
-    },
-    "observations": {
-      "type": {
-        "array": [
-          {
-            "defined": "Observation"
-          },
-          100
-        ]
-      },
-      "data": [
-        {
-          "blockTimestamp": 1747128365,
-          "tickCumulative": "135450630299",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128389,
-          "tickCumulative": "135450145715",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128405,
-          "tickCumulative": "135449822819",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128420,
-          "tickCumulative": "135449520119",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128438,
-          "tickCumulative": "135449156987",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128454,
-          "tickCumulative": "135448834027",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128469,
-          "tickCumulative": "135448531042",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128496,
-          "tickCumulative": "135447985723",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128525,
-          "tickCumulative": "135447399372",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128552,
-          "tickCumulative": "135446853648",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128567,
-          "tickCumulative": "135446550183",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128586,
-          "tickCumulative": "135446165908",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128604,
-          "tickCumulative": "135445801948",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128629,
-          "tickCumulative": "135445295998",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128647,
-          "tickCumulative": "135444931588",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128692,
-          "tickCumulative": "135444020518",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128714,
-          "tickCumulative": "135443574952",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128733,
-          "tickCumulative": "135443190145",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128749,
-          "tickCumulative": "135442866225",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128764,
-          "tickCumulative": "135442562610",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128779,
-          "tickCumulative": "135442259115",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128794,
-          "tickCumulative": "135441955470",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128812,
-          "tickCumulative": "135441591114",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128832,
-          "tickCumulative": "135441186654",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128848,
-          "tickCumulative": "135440863246",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128865,
-          "tickCumulative": "135440519608",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128909,
-          "tickCumulative": "135439629180",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128925,
-          "tickCumulative": "135439305260",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128945,
-          "tickCumulative": "135438900300",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128974,
-          "tickCumulative": "135438313485",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128989,
-          "tickCumulative": "135438010095",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747129034,
-          "tickCumulative": "135437099970",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747129066,
-          "tickCumulative": "135436452802",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747129082,
-          "tickCumulative": "135436129234",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747129100,
-          "tickCumulative": "135435765328",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747129120,
-          "tickCumulative": "135435360908",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747129138,
-          "tickCumulative": "135434996750",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747129153,
-          "tickCumulative": "135434693210",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747129172,
-          "tickCumulative": "135434308688",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747129200,
-          "tickCumulative": "135433741940",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747129217,
-          "tickCumulative": "135433397792",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747129233,
-          "tickCumulative": "135433073888",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747129249,
-          "tickCumulative": "135432749728",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747129277,
-          "tickCumulative": "135432182308",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747129292,
-          "tickCumulative": "135431878288",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747129328,
-          "tickCumulative": "135431148496",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127109,
-          "tickCumulative": "135475924071",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127141,
-          "tickCumulative": "135475280103",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127179,
-          "tickCumulative": "135474515163",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127195,
-          "tickCumulative": "135474193067",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127210,
-          "tickCumulative": "135473891222",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127225,
-          "tickCumulative": "135473589437",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127243,
-          "tickCumulative": "135473227331",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127282,
-          "tickCumulative": "135472443041",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127307,
-          "tickCumulative": "135471940316",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127330,
-          "tickCumulative": "135471477901",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127363,
-          "tickCumulative": "135470814205",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127384,
-          "tickCumulative": "135470391769",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127405,
-          "tickCumulative": "135469969165",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127437,
-          "tickCumulative": "135469325261",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127454,
-          "tickCumulative": "135468983340",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127471,
-          "tickCumulative": "135468641487",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127511,
-          "tickCumulative": "135467837167",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127527,
-          "tickCumulative": "135467515423",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127591,
-          "tickCumulative": "135466228255",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127612,
-          "tickCumulative": "135465805798",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127628,
-          "tickCumulative": "135465483862",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127644,
-          "tickCumulative": "135465161798",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127671,
-          "tickCumulative": "135464618288",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127725,
-          "tickCumulative": "135463531214",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127741,
-          "tickCumulative": "135463209054",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127757,
-          "tickCumulative": "135462887150",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127784,
-          "tickCumulative": "135462343856",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127799,
-          "tickCumulative": "135462042011",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127814,
-          "tickCumulative": "135461739941",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127830,
-          "tickCumulative": "135461417861",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127870,
-          "tickCumulative": "135460612781",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127885,
-          "tickCumulative": "135460310771",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127902,
-          "tickCumulative": "135459968408",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127919,
-          "tickCumulative": "135459626198",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127934,
-          "tickCumulative": "135459324188",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127956,
-          "tickCumulative": "135458881306",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747127983,
-          "tickCumulative": "135458337580",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128005,
-          "tickCumulative": "135457894434",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128039,
-          "tickCumulative": "135457209538",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128062,
-          "tickCumulative": "135456746042",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128077,
-          "tickCumulative": "135456443687",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128097,
-          "tickCumulative": "135456040667",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128112,
-          "tickCumulative": "135455738282",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128128,
-          "tickCumulative": "135455415466",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128144,
-          "tickCumulative": "135455092250",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128163,
-          "tickCumulative": "135454707994",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128191,
-          "tickCumulative": "135454142506",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128208,
-          "tickCumulative": "135453799361",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128223,
-          "tickCumulative": "135453496571",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128241,
-          "tickCumulative": "135453133169",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128258,
-          "tickCumulative": "135452789956",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128292,
-          "tickCumulative": "135452103700",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128312,
-          "tickCumulative": "135451700080",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
-        },
-        {
-          "blockTimestamp": 1747128349,
-          "tickCumulative": "135450953531",
-          "padding": [
-            "0",
-            "0",
-            "0",
-            "0"
-          ]
+    "data": "eq7FNYEJpYQBsAIAAAAAAAAuAFE5BOBULy8cJLQ001kmvI0QrJrrpe2zuTQps7Pg5iayLRAjaJuYfIkfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABFECNoszN1iR8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFUQI2hjRnCJHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAZBAjaPena4kfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB2ECNoex1miR8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIYQI2jrL2GJHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlRAjaGKQXIkfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACwECNoOz5UiR8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM0QI2jMS0uJHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA6BAjaBD4QokfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD3ECNop1Y+iR8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoRI2iUeTiJHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHBEjaNzrMokfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA1ESNofjMriR8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEcRI2gEpCWJHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAdBEjaCa9F4kfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACKESNoqPAQiR8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJ0RI2iBEQuJHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAArREjaDEgBokfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC8ESNoMn4BiR8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMsRI2ir3PyIHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA2hEjaI46+IgfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADsESNoSqvyiB8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAASI2hef+yIHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEBIjaA6Q54gfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAhEiNouFHiiB8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE0SI2h8u9SIHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAXRIjaCzKz4gfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABxEiNoTJzJiB8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAI4SI2gNqMCIHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAnRIjaO8GvIgfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADKEiNowiOuiB8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOoSI2jCQ6SIHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+hIjaNJTn4gfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMEyNoUMaZiB8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACATI2iMmpOIHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMhMjaA4MjogfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABBEyNoWmqJiB8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFQTI2hQjIOIHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAcBMjaHTmeogfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACBEyNoIKZ1iB8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJETI2jgtHCIHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAoRMjaKDCa4gfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC9EyNoJBpjiB8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMwTI2iQdl6IHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8BMjaNBTU4gfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALFCNoEPhKiB8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGULI2jnuPSKHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAiwsjaNsM6YofAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACbCyNoqyLkih8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKoLI2iWh9+KHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAuQsjaL3s2oofAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADLCyNoQ2bVih8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPILI2ihbsmKHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACwwjaNzCwYofAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAiDCNojbS6ih8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEMMI2j9k7CKHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWAwjaNkhqoofAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABtDCNoDa+jih8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAI0MI2jN25mKHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAngwjaCyklIofAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACvDCNoz2yPih8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANcMI2jvJoOKHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5wwjaB8+foofAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAnDSNoH5pqih8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADwNI2jmJ2SKHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATA0jaFY+X4ofAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABcDSNoRlRaih8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHcNI2gwCVKKHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAArQ0jaM5yQYofAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAC9DSNoXog8ih8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM0NI2junjeKHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA6A0jaLBUL4ofAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD3DSNom7kqih8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAYOI2ilHSaKHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFg4jaIUzIYofAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+DiNoreoUih8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE0OI2jzThCKHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAXg4jaJgVC4ofAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABvDiNo1twFih8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH4OI2gcQQGKHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlA4jaBp/+okfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACvDiNoLDPyiR8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMUOI2gicOuJHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5w4jaML84IkfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD+DiNoOurZiR8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA0PI2gnTdWJHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIQ8jaNsmz4kfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwDyNoqonKiR8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAPI2iqnMWJHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAUA8jaBquwIkfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABjDyNoGtG6iR8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAH8PI2gqMLKJHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAkA8jaMHzrIkfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACfDyNo+1SoiR8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALEPI2hxyaKJHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwg8jaMSMnYkfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADkDyNoFBSTiR8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPgPI2hw64yJHwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHRAjaDuHgYkfAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+    "executable": false,
+    "lamports": 32092560,
+    "owner": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK",
+    "space": 4483,
+    "rent_epoch": 18446744073709551615,
+    "data_decoded": {
+        "initialized": {
+            "type": "bool",
+            "data": true
+        },
+        "recentEpoch": {
+            "type": "u64",
+            "data": "688"
+        },
+        "observationIndex": {
+            "type": "u16",
+            "data": "45"
+        },
+        "poolId": {
+            "type": "publicKey",
+            "data": "6U4TBh3aJgiJ5EqCDEua4rP75HsqcfHapMKhhyuTqGuo"
+        },
+        "observations": {
+            "type": {
+                "array": [
+                    {
+                        "defined": "Observation"
+                    },
+                    100
+                ]
+            },
+            "data": [
+                {
+                    "blockTimestamp": 1747128365,
+                    "tickCumulative": "135450630299",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128389,
+                    "tickCumulative": "135450145715",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128405,
+                    "tickCumulative": "135449822819",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128420,
+                    "tickCumulative": "135449520119",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128438,
+                    "tickCumulative": "135449156987",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128454,
+                    "tickCumulative": "135448834027",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128469,
+                    "tickCumulative": "135448531042",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128496,
+                    "tickCumulative": "135447985723",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128525,
+                    "tickCumulative": "135447399372",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128552,
+                    "tickCumulative": "135446853648",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128567,
+                    "tickCumulative": "135446550183",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128586,
+                    "tickCumulative": "135446165908",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128604,
+                    "tickCumulative": "135445801948",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128629,
+                    "tickCumulative": "135445295998",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128647,
+                    "tickCumulative": "135444931588",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128692,
+                    "tickCumulative": "135444020518",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128714,
+                    "tickCumulative": "135443574952",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128733,
+                    "tickCumulative": "135443190145",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128749,
+                    "tickCumulative": "135442866225",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128764,
+                    "tickCumulative": "135442562610",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128779,
+                    "tickCumulative": "135442259115",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128794,
+                    "tickCumulative": "135441955470",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128812,
+                    "tickCumulative": "135441591114",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128832,
+                    "tickCumulative": "135441186654",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128848,
+                    "tickCumulative": "135440863246",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128865,
+                    "tickCumulative": "135440519608",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128909,
+                    "tickCumulative": "135439629180",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128925,
+                    "tickCumulative": "135439305260",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128945,
+                    "tickCumulative": "135438900300",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128974,
+                    "tickCumulative": "135438313485",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128989,
+                    "tickCumulative": "135438010095",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747129034,
+                    "tickCumulative": "135437099970",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747129066,
+                    "tickCumulative": "135436452802",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747129082,
+                    "tickCumulative": "135436129234",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747129100,
+                    "tickCumulative": "135435765328",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747129120,
+                    "tickCumulative": "135435360908",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747129138,
+                    "tickCumulative": "135434996750",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747129153,
+                    "tickCumulative": "135434693210",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747129172,
+                    "tickCumulative": "135434308688",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747129200,
+                    "tickCumulative": "135433741940",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747129217,
+                    "tickCumulative": "135433397792",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747129233,
+                    "tickCumulative": "135433073888",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747129249,
+                    "tickCumulative": "135432749728",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747129277,
+                    "tickCumulative": "135432182308",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747129292,
+                    "tickCumulative": "135431878288",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747129328,
+                    "tickCumulative": "135431148496",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127109,
+                    "tickCumulative": "135475924071",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127141,
+                    "tickCumulative": "135475280103",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127179,
+                    "tickCumulative": "135474515163",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127195,
+                    "tickCumulative": "135474193067",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127210,
+                    "tickCumulative": "135473891222",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127225,
+                    "tickCumulative": "135473589437",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127243,
+                    "tickCumulative": "135473227331",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127282,
+                    "tickCumulative": "135472443041",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127307,
+                    "tickCumulative": "135471940316",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127330,
+                    "tickCumulative": "135471477901",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127363,
+                    "tickCumulative": "135470814205",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127384,
+                    "tickCumulative": "135470391769",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127405,
+                    "tickCumulative": "135469969165",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127437,
+                    "tickCumulative": "135469325261",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127454,
+                    "tickCumulative": "135468983340",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127471,
+                    "tickCumulative": "135468641487",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127511,
+                    "tickCumulative": "135467837167",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127527,
+                    "tickCumulative": "135467515423",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127591,
+                    "tickCumulative": "135466228255",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127612,
+                    "tickCumulative": "135465805798",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127628,
+                    "tickCumulative": "135465483862",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127644,
+                    "tickCumulative": "135465161798",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127671,
+                    "tickCumulative": "135464618288",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127725,
+                    "tickCumulative": "135463531214",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127741,
+                    "tickCumulative": "135463209054",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127757,
+                    "tickCumulative": "135462887150",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127784,
+                    "tickCumulative": "135462343856",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127799,
+                    "tickCumulative": "135462042011",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127814,
+                    "tickCumulative": "135461739941",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127830,
+                    "tickCumulative": "135461417861",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127870,
+                    "tickCumulative": "135460612781",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127885,
+                    "tickCumulative": "135460310771",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127902,
+                    "tickCumulative": "135459968408",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127919,
+                    "tickCumulative": "135459626198",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127934,
+                    "tickCumulative": "135459324188",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127956,
+                    "tickCumulative": "135458881306",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747127983,
+                    "tickCumulative": "135458337580",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128005,
+                    "tickCumulative": "135457894434",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128039,
+                    "tickCumulative": "135457209538",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128062,
+                    "tickCumulative": "135456746042",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128077,
+                    "tickCumulative": "135456443687",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128097,
+                    "tickCumulative": "135456040667",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128112,
+                    "tickCumulative": "135455738282",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128128,
+                    "tickCumulative": "135455415466",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128144,
+                    "tickCumulative": "135455092250",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128163,
+                    "tickCumulative": "135454707994",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128191,
+                    "tickCumulative": "135454142506",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128208,
+                    "tickCumulative": "135453799361",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128223,
+                    "tickCumulative": "135453496571",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128241,
+                    "tickCumulative": "135453133169",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128258,
+                    "tickCumulative": "135452789956",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128292,
+                    "tickCumulative": "135452103700",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128312,
+                    "tickCumulative": "135451700080",
+                    "padding": ["0", "0", "0", "0"]
+                },
+                {
+                    "blockTimestamp": 1747128349,
+                    "tickCumulative": "135450953531",
+                    "padding": ["0", "0", "0", "0"]
+                }
+            ]
+        },
+        "padding": {
+            "type": {
+                "array": ["u64", 4]
+            },
+            "data": ["0", "0", "0", "0"]
         }
-      ]
-    },
-    "padding": {
-      "type": {
-        "array": [
-          "u64",
-          4
-        ]
-      },
-      "data": [
-        "0",
-        "0",
-        "0",
-        "0"
-      ]
     }
-  }
 }

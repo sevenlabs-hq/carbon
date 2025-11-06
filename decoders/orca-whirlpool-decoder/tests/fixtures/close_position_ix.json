@@ -1,42 +1,42 @@
 {
-  "accounts": [
-    {
-      "pubkey": "8YbKYJyh4Xe7PWoVdCgZapW6vHwf4saKNaMBfZhuHFUs",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "positionAuthority"
-    },
-    {
-      "pubkey": "dche7M2764e8AxNihBdn7uffVzZvTBNeL8x4LZg5E2c",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "receiver"
-    },
-    {
-      "pubkey": "3c5GDpDJHTjrK4sVWAVMfwoN17V6oBZEpQD4Z8vg5Ea5",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "position"
-    },
-    {
-      "pubkey": "7VyJ7CuxP7CZAipZgHQ4dnDuRmkzCZtr7BgxHKmhV14f",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "positionMint"
-    },
-    {
-      "pubkey": "GsgUebzMur2DakcY4sN2RM4E1LWLB4x7SGB5dhdnii6R",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "positionTokenAccount"
-    },
-    {
-      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenProgram"
-    }
-  ],
-  "data": "7b86510031446262",
-  "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+    "accounts": [
+        {
+            "pubkey": "8YbKYJyh4Xe7PWoVdCgZapW6vHwf4saKNaMBfZhuHFUs",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "positionAuthority"
+        },
+        {
+            "pubkey": "dche7M2764e8AxNihBdn7uffVzZvTBNeL8x4LZg5E2c",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "receiver"
+        },
+        {
+            "pubkey": "3c5GDpDJHTjrK4sVWAVMfwoN17V6oBZEpQD4Z8vg5Ea5",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "position"
+        },
+        {
+            "pubkey": "7VyJ7CuxP7CZAipZgHQ4dnDuRmkzCZtr7BgxHKmhV14f",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "positionMint"
+        },
+        {
+            "pubkey": "GsgUebzMur2DakcY4sN2RM4E1LWLB4x7SGB5dhdnii6R",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "positionTokenAccount"
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenProgram"
+        }
+    ],
+    "data": "7b86510031446262",
+    "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
 }

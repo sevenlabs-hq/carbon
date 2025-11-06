@@ -120,16 +120,19 @@ carbon-cli scaffold [OPTIONS]
 #### Examples
 
 **Generate decoder from Anchor IDL:**
+
 ```sh
 carbon-cli parse --idl my_program.json --out-dir ./src/decoders
 ```
 
 **Generate decoder from program address:**
+
 ```sh
 carbon-cli parse --idl LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo -u mainnet-beta --out-dir ./desired-folder
 ```
 
 **Scaffold project using IDL file:**
+
 ```sh
 carbon-cli scaffold --name my-project --out-dir ./desired-folder --idl ./idl.json --data-source yellowstone-grpc
 ```

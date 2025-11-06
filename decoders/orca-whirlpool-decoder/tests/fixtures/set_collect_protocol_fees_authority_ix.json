@@ -1,24 +1,24 @@
 {
-  "accounts": [
-    {
-      "pubkey": "2LecshUwdy9xi7meFgHtFJQNSKk4KdTrcpvaB56dP2NQ",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "whirlpoolsConfig"
-    },
-    {
-      "pubkey": "AMxS2z98KhS3ZJAtMG7PkapJvP6sJTCMhmcFPZiUovMu",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "collectProtocolFeesAuthority"
-    },
-    {
-      "pubkey": "CTgympSD3hkBhH2XYWfGCigrFh3ZHAvnxwAfm7nCbExY",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "newCollectProtocolFeesAuthority"
-    }
-  ],
-  "data": "22965df48be1e943",
-  "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
+    "accounts": [
+        {
+            "pubkey": "2LecshUwdy9xi7meFgHtFJQNSKk4KdTrcpvaB56dP2NQ",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "whirlpoolsConfig"
+        },
+        {
+            "pubkey": "AMxS2z98KhS3ZJAtMG7PkapJvP6sJTCMhmcFPZiUovMu",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "collectProtocolFeesAuthority"
+        },
+        {
+            "pubkey": "CTgympSD3hkBhH2XYWfGCigrFh3ZHAvnxwAfm7nCbExY",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "newCollectProtocolFeesAuthority"
+        }
+    ],
+    "data": "22965df48be1e943",
+    "program_id": "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc"
 }

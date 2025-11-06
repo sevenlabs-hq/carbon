@@ -1,57 +1,57 @@
 {
-  "accounts": [
-    {
-      "pubkey": "NCV2Uo3hfW5LSZXAJe19y6SpC5K98PuQwShCSZgTki3",
-      "is_signer": true,
-      "is_writable": true,
-      "label": "authority"
-    },
-    {
-      "pubkey": "9EeWRCL8CJnikDFCDzG8rtmBs5KQR1jEYKCR5rRZ2NEi",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "ammConfig"
-    },
-    {
-      "pubkey": "8KbrpeSRYXYjWSSdG7gE1tR7Go8MmKKxKaei1gGc4U7Q",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "poolState"
-    },
-    {
-      "pubkey": "7EJTuZgJKbWZCX7R2cLm54asioKQk61VijX56s2RAGwN",
-      "is_signer": false,
-      "is_writable": true,
-      "label": "operationState"
-    },
-    {
-      "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenProgram"
-    },
-    {
-      "pubkey": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
-      "is_signer": false,
-      "is_writable": false,
-      "label": "tokenProgram2022"
-    },
-    {
-      "pubkey": "ACLtBsUtRGT2rxnF8g9JV5UCG3ikJXR2gKVK1RrsY6fc",
-      "is_signer": false,
-      "is_writable": true
-    },
-    {
-      "pubkey": "4u5GmwvqKjeSRnaWnSnqU3DsdDV1mwD8YBn486LLF9rL",
-      "is_signer": false,
-      "is_writable": true
-    },
-    {
-      "pubkey": "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R",
-      "is_signer": false,
-      "is_writable": true
-    }
-  ],
-  "data": "7034a74b20c9d389009864838b0d2e36b83a03000000000000841e2268000000000443506800000000",
-  "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
+    "accounts": [
+        {
+            "pubkey": "NCV2Uo3hfW5LSZXAJe19y6SpC5K98PuQwShCSZgTki3",
+            "is_signer": true,
+            "is_writable": true,
+            "label": "authority"
+        },
+        {
+            "pubkey": "9EeWRCL8CJnikDFCDzG8rtmBs5KQR1jEYKCR5rRZ2NEi",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "ammConfig"
+        },
+        {
+            "pubkey": "8KbrpeSRYXYjWSSdG7gE1tR7Go8MmKKxKaei1gGc4U7Q",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "poolState"
+        },
+        {
+            "pubkey": "7EJTuZgJKbWZCX7R2cLm54asioKQk61VijX56s2RAGwN",
+            "is_signer": false,
+            "is_writable": true,
+            "label": "operationState"
+        },
+        {
+            "pubkey": "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenProgram"
+        },
+        {
+            "pubkey": "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+            "is_signer": false,
+            "is_writable": false,
+            "label": "tokenProgram2022"
+        },
+        {
+            "pubkey": "ACLtBsUtRGT2rxnF8g9JV5UCG3ikJXR2gKVK1RrsY6fc",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "4u5GmwvqKjeSRnaWnSnqU3DsdDV1mwD8YBn486LLF9rL",
+            "is_signer": false,
+            "is_writable": true
+        },
+        {
+            "pubkey": "4k3Dyjzvzp8eMZWUXbBCjEvwSkkk59S5iCNLY3QrkX6R",
+            "is_signer": false,
+            "is_writable": true
+        }
+    ],
+    "data": "7034a74b20c9d389009864838b0d2e36b83a03000000000000841e2268000000000443506800000000",
+    "program_id": "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK"
 }
