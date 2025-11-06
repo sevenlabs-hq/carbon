@@ -120,18 +120,6 @@ function buildIndexerCargoContext(opts: ScaffoldOptions) {
         decoderFeatures = `, features = [${featureParts.join(', ')}]`;
     }
 
-    const dsModule = opts.dataSource.toLowerCase();
-    const dsPathDir = dsModule.replace(/-/g, '_') === 'helius_laserstream'
-        ? 'helius-laserstream-datasource'
-        : dsModule === 'yellowstone-grpc'
-            ? 'yellowstone-grpc-datasource'
-            : dsModule === 'rpc-block-subscribe'
-                ? 'rpc-block-subscribe-datasource'
-                : dsModule === 'rpc-program-subscribe'
-                    ? 'rpc-program-subscribe-datasource'
-                    : dsModule === 'rpc-transaction-crawler'
-                        ? 'rpc-transaction-crawler-datasource'
-                        : `${dsModule}-datasource`;
     const datasourceCrateName = `carbon-${opts.dataSource.toLowerCase()}-datasource`;
     const datasourceDep = getCrateDependencyString(
         datasourceCrateName,

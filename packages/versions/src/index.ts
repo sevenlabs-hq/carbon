@@ -11,62 +11,28 @@ export type CrateDependency =
         version?: string;
         git?: string;
         rev?: string;
-        path?: string;
+        branch?: string;
         features?: readonly string[];
         defaultFeatures?: boolean;
     };
 
 export const VERSIONS: Record<string, CrateDependency> = {
     "carbon-core": {
-        path: "../../../crates/core",
         version: "0.11.0",
         defaultFeatures: false,
     },
-    "carbon-test-utils": {
-        path: "../../../crates/test-utils",
-        version: "0.11.0",
-    },
-    "carbon-log-metrics": {
-        path: "../../../metrics/log-metrics",
-        version: "0.11.0",
-    },
+    "carbon-test-utils": "0.11.0",
+    "carbon-log-metrics": "0.11.0",
     "carbon-prometheus-metrics": "0.11.0",
-    "carbon-helius-atlas-ws-datasource": {
-        path: "../../../datasources/helius-atlas-ws-datasource",
-        version: "0.11.0",
-    },
-    "carbon-helius-laserstream-datasource": {
-        path: "../../../datasources/helius-laserstream-datasource",
-        version: "0.11.0",
-    },
-    "carbon-jito-shredstream-grpc-datasource": {
-        path: "../../../datasources/jito-shredstream-grpc-datasource",
-        version: "0.11.0",
-    },
-    "carbon-rpc-block-crawler-datasource": {
-        path: "../../../datasources/rpc-block-crawler-datasource",
-        version: "0.11.0",
-    },
-    "carbon-rpc-block-subscribe-datasource": {
-        path: "../../../datasources/rpc-block-subscribe-datasource",
-        version: "0.11.0",
-    },
-    "carbon-rpc-program-subscribe-datasource": {
-        path: "../../../datasources/rpc-program-subscribe-datasource",
-        version: "0.11.0",
-    },
-    "carbon-rpc-transaction-crawler-datasource": {
-        path: "../../../datasources/rpc-transaction-crawler-datasource",
-        version: "0.11.0",
-    },
-    "carbon-stream-message-datasource": {
-        path: "../../../datasources/stream-message-datasource",
-        version: "0.11.0",
-    },
-    "carbon-yellowstone-grpc-datasource": {
-        path: "../../../datasources/yellowstone-grpc-datasource",
-        version: "0.11.0",
-    },
+    "carbon-helius-atlas-ws-datasource": "0.11.0",
+    "carbon-helius-laserstream-datasource": "0.11.0",
+    "carbon-jito-shredstream-grpc-datasource": "0.11.0",
+    "carbon-rpc-block-crawler-datasource": "0.11.0",
+    "carbon-rpc-block-subscribe-datasource": "0.11.0",
+    "carbon-rpc-program-subscribe-datasource": "0.11.0",
+    "carbon-rpc-transaction-crawler-datasource": "0.11.0",
+    "carbon-stream-message-datasource": "0.11.0",
+    "carbon-yellowstone-grpc-datasource": "0.11.0",
     "solana-pubkey": {
         version: "^3.0.0",
         features: ["borsh"],
