@@ -57,6 +57,7 @@ workspace_crates=(
     carbon-okx-dex-decoder
     carbon-openbook-v2-decoder
     carbon-orca-whirlpool-decoder
+    carbon-pancake-swap-decoder
     carbon-phoenix-v1-decoder
     carbon-pump-swap-decoder
     carbon-pump-fees-decoder
