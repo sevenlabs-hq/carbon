@@ -1609,8 +1609,6 @@ name = "carbon-pancake-swap-decoder"
 version = "0.11.0"
 dependencies = [
  "carbon-core 0.11.0",
- "carbon-macros",
- "carbon-proc-macros",
  "serde",
  "serde-big-array",
  "solana-account 3.1.0",
