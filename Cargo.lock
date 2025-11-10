@@ -1865,6 +1865,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-swig-decoder"
+version = "0.11.0"
+dependencies = [
+ "async-trait",
+ "base64 0.22.1",
+ "carbon-core 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "carbon-test-utils 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "juniper",
+ "serde",
+ "serde-big-array",
+ "serde_json",
+ "solana-account 2.2.1",
+ "solana-instruction 2.3.0",
+ "solana-pubkey 2.4.0",
+ "sqlx",
+ "sqlx_migrator",
+]
+
+[[package]]
 name = "carbon-system-program-decoder"
 version = "0.11.0"
 dependencies = [

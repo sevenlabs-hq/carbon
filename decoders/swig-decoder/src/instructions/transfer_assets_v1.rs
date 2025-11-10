@@ -9,11 +9,15 @@ use carbon_core::account_utils::next_account;
 use carbon_core::borsh::{self, BorshDeserialize};
 use carbon_core::deserialize::ArrangeAccounts;
 
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
-pub struct TransferAssetsV1 {
-}
+#[derive(
+    Debug,
+    Clone,
+    carbon_core::borsh::BorshSerialize,
+    carbon_core::borsh::BorshDeserialize,
+    PartialEq,
+)]
+pub struct TransferAssetsV1 {}
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -27,20 +31,18 @@ pub struct TransferAssetsV1InstructionAccounts {
 
 impl TransferAssetsV1 {
     pub fn decode(data: &[u8]) -> Option<Self> {
-                
-                if data.len() < 1 {
-                    return None;
-                }
-                let discriminator = &data[0..1];
-                if discriminator != &[13] {
-                    return None;
-                }
-            
-        
+        if data.len() < 1 {
+            return None;
+        }
+        let discriminator = &data[0..1];
+        if discriminator != &[13] {
+            return None;
+        }
+
         let mut data_slice = data;
 
-                data_slice = &data_slice[1..];
-        
+        data_slice = &data_slice[1..];
+
         if let Ok(decoded) = Self::deserialize(&mut data_slice) {
             return Some(decoded);
         }
@@ -55,22 +57,21 @@ impl ArrangeAccounts for TransferAssetsV1 {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-                let mut iter = accounts.iter();
+        let mut iter = accounts.iter();
 
-                let swig = next_account(&mut iter)?;
-                let swig_wallet_address = next_account(&mut iter)?;
-                let payer = next_account(&mut iter)?;
-                let system_program = next_account(&mut iter)?;
-        
+        let swig = next_account(&mut iter)?;
+        let swig_wallet_address = next_account(&mut iter)?;
+        let payer = next_account(&mut iter)?;
+        let system_program = next_account(&mut iter)?;
+
         let remaining = iter.as_slice();
 
         Some(TransferAssetsV1InstructionAccounts {
-                        swig: swig,
-                        swig_wallet_address: swig_wallet_address,
-                        payer: payer,
-                        system_program: system_program,
-                        remaining: remaining.to_vec(),
+            swig: swig,
+            swig_wallet_address: swig_wallet_address,
+            payer: payer,
+            system_program: system_program,
+            remaining: remaining.to_vec(),
         })
-            }
+    }
 }
-

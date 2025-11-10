@@ -5,30 +5,28 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
+use crate::instructions::CreateV1;
 use carbon_core::instruction::InstructionMetadata;
 use carbon_core::postgres::metadata::InstructionRowMetadata;
-use crate::instructions::CreateV1;
-
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct CreateV1Row {
     #[sqlx(flatten)]
-        pub metadata: InstructionRowMetadata,
-    }
+    pub metadata: InstructionRowMetadata,
+}
 
 impl CreateV1Row {
     pub fn from_parts(_source: CreateV1, metadata: InstructionMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-                    }
+        }
     }
 }
 
 impl TryFrom<CreateV1Row> for CreateV1 {
     type Error = carbon_core::error::Error;
     fn try_from(_source: CreateV1Row) -> Result<Self, Self::Error> {
-        Ok(Self {
-                    })
+        Ok(Self {})
     }
 }
 
@@ -39,11 +37,11 @@ impl carbon_core::postgres::operations::Table for CreateV1 {
 
     fn columns() -> Vec<&'static str> {
         vec![
-                        "__signature",
+            "__signature",
             "__instruction_index",
             "__stack_height",
             "__slot",
-                                ]
+        ]
     }
 }
 
@@ -94,12 +92,15 @@ impl carbon_core::postgres::operations::Delete for CreateV1Row {
     type Key = (String, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM create_v1_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM create_v1_instruction WHERE
                         __signature = $1 AND __instruction_index = $2
-                    "#)
-                .bind(key.0)
+                    "#,
+        )
+        .bind(key.0)
         .bind(key.1)
-                .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(())
@@ -110,15 +111,20 @@ impl carbon_core::postgres::operations::Delete for CreateV1Row {
 impl carbon_core::postgres::operations::LookUp for CreateV1Row {
     type Key = (String, carbon_core::postgres::primitives::U32);
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM create_v1_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM create_v1_instruction WHERE
                         __signature = $1 AND __instruction_index = $2
-                    "#)
-                .bind(key.0)
+                    "#,
+        )
+        .bind(key.0)
         .bind(key.1)
-                .fetch_optional(pool).await
-        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))
-        ?;
+        .fetch_optional(pool)
+        .await
+        .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
 
         Ok(row)
     }
@@ -128,8 +134,12 @@ pub struct CreateV1MigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for CreateV1MigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS create_v1_instruction (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS create_v1_instruction (
                         -- Instruction data
                         
                         -- Instruction metadata
@@ -139,13 +149,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateV1MigrationOperation {
             __slot NUMERIC(20),
             
                         PRIMARY KEY (__signature, __instruction_index)
-                    )"#).execute(connection).await?;
+                    )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_v1_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS create_v1_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }
-

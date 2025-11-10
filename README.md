@@ -248,7 +248,8 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-solayer-pool-restaking-decoder`    | Solayer Pool Restaking Program Decoder    | sSo1iU21jBrU9VaJ8PJib1MtorefUV4fzC9GURa2KNn  |
 | `carbon-stabble-stable-swap-decoder`       | Stabble Stable Swap Decoder               | swapNyd8XiQwJ6ianp9snpu4brUqFxadzvHebnAXjJZ  |
 | `carbon-stabble-weighted-swap-decoder`     | Stabble Weighted Swap Decoder             | swapFpHZwjELNnjvThjajtiVmkz3yPQEHjLtka2fwHW  |
-| `carbon-stake-program-decoder`             | Stake Program Decoder                     | Stake11111111111111111111111111111111111111  |
+| `carbon-stake-program-decoder`             | Stake Program Decoder                     | swigypWHEksbC64pWKwah1WTeh9JXwx8H1rJHLdbQMB  |
+| `carbon-swig-decoder`.                     | Swig Program Decoder                      | Stake11111111111111111111111111111111111111  |
 | `carbon-system-program-decoder`            | System Program Decoder                    | 11111111111111111111111111111111             |
 | `carbon-token-2022-decoder`                | Token 2022 Program Decoder                | TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb  |
 | `carbon-token-program-decoder`             | Token Program Decoder                     | TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA  |

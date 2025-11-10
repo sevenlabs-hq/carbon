@@ -11,7 +11,7 @@ pub mod postgres;
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
-use crate::{PROGRAM_ID, SwigDecoder};
+use crate::{SwigDecoder, PROGRAM_ID};
 
 pub mod add_authority_v1;
 pub mod create_session_v1;
@@ -72,8 +72,8 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SwigDecoder {
         }
 
         let data = instruction.data.as_slice();
-        
-                // Try to decode CreateV1
+
+        // Try to decode CreateV1
         {
             if let Some(decoded) = create_v1::CreateV1::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -83,7 +83,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SwigDecoder {
                 });
             }
         }
-                // Try to decode AddAuthorityV1
+        // Try to decode AddAuthorityV1
         {
             if let Some(decoded) = add_authority_v1::AddAuthorityV1::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -93,7 +93,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SwigDecoder {
                 });
             }
         }
-                // Try to decode RemoveAuthorityV1
+        // Try to decode RemoveAuthorityV1
         {
             if let Some(decoded) = remove_authority_v1::RemoveAuthorityV1::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -103,7 +103,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SwigDecoder {
                 });
             }
         }
-                // Try to decode UpdateAuthorityV1
+        // Try to decode UpdateAuthorityV1
         {
             if let Some(decoded) = update_authority_v1::UpdateAuthorityV1::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -113,7 +113,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SwigDecoder {
                 });
             }
         }
-                // Try to decode SignV1
+        // Try to decode SignV1
         {
             if let Some(decoded) = sign_v1::SignV1::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -123,7 +123,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SwigDecoder {
                 });
             }
         }
-                // Try to decode SignV2
+        // Try to decode SignV2
         {
             if let Some(decoded) = sign_v2::SignV2::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -133,7 +133,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SwigDecoder {
                 });
             }
         }
-                // Try to decode CreateSessionV1
+        // Try to decode CreateSessionV1
         {
             if let Some(decoded) = create_session_v1::CreateSessionV1::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -143,7 +143,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SwigDecoder {
                 });
             }
         }
-                // Try to decode CreateSubAccountV1
+        // Try to decode CreateSubAccountV1
         {
             if let Some(decoded) = create_sub_account_v1::CreateSubAccountV1::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -153,9 +153,11 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SwigDecoder {
                 });
             }
         }
-                // Try to decode WithdrawFromSubAccountV1
+        // Try to decode WithdrawFromSubAccountV1
         {
-            if let Some(decoded) = withdraw_from_sub_account_v1::WithdrawFromSubAccountV1::decode(data) {
+            if let Some(decoded) =
+                withdraw_from_sub_account_v1::WithdrawFromSubAccountV1::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: SwigInstruction::WithdrawFromSubAccountV1(decoded),
@@ -163,7 +165,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SwigDecoder {
                 });
             }
         }
-                // Try to decode SubAccountSignV1
+        // Try to decode SubAccountSignV1
         {
             if let Some(decoded) = sub_account_sign_v1::SubAccountSignV1::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -173,7 +175,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SwigDecoder {
                 });
             }
         }
-                // Try to decode ToggleSubAccountV1
+        // Try to decode ToggleSubAccountV1
         {
             if let Some(decoded) = toggle_sub_account_v1::ToggleSubAccountV1::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -183,9 +185,11 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SwigDecoder {
                 });
             }
         }
-                // Try to decode MigrateToWalletAddressV1
+        // Try to decode MigrateToWalletAddressV1
         {
-            if let Some(decoded) = migrate_to_wallet_address_v1::MigrateToWalletAddressV1::decode(data) {
+            if let Some(decoded) =
+                migrate_to_wallet_address_v1::MigrateToWalletAddressV1::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: SwigInstruction::MigrateToWalletAddressV1(decoded),
@@ -193,7 +197,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SwigDecoder {
                 });
             }
         }
-                // Try to decode TransferAssetsV1
+        // Try to decode TransferAssetsV1
         {
             if let Some(decoded) = transfer_assets_v1::TransferAssetsV1::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -203,8 +207,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SwigDecoder {
                 });
             }
         }
-                        
+
         None
     }
 }
-

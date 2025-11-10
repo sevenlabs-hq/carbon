@@ -7,9 +7,9 @@
 
 use solana_pubkey::Pubkey;
 pub struct SwigDecoder;
-pub const PROGRAM_ID: Pubkey = solana_pubkey::Pubkey::from_str_const("swigypWHEksbC64pWKwah1WTeh9JXwx8H1rJHLdbQMB");
+pub const PROGRAM_ID: Pubkey =
+    solana_pubkey::Pubkey::from_str_const("swigypWHEksbC64pWKwah1WTeh9JXwx8H1rJHLdbQMB");
 
-pub mod instructions;
 #[cfg(feature = "graphql")]
 pub mod graphql;
-
+pub mod instructions;
