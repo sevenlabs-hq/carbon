@@ -3945,6 +3945,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "jupiter-swap-postgres"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "carbon-core 0.11.0",
+ "carbon-jupiter-swap-decoder",
+ "carbon-log-metrics",
+ "carbon-rpc-block-subscribe-datasource",
+ "dotenv",
+ "env_logger",
+ "log",
+ "solana-client",
+ "sqlx",
+ "sqlx_migrator",
+ "tokio",
+]
+
+[[package]]
 name = "k256"
 version = "0.13.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
