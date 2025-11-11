@@ -12,16 +12,61 @@ use {
     },
     carbon_log_metrics::LogMetrics,
     carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
+    simplelog::{
+        ColorChoice, CombinedLogger, ConfigBuilder, LevelFilter, SharedLogger, TermLogger,
+        TerminalMode, WriteLogger,
+    },
     solana_client::rpc_config::RpcBlockSubscribeFilter,
     sqlx::Pool,
     sqlx_migrator::{Info, Migrate, Migrator, Plan},
-    std::{env, sync::Arc},
+    std::{
+        env,
+        fs::{self, File},
+        path::PathBuf,
+        sync::Arc,
+        time::{SystemTime, UNIX_EPOCH},
+    },
 };
+
+fn init_logging() -> CarbonResult<()> {
+    let log_dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("logs");
+    fs::create_dir_all(&log_dir).map_err(|err| {
+        CarbonError::Custom(format!("Failed to create log directory {log_dir:?}: {err}"))
+    })?;
+
+    let timestamp = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_err(|err| CarbonError::Custom(format!("Failed to read system time: {err}")))?
+        .as_secs();
+    let log_file_path = log_dir.join(format!("run-{timestamp}.log"));
+    let log_file = File::create(&log_file_path).map_err(|err| {
+        CarbonError::Custom(format!(
+            "Failed to create log file {log_file_path:?}: {err}"
+        ))
+    })?;
+
+    let config = ConfigBuilder::new().build();
+
+    let mut loggers: Vec<Box<dyn SharedLogger>> = Vec::new();
+    loggers.push(TermLogger::new(
+        LevelFilter::Info,
+        config.clone(),
+        TerminalMode::Mixed,
+        ColorChoice::Auto,
+    ));
+    loggers.push(WriteLogger::new(LevelFilter::Info, config, log_file));
+
+    CombinedLogger::init(loggers)
+        .map_err(|err| CarbonError::Custom(format!("Failed to initialize logger: {err}")))?;
+
+    log::info!("File logging enabled at {}", log_file_path.display());
+    Ok(())
+}
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
     dotenv::dotenv().ok();
-    env_logger::init();
+    init_logging()?;
 
     // Database connection and migrations
     let db_url = env::var("DATABASE_URL")

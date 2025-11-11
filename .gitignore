@@ -56,6 +56,7 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 .pnpm-debug.log*
+examples/jupiter-swap-postgres/logs
 
 # Runtime data
 pids
