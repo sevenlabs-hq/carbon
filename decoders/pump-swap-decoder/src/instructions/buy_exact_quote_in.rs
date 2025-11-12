@@ -3,7 +3,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 use serde::{Deserialize, Serialize};
 
 #[derive(CarbonDeserialize, Serialize, Deserialize, Debug, PartialEq, Eq, Clone, Hash)]
-#[carbon(discriminator = "c62e1552b4d9e87030")]
+#[carbon(discriminator = "0xc62e1552b4d9e87030")]
 pub struct BuyExactQuoteIn {
     pub spendable_quote_in: u64,
     pub min_base_amount_out: u64,
