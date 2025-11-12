@@ -62,7 +62,7 @@ RPC_URL=https://<your-rpc-provider-url>
 RATE_LIMIT=10
 ```
 
-* `DATABASE_URL` must line up with the container credentials postgresql://[user[:password]@][host][:port][/dbname].
+* `DATABASE_URL` must line up with the container credentials `postgresql://[user[:password]@][host][:port][/dbname]`.
 * `RPC_URL` should be an HTTPS endpoint that allows `getSignaturesForAddress/getTransaction`. (Triton, Alchemy, Helius etc.)
 * `RATE_LIMIT` throttles both the signature poller and transaction fetchers. If you see errors in the logs (likely due to rate limits), lower this value.
 
