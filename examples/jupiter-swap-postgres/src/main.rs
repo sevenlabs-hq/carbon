@@ -1,17 +1,13 @@
+mod db;
+mod models;
+mod processor;
+
 use {
-    carbon_core::{
-        error::{CarbonResult, Error as CarbonError},
-        postgres::{
-            processors::PostgresJsonInstructionProcessor,
-            rows::{GenericAccountsMigration, GenericInstructionMigration},
-        },
-    },
-    carbon_jupiter_swap_decoder::{
-        instructions::JupiterSwapInstruction, JupiterSwapDecoder,
-        PROGRAM_ID as JUPITER_SWAP_PROGRAM_ID,
-    },
+    carbon_core::error::{CarbonResult, Error as CarbonError},
+    carbon_jupiter_swap_decoder::{JupiterSwapDecoder, PROGRAM_ID as JUPITER_SWAP_PROGRAM_ID},
     carbon_log_metrics::LogMetrics,
     carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
+    processor::JupiterSwapProcessor,
     simplelog::{
         ColorChoice, CombinedLogger, ConfigBuilder, LevelFilter, SharedLogger, TermLogger,
         TerminalMode, WriteLogger,
@@ -78,13 +74,8 @@ pub async fn main() -> CarbonResult<()> {
 
     let mut migrator = Migrator::default();
     migrator
-        .add_migration(Box::new(GenericAccountsMigration))
-        .map_err(|err| CarbonError::Custom(format!("Failed to add accounts migration: {err}")))?;
-    migrator
-        .add_migration(Box::new(GenericInstructionMigration))
-        .map_err(|err| {
-            CarbonError::Custom(format!("Failed to add instruction migration: {err}"))
-        })?;
+        .add_migration(db::JupiterSwapMigration::boxed())
+        .map_err(|err| CarbonError::Custom(format!("Failed to add Jupiter migration: {err}")))?;
 
     let mut conn = pool.acquire().await.map_err(|err| {
         CarbonError::Custom(format!("Failed to acquire Postgres connection: {err}"))
@@ -107,10 +98,7 @@ pub async fn main() -> CarbonResult<()> {
         .datasource(datasource)
         .metrics(Arc::new(LogMetrics::new()))
         .metrics_flush_interval(5)
-        .instruction(
-            JupiterSwapDecoder,
-            PostgresJsonInstructionProcessor::<JupiterSwapInstruction>::new(pool.clone()),
-        )
+        .instruction(JupiterSwapDecoder, JupiterSwapProcessor::new(pool.clone()))
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
         .build()?
         .run()

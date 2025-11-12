@@ -17,3 +17,9 @@ sqlx = { workspace = true }
 sqlx_migrator = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 simplelog = "0.12"
+bigdecimal = { workspace = true }
+chrono = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+solana-instruction = { workspace = true }
+solana-pubkey = { workspace = true }
