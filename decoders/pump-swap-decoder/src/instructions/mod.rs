@@ -10,6 +10,7 @@ pub mod admin_update_token_incentives;
 pub mod admin_update_token_incentives_event;
 pub mod buy;
 pub mod buy_event;
+pub mod buy_exact_quote_in;
 pub mod claim_token_incentives;
 pub mod claim_token_incentives_event;
 pub mod close_user_volume_accumulator;
