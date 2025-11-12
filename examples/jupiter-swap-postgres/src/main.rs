@@ -87,8 +87,14 @@ pub async fn main() -> CarbonResult<()> {
     // Datasource setup
     let rpc_url = env::var("RPC_URL")
         .map_err(|err| CarbonError::Custom(format!("RPC_URL must be set ({err})")))?;
+    let rate_limit = env::var("RATE_LIMIT")
+        .ok()
+        .and_then(|value| value.parse::<u32>().ok())
+        .filter(|value| *value > 0)
+        .unwrap_or(20);
+    log::info!("Using RPC rate limit: {rate_limit} requests/sec");
     let filters = Filters::new(None, None, None);
-    let connection_config = ConnectionConfig::default().with_rate_limit(20);
+    let connection_config = ConnectionConfig::default().with_rate_limit(rate_limit);
     let datasource = RpcTransactionCrawler::new(
         rpc_url,
         JUPITER_SWAP_PROGRAM_ID,
