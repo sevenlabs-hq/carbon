@@ -6,13 +6,12 @@ use {
     carbon_core::error::{CarbonResult, Error as CarbonError},
     carbon_jupiter_swap_decoder::{JupiterSwapDecoder, PROGRAM_ID as JUPITER_SWAP_PROGRAM_ID},
     carbon_log_metrics::LogMetrics,
-    carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
+    carbon_rpc_transaction_crawler_datasource::{ConnectionConfig, Filters, RpcTransactionCrawler},
     processor::JupiterSwapProcessor,
     simplelog::{
         ColorChoice, CombinedLogger, ConfigBuilder, LevelFilter, SharedLogger, TermLogger,
         TerminalMode, WriteLogger,
     },
-    solana_client::rpc_config::RpcBlockSubscribeFilter,
     sqlx::Pool,
     sqlx_migrator::{Info, Migrate, Migrator, Plan},
     std::{
@@ -86,13 +85,17 @@ pub async fn main() -> CarbonResult<()> {
         .map_err(|err| CarbonError::Custom(format!("Failed to run migrations: {err}")))?;
 
     // Datasource setup
-    let rpc_ws_url = env::var("RPC_WS_URL")
-        .map_err(|err| CarbonError::Custom(format!("RPC_WS_URL must be set ({err})")))?;
-    let filters = Filters::new(
-        RpcBlockSubscribeFilter::MentionsAccountOrProgram(JUPITER_SWAP_PROGRAM_ID.to_string()),
+    let rpc_url = env::var("RPC_URL")
+        .map_err(|err| CarbonError::Custom(format!("RPC_URL must be set ({err})")))?;
+    let filters = Filters::new(None, None, None);
+    let connection_config = ConnectionConfig::default().with_rate_limit(20);
+    let datasource = RpcTransactionCrawler::new(
+        rpc_url,
+        JUPITER_SWAP_PROGRAM_ID,
+        connection_config,
+        filters,
         None,
     );
-    let datasource = RpcBlockSubscribe::new(rpc_ws_url, filters);
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(datasource)

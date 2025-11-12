@@ -7,8 +7,7 @@ edition = { workspace = true }
 carbon-core = { workspace = true, features = ["postgres"] }
 carbon-jupiter-swap-decoder = { workspace = true }
 carbon-log-metrics = { workspace = true }
-carbon-rpc-block-subscribe-datasource = { workspace = true }
-solana-client = { workspace = true }
+carbon-rpc-transaction-crawler-datasource = { workspace = true }
 
 async-trait = { workspace = true }
 dotenv = { workspace = true }
