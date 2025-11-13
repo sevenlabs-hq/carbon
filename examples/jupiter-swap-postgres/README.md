@@ -2,7 +2,7 @@
 
 This example wires a Carbon pipeline that:
 
-1. Listens to Jupiter swap transactions on Solana mainnet using the `RpcTransactionCrawler` datasource.
+1. Listens to Jupiter swap transactions on Solana mainnet using either the `RpcTransactionCrawler` (default) or `RpcBlockCrawler` datasource.
 2. Decodes swap instructions with `carbon-jupiter-swap-decoder`.
 3. Persists a structured view of each swap and its route metadata into Postgres using sqlx migrations.
 
@@ -58,13 +58,15 @@ Inside `examples/jupiter-swap-postgres/.env` you need:
 ```env
 DATABASE_URL=postgres://USERNAME:PASSWORD@127.0.0.1:5432/DATABASE_NAME
 RPC_URL=https://<your-rpc-provider-url>
-# RATE_LIMIT is otional, defaults to 20 requests/sec to work with free tier RPC nodes
+DATASOURCE=rpc_transaction_crawler # or rpc_block_crawler
+# RATE_LIMIT is optional, defaults to 10 requests/sec to work with free tier RPC nodes
 RATE_LIMIT=10
 ```
 
 * `DATABASE_URL` must line up with the container credentials `postgresql://[user[:password]@][host][:port][/dbname]`.
 * `RPC_URL` should be an HTTPS endpoint that allows `getSignaturesForAddress/getTransaction`. (Triton, Alchemy, Helius etc.)
-* `RATE_LIMIT` throttles both the signature poller and transaction fetchers. If you see errors in the logs (likely due to rate limits), lower this value.
+* `DATASOURCE` toggles which Carbon datasource powers the pipeline. Leave it at `rpc_transaction_crawler` for the historical/default behavior (signature polling), or switch to `rpc_block_crawler` to stream blocks as they are produced. The block crawler automatically starts from the most recent confirmed slot and uses its built-in defaults (100 ms interval, 10 concurrent requests) so you get roughly the same 10 req/s throughput as the transaction crawler without tweaking extra variables.
+* `RATE_LIMIT` throttles only the transaction crawler path. It is ignored by the block crawler because `getBlock` requests are self-throttled by the interval/concurrency settings above.
 
 The binary loads this `.env` file via `dotenv::dotenv().ok();` so you do **not** need to export anything globally.
 
@@ -81,7 +83,9 @@ What happens during startup:
 
 1. Logging is set up (stdout + rotating `/logs/run-*.log` files).
 2. A sqlx migration creates all Jupiter-specific tables if they do not already exist.
-3. `RpcTransactionCrawler` connects to the RPC HTTP endpoint and starts polling for new transactions mentioning the Jupiter program (`JUP6L...`).
+3. The datasource selected via `DATASOURCE` is initialized:
+   - `RpcTransactionCrawler` polls for signatures mentioning the Jupiter program (`JUP6L...`) when backfilling via HTTP.
+   - `RpcBlockCrawler` fetches the most recent slot via `getSlot` and immediately begins streaming new blocks forward using the same ~10 req/s pacing.
 4. For each decoded instruction, `JupiterSwapProcessor` writes structured records via `JupiterSwapRepository`.
 
 You can inspect progress / warnings via the generated log file or by watching stdout. To confirm data is flowing, connect with `psql` and query the tables listed below.
@@ -142,7 +146,7 @@ Holds decimals + symbol for mints as they are discovered. When a hop references 
 
 1. **Start Postgres** (`docker start pg`).
 2. **Confirm RPC credentials** are valid (e.g., curl `{"jsonrpc":"2.0","id":1,"method":"getHealth"}`).
-3. **Adjust `.env`** if you want a different `RATE_LIMIT`, database host, or RPC endpoint.
+3. **Adjust `.env`** if you want a different `DATASOURCE`, `RATE_LIMIT`, database host, or RPC endpoint.
 4. **Run the pipeline** (`cargo run`). Leave it running to keep ingesting swaps; restart as needed.
 5. **Inspect data** with `psql` queries such as:
    ```sql
@@ -158,6 +162,7 @@ Holds decimals + symbol for mints as they are discovered. When a hop references 
 |---------|--------------|-----|
 | `Failed to run migrations: password authentication failed` | `.env` creds do not match container env | Update `DATABASE_URL` or recreate the container with matching `POSTGRES_*` values. |
 | RPC related warnings or errors in logs | RPC rate-limiting or methods not supported | Lower `RATE_LIMIT`, upgrade RPC plan or change RPC provider. |
+| Block crawler logs `Failed to fetch the most recent slot...` | Temporary RPC hiccup retrieving `getSlot` | Re-run after the RPC endpoint recovers or switch back to `rpc_transaction_crawler`. |
 | `0 processed` forever | RPC endpoint not returning Jupiter transactions | Verify RPC connection, run `curl getSignaturesForAddress JUP6...`, upgrade RPC plan or switch providers. |
 
 This README should give you everything needed to run, debug, and understand the data emitted by `examples/jupiter-swap-postgres`.
