@@ -186,55 +186,68 @@ fn block_fetcher(
                 }
             };
 
+            let retry_delay = block_interval;
             fetch_stream
                 .map(|slot| {
                     let rpc_client = Arc::clone(&rpc_client);
                     let metrics = metrics.clone();
+                    let block_config = block_config.clone();
 
                     async move {
-                        let start = Instant::now();
-                        match rpc_client.get_block_with_config(slot, block_config).await {
-                            Ok(block) => {
-                                let time_taken = start.elapsed().as_millis();
-                                metrics
-                                    .record_histogram(
-                                        "block_crawler_blocks_fetch_times_milliseconds",
-                                        time_taken as f64,
-                                    )
-                                    .await
-                                    .unwrap_or_else(|value| {
-                                        log::error!("Error recording metric: {}", value)
-                                    });
-
-                                metrics
-                                    .increment_counter("block_crawler_blocks_fetched", 1)
-                                    .await
-                                    .unwrap_or_else(|value| {
-                                        log::error!("Error recording metric: {}", value)
-                                    });
-
-                                Some((slot, block))
-                            }
-                            Err(e) => {
-                                // https://support.quicknode.com/hc/en-us/articles/16459608696721-Solana-RPC-Error-Code-Reference
-                                // solana skippable errors
-                                // -32004, // Block not available for slot x
-                                // -32007, // Slot {} was skipped, or missing due to ledger jump to recent snapshot
-                                // -32009, // Slot {} was skipped, or missing in long-term storage
-                                if e.to_string().contains("-32009")
-                                    || e.to_string().contains("-32004")
-                                    || e.to_string().contains("-32007")
-                                {
+                        loop {
+                            let start = Instant::now();
+                            match rpc_client
+                                .get_block_with_config(slot, block_config.clone())
+                                .await
+                            {
+                                Ok(block) => {
+                                    let time_taken = start.elapsed().as_millis();
                                     metrics
-                                        .increment_counter("block_crawler_blocks_skipped", 1)
+                                        .record_histogram(
+                                            "block_crawler_blocks_fetch_times_milliseconds",
+                                            time_taken as f64,
+                                        )
                                         .await
                                         .unwrap_or_else(|value| {
                                             log::error!("Error recording metric: {}", value)
                                         });
-                                } else {
-                                    log::error!("Error fetching block at slot {}: {:?}", slot, e);
+
+                                    metrics
+                                        .increment_counter("block_crawler_blocks_fetched", 1)
+                                        .await
+                                        .unwrap_or_else(|value| {
+                                            log::error!("Error recording metric: {}", value)
+                                        });
+
+                                    break Some((slot, block));
                                 }
-                                None
+                                Err(e) => {
+                                    let error_string = e.to_string();
+                                    // https://support.quicknode.com/hc/en-us/articles/16459608696721-Solana-RPC-Error-Code-Reference
+                                    // solana skippable errors
+                                    // -32004, // Block not available for slot x
+                                    // -32007, // Slot {} was skipped, or missing due to ledger jump to recent snapshot
+                                    // -32009, // Slot {} was skipped, or missing in long-term storage
+                                    if error_string.contains("-32009")
+                                        || error_string.contains("-32004")
+                                        || error_string.contains("-32007")
+                                    {
+                                        log::debug!(
+                                            "Block at slot {} not ready yet ({}); retrying...",
+                                            slot,
+                                            error_string
+                                        );
+                                        tokio::time::sleep(retry_delay).await;
+                                        continue;
+                                    } else {
+                                        log::error!(
+                                            "Error fetching block at slot {}: {:?}",
+                                            slot,
+                                            e
+                                        );
+                                        break None;
+                                    }
+                                }
                             }
                         }
                     }
