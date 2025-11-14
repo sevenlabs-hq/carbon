@@ -119,8 +119,8 @@ RATE_LIMIT=10
 
 * `DATABASE_URL` must line up with the container credentials `postgresql://[user[:password]@][host][:port][/dbname]`.
 * `RPC_URL` should be an HTTPS endpoint that allows `getSignaturesForAddress/getTransaction`. (Triton, Alchemy, Helius etc.)
-* `DATASOURCE` toggles which Carbon datasource powers the pipeline. Leave it at `rpc_transaction_crawler` for the historical/default behavior (signature polling), or switch to `rpc_block_crawler` to stream blocks as they are produced. The block crawler automatically starts from the most recent confirmed slot and uses its built-in defaults (100 ms interval, 10 concurrent requests) so you get roughly the same 10 req/s throughput as the transaction crawler without tweaking extra variables.
-* `RATE_LIMIT` throttles only the transaction crawler path. It is ignored by the block crawler because `getBlock` requests are self-throttled by the interval/concurrency settings above.
+* `DATASOURCE` toggles which Carbon datasource powers the pipeline. Leave it at `rpc_transaction_crawler` for the historical/default behavior (signature polling), or switch to `rpc_block_crawler` to stream blocks as they are produced. The block crawler automatically starts from the most recent confirmed slot.
+* `RATE_LIMIT` throttles both data sources to 10 requests/s by default to work with free tier RPC nodes.
 
 The binary loads this `.env` file via `dotenv::dotenv().ok();` so you do **not** need to export anything globally.
 
