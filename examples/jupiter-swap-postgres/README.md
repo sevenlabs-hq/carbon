@@ -1,4 +1,4 @@
-## Jupiter Swap → Postgres Example
+## Jupiter Swap → Postgres Pipeline Example
 
 This example wires a Carbon pipeline that:
 
@@ -7,6 +7,60 @@ This example wires a Carbon pipeline that:
 3. Persists a structured view of each swap and its route metadata into Postgres using sqlx migrations.
 
 The goal of this document is to walk through the full setup (from Docker + Postgres to `.env` wiring) and describe exactly which tables and columns are populated.
+
+#### Pipeline Overview
+
+```bash
++---------------------------+
+|  Jupiter Program (JUP6L…) |
+|  Swap instructions on     |
+|  Solana mainnet           |
++-------------+-------------+
+              |
+              |  getSignaturesForAddress /
+              |  getTransaction / getSlot / getblock
+              v
++-------------+-------------+
+|        Solana RPC         |
+|         endpoint          |
++------+------+-------------+
+       |      |
+       |      |
+       |      +---------------------------+
+       |                                  |
+       v                                  v
++------+---------------+        +---------+--------------+
+| RpcTransactionCrawler|        | RpcBlockCrawler        |
+| (historical polling) |        | (live block streaming) |
++----------+-----------+        +-----------+------------+
+           |                                |
+           +--------------+-----------------+
+                          |
+                          v
+            +-------------+--------------+
+            | carbon-jupiter-swap-decoder|
+            |  + JupiterSwapProcessor    |
+            +-------------+--------------+
+                          |
+                          v
+            +-------------+--------------+
+            | JupiterSwapRepository      |
+            | (sqlx migrations)          |
+            +-------------+--------------+
+                          |
+                          v
+   +----------------------+------+------------------------------+
+   | Postgres (Docker)                                        |
+   | Tables populated:                                        |
+   |  • jupiter_route_instructions                            |
+   |  • jupiter_route_instruction_accounts                    |
+   |  • jupiter_route_plan_steps                              |
+   |  • jupiter_swap_hops                                     |
+   |  • jupiter_swap_event_envelopes                          |
+   |  • venue_labels                                          |
+   |  • mint_reference_data                                   |
+   +----------------------------------------------------------+
+```
 
 ---
 
@@ -19,7 +73,7 @@ The goal of this document is to walk through the full setup (from Docker + Postg
 | **Postgres** | (Via Docker) used to store the decoded data. |
 | **Rust toolchain (1.82+)** | Installs `rustc` and `cargo`, which build and run the example binary. |
 | **System libs: `build-essential`, `pkg-config`, `libssl-dev`** | Needed by sqlx and other crates that compile native dependencies. |
-| **Access to a Solana RPC endpoint** | The crawler relies on HTTP `getSignaturesForAddress` and `getTransaction`. |
+| **Access to a Solana RPC endpoint** | The crawler relies on HTTP `getSignaturesForAddress`, `getTransaction`, `getSlot` and `getBlock` . |
 
 Install Docker first (https://docs.docker.com/get-docker/). Once Docker is running you can provision a Postgres container.
 
