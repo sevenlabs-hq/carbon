@@ -120,7 +120,7 @@ async fn configure_datasource(rpc_url: String) -> CarbonResult<DatasourceSelecti
 
             Ok(DatasourceSelection::BlockCrawler(RpcBlockCrawler::new(
                 rpc_url,
-                start_slot,
+                Some(start_slot),
                 None,
                 None,
                 block_config,

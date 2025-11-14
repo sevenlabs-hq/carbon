@@ -507,6 +507,12 @@ impl Processor for JupiterSwapProcessor {
                             start.elapsed().as_millis() as f64,
                         )
                         .await?;
+                    metrics
+                        .update_gauge(
+                            "postgres.instructions.last_processed_slot",
+                            metadata.transaction_metadata.slot as f64,
+                        )
+                        .await?;
                 }
                 Ok(())
             }

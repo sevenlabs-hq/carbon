@@ -33,7 +33,7 @@ const BLOCK_INTERVAL: Duration = Duration::from_millis(100);
 /// It uses a channel to send blocks to the task processor.
 pub struct RpcBlockCrawler {
     pub rpc_url: String,
-    pub start_slot: u64,
+    pub start_slot: Option<u64>,
     pub end_slot: Option<u64>,
     pub block_interval: Duration,
     pub block_config: RpcBlockConfig,
@@ -44,7 +44,7 @@ pub struct RpcBlockCrawler {
 impl RpcBlockCrawler {
     pub fn new(
         rpc_url: String,
-        start_slot: u64,
+        start_slot: Option<u64>,
         end_slot: Option<u64>,
         block_interval: Option<Duration>,
         block_config: RpcBlockConfig,
@@ -80,9 +80,21 @@ impl Datasource for RpcBlockCrawler {
         ));
         let (block_sender, block_receiver) = mpsc::channel(self.channel_buffer_size);
 
+        let start_slot = match self.start_slot {
+            Some(start_slot) => start_slot,
+            None => {
+                log::info!("RpcBlockCrawler start_slot not provided; defaulting to latest slot");
+                rpc_client.get_slot().await.map_err(|err| {
+                    carbon_core::error::Error::FailedToConsumeDatasource(format!(
+                        "Failed to determine latest slot: {err}"
+                    ))
+                })?
+            }
+        };
+
         let block_fetcher = block_fetcher(
             rpc_client,
-            self.start_slot,
+            start_slot,
             self.end_slot,
             self.block_interval,
             self.block_config,
