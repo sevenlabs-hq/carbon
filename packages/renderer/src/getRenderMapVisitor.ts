@@ -564,6 +564,26 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     });
                     const definedTypesToExport = allDefinedTypes;
 
+                    // Compute hasGraphQLFields: whether any GraphQL query fields will be generated
+                    const hasAnchorEvents = (options.anchorEvents?.length ?? 0) > 0;
+                    const hasGraphQLFields = (() => {
+                        if (hasAnchorEvents) return true;
+                        if (options.postgresMode === 'generic') {
+                            // Generic mode: any accounts or instructions with >1 args
+                            return (
+                                accountsToExport.length > 0 ||
+                                instructionsToExport.some(ix => ix.arguments.length > 1)
+                            );
+                        } else {
+                            // Typed mode: accounts with structTypeNode and fields, or instructions with >1 args
+                            return (
+                                accountsToExport.some(
+                                    acc => acc.data.kind === 'structTypeNode' && acc.data.fields.length > 0,
+                                ) || instructionsToExport.some(ix => ix.arguments.length > 1)
+                            );
+                        }
+                    })();
+
                     const ctx = {
                         accountsToExport,
                         definedTypesToExport,
@@ -571,7 +591,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         program,
                         root: node,
                         packageName: options.packageName,
-                        hasAnchorEvents: options.anchorEvents?.length ?? 0 > 0,
+                        hasAnchorEvents,
+                        hasGraphQLFields,
                         events: options.anchorEvents ?? [],
                         postgresMode: options.postgresMode || 'typed',
                         withPostgres: options.withPostgres !== false,
@@ -678,26 +699,29 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         map.add('src/graphql/mod.rs', render('graphqlRootMod.njk', ctx));
                         map.add('src/graphql/context.rs', render('graphqlContextPage.njk', ctx));
 
-                        // Use different query template based on postgres mode
-                        if (options.postgresMode === 'generic') {
-                            const graphqlQueryGenericImports = new ImportMap().add(
-                                'juniper::{graphql_object, FieldResult}',
-                            );
-                            map.add(
-                                'src/graphql/query.rs',
-                                render('graphqlQueryPageGeneric.njk', {
-                                    ...ctx,
-                                    imports: graphqlQueryGenericImports.toString(),
-                                }),
-                            );
-                        } else {
-                            const graphqlQueryImports = new ImportMap()
-                                .add('juniper::{graphql_object, FieldResult}')
-                                .add('std::str::FromStr');
-                            map.add(
-                                'src/graphql/query.rs',
-                                render('graphqlQueryPage.njk', { ...ctx, imports: graphqlQueryImports.toString() }),
-                            );
+                        // Only generate query.rs if there are GraphQL fields to expose
+                        if (hasGraphQLFields) {
+                            // Use different query template based on postgres mode
+                            if (options.postgresMode === 'generic') {
+                                const graphqlQueryGenericImports = new ImportMap().add(
+                                    'juniper::{graphql_object, FieldResult}',
+                                );
+                                map.add(
+                                    'src/graphql/query.rs',
+                                    render('graphqlQueryPageGeneric.njk', {
+                                        ...ctx,
+                                        imports: graphqlQueryGenericImports.toString(),
+                                    }),
+                                );
+                            } else {
+                                const graphqlQueryImports = new ImportMap()
+                                    .add('juniper::{graphql_object, FieldResult}')
+                                    .add('std::str::FromStr');
+                                map.add(
+                                    'src/graphql/query.rs',
+                                    render('graphqlQueryPage.njk', { ...ctx, imports: graphqlQueryImports.toString() }),
+                                );
+                            }
                         }
                     }
 
