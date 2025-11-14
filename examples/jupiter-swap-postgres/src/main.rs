@@ -23,7 +23,7 @@ use {
         fs::{self, File},
         path::PathBuf,
         sync::Arc,
-        time::{SystemTime, UNIX_EPOCH},
+        time::{Duration, SystemTime, UNIX_EPOCH},
     },
 };
 
@@ -118,7 +118,11 @@ async fn configure_datasource(rpc_url: String) -> CarbonResult<DatasourceSelecti
                 start_slot,
             );
 
-            Ok(DatasourceSelection::BlockCrawler(RpcBlockCrawler::new(
+            let rate_limit = read_optional_env_var::<u32>("RATE_LIMIT")?
+                .filter(|value| *value > 0);
+            let request_throttle = rate_limit.map(|value| Duration::from_secs_f64(1.0 / value as f64));
+
+            let mut crawler = RpcBlockCrawler::new(
                 rpc_url,
                 Some(start_slot),
                 None,
@@ -126,7 +130,13 @@ async fn configure_datasource(rpc_url: String) -> CarbonResult<DatasourceSelecti
                 block_config,
                 None,
                 None,
-            )))
+            );
+
+            if let Some(throttle) = request_throttle {
+                crawler.request_throttle = Some(throttle);
+            }
+
+            Ok(DatasourceSelection::BlockCrawler(crawler))
         }
     }
 }

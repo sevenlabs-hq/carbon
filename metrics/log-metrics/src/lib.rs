@@ -5,8 +5,6 @@ use {
     tokio::sync::RwLock,
 };
 
-const LAST_PROCESSED_SLOT_GAUGE: &str = "postgres.instructions.last_processed_slot";
-
 pub struct LogMetrics {
     pub updates_received: RwLock<u64>,
     pub updates_processed: RwLock<u64>,
@@ -110,14 +108,7 @@ impl Metrics for LogMetrics {
             log::info!("{}: {}", counter.0, counter.1);
         }
 
-        let gauges = self.gauges.read().await;
-        if let Some(last_slot) = gauges.get(LAST_PROCESSED_SLOT_GAUGE) {
-            log::info!(
-                "Last processed slot (since previous flush): {}",
-                *last_slot as u64
-            );
-        }
-        for gauge in gauges.iter() {
+        for gauge in self.gauges.read().await.iter() {
             log::info!("{}: {}", gauge.0, gauge.1);
         }
 

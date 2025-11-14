@@ -39,6 +39,7 @@ pub struct RpcBlockCrawler {
     pub block_config: RpcBlockConfig,
     pub max_concurrent_requests: usize,
     pub channel_buffer_size: usize,
+    pub request_throttle: Option<Duration>,
 }
 
 impl RpcBlockCrawler {
@@ -59,6 +60,7 @@ impl RpcBlockCrawler {
             block_interval: block_interval.unwrap_or(BLOCK_INTERVAL),
             max_concurrent_requests: max_concurrent_requests.unwrap_or(MAX_CONCURRENT_REQUESTS),
             channel_buffer_size: channel_buffer_size.unwrap_or(CHANNEL_BUFFER_SIZE),
+            request_throttle: None,
         }
     }
 }
@@ -102,6 +104,7 @@ impl Datasource for RpcBlockCrawler {
             self.max_concurrent_requests,
             cancellation_token.clone(),
             metrics.clone(),
+            self.request_throttle,
         );
 
         let task_processor = task_processor(
@@ -138,6 +141,7 @@ fn block_fetcher(
     max_concurrent_requests: usize,
     cancellation_token: CancellationToken,
     metrics: Arc<MetricsCollection>,
+    request_throttle: Option<Duration>,
 ) -> JoinHandle<()> {
     let rpc_client_clone = rpc_client.clone();
     tokio::spawn(async move {
@@ -192,9 +196,13 @@ fn block_fetcher(
                     let rpc_client = Arc::clone(&rpc_client);
                     let metrics = metrics.clone();
                     let block_config = block_config.clone();
+                    let request_throttle = request_throttle;
 
                     async move {
                         loop {
+                            if let Some(throttle) = request_throttle {
+                                tokio::time::sleep(throttle).await;
+                            }
                             let start = Instant::now();
                             match rpc_client
                                 .get_block_with_config(slot, block_config.clone())
@@ -231,6 +239,7 @@ fn block_fetcher(
                                     if error_string.contains("-32009")
                                         || error_string.contains("-32004")
                                         || error_string.contains("-32007")
+                                        || error_string.contains("429")
                                     {
                                         log::debug!(
                                             "Block at slot {} not ready yet ({}); retrying...",
@@ -406,6 +415,7 @@ mod tests {
             1,
             cancellation_token.clone(),
             Arc::new(MetricsCollection::new(vec![])),
+            None,
         );
 
         // Create a task to receive blocks
@@ -487,6 +497,7 @@ mod tests {
             2,
             cancellation_token.clone(),
             Arc::new(MetricsCollection::new(vec![])),
+            None,
         );
 
         // Create a task to receive blocks

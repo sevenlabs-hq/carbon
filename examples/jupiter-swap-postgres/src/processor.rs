@@ -101,7 +101,7 @@ impl Processor for JupiterSwapProcessor {
         let mut handled = false;
         let start = Instant::now();
 
-        let result = match decoded_instruction.data {
+        let slot_result = match decoded_instruction.data {
             JupiterSwapInstruction::Route(data) => {
                 handled = true;
                 let row_metadata = Self::instruction_metadata(&metadata);
@@ -465,9 +465,9 @@ impl Processor for JupiterSwapProcessor {
             JupiterSwapInstruction::SwapsEvent(event) => {
                 handled = true;
                 if event.swap_events.is_empty() {
-                    Ok(())
+                    Ok(None)
                 } else {
-                    let mut last_result = Ok(());
+                    let mut last_slot = None;
                     for (index, swap) in event.swap_events.iter().enumerate() {
                         let row_metadata = Self::instruction_metadata(&metadata);
                         let raw_event = serde_json::to_value(swap)
@@ -484,19 +484,19 @@ impl Processor for JupiterSwapProcessor {
                             amm: None,
                             raw_event,
                         };
-                        last_result = self.repository.persist_swap_event(record).await;
-                        if last_result.is_err() {
-                            break;
+                        let slot = self.repository.persist_swap_event(record).await?;
+                        if slot.is_some() {
+                            last_slot = slot;
                         }
                     }
-                    last_result
+                    Ok(last_slot)
                 }
             }
-            _ => Ok(()),
+            _ => Ok(None),
         };
 
-        match result {
-            Ok(()) => {
+        match slot_result {
+            Ok(last_slot) => {
                 if handled {
                     metrics
                         .increment_counter("postgres.instructions.upsert.upserted", 1)
@@ -507,12 +507,14 @@ impl Processor for JupiterSwapProcessor {
                             start.elapsed().as_millis() as f64,
                         )
                         .await?;
-                    metrics
-                        .update_gauge(
-                            "postgres.instructions.last_processed_slot",
-                            metadata.transaction_metadata.slot as f64,
-                        )
-                        .await?;
+                    if let Some(slot) = last_slot {
+                        metrics
+                            .update_gauge(
+                                "postgres.instructions.last_processed_slot",
+                                slot as f64,
+                            )
+                            .await?;
+                    }
                 }
                 Ok(())
             }

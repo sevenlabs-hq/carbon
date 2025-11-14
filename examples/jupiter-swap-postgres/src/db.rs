@@ -267,9 +267,15 @@ impl JupiterSwapRepository {
     pub async fn upsert_route_instruction(
         &self,
         record: RouteInstructionRecord,
-    ) -> CarbonResult<()> {
+    ) -> CarbonResult<Option<u64>> {
         let mut tx = self.pool.begin().await.map_err(to_carbon_error)?;
-        let (signature, instruction_index, stack_height, slot) = metadata_parts(&record.metadata);
+        let MetadataParts {
+            signature,
+            instruction_index,
+            stack_height,
+            slot_decimal,
+            slot_value,
+        } = metadata_parts(&record.metadata);
 
         sqlx::query(
             r#"
@@ -316,7 +322,7 @@ impl JupiterSwapRepository {
         .bind(&signature)
         .bind(instruction_index)
         .bind(stack_height)
-        .bind(slot)
+        .bind(slot_decimal)
         .bind(&record.variant)
         .bind(record.shared_accounts_id.map(|id| id as i16))
         .bind(record.in_amount.map(decimal_from_u64))
@@ -426,12 +432,23 @@ impl JupiterSwapRepository {
             .map_err(to_carbon_error)?;
         }
 
-        tx.commit().await.map_err(to_carbon_error)
+        tx.commit().await.map_err(to_carbon_error)?;
+
+        Ok(slot_value)
     }
 
-    pub async fn persist_swap_event(&self, record: SwapEventRecord) -> CarbonResult<()> {
+    pub async fn persist_swap_event(
+        &self,
+        record: SwapEventRecord,
+    ) -> CarbonResult<Option<u64>> {
         let mut tx = self.pool.begin().await.map_err(to_carbon_error)?;
-        let (signature, instruction_index, stack_height, slot) = metadata_parts(&record.metadata);
+        let MetadataParts {
+            signature,
+            instruction_index,
+            stack_height,
+            slot_decimal,
+            slot_value,
+        } = metadata_parts(&record.metadata);
 
         let route_link = self
             .find_route_link(&mut tx, &signature, instruction_index, stack_height)
@@ -554,7 +571,7 @@ impl JupiterSwapRepository {
         .bind(instruction_index)
         .bind(stack_height)
         .bind(record.event_index)
-        .bind(slot)
+        .bind(slot_decimal)
         .bind(route_link.as_ref().map(|link| link.instruction_index))
         .bind(route_link.as_ref().map(|link| link.stack_height))
         .bind(route_step_index)
@@ -602,7 +619,9 @@ impl JupiterSwapRepository {
         .await
         .map_err(to_carbon_error)?;
 
-        tx.commit().await.map_err(to_carbon_error)
+        tx.commit().await.map_err(to_carbon_error)?;
+
+        Ok(slot_value)
     }
 
     async fn find_route_link(
@@ -736,18 +755,27 @@ impl JupiterSwapRepository {
     }
 }
 
-fn metadata_parts(metadata: &InstructionRowMetadata) -> (String, i64, i64, Option<BigDecimal>) {
-    let slot = metadata
+struct MetadataParts {
+    signature: String,
+    instruction_index: i64,
+    stack_height: i64,
+    slot_decimal: Option<BigDecimal>,
+    slot_value: Option<u64>,
+}
+
+fn metadata_parts(metadata: &InstructionRowMetadata) -> MetadataParts {
+    let slot_value = metadata
         .slot
         .clone()
-        .and_then(|slot| u64::try_from(slot).ok())
-        .map(decimal_from_u64);
-    (
-        metadata.signature.clone(),
-        *metadata.instruction_index,
-        *metadata.stack_height,
-        slot,
-    )
+        .and_then(|slot| u64::try_from(slot).ok());
+    let slot_decimal = slot_value.map(decimal_from_u64);
+    MetadataParts {
+        signature: metadata.signature.clone(),
+        instruction_index: i64::from(*metadata.instruction_index),
+        stack_height: i64::from(*metadata.stack_height),
+        slot_decimal,
+        slot_value,
+    }
 }
 
 fn decimal_from_u64(value: u64) -> BigDecimal {
