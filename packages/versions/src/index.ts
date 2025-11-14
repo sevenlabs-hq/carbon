@@ -35,12 +35,13 @@ export const VERSIONS: Record<string, CrateDependency> = {
     'carbon-yellowstone-grpc-datasource': '0.11.0',
     'solana-pubkey': {
         version: '^3.0.0',
-        features: ['borsh'],
+        features: ['borsh', 'curve25519', 'serde'],
     },
     'solana-client': '^3.0.3',
     'solana-instruction': {
         version: '~3.0.0',
         defaultFeatures: false,
+        features: ['std'],
     },
     'solana-account': '3.0.0',
     'solana-commitment-config': '~3.0.0',

@@ -23,7 +23,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
     const solanaPubkeyDep = getCrateDependencyString('solana-pubkey', VERSIONS['solana-pubkey']);
     const solanaAccountDep = getCrateDependencyString('solana-account', VERSIONS['solana-account']);
     const solanaInstructionDep = getCrateDependencyString('solana-instruction', VERSIONS['solana-instruction']);
-    const serdeDep = getCrateDependencyString('serde', VERSIONS['serde'], undefined, true);
+    const serdeDep = getCrateDependencyString('serde', VERSIONS['serde']);
     const serdeJsonDep = getCrateDependencyString('serde_json', VERSIONS['serde_json']);
     const serdeBigArrayDep = getCrateDependencyString('serde-big-array', VERSIONS['serde-big-array'], undefined, true);
     const asyncTraitDep = getCrateDependencyString('async-trait', VERSIONS['async-trait'], undefined, true);
@@ -36,7 +36,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
 
     if (withSerde || withPostgres || withGraphQL) {
         features.push('');
-        features.push('serde = ["dep:serde", "dep:serde-big-array"]');
+        features.push('serde = ["dep:serde-big-array"]');
     }
 
     if (withPostgres) {
