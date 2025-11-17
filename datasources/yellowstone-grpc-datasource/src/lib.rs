@@ -2,12 +2,13 @@ use {
     async_trait::async_trait,
     carbon_core::{
         datasource::{
-            AccountDeletion, AccountUpdate, Datasource, DatasourceId, TransactionUpdate, Update,
-            UpdateType,
+            AccountDeletion, AccountUpdate, Datasource, DatasourceDisconnection, DatasourceId,
+            TransactionUpdate, Update, UpdateType,
         },
         error::CarbonResult,
         metrics::MetricsCollection,
     },
+    chrono::{DateTime, Utc},
     futures::{sink::SinkExt, StreamExt},
     solana_account::Account,
     solana_pubkey::Pubkey,
@@ -18,7 +19,7 @@ use {
         sync::Arc,
         time::Duration,
     },
-    tokio::sync::{mpsc::Sender, RwLock},
+    tokio::sync::{mpsc, mpsc::Sender, RwLock},
     tokio_util::sync::CancellationToken,
     yellowstone_grpc_client::{GeyserGrpcBuilder, GeyserGrpcBuilderResult, GeyserGrpcClient},
     yellowstone_grpc_proto::{
@@ -43,6 +44,7 @@ pub struct YellowstoneGrpcGeyserClient {
     pub block_filters: BlockFilters,
     pub account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
     pub geyser_config: YellowstoneGrpcClientConfig,
+    pub disconnect_notifier: Option<mpsc::Sender<DatasourceDisconnection>>,
 }
 
 #[derive(Debug, Clone)]
@@ -85,6 +87,7 @@ impl YellowstoneGrpcGeyserClient {
         block_filters: BlockFilters,
         account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
         geyser_config: YellowstoneGrpcClientConfig,
+        disconnect_notifier: Option<mpsc::Sender<DatasourceDisconnection>>,
     ) -> Self {
         YellowstoneGrpcGeyserClient {
             endpoint,
@@ -95,6 +98,7 @@ impl YellowstoneGrpcGeyserClient {
             block_filters,
             account_deletions_tracked,
             geyser_config,
+            disconnect_notifier,
         }
     }
 }
@@ -181,6 +185,8 @@ impl Datasource for YellowstoneGrpcGeyserClient {
             .await
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?;
 
+        let disconnect_tx_clone = self.disconnect_notifier.clone();
+
         tokio::spawn(async move {
             let subscribe_request = SubscribeRequest {
                 slots: HashMap::new(),
@@ -198,6 +204,10 @@ impl Datasource for YellowstoneGrpcGeyserClient {
 
             let id_for_loop = id.clone();
 
+            let mut last_disconnect_time: Option<DateTime<Utc>> = None;
+            let mut last_slot_before_disconnect: Option<u64> = None;
+            let mut last_processed_slot: u64 = 0;
+
             loop {
                 tokio::select! {
                     _ = cancellation_token.cancelled() => {
@@ -207,14 +217,78 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                     result = geyser_client.subscribe_with_request(Some(subscribe_request.clone())) => {
                         match result {
                             Ok((mut subscribe_tx, mut stream)) => {
-                                while let Some(message) = stream.next().await {
+                                let mut first_message_after_reconnect = last_disconnect_time.is_some();
+
+                                loop {
                                     if cancellation_token.is_cancelled() {
                                         break;
                                     }
 
+                                    let message_result = tokio::time::timeout(
+                                        Duration::from_secs(30),
+                                        stream.next()
+                                    ).await;
+
+                                    let message = match message_result {
+                                        Ok(Some(msg)) => msg,
+                                        Ok(None) => {
+                                            log::warn!("Stream closed");
+                                            if last_disconnect_time.is_none() {
+                                                last_disconnect_time = Some(Utc::now());
+                                                last_slot_before_disconnect = Some(last_processed_slot);
+                                                log::warn!("Disconnected at slot {}", last_processed_slot);
+                                            }
+                                            break;
+                                        }
+                                        Err(_) => {
+                                            log::warn!("Stream timeout - no messages for 30 seconds");
+                                            if last_disconnect_time.is_none() {
+                                                last_disconnect_time = Some(Utc::now());
+                                                last_slot_before_disconnect = Some(last_processed_slot);
+                                                log::warn!("Disconnected at slot {} (timeout)", last_processed_slot);
+                                            }
+                                            break;
+                                        }
+                                    };
+
                                     match message {
-                                        Ok(msg) => match msg.update_oneof {
+                                        Ok(msg) => {
+                                            if first_message_after_reconnect {
+                                                first_message_after_reconnect = false;
+
+                                                let current_slot = match &msg.update_oneof {
+                                                    Some(UpdateOneof::Account(ref update)) => Some(update.slot),
+                                                    Some(UpdateOneof::Transaction(ref update)) => Some(update.slot),
+                                                    Some(UpdateOneof::Block(ref update)) => Some(update.slot),
+                                                    _ => None,
+                                                };
+
+                                                if let Some(slot) = current_slot {
+                                                    if let (Some(disconnect_time), Some(last_slot)) =
+                                                        (last_disconnect_time.take(), last_slot_before_disconnect.take())
+                                                    {
+                                                        let missed = if slot > last_slot { slot - last_slot } else { 0 };
+
+                                                        let disconnection = DatasourceDisconnection {
+                                                            source: "yellowstone-grpc".to_string(),
+                                                            disconnect_time,
+                                                            last_slot_before_disconnect: last_slot,
+                                                            first_slot_after_reconnect: slot,
+                                                            missed_slots: missed,
+                                                        };
+
+                                                        if let Some(tx) = &disconnect_tx_clone {
+                                                            let _ = tx.try_send(disconnection);
+                                                        }
+
+                                                        log::info!("Reconnected. Slots: {} -> {} (missed: {})", last_slot, slot, missed);
+                                                    }
+                                                }
+                                            }
+
+                                            match msg.update_oneof {
                                             Some(UpdateOneof::Account(account_update)) => {
+                                                last_processed_slot = account_update.slot;
                                                 send_subscribe_account_update_info(
                                                     account_update.account,
                                                     &metrics,
@@ -227,9 +301,11 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                             }
 
                                             Some(UpdateOneof::Transaction(transaction_update)) => {
+                                                last_processed_slot = transaction_update.slot;
                                                 send_subscribe_update_transaction_info(transaction_update.transaction, &metrics, &sender, id_for_loop.clone(), transaction_update.slot, None).await
                                             }
                                             Some(UpdateOneof::Block(block_update)) => {
+                                                last_processed_slot = block_update.slot;
                                                 let block_time = block_update.block_time.map(|ts| ts.timestamp);
 
                                                 for transaction_update in block_update.transactions {
@@ -267,9 +343,17 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                             }
 
                                             _ => {}
-                                        },
+                                        }
+                                        }
                                         Err(error) => {
                                             log::error!("Geyser stream error: {error:?}");
+
+                                            if last_disconnect_time.is_none() {
+                                                last_disconnect_time = Some(Utc::now());
+                                                last_slot_before_disconnect = Some(last_processed_slot);
+                                                log::error!("Disconnected at slot {}", last_processed_slot);
+                                            }
+
                                             break;
                                         }
                                     }
@@ -277,6 +361,11 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                             }
                             Err(e) => {
                                 log::error!("Failed to subscribe: {:?}", e);
+
+                                if last_disconnect_time.is_none() {
+                                    last_disconnect_time = Some(Utc::now());
+                                    last_slot_before_disconnect = Some(last_processed_slot);
+                                }
                             }
                         }
                     }
