@@ -38,6 +38,7 @@ use solana_transaction_status::Rewards;
 use {
     crate::{error::CarbonResult, metrics::MetricsCollection},
     async_trait::async_trait,
+    chrono::{DateTime, Utc},
     solana_account::Account,
     solana_pubkey::Pubkey,
     solana_signature::Signature,
@@ -46,6 +47,15 @@ use {
     std::sync::Arc,
     tokio_util::sync::CancellationToken,
 };
+
+#[derive(Debug, Clone)]
+pub struct DatasourceDisconnection {
+    pub source: String,
+    pub disconnect_time: DateTime<Utc>,
+    pub last_slot_before_disconnect: u64,
+    pub first_slot_after_reconnect: u64,
+    pub missed_slots: u64,
+}
 
 /// Defines the interface for data sources that produce updates for accounts,
 /// transactions, and account deletions.
