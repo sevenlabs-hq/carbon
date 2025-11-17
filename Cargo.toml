@@ -152,7 +152,7 @@ solana-client = "^3.0.3"
 solana-clock = "^3.0.0"
 solana-commitment-config = "~3.0.0"
 solana-entry = "^3.0.3"
-solana-hash = "~3.0.0"
+solana-hash = "^3.0.3"
 solana-instruction = { version = "~3.0.0", default-features = false }
 solana-message = "^3.0.1"
 solana-native-token = "~3.0.0"
