@@ -22,11 +22,9 @@
 
 use {
     crate::{
-        collection::InstructionDecoderCollection,
         datasource::TransactionUpdate,
         error::{CarbonResult, Error},
-        instruction::{DecodedInstruction, InstructionMetadata, MAX_INSTRUCTION_STACK_DEPTH},
-        schema::ParsedInstruction,
+        instruction::{InstructionMetadata, MAX_INSTRUCTION_STACK_DEPTH},
         transaction::TransactionMetadata,
     },
     solana_instruction::AccountMeta,
@@ -267,57 +265,6 @@ pub fn extract_account_metas(
     }
 
     Ok(accounts)
-}
-
-/// Unnests parsed instructions, producing an array of `(InstructionMetadata,
-/// DecodedInstruction<T>)` tuple
-///
-/// This function takes a vector of `ParsedInstruction` and unnests them into a
-/// vector of `(InstructionMetadata, DecodedInstruction<T>)` tuples.
-/// It recursively processes nested instructions, increasing the stack height
-/// for each level of nesting.
-///
-/// # Parameters
-///
-/// - `transaction_metadata`: The metadata of the transaction containing the
-///   instructions.
-/// - `instructions`: The vector of `ParsedInstruction` to be unnested.
-/// - `stack_height`: The current stack height.
-///
-/// # Returns
-///
-/// A vector of `(InstructionMetadata, DecodedInstruction<T>)` tuples
-/// representing the unnested instructions.
-pub fn unnest_parsed_instructions<T: InstructionDecoderCollection>(
-    transaction_metadata: Arc<TransactionMetadata>,
-    instructions: Vec<ParsedInstruction<T>>,
-    stack_height: u32,
-) -> Vec<(InstructionMetadata, DecodedInstruction<T>)> {
-    log::trace!(
-        "unnest_parsed_instructions(instructions: {:?})",
-        instructions
-    );
-
-    let mut result = Vec::new();
-
-    for (ix_idx, parsed_instruction) in instructions.into_iter().enumerate() {
-        result.push((
-            InstructionMetadata {
-                transaction_metadata: transaction_metadata.clone(),
-                stack_height,
-                index: ix_idx as u32 + 1,
-                absolute_path: vec![],
-            },
-            parsed_instruction.instruction,
-        ));
-        result.extend(unnest_parsed_instructions(
-            transaction_metadata.clone(),
-            parsed_instruction.inner_instructions,
-            stack_height + 1,
-        ));
-    }
-
-    result
 }
 
 /// Converts UI transaction metadata into `TransactionStatusMeta`.
