@@ -93,10 +93,7 @@ impl Processor for RaydiumCpmmInstructionProcessor {
         NestedInstructions,
         solana_instruction::Instruction,
     );
-    async fn process(
-        &mut self,
-        (metadata, _, _, _): Self::InputType,
-    ) -> CarbonResult<()> {
+    async fn process(&mut self, (metadata, _, _, _): Self::InputType) -> CarbonResult<()> {
         let logs = metadata.decode_log_events::<SwapEvent>();
 
         if !logs.is_empty() {

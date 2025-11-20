@@ -129,10 +129,7 @@ impl Processor for KaminoLendingAccountProcessor {
         solana_account::Account,
     );
 
-    async fn process(
-        &mut self,
-        data: Self::InputType,
-    ) -> CarbonResult<()> {
+    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
         let account = data.1;
 
         let pubkey_str = format!(

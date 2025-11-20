@@ -27,29 +27,24 @@ use {
 /// This struct processes an `AccountDeletion` event by passing it through a
 /// user-defined `Processor`. The processor is responsible for managing the
 /// specific logic of the account deletion event, such as cleaning up resources
-/// or updating other parts of the system. The `AccountDeletionPipe` also
-/// integrates with `Metrics`, enabling the tracking and monitoring of deletion
-/// events.
+/// or updating other parts of the system. Metrics can be tracked using static
+/// atomic metrics defined in the processor implementation.
 ///
 /// # Example
 ///
 /// ```ignore
 /// use carbon_core::error::CarbonResult;
-/// use carbon_core::metrics::MetricsCollection;
 /// use carbon_core::datasource::AccountDeletion;
 /// use carbon_core::processor::Processor;
 /// use async_trait::async_trait;
-/// use std::sync::Arc;
 ///
 /// struct MyAccountDeletionProcessor;
 ///
 /// #[async_trait]
 /// impl Processor for MyAccountDeletionProcessor {
-///     async fn process(
-///         &self,
-///         account_deletion: AccountDeletion,
-///         metrics: Arc<MetricsCollection>,
-///     ) -> CarbonResult<()> {
+///     type InputType = AccountDeletion;
+///
+///     async fn process(&mut self, account_deletion: AccountDeletion) -> CarbonResult<()> {
 ///         // Custom deletion logic
 ///         Ok(())
 ///     }

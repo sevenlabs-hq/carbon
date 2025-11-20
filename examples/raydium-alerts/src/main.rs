@@ -240,10 +240,7 @@ impl Processor for RaydiumAmmV4AccountProcessor {
         solana_account::Account,
     );
 
-    async fn process(
-        &mut self,
-        data: Self::InputType,
-    ) -> CarbonResult<()> {
+    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
         let account = data.1;
 
         match account.data {

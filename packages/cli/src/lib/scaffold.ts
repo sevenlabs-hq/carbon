@@ -38,7 +38,6 @@ function buildProjectImports(ctx: any): string {
         lines.push('use async_trait::async_trait;');
         lines.push('use carbon_core::deserialize::ArrangeAccounts;');
         lines.push('use carbon_core::instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions};');
-        lines.push('use carbon_core::metrics::MetricsCollection;');
         lines.push('use carbon_core::processor::Processor;');
     }
 
@@ -59,7 +58,7 @@ function buildProjectImports(ctx: any): string {
     }
 
     // Metrics
-    lines.push(`use carbon_${ctx.metrics.module_name}_metrics::${ctx.metrics.name}Metrics;`);
+    lines.push(`use carbon_${ctx.metrics.module_name}_metrics::${ctx.metrics.name}MetricsExporter;`);
 
     // Decoders
     for (const d of ctx.decoders as Array<{ name: string; module_name: string }>) {

@@ -108,10 +108,7 @@ pub struct SharkyAccountProcessor;
 impl Processor for SharkyAccountProcessor {
     type InputType = AccountProcessorInputType<SharkyAccount>;
 
-    async fn process(
-        &mut self,
-        update: Self::InputType,
-    ) -> CarbonResult<()> {
+    async fn process(&mut self, update: Self::InputType) -> CarbonResult<()> {
         let (_metadata, account, _raw_account) = update;
 
         match account.data {

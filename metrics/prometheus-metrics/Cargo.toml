@@ -12,7 +12,5 @@ categories = ["encoding"]
 [dependencies]
 carbon-core = { workspace = true }
 
-log = { workspace = true }
-
 [lib]
 crate-type = ["rlib"]

@@ -63,10 +63,7 @@ impl Processor for MeteoraInstructionProcessor {
         solana_instruction::Instruction,
     );
 
-    async fn process(
-        &mut self,
-        data: Self::InputType,
-    ) -> CarbonResult<()> {
+    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
         let (_instruction_metadata, decoded_instruction, _nested_instructions, _) = data;
 
         // Process all Meteora Events and add each to DB

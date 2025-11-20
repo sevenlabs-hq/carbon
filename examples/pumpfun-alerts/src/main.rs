@@ -1,8 +1,7 @@
 use {
     async_trait::async_trait,
     carbon_core::{
-        error::CarbonResult, instruction::InstructionProcessorInputType,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType, processor::Processor,
     },
     carbon_pumpfun_decoder::{
         instructions::PumpfunInstruction, PumpfunDecoder, PROGRAM_ID as PUMPFUN_PROGRAM_ID,
@@ -63,10 +62,7 @@ pub struct PumpfunInstructionProcessor;
 impl Processor for PumpfunInstructionProcessor {
     type InputType = InstructionProcessorInputType<PumpfunInstruction>;
 
-    async fn process(
-        &mut self,
-        data: Self::InputType,
-    ) -> CarbonResult<()> {
+    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
         let pumpfun_instruction: PumpfunInstruction = data.1.data;
 
         match pumpfun_instruction {

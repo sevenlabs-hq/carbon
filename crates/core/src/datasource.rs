@@ -65,7 +65,6 @@ use {
 /// use carbon_core::datasource::UpdateType;
 /// use carbon_core::datasource::Update;
 /// use carbon_core::error::CarbonResult;
-/// use carbon_core::metrics::MetricsCollection;
 /// use carbon_core::datasource::Datasource;
 /// use tokio_util::sync::CancellationToken;
 /// use async_trait::async_trait;
@@ -76,7 +75,6 @@ use {
 ///         &self,
 ///         sender: &tokio::sync::mpsc::UnboundedSender<Update>,
 ///         cancellation_token: CancellationToken,
-///         metrics: Arc<MetricsCollection>,
 ///     ) -> CarbonResult<tokio::task::AbortHandle> {
 ///         // Implement update fetching logic
 ///     }

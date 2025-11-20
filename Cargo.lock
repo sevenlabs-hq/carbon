@@ -1642,7 +1642,6 @@ name = "carbon-prometheus-metrics"
 version = "0.11.0"
 dependencies = [
  "carbon-core 0.11.0",
- "log",
 ]
 
 [[package]]
