@@ -1,0 +1,54 @@
+[package]
+name = "carbon-token-2022-decoder"
+version = "0.11.0"
+description = "Carbon Token 2022 Decoder"
+edition = { workspace = true }
+license = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "decoder", "token-2022"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[features]
+default = []
+
+serde = ["dep:serde", "dep:serde-big-array"]
+
+postgres = [
+    "carbon-core/postgres",
+    "dep:sqlx",
+    "dep:async-trait",
+    "dep:sqlx_migrator",
+    "serde",
+]
+
+graphql = [
+    "carbon-core/graphql",
+    "dep:juniper",
+    "dep:base64",
+    "serde",
+]
+
+[dependencies]
+carbon-core = { workspace = true }
+borsh = { workspace = true, features = ["derive"] }
+solana-pubkey = { workspace = true }
+solana-account = { workspace = true }
+solana-instruction = { workspace = true, default-features = false }
+serde_json = { workspace = true }
+
+serde = { workspace = true, optional = true }
+serde-big-array = { workspace = true, optional = true }
+
+sqlx = { workspace = true, optional = true }
+async-trait = { workspace = true, optional = true }
+sqlx_migrator = { workspace = true, optional = true }
+
+juniper = { workspace = true, optional = true }
+base64 = { workspace = true, optional = true }
+
+[dev-dependencies]
+carbon-test-utils = { workspace = true }
