@@ -3,10 +3,9 @@ use {
     carbon_core::{
         error::CarbonResult,
         instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
         processor::Processor,
     },
-    carbon_log_metrics::LogMetrics,
+    carbon_log_metrics::LogMetricsExporter,
     carbon_meteora_dlmm_decoder::{
         instructions::MeteoraDlmmInstruction, MeteoraDlmmDecoder, PROGRAM_ID as METEORA_PROGRAM_ID,
     },
@@ -43,7 +42,7 @@ pub async fn main() -> CarbonResult<()> {
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(transaction_crawler)
-        .metrics(Arc::new(LogMetrics::new()))
+        .metrics(Arc::new(LogMetricsExporter::new()))
         .metrics_flush_interval(3)
         .instruction(MeteoraDlmmDecoder, MeteoraInstructionProcessor)
         .build()?
@@ -67,7 +66,6 @@ impl Processor for MeteoraInstructionProcessor {
     async fn process(
         &mut self,
         data: Self::InputType,
-        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let (_instruction_metadata, decoded_instruction, _nested_instructions, _) = data;
 

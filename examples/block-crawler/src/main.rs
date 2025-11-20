@@ -1,4 +1,4 @@
-use std::{env, sync::Arc};
+use std::env;
 
 use solana_transaction_status::UiTransactionEncoding;
 
@@ -6,7 +6,7 @@ use {
     async_trait::async_trait,
     carbon_core::{
         error::CarbonResult, instruction::InstructionProcessorInputType,
-        metrics::MetricsCollection, processor::Processor,
+        processor::Processor,
     },
     carbon_pumpfun_decoder::{instructions::PumpfunInstruction, PumpfunDecoder},
     carbon_rpc_block_crawler_datasource::{RpcBlockConfig, RpcBlockCrawler},
@@ -64,7 +64,6 @@ impl Processor for PumpfunInstructionProcessor {
     async fn process(
         &mut self,
         data: Self::InputType,
-        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let (metadata, pumpfun_instruction, _nested_instructions, _) = data;
 

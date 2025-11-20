@@ -5,10 +5,9 @@ use {
         deserialize::ArrangeAccounts,
         error::CarbonResult,
         instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
         processor::Processor,
     },
-    carbon_log_metrics::LogMetrics,
+    carbon_log_metrics::LogMetricsExporter,
     carbon_raydium_amm_v4_decoder::{
         accounts::RaydiumAmmV4Account,
         instructions::{
@@ -89,7 +88,7 @@ pub async fn main() -> CarbonResult<()> {
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(yellowstone_grpc)
-        .metrics(Arc::new(LogMetrics::new()))
+        .metrics(Arc::new(LogMetricsExporter::new()))
         .metrics_flush_interval(3)
         .instruction(RaydiumAmmV4Decoder, RaydiumAmmV4InstructionProcessor)
         .account(RaydiumAmmV4Decoder, RaydiumAmmV4AccountProcessor)
@@ -115,7 +114,6 @@ impl Processor for RaydiumAmmV4InstructionProcessor {
     async fn process(
         &mut self,
         (metadata, instruction, _nested_instructions, _): Self::InputType,
-        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let signature = metadata.transaction_metadata.signature;
         let accounts = instruction.accounts;
@@ -245,7 +243,6 @@ impl Processor for RaydiumAmmV4AccountProcessor {
     async fn process(
         &mut self,
         data: Self::InputType,
-        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let account = data.1;
 

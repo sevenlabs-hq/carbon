@@ -1,10 +1,8 @@
 use crate::datasource::BlockDetails;
 use crate::error::CarbonResult;
 use crate::filter::Filter;
-use crate::metrics::MetricsCollection;
 use crate::processor::Processor;
 use async_trait::async_trait;
-use std::sync::Arc;
 
 /// A pipe for processing block details using a defined processor.
 ///
@@ -38,28 +36,17 @@ pub struct BlockDetailsPipe {
 ///   should be processed.
 #[async_trait]
 pub trait BlockDetailsPipes: Send + Sync {
-    async fn run(
-        &mut self,
-        block_details: BlockDetails,
-        metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()>;
+    async fn run(&mut self, block_details: BlockDetails) -> CarbonResult<()>;
 
     fn filters(&self) -> &Vec<Box<dyn Filter + Send + Sync + 'static>>;
 }
 
 #[async_trait]
 impl BlockDetailsPipes for BlockDetailsPipe {
-    async fn run(
-        &mut self,
-        block_details: BlockDetails,
-        metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
-        log::trace!(
-            "Block details::run(block_details: {:?}, metrics)",
-            block_details,
-        );
+    async fn run(&mut self, block_details: BlockDetails) -> CarbonResult<()> {
+        log::trace!("Block details::run(block_details: {:?})", block_details,);
 
-        self.processor.process(block_details, metrics).await?;
+        self.processor.process(block_details).await?;
 
         Ok(())
     }

@@ -6,7 +6,7 @@ use {
             UpdateType,
         },
         error::CarbonResult,
-        metrics::MetricsCollection,
+        metrics::{Counter, Histogram, MetricsRegistry},
     },
     futures::StreamExt,
     helius::{
@@ -27,7 +27,7 @@ use {
     std::{
         collections::HashSet,
         str::FromStr,
-        sync::Arc,
+        sync::{Arc, OnceLock},
         time::{Duration, Instant},
     },
     tokio::sync::{mpsc::Sender, RwLock},
@@ -39,6 +39,98 @@ const MAINNET_WS_URL: &str = "wss://atlas-mainnet.helius-rpc.com/";
 const MAX_MISSED_BLOCKS: u64 = 10;
 const MAX_RECONNECTION_ATTEMPTS: u32 = 30;
 const RECONNECTION_DELAY_MS: u64 = 3000;
+
+static CLOCK_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
+static ACCOUNT_DELETION_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
+static ACCOUNT_DELETIONS_RECEIVED: Counter = Counter::new(
+    "helius_atlas_ws_account_deletions_received",
+    "Total account deletions received from Helius Atlas WebSocket",
+);
+static ACCOUNT_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
+static ACCOUNT_UPDATES_RECEIVED: Counter = Counter::new(
+    "helius_atlas_ws_account_updates_received",
+    "Total account updates received from Helius Atlas WebSocket",
+);
+static TRANSACTION_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
+static TRANSACTION_UPDATES_RECEIVED: Counter = Counter::new(
+    "helius_atlas_ws_transaction_updates_received",
+    "Total transaction updates received from Helius Atlas WebSocket",
+);
+
+fn init_histograms() {
+    CLOCK_PROCESS_TIME_NANOS.get_or_init(|| {
+        Histogram::new(
+            "helius_atlas_ws_clock_process_time_nanoseconds",
+            "Time taken to process clock updates in nanoseconds",
+            vec![
+                1_000.0,
+                10_000.0,
+                100_000.0,
+                1_000_000.0,
+                10_000_000.0,
+                100_000_000.0,
+                1_000_000_000.0,
+            ],
+        )
+    });
+    ACCOUNT_DELETION_PROCESS_TIME_NANOS.get_or_init(|| {
+        Histogram::new(
+            "helius_atlas_ws_account_deletion_process_time_nanoseconds",
+            "Time taken to process account deletion updates in nanoseconds",
+            vec![
+                1_000.0,
+                10_000.0,
+                100_000.0,
+                1_000_000.0,
+                10_000_000.0,
+                100_000_000.0,
+                1_000_000_000.0,
+            ],
+        )
+    });
+    ACCOUNT_PROCESS_TIME_NANOS.get_or_init(|| {
+        Histogram::new(
+            "helius_atlas_ws_account_process_time_nanoseconds",
+            "Time taken to process account updates in nanoseconds",
+            vec![
+                1_000.0,
+                10_000.0,
+                100_000.0,
+                1_000_000.0,
+                10_000_000.0,
+                100_000_000.0,
+                1_000_000_000.0,
+            ],
+        )
+    });
+    TRANSACTION_PROCESS_TIME_NANOS.get_or_init(|| {
+        Histogram::new(
+            "helius_atlas_ws_transaction_process_time_nanoseconds",
+            "Time taken to process transaction updates in nanoseconds",
+            vec![
+                1_000.0,
+                10_000.0,
+                100_000.0,
+                1_000_000.0,
+                10_000_000.0,
+                100_000_000.0,
+                1_000_000_000.0,
+            ],
+        )
+    });
+}
+
+fn register_helius_metrics() {
+    init_histograms();
+    let registry = MetricsRegistry::global();
+    registry.register_counter(&ACCOUNT_DELETIONS_RECEIVED);
+    registry.register_counter(&ACCOUNT_UPDATES_RECEIVED);
+    registry.register_counter(&TRANSACTION_UPDATES_RECEIVED);
+    registry.register_histogram(CLOCK_PROCESS_TIME_NANOS.get().unwrap());
+    registry.register_histogram(ACCOUNT_DELETION_PROCESS_TIME_NANOS.get().unwrap());
+    registry.register_histogram(ACCOUNT_PROCESS_TIME_NANOS.get().unwrap());
+    registry.register_histogram(TRANSACTION_PROCESS_TIME_NANOS.get().unwrap());
+}
 
 #[derive(Debug, Clone)]
 pub struct Filters {
@@ -98,11 +190,12 @@ impl Datasource for HeliusWebsocket {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         if self.filters.accounts.is_empty() && self.filters.transactions.is_none() {
             return CarbonResult::Err(carbon_core::error::Error::Custom("Error creating Filters for the Helius WebSocket: accounts and transactions can't be both empty".to_string()));
         }
+
+        register_helius_metrics();
 
         let mut reconnection_attempts = 0;
 
@@ -158,7 +251,6 @@ impl Datasource for HeliusWebsocket {
             let filters = self.filters.clone();
             let sender = sender.clone();
             let helius = Arc::new(helius);
-            let metrics = Arc::clone(&metrics);
 
             let iteration_cancellation = CancellationToken::new();
             let iteration_cancellation_clone = iteration_cancellation.clone();
@@ -173,7 +265,6 @@ impl Datasource for HeliusWebsocket {
                 let cancellation_token_clock = main_cancellation.clone();
                 let iteration_cancellation_clock = iteration_cancellation.clone();
                 let helius_clone = Arc::clone(&helius);
-                let metrics_clone = Arc::clone(&metrics);
 
                 let handle = tokio::spawn(async move {
                     let ws = match helius_clone.ws() {
@@ -233,13 +324,10 @@ impl Datasource for HeliusWebsocket {
                                                 }
                                                 last_slot = current_slot;
 
-                                                metrics_clone
-                                                    .record_histogram(
-                                                        "helius_atlas_ws_clock_process_time_nanoseconds",
-                                                        last_clock_update.elapsed().as_nanos() as f64
-                                                    )
-                                                    .await
-                                                    .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                                                CLOCK_PROCESS_TIME_NANOS
+                                                    .get()
+                                                    .unwrap()
+                                                    .record(last_clock_update.elapsed().as_nanos() as f64);
                                             }
                                         }
                                     }
@@ -264,7 +352,6 @@ impl Datasource for HeliusWebsocket {
                         let sender_clone = sender.clone();
                         let helius_clone = Arc::clone(&helius);
                         let account_deletions_tracked = Arc::clone(&account_deletions_tracked);
-                        let metrics = metrics.clone();
                         let id_for_account = id_for_loop.clone();
 
                         let handle = tokio::spawn(async move {
@@ -321,9 +408,11 @@ impl Datasource for HeliusWebsocket {
                                                             transaction_signature: None,
                                                         };
 
-                                                        metrics.record_histogram("helius_atlas_ws_account_deletion_process_time_nanoseconds", start_time.elapsed().as_nanos() as f64).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
-
-                                                        metrics.increment_counter("helius_atlas_ws_account_deletions_received", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                                                        ACCOUNT_DELETION_PROCESS_TIME_NANOS
+                                                            .get()
+                                                            .unwrap()
+                                                            .record(start_time.elapsed().as_nanos() as f64);
+                                                        ACCOUNT_DELETIONS_RECEIVED.inc();
 
 
                                                         if let Err(err) = sender_clone.try_send((
@@ -342,9 +431,11 @@ impl Datasource for HeliusWebsocket {
                                                         transaction_signature: None,
                                                     });
 
-                                                    metrics.record_histogram("helius_atlas_ws_account_process_time_nanoseconds", start_time.elapsed().as_nanos() as f64).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
-
-                                                    metrics.increment_counter("helius_atlas_ws_account_updates_received", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                                                    ACCOUNT_PROCESS_TIME_NANOS
+                                                        .get()
+                                                        .unwrap()
+                                                        .record(start_time.elapsed().as_nanos() as f64);
+                                                    ACCOUNT_UPDATES_RECEIVED.inc();
 
 
                                                     if let Err(err) = sender_clone.try_send((
@@ -600,15 +691,11 @@ impl Datasource for HeliusWebsocket {
                                                 block_hash: None,
                                             }));
 
-                                            metrics
-                                                    .record_histogram(
-                                                        "helius_atlas_ws_transaction_process_time_nanoseconds",
-                                                        start_time.elapsed().as_nanos() as f64
-                                                    )
-                                                    .await
-                                                    .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
-
-                                            metrics.increment_counter("helius_atlas_ws_transaction_updates_received", 1).await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                                            TRANSACTION_PROCESS_TIME_NANOS
+                                                .get()
+                                                .unwrap()
+                                                .record(start_time.elapsed().as_nanos() as f64);
+                                            TRANSACTION_UPDATES_RECEIVED.inc();
 
 
                                             if let Err(err) = sender_clone.try_send((

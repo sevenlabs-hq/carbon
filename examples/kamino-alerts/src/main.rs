@@ -4,7 +4,6 @@ use {
         account::{AccountMetadata, DecodedAccount},
         error::CarbonResult,
         instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
         processor::Processor,
     },
     carbon_kamino_lending_decoder::{
@@ -102,7 +101,6 @@ impl Processor for KaminoLendingInstructionProcessor {
     async fn process(
         &mut self,
         (metadata, instruction, _nested_instructions, _): Self::InputType,
-        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let signature = metadata.transaction_metadata.signature;
 
@@ -134,7 +132,6 @@ impl Processor for KaminoLendingAccountProcessor {
     async fn process(
         &mut self,
         data: Self::InputType,
-        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let account = data.1;
 

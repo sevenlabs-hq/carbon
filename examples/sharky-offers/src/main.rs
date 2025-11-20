@@ -6,11 +6,10 @@ use {
         error::CarbonResult,
         instruction::InstructionDecoder,
         instruction_decoder_collection_fast,
-        metrics::MetricsCollection,
         pipeline::{Pipeline, ShutdownStrategy},
         processor::Processor,
     },
-    carbon_log_metrics::LogMetrics,
+    carbon_log_metrics::LogMetricsExporter,
     carbon_rpc_program_subscribe_datasource::{Filters, RpcProgramSubscribe},
     carbon_sharky_decoder::{
         accounts::SharkyAccount,
@@ -55,7 +54,6 @@ impl Datasource for GpaBackfillDatasource {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         _cancellation_token: CancellationToken,
-        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let rpc_client = RpcClient::new(self.rpc_url.clone());
 
@@ -113,7 +111,6 @@ impl Processor for SharkyAccountProcessor {
     async fn process(
         &mut self,
         update: Self::InputType,
-        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let (_metadata, account, _raw_account) = update;
 
@@ -163,7 +160,7 @@ async fn main() -> anyhow::Result<()> {
             ),
         ))
         .account(SharkyDecoder, SharkyAccountProcessor)
-        .metrics(Arc::new(LogMetrics::new()))
+        .metrics(Arc::new(LogMetricsExporter::new()))
         .shutdown_strategy(ShutdownStrategy::ProcessPending)
         .build()?
         .run()

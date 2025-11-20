@@ -10,11 +10,9 @@
 
 use {
     crate::{
-        datasource::AccountDeletion, error::CarbonResult, filter::Filter,
-        metrics::MetricsCollection, processor::Processor,
+        datasource::AccountDeletion, error::CarbonResult, filter::Filter, processor::Processor,
     },
     async_trait::async_trait,
-    std::sync::Arc,
 };
 
 /// A processing pipe for handling account deletions.
@@ -92,28 +90,20 @@ pub struct AccountDeletionPipe {
 ///   should be processed.
 #[async_trait]
 pub trait AccountDeletionPipes: Send + Sync {
-    async fn run(
-        &mut self,
-        account_deletion: AccountDeletion,
-        metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()>;
+    async fn run(&mut self, account_deletion: AccountDeletion) -> CarbonResult<()>;
 
     fn filters(&self) -> &Vec<Box<dyn Filter + Send + Sync + 'static>>;
 }
 
 #[async_trait]
 impl AccountDeletionPipes for AccountDeletionPipe {
-    async fn run(
-        &mut self,
-        account_deletion: AccountDeletion,
-        metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
+    async fn run(&mut self, account_deletion: AccountDeletion) -> CarbonResult<()> {
         log::trace!(
-            "AccountDeletionPipe::run(account_deletion: {:?}, metrics)",
+            "AccountDeletionPipe::run(account_deletion: {:?})",
             account_deletion,
         );
 
-        self.processor.process(account_deletion, metrics).await?;
+        self.processor.process(account_deletion).await?;
 
         Ok(())
     }

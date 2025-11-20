@@ -3,8 +3,8 @@ use solana_commitment_config::CommitmentConfig;
 use solana_transaction_status::TransactionDetails;
 use {
     async_trait::async_trait,
-    carbon_core::{error::CarbonResult, metrics::MetricsCollection, processor::Processor},
-    carbon_log_metrics::LogMetrics,
+    carbon_core::{error::CarbonResult, processor::Processor},
+    carbon_log_metrics::LogMetricsExporter,
     carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
     solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
     std::{env, sync::Arc},
@@ -33,7 +33,7 @@ pub async fn main() -> CarbonResult<()> {
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(block_subscribe)
-        .metrics(Arc::new(LogMetrics::new()))
+        .metrics(Arc::new(LogMetricsExporter::new()))
         .metrics_flush_interval(3)
         .block_details(BlockProcessor)
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
@@ -53,7 +53,6 @@ impl Processor for BlockProcessor {
     async fn process(
         &mut self,
         block_details: Self::InputType,
-        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         log::info!("Final block: {:?}", &block_details);
 

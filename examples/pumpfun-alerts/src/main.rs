@@ -2,7 +2,7 @@ use {
     async_trait::async_trait,
     carbon_core::{
         error::CarbonResult, instruction::InstructionProcessorInputType,
-        metrics::MetricsCollection, processor::Processor,
+        processor::Processor,
     },
     carbon_pumpfun_decoder::{
         instructions::PumpfunInstruction, PumpfunDecoder, PROGRAM_ID as PUMPFUN_PROGRAM_ID,
@@ -66,7 +66,6 @@ impl Processor for PumpfunInstructionProcessor {
     async fn process(
         &mut self,
         data: Self::InputType,
-        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let pumpfun_instruction: PumpfunInstruction = data.1.data;
 

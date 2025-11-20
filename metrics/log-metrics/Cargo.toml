@@ -12,9 +12,8 @@ categories = ["encoding"]
 [dependencies]
 carbon-core = { workspace = true }
 
-async-trait = { workspace = true }
 log = { workspace = true }
-tokio = { workspace = true, features = ["full"] }
+
 
 [lib]
 crate-type = ["rlib"]
