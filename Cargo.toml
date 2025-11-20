@@ -169,11 +169,11 @@ solana-transaction-status = "^3.0.3"
 solana-transaction-status-client-types = "^3.0.3"
 
 spl-memo-interface = "2.0.0"
-spl-token-interface = "2.0.0"
-spl-token-2022 = "10.0.0"
 spl-pod = "0.7.1"
-spl-token-metadata-interface = "0.8.0"
+spl-token-2022 = "10.0.0"
 spl-token-group-interface = "0.7.1"
+spl-token-interface = "2.0.0"
+spl-token-metadata-interface = "0.8.0"
 spl-type-length-value = "0.9.0"
 sqlx = { version = "0.8.5", features = [
     "macros",
