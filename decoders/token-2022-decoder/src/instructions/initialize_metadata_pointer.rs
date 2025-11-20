@@ -29,7 +29,6 @@ pub struct InitializeMetadataPointer {
     pub metadata_address: Option<Pubkey>,
 }
 
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeMetadataPointerDeser {
     pub metadata_pointer_discriminator: u8,
