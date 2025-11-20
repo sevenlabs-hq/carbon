@@ -33,7 +33,7 @@ impl TryFrom<crate::instructions::postgres::ConfigureConfidentialTransferAccount
                 .decryptable_zero_balance
                 .0
                 .into_iter()
-                .map(|item| carbon_core::graphql::primitives::U8(item))
+                .map(carbon_core::graphql::primitives::U8)
                 .collect(),
             maximum_pending_balance_credit_counter: carbon_core::graphql::primitives::U64(
                 *row.maximum_pending_balance_credit_counter,

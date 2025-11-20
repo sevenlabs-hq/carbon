@@ -22,6 +22,7 @@ use carbon_core::CarbonDeserialize;
 /// - `VerifyPercentageWithFee`
 /// - `VerifyBatchedGroupedCiphertext2HandlesValidity` (fee ciphertext)
 /// - `VerifyBatchedRangeProofU256`
+///
 /// These instructions can be accompanied in the same transaction or can be
 /// pre-verified into a context state account, in which case, only their
 /// context state account addresses need to be provided.
@@ -29,7 +30,6 @@ use carbon_core::CarbonDeserialize;
 /// The same restrictions for the `Transfer` applies to
 /// `TransferWithFee`. Namely, the instruction fails if the
 /// associated mint is extended as `NonTransferable`.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct ConfidentialTransferWithFee {
@@ -83,11 +83,11 @@ pub struct ConfidentialTransferWithFeeInstructionAccounts {
 
 impl ConfidentialTransferWithFee {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[27] {
+        if discriminator != [27] {
             return None;
         }
 

@@ -25,7 +25,7 @@ impl InitializeInterestBearingMintRow {
             instruction_metadata: metadata.into(),
             interest_bearing_mint_discriminator: source.interest_bearing_mint_discriminator.into(),
             rate_authority: source.rate_authority.map(|value| value.into()),
-            rate: source.rate.into(),
+            rate: source.rate,
         }
     }
 }
@@ -45,7 +45,7 @@ impl TryFrom<InitializeInterestBearingMintRow>
                     )
                 })?,
             rate_authority: source.rate_authority.map(|value| *value),
-            rate: source.rate.into(),
+            rate: source.rate,
         })
     }
 }
@@ -84,13 +84,13 @@ impl carbon_core::postgres::operations::Insert for InitializeInterestBearingMint
                 $1, $2, $3, $4, $5, $6, $7
             )"#,
         )
-        .bind(self.interest_bearing_mint_discriminator.clone())
-        .bind(self.rate_authority.clone())
-        .bind(self.rate.clone())
+        .bind(self.interest_bearing_mint_discriminator)
+        .bind(self.rate_authority)
+        .bind(self.rate)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -118,13 +118,13 @@ impl carbon_core::postgres::operations::Upsert for InitializeInterestBearingMint
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
             "#)
-        .bind(self.interest_bearing_mint_discriminator.clone())
-        .bind(self.rate_authority.clone())
-        .bind(self.rate.clone())
+        .bind(self.interest_bearing_mint_discriminator)
+        .bind(self.rate_authority)
+        .bind(self.rate)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())

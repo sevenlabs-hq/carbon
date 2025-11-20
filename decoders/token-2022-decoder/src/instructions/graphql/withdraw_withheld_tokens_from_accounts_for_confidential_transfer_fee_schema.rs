@@ -24,7 +24,7 @@ impl TryFrom<crate::instructions::postgres::WithdrawWithheldTokensFromAccountsFo
             confidential_transfer_fee_discriminator: carbon_core::graphql::primitives::U8((*row.confidential_transfer_fee_discriminator) as u8),
             num_token_accounts: carbon_core::graphql::primitives::U8((*row.num_token_accounts) as u8),
             proof_instruction_offset: row.proof_instruction_offset as i32,
-            new_decryptable_available_balance: row.new_decryptable_available_balance.0.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect(),
+            new_decryptable_available_balance: row.new_decryptable_available_balance.0.into_iter().map(carbon_core::graphql::primitives::U8).collect(),
         })
     }
 }

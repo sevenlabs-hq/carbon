@@ -36,7 +36,7 @@ impl TryFrom<crate::instructions::postgres::InitializeTransferFeeConfigRow>
             withdraw_withheld_authority: row
                 .withdraw_withheld_authority
                 .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
-            transfer_fee_basis_points: (*row.transfer_fee_basis_points) as i32,
+            transfer_fee_basis_points: *row.transfer_fee_basis_points,
             maximum_fee: carbon_core::graphql::primitives::U64(*row.maximum_fee),
         })
     }

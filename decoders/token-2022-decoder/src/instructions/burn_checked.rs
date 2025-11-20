@@ -16,7 +16,6 @@ use carbon_core::CarbonDeserialize;
 /// This instruction differs from Burn in that the decimals value is checked
 /// by the caller. This may be useful when creating transactions offline or
 /// within a hardware wallet.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct BurnChecked {
@@ -37,11 +36,11 @@ pub struct BurnCheckedInstructionAccounts {
 
 impl BurnChecked {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[15] {
+        if discriminator != [15] {
             return None;
         }
 

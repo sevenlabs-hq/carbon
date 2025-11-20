@@ -12,7 +12,6 @@ use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
 
 /// Like [`InitializeMint`], but does not require the Rent sysvar to be provided.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeMint2 {
@@ -33,11 +32,11 @@ pub struct InitializeMint2InstructionAccounts {
 
 impl InitializeMint2 {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[20] {
+        if discriminator != [20] {
             return None;
         }
 

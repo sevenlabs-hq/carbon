@@ -88,13 +88,13 @@ impl carbon_core::postgres::operations::Insert for SetTransferFeeRow {
                 $1, $2, $3, $4, $5, $6, $7
             )"#,
         )
-        .bind(self.transfer_fee_discriminator.clone())
-        .bind(self.transfer_fee_basis_points.clone())
-        .bind(self.maximum_fee.clone())
+        .bind(self.transfer_fee_discriminator)
+        .bind(self.transfer_fee_basis_points)
+        .bind(&self.maximum_fee)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -124,13 +124,13 @@ impl carbon_core::postgres::operations::Upsert for SetTransferFeeRow {
                 __slot = EXCLUDED.__slot
             "#,
         )
-        .bind(self.transfer_fee_discriminator.clone())
-        .bind(self.transfer_fee_basis_points.clone())
-        .bind(self.maximum_fee.clone())
+        .bind(self.transfer_fee_discriminator)
+        .bind(self.transfer_fee_basis_points)
+        .bind(&self.maximum_fee)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

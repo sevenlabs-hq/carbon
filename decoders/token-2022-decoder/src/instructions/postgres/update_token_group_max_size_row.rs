@@ -66,11 +66,11 @@ impl carbon_core::postgres::operations::Insert for UpdateTokenGroupMaxSizeRow {
                 $1, $2, $3, $4, $5
             )"#,
         )
-        .bind(self.max_size.clone())
+        .bind(&self.max_size)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -96,11 +96,11 @@ impl carbon_core::postgres::operations::Upsert for UpdateTokenGroupMaxSizeRow {
                 __slot = EXCLUDED.__slot
             "#,
         )
-        .bind(self.max_size.clone())
+        .bind(&self.max_size)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

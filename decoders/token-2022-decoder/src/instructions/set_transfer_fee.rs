@@ -12,7 +12,6 @@ use carbon_core::CarbonDeserialize;
 
 /// Set transfer fee. Only supported for mints that include the
 /// `TransferFeeConfig` extension.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct SetTransferFee {
@@ -33,11 +32,11 @@ pub struct SetTransferFeeInstructionAccounts {
 
 impl SetTransferFee {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[26] {
+        if discriminator != [26] {
             return None;
         }
 

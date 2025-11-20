@@ -22,7 +22,6 @@ use carbon_core::CarbonDeserialize;
 /// `ConfidentialTransferAccount::decryptable_available_balance` is
 /// consistent with `ConfidentialTransferAccount::available_balance`. If
 /// they differ then there is more pending balance to be applied.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct ApplyConfidentialPendingBalance {
@@ -45,11 +44,11 @@ pub struct ApplyConfidentialPendingBalanceInstructionAccounts {
 
 impl ApplyConfidentialPendingBalance {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[27] {
+        if discriminator != [27] {
             return None;
         }
 

@@ -28,7 +28,6 @@ use carbon_core::CarbonDeserialize;
 /// accompanied by the `VerifyPubkeyValidity` instruction of the
 /// `zk_elgamal_proof` program in the same transaction or the address of a
 /// context state account for the proof must be provided.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct ConfigureConfidentialTransferAccount {
@@ -58,11 +57,11 @@ pub struct ConfigureConfidentialTransferAccountInstructionAccounts {
 
 impl ConfigureConfidentialTransferAccount {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[27] {
+        if discriminator != [27] {
             return None;
         }
 

@@ -12,7 +12,6 @@ use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
 
 /// Update the authority of a `Group`.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct UpdateTokenGroupUpdateAuthority {
@@ -34,7 +33,7 @@ impl UpdateTokenGroupUpdateAuthority {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[161, 105, 88, 1, 237, 221, 216, 203] {
+        if discriminator != [161, 105, 88, 1, 237, 221, 216, 203] {
             return None;
         }
 

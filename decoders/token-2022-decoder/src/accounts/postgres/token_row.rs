@@ -32,7 +32,7 @@ impl TokenRow {
             owner: source.owner.into(),
             amount: source.amount.into(),
             delegate: source.delegate.map(|value| value.into()),
-            state: sqlx::types::Json(source.state.into()),
+            state: sqlx::types::Json(source.state),
             is_native: source.is_native.map(|value| value.into()),
             delegated_amount: source.delegated_amount.into(),
             close_authority: source.close_authority.map(|value| value.into()),
@@ -100,17 +100,17 @@ impl carbon_core::postgres::operations::Insert for TokenRow {
                 $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
             )"#,
         )
-        .bind(self.mint.clone())
-        .bind(self.owner.clone())
-        .bind(self.amount.clone())
-        .bind(self.delegate.clone())
-        .bind(self.state.clone())
-        .bind(self.is_native.clone())
-        .bind(self.delegated_amount.clone())
-        .bind(self.close_authority.clone())
-        .bind(self.extensions.clone())
-        .bind(self.account_metadata.pubkey.clone())
-        .bind(self.account_metadata.slot.clone())
+        .bind(self.mint)
+        .bind(self.owner)
+        .bind(&self.amount)
+        .bind(self.delegate)
+        .bind(&self.state)
+        .bind(&self.is_native)
+        .bind(&self.delegated_amount)
+        .bind(self.close_authority)
+        .bind(&self.extensions)
+        .bind(self.account_metadata.pubkey)
+        .bind(&self.account_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -150,17 +150,17 @@ impl carbon_core::postgres::operations::Upsert for TokenRow {
                 __slot = EXCLUDED.__slot
             "#,
         )
-        .bind(self.mint.clone())
-        .bind(self.owner.clone())
-        .bind(self.amount.clone())
-        .bind(self.delegate.clone())
-        .bind(self.state.clone())
-        .bind(self.is_native.clone())
-        .bind(self.delegated_amount.clone())
-        .bind(self.close_authority.clone())
-        .bind(self.extensions.clone())
+        .bind(self.mint)
+        .bind(self.owner)
+        .bind(&self.amount)
+        .bind(self.delegate)
+        .bind(&self.state)
+        .bind(&self.is_native)
+        .bind(&self.delegated_amount)
+        .bind(self.close_authority)
+        .bind(&self.extensions)
         .bind(self.account_metadata.pubkey)
-        .bind(self.account_metadata.slot.clone())
+        .bind(&self.account_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

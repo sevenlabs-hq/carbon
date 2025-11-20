@@ -58,9 +58,9 @@ impl carbon_core::postgres::operations::Insert for FreezeAccountRow {
             )"#,
         )
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -85,9 +85,9 @@ impl carbon_core::postgres::operations::Upsert for FreezeAccountRow {
             "#,
         )
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

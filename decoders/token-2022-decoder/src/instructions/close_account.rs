@@ -12,7 +12,6 @@ use carbon_core::CarbonDeserialize;
 
 /// Close an account by transferring all its SOL to the destination account.
 /// Non-native accounts may only be closed if its token amount is zero.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct CloseAccount {}
@@ -28,11 +27,11 @@ pub struct CloseAccountInstructionAccounts {
 
 impl CloseAccount {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[9] {
+        if discriminator != [9] {
             return None;
         }
 

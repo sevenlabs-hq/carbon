@@ -15,7 +15,6 @@ use carbon_core::CarbonDeserialize;
 ///
 /// This instruction can be used to configure a confidential extension
 /// account to exclusively receive confidential payments.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct DisableNonConfidentialCredits {
@@ -32,11 +31,11 @@ pub struct DisableNonConfidentialCreditsInstructionAccounts {
 
 impl DisableNonConfidentialCredits {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[27] {
+        if discriminator != [27] {
             return None;
         }
 

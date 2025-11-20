@@ -17,7 +17,6 @@ use solana_pubkey::Pubkey;
 /// Otherwise another party can initialize the configuration.
 ///
 /// The instruction fails if TokenInstruction::InitializeMint has already executed for the mint.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeConfidentialTransferFee {
@@ -37,11 +36,11 @@ pub struct InitializeConfidentialTransferFeeInstructionAccounts {
 
 impl InitializeConfidentialTransferFee {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[37] {
+        if discriminator != [37] {
             return None;
         }
 

@@ -35,7 +35,7 @@ impl TryFrom<crate::instructions::postgres::ConfidentialTransferWithFeeRow>
                 .new_source_decryptable_available_balance
                 .0
                 .into_iter()
-                .map(|item| carbon_core::graphql::primitives::U8(item))
+                .map(carbon_core::graphql::primitives::U8)
                 .collect(),
             equality_proof_instruction_offset: row.equality_proof_instruction_offset as i32,
             transfer_amount_ciphertext_validity_proof_instruction_offset: row

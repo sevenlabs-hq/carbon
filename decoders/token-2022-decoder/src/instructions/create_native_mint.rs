@@ -15,7 +15,6 @@ use carbon_core::CarbonDeserialize;
 /// This instruction only needs to be invoked once after deployment and is
 /// permissionless. Wrapped SOL (`native_mint::id()`) will not be
 /// available until this instruction is successfully executed.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct CreateNativeMint {}
@@ -31,11 +30,11 @@ pub struct CreateNativeMintInstructionAccounts {
 
 impl CreateNativeMint {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[31] {
+        if discriminator != [31] {
             return None;
         }
 

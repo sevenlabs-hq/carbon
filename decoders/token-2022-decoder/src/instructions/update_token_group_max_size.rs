@@ -11,7 +11,6 @@ use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 
 /// Update the max size of a `Group`.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct UpdateTokenGroupMaxSize {
@@ -33,7 +32,7 @@ impl UpdateTokenGroupMaxSize {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[108, 37, 171, 143, 248, 30, 18, 110] {
+        if discriminator != [108, 37, 171, 143, 248, 30, 18, 110] {
             return None;
         }
 

@@ -19,11 +19,9 @@ use carbon_core::CarbonDeserialize;
 /// By the end of the instruction, the metadata account must be properly
 /// resized based on the new size of the TLV entry.
 ///   * If the new size is larger, the program must first reallocate to
-///     avoid
-///   overwriting other TLV entries.
+///     avoid overwriting other TLV entries.
 ///   * If the new size is smaller, the program must reallocate at the end
-///   so that it's possible to iterate over TLV entries
-
+///     so that it's possible to iterate over TLV entries
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct UpdateTokenMetadataField {
@@ -47,7 +45,7 @@ impl UpdateTokenMetadataField {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[221, 233, 49, 45, 181, 202, 220, 200] {
+        if discriminator != [221, 233, 49, 45, 181, 202, 220, 200] {
             return None;
         }
 

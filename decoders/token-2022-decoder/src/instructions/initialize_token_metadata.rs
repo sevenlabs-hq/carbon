@@ -15,7 +15,6 @@ use carbon_core::CarbonDeserialize;
 /// Assumes that the provided mint is an SPL token mint, that the metadata
 /// account is allocated and assigned to the program, and that the metadata
 /// account has enough lamports to cover the rent-exempt reserve.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeTokenMetadata {
@@ -43,7 +42,7 @@ impl InitializeTokenMetadata {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[210, 225, 30, 162, 88, 184, 77, 141] {
+        if discriminator != [210, 225, 30, 162, 88, 184, 77, 141] {
             return None;
         }
 

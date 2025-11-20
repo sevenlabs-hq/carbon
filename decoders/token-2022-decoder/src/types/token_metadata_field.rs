@@ -6,7 +6,6 @@
 //!
 use carbon_core::borsh;
 /// Fields in the metadata account, used for updating.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub enum TokenMetadataField {

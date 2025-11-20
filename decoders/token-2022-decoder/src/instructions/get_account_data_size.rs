@@ -15,7 +15,6 @@ use carbon_core::CarbonDeserialize;
 ///
 /// Return data can be fetched using `sol_get_return_data` and deserializing
 /// the return data as a little-endian `u64`.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct GetAccountDataSize {}
@@ -29,11 +28,11 @@ pub struct GetAccountDataSizeInstructionAccounts {
 
 impl GetAccountDataSize {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[21] {
+        if discriminator != [21] {
             return None;
         }
 

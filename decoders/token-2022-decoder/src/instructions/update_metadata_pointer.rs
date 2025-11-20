@@ -13,7 +13,6 @@ use solana_pubkey::Pubkey;
 
 /// Update the metadata pointer address. Only supported for mints that
 /// include the `MetadataPointer` extension.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct UpdateMetadataPointer {
@@ -32,11 +31,11 @@ pub struct UpdateMetadataPointerInstructionAccounts {
 
 impl UpdateMetadataPointer {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[39] {
+        if discriminator != [39] {
             return None;
         }
 

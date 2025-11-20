@@ -18,7 +18,6 @@ use solana_pubkey::Pubkey;
 /// included within the same Transaction as the system program's
 /// `CreateAccount` instruction that creates the account being initialized.
 /// Otherwise another party can acquire ownership of the uninitialized account.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeMint {
@@ -40,11 +39,11 @@ pub struct InitializeMintInstructionAccounts {
 
 impl InitializeMint {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[0] {
+        if discriminator != [0] {
             return None;
         }
 

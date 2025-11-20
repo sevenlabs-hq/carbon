@@ -12,7 +12,6 @@ use carbon_core::CarbonDeserialize;
 
 /// Approves a delegate. A delegate is given the authority over tokens on
 /// behalf of the source account's owner.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct Approve {
@@ -31,11 +30,11 @@ pub struct ApproveInstructionAccounts {
 
 impl Approve {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[4] {
+        if discriminator != [4] {
             return None;
         }
 

@@ -26,7 +26,7 @@ impl MultisigRow {
             account_metadata: metadata.into(),
             m: source.m.into(),
             n: source.n.into(),
-            is_initialized: source.is_initialized.into(),
+            is_initialized: source.is_initialized,
             signers: source
                 .signers
                 .into_iter()
@@ -50,7 +50,7 @@ impl TryFrom<MultisigRow> for crate::accounts::multisig::Multisig {
                     "Failed to convert value from postgres primitive".to_string(),
                 )
             })?,
-            is_initialized: source.is_initialized.into(),
+            is_initialized: source.is_initialized,
             signers: source
                 .signers
                 .into_iter()
@@ -91,12 +91,12 @@ impl carbon_core::postgres::operations::Insert for MultisigRow {
                 $1, $2, $3, $4, $5, $6
             )"#,
         )
-        .bind(self.m.clone())
-        .bind(self.n.clone())
-        .bind(self.is_initialized.clone())
-        .bind(self.signers.clone())
-        .bind(self.account_metadata.pubkey.clone())
-        .bind(self.account_metadata.slot.clone())
+        .bind(self.m)
+        .bind(self.n)
+        .bind(self.is_initialized)
+        .bind(&self.signers)
+        .bind(self.account_metadata.pubkey)
+        .bind(&self.account_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -126,12 +126,12 @@ impl carbon_core::postgres::operations::Upsert for MultisigRow {
                 __slot = EXCLUDED.__slot
             "#,
         )
-        .bind(self.m.clone())
-        .bind(self.n.clone())
-        .bind(self.is_initialized.clone())
-        .bind(self.signers.clone())
+        .bind(self.m)
+        .bind(self.n)
+        .bind(self.is_initialized)
+        .bind(&self.signers)
         .bind(self.account_metadata.pubkey)
-        .bind(self.account_metadata.slot.clone())
+        .bind(&self.account_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

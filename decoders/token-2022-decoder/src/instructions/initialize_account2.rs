@@ -15,7 +15,6 @@ use solana_pubkey::Pubkey;
 /// data rather than the accounts list. This variant may be preferable
 /// when using Cross Program Invocation from an instruction that does
 /// not need the owner's `AccountInfo` otherwise.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeAccount2 {
@@ -34,11 +33,11 @@ pub struct InitializeAccount2InstructionAccounts {
 
 impl InitializeAccount2 {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[16] {
+        if discriminator != [16] {
             return None;
         }
 

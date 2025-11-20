@@ -105,14 +105,14 @@ impl carbon_core::postgres::operations::Insert for InitializeTransferFeeConfigRo
                 $1, $2, $3, $4, $5, $6, $7, $8, $9
             )"#,
         )
-        .bind(self.transfer_fee_discriminator.clone())
-        .bind(self.transfer_fee_config_authority.clone())
-        .bind(self.withdraw_withheld_authority.clone())
-        .bind(self.transfer_fee_basis_points.clone())
+        .bind(self.transfer_fee_discriminator)
+        .bind(self.transfer_fee_config_authority)
+        .bind(self.withdraw_withheld_authority)
+        .bind(self.transfer_fee_basis_points)
         .bind(self.maximum_fee.clone())
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
         .bind(self.instruction_metadata.slot.clone())
         .execute(pool)
         .await
@@ -147,14 +147,14 @@ impl carbon_core::postgres::operations::Upsert for InitializeTransferFeeConfigRo
                 __slot = EXCLUDED.__slot
             "#,
         )
-        .bind(self.transfer_fee_discriminator.clone())
-        .bind(self.transfer_fee_config_authority.clone())
-        .bind(self.withdraw_withheld_authority.clone())
-        .bind(self.transfer_fee_basis_points.clone())
+        .bind(self.transfer_fee_discriminator)
+        .bind(self.transfer_fee_config_authority)
+        .bind(self.withdraw_withheld_authority)
+        .bind(self.transfer_fee_basis_points)
         .bind(self.maximum_fee.clone())
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
         .bind(self.instruction_metadata.slot.clone())
         .execute(pool)
         .await

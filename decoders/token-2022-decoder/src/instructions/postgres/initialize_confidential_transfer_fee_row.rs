@@ -90,13 +90,13 @@ impl carbon_core::postgres::operations::Insert for InitializeConfidentialTransfe
                 $1, $2, $3, $4, $5, $6, $7
             )"#,
         )
-        .bind(self.confidential_transfer_fee_discriminator.clone())
-        .bind(self.authority.clone())
-        .bind(self.withdraw_withheld_authority_el_gamal_pubkey.clone())
+        .bind(self.confidential_transfer_fee_discriminator)
+        .bind(self.authority)
+        .bind(self.withdraw_withheld_authority_el_gamal_pubkey)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -124,13 +124,13 @@ impl carbon_core::postgres::operations::Upsert for InitializeConfidentialTransfe
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
             "#)
-        .bind(self.confidential_transfer_fee_discriminator.clone())
-        .bind(self.authority.clone())
-        .bind(self.withdraw_withheld_authority_el_gamal_pubkey.clone())
+        .bind(self.confidential_transfer_fee_discriminator)
+        .bind(self.authority)
+        .bind(self.withdraw_withheld_authority_el_gamal_pubkey)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())

@@ -11,7 +11,6 @@ use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 
 /// Configure a confidential transfer fee mint to accept harvested confidential fees.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct EnableHarvestToMint {
@@ -28,11 +27,11 @@ pub struct EnableHarvestToMintInstructionAccounts {
 
 impl EnableHarvestToMint {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[37] {
+        if discriminator != [37] {
             return None;
         }
 

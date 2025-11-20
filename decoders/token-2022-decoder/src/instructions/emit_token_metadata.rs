@@ -19,7 +19,6 @@ use carbon_core::CarbonDeserialize;
 /// With this instruction, a program that implements the token-metadata
 /// interface can return `TokenMetadata` without adhering to the specific
 /// byte layout of the `TokenMetadata` struct in any accounts.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct EmitTokenMetadata {
@@ -42,7 +41,7 @@ impl EmitTokenMetadata {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[250, 166, 180, 250, 13, 12, 184, 70] {
+        if discriminator != [250, 166, 180, 250, 13, 12, 184, 70] {
             return None;
         }
 

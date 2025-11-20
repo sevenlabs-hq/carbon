@@ -13,7 +13,6 @@ use carbon_core::CarbonDeserialize;
 /// This instruction is to be used to rescue SOLs sent to any TokenProgram
 /// owned account by sending them to any other account, leaving behind only
 /// lamports for rent exemption.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct WithdrawExcessLamports {}
@@ -29,11 +28,11 @@ pub struct WithdrawExcessLamportsInstructionAccounts {
 
 impl WithdrawExcessLamports {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[38] {
+        if discriminator != [38] {
             return None;
         }
 

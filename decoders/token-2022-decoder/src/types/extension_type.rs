@@ -8,7 +8,6 @@ use carbon_core::borsh;
 /// Extensions that can be applied to mints or accounts.  Mint extensions must
 /// only be applied to mint accounts, and account extensions must only be
 /// applied to token holding accounts.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub enum ExtensionType {

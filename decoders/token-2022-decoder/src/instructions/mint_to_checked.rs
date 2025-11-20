@@ -15,7 +15,6 @@ use carbon_core::CarbonDeserialize;
 /// This instruction differs from MintTo in that the decimals value is
 /// checked by the caller. This may be useful when creating transactions
 /// offline or within a hardware wallet.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct MintToChecked {
@@ -36,11 +35,11 @@ pub struct MintToCheckedInstructionAccounts {
 
 impl MintToChecked {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[14] {
+        if discriminator != [14] {
             return None;
         }
 

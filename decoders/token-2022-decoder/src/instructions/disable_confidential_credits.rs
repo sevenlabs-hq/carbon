@@ -18,7 +18,6 @@ use carbon_core::CarbonDeserialize;
 ///
 /// This instruction can be used to disable confidential payments after a
 /// token account has already been extended for confidential transfers.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct DisableConfidentialCredits {
@@ -35,11 +34,11 @@ pub struct DisableConfidentialCreditsInstructionAccounts {
 
 impl DisableConfidentialCredits {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[27] {
+        if discriminator != [27] {
             return None;
         }
 

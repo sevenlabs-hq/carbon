@@ -12,7 +12,6 @@ use carbon_core::CarbonDeserialize;
 
 /// Require memos for transfers into this Account. Adds the MemoTransfer
 /// extension to the Account, if it doesn't already exist.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct EnableMemoTransfers {
@@ -29,11 +28,11 @@ pub struct EnableMemoTransfersInstructionAccounts {
 
 impl EnableMemoTransfers {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[30] {
+        if discriminator != [30] {
             return None;
         }
 

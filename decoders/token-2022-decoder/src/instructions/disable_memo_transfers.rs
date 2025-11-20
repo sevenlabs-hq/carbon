@@ -14,7 +14,6 @@ use carbon_core::CarbonDeserialize;
 ///
 /// Implicitly initializes the extension in the case where it is not
 /// present.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct DisableMemoTransfers {
@@ -31,11 +30,11 @@ pub struct DisableMemoTransfersInstructionAccounts {
 
 impl DisableMemoTransfers {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[30] {
+        if discriminator != [30] {
             return None;
         }
 
