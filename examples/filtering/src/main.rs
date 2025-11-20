@@ -6,14 +6,14 @@ use {
         error::CarbonResult,
         filter::DatasourceFilter,
         instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
+        metrics::{Counter, MetricsRegistry},
         processor::Processor,
     },
     carbon_kamino_lending_decoder::{
         accounts::KaminoLendingAccount, instructions::KaminoLendingInstruction,
         KaminoLendingDecoder, PROGRAM_ID as KAMINO_LENDING_PROGRAM_ID,
     },
-    carbon_log_metrics::LogMetrics,
+    carbon_log_metrics::LogMetricsExporter,
     carbon_yellowstone_grpc_datasource::{
         YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient,
     },
@@ -31,6 +31,26 @@ use {
         CommitmentLevel, SubscribeRequestFilterAccounts, SubscribeRequestFilterTransactions,
     },
 };
+
+static REALTIME_ACCOUNT_PROCESSED: Counter = Counter::new(
+    "realtime_account_processor_account_processed",
+    "Total accounts processed by realtime account processor",
+);
+static STARTUP_ACCOUNT_PROCESSED: Counter = Counter::new(
+    "startup_account_processor_account_processed",
+    "Total accounts processed by startup account processor",
+);
+static GPA_RPC_ACCOUNT_INGESTED: Counter = Counter::new(
+    "gpa_rpc_datasource_account_ingested",
+    "Total accounts ingested from GPA RPC datasource",
+);
+
+fn register_example_metrics() {
+    let registry = MetricsRegistry::global();
+    registry.register_counter(&REALTIME_ACCOUNT_PROCESSED);
+    registry.register_counter(&STARTUP_ACCOUNT_PROCESSED);
+    registry.register_counter(&GPA_RPC_ACCOUNT_INGESTED);
+}
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
@@ -94,6 +114,8 @@ pub async fn main() -> CarbonResult<()> {
     );
     let gpa_backfill_datasource_id = DatasourceId::new_named("gpa_backfill");
 
+    register_example_metrics();
+
     carbon_core::pipeline::Pipeline::builder()
         .datasource_with_id(yellowstone_grpc, yellowstone_grpc_id.clone())
         .datasource_with_id(gpa_backfill_datasource, gpa_backfill_datasource_id.clone())
@@ -109,7 +131,7 @@ pub async fn main() -> CarbonResult<()> {
             vec![Box::new(DatasourceFilter::new(gpa_backfill_datasource_id))],
         )
         .channel_buffer_size(1_000_000)
-        .metrics(Arc::new(LogMetrics::new()))
+        .metrics(Arc::new(LogMetricsExporter::new()))
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
         .build()?
         .run()
@@ -132,7 +154,6 @@ impl Processor for KaminoLendingInstructionProcessor {
     async fn process(
         &mut self,
         (metadata, instruction, _nested_instructions, _): Self::InputType,
-        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let signature = metadata.transaction_metadata.signature;
 
@@ -161,11 +182,7 @@ impl Processor for KaminoLendingRealtimeAccountProcessor {
         solana_account::Account,
     );
 
-    async fn process(
-        &mut self,
-        data: Self::InputType,
-        metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
+    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
         let account = data.1;
 
         let pubkey_str = format!(
@@ -205,9 +222,7 @@ impl Processor for KaminoLendingRealtimeAccountProcessor {
             )
         );
 
-        metrics
-            .increment_counter("realtime_account_processor_account_processed", 1)
-            .await?;
+        REALTIME_ACCOUNT_PROCESSED.inc();
 
         Ok(())
     }
@@ -222,11 +237,7 @@ impl Processor for KaminoLendingStartupAccountProcessor {
         solana_account::Account,
     );
 
-    async fn process(
-        &mut self,
-        data: Self::InputType,
-        metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
+    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()> {
         let account = data.1;
 
         let pubkey_str = format!(
@@ -266,9 +277,7 @@ impl Processor for KaminoLendingStartupAccountProcessor {
             )
         );
 
-        metrics
-            .increment_counter("startup_account_processor_account_processed", 1)
-            .await?;
+        STARTUP_ACCOUNT_PROCESSED.inc();
 
         Ok(())
     }
@@ -301,7 +310,6 @@ impl Datasource for GpaRpcDatasource {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         _cancellation_token: CancellationToken,
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let rpc_client = RpcClient::new(self.rpc_url.clone());
 
@@ -340,9 +348,7 @@ impl Datasource for GpaRpcDatasource {
             )) {
                 log::error!("Failed to send account update: {:?}", e);
             }
-            metrics
-                .increment_counter("gpa_rpc_datasource_account_ingested", 1)
-                .await?;
+            GPA_RPC_ACCOUNT_INGESTED.inc();
         }
 
         Ok(())

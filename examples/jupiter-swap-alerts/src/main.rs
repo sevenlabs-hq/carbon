@@ -3,14 +3,13 @@ use {
     carbon_core::{
         error::CarbonResult,
         instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
         processor::Processor,
     },
     carbon_jupiter_swap_decoder::{
         instructions::JupiterSwapInstruction, JupiterSwapDecoder,
         PROGRAM_ID as JUPITER_SWAP_PROGRAM_ID,
     },
-    carbon_log_metrics::LogMetrics,
+    carbon_log_metrics::LogMetricsExporter,
     carbon_yellowstone_grpc_datasource::{
         YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient,
     },
@@ -73,7 +72,7 @@ pub async fn main() -> CarbonResult<()> {
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(yellowstone_grpc)
-        .metrics(Arc::new(LogMetrics::new()))
+        .metrics(Arc::new(LogMetricsExporter::new()))
         .metrics_flush_interval(3)
         .instruction(JupiterSwapDecoder, JupiterSwapInstructionProcessor)
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
@@ -97,7 +96,6 @@ impl Processor for JupiterSwapInstructionProcessor {
     async fn process(
         &mut self,
         (metadata, instruction, nested_instructions, _): Self::InputType,
-        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let signature = metadata.transaction_metadata.signature;
 

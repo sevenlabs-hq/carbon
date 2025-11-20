@@ -51,13 +51,10 @@
 //!   handling in the pipeline.
 
 use {
-    crate::{
-        error::CarbonResult, filter::Filter, metrics::MetricsCollection, processor::Processor,
-    },
+    crate::{error::CarbonResult, filter::Filter, processor::Processor},
     async_trait::async_trait,
     solana_pubkey::Pubkey,
     solana_signature::Signature,
-    std::sync::Arc,
 };
 
 /// Holds metadata for an account update, including the slot and public key.
@@ -176,7 +173,6 @@ pub trait AccountPipes: Send + Sync {
     async fn run(
         &mut self,
         account_with_metadata: (AccountMetadata, solana_account::Account),
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
 
     fn filters(&self) -> &Vec<Box<dyn Filter + Send + Sync + 'static>>;
@@ -187,23 +183,19 @@ impl<T: Send> AccountPipes for AccountPipe<T> {
     async fn run(
         &mut self,
         account_with_metadata: (AccountMetadata, solana_account::Account),
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         log::trace!(
-            "AccountPipe::run(account_with_metadata: {:?}, metrics)",
+            "AccountPipe::run(account_with_metadata: {:?})",
             account_with_metadata,
         );
 
         if let Some(decoded_account) = self.decoder.decode_account(&account_with_metadata.1) {
             self.processor
-                .process(
-                    (
-                        account_with_metadata.0.clone(),
-                        decoded_account,
-                        account_with_metadata.1,
-                    ),
-                    metrics.clone(),
-                )
+                .process((
+                    account_with_metadata.0.clone(),
+                    decoded_account,
+                    account_with_metadata.1,
+                ))
                 .await?;
         }
         Ok(())

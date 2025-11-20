@@ -3,10 +3,9 @@ use {
     carbon_core::{
         error::CarbonResult,
         instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
         processor::Processor,
     },
-    carbon_log_metrics::LogMetrics,
+    carbon_log_metrics::LogMetricsExporter,
     carbon_raydium_cpmm_decoder::{
         instructions::RaydiumCpmmInstruction, types::SwapEvent, RaydiumCpmmDecoder,
         PROGRAM_ID as RAYDIUM_CPMM_PROGRAM_ID,
@@ -73,7 +72,7 @@ pub async fn main() -> CarbonResult<()> {
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(yellowstone_grpc)
-        .metrics(Arc::new(LogMetrics::new()))
+        .metrics(Arc::new(LogMetricsExporter::new()))
         .metrics_flush_interval(3)
         .instruction(RaydiumCpmmDecoder, RaydiumCpmmInstructionProcessor)
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
@@ -94,11 +93,7 @@ impl Processor for RaydiumCpmmInstructionProcessor {
         NestedInstructions,
         solana_instruction::Instruction,
     );
-    async fn process(
-        &mut self,
-        (metadata, _, _, _): Self::InputType,
-        _metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
+    async fn process(&mut self, (metadata, _, _, _): Self::InputType) -> CarbonResult<()> {
         let logs = metadata.decode_log_events::<SwapEvent>();
 
         if !logs.is_empty() {

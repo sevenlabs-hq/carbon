@@ -6,7 +6,7 @@ use {
             UpdateType,
         },
         error::CarbonResult,
-        metrics::MetricsCollection,
+        metrics::{Counter, Histogram, MetricsRegistry},
     },
     futures::{sink::SinkExt, StreamExt},
     solana_account::Account,
@@ -15,7 +15,7 @@ use {
     std::{
         collections::{HashMap, HashSet},
         convert::TryFrom,
-        sync::Arc,
+        sync::{Arc, OnceLock},
         time::Duration,
     },
     tokio::sync::{mpsc::Sender, RwLock},
@@ -32,6 +32,59 @@ use {
         tonic::{codec::CompressionEncoding, transport::ClientTlsConfig},
     },
 };
+
+static ACCOUNT_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
+static ACCOUNT_UPDATES_RECEIVED: Counter = Counter::new(
+    "yellowstone_grpc_account_updates_received",
+    "Total account updates received from Yellowstone gRPC",
+);
+static TRANSACTION_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
+static TRANSACTION_UPDATES_RECEIVED: Counter = Counter::new(
+    "yellowstone_grpc_transaction_updates_received",
+    "Total transaction updates received from Yellowstone gRPC",
+);
+
+fn init_histograms() {
+    ACCOUNT_PROCESS_TIME_NANOS.get_or_init(|| {
+        Histogram::new(
+            "yellowstone_grpc_account_process_time_nanoseconds",
+            "Time taken to process account updates in nanoseconds",
+            vec![
+                1_000.0,
+                10_000.0,
+                100_000.0,
+                1_000_000.0,
+                10_000_000.0,
+                100_000_000.0,
+                1_000_000_000.0,
+            ],
+        )
+    });
+    TRANSACTION_PROCESS_TIME_NANOS.get_or_init(|| {
+        Histogram::new(
+            "yellowstone_grpc_transaction_process_time_nanoseconds",
+            "Time taken to process transaction updates in nanoseconds",
+            vec![
+                1_000.0,
+                10_000.0,
+                100_000.0,
+                1_000_000.0,
+                10_000_000.0,
+                100_000_000.0,
+                1_000_000_000.0,
+            ],
+        )
+    });
+}
+
+fn register_yellowstone_metrics() {
+    init_histograms();
+    let registry = MetricsRegistry::global();
+    registry.register_counter(&ACCOUNT_UPDATES_RECEIVED);
+    registry.register_counter(&TRANSACTION_UPDATES_RECEIVED);
+    registry.register_histogram(ACCOUNT_PROCESS_TIME_NANOS.get().unwrap());
+    registry.register_histogram(TRANSACTION_PROCESS_TIME_NANOS.get().unwrap());
+}
 
 #[derive(Debug)]
 pub struct YellowstoneGrpcGeyserClient {
@@ -154,8 +207,8 @@ impl Datasource for YellowstoneGrpcGeyserClient {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
+        register_yellowstone_metrics();
         let endpoint = self.endpoint.clone();
         let x_token = self.x_token.clone();
         let commitment = self.commitment;
@@ -217,7 +270,6 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                             Some(UpdateOneof::Account(account_update)) => {
                                                 send_subscribe_account_update_info(
                                                     account_update.account,
-                                                    &metrics,
                                                     &sender,
                                                     id_for_loop.clone(),
                                                     account_update.slot,
@@ -227,21 +279,20 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                             }
 
                                             Some(UpdateOneof::Transaction(transaction_update)) => {
-                                                send_subscribe_update_transaction_info(transaction_update.transaction, &metrics, &sender, id_for_loop.clone(), transaction_update.slot, None).await
+                                                send_subscribe_update_transaction_info(transaction_update.transaction, &sender, id_for_loop.clone(), transaction_update.slot, None).await
                                             }
                                             Some(UpdateOneof::Block(block_update)) => {
                                                 let block_time = block_update.block_time.map(|ts| ts.timestamp);
 
                                                 for transaction_update in block_update.transactions {
                                                     if retain_block_failed_transactions || transaction_update.meta.as_ref().map(|meta| meta.err.is_none()).unwrap_or(false) {
-                                                        send_subscribe_update_transaction_info(Some(transaction_update), &metrics, &sender, id_for_loop.clone(), block_update.slot, block_time).await
+                                                        send_subscribe_update_transaction_info(Some(transaction_update), &sender, id_for_loop.clone(), block_update.slot, block_time).await
                                                     }
                                                 }
 
                                                 for account_info in block_update.accounts {
                                                     send_subscribe_account_update_info(
                                                         Some(account_info),
-                                                        &metrics,
                                                         &sender,
                                                         id_for_loop.clone(),
                                                         block_update.slot,
@@ -298,7 +349,6 @@ impl Datasource for YellowstoneGrpcGeyserClient {
 
 async fn send_subscribe_account_update_info(
     account_update_info: Option<SubscribeUpdateAccountInfo>,
-    metrics: &MetricsCollection,
     sender: &Sender<(Update, DatasourceId)>,
     id: DatasourceId,
     slot: u64,
@@ -365,18 +415,11 @@ async fn send_subscribe_account_update_info(
             }
         }
 
-        metrics
-            .record_histogram(
-                "yellowstone_grpc_account_process_time_nanoseconds",
-                start_time.elapsed().as_nanos() as f64,
-            )
-            .await
-            .expect("Failed to record histogram");
-
-        metrics
-            .increment_counter("yellowstone_grpc_account_updates_received", 1)
-            .await
-            .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+        ACCOUNT_PROCESS_TIME_NANOS
+            .get()
+            .unwrap()
+            .record(start_time.elapsed().as_nanos() as f64);
+        ACCOUNT_UPDATES_RECEIVED.inc();
     } else {
         log::error!("No account info in UpdateOneof::Account at slot {}", slot);
     }
@@ -384,7 +427,6 @@ async fn send_subscribe_account_update_info(
 
 async fn send_subscribe_update_transaction_info(
     transaction_info: Option<SubscribeUpdateTransactionInfo>,
-    metrics: &MetricsCollection,
     sender: &Sender<(Update, DatasourceId)>,
     id: DatasourceId,
     slot: u64,
@@ -431,18 +473,11 @@ async fn send_subscribe_update_transaction_info(
             return;
         }
 
-        metrics
-            .record_histogram(
-                "yellowstone_grpc_transaction_process_time_nanoseconds",
-                start_time.elapsed().as_nanos() as f64,
-            )
-            .await
-            .expect("Failed to record histogram");
-
-        metrics
-            .increment_counter("yellowstone_grpc_transaction_updates_received", 1)
-            .await
-            .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+        TRANSACTION_PROCESS_TIME_NANOS
+            .get()
+            .unwrap()
+            .record(start_time.elapsed().as_nanos() as f64);
+        TRANSACTION_UPDATES_RECEIVED.inc();
     } else {
         log::error!(
             "No transaction info in `UpdateOneof::Transaction` at slot {}",

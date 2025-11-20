@@ -3,7 +3,7 @@ use {
     carbon_core::{
         datasource::{Datasource, DatasourceId, TransactionUpdate, Update, UpdateType},
         error::CarbonResult,
-        metrics::MetricsCollection,
+        metrics::{Counter, Histogram, MetricsRegistry},
     },
     carbon_jito_protos::shredstream::{
         shredstream_proxy_client::ShredstreamProxyClient, SubscribeEntriesRequest,
@@ -14,12 +14,48 @@ use {
     solana_entry::entry::Entry,
     solana_transaction_status::TransactionStatusMeta,
     std::{
-        sync::Arc,
+        sync::{Arc, OnceLock},
         time::{SystemTime, UNIX_EPOCH},
     },
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
+
+static ENTRY_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
+static ENTRY_UPDATES_RECEIVED: Counter = Counter::new(
+    "jito_shredstream_grpc_entry_updates_received",
+    "Total entry updates received from Jito Shredstream gRPC",
+);
+static DUPLICATE_ENTRIES: Counter = Counter::new(
+    "jito_shredstream_grpc_duplicate_entries",
+    "Total duplicate entries filtered from Jito Shredstream gRPC",
+);
+
+fn init_histograms() {
+    ENTRY_PROCESS_TIME_NANOS.get_or_init(|| {
+        Histogram::new(
+            "jito_shredstream_grpc_entry_process_time_nanoseconds",
+            "Time taken to process entry updates in nanoseconds",
+            vec![
+                1_000.0,
+                10_000.0,
+                100_000.0,
+                1_000_000.0,
+                10_000_000.0,
+                100_000_000.0,
+                1_000_000_000.0,
+            ],
+        )
+    });
+}
+
+fn register_jito_metrics() {
+    init_histograms();
+    let registry = MetricsRegistry::global();
+    registry.register_counter(&ENTRY_UPDATES_RECEIVED);
+    registry.register_counter(&DUPLICATE_ENTRIES);
+    registry.register_histogram(ENTRY_PROCESS_TIME_NANOS.get().unwrap());
+}
 
 #[derive(Debug)]
 pub struct JitoShredstreamGrpcClient(String);
@@ -37,8 +73,8 @@ impl Datasource for JitoShredstreamGrpcClient {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
+        register_jito_metrics();
         let endpoint = self.0.clone();
 
         let mut client = ShredstreamProxyClient::connect(endpoint)
@@ -85,7 +121,6 @@ impl Datasource for JitoShredstreamGrpcClient {
 
             if let Err(e) = stream
                 .try_for_each_concurrent(None, |message| {
-                    let metrics = metrics.clone();
                     let sender = sender.clone();
                     let dedup_cache = dedup_cache.clone();
                     let id_for_closure = id.clone();
@@ -136,33 +171,13 @@ impl Datasource for JitoShredstreamGrpcClient {
                             }
                         }
 
-                        metrics
-                            .record_histogram(
-                                "jito_shredstream_grpc_entry_process_time_nanoseconds",
-                                start_time.elapsed().unwrap().as_nanos() as f64,
-                            )
-                            .await
-                            .unwrap();
+                        ENTRY_PROCESS_TIME_NANOS
+                            .get()
+                            .unwrap()
+                            .record(start_time.elapsed().unwrap().as_nanos() as f64);
 
-                        metrics
-                            .increment_counter(
-                                "jito_shredstream_grpc_entry_updates_received",
-                                total_entries as u64,
-                            )
-                            .await
-                            .unwrap_or_else(|value| {
-                                log::error!("Error recording metric: {}", value)
-                            });
-
-                        metrics
-                            .increment_counter(
-                                "jito_shredstream_grpc_duplicate_entries",
-                                duplicate_entries,
-                            )
-                            .await
-                            .unwrap_or_else(|value| {
-                                log::error!("Error recording metric: {}", value)
-                            });
+                        ENTRY_UPDATES_RECEIVED.inc_by(total_entries as u64);
+                        DUPLICATE_ENTRIES.inc_by(duplicate_entries);
 
                         Ok(())
                     }

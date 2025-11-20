@@ -34,8 +34,6 @@
 //!
 //! - `data`: An instance of the type specified by `InputType`. This represents
 //!   the data to be processed.
-//! - `metrics`: A vector of `Metrics` objects, allowing you to update and track
-//!   various performance metrics.
 //!
 //! ## Returns
 //!
@@ -51,11 +49,7 @@
 //!   relevant to your data processing, and update those metrics accordingly to
 //!   enable monitoring and alerting on key performance indicators.
 
-use {
-    crate::{error::CarbonResult, metrics::MetricsCollection},
-    async_trait::async_trait,
-    std::sync::Arc,
-};
+use {crate::error::CarbonResult, async_trait::async_trait};
 
 /// A trait for defining asynchronous data processing within the pipeline.
 ///
@@ -81,9 +75,7 @@ use {
 /// ```ignore
 /// use async_trait::async_trait;
 /// use carbon_core::error::CarbonResult;
-/// use carbon_core::metrics::MetricsCollection;
 /// use carbon_core::processor::Processor;
-/// use std::sync::Arc;
 ///
 /// struct CustomProcessor;
 ///
@@ -94,15 +86,8 @@ use {
 ///     async fn process(
 ///         &mut self,
 ///         data: Self::InputType,
-///         metrics: Arc<MetricsCollection>,
 ///     ) -> CarbonResult<()> {
 ///         // Perform data processing logic
-///
-///         // Optionally, update metrics
-///         for metric in &metrics {
-///             metric.increment_counter("processed_items", 1).await?;
-///         }
-///
 ///         Ok(())
 ///     }
 /// }
@@ -111,9 +96,5 @@ use {
 pub trait Processor {
     type InputType;
 
-    async fn process(
-        &mut self,
-        data: Self::InputType,
-        metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()>;
+    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()>;
 }

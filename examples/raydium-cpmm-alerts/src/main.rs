@@ -3,10 +3,9 @@ use {
     carbon_core::{
         error::CarbonResult,
         instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
         processor::Processor,
     },
-    carbon_log_metrics::LogMetrics,
+    carbon_log_metrics::LogMetricsExporter,
     carbon_raydium_cpmm_decoder::{
         instructions::RaydiumCpmmInstruction, RaydiumCpmmDecoder,
         PROGRAM_ID as RAYDIUM_CPMM_PROGRAM_ID,
@@ -37,7 +36,7 @@ pub async fn main() -> CarbonResult<()> {
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(block_subscribe)
-        .metrics(Arc::new(LogMetrics::new()))
+        .metrics(Arc::new(LogMetricsExporter::new()))
         .metrics_flush_interval(3)
         .instruction(RaydiumCpmmDecoder, RaydiumCpmmInstructionProcessor)
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
@@ -62,7 +61,6 @@ impl Processor for RaydiumCpmmInstructionProcessor {
     async fn process(
         &mut self,
         (metadata, instruction, _nested_instructions, _): Self::InputType,
-        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let signature = metadata.transaction_metadata.signature;
 

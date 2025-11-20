@@ -40,13 +40,15 @@ pub async fn main() -> CarbonResult<()> {
     {%- endif %}
     
     migrator.run(&mut *conn, &Plan::apply_all()).await.unwrap();
+    
+    carbon_core::postgres::processors::register_postgres_metrics();
     {%- endif %}
 
     let datasource = {{ datasource_init | safe }};
 
     let mut pipeline = carbon_core::pipeline::Pipeline::builder()
         .datasource(datasource)
-        .metrics(Arc::new({{ metrics.name }}Metrics::new()))
+        .metrics(Arc::new({{ metrics.name }}MetricsExporter::new()))
         .metrics_flush_interval(5)
         {%- if withPostgres %}
         {%- if useGenericPostgres %}
@@ -129,7 +131,6 @@ impl Processor for {{ decoder.name }}InstructionProcessor {
     async fn process(
         &mut self,
         (metadata, instruction, _nested_instructions, _raw_instruction): Self::InputType,
-        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let signature = metadata.transaction_metadata.signature;
         let accounts = instruction.accounts;

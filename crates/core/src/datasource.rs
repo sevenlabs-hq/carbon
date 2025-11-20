@@ -36,15 +36,10 @@
 use solana_program::hash::Hash;
 use solana_transaction_status::Rewards;
 use {
-    crate::{error::CarbonResult, metrics::MetricsCollection},
-    async_trait::async_trait,
-    solana_account::Account,
-    solana_pubkey::Pubkey,
-    solana_signature::Signature,
+    crate::error::CarbonResult, async_trait::async_trait, solana_account::Account,
+    solana_pubkey::Pubkey, solana_signature::Signature,
     solana_transaction::versioned::VersionedTransaction,
-    solana_transaction_status::TransactionStatusMeta,
-    std::sync::Arc,
-    tokio_util::sync::CancellationToken,
+    solana_transaction_status::TransactionStatusMeta, tokio_util::sync::CancellationToken,
 };
 
 /// Defines the interface for data sources that produce updates for accounts,
@@ -70,7 +65,6 @@ use {
 /// use carbon_core::datasource::UpdateType;
 /// use carbon_core::datasource::Update;
 /// use carbon_core::error::CarbonResult;
-/// use carbon_core::metrics::MetricsCollection;
 /// use carbon_core::datasource::Datasource;
 /// use tokio_util::sync::CancellationToken;
 /// use async_trait::async_trait;
@@ -81,7 +75,6 @@ use {
 ///         &self,
 ///         sender: &tokio::sync::mpsc::UnboundedSender<Update>,
 ///         cancellation_token: CancellationToken,
-///         metrics: Arc<MetricsCollection>,
 ///     ) -> CarbonResult<tokio::task::AbortHandle> {
 ///         // Implement update fetching logic
 ///     }
@@ -105,7 +98,6 @@ pub trait Datasource: Send + Sync {
         id: DatasourceId,
         sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
 
     fn update_types(&self) -> Vec<UpdateType>;
