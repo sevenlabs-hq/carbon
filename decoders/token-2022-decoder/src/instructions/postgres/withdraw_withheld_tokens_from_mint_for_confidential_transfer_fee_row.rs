@@ -2,10 +2,10 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
+use crate::types::DecryptableBalance;
 use carbon_core::instruction::InstructionMetadata;
 use carbon_core::postgres::metadata::InstructionRowMetadata;
 use carbon_core::postgres::primitives::U8;
-use crate::types::DecryptableBalance;
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow {
@@ -17,12 +17,19 @@ pub struct WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow {
 }
 
 impl WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow {
-    pub fn from_parts(source: crate::instructions::withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee::WithdrawWithheldTokensFromMintForConfidentialTransferFee, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee::WithdrawWithheldTokensFromMintForConfidentialTransferFee,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            confidential_transfer_fee_discriminator: source.confidential_transfer_fee_discriminator.into(),
+            confidential_transfer_fee_discriminator: source
+                .confidential_transfer_fee_discriminator
+                .into(),
             proof_instruction_offset: source.proof_instruction_offset.into(),
-            new_decryptable_available_balance: sqlx::types::Json(source.new_decryptable_available_balance.into()),
+            new_decryptable_available_balance: sqlx::types::Json(
+                source.new_decryptable_available_balance.into(),
+            ),
         }
     }
 }
@@ -57,7 +64,9 @@ impl carbon_core::postgres::operations::Table for crate::instructions::withdraw_
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Insert for WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow {
+impl carbon_core::postgres::operations::Insert
+    for WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow
+{
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"
             INSERT INTO withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_instruction (
@@ -82,7 +91,9 @@ impl carbon_core::postgres::operations::Insert for WithdrawWithheldTokensFromMin
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Upsert for WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow {
+impl carbon_core::postgres::operations::Upsert
+    for WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow
+{
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"INSERT INTO withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_instruction (
                 "confidential_transfer_fee_discriminator",
@@ -115,8 +126,14 @@ impl carbon_core::postgres::operations::Upsert for WithdrawWithheldTokensFromMin
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Delete for WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+impl carbon_core::postgres::operations::Delete
+    for WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow
+{
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"DELETE FROM withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_instruction WHERE
@@ -132,10 +149,19 @@ impl carbon_core::postgres::operations::Delete for WithdrawWithheldTokensFromMin
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+impl carbon_core::postgres::operations::LookUp
+    for WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow
+{
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(r#"SELECT * FROM withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#)
@@ -151,8 +177,13 @@ impl carbon_core::postgres::operations::LookUp for WithdrawWithheldTokensFromMin
 pub struct WithdrawWithheldTokensFromMintForConfidentialTransferFeeMigrationOperation;
 
 #[async_trait::async_trait]
-impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawWithheldTokensFromMintForConfidentialTransferFeeMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+impl sqlx_migrator::Operation<sqlx::Postgres>
+    for WithdrawWithheldTokensFromMintForConfidentialTransferFeeMigrationOperation
+{
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(r#"CREATE TABLE IF NOT EXISTS withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_instruction (
                 -- Instruction data
                 "confidential_transfer_fee_discriminator" INT2 NOT NULL,
@@ -168,7 +199,10 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawWithheldTokensFromMint
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(r#"DROP TABLE IF EXISTS withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_instruction"#).execute(connection).await?;
         Ok(())
     }

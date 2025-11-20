@@ -15,7 +15,9 @@ pub struct EmitTokenMetadataGraphQL {
 
 impl TryFrom<crate::instructions::postgres::EmitTokenMetadataRow> for EmitTokenMetadataGraphQL {
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::EmitTokenMetadataRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::EmitTokenMetadataRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
             start: row.start.map(|v| carbon_core::graphql::primitives::U64(*v)),

@@ -15,14 +15,22 @@ pub struct UpdateConfidentialTransferMintGraphQL {
     pub auditor_elgamal_pubkey: Option<Pubkey>,
 }
 
-impl TryFrom<crate::instructions::postgres::UpdateConfidentialTransferMintRow> for UpdateConfidentialTransferMintGraphQL {
+impl TryFrom<crate::instructions::postgres::UpdateConfidentialTransferMintRow>
+    for UpdateConfidentialTransferMintGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::UpdateConfidentialTransferMintRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::UpdateConfidentialTransferMintRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            confidential_transfer_discriminator: carbon_core::graphql::primitives::U8((*row.confidential_transfer_discriminator) as u8),
+            confidential_transfer_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.confidential_transfer_discriminator) as u8,
+            ),
             auto_approve_new_accounts: row.auto_approve_new_accounts,
-            auditor_elgamal_pubkey: row.auditor_elgamal_pubkey.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            auditor_elgamal_pubkey: row
+                .auditor_elgamal_pubkey
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
         })
     }
 }

@@ -2,12 +2,12 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
+use crate::types::Extension;
 use carbon_core::account::AccountMetadata;
 use carbon_core::postgres::metadata::AccountRowMetadata;
 use carbon_core::postgres::primitives::Pubkey;
 use carbon_core::postgres::primitives::U64;
 use carbon_core::postgres::primitives::U8;
-use crate::types::Extension;
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct MintRow {
@@ -41,7 +41,11 @@ impl TryFrom<MintRow> for crate::accounts::mint::Mint {
         Ok(Self {
             mint_authority: source.mint_authority.map(|value| *value),
             supply: *source.supply,
-            decimals: source.decimals.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
+            decimals: source.decimals.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
             is_initialized: source.is_initialized.into(),
             freeze_authority: source.freeze_authority.map(|value| *value),
             extensions: source.extensions.map(|value| value.0),
@@ -71,7 +75,8 @@ impl carbon_core::postgres::operations::Table for crate::accounts::mint::Mint {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for MintRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO mint_account (
                 "mint_authority",
                 "supply",
@@ -82,7 +87,8 @@ impl carbon_core::postgres::operations::Insert for MintRow {
                 __pubkey, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8
-            )"#)
+            )"#,
+        )
         .bind(self.mint_authority.clone())
         .bind(self.supply.clone())
         .bind(self.decimals.clone())
@@ -91,7 +97,8 @@ impl carbon_core::postgres::operations::Insert for MintRow {
         .bind(self.extensions.clone())
         .bind(self.account_metadata.pubkey.clone())
         .bind(self.account_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -100,7 +107,8 @@ impl carbon_core::postgres::operations::Insert for MintRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for MintRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO mint_account (
+        sqlx::query(
+            r#"INSERT INTO mint_account (
                 "mint_authority",
                 "supply",
                 "decimals",
@@ -120,7 +128,8 @@ impl carbon_core::postgres::operations::Upsert for MintRow {
                 "freeze_authority" = EXCLUDED."freeze_authority",
                 "extensions" = EXCLUDED."extensions",
                 __slot = EXCLUDED.__slot
-            "#)
+            "#,
+        )
         .bind(self.mint_authority.clone())
         .bind(self.supply.clone())
         .bind(self.decimals.clone())
@@ -129,7 +138,8 @@ impl carbon_core::postgres::operations::Upsert for MintRow {
         .bind(self.extensions.clone())
         .bind(self.account_metadata.pubkey)
         .bind(self.account_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -140,11 +150,14 @@ impl carbon_core::postgres::operations::Delete for MintRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM mint_account WHERE
+        sqlx::query(
+            r#"DELETE FROM mint_account WHERE
                 __pubkey = $1
-            "#)
+            "#,
+        )
         .bind(key)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -154,12 +167,18 @@ impl carbon_core::postgres::operations::Delete for MintRow {
 impl carbon_core::postgres::operations::LookUp for MintRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM mint_account WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM mint_account WHERE
                 __pubkey = $1
-            "#)
+            "#,
+        )
         .bind(key)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -169,8 +188,12 @@ pub struct MintMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for MintMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS mint_account (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS mint_account (
                 -- Account data
                 "mint_authority" BYTEA,
                 "supply" NUMERIC(20) NOT NULL,
@@ -182,12 +205,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MintMigrationOperation {
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__pubkey)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS mint_account"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS mint_account"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

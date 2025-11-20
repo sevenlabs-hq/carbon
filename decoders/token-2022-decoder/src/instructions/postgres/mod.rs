@@ -4,11 +4,11 @@
 //!
 pub mod amount_to_ui_amount_row;
 pub mod apply_confidential_pending_balance_row;
-pub mod approve_row;
 pub mod approve_checked_row;
 pub mod approve_confidential_transfer_account_row;
-pub mod burn_row;
+pub mod approve_row;
 pub mod burn_checked_row;
+pub mod burn_row;
 pub mod close_account_row;
 pub mod confidential_deposit_row;
 pub mod confidential_transfer_row;
@@ -30,11 +30,11 @@ pub mod enable_memo_transfers_row;
 pub mod enable_non_confidential_credits_row;
 pub mod freeze_account_row;
 pub mod get_account_data_size_row;
-pub mod harvest_withheld_tokens_to_mint_row;
 pub mod harvest_withheld_tokens_to_mint_for_confidential_transfer_fee_row;
-pub mod initialize_account_row;
+pub mod harvest_withheld_tokens_to_mint_row;
 pub mod initialize_account2_row;
 pub mod initialize_account3_row;
+pub mod initialize_account_row;
 pub mod initialize_confidential_transfer_fee_row;
 pub mod initialize_confidential_transfer_mint_row;
 pub mod initialize_default_account_state_row;
@@ -43,22 +43,22 @@ pub mod initialize_group_pointer_row;
 pub mod initialize_immutable_owner_row;
 pub mod initialize_interest_bearing_mint_row;
 pub mod initialize_metadata_pointer_row;
-pub mod initialize_mint_row;
 pub mod initialize_mint2_row;
 pub mod initialize_mint_close_authority_row;
-pub mod initialize_multisig_row;
+pub mod initialize_mint_row;
 pub mod initialize_multisig2_row;
+pub mod initialize_multisig_row;
 pub mod initialize_non_transferable_mint_row;
 pub mod initialize_pausable_config_row;
 pub mod initialize_permanent_delegate_row;
 pub mod initialize_scaled_ui_amount_mint_row;
-pub mod initialize_token_group_row;
 pub mod initialize_token_group_member_row;
+pub mod initialize_token_group_row;
 pub mod initialize_token_metadata_row;
 pub mod initialize_transfer_fee_config_row;
 pub mod initialize_transfer_hook_row;
-pub mod mint_to_row;
 pub mod mint_to_checked_row;
+pub mod mint_to_row;
 pub mod pause_row;
 pub mod reallocate_row;
 pub mod remove_token_metadata_key_row;
@@ -68,9 +68,9 @@ pub mod set_authority_row;
 pub mod set_transfer_fee_row;
 pub mod sync_native_row;
 pub mod thaw_account_row;
-pub mod transfer_row;
 pub mod transfer_checked_row;
 pub mod transfer_checked_with_fee_row;
+pub mod transfer_row;
 pub mod ui_amount_to_amount_row;
 pub mod update_confidential_transfer_mint_row;
 pub mod update_default_account_state_row;
@@ -85,18 +85,18 @@ pub mod update_token_metadata_field_row;
 pub mod update_token_metadata_update_authority_row;
 pub mod update_transfer_hook_row;
 pub mod withdraw_excess_lamports_row;
-pub mod withdraw_withheld_tokens_from_accounts_row;
 pub mod withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee_row;
-pub mod withdraw_withheld_tokens_from_mint_row;
+pub mod withdraw_withheld_tokens_from_accounts_row;
 pub mod withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_row;
+pub mod withdraw_withheld_tokens_from_mint_row;
 
 pub use self::amount_to_ui_amount_row::*;
 pub use self::apply_confidential_pending_balance_row::*;
-pub use self::approve_row::*;
 pub use self::approve_checked_row::*;
 pub use self::approve_confidential_transfer_account_row::*;
-pub use self::burn_row::*;
+pub use self::approve_row::*;
 pub use self::burn_checked_row::*;
+pub use self::burn_row::*;
 pub use self::close_account_row::*;
 pub use self::confidential_deposit_row::*;
 pub use self::confidential_transfer_row::*;
@@ -118,11 +118,11 @@ pub use self::enable_memo_transfers_row::*;
 pub use self::enable_non_confidential_credits_row::*;
 pub use self::freeze_account_row::*;
 pub use self::get_account_data_size_row::*;
-pub use self::harvest_withheld_tokens_to_mint_row::*;
 pub use self::harvest_withheld_tokens_to_mint_for_confidential_transfer_fee_row::*;
-pub use self::initialize_account_row::*;
+pub use self::harvest_withheld_tokens_to_mint_row::*;
 pub use self::initialize_account2_row::*;
 pub use self::initialize_account3_row::*;
+pub use self::initialize_account_row::*;
 pub use self::initialize_confidential_transfer_fee_row::*;
 pub use self::initialize_confidential_transfer_mint_row::*;
 pub use self::initialize_default_account_state_row::*;
@@ -131,22 +131,22 @@ pub use self::initialize_group_pointer_row::*;
 pub use self::initialize_immutable_owner_row::*;
 pub use self::initialize_interest_bearing_mint_row::*;
 pub use self::initialize_metadata_pointer_row::*;
-pub use self::initialize_mint_row::*;
 pub use self::initialize_mint2_row::*;
 pub use self::initialize_mint_close_authority_row::*;
-pub use self::initialize_multisig_row::*;
+pub use self::initialize_mint_row::*;
 pub use self::initialize_multisig2_row::*;
+pub use self::initialize_multisig_row::*;
 pub use self::initialize_non_transferable_mint_row::*;
 pub use self::initialize_pausable_config_row::*;
 pub use self::initialize_permanent_delegate_row::*;
 pub use self::initialize_scaled_ui_amount_mint_row::*;
-pub use self::initialize_token_group_row::*;
 pub use self::initialize_token_group_member_row::*;
+pub use self::initialize_token_group_row::*;
 pub use self::initialize_token_metadata_row::*;
 pub use self::initialize_transfer_fee_config_row::*;
 pub use self::initialize_transfer_hook_row::*;
-pub use self::mint_to_row::*;
 pub use self::mint_to_checked_row::*;
+pub use self::mint_to_row::*;
 pub use self::pause_row::*;
 pub use self::reallocate_row::*;
 pub use self::remove_token_metadata_key_row::*;
@@ -156,9 +156,9 @@ pub use self::set_authority_row::*;
 pub use self::set_transfer_fee_row::*;
 pub use self::sync_native_row::*;
 pub use self::thaw_account_row::*;
-pub use self::transfer_row::*;
 pub use self::transfer_checked_row::*;
 pub use self::transfer_checked_with_fee_row::*;
+pub use self::transfer_row::*;
 pub use self::ui_amount_to_amount_row::*;
 pub use self::update_confidential_transfer_mint_row::*;
 pub use self::update_default_account_state_row::*;
@@ -173,10 +173,10 @@ pub use self::update_token_metadata_field_row::*;
 pub use self::update_token_metadata_update_authority_row::*;
 pub use self::update_transfer_hook_row::*;
 pub use self::withdraw_excess_lamports_row::*;
-pub use self::withdraw_withheld_tokens_from_accounts_row::*;
 pub use self::withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee_row::*;
-pub use self::withdraw_withheld_tokens_from_mint_row::*;
+pub use self::withdraw_withheld_tokens_from_accounts_row::*;
 pub use self::withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_row::*;
+pub use self::withdraw_withheld_tokens_from_mint_row::*;
 
 use super::Token2022Instruction;
 
@@ -277,7 +277,9 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for Token2022InstructionsMigration
             Box::new(UpdateTransferHookMigrationOperation),
             Box::new(WithdrawExcessLamportsMigrationOperation),
             Box::new(WithdrawWithheldTokensFromAccountsMigrationOperation),
-            Box::new(WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeMigrationOperation),
+            Box::new(
+                WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeMigrationOperation,
+            ),
             Box::new(WithdrawWithheldTokensFromMintMigrationOperation),
             Box::new(WithdrawWithheldTokensFromMintForConfidentialTransferFeeMigrationOperation),
         ]
@@ -288,10 +290,23 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for Token2022InstructionsMigration
     }
 }
 
-pub struct Token2022InstructionWithMetadata(pub Token2022Instruction, pub carbon_core::instruction::InstructionMetadata);
+pub struct Token2022InstructionWithMetadata(
+    pub Token2022Instruction,
+    pub carbon_core::instruction::InstructionMetadata,
+);
 
-impl From<(Token2022Instruction, carbon_core::instruction::InstructionMetadata)> for Token2022InstructionWithMetadata {
-    fn from(value: (Token2022Instruction, carbon_core::instruction::InstructionMetadata)) -> Self {
+impl
+    From<(
+        Token2022Instruction,
+        carbon_core::instruction::InstructionMetadata,
+    )> for Token2022InstructionWithMetadata
+{
+    fn from(
+        value: (
+            Token2022Instruction,
+            carbon_core::instruction::InstructionMetadata,
+        ),
+    ) -> Self {
         Token2022InstructionWithMetadata(value.0, value.1)
     }
 }
@@ -302,27 +317,38 @@ impl carbon_core::postgres::operations::Insert for Token2022InstructionWithMetad
         let Token2022InstructionWithMetadata(instruction, metadata) = self;
         match instruction {
             Token2022Instruction::InitializeMint(instruction) => {
-                let row = initialize_mint_row::InitializeMintRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_mint_row::InitializeMintRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeAccount(instruction) => {
-                let row = initialize_account_row::InitializeAccountRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_account_row::InitializeAccountRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeMultisig(instruction) => {
-                let row = initialize_multisig_row::InitializeMultisigRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_multisig_row::InitializeMultisigRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::Transfer(instruction) => {
-                let row = transfer_row::TransferRow::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    transfer_row::TransferRow::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::Approve(instruction) => {
-                let row = approve_row::ApproveRow::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    approve_row::ApproveRow::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -332,7 +358,10 @@ impl carbon_core::postgres::operations::Insert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::SetAuthority(instruction) => {
-                let row = set_authority_row::SetAuthorityRow::from_parts(instruction.clone(), metadata.clone());
+                let row = set_authority_row::SetAuthorityRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -347,82 +376,130 @@ impl carbon_core::postgres::operations::Insert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::CloseAccount(instruction) => {
-                let row = close_account_row::CloseAccountRow::from_parts(instruction.clone(), metadata.clone());
+                let row = close_account_row::CloseAccountRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::FreezeAccount(instruction) => {
-                let row = freeze_account_row::FreezeAccountRow::from_parts(instruction.clone(), metadata.clone());
+                let row = freeze_account_row::FreezeAccountRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::ThawAccount(instruction) => {
-                let row = thaw_account_row::ThawAccountRow::from_parts(instruction.clone(), metadata.clone());
+                let row = thaw_account_row::ThawAccountRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::TransferChecked(instruction) => {
-                let row = transfer_checked_row::TransferCheckedRow::from_parts(instruction.clone(), metadata.clone());
+                let row = transfer_checked_row::TransferCheckedRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::ApproveChecked(instruction) => {
-                let row = approve_checked_row::ApproveCheckedRow::from_parts(instruction.clone(), metadata.clone());
+                let row = approve_checked_row::ApproveCheckedRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::MintToChecked(instruction) => {
-                let row = mint_to_checked_row::MintToCheckedRow::from_parts(instruction.clone(), metadata.clone());
+                let row = mint_to_checked_row::MintToCheckedRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::BurnChecked(instruction) => {
-                let row = burn_checked_row::BurnCheckedRow::from_parts(instruction.clone(), metadata.clone());
+                let row = burn_checked_row::BurnCheckedRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeAccount2(instruction) => {
-                let row = initialize_account2_row::InitializeAccount2Row::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_account2_row::InitializeAccount2Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::SyncNative(instruction) => {
-                let row = sync_native_row::SyncNativeRow::from_parts(instruction.clone(), metadata.clone());
+                let row = sync_native_row::SyncNativeRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeAccount3(instruction) => {
-                let row = initialize_account3_row::InitializeAccount3Row::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_account3_row::InitializeAccount3Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeMultisig2(instruction) => {
-                let row = initialize_multisig2_row::InitializeMultisig2Row::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_multisig2_row::InitializeMultisig2Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeMint2(instruction) => {
-                let row = initialize_mint2_row::InitializeMint2Row::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_mint2_row::InitializeMint2Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::GetAccountDataSize(instruction) => {
-                let row = get_account_data_size_row::GetAccountDataSizeRow::from_parts(instruction.clone(), metadata.clone());
+                let row = get_account_data_size_row::GetAccountDataSizeRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeImmutableOwner(instruction) => {
-                let row = initialize_immutable_owner_row::InitializeImmutableOwnerRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_immutable_owner_row::InitializeImmutableOwnerRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::AmountToUiAmount(instruction) => {
-                let row = amount_to_ui_amount_row::AmountToUiAmountRow::from_parts(instruction.clone(), metadata.clone());
+                let row = amount_to_ui_amount_row::AmountToUiAmountRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::UiAmountToAmount(instruction) => {
-                let row = ui_amount_to_amount_row::UiAmountToAmountRow::from_parts(instruction.clone(), metadata.clone());
+                let row = ui_amount_to_amount_row::UiAmountToAmountRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -432,12 +509,19 @@ impl carbon_core::postgres::operations::Insert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::InitializeTransferFeeConfig(instruction) => {
-                let row = initialize_transfer_fee_config_row::InitializeTransferFeeConfigRow::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    initialize_transfer_fee_config_row::InitializeTransferFeeConfigRow::from_parts(
+                        instruction.clone(),
+                        metadata.clone(),
+                    );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::TransferCheckedWithFee(instruction) => {
-                let row = transfer_checked_with_fee_row::TransferCheckedWithFeeRow::from_parts(instruction.clone(), metadata.clone());
+                let row = transfer_checked_with_fee_row::TransferCheckedWithFeeRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -452,12 +536,19 @@ impl carbon_core::postgres::operations::Insert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::HarvestWithheldTokensToMint(instruction) => {
-                let row = harvest_withheld_tokens_to_mint_row::HarvestWithheldTokensToMintRow::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    harvest_withheld_tokens_to_mint_row::HarvestWithheldTokensToMintRow::from_parts(
+                        instruction.clone(),
+                        metadata.clone(),
+                    );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::SetTransferFee(instruction) => {
-                let row = set_transfer_fee_row::SetTransferFeeRow::from_parts(instruction.clone(), metadata.clone());
+                let row = set_transfer_fee_row::SetTransferFeeRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -487,17 +578,26 @@ impl carbon_core::postgres::operations::Insert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::ConfidentialDeposit(instruction) => {
-                let row = confidential_deposit_row::ConfidentialDepositRow::from_parts(instruction.clone(), metadata.clone());
+                let row = confidential_deposit_row::ConfidentialDepositRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::ConfidentialWithdraw(instruction) => {
-                let row = confidential_withdraw_row::ConfidentialWithdrawRow::from_parts(instruction.clone(), metadata.clone());
+                let row = confidential_withdraw_row::ConfidentialWithdrawRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::ConfidentialTransfer(instruction) => {
-                let row = confidential_transfer_row::ConfidentialTransferRow::from_parts(instruction.clone(), metadata.clone());
+                let row = confidential_transfer_row::ConfidentialTransferRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -507,12 +607,19 @@ impl carbon_core::postgres::operations::Insert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::EnableConfidentialCredits(instruction) => {
-                let row = enable_confidential_credits_row::EnableConfidentialCreditsRow::from_parts(instruction.clone(), metadata.clone());
+                let row = enable_confidential_credits_row::EnableConfidentialCreditsRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::DisableConfidentialCredits(instruction) => {
-                let row = disable_confidential_credits_row::DisableConfidentialCreditsRow::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    disable_confidential_credits_row::DisableConfidentialCreditsRow::from_parts(
+                        instruction.clone(),
+                        metadata.clone(),
+                    );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -527,7 +634,11 @@ impl carbon_core::postgres::operations::Insert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::ConfidentialTransferWithFee(instruction) => {
-                let row = confidential_transfer_with_fee_row::ConfidentialTransferWithFeeRow::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    confidential_transfer_with_fee_row::ConfidentialTransferWithFeeRow::from_parts(
+                        instruction.clone(),
+                        metadata.clone(),
+                    );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -537,27 +648,43 @@ impl carbon_core::postgres::operations::Insert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::UpdateDefaultAccountState(instruction) => {
-                let row = update_default_account_state_row::UpdateDefaultAccountStateRow::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    update_default_account_state_row::UpdateDefaultAccountStateRow::from_parts(
+                        instruction.clone(),
+                        metadata.clone(),
+                    );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::Reallocate(instruction) => {
-                let row = reallocate_row::ReallocateRow::from_parts(instruction.clone(), metadata.clone());
+                let row = reallocate_row::ReallocateRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::EnableMemoTransfers(instruction) => {
-                let row = enable_memo_transfers_row::EnableMemoTransfersRow::from_parts(instruction.clone(), metadata.clone());
+                let row = enable_memo_transfers_row::EnableMemoTransfersRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::DisableMemoTransfers(instruction) => {
-                let row = disable_memo_transfers_row::DisableMemoTransfersRow::from_parts(instruction.clone(), metadata.clone());
+                let row = disable_memo_transfers_row::DisableMemoTransfersRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::CreateNativeMint(instruction) => {
-                let row = create_native_mint_row::CreateNativeMintRow::from_parts(instruction.clone(), metadata.clone());
+                let row = create_native_mint_row::CreateNativeMintRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -577,27 +704,43 @@ impl carbon_core::postgres::operations::Insert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::EnableCpiGuard(instruction) => {
-                let row = enable_cpi_guard_row::EnableCpiGuardRow::from_parts(instruction.clone(), metadata.clone());
+                let row = enable_cpi_guard_row::EnableCpiGuardRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::DisableCpiGuard(instruction) => {
-                let row = disable_cpi_guard_row::DisableCpiGuardRow::from_parts(instruction.clone(), metadata.clone());
+                let row = disable_cpi_guard_row::DisableCpiGuardRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializePermanentDelegate(instruction) => {
-                let row = initialize_permanent_delegate_row::InitializePermanentDelegateRow::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    initialize_permanent_delegate_row::InitializePermanentDelegateRow::from_parts(
+                        instruction.clone(),
+                        metadata.clone(),
+                    );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeTransferHook(instruction) => {
-                let row = initialize_transfer_hook_row::InitializeTransferHookRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_transfer_hook_row::InitializeTransferHookRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::UpdateTransferHook(instruction) => {
-                let row = update_transfer_hook_row::UpdateTransferHookRow::from_parts(instruction.clone(), metadata.clone());
+                let row = update_transfer_hook_row::UpdateTransferHookRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -606,53 +749,80 @@ impl carbon_core::postgres::operations::Insert for Token2022InstructionWithMetad
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::WithdrawWithheldTokensFromMintForConfidentialTransferFee(instruction) => {
+            Token2022Instruction::WithdrawWithheldTokensFromMintForConfidentialTransferFee(
+                instruction,
+            ) => {
                 let row = withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_row::WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::WithdrawWithheldTokensFromAccountsForConfidentialTransferFee(instruction) => {
+            Token2022Instruction::WithdrawWithheldTokensFromAccountsForConfidentialTransferFee(
+                instruction,
+            ) => {
                 let row = withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee_row::WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeRow::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::HarvestWithheldTokensToMintForConfidentialTransferFee(instruction) => {
+            Token2022Instruction::HarvestWithheldTokensToMintForConfidentialTransferFee(
+                instruction,
+            ) => {
                 let row = harvest_withheld_tokens_to_mint_for_confidential_transfer_fee_row::HarvestWithheldTokensToMintForConfidentialTransferFeeRow::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::EnableHarvestToMint(instruction) => {
-                let row = enable_harvest_to_mint_row::EnableHarvestToMintRow::from_parts(instruction.clone(), metadata.clone());
+                let row = enable_harvest_to_mint_row::EnableHarvestToMintRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::DisableHarvestToMint(instruction) => {
-                let row = disable_harvest_to_mint_row::DisableHarvestToMintRow::from_parts(instruction.clone(), metadata.clone());
+                let row = disable_harvest_to_mint_row::DisableHarvestToMintRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::WithdrawExcessLamports(instruction) => {
-                let row = withdraw_excess_lamports_row::WithdrawExcessLamportsRow::from_parts(instruction.clone(), metadata.clone());
+                let row = withdraw_excess_lamports_row::WithdrawExcessLamportsRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeMetadataPointer(instruction) => {
-                let row = initialize_metadata_pointer_row::InitializeMetadataPointerRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_metadata_pointer_row::InitializeMetadataPointerRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::UpdateMetadataPointer(instruction) => {
-                let row = update_metadata_pointer_row::UpdateMetadataPointerRow::from_parts(instruction.clone(), metadata.clone());
+                let row = update_metadata_pointer_row::UpdateMetadataPointerRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeGroupPointer(instruction) => {
-                let row = initialize_group_pointer_row::InitializeGroupPointerRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_group_pointer_row::InitializeGroupPointerRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::UpdateGroupPointer(instruction) => {
-                let row = update_group_pointer_row::UpdateGroupPointerRow::from_parts(instruction.clone(), metadata.clone());
+                let row = update_group_pointer_row::UpdateGroupPointerRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -662,7 +832,10 @@ impl carbon_core::postgres::operations::Insert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::UpdateGroupMemberPointer(instruction) => {
-                let row = update_group_member_pointer_row::UpdateGroupMemberPointerRow::from_parts(instruction.clone(), metadata.clone());
+                let row = update_group_member_pointer_row::UpdateGroupMemberPointerRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -677,7 +850,10 @@ impl carbon_core::postgres::operations::Insert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::InitializePausableConfig(instruction) => {
-                let row = initialize_pausable_config_row::InitializePausableConfigRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_pausable_config_row::InitializePausableConfigRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -692,17 +868,26 @@ impl carbon_core::postgres::operations::Insert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::InitializeTokenMetadata(instruction) => {
-                let row = initialize_token_metadata_row::InitializeTokenMetadataRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_token_metadata_row::InitializeTokenMetadataRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::UpdateTokenMetadataField(instruction) => {
-                let row = update_token_metadata_field_row::UpdateTokenMetadataFieldRow::from_parts(instruction.clone(), metadata.clone());
+                let row = update_token_metadata_field_row::UpdateTokenMetadataFieldRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::RemoveTokenMetadataKey(instruction) => {
-                let row = remove_token_metadata_key_row::RemoveTokenMetadataKeyRow::from_parts(instruction.clone(), metadata.clone());
+                let row = remove_token_metadata_key_row::RemoveTokenMetadataKeyRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -712,17 +897,26 @@ impl carbon_core::postgres::operations::Insert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::EmitTokenMetadata(instruction) => {
-                let row = emit_token_metadata_row::EmitTokenMetadataRow::from_parts(instruction.clone(), metadata.clone());
+                let row = emit_token_metadata_row::EmitTokenMetadataRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeTokenGroup(instruction) => {
-                let row = initialize_token_group_row::InitializeTokenGroupRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_token_group_row::InitializeTokenGroupRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::UpdateTokenGroupMaxSize(instruction) => {
-                let row = update_token_group_max_size_row::UpdateTokenGroupMaxSizeRow::from_parts(instruction.clone(), metadata.clone());
+                let row = update_token_group_max_size_row::UpdateTokenGroupMaxSizeRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -732,7 +926,11 @@ impl carbon_core::postgres::operations::Insert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::InitializeTokenGroupMember(instruction) => {
-                let row = initialize_token_group_member_row::InitializeTokenGroupMemberRow::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    initialize_token_group_member_row::InitializeTokenGroupMemberRow::from_parts(
+                        instruction.clone(),
+                        metadata.clone(),
+                    );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -746,27 +944,38 @@ impl carbon_core::postgres::operations::Upsert for Token2022InstructionWithMetad
         let Token2022InstructionWithMetadata(instruction, metadata) = self;
         match instruction {
             Token2022Instruction::InitializeMint(instruction) => {
-                let row = initialize_mint_row::InitializeMintRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_mint_row::InitializeMintRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeAccount(instruction) => {
-                let row = initialize_account_row::InitializeAccountRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_account_row::InitializeAccountRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeMultisig(instruction) => {
-                let row = initialize_multisig_row::InitializeMultisigRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_multisig_row::InitializeMultisigRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::Transfer(instruction) => {
-                let row = transfer_row::TransferRow::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    transfer_row::TransferRow::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::Approve(instruction) => {
-                let row = approve_row::ApproveRow::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    approve_row::ApproveRow::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -776,7 +985,10 @@ impl carbon_core::postgres::operations::Upsert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::SetAuthority(instruction) => {
-                let row = set_authority_row::SetAuthorityRow::from_parts(instruction.clone(), metadata.clone());
+                let row = set_authority_row::SetAuthorityRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -791,82 +1003,130 @@ impl carbon_core::postgres::operations::Upsert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::CloseAccount(instruction) => {
-                let row = close_account_row::CloseAccountRow::from_parts(instruction.clone(), metadata.clone());
+                let row = close_account_row::CloseAccountRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::FreezeAccount(instruction) => {
-                let row = freeze_account_row::FreezeAccountRow::from_parts(instruction.clone(), metadata.clone());
+                let row = freeze_account_row::FreezeAccountRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::ThawAccount(instruction) => {
-                let row = thaw_account_row::ThawAccountRow::from_parts(instruction.clone(), metadata.clone());
+                let row = thaw_account_row::ThawAccountRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::TransferChecked(instruction) => {
-                let row = transfer_checked_row::TransferCheckedRow::from_parts(instruction.clone(), metadata.clone());
+                let row = transfer_checked_row::TransferCheckedRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::ApproveChecked(instruction) => {
-                let row = approve_checked_row::ApproveCheckedRow::from_parts(instruction.clone(), metadata.clone());
+                let row = approve_checked_row::ApproveCheckedRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::MintToChecked(instruction) => {
-                let row = mint_to_checked_row::MintToCheckedRow::from_parts(instruction.clone(), metadata.clone());
+                let row = mint_to_checked_row::MintToCheckedRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::BurnChecked(instruction) => {
-                let row = burn_checked_row::BurnCheckedRow::from_parts(instruction.clone(), metadata.clone());
+                let row = burn_checked_row::BurnCheckedRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeAccount2(instruction) => {
-                let row = initialize_account2_row::InitializeAccount2Row::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_account2_row::InitializeAccount2Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::SyncNative(instruction) => {
-                let row = sync_native_row::SyncNativeRow::from_parts(instruction.clone(), metadata.clone());
+                let row = sync_native_row::SyncNativeRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeAccount3(instruction) => {
-                let row = initialize_account3_row::InitializeAccount3Row::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_account3_row::InitializeAccount3Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeMultisig2(instruction) => {
-                let row = initialize_multisig2_row::InitializeMultisig2Row::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_multisig2_row::InitializeMultisig2Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeMint2(instruction) => {
-                let row = initialize_mint2_row::InitializeMint2Row::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_mint2_row::InitializeMint2Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::GetAccountDataSize(instruction) => {
-                let row = get_account_data_size_row::GetAccountDataSizeRow::from_parts(instruction.clone(), metadata.clone());
+                let row = get_account_data_size_row::GetAccountDataSizeRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeImmutableOwner(instruction) => {
-                let row = initialize_immutable_owner_row::InitializeImmutableOwnerRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_immutable_owner_row::InitializeImmutableOwnerRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::AmountToUiAmount(instruction) => {
-                let row = amount_to_ui_amount_row::AmountToUiAmountRow::from_parts(instruction.clone(), metadata.clone());
+                let row = amount_to_ui_amount_row::AmountToUiAmountRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::UiAmountToAmount(instruction) => {
-                let row = ui_amount_to_amount_row::UiAmountToAmountRow::from_parts(instruction.clone(), metadata.clone());
+                let row = ui_amount_to_amount_row::UiAmountToAmountRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -876,12 +1136,19 @@ impl carbon_core::postgres::operations::Upsert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::InitializeTransferFeeConfig(instruction) => {
-                let row = initialize_transfer_fee_config_row::InitializeTransferFeeConfigRow::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    initialize_transfer_fee_config_row::InitializeTransferFeeConfigRow::from_parts(
+                        instruction.clone(),
+                        metadata.clone(),
+                    );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::TransferCheckedWithFee(instruction) => {
-                let row = transfer_checked_with_fee_row::TransferCheckedWithFeeRow::from_parts(instruction.clone(), metadata.clone());
+                let row = transfer_checked_with_fee_row::TransferCheckedWithFeeRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -896,12 +1163,19 @@ impl carbon_core::postgres::operations::Upsert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::HarvestWithheldTokensToMint(instruction) => {
-                let row = harvest_withheld_tokens_to_mint_row::HarvestWithheldTokensToMintRow::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    harvest_withheld_tokens_to_mint_row::HarvestWithheldTokensToMintRow::from_parts(
+                        instruction.clone(),
+                        metadata.clone(),
+                    );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::SetTransferFee(instruction) => {
-                let row = set_transfer_fee_row::SetTransferFeeRow::from_parts(instruction.clone(), metadata.clone());
+                let row = set_transfer_fee_row::SetTransferFeeRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -931,17 +1205,26 @@ impl carbon_core::postgres::operations::Upsert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::ConfidentialDeposit(instruction) => {
-                let row = confidential_deposit_row::ConfidentialDepositRow::from_parts(instruction.clone(), metadata.clone());
+                let row = confidential_deposit_row::ConfidentialDepositRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::ConfidentialWithdraw(instruction) => {
-                let row = confidential_withdraw_row::ConfidentialWithdrawRow::from_parts(instruction.clone(), metadata.clone());
+                let row = confidential_withdraw_row::ConfidentialWithdrawRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::ConfidentialTransfer(instruction) => {
-                let row = confidential_transfer_row::ConfidentialTransferRow::from_parts(instruction.clone(), metadata.clone());
+                let row = confidential_transfer_row::ConfidentialTransferRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -951,12 +1234,19 @@ impl carbon_core::postgres::operations::Upsert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::EnableConfidentialCredits(instruction) => {
-                let row = enable_confidential_credits_row::EnableConfidentialCreditsRow::from_parts(instruction.clone(), metadata.clone());
+                let row = enable_confidential_credits_row::EnableConfidentialCreditsRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::DisableConfidentialCredits(instruction) => {
-                let row = disable_confidential_credits_row::DisableConfidentialCreditsRow::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    disable_confidential_credits_row::DisableConfidentialCreditsRow::from_parts(
+                        instruction.clone(),
+                        metadata.clone(),
+                    );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -971,7 +1261,11 @@ impl carbon_core::postgres::operations::Upsert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::ConfidentialTransferWithFee(instruction) => {
-                let row = confidential_transfer_with_fee_row::ConfidentialTransferWithFeeRow::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    confidential_transfer_with_fee_row::ConfidentialTransferWithFeeRow::from_parts(
+                        instruction.clone(),
+                        metadata.clone(),
+                    );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -981,27 +1275,43 @@ impl carbon_core::postgres::operations::Upsert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::UpdateDefaultAccountState(instruction) => {
-                let row = update_default_account_state_row::UpdateDefaultAccountStateRow::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    update_default_account_state_row::UpdateDefaultAccountStateRow::from_parts(
+                        instruction.clone(),
+                        metadata.clone(),
+                    );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::Reallocate(instruction) => {
-                let row = reallocate_row::ReallocateRow::from_parts(instruction.clone(), metadata.clone());
+                let row = reallocate_row::ReallocateRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::EnableMemoTransfers(instruction) => {
-                let row = enable_memo_transfers_row::EnableMemoTransfersRow::from_parts(instruction.clone(), metadata.clone());
+                let row = enable_memo_transfers_row::EnableMemoTransfersRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::DisableMemoTransfers(instruction) => {
-                let row = disable_memo_transfers_row::DisableMemoTransfersRow::from_parts(instruction.clone(), metadata.clone());
+                let row = disable_memo_transfers_row::DisableMemoTransfersRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::CreateNativeMint(instruction) => {
-                let row = create_native_mint_row::CreateNativeMintRow::from_parts(instruction.clone(), metadata.clone());
+                let row = create_native_mint_row::CreateNativeMintRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -1021,27 +1331,43 @@ impl carbon_core::postgres::operations::Upsert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::EnableCpiGuard(instruction) => {
-                let row = enable_cpi_guard_row::EnableCpiGuardRow::from_parts(instruction.clone(), metadata.clone());
+                let row = enable_cpi_guard_row::EnableCpiGuardRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::DisableCpiGuard(instruction) => {
-                let row = disable_cpi_guard_row::DisableCpiGuardRow::from_parts(instruction.clone(), metadata.clone());
+                let row = disable_cpi_guard_row::DisableCpiGuardRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializePermanentDelegate(instruction) => {
-                let row = initialize_permanent_delegate_row::InitializePermanentDelegateRow::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    initialize_permanent_delegate_row::InitializePermanentDelegateRow::from_parts(
+                        instruction.clone(),
+                        metadata.clone(),
+                    );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeTransferHook(instruction) => {
-                let row = initialize_transfer_hook_row::InitializeTransferHookRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_transfer_hook_row::InitializeTransferHookRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::UpdateTransferHook(instruction) => {
-                let row = update_transfer_hook_row::UpdateTransferHookRow::from_parts(instruction.clone(), metadata.clone());
+                let row = update_transfer_hook_row::UpdateTransferHookRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -1050,53 +1376,80 @@ impl carbon_core::postgres::operations::Upsert for Token2022InstructionWithMetad
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::WithdrawWithheldTokensFromMintForConfidentialTransferFee(instruction) => {
+            Token2022Instruction::WithdrawWithheldTokensFromMintForConfidentialTransferFee(
+                instruction,
+            ) => {
                 let row = withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_row::WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::WithdrawWithheldTokensFromAccountsForConfidentialTransferFee(instruction) => {
+            Token2022Instruction::WithdrawWithheldTokensFromAccountsForConfidentialTransferFee(
+                instruction,
+            ) => {
                 let row = withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee_row::WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeRow::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::HarvestWithheldTokensToMintForConfidentialTransferFee(instruction) => {
+            Token2022Instruction::HarvestWithheldTokensToMintForConfidentialTransferFee(
+                instruction,
+            ) => {
                 let row = harvest_withheld_tokens_to_mint_for_confidential_transfer_fee_row::HarvestWithheldTokensToMintForConfidentialTransferFeeRow::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::EnableHarvestToMint(instruction) => {
-                let row = enable_harvest_to_mint_row::EnableHarvestToMintRow::from_parts(instruction.clone(), metadata.clone());
+                let row = enable_harvest_to_mint_row::EnableHarvestToMintRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::DisableHarvestToMint(instruction) => {
-                let row = disable_harvest_to_mint_row::DisableHarvestToMintRow::from_parts(instruction.clone(), metadata.clone());
+                let row = disable_harvest_to_mint_row::DisableHarvestToMintRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::WithdrawExcessLamports(instruction) => {
-                let row = withdraw_excess_lamports_row::WithdrawExcessLamportsRow::from_parts(instruction.clone(), metadata.clone());
+                let row = withdraw_excess_lamports_row::WithdrawExcessLamportsRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeMetadataPointer(instruction) => {
-                let row = initialize_metadata_pointer_row::InitializeMetadataPointerRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_metadata_pointer_row::InitializeMetadataPointerRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::UpdateMetadataPointer(instruction) => {
-                let row = update_metadata_pointer_row::UpdateMetadataPointerRow::from_parts(instruction.clone(), metadata.clone());
+                let row = update_metadata_pointer_row::UpdateMetadataPointerRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeGroupPointer(instruction) => {
-                let row = initialize_group_pointer_row::InitializeGroupPointerRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_group_pointer_row::InitializeGroupPointerRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::UpdateGroupPointer(instruction) => {
-                let row = update_group_pointer_row::UpdateGroupPointerRow::from_parts(instruction.clone(), metadata.clone());
+                let row = update_group_pointer_row::UpdateGroupPointerRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -1106,7 +1459,10 @@ impl carbon_core::postgres::operations::Upsert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::UpdateGroupMemberPointer(instruction) => {
-                let row = update_group_member_pointer_row::UpdateGroupMemberPointerRow::from_parts(instruction.clone(), metadata.clone());
+                let row = update_group_member_pointer_row::UpdateGroupMemberPointerRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -1121,7 +1477,10 @@ impl carbon_core::postgres::operations::Upsert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::InitializePausableConfig(instruction) => {
-                let row = initialize_pausable_config_row::InitializePausableConfigRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_pausable_config_row::InitializePausableConfigRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -1136,17 +1495,26 @@ impl carbon_core::postgres::operations::Upsert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::InitializeTokenMetadata(instruction) => {
-                let row = initialize_token_metadata_row::InitializeTokenMetadataRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_token_metadata_row::InitializeTokenMetadataRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::UpdateTokenMetadataField(instruction) => {
-                let row = update_token_metadata_field_row::UpdateTokenMetadataFieldRow::from_parts(instruction.clone(), metadata.clone());
+                let row = update_token_metadata_field_row::UpdateTokenMetadataFieldRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::RemoveTokenMetadataKey(instruction) => {
-                let row = remove_token_metadata_key_row::RemoveTokenMetadataKeyRow::from_parts(instruction.clone(), metadata.clone());
+                let row = remove_token_metadata_key_row::RemoveTokenMetadataKeyRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -1156,17 +1524,26 @@ impl carbon_core::postgres::operations::Upsert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::EmitTokenMetadata(instruction) => {
-                let row = emit_token_metadata_row::EmitTokenMetadataRow::from_parts(instruction.clone(), metadata.clone());
+                let row = emit_token_metadata_row::EmitTokenMetadataRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::InitializeTokenGroup(instruction) => {
-                let row = initialize_token_group_row::InitializeTokenGroupRow::from_parts(instruction.clone(), metadata.clone());
+                let row = initialize_token_group_row::InitializeTokenGroupRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             Token2022Instruction::UpdateTokenGroupMaxSize(instruction) => {
-                let row = update_token_group_max_size_row::UpdateTokenGroupMaxSizeRow::from_parts(instruction.clone(), metadata.clone());
+                let row = update_token_group_max_size_row::UpdateTokenGroupMaxSizeRow::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -1176,7 +1553,11 @@ impl carbon_core::postgres::operations::Upsert for Token2022InstructionWithMetad
                 Ok(())
             }
             Token2022Instruction::InitializeTokenGroupMember(instruction) => {
-                let row = initialize_token_group_member_row::InitializeTokenGroupMemberRow::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    initialize_token_group_member_row::InitializeTokenGroupMemberRow::from_parts(
+                        instruction.clone(),
+                        metadata.clone(),
+                    );
                 row.upsert(pool).await?;
                 Ok(())
             }

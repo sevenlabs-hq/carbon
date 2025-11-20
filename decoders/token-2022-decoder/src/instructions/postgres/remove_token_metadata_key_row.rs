@@ -14,7 +14,10 @@ pub struct RemoveTokenMetadataKeyRow {
 }
 
 impl RemoveTokenMetadataKeyRow {
-    pub fn from_parts(source: crate::instructions::remove_token_metadata_key::RemoveTokenMetadataKey, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::remove_token_metadata_key::RemoveTokenMetadataKey,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             idempotent: source.idempotent.into(),
@@ -23,7 +26,9 @@ impl RemoveTokenMetadataKeyRow {
     }
 }
 
-impl TryFrom<RemoveTokenMetadataKeyRow> for crate::instructions::remove_token_metadata_key::RemoveTokenMetadataKey {
+impl TryFrom<RemoveTokenMetadataKeyRow>
+    for crate::instructions::remove_token_metadata_key::RemoveTokenMetadataKey
+{
     type Error = carbon_core::error::Error;
     fn try_from(source: RemoveTokenMetadataKeyRow) -> Result<Self, Self::Error> {
         Ok(Self {
@@ -33,7 +38,9 @@ impl TryFrom<RemoveTokenMetadataKeyRow> for crate::instructions::remove_token_me
     }
 }
 
-impl carbon_core::postgres::operations::Table for crate::instructions::remove_token_metadata_key::RemoveTokenMetadataKey {
+impl carbon_core::postgres::operations::Table
+    for crate::instructions::remove_token_metadata_key::RemoveTokenMetadataKey
+{
     fn table() -> &'static str {
         "remove_token_metadata_key_instruction"
     }
@@ -53,21 +60,24 @@ impl carbon_core::postgres::operations::Table for crate::instructions::remove_to
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for RemoveTokenMetadataKeyRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO remove_token_metadata_key_instruction (
                 "idempotent",
                 "key",
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6
-            )"#)
+            )"#,
+        )
         .bind(self.idempotent.clone())
         .bind(self.key.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -76,7 +86,8 @@ impl carbon_core::postgres::operations::Insert for RemoveTokenMetadataKeyRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for RemoveTokenMetadataKeyRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO remove_token_metadata_key_instruction (
+        sqlx::query(
+            r#"INSERT INTO remove_token_metadata_key_instruction (
                 "idempotent",
                 "key",
                 __signature, __instruction_index, __stack_height, __slot
@@ -90,14 +101,16 @@ impl carbon_core::postgres::operations::Upsert for RemoveTokenMetadataKeyRow {
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
-            "#)
+            "#,
+        )
         .bind(self.idempotent.clone())
         .bind(self.key.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -105,16 +118,23 @@ impl carbon_core::postgres::operations::Upsert for RemoveTokenMetadataKeyRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for RemoveTokenMetadataKeyRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM remove_token_metadata_key_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM remove_token_metadata_key_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -122,16 +142,26 @@ impl carbon_core::postgres::operations::Delete for RemoveTokenMetadataKeyRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for RemoveTokenMetadataKeyRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM remove_token_metadata_key_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM remove_token_metadata_key_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -141,8 +171,12 @@ pub struct RemoveTokenMetadataKeyMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for RemoveTokenMetadataKeyMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS remove_token_metadata_key_instruction (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS remove_token_metadata_key_instruction (
                 -- Instruction data
                 "idempotent" BOOLEAN NOT NULL,
                 "key" TEXT NOT NULL,
@@ -152,12 +186,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for RemoveTokenMetadataKeyMigratio
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS remove_token_metadata_key_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS remove_token_metadata_key_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

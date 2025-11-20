@@ -12,9 +12,13 @@ pub struct InitializePermanentDelegateGraphQL {
     pub delegate: Pubkey,
 }
 
-impl TryFrom<crate::instructions::postgres::InitializePermanentDelegateRow> for InitializePermanentDelegateGraphQL {
+impl TryFrom<crate::instructions::postgres::InitializePermanentDelegateRow>
+    for InitializePermanentDelegateGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::InitializePermanentDelegateRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::InitializePermanentDelegateRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
             delegate: carbon_core::graphql::primitives::Pubkey(row.delegate.0),

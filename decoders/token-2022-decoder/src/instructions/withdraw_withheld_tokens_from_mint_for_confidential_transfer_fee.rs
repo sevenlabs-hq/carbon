@@ -4,18 +4,18 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::CarbonDeserialize;
+use crate::types::DecryptableBalance;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
-use crate::types::DecryptableBalance;
+use carbon_core::CarbonDeserialize;
 
 /// Transfer all withheld confidential tokens in the mint to an account.
 /// Signed by the mint's withdraw withheld tokens authority.
-/// 
+///
 /// The withheld confidential tokens are aggregated directly into the destination available balance.
-/// 
+///
 /// Must be accompanied by the VerifyCiphertextCiphertextEquality instruction
 /// of the zk_elgamal_proof program in the same transaction or the address of
 /// a context state account for the proof must be provided.
@@ -60,7 +60,8 @@ impl WithdrawWithheldTokensFromMintForConfidentialTransferFee {
 }
 
 impl ArrangeAccounts for WithdrawWithheldTokensFromMintForConfidentialTransferFee {
-    type ArrangedAccounts = WithdrawWithheldTokensFromMintForConfidentialTransferFeeInstructionAccounts;
+    type ArrangedAccounts =
+        WithdrawWithheldTokensFromMintForConfidentialTransferFeeInstructionAccounts;
 
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
@@ -75,13 +76,15 @@ impl ArrangeAccounts for WithdrawWithheldTokensFromMintForConfidentialTransferFe
 
         let remaining = iter.as_slice();
 
-        Some(WithdrawWithheldTokensFromMintForConfidentialTransferFeeInstructionAccounts {
-            mint,
-            destination,
-            instructions_sysvar_or_context_state,
-            record,
-            authority,
-            remaining: remaining.to_vec(),
-        })
+        Some(
+            WithdrawWithheldTokensFromMintForConfidentialTransferFeeInstructionAccounts {
+                mint,
+                destination,
+                instructions_sysvar_or_context_state,
+                record,
+                authority,
+                remaining: remaining.to_vec(),
+            },
+        )
     }
 }

@@ -14,10 +14,14 @@ pub struct EnableHarvestToMintGraphQL {
 
 impl TryFrom<crate::instructions::postgres::EnableHarvestToMintRow> for EnableHarvestToMintGraphQL {
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::EnableHarvestToMintRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::EnableHarvestToMintRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            confidential_transfer_fee_discriminator: carbon_core::graphql::primitives::U8((*row.confidential_transfer_fee_discriminator) as u8),
+            confidential_transfer_fee_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.confidential_transfer_fee_discriminator) as u8,
+            ),
         })
     }
 }

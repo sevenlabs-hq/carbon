@@ -7,23 +7,23 @@ use juniper::GraphQLEnum;
 #[derive(Debug, Clone, GraphQLEnum)]
 #[graphql(name = "AuthorityType")]
 pub enum AuthorityTypeGraphQL {
-        MintTokens,
-        FreezeAccount,
-        AccountOwner,
-        CloseAccount,
-        TransferFeeConfig,
-        WithheldWithdraw,
-        CloseMint,
-        InterestRate,
-        PermanentDelegate,
-        ConfidentialTransferMint,
-        TransferHookProgramId,
-        ConfidentialTransferFeeConfig,
-        MetadataPointer,
-        GroupPointer,
-        GroupMemberPointer,
-        ScaledUiAmount,
-        Pause,
+    MintTokens,
+    FreezeAccount,
+    AccountOwner,
+    CloseAccount,
+    TransferFeeConfig,
+    WithheldWithdraw,
+    CloseMint,
+    InterestRate,
+    PermanentDelegate,
+    ConfidentialTransferMint,
+    TransferHookProgramId,
+    ConfidentialTransferFeeConfig,
+    MetadataPointer,
+    GroupPointer,
+    GroupMemberPointer,
+    ScaledUiAmount,
+    Pause,
 }
 
 impl From<crate::types::AuthorityType> for AuthorityTypeGraphQL {
@@ -40,7 +40,9 @@ impl From<crate::types::AuthorityType> for AuthorityTypeGraphQL {
             crate::types::AuthorityType::PermanentDelegate => Self::PermanentDelegate,
             crate::types::AuthorityType::ConfidentialTransferMint => Self::ConfidentialTransferMint,
             crate::types::AuthorityType::TransferHookProgramId => Self::TransferHookProgramId,
-            crate::types::AuthorityType::ConfidentialTransferFeeConfig => Self::ConfidentialTransferFeeConfig,
+            crate::types::AuthorityType::ConfidentialTransferFeeConfig => {
+                Self::ConfidentialTransferFeeConfig
+            }
             crate::types::AuthorityType::MetadataPointer => Self::MetadataPointer,
             crate::types::AuthorityType::GroupPointer => Self::GroupPointer,
             crate::types::AuthorityType::GroupMemberPointer => Self::GroupMemberPointer,
@@ -49,4 +51,3 @@ impl From<crate::types::AuthorityType> for AuthorityTypeGraphQL {
         }
     }
 }
-

@@ -4,14 +4,14 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
+use carbon_core::CarbonDeserialize;
 
 /// Approves a token account for confidential transfers.
-/// 
+///
 /// Approval is only required when the
 /// `ConfidentialTransferMint::approve_new_accounts` field is set in the
 /// SPL Token mint.  This instruction must be executed after the account

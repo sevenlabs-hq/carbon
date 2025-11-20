@@ -18,7 +18,10 @@ pub struct InitializeConfidentialTransferMintRow {
 }
 
 impl InitializeConfidentialTransferMintRow {
-    pub fn from_parts(source: crate::instructions::initialize_confidential_transfer_mint::InitializeConfidentialTransferMint, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::initialize_confidential_transfer_mint::InitializeConfidentialTransferMint,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             confidential_transfer_discriminator: source.confidential_transfer_discriminator.into(),
@@ -63,7 +66,8 @@ impl carbon_core::postgres::operations::Table for crate::instructions::initializ
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for InitializeConfidentialTransferMintRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO initialize_confidential_transfer_mint_instruction (
                 "confidential_transfer_discriminator",
                 "authority",
@@ -72,7 +76,8 @@ impl carbon_core::postgres::operations::Insert for InitializeConfidentialTransfe
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8
-            )"#)
+            )"#,
+        )
         .bind(self.confidential_transfer_discriminator.clone())
         .bind(self.authority.clone())
         .bind(self.auto_approve_new_accounts.clone())
@@ -81,7 +86,8 @@ impl carbon_core::postgres::operations::Insert for InitializeConfidentialTransfe
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -125,16 +131,23 @@ impl carbon_core::postgres::operations::Upsert for InitializeConfidentialTransfe
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for InitializeConfidentialTransferMintRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM initialize_confidential_transfer_mint_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM initialize_confidential_transfer_mint_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -142,16 +155,26 @@ impl carbon_core::postgres::operations::Delete for InitializeConfidentialTransfe
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for InitializeConfidentialTransferMintRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM initialize_confidential_transfer_mint_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM initialize_confidential_transfer_mint_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -160,9 +183,15 @@ impl carbon_core::postgres::operations::LookUp for InitializeConfidentialTransfe
 pub struct InitializeConfidentialTransferMintMigrationOperation;
 
 #[async_trait::async_trait]
-impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeConfidentialTransferMintMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS initialize_confidential_transfer_mint_instruction (
+impl sqlx_migrator::Operation<sqlx::Postgres>
+    for InitializeConfidentialTransferMintMigrationOperation
+{
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS initialize_confidential_transfer_mint_instruction (
                 -- Instruction data
                 "confidential_transfer_discriminator" INT2 NOT NULL,
                 "authority" BYTEA,
@@ -174,12 +203,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeConfidentialTransfer
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_confidential_transfer_mint_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS initialize_confidential_transfer_mint_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

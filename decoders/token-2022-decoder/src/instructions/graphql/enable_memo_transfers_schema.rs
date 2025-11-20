@@ -14,10 +14,14 @@ pub struct EnableMemoTransfersGraphQL {
 
 impl TryFrom<crate::instructions::postgres::EnableMemoTransfersRow> for EnableMemoTransfersGraphQL {
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::EnableMemoTransfersRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::EnableMemoTransfersRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            memo_transfers_discriminator: carbon_core::graphql::primitives::U8((*row.memo_transfers_discriminator) as u8),
+            memo_transfers_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.memo_transfers_discriminator) as u8,
+            ),
         })
     }
 }

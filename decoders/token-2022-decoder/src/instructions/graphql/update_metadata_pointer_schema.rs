@@ -14,13 +14,21 @@ pub struct UpdateMetadataPointerGraphQL {
     pub metadata_address: Option<Pubkey>,
 }
 
-impl TryFrom<crate::instructions::postgres::UpdateMetadataPointerRow> for UpdateMetadataPointerGraphQL {
+impl TryFrom<crate::instructions::postgres::UpdateMetadataPointerRow>
+    for UpdateMetadataPointerGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::UpdateMetadataPointerRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::UpdateMetadataPointerRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            metadata_pointer_discriminator: carbon_core::graphql::primitives::U8((*row.metadata_pointer_discriminator) as u8),
-            metadata_address: row.metadata_address.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            metadata_pointer_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.metadata_pointer_discriminator) as u8,
+            ),
+            metadata_address: row
+                .metadata_address
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
         })
     }
 }

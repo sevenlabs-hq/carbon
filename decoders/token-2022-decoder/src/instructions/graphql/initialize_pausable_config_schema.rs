@@ -14,13 +14,21 @@ pub struct InitializePausableConfigGraphQL {
     pub authority: Option<Pubkey>,
 }
 
-impl TryFrom<crate::instructions::postgres::InitializePausableConfigRow> for InitializePausableConfigGraphQL {
+impl TryFrom<crate::instructions::postgres::InitializePausableConfigRow>
+    for InitializePausableConfigGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::InitializePausableConfigRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::InitializePausableConfigRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            pausable_discriminator: carbon_core::graphql::primitives::U8((*row.pausable_discriminator) as u8),
-            authority: row.authority.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            pausable_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.pausable_discriminator) as u8,
+            ),
+            authority: row
+                .authority
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
         })
     }
 }

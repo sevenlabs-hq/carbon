@@ -17,7 +17,9 @@ impl TryFrom<crate::instructions::postgres::ResumeRow> for ResumeGraphQL {
     fn try_from(row: crate::instructions::postgres::ResumeRow) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            pausable_discriminator: carbon_core::graphql::primitives::U8((*row.pausable_discriminator) as u8),
+            pausable_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.pausable_discriminator) as u8,
+            ),
         })
     }
 }

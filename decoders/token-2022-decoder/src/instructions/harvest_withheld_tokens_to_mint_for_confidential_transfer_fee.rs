@@ -4,16 +4,16 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
+use carbon_core::CarbonDeserialize;
 
 /// Permissionless instruction to transfer all withheld confidential tokens to the mint.
-/// 
+///
 /// Succeeds for frozen accounts.
-/// 
+///
 /// Accounts provided should include both the `TransferFeeAmount` and
 /// `ConfidentialTransferAccount` extension. If not, the account is skipped.
 
@@ -49,7 +49,8 @@ impl HarvestWithheldTokensToMintForConfidentialTransferFee {
 }
 
 impl ArrangeAccounts for HarvestWithheldTokensToMintForConfidentialTransferFee {
-    type ArrangedAccounts = HarvestWithheldTokensToMintForConfidentialTransferFeeInstructionAccounts;
+    type ArrangedAccounts =
+        HarvestWithheldTokensToMintForConfidentialTransferFeeInstructionAccounts;
 
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
@@ -60,9 +61,11 @@ impl ArrangeAccounts for HarvestWithheldTokensToMintForConfidentialTransferFee {
 
         let remaining = iter.as_slice();
 
-        Some(HarvestWithheldTokensToMintForConfidentialTransferFeeInstructionAccounts {
-            mint,
-            remaining: remaining.to_vec(),
-        })
+        Some(
+            HarvestWithheldTokensToMintForConfidentialTransferFeeInstructionAccounts {
+                mint,
+                remaining: remaining.to_vec(),
+            },
+        )
     }
 }

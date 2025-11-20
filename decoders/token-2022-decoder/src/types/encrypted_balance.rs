@@ -48,4 +48,3 @@ impl std::ops::Deref for EncryptedBalance {
         &self.0
     }
 }
-

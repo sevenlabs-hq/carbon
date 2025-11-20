@@ -2,10 +2,10 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
+use crate::types::graphql::ExtensionGraphQL;
 use carbon_core::graphql::primitives::Pubkey;
 use carbon_core::graphql::primitives::U64;
 use carbon_core::graphql::primitives::U8;
-use crate::types::graphql::ExtensionGraphQL;
 use juniper::GraphQLObject;
 
 #[derive(Debug, Clone, GraphQLObject)]
@@ -25,12 +25,18 @@ impl TryFrom<crate::accounts::postgres::MintRow> for MintGraphQL {
     fn try_from(row: crate::accounts::postgres::MintRow) -> Result<Self, Self::Error> {
         Ok(Self {
             account_metadata: row.account_metadata.into(),
-            mint_authority: row.mint_authority.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            mint_authority: row
+                .mint_authority
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
             supply: carbon_core::graphql::primitives::U64(*row.supply),
             decimals: carbon_core::graphql::primitives::U8((*row.decimals) as u8),
             is_initialized: row.is_initialized,
-            freeze_authority: row.freeze_authority.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
-            extensions: row.extensions.map(|v| v.0.into_iter().map(|item| item.into()).collect()),
+            freeze_authority: row
+                .freeze_authority
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            extensions: row
+                .extensions
+                .map(|v| v.0.into_iter().map(|item| item.into()).collect()),
         })
     }
 }

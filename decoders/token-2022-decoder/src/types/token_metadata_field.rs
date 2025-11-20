@@ -15,4 +15,3 @@ pub enum TokenMetadataField {
     Uri,
     Key(String),
 }
-

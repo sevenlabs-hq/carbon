@@ -25,4 +25,3 @@ pub use self::extension::*;
 pub use self::extension_type::*;
 pub use self::token_metadata_field::*;
 pub use self::transfer_fee::*;
-

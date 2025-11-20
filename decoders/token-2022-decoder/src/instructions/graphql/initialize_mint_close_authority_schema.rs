@@ -12,12 +12,18 @@ pub struct InitializeMintCloseAuthorityGraphQL {
     pub close_authority: Option<Pubkey>,
 }
 
-impl TryFrom<crate::instructions::postgres::InitializeMintCloseAuthorityRow> for InitializeMintCloseAuthorityGraphQL {
+impl TryFrom<crate::instructions::postgres::InitializeMintCloseAuthorityRow>
+    for InitializeMintCloseAuthorityGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::InitializeMintCloseAuthorityRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::InitializeMintCloseAuthorityRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            close_authority: row.close_authority.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            close_authority: row
+                .close_authority
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
         })
     }
 }

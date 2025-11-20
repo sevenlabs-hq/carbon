@@ -4,14 +4,14 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
+use carbon_core::CarbonDeserialize;
 
 /// Resume the mint.
-/// 
+///
 /// Fails if the mint is not pausable.
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

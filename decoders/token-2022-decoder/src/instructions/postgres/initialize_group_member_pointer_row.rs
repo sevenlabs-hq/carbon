@@ -17,7 +17,10 @@ pub struct InitializeGroupMemberPointerRow {
 }
 
 impl InitializeGroupMemberPointerRow {
-    pub fn from_parts(source: crate::instructions::initialize_group_member_pointer::InitializeGroupMemberPointer, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::initialize_group_member_pointer::InitializeGroupMemberPointer,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             group_member_pointer_discriminator: source.group_member_pointer_discriminator.into(),
@@ -27,18 +30,29 @@ impl InitializeGroupMemberPointerRow {
     }
 }
 
-impl TryFrom<InitializeGroupMemberPointerRow> for crate::instructions::initialize_group_member_pointer::InitializeGroupMemberPointer {
+impl TryFrom<InitializeGroupMemberPointerRow>
+    for crate::instructions::initialize_group_member_pointer::InitializeGroupMemberPointer
+{
     type Error = carbon_core::error::Error;
     fn try_from(source: InitializeGroupMemberPointerRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            group_member_pointer_discriminator: source.group_member_pointer_discriminator.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
+            group_member_pointer_discriminator: source
+                .group_member_pointer_discriminator
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert value from postgres primitive".to_string(),
+                    )
+                })?,
             authority: source.authority.map(|value| *value),
             member_address: source.member_address.map(|value| *value),
         })
     }
 }
 
-impl carbon_core::postgres::operations::Table for crate::instructions::initialize_group_member_pointer::InitializeGroupMemberPointer {
+impl carbon_core::postgres::operations::Table
+    for crate::instructions::initialize_group_member_pointer::InitializeGroupMemberPointer
+{
     fn table() -> &'static str {
         "initialize_group_member_pointer_instruction"
     }
@@ -59,7 +73,8 @@ impl carbon_core::postgres::operations::Table for crate::instructions::initializ
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for InitializeGroupMemberPointerRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO initialize_group_member_pointer_instruction (
                 "group_member_pointer_discriminator",
                 "authority",
@@ -67,7 +82,8 @@ impl carbon_core::postgres::operations::Insert for InitializeGroupMemberPointerR
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7
-            )"#)
+            )"#,
+        )
         .bind(self.group_member_pointer_discriminator.clone())
         .bind(self.authority.clone())
         .bind(self.member_address.clone())
@@ -75,7 +91,8 @@ impl carbon_core::postgres::operations::Insert for InitializeGroupMemberPointerR
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -116,16 +133,23 @@ impl carbon_core::postgres::operations::Upsert for InitializeGroupMemberPointerR
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for InitializeGroupMemberPointerRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM initialize_group_member_pointer_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM initialize_group_member_pointer_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -133,16 +157,26 @@ impl carbon_core::postgres::operations::Delete for InitializeGroupMemberPointerR
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for InitializeGroupMemberPointerRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM initialize_group_member_pointer_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM initialize_group_member_pointer_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -152,8 +186,12 @@ pub struct InitializeGroupMemberPointerMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeGroupMemberPointerMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS initialize_group_member_pointer_instruction (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS initialize_group_member_pointer_instruction (
                 -- Instruction data
                 "group_member_pointer_discriminator" INT2 NOT NULL,
                 "authority" BYTEA,
@@ -164,12 +202,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeGroupMemberPointerMi
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_group_member_pointer_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS initialize_group_member_pointer_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

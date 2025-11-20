@@ -2,9 +2,9 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
+use crate::types::TokenMetadataField;
 use carbon_core::instruction::InstructionMetadata;
 use carbon_core::postgres::metadata::InstructionRowMetadata;
-use crate::types::TokenMetadataField;
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct UpdateTokenMetadataFieldRow {
@@ -15,7 +15,10 @@ pub struct UpdateTokenMetadataFieldRow {
 }
 
 impl UpdateTokenMetadataFieldRow {
-    pub fn from_parts(source: crate::instructions::update_token_metadata_field::UpdateTokenMetadataField, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::update_token_metadata_field::UpdateTokenMetadataField,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             field: sqlx::types::Json(source.field.into()),
@@ -24,7 +27,9 @@ impl UpdateTokenMetadataFieldRow {
     }
 }
 
-impl TryFrom<UpdateTokenMetadataFieldRow> for crate::instructions::update_token_metadata_field::UpdateTokenMetadataField {
+impl TryFrom<UpdateTokenMetadataFieldRow>
+    for crate::instructions::update_token_metadata_field::UpdateTokenMetadataField
+{
     type Error = carbon_core::error::Error;
     fn try_from(source: UpdateTokenMetadataFieldRow) -> Result<Self, Self::Error> {
         Ok(Self {
@@ -34,7 +39,9 @@ impl TryFrom<UpdateTokenMetadataFieldRow> for crate::instructions::update_token_
     }
 }
 
-impl carbon_core::postgres::operations::Table for crate::instructions::update_token_metadata_field::UpdateTokenMetadataField {
+impl carbon_core::postgres::operations::Table
+    for crate::instructions::update_token_metadata_field::UpdateTokenMetadataField
+{
     fn table() -> &'static str {
         "update_token_metadata_field_instruction"
     }
@@ -54,21 +61,24 @@ impl carbon_core::postgres::operations::Table for crate::instructions::update_to
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for UpdateTokenMetadataFieldRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO update_token_metadata_field_instruction (
                 "field",
                 "value",
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6
-            )"#)
+            )"#,
+        )
         .bind(self.field.clone())
         .bind(self.value.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -77,7 +87,8 @@ impl carbon_core::postgres::operations::Insert for UpdateTokenMetadataFieldRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for UpdateTokenMetadataFieldRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO update_token_metadata_field_instruction (
+        sqlx::query(
+            r#"INSERT INTO update_token_metadata_field_instruction (
                 "field",
                 "value",
                 __signature, __instruction_index, __stack_height, __slot
@@ -91,14 +102,16 @@ impl carbon_core::postgres::operations::Upsert for UpdateTokenMetadataFieldRow {
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
-            "#)
+            "#,
+        )
         .bind(self.field.clone())
         .bind(self.value.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -106,16 +119,23 @@ impl carbon_core::postgres::operations::Upsert for UpdateTokenMetadataFieldRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for UpdateTokenMetadataFieldRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM update_token_metadata_field_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM update_token_metadata_field_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -123,16 +143,26 @@ impl carbon_core::postgres::operations::Delete for UpdateTokenMetadataFieldRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for UpdateTokenMetadataFieldRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM update_token_metadata_field_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM update_token_metadata_field_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -142,8 +172,12 @@ pub struct UpdateTokenMetadataFieldMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateTokenMetadataFieldMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS update_token_metadata_field_instruction (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS update_token_metadata_field_instruction (
                 -- Instruction data
                 "field" JSONB NOT NULL,
                 "value" TEXT NOT NULL,
@@ -153,12 +187,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateTokenMetadataFieldMigrat
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_token_metadata_field_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS update_token_metadata_field_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

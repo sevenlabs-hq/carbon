@@ -4,14 +4,14 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
+use carbon_core::CarbonDeserialize;
 
 /// Transfer, providing expected mint information and fees.
-/// 
+///
 /// This instruction succeeds if the mint has no configured transfer fee
 /// and the provided fee is 0. This allows applications to use
 /// `TransferCheckedWithFee` with any mint.

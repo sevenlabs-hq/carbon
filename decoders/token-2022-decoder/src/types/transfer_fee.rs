@@ -17,4 +17,3 @@ pub struct TransferFee {
     /// transfer amount, ie. increments of 0.01%.
     pub transfer_fee_basis_points: u16,
 }
-

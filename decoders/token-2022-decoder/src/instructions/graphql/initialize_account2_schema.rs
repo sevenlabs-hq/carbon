@@ -14,7 +14,9 @@ pub struct InitializeAccount2GraphQL {
 
 impl TryFrom<crate::instructions::postgres::InitializeAccount2Row> for InitializeAccount2GraphQL {
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::InitializeAccount2Row) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::InitializeAccount2Row,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
             owner: carbon_core::graphql::primitives::Pubkey(row.owner.0),

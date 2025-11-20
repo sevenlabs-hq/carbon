@@ -2,8 +2,8 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::graphql::primitives::U8;
 use crate::types::graphql::DecryptableBalanceGraphQL;
+use carbon_core::graphql::primitives::U8;
 use juniper::GraphQLObject;
 
 #[derive(Debug, Clone, GraphQLObject)]

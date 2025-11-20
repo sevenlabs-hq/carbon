@@ -14,12 +14,18 @@ pub struct InitializeTokenGroupGraphQL {
     pub max_size: U64,
 }
 
-impl TryFrom<crate::instructions::postgres::InitializeTokenGroupRow> for InitializeTokenGroupGraphQL {
+impl TryFrom<crate::instructions::postgres::InitializeTokenGroupRow>
+    for InitializeTokenGroupGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::InitializeTokenGroupRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::InitializeTokenGroupRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            update_authority: row.update_authority.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            update_authority: row
+                .update_authority
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
             max_size: carbon_core::graphql::primitives::U64(*row.max_size),
         })
     }

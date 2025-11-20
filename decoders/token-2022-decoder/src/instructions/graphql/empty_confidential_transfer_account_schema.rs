@@ -13,12 +13,18 @@ pub struct EmptyConfidentialTransferAccountGraphQL {
     pub proof_instruction_offset: i32,
 }
 
-impl TryFrom<crate::instructions::postgres::EmptyConfidentialTransferAccountRow> for EmptyConfidentialTransferAccountGraphQL {
+impl TryFrom<crate::instructions::postgres::EmptyConfidentialTransferAccountRow>
+    for EmptyConfidentialTransferAccountGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::EmptyConfidentialTransferAccountRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::EmptyConfidentialTransferAccountRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            confidential_transfer_discriminator: carbon_core::graphql::primitives::U8((*row.confidential_transfer_discriminator) as u8),
+            confidential_transfer_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.confidential_transfer_discriminator) as u8,
+            ),
             proof_instruction_offset: row.proof_instruction_offset as i32,
         })
     }

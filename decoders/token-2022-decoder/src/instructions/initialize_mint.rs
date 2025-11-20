@@ -4,16 +4,16 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
+use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
 
 /// Initializes a new mint and optionally deposits all the newly minted
 /// tokens in an account.
-/// 
+///
 /// The `InitializeMint` instruction requires no signers and MUST be
 /// included within the same Transaction as the system program's
 /// `CreateAccount` instruction that creates the account being initialized.

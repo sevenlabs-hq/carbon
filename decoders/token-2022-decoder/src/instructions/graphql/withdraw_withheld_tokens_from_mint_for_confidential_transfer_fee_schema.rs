@@ -2,8 +2,8 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::graphql::primitives::U8;
 use crate::types::graphql::DecryptableBalanceGraphQL;
+use carbon_core::graphql::primitives::U8;
 use juniper::GraphQLObject;
 
 #[derive(Debug, Clone, GraphQLObject)]
@@ -15,14 +15,27 @@ pub struct WithdrawWithheldTokensFromMintForConfidentialTransferFeeGraphQL {
     pub new_decryptable_available_balance: DecryptableBalanceGraphQL,
 }
 
-impl TryFrom<crate::instructions::postgres::WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow> for WithdrawWithheldTokensFromMintForConfidentialTransferFeeGraphQL {
+impl
+    TryFrom<
+        crate::instructions::postgres::WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow,
+    > for WithdrawWithheldTokensFromMintForConfidentialTransferFeeGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            confidential_transfer_fee_discriminator: carbon_core::graphql::primitives::U8((*row.confidential_transfer_fee_discriminator) as u8),
+            confidential_transfer_fee_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.confidential_transfer_fee_discriminator) as u8,
+            ),
             proof_instruction_offset: row.proof_instruction_offset as i32,
-            new_decryptable_available_balance: row.new_decryptable_available_balance.0.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect(),
+            new_decryptable_available_balance: row
+                .new_decryptable_available_balance
+                .0
+                .into_iter()
+                .map(|item| carbon_core::graphql::primitives::U8(item))
+                .collect(),
         })
     }
 }

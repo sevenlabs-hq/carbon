@@ -2,8 +2,8 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::graphql::primitives::U8;
 use crate::types::graphql::DecryptableBalanceGraphQL;
+use carbon_core::graphql::primitives::U8;
 use juniper::GraphQLObject;
 
 #[derive(Debug, Clone, GraphQLObject)]
@@ -17,15 +17,28 @@ pub struct ConfidentialTransferGraphQL {
     pub range_proof_instruction_offset: i32,
 }
 
-impl TryFrom<crate::instructions::postgres::ConfidentialTransferRow> for ConfidentialTransferGraphQL {
+impl TryFrom<crate::instructions::postgres::ConfidentialTransferRow>
+    for ConfidentialTransferGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::ConfidentialTransferRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::ConfidentialTransferRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            confidential_transfer_discriminator: carbon_core::graphql::primitives::U8((*row.confidential_transfer_discriminator) as u8),
-            new_source_decryptable_available_balance: row.new_source_decryptable_available_balance.0.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect(),
+            confidential_transfer_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.confidential_transfer_discriminator) as u8,
+            ),
+            new_source_decryptable_available_balance: row
+                .new_source_decryptable_available_balance
+                .0
+                .into_iter()
+                .map(|item| carbon_core::graphql::primitives::U8(item))
+                .collect(),
             equality_proof_instruction_offset: row.equality_proof_instruction_offset as i32,
-            ciphertext_validity_proof_instruction_offset: row.ciphertext_validity_proof_instruction_offset as i32,
+            ciphertext_validity_proof_instruction_offset: row
+                .ciphertext_validity_proof_instruction_offset
+                as i32,
             range_proof_instruction_offset: row.range_proof_instruction_offset as i32,
         })
     }

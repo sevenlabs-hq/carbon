@@ -16,7 +16,9 @@ pub struct TransferCheckedGraphQL {
 
 impl TryFrom<crate::instructions::postgres::TransferCheckedRow> for TransferCheckedGraphQL {
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::TransferCheckedRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::TransferCheckedRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
             amount: carbon_core::graphql::primitives::U64(*row.amount),

@@ -2,10 +2,10 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::graphql::primitives::Pubkey;
-use carbon_core::graphql::primitives::U64;
 use crate::types::graphql::AccountStateGraphQL;
 use crate::types::graphql::ExtensionGraphQL;
+use carbon_core::graphql::primitives::Pubkey;
+use carbon_core::graphql::primitives::U64;
 use juniper::GraphQLObject;
 
 #[derive(Debug, Clone, GraphQLObject)]
@@ -31,12 +31,20 @@ impl TryFrom<crate::accounts::postgres::TokenRow> for TokenGraphQL {
             mint: carbon_core::graphql::primitives::Pubkey(row.mint.0),
             owner: carbon_core::graphql::primitives::Pubkey(row.owner.0),
             amount: carbon_core::graphql::primitives::U64(*row.amount),
-            delegate: row.delegate.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            delegate: row
+                .delegate
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
             state: row.state.0.into(),
-            is_native: row.is_native.map(|v| carbon_core::graphql::primitives::U64(*v)),
+            is_native: row
+                .is_native
+                .map(|v| carbon_core::graphql::primitives::U64(*v)),
             delegated_amount: carbon_core::graphql::primitives::U64(*row.delegated_amount),
-            close_authority: row.close_authority.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
-            extensions: row.extensions.map(|v| v.0.into_iter().map(|item| item.into()).collect()),
+            close_authority: row
+                .close_authority
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            extensions: row
+                .extensions
+                .map(|v| v.0.into_iter().map(|item| item.into()).collect()),
         })
     }
 }

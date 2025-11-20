@@ -12,9 +12,13 @@ pub struct RemoveTokenMetadataKeyGraphQL {
     pub key: String,
 }
 
-impl TryFrom<crate::instructions::postgres::RemoveTokenMetadataKeyRow> for RemoveTokenMetadataKeyGraphQL {
+impl TryFrom<crate::instructions::postgres::RemoveTokenMetadataKeyRow>
+    for RemoveTokenMetadataKeyGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::RemoveTokenMetadataKeyRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::RemoveTokenMetadataKeyRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
             idempotent: row.idempotent,

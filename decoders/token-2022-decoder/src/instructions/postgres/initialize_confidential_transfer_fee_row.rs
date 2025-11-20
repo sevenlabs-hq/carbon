@@ -17,28 +17,48 @@ pub struct InitializeConfidentialTransferFeeRow {
 }
 
 impl InitializeConfidentialTransferFeeRow {
-    pub fn from_parts(source: crate::instructions::initialize_confidential_transfer_fee::InitializeConfidentialTransferFee, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::initialize_confidential_transfer_fee::InitializeConfidentialTransferFee,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            confidential_transfer_fee_discriminator: source.confidential_transfer_fee_discriminator.into(),
+            confidential_transfer_fee_discriminator: source
+                .confidential_transfer_fee_discriminator
+                .into(),
             authority: source.authority.map(|value| value.into()),
-            withdraw_withheld_authority_el_gamal_pubkey: source.withdraw_withheld_authority_el_gamal_pubkey.map(|value| value.into()),
+            withdraw_withheld_authority_el_gamal_pubkey: source
+                .withdraw_withheld_authority_el_gamal_pubkey
+                .map(|value| value.into()),
         }
     }
 }
 
-impl TryFrom<InitializeConfidentialTransferFeeRow> for crate::instructions::initialize_confidential_transfer_fee::InitializeConfidentialTransferFee {
+impl TryFrom<InitializeConfidentialTransferFeeRow>
+    for crate::instructions::initialize_confidential_transfer_fee::InitializeConfidentialTransferFee
+{
     type Error = carbon_core::error::Error;
     fn try_from(source: InitializeConfidentialTransferFeeRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            confidential_transfer_fee_discriminator: source.confidential_transfer_fee_discriminator.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
+            confidential_transfer_fee_discriminator: source
+                .confidential_transfer_fee_discriminator
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert value from postgres primitive".to_string(),
+                    )
+                })?,
             authority: source.authority.map(|value| *value),
-            withdraw_withheld_authority_el_gamal_pubkey: source.withdraw_withheld_authority_el_gamal_pubkey.map(|value| *value),
+            withdraw_withheld_authority_el_gamal_pubkey: source
+                .withdraw_withheld_authority_el_gamal_pubkey
+                .map(|value| *value),
         })
     }
 }
 
-impl carbon_core::postgres::operations::Table for crate::instructions::initialize_confidential_transfer_fee::InitializeConfidentialTransferFee {
+impl carbon_core::postgres::operations::Table
+    for crate::instructions::initialize_confidential_transfer_fee::InitializeConfidentialTransferFee
+{
     fn table() -> &'static str {
         "initialize_confidential_transfer_fee_instruction"
     }
@@ -59,7 +79,8 @@ impl carbon_core::postgres::operations::Table for crate::instructions::initializ
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for InitializeConfidentialTransferFeeRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO initialize_confidential_transfer_fee_instruction (
                 "confidential_transfer_fee_discriminator",
                 "authority",
@@ -67,7 +88,8 @@ impl carbon_core::postgres::operations::Insert for InitializeConfidentialTransfe
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7
-            )"#)
+            )"#,
+        )
         .bind(self.confidential_transfer_fee_discriminator.clone())
         .bind(self.authority.clone())
         .bind(self.withdraw_withheld_authority_el_gamal_pubkey.clone())
@@ -75,7 +97,8 @@ impl carbon_core::postgres::operations::Insert for InitializeConfidentialTransfe
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -116,16 +139,23 @@ impl carbon_core::postgres::operations::Upsert for InitializeConfidentialTransfe
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for InitializeConfidentialTransferFeeRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM initialize_confidential_transfer_fee_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM initialize_confidential_transfer_fee_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -133,16 +163,26 @@ impl carbon_core::postgres::operations::Delete for InitializeConfidentialTransfe
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for InitializeConfidentialTransferFeeRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM initialize_confidential_transfer_fee_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM initialize_confidential_transfer_fee_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -151,9 +191,15 @@ impl carbon_core::postgres::operations::LookUp for InitializeConfidentialTransfe
 pub struct InitializeConfidentialTransferFeeMigrationOperation;
 
 #[async_trait::async_trait]
-impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeConfidentialTransferFeeMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS initialize_confidential_transfer_fee_instruction (
+impl sqlx_migrator::Operation<sqlx::Postgres>
+    for InitializeConfidentialTransferFeeMigrationOperation
+{
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS initialize_confidential_transfer_fee_instruction (
                 -- Instruction data
                 "confidential_transfer_fee_discriminator" INT2 NOT NULL,
                 "authority" BYTEA,
@@ -164,12 +210,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeConfidentialTransfer
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_confidential_transfer_fee_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS initialize_confidential_transfer_fee_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

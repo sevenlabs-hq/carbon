@@ -27,4 +27,3 @@ pub enum AuthorityType {
     ScaledUiAmount,
     Pause,
 }
-

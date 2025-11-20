@@ -2,8 +2,8 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::graphql::primitives::U8;
 use crate::types::graphql::AccountStateGraphQL;
+use carbon_core::graphql::primitives::U8;
 use juniper::GraphQLObject;
 
 #[derive(Debug, Clone, GraphQLObject)]
@@ -14,12 +14,18 @@ pub struct InitializeDefaultAccountStateGraphQL {
     pub state: AccountStateGraphQL,
 }
 
-impl TryFrom<crate::instructions::postgres::InitializeDefaultAccountStateRow> for InitializeDefaultAccountStateGraphQL {
+impl TryFrom<crate::instructions::postgres::InitializeDefaultAccountStateRow>
+    for InitializeDefaultAccountStateGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::InitializeDefaultAccountStateRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::InitializeDefaultAccountStateRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            default_account_state_discriminator: carbon_core::graphql::primitives::U8((*row.default_account_state_discriminator) as u8),
+            default_account_state_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.default_account_state_discriminator) as u8,
+            ),
             state: row.state.0.into(),
         })
     }

@@ -4,18 +4,18 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
+use carbon_core::CarbonDeserialize;
 
 /// Emits the token-metadata as return data
-/// 
+///
 /// The format of the data emitted follows exactly the `TokenMetadata`
 /// struct, but it's possible that the account data is stored in another
 /// format by the program.
-/// 
+///
 /// With this instruction, a program that implements the token-metadata
 /// interface can return `TokenMetadata` without adhering to the specific
 /// byte layout of the `TokenMetadata` struct in any accounts.

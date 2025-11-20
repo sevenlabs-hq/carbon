@@ -18,13 +18,20 @@ pub struct MultisigRow {
 }
 
 impl MultisigRow {
-    pub fn from_parts(source: crate::accounts::multisig::Multisig, metadata: AccountMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::accounts::multisig::Multisig,
+        metadata: AccountMetadata,
+    ) -> Self {
         Self {
             account_metadata: metadata.into(),
             m: source.m.into(),
             n: source.n.into(),
             is_initialized: source.is_initialized.into(),
-            signers: source.signers.into_iter().map(|element| element.into()).collect(),
+            signers: source
+                .signers
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
         }
     }
 }
@@ -33,10 +40,28 @@ impl TryFrom<MultisigRow> for crate::accounts::multisig::Multisig {
     type Error = carbon_core::error::Error;
     fn try_from(source: MultisigRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            m: source.m.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
-            n: source.n.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
+            m: source.m.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            n: source.n.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
             is_initialized: source.is_initialized.into(),
-            signers: source.signers.into_iter().map(|element| Ok(*element)).collect::<Result<Vec<_>, _>>()?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
+            signers: source
+                .signers
+                .into_iter()
+                .map(|element| Ok(*element))
+                .collect::<Result<Vec<_>, _>>()?
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert array element to primitive".to_string(),
+                    )
+                })?,
         })
     }
 }
@@ -47,21 +72,15 @@ impl carbon_core::postgres::operations::Table for crate::accounts::multisig::Mul
     }
 
     fn columns() -> Vec<&'static str> {
-        vec![
-            "__pubkey",
-            "__slot",
-            "m",
-            "n",
-            "is_initialized",
-            "signers",
-        ]
+        vec!["__pubkey", "__slot", "m", "n", "is_initialized", "signers"]
     }
 }
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for MultisigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO multisig_account (
                 "m",
                 "n",
@@ -70,14 +89,16 @@ impl carbon_core::postgres::operations::Insert for MultisigRow {
                 __pubkey, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6
-            )"#)
+            )"#,
+        )
         .bind(self.m.clone())
         .bind(self.n.clone())
         .bind(self.is_initialized.clone())
         .bind(self.signers.clone())
         .bind(self.account_metadata.pubkey.clone())
         .bind(self.account_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -86,7 +107,8 @@ impl carbon_core::postgres::operations::Insert for MultisigRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for MultisigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO multisig_account (
+        sqlx::query(
+            r#"INSERT INTO multisig_account (
                 "m",
                 "n",
                 "is_initialized",
@@ -102,14 +124,16 @@ impl carbon_core::postgres::operations::Upsert for MultisigRow {
                 "is_initialized" = EXCLUDED."is_initialized",
                 "signers" = EXCLUDED."signers",
                 __slot = EXCLUDED.__slot
-            "#)
+            "#,
+        )
         .bind(self.m.clone())
         .bind(self.n.clone())
         .bind(self.is_initialized.clone())
         .bind(self.signers.clone())
         .bind(self.account_metadata.pubkey)
         .bind(self.account_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -120,11 +144,14 @@ impl carbon_core::postgres::operations::Delete for MultisigRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM multisig_account WHERE
+        sqlx::query(
+            r#"DELETE FROM multisig_account WHERE
                 __pubkey = $1
-            "#)
+            "#,
+        )
         .bind(key)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -134,12 +161,18 @@ impl carbon_core::postgres::operations::Delete for MultisigRow {
 impl carbon_core::postgres::operations::LookUp for MultisigRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM multisig_account WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM multisig_account WHERE
                 __pubkey = $1
-            "#)
+            "#,
+        )
         .bind(key)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -149,8 +182,12 @@ pub struct MultisigMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for MultisigMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS multisig_account (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS multisig_account (
                 -- Account data
                 "m" INT2 NOT NULL,
                 "n" INT2 NOT NULL,
@@ -160,12 +197,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MultisigMigrationOperation {
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__pubkey)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS multisig_account"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS multisig_account"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

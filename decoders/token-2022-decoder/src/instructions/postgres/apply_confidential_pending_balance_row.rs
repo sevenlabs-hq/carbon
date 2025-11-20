@@ -2,11 +2,11 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
+use crate::types::DecryptableBalance;
 use carbon_core::instruction::InstructionMetadata;
 use carbon_core::postgres::metadata::InstructionRowMetadata;
 use carbon_core::postgres::primitives::U64;
 use carbon_core::postgres::primitives::U8;
-use crate::types::DecryptableBalance;
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct ApplyConfidentialPendingBalanceRow {
@@ -18,28 +18,47 @@ pub struct ApplyConfidentialPendingBalanceRow {
 }
 
 impl ApplyConfidentialPendingBalanceRow {
-    pub fn from_parts(source: crate::instructions::apply_confidential_pending_balance::ApplyConfidentialPendingBalance, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::apply_confidential_pending_balance::ApplyConfidentialPendingBalance,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             confidential_transfer_discriminator: source.confidential_transfer_discriminator.into(),
-            expected_pending_balance_credit_counter: source.expected_pending_balance_credit_counter.into(),
-            new_decryptable_available_balance: sqlx::types::Json(source.new_decryptable_available_balance.into()),
+            expected_pending_balance_credit_counter: source
+                .expected_pending_balance_credit_counter
+                .into(),
+            new_decryptable_available_balance: sqlx::types::Json(
+                source.new_decryptable_available_balance.into(),
+            ),
         }
     }
 }
 
-impl TryFrom<ApplyConfidentialPendingBalanceRow> for crate::instructions::apply_confidential_pending_balance::ApplyConfidentialPendingBalance {
+impl TryFrom<ApplyConfidentialPendingBalanceRow>
+    for crate::instructions::apply_confidential_pending_balance::ApplyConfidentialPendingBalance
+{
     type Error = carbon_core::error::Error;
     fn try_from(source: ApplyConfidentialPendingBalanceRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            confidential_transfer_discriminator: source.confidential_transfer_discriminator.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
-            expected_pending_balance_credit_counter: *source.expected_pending_balance_credit_counter,
+            confidential_transfer_discriminator: source
+                .confidential_transfer_discriminator
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert value from postgres primitive".to_string(),
+                    )
+                })?,
+            expected_pending_balance_credit_counter: *source
+                .expected_pending_balance_credit_counter,
             new_decryptable_available_balance: source.new_decryptable_available_balance.0,
         })
     }
 }
 
-impl carbon_core::postgres::operations::Table for crate::instructions::apply_confidential_pending_balance::ApplyConfidentialPendingBalance {
+impl carbon_core::postgres::operations::Table
+    for crate::instructions::apply_confidential_pending_balance::ApplyConfidentialPendingBalance
+{
     fn table() -> &'static str {
         "apply_confidential_pending_balance_instruction"
     }
@@ -60,7 +79,8 @@ impl carbon_core::postgres::operations::Table for crate::instructions::apply_con
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for ApplyConfidentialPendingBalanceRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO apply_confidential_pending_balance_instruction (
                 "confidential_transfer_discriminator",
                 "expected_pending_balance_credit_counter",
@@ -68,7 +88,8 @@ impl carbon_core::postgres::operations::Insert for ApplyConfidentialPendingBalan
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7
-            )"#)
+            )"#,
+        )
         .bind(self.confidential_transfer_discriminator.clone())
         .bind(self.expected_pending_balance_credit_counter.clone())
         .bind(self.new_decryptable_available_balance.clone())
@@ -76,7 +97,8 @@ impl carbon_core::postgres::operations::Insert for ApplyConfidentialPendingBalan
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -117,16 +139,23 @@ impl carbon_core::postgres::operations::Upsert for ApplyConfidentialPendingBalan
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for ApplyConfidentialPendingBalanceRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM apply_confidential_pending_balance_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM apply_confidential_pending_balance_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -134,16 +163,26 @@ impl carbon_core::postgres::operations::Delete for ApplyConfidentialPendingBalan
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for ApplyConfidentialPendingBalanceRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM apply_confidential_pending_balance_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM apply_confidential_pending_balance_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -152,9 +191,15 @@ impl carbon_core::postgres::operations::LookUp for ApplyConfidentialPendingBalan
 pub struct ApplyConfidentialPendingBalanceMigrationOperation;
 
 #[async_trait::async_trait]
-impl sqlx_migrator::Operation<sqlx::Postgres> for ApplyConfidentialPendingBalanceMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS apply_confidential_pending_balance_instruction (
+impl sqlx_migrator::Operation<sqlx::Postgres>
+    for ApplyConfidentialPendingBalanceMigrationOperation
+{
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS apply_confidential_pending_balance_instruction (
                 -- Instruction data
                 "confidential_transfer_discriminator" INT2 NOT NULL,
                 "expected_pending_balance_credit_counter" NUMERIC(20) NOT NULL,
@@ -165,12 +210,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ApplyConfidentialPendingBalanc
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS apply_confidential_pending_balance_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS apply_confidential_pending_balance_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

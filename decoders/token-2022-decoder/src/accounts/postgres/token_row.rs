@@ -2,12 +2,12 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
+use crate::types::AccountState;
+use crate::types::Extension;
 use carbon_core::account::AccountMetadata;
 use carbon_core::postgres::metadata::AccountRowMetadata;
 use carbon_core::postgres::primitives::Pubkey;
 use carbon_core::postgres::primitives::U64;
-use crate::types::AccountState;
-use crate::types::Extension;
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct TokenRow {
@@ -83,7 +83,8 @@ impl carbon_core::postgres::operations::Table for crate::accounts::token::Token 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for TokenRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO token_account (
                 "mint",
                 "owner",
@@ -97,7 +98,8 @@ impl carbon_core::postgres::operations::Insert for TokenRow {
                 __pubkey, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
-            )"#)
+            )"#,
+        )
         .bind(self.mint.clone())
         .bind(self.owner.clone())
         .bind(self.amount.clone())
@@ -109,7 +111,8 @@ impl carbon_core::postgres::operations::Insert for TokenRow {
         .bind(self.extensions.clone())
         .bind(self.account_metadata.pubkey.clone())
         .bind(self.account_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -118,7 +121,8 @@ impl carbon_core::postgres::operations::Insert for TokenRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for TokenRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO token_account (
+        sqlx::query(
+            r#"INSERT INTO token_account (
                 "mint",
                 "owner",
                 "amount",
@@ -144,7 +148,8 @@ impl carbon_core::postgres::operations::Upsert for TokenRow {
                 "close_authority" = EXCLUDED."close_authority",
                 "extensions" = EXCLUDED."extensions",
                 __slot = EXCLUDED.__slot
-            "#)
+            "#,
+        )
         .bind(self.mint.clone())
         .bind(self.owner.clone())
         .bind(self.amount.clone())
@@ -156,7 +161,8 @@ impl carbon_core::postgres::operations::Upsert for TokenRow {
         .bind(self.extensions.clone())
         .bind(self.account_metadata.pubkey)
         .bind(self.account_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -167,11 +173,14 @@ impl carbon_core::postgres::operations::Delete for TokenRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM token_account WHERE
+        sqlx::query(
+            r#"DELETE FROM token_account WHERE
                 __pubkey = $1
-            "#)
+            "#,
+        )
         .bind(key)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -181,12 +190,18 @@ impl carbon_core::postgres::operations::Delete for TokenRow {
 impl carbon_core::postgres::operations::LookUp for TokenRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM token_account WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM token_account WHERE
                 __pubkey = $1
-            "#)
+            "#,
+        )
         .bind(key)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -196,8 +211,12 @@ pub struct TokenMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for TokenMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS token_account (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS token_account (
                 -- Account data
                 "mint" BYTEA NOT NULL,
                 "owner" BYTEA NOT NULL,
@@ -212,12 +231,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for TokenMigrationOperation {
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__pubkey)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS token_account"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS token_account"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }
