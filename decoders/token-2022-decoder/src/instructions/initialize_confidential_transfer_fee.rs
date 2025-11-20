@@ -18,13 +18,20 @@ use solana_pubkey::Pubkey;
 ///
 /// The instruction fails if TokenInstruction::InitializeMint has already executed for the mint.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct InitializeConfidentialTransferFee {
     pub confidential_transfer_fee_discriminator: u8,
     /// Optional authority to set the withdraw withheld authority ElGamal key
     pub authority: Option<Pubkey>,
     /// Withheld fees from accounts must be encrypted with this ElGamal key
     pub withdraw_withheld_authority_el_gamal_pubkey: Option<Pubkey>,
+}
+
+#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+pub struct InitializeConfidentialTransferFeeDeser {
+    pub confidential_transfer_fee_discriminator: u8,
+    pub authority: Pubkey, // spl_pod::optional_keys::OptionalNonZeroPubkey-like deserialize
+    pub withdraw_withheld_authority_el_gamal_pubkey: Pubkey, // spl_pod::optional_keys::OptionalNonZeroPubkey-like deserialize
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -48,7 +55,17 @@ impl InitializeConfidentialTransferFee {
 
         let data_slice = &data_slice[1..];
 
-        Self::deserialize(data_slice)
+        let confidential_transfer_fee =
+            InitializeConfidentialTransferFeeDeser::deserialize(data_slice)?;
+
+        Some(InitializeConfidentialTransferFee {
+            confidential_transfer_fee_discriminator: confidential_transfer_fee
+                .confidential_transfer_fee_discriminator,
+            authority: confidential_transfer_fee.authority.into(),
+            withdraw_withheld_authority_el_gamal_pubkey: confidential_transfer_fee
+                .withdraw_withheld_authority_el_gamal_pubkey
+                .into(),
+        })
     }
 }
 

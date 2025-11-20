@@ -10,6 +10,7 @@ use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
+use spl_pod::optional_keys::OptionalNonZeroPubkey;
 
 /// Initialize a new mint with the `InterestBearing` extension.
 ///
@@ -20,12 +21,19 @@ use solana_pubkey::Pubkey;
 /// bytes), plus 83 bytes of padding, 1 byte reserved for the account type,
 /// then space required for this extension, plus any others.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct InitializeInterestBearingMint {
     pub interest_bearing_mint_discriminator: u8,
     /// The public key for the account that can update the rate
     pub rate_authority: Option<Pubkey>,
     /// The initial interest rate
+    pub rate: i16,
+}
+
+#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+pub struct InitializeInterestBearingMintDeser {
+    pub interest_bearing_mint_discriminator: u8,
+    pub rate_authority: OptionalNonZeroPubkey,
     pub rate: i16,
 }
 
@@ -50,7 +58,14 @@ impl InitializeInterestBearingMint {
 
         let data_slice = &data_slice[1..];
 
-        Self::deserialize(data_slice)
+        let interest_bearing_mint = InitializeInterestBearingMintDeser::deserialize(data_slice)?;
+
+        Some(InitializeInterestBearingMint {
+            interest_bearing_mint_discriminator: interest_bearing_mint
+                .interest_bearing_mint_discriminator,
+            rate_authority: interest_bearing_mint.rate_authority.into(),
+            rate: interest_bearing_mint.rate,
+        })
     }
 }
 

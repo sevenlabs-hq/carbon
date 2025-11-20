@@ -10,6 +10,8 @@ use carbon_core::borsh;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
+use spl_token_2022::extension::BaseStateWithExtensions as _;
+use spl_token_2022::extension::StateWithExtensions;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
@@ -40,14 +42,39 @@ pub struct Token {
 
 impl Token {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() != 165 {
-            return None;
-        }
-
         let data_slice = data;
 
         let data_slice = &data_slice[0..];
 
         Self::deserialize(data_slice)
+    }
+}
+
+impl From<StateWithExtensions<'_, spl_token_2022::state::Account>> for Token {
+    fn from(value: StateWithExtensions<'_, spl_token_2022::state::Account>) -> Self {
+        let extensions = value.get_extension_types().ok().map(|extensions| {
+            extensions
+                .iter()
+                .filter_map(|extension_type| {
+                    Extension::from_account_and_type(&value, extension_type)
+                })
+                .collect::<Vec<_>>()
+        });
+
+        Token {
+            mint: value.base.mint,
+            owner: value.base.owner,
+            amount: value.base.amount,
+            delegate: value.base.delegate.into(),
+            state: match value.base.state {
+                spl_token_2022::state::AccountState::Uninitialized => AccountState::Uninitialized,
+                spl_token_2022::state::AccountState::Initialized => AccountState::Initialized,
+                spl_token_2022::state::AccountState::Frozen => AccountState::Frozen,
+            },
+            is_native: value.base.is_native.into(),
+            delegated_amount: value.base.delegated_amount,
+            close_authority: value.base.close_authority.into(),
+            extensions,
+        }
     }
 }

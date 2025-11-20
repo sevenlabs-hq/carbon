@@ -6,9 +6,9 @@
 //!
 use crate::types::Extension;
 use carbon_core::borsh;
-use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
+use spl_token_2022::extension::{BaseStateWithExtensions, StateWithExtensions};
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
@@ -29,16 +29,22 @@ pub struct Mint {
     pub extensions: Option<Vec<Extension>>,
 }
 
-impl Mint {
-    pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() != 82 {
-            return None;
+impl From<StateWithExtensions<'_, spl_token_2022::state::Mint>> for Mint {
+    fn from(value: StateWithExtensions<'_, spl_token_2022::state::Mint>) -> Self {
+        let extensions = value.get_extension_types().ok().map(|extensions| {
+            extensions
+                .iter()
+                .filter_map(|extension_type| Extension::from_mint_and_type(&value, extension_type))
+                .collect::<Vec<_>>()
+        });
+
+        Mint {
+            mint_authority: value.base.mint_authority.into(),
+            supply: value.base.supply,
+            decimals: value.base.decimals,
+            is_initialized: value.base.is_initialized,
+            freeze_authority: value.base.freeze_authority.into(),
+            extensions,
         }
-
-        let data_slice = data;
-
-        let data_slice = &data_slice[0..];
-
-        Self::deserialize(data_slice)
     }
 }

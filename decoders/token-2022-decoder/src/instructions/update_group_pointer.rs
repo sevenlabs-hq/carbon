@@ -10,15 +10,22 @@ use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
+use spl_pod::optional_keys::OptionalNonZeroPubkey;
 
 /// Update the group pointer address. Only supported for mints that
 /// include the `GroupPointer` extension.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct UpdateGroupPointer {
     pub group_pointer_discriminator: u8,
     /// The new account address that holds the group configurations.
     pub group_address: Option<Pubkey>,
+}
+
+#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+pub struct UpdateGroupPointerDeser {
+    pub group_pointer_discriminator: u8,
+    pub group_address: OptionalNonZeroPubkey,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -43,7 +50,12 @@ impl UpdateGroupPointer {
 
         let data_slice = &data_slice[1..];
 
-        Self::deserialize(data_slice)
+        let group_pointer = UpdateGroupPointerDeser::deserialize(data_slice)?;
+
+        Some(UpdateGroupPointer {
+            group_pointer_discriminator: group_pointer.group_pointer_discriminator,
+            group_address: group_pointer.group_address.into(),
+        })
     }
 }
 

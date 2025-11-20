@@ -20,13 +20,21 @@ use solana_pubkey::Pubkey;
 /// bytes), plus 83 bytes of padding, 1 byte reserved for the account type,
 /// then space required for this extension, plus any others.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct InitializeMetadataPointer {
     pub metadata_pointer_discriminator: u8,
     /// The public key for the account that can update the metadata address.
     pub authority: Option<Pubkey>,
     /// The account address that holds the metadata.
     pub metadata_address: Option<Pubkey>,
+}
+
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+pub struct InitializeMetadataPointerDeser {
+    pub metadata_pointer_discriminator: u8,
+    pub authority: Pubkey, // spl_pod::optional_keys::OptionalNonZeroPubkey-like deserialize
+    pub metadata_address: Pubkey, // spl_pod::optional_keys::OptionalNonZeroPubkey-like deserialize
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -50,7 +58,13 @@ impl InitializeMetadataPointer {
 
         let data_slice = &data_slice[1..];
 
-        Self::deserialize(data_slice)
+        let metadata_pointer = InitializeMetadataPointerDeser::deserialize(data_slice)?;
+
+        Some(InitializeMetadataPointer {
+            metadata_pointer_discriminator: metadata_pointer.metadata_pointer_discriminator,
+            authority: metadata_pointer.authority.into(),
+            metadata_address: metadata_pointer.metadata_address.into(),
+        })
     }
 }
 

@@ -10,16 +10,23 @@ use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
+use spl_pod::optional_keys::OptionalNonZeroPubkey;
 
 /// Initialize a new `Group`
 ///
 /// Assumes one has already initialized a mint for the group.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct InitializeTokenGroup {
     /// Update authority for the group
     pub update_authority: Option<Pubkey>,
     /// The maximum number of group members
+    pub max_size: u64,
+}
+
+#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+pub struct InitializeTokenGroupDeser {
+    pub update_authority: OptionalNonZeroPubkey,
     pub max_size: u64,
 }
 
@@ -46,7 +53,12 @@ impl InitializeTokenGroup {
 
         let data_slice = &data_slice[8..];
 
-        Self::deserialize(data_slice)
+        let token_group = InitializeTokenGroupDeser::deserialize(data_slice)?;
+
+        Some(InitializeTokenGroup {
+            update_authority: token_group.update_authority.into(),
+            max_size: token_group.max_size,
+        })
     }
 }
 

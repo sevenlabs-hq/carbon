@@ -20,13 +20,20 @@ use solana_pubkey::Pubkey;
 /// bytes), plus 83 bytes of padding, 1 byte reserved for the account type,
 /// then space required for this extension, plus any others.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct InitializeGroupPointer {
     pub group_pointer_discriminator: u8,
     /// The public key for the account that can update the group address.
     pub authority: Option<Pubkey>,
     /// The account address that holds the group.
     pub group_address: Option<Pubkey>,
+}
+
+#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+pub struct InitializeGroupPointerDeser {
+    pub group_pointer_discriminator: u8,
+    pub authority: Pubkey, // spl_pod::optional_keys::OptionalNonZeroPubkey-like deserialize
+    pub group_address: Pubkey, // spl_pod::optional_keys::OptionalNonZeroPubkey-like deserialize
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -50,7 +57,13 @@ impl InitializeGroupPointer {
 
         let data_slice = &data_slice[1..];
 
-        Self::deserialize(data_slice)
+        let group_pointer = InitializeGroupPointerDeser::deserialize(data_slice)?;
+
+        Some(InitializeGroupPointer {
+            group_pointer_discriminator: group_pointer.group_pointer_discriminator,
+            authority: group_pointer.authority.into(),
+            group_address: group_pointer.group_address.into(),
+        })
     }
 }
 

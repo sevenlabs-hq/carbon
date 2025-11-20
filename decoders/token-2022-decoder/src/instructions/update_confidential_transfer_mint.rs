@@ -10,13 +10,14 @@ use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
+use spl_pod::optional_keys::OptionalNonZeroPubkey;
 
 /// Updates the confidential transfer mint configuration for a mint.
 ///
 /// Use `TokenInstruction::SetAuthority` to update the confidential transfer
 /// mint authority.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct UpdateConfidentialTransferMint {
     pub confidential_transfer_discriminator: u8,
     /// Determines if newly configured accounts must be approved by the
@@ -24,6 +25,13 @@ pub struct UpdateConfidentialTransferMint {
     pub auto_approve_new_accounts: bool,
     /// New authority to decode any transfer amount in a confidential transfer.
     pub auditor_elgamal_pubkey: Option<Pubkey>,
+}
+
+#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+pub struct UpdateConfidentialTransferMintDeser {
+    pub confidential_transfer_discriminator: u8,
+    pub auto_approve_new_accounts: bool,
+    pub auditor_elgamal_pubkey: OptionalNonZeroPubkey,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -48,7 +56,15 @@ impl UpdateConfidentialTransferMint {
 
         let data_slice = &data_slice[1..];
 
-        Self::deserialize(data_slice)
+        let confidential_transfer_mint =
+            UpdateConfidentialTransferMintDeser::deserialize(data_slice)?;
+
+        Some(UpdateConfidentialTransferMint {
+            confidential_transfer_discriminator: confidential_transfer_mint
+                .confidential_transfer_discriminator,
+            auto_approve_new_accounts: confidential_transfer_mint.auto_approve_new_accounts,
+            auditor_elgamal_pubkey: confidential_transfer_mint.auditor_elgamal_pubkey.into(),
+        })
     }
 }
 

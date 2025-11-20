@@ -5,6 +5,9 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
+use solana_program_pack::Pack;
+use spl_token_2022::extension::StateWithExtensions;
+
 use crate::Token2022Decoder;
 use crate::PROGRAM_ID;
 
@@ -38,40 +41,37 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for Token2022Decoder {
             return None;
         }
 
-        let data = account.data.as_slice();
+        if let Ok(data) = StateWithExtensions::<spl_token_2022::state::Mint>::unpack(&account.data)
+        {
+            return Some(carbon_core::account::DecodedAccount {
+                lamports: account.lamports,
+                data: Token2022Account::Mint(Box::new(mint::Mint::from(data))),
+                owner: account.owner,
+                executable: account.executable,
+                rent_epoch: account.rent_epoch,
+            });
+        }
 
+        if let Ok(data) =
+            StateWithExtensions::<spl_token_2022::state::Account>::unpack(&account.data)
         {
-            if let Some(decoded) = mint::Mint::decode(data) {
-                return Some(carbon_core::account::DecodedAccount {
-                    lamports: account.lamports,
-                    data: Token2022Account::Mint(Box::new(decoded)),
-                    owner: account.owner,
-                    executable: account.executable,
-                    rent_epoch: account.rent_epoch,
-                });
-            }
+            return Some(carbon_core::account::DecodedAccount {
+                lamports: account.lamports,
+                data: Token2022Account::Token(Box::new(token::Token::from(data))),
+                owner: account.owner,
+                executable: account.executable,
+                rent_epoch: account.rent_epoch,
+            });
         }
-        {
-            if let Some(decoded) = token::Token::decode(data) {
-                return Some(carbon_core::account::DecodedAccount {
-                    lamports: account.lamports,
-                    data: Token2022Account::Token(Box::new(decoded)),
-                    owner: account.owner,
-                    executable: account.executable,
-                    rent_epoch: account.rent_epoch,
-                });
-            }
-        }
-        {
-            if let Some(decoded) = multisig::Multisig::decode(data) {
-                return Some(carbon_core::account::DecodedAccount {
-                    lamports: account.lamports,
-                    data: Token2022Account::Multisig(Box::new(decoded)),
-                    owner: account.owner,
-                    executable: account.executable,
-                    rent_epoch: account.rent_epoch,
-                });
-            }
+
+        if let Ok(data) = spl_token_2022::state::Multisig::unpack_from_slice(&account.data) {
+            return Some(carbon_core::account::DecodedAccount {
+                lamports: account.lamports,
+                data: Token2022Account::Multisig(Box::new(multisig::Multisig::from(data))),
+                owner: account.owner,
+                executable: account.executable,
+                rent_epoch: account.rent_epoch,
+            });
         }
 
         None
