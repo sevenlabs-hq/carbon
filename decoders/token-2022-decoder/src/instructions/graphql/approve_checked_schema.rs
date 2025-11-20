@@ -16,7 +16,9 @@ pub struct ApproveCheckedGraphQL {
 
 impl TryFrom<crate::instructions::postgres::ApproveCheckedRow> for ApproveCheckedGraphQL {
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::ApproveCheckedRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::ApproveCheckedRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
             amount: carbon_core::graphql::primitives::U64(*row.amount),

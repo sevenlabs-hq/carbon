@@ -14,7 +14,10 @@ pub struct InitializeMultisigRow {
 }
 
 impl InitializeMultisigRow {
-    pub fn from_parts(source: crate::instructions::initialize_multisig::InitializeMultisig, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::initialize_multisig::InitializeMultisig,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             m: source.m.into(),
@@ -22,16 +25,24 @@ impl InitializeMultisigRow {
     }
 }
 
-impl TryFrom<InitializeMultisigRow> for crate::instructions::initialize_multisig::InitializeMultisig {
+impl TryFrom<InitializeMultisigRow>
+    for crate::instructions::initialize_multisig::InitializeMultisig
+{
     type Error = carbon_core::error::Error;
     fn try_from(source: InitializeMultisigRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            m: source.m.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
+            m: source.m.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
         })
     }
 }
 
-impl carbon_core::postgres::operations::Table for crate::instructions::initialize_multisig::InitializeMultisig {
+impl carbon_core::postgres::operations::Table
+    for crate::instructions::initialize_multisig::InitializeMultisig
+{
     fn table() -> &'static str {
         "initialize_multisig_instruction"
     }
@@ -50,19 +61,22 @@ impl carbon_core::postgres::operations::Table for crate::instructions::initializ
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for InitializeMultisigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO initialize_multisig_instruction (
                 "m",
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5
-            )"#)
+            )"#,
+        )
         .bind(self.m.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -71,7 +85,8 @@ impl carbon_core::postgres::operations::Insert for InitializeMultisigRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for InitializeMultisigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO initialize_multisig_instruction (
+        sqlx::query(
+            r#"INSERT INTO initialize_multisig_instruction (
                 "m",
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
@@ -83,13 +98,15 @@ impl carbon_core::postgres::operations::Upsert for InitializeMultisigRow {
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
-            "#)
+            "#,
+        )
         .bind(self.m.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -97,16 +114,23 @@ impl carbon_core::postgres::operations::Upsert for InitializeMultisigRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for InitializeMultisigRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM initialize_multisig_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM initialize_multisig_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -114,16 +138,26 @@ impl carbon_core::postgres::operations::Delete for InitializeMultisigRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for InitializeMultisigRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM initialize_multisig_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM initialize_multisig_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -133,8 +167,12 @@ pub struct InitializeMultisigMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeMultisigMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS initialize_multisig_instruction (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS initialize_multisig_instruction (
                 -- Instruction data
                 "m" INT2 NOT NULL,
                 -- Instruction metadata
@@ -143,12 +181,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeMultisigMigrationOpe
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_multisig_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS initialize_multisig_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

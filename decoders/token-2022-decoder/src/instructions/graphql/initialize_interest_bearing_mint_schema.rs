@@ -15,13 +15,21 @@ pub struct InitializeInterestBearingMintGraphQL {
     pub rate: i32,
 }
 
-impl TryFrom<crate::instructions::postgres::InitializeInterestBearingMintRow> for InitializeInterestBearingMintGraphQL {
+impl TryFrom<crate::instructions::postgres::InitializeInterestBearingMintRow>
+    for InitializeInterestBearingMintGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::InitializeInterestBearingMintRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::InitializeInterestBearingMintRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            interest_bearing_mint_discriminator: carbon_core::graphql::primitives::U8((*row.interest_bearing_mint_discriminator) as u8),
-            rate_authority: row.rate_authority.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            interest_bearing_mint_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.interest_bearing_mint_discriminator) as u8,
+            ),
+            rate_authority: row
+                .rate_authority
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
             rate: row.rate as i32,
         })
     }

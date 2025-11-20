@@ -36,9 +36,14 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for Token2022AccountsMigration {
     }
 }
 
-pub struct Token2022AccountWithMetadata(pub Token2022Account, pub carbon_core::account::AccountMetadata);
+pub struct Token2022AccountWithMetadata(
+    pub Token2022Account,
+    pub carbon_core::account::AccountMetadata,
+);
 
-impl From<(Token2022Account, carbon_core::account::AccountMetadata)> for Token2022AccountWithMetadata {
+impl From<(Token2022Account, carbon_core::account::AccountMetadata)>
+    for Token2022AccountWithMetadata
+{
     fn from(value: (Token2022Account, carbon_core::account::AccountMetadata)) -> Self {
         Token2022AccountWithMetadata(value.0, value.1)
     }
@@ -92,4 +97,3 @@ impl carbon_core::postgres::operations::Upsert for Token2022AccountWithMetadata 
         }
     }
 }
-

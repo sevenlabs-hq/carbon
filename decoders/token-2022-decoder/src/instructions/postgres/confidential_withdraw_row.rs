@@ -2,11 +2,11 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
+use crate::types::DecryptableBalance;
 use carbon_core::instruction::InstructionMetadata;
 use carbon_core::postgres::metadata::InstructionRowMetadata;
 use carbon_core::postgres::primitives::U64;
 use carbon_core::postgres::primitives::U8;
-use crate::types::DecryptableBalance;
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct ConfidentialWithdrawRow {
@@ -21,26 +21,44 @@ pub struct ConfidentialWithdrawRow {
 }
 
 impl ConfidentialWithdrawRow {
-    pub fn from_parts(source: crate::instructions::confidential_withdraw::ConfidentialWithdraw, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::confidential_withdraw::ConfidentialWithdraw,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             confidential_transfer_discriminator: source.confidential_transfer_discriminator.into(),
             amount: source.amount.into(),
             decimals: source.decimals.into(),
-            new_decryptable_available_balance: sqlx::types::Json(source.new_decryptable_available_balance.into()),
+            new_decryptable_available_balance: sqlx::types::Json(
+                source.new_decryptable_available_balance.into(),
+            ),
             equality_proof_instruction_offset: source.equality_proof_instruction_offset.into(),
             range_proof_instruction_offset: source.range_proof_instruction_offset.into(),
         }
     }
 }
 
-impl TryFrom<ConfidentialWithdrawRow> for crate::instructions::confidential_withdraw::ConfidentialWithdraw {
+impl TryFrom<ConfidentialWithdrawRow>
+    for crate::instructions::confidential_withdraw::ConfidentialWithdraw
+{
     type Error = carbon_core::error::Error;
     fn try_from(source: ConfidentialWithdrawRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            confidential_transfer_discriminator: source.confidential_transfer_discriminator.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
+            confidential_transfer_discriminator: source
+                .confidential_transfer_discriminator
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert value from postgres primitive".to_string(),
+                    )
+                })?,
             amount: *source.amount,
-            decimals: source.decimals.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
+            decimals: source.decimals.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
             new_decryptable_available_balance: source.new_decryptable_available_balance.0,
             equality_proof_instruction_offset: source.equality_proof_instruction_offset.into(),
             range_proof_instruction_offset: source.range_proof_instruction_offset.into(),
@@ -48,7 +66,9 @@ impl TryFrom<ConfidentialWithdrawRow> for crate::instructions::confidential_with
     }
 }
 
-impl carbon_core::postgres::operations::Table for crate::instructions::confidential_withdraw::ConfidentialWithdraw {
+impl carbon_core::postgres::operations::Table
+    for crate::instructions::confidential_withdraw::ConfidentialWithdraw
+{
     fn table() -> &'static str {
         "confidential_withdraw_instruction"
     }
@@ -72,7 +92,8 @@ impl carbon_core::postgres::operations::Table for crate::instructions::confident
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for ConfidentialWithdrawRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO confidential_withdraw_instruction (
                 "confidential_transfer_discriminator",
                 "amount",
@@ -83,7 +104,8 @@ impl carbon_core::postgres::operations::Insert for ConfidentialWithdrawRow {
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
-            )"#)
+            )"#,
+        )
         .bind(self.confidential_transfer_discriminator.clone())
         .bind(self.amount.clone())
         .bind(self.decimals.clone())
@@ -94,7 +116,8 @@ impl carbon_core::postgres::operations::Insert for ConfidentialWithdrawRow {
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -144,16 +167,23 @@ impl carbon_core::postgres::operations::Upsert for ConfidentialWithdrawRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for ConfidentialWithdrawRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM confidential_withdraw_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM confidential_withdraw_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -161,16 +191,26 @@ impl carbon_core::postgres::operations::Delete for ConfidentialWithdrawRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for ConfidentialWithdrawRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM confidential_withdraw_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM confidential_withdraw_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -180,8 +220,12 @@ pub struct ConfidentialWithdrawMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for ConfidentialWithdrawMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS confidential_withdraw_instruction (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS confidential_withdraw_instruction (
                 -- Instruction data
                 "confidential_transfer_discriminator" INT2 NOT NULL,
                 "amount" NUMERIC(20) NOT NULL,
@@ -195,12 +239,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ConfidentialWithdrawMigrationO
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS confidential_withdraw_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS confidential_withdraw_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

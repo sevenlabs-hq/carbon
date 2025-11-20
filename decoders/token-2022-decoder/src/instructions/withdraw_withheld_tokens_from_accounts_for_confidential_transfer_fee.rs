@@ -4,17 +4,17 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::CarbonDeserialize;
+use crate::types::DecryptableBalance;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
-use crate::types::DecryptableBalance;
+use carbon_core::CarbonDeserialize;
 
 /// Transfer all withheld tokens to an account. Signed by the mint's withdraw withheld
 /// tokens authority. This instruction is susceptible to front-running.
 /// Use `HarvestWithheldTokensToMint` and `WithdrawWithheldTokensFromMint` as alternative.
-/// 
+///
 /// Must be accompanied by the VerifyWithdrawWithheldTokens instruction.
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -59,7 +59,8 @@ impl WithdrawWithheldTokensFromAccountsForConfidentialTransferFee {
 }
 
 impl ArrangeAccounts for WithdrawWithheldTokensFromAccountsForConfidentialTransferFee {
-    type ArrangedAccounts = WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeInstructionAccounts;
+    type ArrangedAccounts =
+        WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeInstructionAccounts;
 
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
@@ -74,13 +75,15 @@ impl ArrangeAccounts for WithdrawWithheldTokensFromAccountsForConfidentialTransf
 
         let remaining = iter.as_slice();
 
-        Some(WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeInstructionAccounts {
-            mint,
-            destination,
-            instructions_sysvar_or_context_state,
-            record,
-            authority,
-            remaining: remaining.to_vec(),
-        })
+        Some(
+            WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeInstructionAccounts {
+                mint,
+                destination,
+                instructions_sysvar_or_context_state,
+                record,
+                authority,
+                remaining: remaining.to_vec(),
+            },
+        )
     }
 }

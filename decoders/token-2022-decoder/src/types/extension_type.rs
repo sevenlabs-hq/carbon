@@ -40,4 +40,3 @@ pub enum ExtensionType {
     GroupMemberPointer,
     TokenGroupMember,
 }
-

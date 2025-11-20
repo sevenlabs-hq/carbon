@@ -15,12 +15,18 @@ pub struct UpdateMultiplierScaledUiMintGraphQL {
     pub effective_timestamp: I64,
 }
 
-impl TryFrom<crate::instructions::postgres::UpdateMultiplierScaledUiMintRow> for UpdateMultiplierScaledUiMintGraphQL {
+impl TryFrom<crate::instructions::postgres::UpdateMultiplierScaledUiMintRow>
+    for UpdateMultiplierScaledUiMintGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::UpdateMultiplierScaledUiMintRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::UpdateMultiplierScaledUiMintRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            scaled_ui_amount_mint_discriminator: carbon_core::graphql::primitives::U8((*row.scaled_ui_amount_mint_discriminator) as u8),
+            scaled_ui_amount_mint_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.scaled_ui_amount_mint_discriminator) as u8,
+            ),
             multiplier: row.multiplier,
             effective_timestamp: carbon_core::graphql::primitives::I64(row.effective_timestamp),
         })

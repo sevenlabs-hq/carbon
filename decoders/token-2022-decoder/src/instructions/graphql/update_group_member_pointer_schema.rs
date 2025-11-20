@@ -14,13 +14,21 @@ pub struct UpdateGroupMemberPointerGraphQL {
     pub member_address: Option<Pubkey>,
 }
 
-impl TryFrom<crate::instructions::postgres::UpdateGroupMemberPointerRow> for UpdateGroupMemberPointerGraphQL {
+impl TryFrom<crate::instructions::postgres::UpdateGroupMemberPointerRow>
+    for UpdateGroupMemberPointerGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::UpdateGroupMemberPointerRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::UpdateGroupMemberPointerRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            group_member_pointer_discriminator: carbon_core::graphql::primitives::U8((*row.group_member_pointer_discriminator) as u8),
-            member_address: row.member_address.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            group_member_pointer_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.group_member_pointer_discriminator) as u8,
+            ),
+            member_address: row
+                .member_address
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
         })
     }
 }

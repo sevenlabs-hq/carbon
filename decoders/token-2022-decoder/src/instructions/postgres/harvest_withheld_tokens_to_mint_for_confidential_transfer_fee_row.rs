@@ -14,10 +14,15 @@ pub struct HarvestWithheldTokensToMintForConfidentialTransferFeeRow {
 }
 
 impl HarvestWithheldTokensToMintForConfidentialTransferFeeRow {
-    pub fn from_parts(source: crate::instructions::harvest_withheld_tokens_to_mint_for_confidential_transfer_fee::HarvestWithheldTokensToMintForConfidentialTransferFee, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::harvest_withheld_tokens_to_mint_for_confidential_transfer_fee::HarvestWithheldTokensToMintForConfidentialTransferFee,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            confidential_transfer_fee_discriminator: source.confidential_transfer_fee_discriminator.into(),
+            confidential_transfer_fee_discriminator: source
+                .confidential_transfer_fee_discriminator
+                .into(),
         }
     }
 }
@@ -48,28 +53,35 @@ impl carbon_core::postgres::operations::Table for crate::instructions::harvest_w
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Insert for HarvestWithheldTokensToMintForConfidentialTransferFeeRow {
+impl carbon_core::postgres::operations::Insert
+    for HarvestWithheldTokensToMintForConfidentialTransferFeeRow
+{
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO harvest_withheld_tokens_to_mint_for_confidential_transfer_fee_instruction (
                 "confidential_transfer_fee_discriminator",
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5
-            )"#)
+            )"#,
+        )
         .bind(self.confidential_transfer_fee_discriminator.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Upsert for HarvestWithheldTokensToMintForConfidentialTransferFeeRow {
+impl carbon_core::postgres::operations::Upsert
+    for HarvestWithheldTokensToMintForConfidentialTransferFeeRow
+{
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"INSERT INTO harvest_withheld_tokens_to_mint_for_confidential_transfer_fee_instruction (
                 "confidential_transfer_fee_discriminator",
@@ -96,8 +108,14 @@ impl carbon_core::postgres::operations::Upsert for HarvestWithheldTokensToMintFo
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Delete for HarvestWithheldTokensToMintForConfidentialTransferFeeRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+impl carbon_core::postgres::operations::Delete
+    for HarvestWithheldTokensToMintForConfidentialTransferFeeRow
+{
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(r#"DELETE FROM harvest_withheld_tokens_to_mint_for_confidential_transfer_fee_instruction WHERE
@@ -113,10 +131,19 @@ impl carbon_core::postgres::operations::Delete for HarvestWithheldTokensToMintFo
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for HarvestWithheldTokensToMintForConfidentialTransferFeeRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+impl carbon_core::postgres::operations::LookUp
+    for HarvestWithheldTokensToMintForConfidentialTransferFeeRow
+{
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(r#"SELECT * FROM harvest_withheld_tokens_to_mint_for_confidential_transfer_fee_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#)
@@ -132,8 +159,13 @@ impl carbon_core::postgres::operations::LookUp for HarvestWithheldTokensToMintFo
 pub struct HarvestWithheldTokensToMintForConfidentialTransferFeeMigrationOperation;
 
 #[async_trait::async_trait]
-impl sqlx_migrator::Operation<sqlx::Postgres> for HarvestWithheldTokensToMintForConfidentialTransferFeeMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+impl sqlx_migrator::Operation<sqlx::Postgres>
+    for HarvestWithheldTokensToMintForConfidentialTransferFeeMigrationOperation
+{
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(r#"CREATE TABLE IF NOT EXISTS harvest_withheld_tokens_to_mint_for_confidential_transfer_fee_instruction (
                 -- Instruction data
                 "confidential_transfer_fee_discriminator" INT2 NOT NULL,
@@ -147,7 +179,10 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for HarvestWithheldTokensToMintFor
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(r#"DROP TABLE IF EXISTS harvest_withheld_tokens_to_mint_for_confidential_transfer_fee_instruction"#).execute(connection).await?;
         Ok(())
     }

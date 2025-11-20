@@ -13,7 +13,9 @@ pub struct UiAmountToAmountGraphQL {
 
 impl TryFrom<crate::instructions::postgres::UiAmountToAmountRow> for UiAmountToAmountGraphQL {
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::UiAmountToAmountRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::UiAmountToAmountRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
             ui_amount: row.ui_amount,

@@ -13,4 +13,3 @@ pub enum AccountState {
     Initialized,
     Frozen,
 }
-

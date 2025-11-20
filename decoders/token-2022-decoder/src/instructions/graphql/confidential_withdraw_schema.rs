@@ -2,9 +2,9 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
+use crate::types::graphql::DecryptableBalanceGraphQL;
 use carbon_core::graphql::primitives::U64;
 use carbon_core::graphql::primitives::U8;
-use crate::types::graphql::DecryptableBalanceGraphQL;
 use juniper::GraphQLObject;
 
 #[derive(Debug, Clone, GraphQLObject)]
@@ -19,15 +19,26 @@ pub struct ConfidentialWithdrawGraphQL {
     pub range_proof_instruction_offset: i32,
 }
 
-impl TryFrom<crate::instructions::postgres::ConfidentialWithdrawRow> for ConfidentialWithdrawGraphQL {
+impl TryFrom<crate::instructions::postgres::ConfidentialWithdrawRow>
+    for ConfidentialWithdrawGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::ConfidentialWithdrawRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::ConfidentialWithdrawRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            confidential_transfer_discriminator: carbon_core::graphql::primitives::U8((*row.confidential_transfer_discriminator) as u8),
+            confidential_transfer_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.confidential_transfer_discriminator) as u8,
+            ),
             amount: carbon_core::graphql::primitives::U64(*row.amount),
             decimals: carbon_core::graphql::primitives::U8((*row.decimals) as u8),
-            new_decryptable_available_balance: row.new_decryptable_available_balance.0.into_iter().map(|item| carbon_core::graphql::primitives::U8(item)).collect(),
+            new_decryptable_available_balance: row
+                .new_decryptable_available_balance
+                .0
+                .into_iter()
+                .map(|item| carbon_core::graphql::primitives::U8(item))
+                .collect(),
             equality_proof_instruction_offset: row.equality_proof_instruction_offset as i32,
             range_proof_instruction_offset: row.range_proof_instruction_offset as i32,
         })

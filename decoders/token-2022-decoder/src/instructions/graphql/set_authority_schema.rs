@@ -2,8 +2,8 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::graphql::primitives::Pubkey;
 use crate::types::graphql::AuthorityTypeGraphQL;
+use carbon_core::graphql::primitives::Pubkey;
 use juniper::GraphQLObject;
 
 #[derive(Debug, Clone, GraphQLObject)]
@@ -20,7 +20,9 @@ impl TryFrom<crate::instructions::postgres::SetAuthorityRow> for SetAuthorityGra
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
             authority_type: row.authority_type.0.into(),
-            new_authority: row.new_authority.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            new_authority: row
+                .new_authority
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
         })
     }
 }

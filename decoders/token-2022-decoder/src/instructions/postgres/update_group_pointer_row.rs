@@ -16,7 +16,10 @@ pub struct UpdateGroupPointerRow {
 }
 
 impl UpdateGroupPointerRow {
-    pub fn from_parts(source: crate::instructions::update_group_pointer::UpdateGroupPointer, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::update_group_pointer::UpdateGroupPointer,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             group_pointer_discriminator: source.group_pointer_discriminator.into(),
@@ -25,17 +28,27 @@ impl UpdateGroupPointerRow {
     }
 }
 
-impl TryFrom<UpdateGroupPointerRow> for crate::instructions::update_group_pointer::UpdateGroupPointer {
+impl TryFrom<UpdateGroupPointerRow>
+    for crate::instructions::update_group_pointer::UpdateGroupPointer
+{
     type Error = carbon_core::error::Error;
     fn try_from(source: UpdateGroupPointerRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            group_pointer_discriminator: source.group_pointer_discriminator.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
+            group_pointer_discriminator: source.group_pointer_discriminator.try_into().map_err(
+                |_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert value from postgres primitive".to_string(),
+                    )
+                },
+            )?,
             group_address: source.group_address.map(|value| *value),
         })
     }
 }
 
-impl carbon_core::postgres::operations::Table for crate::instructions::update_group_pointer::UpdateGroupPointer {
+impl carbon_core::postgres::operations::Table
+    for crate::instructions::update_group_pointer::UpdateGroupPointer
+{
     fn table() -> &'static str {
         "update_group_pointer_instruction"
     }
@@ -55,21 +68,24 @@ impl carbon_core::postgres::operations::Table for crate::instructions::update_gr
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for UpdateGroupPointerRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO update_group_pointer_instruction (
                 "group_pointer_discriminator",
                 "group_address",
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6
-            )"#)
+            )"#,
+        )
         .bind(self.group_pointer_discriminator.clone())
         .bind(self.group_address.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -78,7 +94,8 @@ impl carbon_core::postgres::operations::Insert for UpdateGroupPointerRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for UpdateGroupPointerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO update_group_pointer_instruction (
+        sqlx::query(
+            r#"INSERT INTO update_group_pointer_instruction (
                 "group_pointer_discriminator",
                 "group_address",
                 __signature, __instruction_index, __stack_height, __slot
@@ -92,14 +109,16 @@ impl carbon_core::postgres::operations::Upsert for UpdateGroupPointerRow {
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
-            "#)
+            "#,
+        )
         .bind(self.group_pointer_discriminator.clone())
         .bind(self.group_address.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -107,16 +126,23 @@ impl carbon_core::postgres::operations::Upsert for UpdateGroupPointerRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for UpdateGroupPointerRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM update_group_pointer_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM update_group_pointer_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -124,16 +150,26 @@ impl carbon_core::postgres::operations::Delete for UpdateGroupPointerRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for UpdateGroupPointerRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM update_group_pointer_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM update_group_pointer_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -143,8 +179,12 @@ pub struct UpdateGroupPointerMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateGroupPointerMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS update_group_pointer_instruction (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS update_group_pointer_instruction (
                 -- Instruction data
                 "group_pointer_discriminator" INT2 NOT NULL,
                 "group_address" BYTEA,
@@ -154,12 +194,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateGroupPointerMigrationOpe
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_group_pointer_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS update_group_pointer_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

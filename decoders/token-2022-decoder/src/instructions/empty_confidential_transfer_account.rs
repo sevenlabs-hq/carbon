@@ -4,27 +4,27 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
+use carbon_core::CarbonDeserialize;
 
 /// Empty the available balance in a confidential token account.
-/// 
+///
 /// A token account that is extended for confidential transfers can only be
 /// closed if the pending and available balance ciphertexts are emptied.
 /// The pending balance can be emptied
 /// via the `ConfidentialTransferInstruction::ApplyPendingBalance`
 /// instruction. Use the `ConfidentialTransferInstruction::EmptyAccount`
 /// instruction to empty the available balance ciphertext.
-/// 
+///
 /// Note that a newly configured account is always empty, so this
 /// instruction is not required prior to account closing if no
 /// instructions beyond
 /// `ConfidentialTransferInstruction::ConfigureAccount` have affected the
 /// token account.
-/// 
+///
 /// In order for this instruction to be successfully processed, it must be
 /// accompanied by the `VerifyZeroCiphertext` instruction of the
 /// `zk_elgamal_proof` program in the same transaction or the address of a

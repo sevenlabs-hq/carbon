@@ -4,26 +4,26 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::CarbonDeserialize;
+use crate::types::DecryptableBalance;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
-use crate::types::DecryptableBalance;
+use carbon_core::CarbonDeserialize;
 
 /// Configures confidential transfers for a token account.
-/// 
+///
 /// The instruction fails if the confidential transfers are already
 /// configured, or if the mint was not initialized with confidential
 /// transfer support.
-/// 
+///
 /// The instruction fails if the `TokenInstruction::InitializeAccount`
 /// instruction has not yet successfully executed for the token account.
-/// 
+///
 /// Upon success, confidential and non-confidential deposits and transfers
 /// are enabled. Use the `DisableConfidentialCredits` and
 /// `DisableNonConfidentialCredits` instructions to disable.
-/// 
+///
 /// In order for this instruction to be successfully processed, it must be
 /// accompanied by the `VerifyPubkeyValidity` instruction of the
 /// `zk_elgamal_proof` program in the same transaction or the address of a

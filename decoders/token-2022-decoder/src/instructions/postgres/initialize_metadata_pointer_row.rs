@@ -17,7 +17,10 @@ pub struct InitializeMetadataPointerRow {
 }
 
 impl InitializeMetadataPointerRow {
-    pub fn from_parts(source: crate::instructions::initialize_metadata_pointer::InitializeMetadataPointer, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::initialize_metadata_pointer::InitializeMetadataPointer,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             metadata_pointer_discriminator: source.metadata_pointer_discriminator.into(),
@@ -27,18 +30,29 @@ impl InitializeMetadataPointerRow {
     }
 }
 
-impl TryFrom<InitializeMetadataPointerRow> for crate::instructions::initialize_metadata_pointer::InitializeMetadataPointer {
+impl TryFrom<InitializeMetadataPointerRow>
+    for crate::instructions::initialize_metadata_pointer::InitializeMetadataPointer
+{
     type Error = carbon_core::error::Error;
     fn try_from(source: InitializeMetadataPointerRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            metadata_pointer_discriminator: source.metadata_pointer_discriminator.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
+            metadata_pointer_discriminator: source
+                .metadata_pointer_discriminator
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert value from postgres primitive".to_string(),
+                    )
+                })?,
             authority: source.authority.map(|value| *value),
             metadata_address: source.metadata_address.map(|value| *value),
         })
     }
 }
 
-impl carbon_core::postgres::operations::Table for crate::instructions::initialize_metadata_pointer::InitializeMetadataPointer {
+impl carbon_core::postgres::operations::Table
+    for crate::instructions::initialize_metadata_pointer::InitializeMetadataPointer
+{
     fn table() -> &'static str {
         "initialize_metadata_pointer_instruction"
     }
@@ -59,7 +73,8 @@ impl carbon_core::postgres::operations::Table for crate::instructions::initializ
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for InitializeMetadataPointerRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO initialize_metadata_pointer_instruction (
                 "metadata_pointer_discriminator",
                 "authority",
@@ -67,7 +82,8 @@ impl carbon_core::postgres::operations::Insert for InitializeMetadataPointerRow 
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7
-            )"#)
+            )"#,
+        )
         .bind(self.metadata_pointer_discriminator.clone())
         .bind(self.authority.clone())
         .bind(self.metadata_address.clone())
@@ -75,7 +91,8 @@ impl carbon_core::postgres::operations::Insert for InitializeMetadataPointerRow 
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -84,7 +101,8 @@ impl carbon_core::postgres::operations::Insert for InitializeMetadataPointerRow 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for InitializeMetadataPointerRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO initialize_metadata_pointer_instruction (
+        sqlx::query(
+            r#"INSERT INTO initialize_metadata_pointer_instruction (
                 "metadata_pointer_discriminator",
                 "authority",
                 "metadata_address",
@@ -100,7 +118,8 @@ impl carbon_core::postgres::operations::Upsert for InitializeMetadataPointerRow 
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
-            "#)
+            "#,
+        )
         .bind(self.metadata_pointer_discriminator.clone())
         .bind(self.authority.clone())
         .bind(self.metadata_address.clone())
@@ -108,7 +127,8 @@ impl carbon_core::postgres::operations::Upsert for InitializeMetadataPointerRow 
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -116,16 +136,23 @@ impl carbon_core::postgres::operations::Upsert for InitializeMetadataPointerRow 
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for InitializeMetadataPointerRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM initialize_metadata_pointer_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM initialize_metadata_pointer_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -133,16 +160,26 @@ impl carbon_core::postgres::operations::Delete for InitializeMetadataPointerRow 
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for InitializeMetadataPointerRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM initialize_metadata_pointer_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM initialize_metadata_pointer_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -152,8 +189,12 @@ pub struct InitializeMetadataPointerMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeMetadataPointerMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS initialize_metadata_pointer_instruction (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS initialize_metadata_pointer_instruction (
                 -- Instruction data
                 "metadata_pointer_discriminator" INT2 NOT NULL,
                 "authority" BYTEA,
@@ -164,12 +205,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeMetadataPointerMigra
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_metadata_pointer_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS initialize_metadata_pointer_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

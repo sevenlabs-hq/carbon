@@ -4,18 +4,18 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
+use carbon_core::CarbonDeserialize;
 
 /// Lock certain token operations from taking place within CPI for this Account, namely:
 /// * Transfer and Burn must go through a delegate.
 /// * CloseAccount can only return lamports to owner.
 /// * SetAuthority can only be used to remove an existing close authority.
 /// * Approve is disallowed entirely.
-/// 
+///
 /// In addition, CPI Guard cannot be enabled or disabled via CPI.
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

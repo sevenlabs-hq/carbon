@@ -14,7 +14,9 @@ pub struct InitializeMultisig2GraphQL {
 
 impl TryFrom<crate::instructions::postgres::InitializeMultisig2Row> for InitializeMultisig2GraphQL {
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::InitializeMultisig2Row) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::InitializeMultisig2Row,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
             m: carbon_core::graphql::primitives::U8((*row.m) as u8),

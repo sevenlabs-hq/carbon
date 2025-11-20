@@ -4,18 +4,18 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
+use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
 
 /// Initialize a new mint with the `InterestBearing` extension.
-/// 
+///
 /// Fails if the mint has already been initialized, so must be called before
 /// `InitializeMint`.
-/// 
+///
 /// The mint must have exactly enough space allocated for the base mint (82
 /// bytes), plus 83 bytes of padding, 1 byte reserved for the account type,
 /// then space required for this extension, plus any others.

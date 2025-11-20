@@ -14,7 +14,10 @@ pub struct EnableCpiGuardRow {
 }
 
 impl EnableCpiGuardRow {
-    pub fn from_parts(source: crate::instructions::enable_cpi_guard::EnableCpiGuard, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::enable_cpi_guard::EnableCpiGuard,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             cpi_guard_discriminator: source.cpi_guard_discriminator.into(),
@@ -26,12 +29,18 @@ impl TryFrom<EnableCpiGuardRow> for crate::instructions::enable_cpi_guard::Enabl
     type Error = carbon_core::error::Error;
     fn try_from(source: EnableCpiGuardRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            cpi_guard_discriminator: source.cpi_guard_discriminator.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
+            cpi_guard_discriminator: source.cpi_guard_discriminator.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
         })
     }
 }
 
-impl carbon_core::postgres::operations::Table for crate::instructions::enable_cpi_guard::EnableCpiGuard {
+impl carbon_core::postgres::operations::Table
+    for crate::instructions::enable_cpi_guard::EnableCpiGuard
+{
     fn table() -> &'static str {
         "enable_cpi_guard_instruction"
     }
@@ -50,19 +59,22 @@ impl carbon_core::postgres::operations::Table for crate::instructions::enable_cp
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for EnableCpiGuardRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO enable_cpi_guard_instruction (
                 "cpi_guard_discriminator",
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5
-            )"#)
+            )"#,
+        )
         .bind(self.cpi_guard_discriminator.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -71,7 +83,8 @@ impl carbon_core::postgres::operations::Insert for EnableCpiGuardRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for EnableCpiGuardRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO enable_cpi_guard_instruction (
+        sqlx::query(
+            r#"INSERT INTO enable_cpi_guard_instruction (
                 "cpi_guard_discriminator",
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
@@ -83,13 +96,15 @@ impl carbon_core::postgres::operations::Upsert for EnableCpiGuardRow {
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
-            "#)
+            "#,
+        )
         .bind(self.cpi_guard_discriminator.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -97,16 +112,23 @@ impl carbon_core::postgres::operations::Upsert for EnableCpiGuardRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for EnableCpiGuardRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM enable_cpi_guard_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM enable_cpi_guard_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -114,16 +136,26 @@ impl carbon_core::postgres::operations::Delete for EnableCpiGuardRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for EnableCpiGuardRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM enable_cpi_guard_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM enable_cpi_guard_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -133,8 +165,12 @@ pub struct EnableCpiGuardMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for EnableCpiGuardMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS enable_cpi_guard_instruction (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS enable_cpi_guard_instruction (
                 -- Instruction data
                 "cpi_guard_discriminator" INT2 NOT NULL,
                 -- Instruction metadata
@@ -143,12 +179,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EnableCpiGuardMigrationOperati
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS enable_cpi_guard_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS enable_cpi_guard_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

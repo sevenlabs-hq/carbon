@@ -7,9 +7,9 @@ use juniper::GraphQLEnum;
 #[derive(Debug, Clone, GraphQLEnum)]
 #[graphql(name = "AccountState")]
 pub enum AccountStateGraphQL {
-        Uninitialized,
-        Initialized,
-        Frozen,
+    Uninitialized,
+    Initialized,
+    Frozen,
 }
 
 impl From<crate::types::AccountState> for AccountStateGraphQL {
@@ -21,4 +21,3 @@ impl From<crate::types::AccountState> for AccountStateGraphQL {
         }
     }
 }
-

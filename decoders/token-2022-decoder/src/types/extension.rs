@@ -4,11 +4,11 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::borsh;
 use crate::types::AccountState;
 use crate::types::DecryptableBalance;
 use crate::types::EncryptedBalance;
 use crate::types::TransferFee;
+use carbon_core::borsh;
 use solana_pubkey::Pubkey;
 use std::collections::HashMap;
 
@@ -17,193 +17,186 @@ use std::collections::HashMap;
 pub enum Extension {
     Uninitialized,
     TransferFeeConfig {
-    /// Optional authority to set the fee.
-    transfer_fee_config_authority: Pubkey,
-    /// Withdraw from mint instructions must be signed by this key.
-    withdraw_withheld_authority: Pubkey,
-    /// Withheld transfer fee tokens that have been moved to the mint for withdrawal.
-    withheld_amount: u64,
-    /// Older transfer fee, used if the current epoch < newerTransferFee.epoch.
-    older_transfer_fee: TransferFee,
-    /// Newer transfer fee, used if the current epoch >= newerTransferFee.epoch.
-    newer_transfer_fee: TransferFee,
-},
+        /// Optional authority to set the fee.
+        transfer_fee_config_authority: Pubkey,
+        /// Withdraw from mint instructions must be signed by this key.
+        withdraw_withheld_authority: Pubkey,
+        /// Withheld transfer fee tokens that have been moved to the mint for withdrawal.
+        withheld_amount: u64,
+        /// Older transfer fee, used if the current epoch < newerTransferFee.epoch.
+        older_transfer_fee: TransferFee,
+        /// Newer transfer fee, used if the current epoch >= newerTransferFee.epoch.
+        newer_transfer_fee: TransferFee,
+    },
     TransferFeeAmount {
-    /// Withheld transfer fee tokens that can be claimed by the fee authority.
-    withheld_amount: u64,
-},
+        /// Withheld transfer fee tokens that can be claimed by the fee authority.
+        withheld_amount: u64,
+    },
     MintCloseAuthority {
-    close_authority: Pubkey,
-},
+        close_authority: Pubkey,
+    },
     ConfidentialTransferMint {
-    /// Authority to modify the `ConfidentialTransferMint` configuration and to
-    /// approve new accounts (if `auto_approve_new_accounts` is true).
-    /// 
-    /// The legacy Token Multisig account is not supported as the authority.
-    authority: Option<Pubkey>,
-    /// Indicate if newly configured accounts must be approved by the
-    /// `authority` before they may be used by the user.
-    /// 
-    /// * If `true`, no approval is required and new accounts may be used immediately.
-    /// * If `false`, the authority must approve newly configured accounts (see
-    ///   `ConfidentialTransferInstruction::ConfigureAccount`).
-    auto_approve_new_accounts: bool,
-    /// Authority to decode any transfer amount in a confidential transfer.
-    auditor_elgamal_pubkey: Option<Pubkey>,
-},
+        /// Authority to modify the `ConfidentialTransferMint` configuration and to
+        /// approve new accounts (if `auto_approve_new_accounts` is true).
+        ///
+        /// The legacy Token Multisig account is not supported as the authority.
+        authority: Option<Pubkey>,
+        /// Indicate if newly configured accounts must be approved by the
+        /// `authority` before they may be used by the user.
+        ///
+        /// * If `true`, no approval is required and new accounts may be used immediately.
+        /// * If `false`, the authority must approve newly configured accounts (see
+        ///   `ConfidentialTransferInstruction::ConfigureAccount`).
+        auto_approve_new_accounts: bool,
+        /// Authority to decode any transfer amount in a confidential transfer.
+        auditor_elgamal_pubkey: Option<Pubkey>,
+    },
     ConfidentialTransferAccount {
-    /// `true` if this account has been approved for use. All confidential
-    /// transfer operations for the account will fail until approval is granted.
-    approved: bool,
-    /// The public key associated with ElGamal encryption.
-    elgamal_pubkey: Pubkey,
-    /// The low 16 bits of the pending balance (encrypted by `elgamal_pubkey`).
-    pending_balance_low: EncryptedBalance,
-    /// The high 32 bits of the pending balance (encrypted by `elgamal_pubkey`).
-    pending_balance_high: EncryptedBalance,
-    /// The available balance (encrypted by `encrypiton_pubkey`).
-    available_balance: EncryptedBalance,
-    /// The decryptable available balance.
-    decryptable_available_balance: DecryptableBalance,
-    /// If `false`, the extended account rejects any incoming confidential transfers.
-    allow_confidential_credits: bool,
-    /// If `false`, the base account rejects any incoming transfers.
-    allow_non_confidential_credits: bool,
-    /// The total number of `Deposit` and `Transfer` instructions that have credited `pending_balance`.
-    pending_balance_credit_counter: u64,
-    /// The maximum number of `Deposit` and `Transfer` instructions that can
-    /// credit `pending_balance` before the `ApplyPendingBalance`
-    /// instruction is executed.
-    maximum_pending_balance_credit_counter: u64,
-    /// The `expected_pending_balance_credit_counter` value that was included in
-    /// the last `ApplyPendingBalance` instruction.
-    expected_pending_balance_credit_counter: u64,
-    /// The actual `pending_balance_credit_counter` when the last
-    /// `ApplyPendingBalance` instruction was executed.
-    actual_pending_balance_credit_counter: u64,
-},
+        /// `true` if this account has been approved for use. All confidential
+        /// transfer operations for the account will fail until approval is granted.
+        approved: bool,
+        /// The public key associated with ElGamal encryption.
+        elgamal_pubkey: Pubkey,
+        /// The low 16 bits of the pending balance (encrypted by `elgamal_pubkey`).
+        pending_balance_low: EncryptedBalance,
+        /// The high 32 bits of the pending balance (encrypted by `elgamal_pubkey`).
+        pending_balance_high: EncryptedBalance,
+        /// The available balance (encrypted by `encrypiton_pubkey`).
+        available_balance: EncryptedBalance,
+        /// The decryptable available balance.
+        decryptable_available_balance: DecryptableBalance,
+        /// If `false`, the extended account rejects any incoming confidential transfers.
+        allow_confidential_credits: bool,
+        /// If `false`, the base account rejects any incoming transfers.
+        allow_non_confidential_credits: bool,
+        /// The total number of `Deposit` and `Transfer` instructions that have credited `pending_balance`.
+        pending_balance_credit_counter: u64,
+        /// The maximum number of `Deposit` and `Transfer` instructions that can
+        /// credit `pending_balance` before the `ApplyPendingBalance`
+        /// instruction is executed.
+        maximum_pending_balance_credit_counter: u64,
+        /// The `expected_pending_balance_credit_counter` value that was included in
+        /// the last `ApplyPendingBalance` instruction.
+        expected_pending_balance_credit_counter: u64,
+        /// The actual `pending_balance_credit_counter` when the last
+        /// `ApplyPendingBalance` instruction was executed.
+        actual_pending_balance_credit_counter: u64,
+    },
     DefaultAccountState {
-    state: AccountState,
-},
-    ImmutableOwner {
-
-},
+        state: AccountState,
+    },
+    ImmutableOwner {},
     MemoTransfer {
-    /// Require transfers into this account to be accompanied by a memo.
-    require_incoming_transfer_memos: bool,
-},
-    NonTransferable {
-
-},
+        /// Require transfers into this account to be accompanied by a memo.
+        require_incoming_transfer_memos: bool,
+    },
+    NonTransferable {},
     InterestBearingConfig {
-    rate_authority: Pubkey,
-    initialization_timestamp: u64,
-    pre_update_average_rate: i16,
-    last_update_timestamp: u64,
-    current_rate: i16,
-},
+        rate_authority: Pubkey,
+        initialization_timestamp: u64,
+        pre_update_average_rate: i16,
+        last_update_timestamp: u64,
+        current_rate: i16,
+    },
     CpiGuard {
-    /// Lock certain token operations from taking place within CPI for this account.
-    lock_cpi: bool,
-},
+        /// Lock certain token operations from taking place within CPI for this account.
+        lock_cpi: bool,
+    },
     PermanentDelegate {
-    delegate: Pubkey,
-},
-    NonTransferableAccount {
-
-},
+        delegate: Pubkey,
+    },
+    NonTransferableAccount {},
     TransferHook {
-    /// The transfer hook update authority.
-    authority: Pubkey,
-    /// The transfer hook program account.
-    program_id: Pubkey,
-},
+        /// The transfer hook update authority.
+        authority: Pubkey,
+        /// The transfer hook program account.
+        program_id: Pubkey,
+    },
     TransferHookAccount {
-    /// Whether or not this account is currently transferring tokens
-    /// True during the transfer hook cpi, otherwise false.
-    transferring: bool,
-},
+        /// Whether or not this account is currently transferring tokens
+        /// True during the transfer hook cpi, otherwise false.
+        transferring: bool,
+    },
     ConfidentialTransferFee {
-    /// Optional authority to set the withdraw withheld authority ElGamal key.
-    authority: Option<Pubkey>,
-    /// Withheld fees from accounts must be encrypted with this ElGamal key.
-    /// 
-    /// Note that whoever holds the ElGamal private key for this ElGamal public
-    /// key has the ability to decode any withheld fee amount that are
-    /// associated with accounts. When combined with the fee parameters, the
-    /// withheld fee amounts can reveal information about transfer amounts.
-    elgamal_pubkey: Pubkey,
-    /// If `false`, the harvest of withheld tokens to mint is rejected.
-    harvest_to_mint_enabled: bool,
-    /// Withheld confidential transfer fee tokens that have been moved to the
-    /// mint for withdrawal.
-    withheld_amount: EncryptedBalance,
-},
+        /// Optional authority to set the withdraw withheld authority ElGamal key.
+        authority: Option<Pubkey>,
+        /// Withheld fees from accounts must be encrypted with this ElGamal key.
+        ///
+        /// Note that whoever holds the ElGamal private key for this ElGamal public
+        /// key has the ability to decode any withheld fee amount that are
+        /// associated with accounts. When combined with the fee parameters, the
+        /// withheld fee amounts can reveal information about transfer amounts.
+        elgamal_pubkey: Pubkey,
+        /// If `false`, the harvest of withheld tokens to mint is rejected.
+        harvest_to_mint_enabled: bool,
+        /// Withheld confidential transfer fee tokens that have been moved to the
+        /// mint for withdrawal.
+        withheld_amount: EncryptedBalance,
+    },
     ConfidentialTransferFeeAmount {
-    /// Amount withheld during confidential transfers, to be harvest to the mint.
-    withheld_amount: EncryptedBalance,
-},
+        /// Amount withheld during confidential transfers, to be harvest to the mint.
+        withheld_amount: EncryptedBalance,
+    },
     MetadataPointer {
-    /// Optional authority that can set the metadata address.
-    authority: Option<Pubkey>,
-    /// Optional Account Address that holds the metadata.
-    metadata_address: Option<Pubkey>,
-},
+        /// Optional authority that can set the metadata address.
+        authority: Option<Pubkey>,
+        /// Optional Account Address that holds the metadata.
+        metadata_address: Option<Pubkey>,
+    },
     TokenMetadata {
-    /// The authority that can sign to update the metadata.
-    update_authority: Option<Pubkey>,
-    /// The associated mint, used to counter spoofing to be sure that metadata belongs to a particular mint.
-    mint: Pubkey,
-    /// The longer name of the token.
-    name: String,
-    /// The shortened symbol for the token.
-    symbol: String,
-    /// The URI pointing to richer metadata.
-    uri: String,
-    /// Any additional metadata about the token as key-value pairs.
-    additional_metadata: HashMap<String, String>,
-},
+        /// The authority that can sign to update the metadata.
+        update_authority: Option<Pubkey>,
+        /// The associated mint, used to counter spoofing to be sure that metadata belongs to a particular mint.
+        mint: Pubkey,
+        /// The longer name of the token.
+        name: String,
+        /// The shortened symbol for the token.
+        symbol: String,
+        /// The URI pointing to richer metadata.
+        uri: String,
+        /// Any additional metadata about the token as key-value pairs.
+        additional_metadata: HashMap<String, String>,
+    },
     GroupPointer {
-    /// Optional authority that can set the group address.
-    authority: Option<Pubkey>,
-    /// Optional account address that holds the group.
-    group_address: Option<Pubkey>,
-},
+        /// Optional authority that can set the group address.
+        authority: Option<Pubkey>,
+        /// Optional account address that holds the group.
+        group_address: Option<Pubkey>,
+    },
     TokenGroup {
-    /// The authority that can sign to update the group.
-    update_authority: Option<Pubkey>,
-    /// The associated mint, used to counter spoofing to be sure that group belongs to a particular mint.
-    mint: Pubkey,
-    /// The current number of group members.
-    size: u64,
-    /// The maximum number of group members.
-    max_size: u64,
-},
+        /// The authority that can sign to update the group.
+        update_authority: Option<Pubkey>,
+        /// The associated mint, used to counter spoofing to be sure that group belongs to a particular mint.
+        mint: Pubkey,
+        /// The current number of group members.
+        size: u64,
+        /// The maximum number of group members.
+        max_size: u64,
+    },
     GroupMemberPointer {
-    /// Optional authority that can set the member address.
-    authority: Option<Pubkey>,
-    /// Optional account address that holds the member.
-    member_address: Option<Pubkey>,
-},
+        /// Optional authority that can set the member address.
+        authority: Option<Pubkey>,
+        /// Optional account address that holds the member.
+        member_address: Option<Pubkey>,
+    },
     TokenGroupMember {
-    /// The associated mint, used to counter spoofing to be sure that member belongs to a particular mint.
-    mint: Pubkey,
-    /// The pubkey of the `TokenGroup`.
-    group: Pubkey,
-    /// The member number.
-    member_number: u64,
-},
+        /// The associated mint, used to counter spoofing to be sure that member belongs to a particular mint.
+        mint: Pubkey,
+        /// The pubkey of the `TokenGroup`.
+        group: Pubkey,
+        /// The member number.
+        member_number: u64,
+    },
     ConfidentialMintBurn,
     ScaledUiAmountConfig {
-    authority: Pubkey,
-    multiplier: f64,
-    new_multiplier_effective_timestamp: u64,
-    new_multiplier: f64,
-},
+        authority: Pubkey,
+        multiplier: f64,
+        new_multiplier_effective_timestamp: u64,
+        new_multiplier: f64,
+    },
     PausableConfig {
-    authority: Option<Pubkey>,
-    paused: bool,
-},
+        authority: Option<Pubkey>,
+        paused: bool,
+    },
     PausableAccount,
 }
-

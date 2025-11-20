@@ -4,15 +4,15 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::CarbonDeserialize;
+use crate::types::DecryptableBalance;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
-use crate::types::DecryptableBalance;
+use carbon_core::CarbonDeserialize;
 
 /// Transfer tokens confidentially with fee.
-/// 
+///
 /// In order for this instruction to be successfully processed, it must be
 /// accompanied by the following list of `zk_elgamal_proof` program
 /// instructions:
@@ -25,7 +25,7 @@ use crate::types::DecryptableBalance;
 /// These instructions can be accompanied in the same transaction or can be
 /// pre-verified into a context state account, in which case, only their
 /// context state account addresses need to be provided.
-/// 
+///
 /// The same restrictions for the `Transfer` applies to
 /// `TransferWithFee`. Namely, the instruction fails if the
 /// associated mint is extended as `NonTransferable`.

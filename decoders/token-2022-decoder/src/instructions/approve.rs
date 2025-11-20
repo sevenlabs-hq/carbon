@@ -4,11 +4,11 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
+use carbon_core::CarbonDeserialize;
 
 /// Approves a delegate. A delegate is given the authority over tokens on
 /// behalf of the source account's owner.

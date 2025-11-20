@@ -16,11 +16,17 @@ pub struct UpdateGroupPointerGraphQL {
 
 impl TryFrom<crate::instructions::postgres::UpdateGroupPointerRow> for UpdateGroupPointerGraphQL {
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::UpdateGroupPointerRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::UpdateGroupPointerRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            group_pointer_discriminator: carbon_core::graphql::primitives::U8((*row.group_pointer_discriminator) as u8),
-            group_address: row.group_address.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            group_pointer_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.group_pointer_discriminator) as u8,
+            ),
+            group_address: row
+                .group_address
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
         })
     }
 }

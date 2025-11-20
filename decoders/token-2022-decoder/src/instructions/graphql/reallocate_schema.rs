@@ -17,7 +17,12 @@ impl TryFrom<crate::instructions::postgres::ReallocateRow> for ReallocateGraphQL
     fn try_from(row: crate::instructions::postgres::ReallocateRow) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            new_extension_types: row.new_extension_types.0.into_iter().map(|item| item.into()).collect(),
+            new_extension_types: row
+                .new_extension_types
+                .0
+                .into_iter()
+                .map(|item| item.into())
+                .collect(),
         })
     }
 }

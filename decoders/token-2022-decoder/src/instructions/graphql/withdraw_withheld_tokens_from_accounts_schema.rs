@@ -13,13 +13,21 @@ pub struct WithdrawWithheldTokensFromAccountsGraphQL {
     pub num_token_accounts: U8,
 }
 
-impl TryFrom<crate::instructions::postgres::WithdrawWithheldTokensFromAccountsRow> for WithdrawWithheldTokensFromAccountsGraphQL {
+impl TryFrom<crate::instructions::postgres::WithdrawWithheldTokensFromAccountsRow>
+    for WithdrawWithheldTokensFromAccountsGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::WithdrawWithheldTokensFromAccountsRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::WithdrawWithheldTokensFromAccountsRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            transfer_fee_discriminator: carbon_core::graphql::primitives::U8((*row.transfer_fee_discriminator) as u8),
-            num_token_accounts: carbon_core::graphql::primitives::U8((*row.num_token_accounts) as u8),
+            transfer_fee_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.transfer_fee_discriminator) as u8,
+            ),
+            num_token_accounts: carbon_core::graphql::primitives::U8(
+                (*row.num_token_accounts) as u8,
+            ),
         })
     }
 }

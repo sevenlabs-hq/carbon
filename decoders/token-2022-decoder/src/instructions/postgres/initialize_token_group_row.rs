@@ -16,7 +16,10 @@ pub struct InitializeTokenGroupRow {
 }
 
 impl InitializeTokenGroupRow {
-    pub fn from_parts(source: crate::instructions::initialize_token_group::InitializeTokenGroup, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::initialize_token_group::InitializeTokenGroup,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             update_authority: source.update_authority.map(|value| value.into()),
@@ -25,7 +28,9 @@ impl InitializeTokenGroupRow {
     }
 }
 
-impl TryFrom<InitializeTokenGroupRow> for crate::instructions::initialize_token_group::InitializeTokenGroup {
+impl TryFrom<InitializeTokenGroupRow>
+    for crate::instructions::initialize_token_group::InitializeTokenGroup
+{
     type Error = carbon_core::error::Error;
     fn try_from(source: InitializeTokenGroupRow) -> Result<Self, Self::Error> {
         Ok(Self {
@@ -35,7 +40,9 @@ impl TryFrom<InitializeTokenGroupRow> for crate::instructions::initialize_token_
     }
 }
 
-impl carbon_core::postgres::operations::Table for crate::instructions::initialize_token_group::InitializeTokenGroup {
+impl carbon_core::postgres::operations::Table
+    for crate::instructions::initialize_token_group::InitializeTokenGroup
+{
     fn table() -> &'static str {
         "initialize_token_group_instruction"
     }
@@ -55,21 +62,24 @@ impl carbon_core::postgres::operations::Table for crate::instructions::initializ
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for InitializeTokenGroupRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO initialize_token_group_instruction (
                 "update_authority",
                 "max_size",
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6
-            )"#)
+            )"#,
+        )
         .bind(self.update_authority.clone())
         .bind(self.max_size.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -78,7 +88,8 @@ impl carbon_core::postgres::operations::Insert for InitializeTokenGroupRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for InitializeTokenGroupRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO initialize_token_group_instruction (
+        sqlx::query(
+            r#"INSERT INTO initialize_token_group_instruction (
                 "update_authority",
                 "max_size",
                 __signature, __instruction_index, __stack_height, __slot
@@ -92,14 +103,16 @@ impl carbon_core::postgres::operations::Upsert for InitializeTokenGroupRow {
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
-            "#)
+            "#,
+        )
         .bind(self.update_authority.clone())
         .bind(self.max_size.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -107,16 +120,23 @@ impl carbon_core::postgres::operations::Upsert for InitializeTokenGroupRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for InitializeTokenGroupRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM initialize_token_group_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM initialize_token_group_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -124,16 +144,26 @@ impl carbon_core::postgres::operations::Delete for InitializeTokenGroupRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for InitializeTokenGroupRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM initialize_token_group_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM initialize_token_group_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -143,8 +173,12 @@ pub struct InitializeTokenGroupMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeTokenGroupMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS initialize_token_group_instruction (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS initialize_token_group_instruction (
                 -- Instruction data
                 "update_authority" BYTEA,
                 "max_size" NUMERIC(20) NOT NULL,
@@ -154,12 +188,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeTokenGroupMigrationO
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_token_group_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS initialize_token_group_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

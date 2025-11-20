@@ -15,7 +15,10 @@ pub struct WithdrawWithheldTokensFromAccountsRow {
 }
 
 impl WithdrawWithheldTokensFromAccountsRow {
-    pub fn from_parts(source: crate::instructions::withdraw_withheld_tokens_from_accounts::WithdrawWithheldTokensFromAccounts, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::withdraw_withheld_tokens_from_accounts::WithdrawWithheldTokensFromAccounts,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             transfer_fee_discriminator: source.transfer_fee_discriminator.into(),
@@ -54,21 +57,24 @@ impl carbon_core::postgres::operations::Table for crate::instructions::withdraw_
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for WithdrawWithheldTokensFromAccountsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO withdraw_withheld_tokens_from_accounts_instruction (
                 "transfer_fee_discriminator",
                 "num_token_accounts",
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6
-            )"#)
+            )"#,
+        )
         .bind(self.transfer_fee_discriminator.clone())
         .bind(self.num_token_accounts.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -77,7 +83,8 @@ impl carbon_core::postgres::operations::Insert for WithdrawWithheldTokensFromAcc
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for WithdrawWithheldTokensFromAccountsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO withdraw_withheld_tokens_from_accounts_instruction (
+        sqlx::query(
+            r#"INSERT INTO withdraw_withheld_tokens_from_accounts_instruction (
                 "transfer_fee_discriminator",
                 "num_token_accounts",
                 __signature, __instruction_index, __stack_height, __slot
@@ -91,14 +98,16 @@ impl carbon_core::postgres::operations::Upsert for WithdrawWithheldTokensFromAcc
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
-            "#)
+            "#,
+        )
         .bind(self.transfer_fee_discriminator.clone())
         .bind(self.num_token_accounts.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -106,16 +115,23 @@ impl carbon_core::postgres::operations::Upsert for WithdrawWithheldTokensFromAcc
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for WithdrawWithheldTokensFromAccountsRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM withdraw_withheld_tokens_from_accounts_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM withdraw_withheld_tokens_from_accounts_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -123,16 +139,26 @@ impl carbon_core::postgres::operations::Delete for WithdrawWithheldTokensFromAcc
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for WithdrawWithheldTokensFromAccountsRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM withdraw_withheld_tokens_from_accounts_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM withdraw_withheld_tokens_from_accounts_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -141,9 +167,15 @@ impl carbon_core::postgres::operations::LookUp for WithdrawWithheldTokensFromAcc
 pub struct WithdrawWithheldTokensFromAccountsMigrationOperation;
 
 #[async_trait::async_trait]
-impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawWithheldTokensFromAccountsMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS withdraw_withheld_tokens_from_accounts_instruction (
+impl sqlx_migrator::Operation<sqlx::Postgres>
+    for WithdrawWithheldTokensFromAccountsMigrationOperation
+{
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS withdraw_withheld_tokens_from_accounts_instruction (
                 -- Instruction data
                 "transfer_fee_discriminator" INT2 NOT NULL,
                 "num_token_accounts" INT2 NOT NULL,
@@ -153,12 +185,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawWithheldTokensFromAcco
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_withheld_tokens_from_accounts_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_withheld_tokens_from_accounts_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

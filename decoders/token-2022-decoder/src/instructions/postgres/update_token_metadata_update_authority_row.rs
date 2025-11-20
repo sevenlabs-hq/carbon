@@ -14,7 +14,10 @@ pub struct UpdateTokenMetadataUpdateAuthorityRow {
 }
 
 impl UpdateTokenMetadataUpdateAuthorityRow {
-    pub fn from_parts(source: crate::instructions::update_token_metadata_update_authority::UpdateTokenMetadataUpdateAuthority, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::update_token_metadata_update_authority::UpdateTokenMetadataUpdateAuthority,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             new_update_authority: source.new_update_authority.map(|value| value.into()),
@@ -50,19 +53,22 @@ impl carbon_core::postgres::operations::Table for crate::instructions::update_to
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for UpdateTokenMetadataUpdateAuthorityRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO update_token_metadata_update_authority_instruction (
                 "new_update_authority",
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5
-            )"#)
+            )"#,
+        )
         .bind(self.new_update_authority.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -71,7 +77,8 @@ impl carbon_core::postgres::operations::Insert for UpdateTokenMetadataUpdateAuth
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for UpdateTokenMetadataUpdateAuthorityRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO update_token_metadata_update_authority_instruction (
+        sqlx::query(
+            r#"INSERT INTO update_token_metadata_update_authority_instruction (
                 "new_update_authority",
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
@@ -83,13 +90,15 @@ impl carbon_core::postgres::operations::Upsert for UpdateTokenMetadataUpdateAuth
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
-            "#)
+            "#,
+        )
         .bind(self.new_update_authority.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -97,16 +106,23 @@ impl carbon_core::postgres::operations::Upsert for UpdateTokenMetadataUpdateAuth
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for UpdateTokenMetadataUpdateAuthorityRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM update_token_metadata_update_authority_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM update_token_metadata_update_authority_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -114,16 +130,26 @@ impl carbon_core::postgres::operations::Delete for UpdateTokenMetadataUpdateAuth
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for UpdateTokenMetadataUpdateAuthorityRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM update_token_metadata_update_authority_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM update_token_metadata_update_authority_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -132,9 +158,15 @@ impl carbon_core::postgres::operations::LookUp for UpdateTokenMetadataUpdateAuth
 pub struct UpdateTokenMetadataUpdateAuthorityMigrationOperation;
 
 #[async_trait::async_trait]
-impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateTokenMetadataUpdateAuthorityMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS update_token_metadata_update_authority_instruction (
+impl sqlx_migrator::Operation<sqlx::Postgres>
+    for UpdateTokenMetadataUpdateAuthorityMigrationOperation
+{
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS update_token_metadata_update_authority_instruction (
                 -- Instruction data
                 "new_update_authority" BYTEA,
                 -- Instruction metadata
@@ -143,12 +175,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UpdateTokenMetadataUpdateAutho
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS update_token_metadata_update_authority_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS update_token_metadata_update_authority_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

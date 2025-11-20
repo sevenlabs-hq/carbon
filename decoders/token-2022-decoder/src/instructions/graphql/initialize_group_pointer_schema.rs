@@ -15,14 +15,24 @@ pub struct InitializeGroupPointerGraphQL {
     pub group_address: Option<Pubkey>,
 }
 
-impl TryFrom<crate::instructions::postgres::InitializeGroupPointerRow> for InitializeGroupPointerGraphQL {
+impl TryFrom<crate::instructions::postgres::InitializeGroupPointerRow>
+    for InitializeGroupPointerGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::InitializeGroupPointerRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::InitializeGroupPointerRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            group_pointer_discriminator: carbon_core::graphql::primitives::U8((*row.group_pointer_discriminator) as u8),
-            authority: row.authority.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
-            group_address: row.group_address.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            group_pointer_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.group_pointer_discriminator) as u8,
+            ),
+            authority: row
+                .authority
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            group_address: row
+                .group_address
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
         })
     }
 }

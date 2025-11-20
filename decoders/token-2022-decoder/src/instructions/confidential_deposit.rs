@@ -4,19 +4,19 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
+use carbon_core::CarbonDeserialize;
 
 /// Deposit SPL Tokens into the pending balance of a confidential token
 /// account.
-/// 
+///
 /// The account owner can then invoke the `ApplyPendingBalance` instruction
 /// to roll the deposit into their available balance at a time of their
 /// choosing.
-/// 
+///
 /// Fails if the source or destination accounts are frozen.
 /// Fails if the associated mint is extended as `NonTransferable`.
 

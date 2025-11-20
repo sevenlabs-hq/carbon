@@ -15,13 +15,21 @@ pub struct InitializeScaledUiAmountMintGraphQL {
     pub multiplier: f64,
 }
 
-impl TryFrom<crate::instructions::postgres::InitializeScaledUiAmountMintRow> for InitializeScaledUiAmountMintGraphQL {
+impl TryFrom<crate::instructions::postgres::InitializeScaledUiAmountMintRow>
+    for InitializeScaledUiAmountMintGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::InitializeScaledUiAmountMintRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::InitializeScaledUiAmountMintRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            scaled_ui_amount_mint_discriminator: carbon_core::graphql::primitives::U8((*row.scaled_ui_amount_mint_discriminator) as u8),
-            authority: row.authority.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            scaled_ui_amount_mint_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.scaled_ui_amount_mint_discriminator) as u8,
+            ),
+            authority: row
+                .authority
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
             multiplier: row.multiplier,
         })
     }

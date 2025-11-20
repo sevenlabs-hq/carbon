@@ -5,8 +5,8 @@
 //! <https://github.com/codama-idl/codama>
 //!
 
-use crate::PROGRAM_ID;
 use crate::Token2022Decoder;
+use crate::PROGRAM_ID;
 
 #[cfg(feature = "postgres")]
 pub mod postgres;
@@ -29,7 +29,7 @@ pub enum Token2022Account {
 
 impl<'a> carbon_core::account::AccountDecoder<'a> for Token2022Decoder {
     type AccountType = Token2022Account;
-    
+
     fn decode_account(
         &self,
         account: &'a solana_account::Account,
@@ -37,9 +37,9 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for Token2022Decoder {
         if account.owner != PROGRAM_ID {
             return None;
         }
-        
+
         let data = account.data.as_slice();
-        
+
         {
             if let Some(decoded) = mint::Mint::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
@@ -73,8 +73,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for Token2022Decoder {
                 });
             }
         }
-        
+
         None
     }
 }
-

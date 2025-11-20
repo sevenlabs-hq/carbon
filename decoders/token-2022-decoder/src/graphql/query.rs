@@ -16,8 +16,12 @@ impl QueryRoot {
     ) -> FieldResult<Option<crate::accounts::graphql::MintGraphQL>> {
         use carbon_core::postgres::operations::LookUp;
         use carbon_core::postgres::primitives::Pubkey as PgPubkey;
-        let pk = PgPubkey(solana_pubkey::Pubkey::from_str(&pubkey).map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?);
-        let row = crate::accounts::postgres::MintRow::lookup(pk, &context.pool).await
+        let pk = PgPubkey(
+            solana_pubkey::Pubkey::from_str(&pubkey)
+                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
+        );
+        let row = crate::accounts::postgres::MintRow::lookup(pk, &context.pool)
+            .await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(row.map(|row| row.try_into().ok()).flatten())
     }
@@ -27,15 +31,17 @@ impl QueryRoot {
         limit: i32,
         offset: i32,
     ) -> FieldResult<Vec<crate::accounts::graphql::MintGraphQL>> {
-        let rows: Vec<crate::accounts::postgres::MintRow> = sqlx::query_as(
-            r#"SELECT * FROM mint_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
-        )
-        .bind(limit)
-        .bind(offset)
-        .fetch_all(&*context.pool)
-        .await
-        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        let rows: Vec<crate::accounts::postgres::MintRow> =
+            sqlx::query_as(r#"SELECT * FROM mint_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#)
+                .bind(limit)
+                .bind(offset)
+                .fetch_all(&*context.pool)
+                .await
+                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn token(
@@ -44,8 +50,12 @@ impl QueryRoot {
     ) -> FieldResult<Option<crate::accounts::graphql::TokenGraphQL>> {
         use carbon_core::postgres::operations::LookUp;
         use carbon_core::postgres::primitives::Pubkey as PgPubkey;
-        let pk = PgPubkey(solana_pubkey::Pubkey::from_str(&pubkey).map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?);
-        let row = crate::accounts::postgres::TokenRow::lookup(pk, &context.pool).await
+        let pk = PgPubkey(
+            solana_pubkey::Pubkey::from_str(&pubkey)
+                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
+        );
+        let row = crate::accounts::postgres::TokenRow::lookup(pk, &context.pool)
+            .await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(row.map(|row| row.try_into().ok()).flatten())
     }
@@ -63,7 +73,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn multisig(
@@ -72,8 +85,12 @@ impl QueryRoot {
     ) -> FieldResult<Option<crate::accounts::graphql::MultisigGraphQL>> {
         use carbon_core::postgres::operations::LookUp;
         use carbon_core::postgres::primitives::Pubkey as PgPubkey;
-        let pk = PgPubkey(solana_pubkey::Pubkey::from_str(&pubkey).map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?);
-        let row = crate::accounts::postgres::MultisigRow::lookup(pk, &context.pool).await
+        let pk = PgPubkey(
+            solana_pubkey::Pubkey::from_str(&pubkey)
+                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
+        );
+        let row = crate::accounts::postgres::MultisigRow::lookup(pk, &context.pool)
+            .await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
         Ok(row.map(|row| row.try_into().ok()).flatten())
     }
@@ -91,7 +108,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     // Instructions (per-instruction list and lookup by signature+index)
@@ -108,7 +128,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_mint(
@@ -124,7 +147,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_multisig(
@@ -140,7 +166,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_multisig(
@@ -156,7 +185,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn transfer(
@@ -172,7 +204,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_transfer(
@@ -188,7 +223,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn approve(
@@ -204,7 +242,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_approve(
@@ -220,7 +261,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn set_authority(
@@ -236,7 +280,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_set_authority(
@@ -252,7 +299,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn mint_to(
@@ -268,7 +318,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_mint_to(
@@ -284,7 +337,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn burn(
@@ -300,7 +356,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_burn(
@@ -316,7 +375,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn transfer_checked(
@@ -332,7 +394,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_transfer_checked(
@@ -348,7 +413,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn approve_checked(
@@ -364,7 +432,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_approve_checked(
@@ -380,7 +451,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn mint_to_checked(
@@ -396,7 +470,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_mint_to_checked(
@@ -412,7 +489,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn burn_checked(
@@ -428,7 +508,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_burn_checked(
@@ -444,7 +527,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_account2(
@@ -460,7 +546,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_account2(
@@ -476,7 +565,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_account3(
@@ -492,7 +584,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_account3(
@@ -508,7 +603,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_multisig2(
@@ -524,7 +622,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_multisig2(
@@ -540,7 +641,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_mint2(
@@ -556,7 +660,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_mint2(
@@ -572,7 +679,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn amount_to_ui_amount(
@@ -588,7 +698,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_amount_to_ui_amount(
@@ -604,7 +717,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn ui_amount_to_amount(
@@ -620,7 +736,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_ui_amount_to_amount(
@@ -636,7 +755,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_mint_close_authority(
@@ -652,7 +774,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_mint_close_authority(
@@ -668,7 +793,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_transfer_fee_config(
@@ -684,7 +812,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_transfer_fee_config(
@@ -700,7 +831,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn transfer_checked_with_fee(
@@ -716,7 +850,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_transfer_checked_with_fee(
@@ -732,7 +869,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn withdraw_withheld_tokens_from_mint(
@@ -748,7 +888,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_withdraw_withheld_tokens_from_mint(
@@ -764,14 +907,18 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn withdraw_withheld_tokens_from_accounts(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawWithheldTokensFromAccountsGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawWithheldTokensFromAccountsGraphQL>>
+    {
         let rows: Vec<crate::instructions::postgres::WithdrawWithheldTokensFromAccountsRow> = sqlx::query_as(
             r#"SELECT * FROM withdraw_withheld_tokens_from_accounts_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
@@ -780,14 +927,18 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_withdraw_withheld_tokens_from_accounts(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawWithheldTokensFromAccountsGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawWithheldTokensFromAccountsGraphQL>>
+    {
         let rows: Vec<crate::instructions::postgres::WithdrawWithheldTokensFromAccountsRow> = sqlx::query_as(
             r#"SELECT * FROM withdraw_withheld_tokens_from_accounts_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
@@ -796,7 +947,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn harvest_withheld_tokens_to_mint(
@@ -812,7 +966,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_harvest_withheld_tokens_to_mint(
@@ -828,7 +985,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn set_transfer_fee(
@@ -844,7 +1004,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_set_transfer_fee(
@@ -860,14 +1023,18 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_confidential_transfer_mint(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::InitializeConfidentialTransferMintGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::InitializeConfidentialTransferMintGraphQL>>
+    {
         let rows: Vec<crate::instructions::postgres::InitializeConfidentialTransferMintRow> = sqlx::query_as(
             r#"SELECT * FROM initialize_confidential_transfer_mint_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
@@ -876,14 +1043,18 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_confidential_transfer_mint(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::InitializeConfidentialTransferMintGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::InitializeConfidentialTransferMintGraphQL>>
+    {
         let rows: Vec<crate::instructions::postgres::InitializeConfidentialTransferMintRow> = sqlx::query_as(
             r#"SELECT * FROM initialize_confidential_transfer_mint_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
@@ -892,7 +1063,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn update_confidential_transfer_mint(
@@ -908,7 +1082,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_update_confidential_transfer_mint(
@@ -924,14 +1101,18 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn configure_confidential_transfer_account(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::ConfigureConfidentialTransferAccountGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::ConfigureConfidentialTransferAccountGraphQL>>
+    {
         let rows: Vec<crate::instructions::postgres::ConfigureConfidentialTransferAccountRow> = sqlx::query_as(
             r#"SELECT * FROM configure_confidential_transfer_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
@@ -940,14 +1121,18 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_configure_confidential_transfer_account(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::ConfigureConfidentialTransferAccountGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::ConfigureConfidentialTransferAccountGraphQL>>
+    {
         let rows: Vec<crate::instructions::postgres::ConfigureConfidentialTransferAccountRow> = sqlx::query_as(
             r#"SELECT * FROM configure_confidential_transfer_account_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
@@ -956,14 +1141,18 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn approve_confidential_transfer_account(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::ApproveConfidentialTransferAccountGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::ApproveConfidentialTransferAccountGraphQL>>
+    {
         let rows: Vec<crate::instructions::postgres::ApproveConfidentialTransferAccountRow> = sqlx::query_as(
             r#"SELECT * FROM approve_confidential_transfer_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
@@ -972,14 +1161,18 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_approve_confidential_transfer_account(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::ApproveConfidentialTransferAccountGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::ApproveConfidentialTransferAccountGraphQL>>
+    {
         let rows: Vec<crate::instructions::postgres::ApproveConfidentialTransferAccountRow> = sqlx::query_as(
             r#"SELECT * FROM approve_confidential_transfer_account_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
@@ -988,14 +1181,18 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn empty_confidential_transfer_account(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::EmptyConfidentialTransferAccountGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::EmptyConfidentialTransferAccountGraphQL>>
+    {
         let rows: Vec<crate::instructions::postgres::EmptyConfidentialTransferAccountRow> = sqlx::query_as(
             r#"SELECT * FROM empty_confidential_transfer_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
@@ -1004,14 +1201,18 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_empty_confidential_transfer_account(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::EmptyConfidentialTransferAccountGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::EmptyConfidentialTransferAccountGraphQL>>
+    {
         let rows: Vec<crate::instructions::postgres::EmptyConfidentialTransferAccountRow> = sqlx::query_as(
             r#"SELECT * FROM empty_confidential_transfer_account_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
@@ -1020,7 +1221,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn confidential_deposit(
@@ -1036,7 +1240,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_confidential_deposit(
@@ -1052,7 +1259,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn confidential_withdraw(
@@ -1068,7 +1278,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_confidential_withdraw(
@@ -1084,7 +1297,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn confidential_transfer(
@@ -1100,7 +1316,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_confidential_transfer(
@@ -1116,14 +1335,18 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn apply_confidential_pending_balance(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::ApplyConfidentialPendingBalanceGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::ApplyConfidentialPendingBalanceGraphQL>>
+    {
         let rows: Vec<crate::instructions::postgres::ApplyConfidentialPendingBalanceRow> = sqlx::query_as(
             r#"SELECT * FROM apply_confidential_pending_balance_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
@@ -1132,14 +1355,18 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_apply_confidential_pending_balance(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::ApplyConfidentialPendingBalanceGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::ApplyConfidentialPendingBalanceGraphQL>>
+    {
         let rows: Vec<crate::instructions::postgres::ApplyConfidentialPendingBalanceRow> = sqlx::query_as(
             r#"SELECT * FROM apply_confidential_pending_balance_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
@@ -1148,7 +1375,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn enable_confidential_credits(
@@ -1164,7 +1394,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_enable_confidential_credits(
@@ -1180,7 +1413,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn disable_confidential_credits(
@@ -1196,7 +1432,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_disable_confidential_credits(
@@ -1212,7 +1451,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn enable_non_confidential_credits(
@@ -1228,7 +1470,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_enable_non_confidential_credits(
@@ -1244,7 +1489,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn disable_non_confidential_credits(
@@ -1260,7 +1508,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_disable_non_confidential_credits(
@@ -1276,7 +1527,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn confidential_transfer_with_fee(
@@ -1292,7 +1546,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_confidential_transfer_with_fee(
@@ -1308,7 +1565,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_default_account_state(
@@ -1324,7 +1584,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_default_account_state(
@@ -1340,7 +1603,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn update_default_account_state(
@@ -1356,7 +1622,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_update_default_account_state(
@@ -1372,7 +1641,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn reallocate(
@@ -1388,7 +1660,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_reallocate(
@@ -1404,7 +1679,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn enable_memo_transfers(
@@ -1420,7 +1698,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_enable_memo_transfers(
@@ -1436,7 +1717,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn disable_memo_transfers(
@@ -1452,7 +1736,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_disable_memo_transfers(
@@ -1468,7 +1755,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_interest_bearing_mint(
@@ -1484,7 +1774,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_interest_bearing_mint(
@@ -1500,7 +1793,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn update_rate_interest_bearing_mint(
@@ -1516,7 +1812,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_update_rate_interest_bearing_mint(
@@ -1532,7 +1831,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn enable_cpi_guard(
@@ -1548,7 +1850,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_enable_cpi_guard(
@@ -1564,7 +1869,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn disable_cpi_guard(
@@ -1580,7 +1888,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_disable_cpi_guard(
@@ -1596,7 +1907,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_permanent_delegate(
@@ -1612,7 +1926,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_permanent_delegate(
@@ -1628,7 +1945,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_transfer_hook(
@@ -1644,7 +1964,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_transfer_hook(
@@ -1660,7 +1983,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn update_transfer_hook(
@@ -1676,7 +2002,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_update_transfer_hook(
@@ -1692,14 +2021,18 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_confidential_transfer_fee(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::InitializeConfidentialTransferFeeGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::InitializeConfidentialTransferFeeGraphQL>>
+    {
         let rows: Vec<crate::instructions::postgres::InitializeConfidentialTransferFeeRow> = sqlx::query_as(
             r#"SELECT * FROM initialize_confidential_transfer_fee_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
@@ -1708,14 +2041,18 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_confidential_transfer_fee(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::InitializeConfidentialTransferFeeGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::InitializeConfidentialTransferFeeGraphQL>>
+    {
         let rows: Vec<crate::instructions::postgres::InitializeConfidentialTransferFeeRow> = sqlx::query_as(
             r#"SELECT * FROM initialize_confidential_transfer_fee_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
@@ -1724,14 +2061,17 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawWithheldTokensFromMintForConfidentialTransferFeeGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawWithheldTokensFromMintForConfidentialTransferFeeGraphQL>>{
         let rows: Vec<crate::instructions::postgres::WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow> = sqlx::query_as(
             r#"SELECT * FROM withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
@@ -1740,14 +2080,17 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawWithheldTokensFromMintForConfidentialTransferFeeGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawWithheldTokensFromMintForConfidentialTransferFeeGraphQL>>{
         let rows: Vec<crate::instructions::postgres::WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow> = sqlx::query_as(
             r#"SELECT * FROM withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
@@ -1756,14 +2099,17 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeGraphQL>>{
         let rows: Vec<crate::instructions::postgres::WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeRow> = sqlx::query_as(
             r#"SELECT * FROM withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
@@ -1772,14 +2118,17 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeGraphQL>>{
         let rows: Vec<crate::instructions::postgres::WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeRow> = sqlx::query_as(
             r#"SELECT * FROM withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
@@ -1788,14 +2137,17 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn harvest_withheld_tokens_to_mint_for_confidential_transfer_fee(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::HarvestWithheldTokensToMintForConfidentialTransferFeeGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::HarvestWithheldTokensToMintForConfidentialTransferFeeGraphQL>>{
         let rows: Vec<crate::instructions::postgres::HarvestWithheldTokensToMintForConfidentialTransferFeeRow> = sqlx::query_as(
             r#"SELECT * FROM harvest_withheld_tokens_to_mint_for_confidential_transfer_fee_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
@@ -1804,14 +2156,17 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_harvest_withheld_tokens_to_mint_for_confidential_transfer_fee(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::HarvestWithheldTokensToMintForConfidentialTransferFeeGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::HarvestWithheldTokensToMintForConfidentialTransferFeeGraphQL>>{
         let rows: Vec<crate::instructions::postgres::HarvestWithheldTokensToMintForConfidentialTransferFeeRow> = sqlx::query_as(
             r#"SELECT * FROM harvest_withheld_tokens_to_mint_for_confidential_transfer_fee_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
@@ -1820,7 +2175,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn enable_harvest_to_mint(
@@ -1836,7 +2194,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_enable_harvest_to_mint(
@@ -1852,7 +2213,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn disable_harvest_to_mint(
@@ -1868,7 +2232,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_disable_harvest_to_mint(
@@ -1884,7 +2251,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_metadata_pointer(
@@ -1900,7 +2270,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_metadata_pointer(
@@ -1916,7 +2289,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn update_metadata_pointer(
@@ -1932,7 +2308,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_update_metadata_pointer(
@@ -1948,7 +2327,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_group_pointer(
@@ -1964,7 +2346,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_group_pointer(
@@ -1980,7 +2365,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn update_group_pointer(
@@ -1996,7 +2384,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_update_group_pointer(
@@ -2012,7 +2403,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_group_member_pointer(
@@ -2028,7 +2422,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_group_member_pointer(
@@ -2044,7 +2441,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn update_group_member_pointer(
@@ -2060,7 +2460,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_update_group_member_pointer(
@@ -2076,7 +2479,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_scaled_ui_amount_mint(
@@ -2092,7 +2498,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_scaled_ui_amount_mint(
@@ -2108,7 +2517,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn update_multiplier_scaled_ui_mint(
@@ -2124,7 +2536,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_update_multiplier_scaled_ui_mint(
@@ -2140,7 +2555,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_pausable_config(
@@ -2156,7 +2574,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_pausable_config(
@@ -2172,7 +2593,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn pause(
@@ -2188,7 +2612,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_pause(
@@ -2204,7 +2631,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn resume(
@@ -2220,7 +2650,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_resume(
@@ -2236,7 +2669,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_token_metadata(
@@ -2252,7 +2688,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_token_metadata(
@@ -2268,7 +2707,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn update_token_metadata_field(
@@ -2284,7 +2726,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_update_token_metadata_field(
@@ -2300,7 +2745,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn remove_token_metadata_key(
@@ -2316,7 +2764,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_remove_token_metadata_key(
@@ -2332,14 +2783,18 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn update_token_metadata_update_authority(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::UpdateTokenMetadataUpdateAuthorityGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::UpdateTokenMetadataUpdateAuthorityGraphQL>>
+    {
         let rows: Vec<crate::instructions::postgres::UpdateTokenMetadataUpdateAuthorityRow> = sqlx::query_as(
             r#"SELECT * FROM update_token_metadata_update_authority_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
@@ -2348,14 +2803,18 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_update_token_metadata_update_authority(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::UpdateTokenMetadataUpdateAuthorityGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::UpdateTokenMetadataUpdateAuthorityGraphQL>>
+    {
         let rows: Vec<crate::instructions::postgres::UpdateTokenMetadataUpdateAuthorityRow> = sqlx::query_as(
             r#"SELECT * FROM update_token_metadata_update_authority_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
@@ -2364,7 +2823,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn emit_token_metadata(
@@ -2380,7 +2842,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_emit_token_metadata(
@@ -2396,7 +2861,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn initialize_token_group(
@@ -2412,7 +2880,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_initialize_token_group(
@@ -2428,7 +2899,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn update_token_group_max_size(
@@ -2444,7 +2918,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_update_token_group_max_size(
@@ -2460,14 +2937,18 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn update_token_group_update_authority(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::UpdateTokenGroupUpdateAuthorityGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::UpdateTokenGroupUpdateAuthorityGraphQL>>
+    {
         let rows: Vec<crate::instructions::postgres::UpdateTokenGroupUpdateAuthorityRow> = sqlx::query_as(
             r#"SELECT * FROM update_token_group_update_authority_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
@@ -2476,14 +2957,18 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_update_token_group_update_authority(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::UpdateTokenGroupUpdateAuthorityGraphQL>> {
+    ) -> FieldResult<Vec<crate::instructions::graphql::UpdateTokenGroupUpdateAuthorityGraphQL>>
+    {
         let rows: Vec<crate::instructions::postgres::UpdateTokenGroupUpdateAuthorityRow> = sqlx::query_as(
             r#"SELECT * FROM update_token_group_update_authority_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
@@ -2492,8 +2977,9 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
-
-
 }

@@ -14,10 +14,14 @@ pub struct DisableCpiGuardGraphQL {
 
 impl TryFrom<crate::instructions::postgres::DisableCpiGuardRow> for DisableCpiGuardGraphQL {
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::DisableCpiGuardRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::DisableCpiGuardRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            cpi_guard_discriminator: carbon_core::graphql::primitives::U8((*row.cpi_guard_discriminator) as u8),
+            cpi_guard_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.cpi_guard_discriminator) as u8,
+            ),
         })
     }
 }

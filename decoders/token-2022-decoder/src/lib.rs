@@ -6,10 +6,11 @@
 //!
 use solana_pubkey::Pubkey;
 pub struct Token2022Decoder;
-pub const PROGRAM_ID: Pubkey = solana_pubkey::Pubkey::from_str_const("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
+pub const PROGRAM_ID: Pubkey =
+    solana_pubkey::Pubkey::from_str_const("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
 
 pub mod accounts;
-pub mod instructions;
-pub mod types;
 #[cfg(feature = "graphql")]
 pub mod graphql;
+pub mod instructions;
+pub mod types;

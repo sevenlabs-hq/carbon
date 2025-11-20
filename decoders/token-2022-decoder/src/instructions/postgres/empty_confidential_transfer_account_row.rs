@@ -15,7 +15,10 @@ pub struct EmptyConfidentialTransferAccountRow {
 }
 
 impl EmptyConfidentialTransferAccountRow {
-    pub fn from_parts(source: crate::instructions::empty_confidential_transfer_account::EmptyConfidentialTransferAccount, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::empty_confidential_transfer_account::EmptyConfidentialTransferAccount,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             confidential_transfer_discriminator: source.confidential_transfer_discriminator.into(),
@@ -24,17 +27,28 @@ impl EmptyConfidentialTransferAccountRow {
     }
 }
 
-impl TryFrom<EmptyConfidentialTransferAccountRow> for crate::instructions::empty_confidential_transfer_account::EmptyConfidentialTransferAccount {
+impl TryFrom<EmptyConfidentialTransferAccountRow>
+    for crate::instructions::empty_confidential_transfer_account::EmptyConfidentialTransferAccount
+{
     type Error = carbon_core::error::Error;
     fn try_from(source: EmptyConfidentialTransferAccountRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            confidential_transfer_discriminator: source.confidential_transfer_discriminator.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
+            confidential_transfer_discriminator: source
+                .confidential_transfer_discriminator
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert value from postgres primitive".to_string(),
+                    )
+                })?,
             proof_instruction_offset: source.proof_instruction_offset.into(),
         })
     }
 }
 
-impl carbon_core::postgres::operations::Table for crate::instructions::empty_confidential_transfer_account::EmptyConfidentialTransferAccount {
+impl carbon_core::postgres::operations::Table
+    for crate::instructions::empty_confidential_transfer_account::EmptyConfidentialTransferAccount
+{
     fn table() -> &'static str {
         "empty_confidential_transfer_account_instruction"
     }
@@ -54,21 +68,24 @@ impl carbon_core::postgres::operations::Table for crate::instructions::empty_con
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for EmptyConfidentialTransferAccountRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO empty_confidential_transfer_account_instruction (
                 "confidential_transfer_discriminator",
                 "proof_instruction_offset",
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6
-            )"#)
+            )"#,
+        )
         .bind(self.confidential_transfer_discriminator.clone())
         .bind(self.proof_instruction_offset.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -106,16 +123,23 @@ impl carbon_core::postgres::operations::Upsert for EmptyConfidentialTransferAcco
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for EmptyConfidentialTransferAccountRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM empty_confidential_transfer_account_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM empty_confidential_transfer_account_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -123,16 +147,26 @@ impl carbon_core::postgres::operations::Delete for EmptyConfidentialTransferAcco
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for EmptyConfidentialTransferAccountRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM empty_confidential_transfer_account_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM empty_confidential_transfer_account_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -141,9 +175,15 @@ impl carbon_core::postgres::operations::LookUp for EmptyConfidentialTransferAcco
 pub struct EmptyConfidentialTransferAccountMigrationOperation;
 
 #[async_trait::async_trait]
-impl sqlx_migrator::Operation<sqlx::Postgres> for EmptyConfidentialTransferAccountMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS empty_confidential_transfer_account_instruction (
+impl sqlx_migrator::Operation<sqlx::Postgres>
+    for EmptyConfidentialTransferAccountMigrationOperation
+{
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS empty_confidential_transfer_account_instruction (
                 -- Instruction data
                 "confidential_transfer_discriminator" INT2 NOT NULL,
                 "proof_instruction_offset" INT2 NOT NULL,
@@ -153,12 +193,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EmptyConfidentialTransferAccou
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS empty_confidential_transfer_account_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS empty_confidential_transfer_account_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

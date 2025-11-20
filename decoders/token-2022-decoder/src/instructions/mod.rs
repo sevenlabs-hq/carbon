@@ -4,8 +4,8 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use crate::PROGRAM_ID;
 use crate::Token2022Decoder;
+use crate::PROGRAM_ID;
 #[cfg(feature = "postgres")]
 pub mod postgres;
 
@@ -221,7 +221,9 @@ pub enum Token2022Instruction {
     FreezeAccount(FreezeAccount),
     GetAccountDataSize(GetAccountDataSize),
     HarvestWithheldTokensToMint(HarvestWithheldTokensToMint),
-    HarvestWithheldTokensToMintForConfidentialTransferFee(HarvestWithheldTokensToMintForConfidentialTransferFee),
+    HarvestWithheldTokensToMintForConfidentialTransferFee(
+        HarvestWithheldTokensToMintForConfidentialTransferFee,
+    ),
     InitializeAccount(InitializeAccount),
     InitializeAccount2(InitializeAccount2),
     InitializeAccount3(InitializeAccount3),
@@ -276,9 +278,13 @@ pub enum Token2022Instruction {
     UpdateTransferHook(UpdateTransferHook),
     WithdrawExcessLamports(WithdrawExcessLamports),
     WithdrawWithheldTokensFromAccounts(WithdrawWithheldTokensFromAccounts),
-    WithdrawWithheldTokensFromAccountsForConfidentialTransferFee(WithdrawWithheldTokensFromAccountsForConfidentialTransferFee),
+    WithdrawWithheldTokensFromAccountsForConfidentialTransferFee(
+        WithdrawWithheldTokensFromAccountsForConfidentialTransferFee,
+    ),
     WithdrawWithheldTokensFromMint(WithdrawWithheldTokensFromMint),
-    WithdrawWithheldTokensFromMintForConfidentialTransferFee(WithdrawWithheldTokensFromMintForConfidentialTransferFee),
+    WithdrawWithheldTokensFromMintForConfidentialTransferFee(
+        WithdrawWithheldTokensFromMintForConfidentialTransferFee,
+    ),
 }
 
 impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
@@ -493,7 +499,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = initialize_immutable_owner::InitializeImmutableOwner::decode(data) {
+            if let Some(decoded) =
+                initialize_immutable_owner::InitializeImmutableOwner::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::InitializeImmutableOwner(decoded),
@@ -520,7 +528,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = initialize_mint_close_authority::InitializeMintCloseAuthority::decode(data) {
+            if let Some(decoded) =
+                initialize_mint_close_authority::InitializeMintCloseAuthority::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::InitializeMintCloseAuthority(decoded),
@@ -529,7 +539,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = initialize_transfer_fee_config::InitializeTransferFeeConfig::decode(data) {
+            if let Some(decoded) =
+                initialize_transfer_fee_config::InitializeTransferFeeConfig::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::InitializeTransferFeeConfig(decoded),
@@ -547,7 +559,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = withdraw_withheld_tokens_from_mint::WithdrawWithheldTokensFromMint::decode(data) {
+            if let Some(decoded) =
+                withdraw_withheld_tokens_from_mint::WithdrawWithheldTokensFromMint::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::WithdrawWithheldTokensFromMint(decoded),
@@ -556,7 +570,11 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = withdraw_withheld_tokens_from_accounts::WithdrawWithheldTokensFromAccounts::decode(data) {
+            if let Some(decoded) =
+                withdraw_withheld_tokens_from_accounts::WithdrawWithheldTokensFromAccounts::decode(
+                    data,
+                )
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::WithdrawWithheldTokensFromAccounts(decoded),
@@ -565,7 +583,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = harvest_withheld_tokens_to_mint::HarvestWithheldTokensToMint::decode(data) {
+            if let Some(decoded) =
+                harvest_withheld_tokens_to_mint::HarvestWithheldTokensToMint::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::HarvestWithheldTokensToMint(decoded),
@@ -583,7 +603,11 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = initialize_confidential_transfer_mint::InitializeConfidentialTransferMint::decode(data) {
+            if let Some(decoded) =
+                initialize_confidential_transfer_mint::InitializeConfidentialTransferMint::decode(
+                    data,
+                )
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::InitializeConfidentialTransferMint(decoded),
@@ -592,7 +616,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = update_confidential_transfer_mint::UpdateConfidentialTransferMint::decode(data) {
+            if let Some(decoded) =
+                update_confidential_transfer_mint::UpdateConfidentialTransferMint::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::UpdateConfidentialTransferMint(decoded),
@@ -610,7 +636,11 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = approve_confidential_transfer_account::ApproveConfidentialTransferAccount::decode(data) {
+            if let Some(decoded) =
+                approve_confidential_transfer_account::ApproveConfidentialTransferAccount::decode(
+                    data,
+                )
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::ApproveConfidentialTransferAccount(decoded),
@@ -619,7 +649,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = empty_confidential_transfer_account::EmptyConfidentialTransferAccount::decode(data) {
+            if let Some(decoded) =
+                empty_confidential_transfer_account::EmptyConfidentialTransferAccount::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::EmptyConfidentialTransferAccount(decoded),
@@ -655,7 +687,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = apply_confidential_pending_balance::ApplyConfidentialPendingBalance::decode(data) {
+            if let Some(decoded) =
+                apply_confidential_pending_balance::ApplyConfidentialPendingBalance::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::ApplyConfidentialPendingBalance(decoded),
@@ -664,7 +698,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = enable_confidential_credits::EnableConfidentialCredits::decode(data) {
+            if let Some(decoded) =
+                enable_confidential_credits::EnableConfidentialCredits::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::EnableConfidentialCredits(decoded),
@@ -673,7 +709,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = disable_confidential_credits::DisableConfidentialCredits::decode(data) {
+            if let Some(decoded) =
+                disable_confidential_credits::DisableConfidentialCredits::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::DisableConfidentialCredits(decoded),
@@ -682,7 +720,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = enable_non_confidential_credits::EnableNonConfidentialCredits::decode(data) {
+            if let Some(decoded) =
+                enable_non_confidential_credits::EnableNonConfidentialCredits::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::EnableNonConfidentialCredits(decoded),
@@ -691,7 +731,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = disable_non_confidential_credits::DisableNonConfidentialCredits::decode(data) {
+            if let Some(decoded) =
+                disable_non_confidential_credits::DisableNonConfidentialCredits::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::DisableNonConfidentialCredits(decoded),
@@ -700,7 +742,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = confidential_transfer_with_fee::ConfidentialTransferWithFee::decode(data) {
+            if let Some(decoded) =
+                confidential_transfer_with_fee::ConfidentialTransferWithFee::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::ConfidentialTransferWithFee(decoded),
@@ -709,7 +753,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = initialize_default_account_state::InitializeDefaultAccountState::decode(data) {
+            if let Some(decoded) =
+                initialize_default_account_state::InitializeDefaultAccountState::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::InitializeDefaultAccountState(decoded),
@@ -718,7 +764,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = update_default_account_state::UpdateDefaultAccountState::decode(data) {
+            if let Some(decoded) =
+                update_default_account_state::UpdateDefaultAccountState::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::UpdateDefaultAccountState(decoded),
@@ -763,7 +811,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = initialize_non_transferable_mint::InitializeNonTransferableMint::decode(data) {
+            if let Some(decoded) =
+                initialize_non_transferable_mint::InitializeNonTransferableMint::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::InitializeNonTransferableMint(decoded),
@@ -772,7 +822,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = initialize_interest_bearing_mint::InitializeInterestBearingMint::decode(data) {
+            if let Some(decoded) =
+                initialize_interest_bearing_mint::InitializeInterestBearingMint::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::InitializeInterestBearingMint(decoded),
@@ -781,7 +833,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = update_rate_interest_bearing_mint::UpdateRateInterestBearingMint::decode(data) {
+            if let Some(decoded) =
+                update_rate_interest_bearing_mint::UpdateRateInterestBearingMint::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::UpdateRateInterestBearingMint(decoded),
@@ -808,7 +862,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = initialize_permanent_delegate::InitializePermanentDelegate::decode(data) {
+            if let Some(decoded) =
+                initialize_permanent_delegate::InitializePermanentDelegate::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::InitializePermanentDelegate(decoded),
@@ -835,7 +891,11 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = initialize_confidential_transfer_fee::InitializeConfidentialTransferFee::decode(data) {
+            if let Some(decoded) =
+                initialize_confidential_transfer_fee::InitializeConfidentialTransferFee::decode(
+                    data,
+                )
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::InitializeConfidentialTransferFee(decoded),
@@ -898,7 +958,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = initialize_metadata_pointer::InitializeMetadataPointer::decode(data) {
+            if let Some(decoded) =
+                initialize_metadata_pointer::InitializeMetadataPointer::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::InitializeMetadataPointer(decoded),
@@ -934,7 +996,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = initialize_group_member_pointer::InitializeGroupMemberPointer::decode(data) {
+            if let Some(decoded) =
+                initialize_group_member_pointer::InitializeGroupMemberPointer::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::InitializeGroupMemberPointer(decoded),
@@ -943,7 +1007,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = update_group_member_pointer::UpdateGroupMemberPointer::decode(data) {
+            if let Some(decoded) =
+                update_group_member_pointer::UpdateGroupMemberPointer::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::UpdateGroupMemberPointer(decoded),
@@ -952,7 +1018,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = initialize_scaled_ui_amount_mint::InitializeScaledUiAmountMint::decode(data) {
+            if let Some(decoded) =
+                initialize_scaled_ui_amount_mint::InitializeScaledUiAmountMint::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::InitializeScaledUiAmountMint(decoded),
@@ -961,7 +1029,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = update_multiplier_scaled_ui_mint::UpdateMultiplierScaledUiMint::decode(data) {
+            if let Some(decoded) =
+                update_multiplier_scaled_ui_mint::UpdateMultiplierScaledUiMint::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::UpdateMultiplierScaledUiMint(decoded),
@@ -970,7 +1040,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = initialize_pausable_config::InitializePausableConfig::decode(data) {
+            if let Some(decoded) =
+                initialize_pausable_config::InitializePausableConfig::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::InitializePausableConfig(decoded),
@@ -997,7 +1069,8 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = initialize_token_metadata::InitializeTokenMetadata::decode(data) {
+            if let Some(decoded) = initialize_token_metadata::InitializeTokenMetadata::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::InitializeTokenMetadata(decoded),
@@ -1006,7 +1079,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = update_token_metadata_field::UpdateTokenMetadataField::decode(data) {
+            if let Some(decoded) =
+                update_token_metadata_field::UpdateTokenMetadataField::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::UpdateTokenMetadataField(decoded),
@@ -1024,7 +1099,11 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = update_token_metadata_update_authority::UpdateTokenMetadataUpdateAuthority::decode(data) {
+            if let Some(decoded) =
+                update_token_metadata_update_authority::UpdateTokenMetadataUpdateAuthority::decode(
+                    data,
+                )
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::UpdateTokenMetadataUpdateAuthority(decoded),
@@ -1051,7 +1130,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = update_token_group_max_size::UpdateTokenGroupMaxSize::decode(data) {
+            if let Some(decoded) =
+                update_token_group_max_size::UpdateTokenGroupMaxSize::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::UpdateTokenGroupMaxSize(decoded),
@@ -1060,7 +1141,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = update_token_group_update_authority::UpdateTokenGroupUpdateAuthority::decode(data) {
+            if let Some(decoded) =
+                update_token_group_update_authority::UpdateTokenGroupUpdateAuthority::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::UpdateTokenGroupUpdateAuthority(decoded),
@@ -1069,7 +1152,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
             }
         }
         {
-            if let Some(decoded) = initialize_token_group_member::InitializeTokenGroupMember::decode(data) {
+            if let Some(decoded) =
+                initialize_token_group_member::InitializeTokenGroupMember::decode(data)
+            {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     data: Token2022Instruction::InitializeTokenGroupMember(decoded),

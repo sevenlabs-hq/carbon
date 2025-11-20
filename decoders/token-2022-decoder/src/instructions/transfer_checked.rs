@@ -4,16 +4,16 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
+use carbon_core::CarbonDeserialize;
 
 /// Transfers tokens from one account to another either directly or via a
 /// delegate. If this account is associated with the native mint then equal
 /// amounts of SOL and Tokens will be transferred to the destination account.
-/// 
+///
 /// This instruction differs from Transfer in that the token mint and
 /// decimals value is checked by the caller. This may be useful when
 /// creating transactions offline or within a hardware wallet.

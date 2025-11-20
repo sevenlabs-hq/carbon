@@ -12,12 +12,18 @@ pub struct UpdateTokenMetadataUpdateAuthorityGraphQL {
     pub new_update_authority: Option<Pubkey>,
 }
 
-impl TryFrom<crate::instructions::postgres::UpdateTokenMetadataUpdateAuthorityRow> for UpdateTokenMetadataUpdateAuthorityGraphQL {
+impl TryFrom<crate::instructions::postgres::UpdateTokenMetadataUpdateAuthorityRow>
+    for UpdateTokenMetadataUpdateAuthorityGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::UpdateTokenMetadataUpdateAuthorityRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::UpdateTokenMetadataUpdateAuthorityRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            new_update_authority: row.new_update_authority.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            new_update_authority: row
+                .new_update_authority
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
         })
     }
 }

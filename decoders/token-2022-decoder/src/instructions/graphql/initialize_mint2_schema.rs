@@ -17,12 +17,16 @@ pub struct InitializeMint2GraphQL {
 
 impl TryFrom<crate::instructions::postgres::InitializeMint2Row> for InitializeMint2GraphQL {
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::InitializeMint2Row) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::InitializeMint2Row,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
             decimals: carbon_core::graphql::primitives::U8((*row.decimals) as u8),
             mint_authority: carbon_core::graphql::primitives::Pubkey(row.mint_authority.0),
-            freeze_authority: row.freeze_authority.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            freeze_authority: row
+                .freeze_authority
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
         })
     }
 }

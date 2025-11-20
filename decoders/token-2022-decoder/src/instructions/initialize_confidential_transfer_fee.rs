@@ -4,18 +4,18 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
+use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
 
 /// Initializes confidential transfer fees for a mint.
-/// 
+///
 /// The instruction must be included within the same Transaction as TokenInstruction::InitializeMint.
 /// Otherwise another party can initialize the configuration.
-/// 
+///
 /// The instruction fails if TokenInstruction::InitializeMint has already executed for the mint.
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

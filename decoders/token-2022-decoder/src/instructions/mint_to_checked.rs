@@ -4,14 +4,14 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
+use carbon_core::CarbonDeserialize;
 
 /// Mints new tokens to an account. The native mint does not support minting.
-/// 
+///
 /// This instruction differs from MintTo in that the decimals value is
 /// checked by the caller. This may be useful when creating transactions
 /// offline or within a hardware wallet.

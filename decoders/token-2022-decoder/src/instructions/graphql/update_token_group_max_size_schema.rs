@@ -12,9 +12,13 @@ pub struct UpdateTokenGroupMaxSizeGraphQL {
     pub max_size: U64,
 }
 
-impl TryFrom<crate::instructions::postgres::UpdateTokenGroupMaxSizeRow> for UpdateTokenGroupMaxSizeGraphQL {
+impl TryFrom<crate::instructions::postgres::UpdateTokenGroupMaxSizeRow>
+    for UpdateTokenGroupMaxSizeGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::UpdateTokenGroupMaxSizeRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::UpdateTokenGroupMaxSizeRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
             max_size: carbon_core::graphql::primitives::U64(*row.max_size),

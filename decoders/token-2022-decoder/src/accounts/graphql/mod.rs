@@ -3,12 +3,12 @@
 //! <https://github.com/codama-idl/codama>
 //!
 pub mod mint_schema;
-pub mod token_schema;
 pub mod multisig_schema;
+pub mod token_schema;
 
 pub use mint_schema::*;
-pub use token_schema::*;
 pub use multisig_schema::*;
+pub use token_schema::*;
 
 use juniper::GraphQLObject;
 
@@ -29,4 +29,3 @@ impl From<carbon_core::postgres::metadata::AccountRowMetadata> for AccountMetada
         }
     }
 }
-

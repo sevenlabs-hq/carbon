@@ -17,7 +17,10 @@ pub struct InitializeTransferHookRow {
 }
 
 impl InitializeTransferHookRow {
-    pub fn from_parts(source: crate::instructions::initialize_transfer_hook::InitializeTransferHook, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::initialize_transfer_hook::InitializeTransferHook,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             transfer_hook_discriminator: source.transfer_hook_discriminator.into(),
@@ -27,18 +30,28 @@ impl InitializeTransferHookRow {
     }
 }
 
-impl TryFrom<InitializeTransferHookRow> for crate::instructions::initialize_transfer_hook::InitializeTransferHook {
+impl TryFrom<InitializeTransferHookRow>
+    for crate::instructions::initialize_transfer_hook::InitializeTransferHook
+{
     type Error = carbon_core::error::Error;
     fn try_from(source: InitializeTransferHookRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            transfer_hook_discriminator: source.transfer_hook_discriminator.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
+            transfer_hook_discriminator: source.transfer_hook_discriminator.try_into().map_err(
+                |_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert value from postgres primitive".to_string(),
+                    )
+                },
+            )?,
             authority: source.authority.map(|value| *value),
             program_id: source.program_id.map(|value| *value),
         })
     }
 }
 
-impl carbon_core::postgres::operations::Table for crate::instructions::initialize_transfer_hook::InitializeTransferHook {
+impl carbon_core::postgres::operations::Table
+    for crate::instructions::initialize_transfer_hook::InitializeTransferHook
+{
     fn table() -> &'static str {
         "initialize_transfer_hook_instruction"
     }
@@ -59,7 +72,8 @@ impl carbon_core::postgres::operations::Table for crate::instructions::initializ
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for InitializeTransferHookRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO initialize_transfer_hook_instruction (
                 "transfer_hook_discriminator",
                 "authority",
@@ -67,7 +81,8 @@ impl carbon_core::postgres::operations::Insert for InitializeTransferHookRow {
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7
-            )"#)
+            )"#,
+        )
         .bind(self.transfer_hook_discriminator.clone())
         .bind(self.authority.clone())
         .bind(self.program_id.clone())
@@ -75,7 +90,8 @@ impl carbon_core::postgres::operations::Insert for InitializeTransferHookRow {
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -84,7 +100,8 @@ impl carbon_core::postgres::operations::Insert for InitializeTransferHookRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for InitializeTransferHookRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO initialize_transfer_hook_instruction (
+        sqlx::query(
+            r#"INSERT INTO initialize_transfer_hook_instruction (
                 "transfer_hook_discriminator",
                 "authority",
                 "program_id",
@@ -100,7 +117,8 @@ impl carbon_core::postgres::operations::Upsert for InitializeTransferHookRow {
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
-            "#)
+            "#,
+        )
         .bind(self.transfer_hook_discriminator.clone())
         .bind(self.authority.clone())
         .bind(self.program_id.clone())
@@ -108,7 +126,8 @@ impl carbon_core::postgres::operations::Upsert for InitializeTransferHookRow {
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -116,16 +135,23 @@ impl carbon_core::postgres::operations::Upsert for InitializeTransferHookRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for InitializeTransferHookRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM initialize_transfer_hook_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM initialize_transfer_hook_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -133,16 +159,26 @@ impl carbon_core::postgres::operations::Delete for InitializeTransferHookRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for InitializeTransferHookRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM initialize_transfer_hook_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM initialize_transfer_hook_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -152,8 +188,12 @@ pub struct InitializeTransferHookMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeTransferHookMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS initialize_transfer_hook_instruction (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS initialize_transfer_hook_instruction (
                 -- Instruction data
                 "transfer_hook_discriminator" INT2 NOT NULL,
                 "authority" BYTEA,
@@ -164,12 +204,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InitializeTransferHookMigratio
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS initialize_transfer_hook_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS initialize_transfer_hook_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

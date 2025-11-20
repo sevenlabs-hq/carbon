@@ -12,12 +12,18 @@ pub struct HarvestWithheldTokensToMintGraphQL {
     pub transfer_fee_discriminator: U8,
 }
 
-impl TryFrom<crate::instructions::postgres::HarvestWithheldTokensToMintRow> for HarvestWithheldTokensToMintGraphQL {
+impl TryFrom<crate::instructions::postgres::HarvestWithheldTokensToMintRow>
+    for HarvestWithheldTokensToMintGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::HarvestWithheldTokensToMintRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::HarvestWithheldTokensToMintRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            transfer_fee_discriminator: carbon_core::graphql::primitives::U8((*row.transfer_fee_discriminator) as u8),
+            transfer_fee_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.transfer_fee_discriminator) as u8,
+            ),
         })
     }
 }

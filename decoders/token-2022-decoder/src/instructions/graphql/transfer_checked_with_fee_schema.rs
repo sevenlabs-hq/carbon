@@ -16,12 +16,18 @@ pub struct TransferCheckedWithFeeGraphQL {
     pub fee: U64,
 }
 
-impl TryFrom<crate::instructions::postgres::TransferCheckedWithFeeRow> for TransferCheckedWithFeeGraphQL {
+impl TryFrom<crate::instructions::postgres::TransferCheckedWithFeeRow>
+    for TransferCheckedWithFeeGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::TransferCheckedWithFeeRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::TransferCheckedWithFeeRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            transfer_fee_discriminator: carbon_core::graphql::primitives::U8((*row.transfer_fee_discriminator) as u8),
+            transfer_fee_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.transfer_fee_discriminator) as u8,
+            ),
             amount: carbon_core::graphql::primitives::U64(*row.amount),
             decimals: carbon_core::graphql::primitives::U8((*row.decimals) as u8),
             fee: carbon_core::graphql::primitives::U64(*row.fee),

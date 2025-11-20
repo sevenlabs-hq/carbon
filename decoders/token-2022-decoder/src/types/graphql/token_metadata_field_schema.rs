@@ -15,4 +15,3 @@ impl From<crate::types::TokenMetadataField> for TokenMetadataFieldGraphQL {
         )
     }
 }
-

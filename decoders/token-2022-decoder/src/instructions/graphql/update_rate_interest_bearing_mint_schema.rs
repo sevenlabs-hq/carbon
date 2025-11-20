@@ -13,12 +13,18 @@ pub struct UpdateRateInterestBearingMintGraphQL {
     pub rate: i32,
 }
 
-impl TryFrom<crate::instructions::postgres::UpdateRateInterestBearingMintRow> for UpdateRateInterestBearingMintGraphQL {
+impl TryFrom<crate::instructions::postgres::UpdateRateInterestBearingMintRow>
+    for UpdateRateInterestBearingMintGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::UpdateRateInterestBearingMintRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::UpdateRateInterestBearingMintRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            interest_bearing_mint_discriminator: carbon_core::graphql::primitives::U8((*row.interest_bearing_mint_discriminator) as u8),
+            interest_bearing_mint_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.interest_bearing_mint_discriminator) as u8,
+            ),
             rate: row.rate as i32,
         })
     }

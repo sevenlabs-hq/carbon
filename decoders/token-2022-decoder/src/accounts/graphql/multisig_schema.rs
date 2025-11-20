@@ -24,7 +24,11 @@ impl TryFrom<crate::accounts::postgres::MultisigRow> for MultisigGraphQL {
             m: carbon_core::graphql::primitives::U8((*row.m) as u8),
             n: carbon_core::graphql::primitives::U8((*row.n) as u8),
             is_initialized: row.is_initialized,
-            signers: row.signers.into_iter().map(|item| carbon_core::graphql::primitives::Pubkey(item.0)).collect(),
+            signers: row
+                .signers
+                .into_iter()
+                .map(|item| carbon_core::graphql::primitives::Pubkey(item.0))
+                .collect(),
         })
     }
 }

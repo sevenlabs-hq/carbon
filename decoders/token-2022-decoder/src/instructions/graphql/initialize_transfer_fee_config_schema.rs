@@ -18,14 +18,24 @@ pub struct InitializeTransferFeeConfigGraphQL {
     pub maximum_fee: U64,
 }
 
-impl TryFrom<crate::instructions::postgres::InitializeTransferFeeConfigRow> for InitializeTransferFeeConfigGraphQL {
+impl TryFrom<crate::instructions::postgres::InitializeTransferFeeConfigRow>
+    for InitializeTransferFeeConfigGraphQL
+{
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::InitializeTransferFeeConfigRow) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::InitializeTransferFeeConfigRow,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            transfer_fee_discriminator: carbon_core::graphql::primitives::U8((*row.transfer_fee_discriminator) as u8),
-            transfer_fee_config_authority: row.transfer_fee_config_authority.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
-            withdraw_withheld_authority: row.withdraw_withheld_authority.map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            transfer_fee_discriminator: carbon_core::graphql::primitives::U8(
+                (*row.transfer_fee_discriminator) as u8,
+            ),
+            transfer_fee_config_authority: row
+                .transfer_fee_config_authority
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            withdraw_withheld_authority: row
+                .withdraw_withheld_authority
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
             transfer_fee_basis_points: (*row.transfer_fee_basis_points) as i32,
             maximum_fee: carbon_core::graphql::primitives::U64(*row.maximum_fee),
         })

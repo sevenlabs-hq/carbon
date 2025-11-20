@@ -10,33 +10,33 @@ use juniper::GraphQLEnum;
 #[derive(Debug, Clone, GraphQLEnum)]
 #[graphql(name = "ExtensionType")]
 pub enum ExtensionTypeGraphQL {
-        Uninitialized,
-        TransferFeeConfig,
-        TransferFeeAmount,
-        MintCloseAuthority,
-        ConfidentialTransferMint,
-        ConfidentialTransferAccount,
-        DefaultAccountState,
-        ImmutableOwner,
-        MemoTransfer,
-        NonTransferable,
-        InterestBearingConfig,
-        CpiGuard,
-        PermanentDelegate,
-        NonTransferableAccount,
-        TransferHook,
-        TransferHookAccount,
-        ConfidentialTransferFee,
-        ConfidentialTransferFeeAmount,
-        ScaledUiAmountConfig,
-        PausableConfig,
-        PausableAccount,
-        MetadataPointer,
-        TokenMetadata,
-        GroupPointer,
-        TokenGroup,
-        GroupMemberPointer,
-        TokenGroupMember,
+    Uninitialized,
+    TransferFeeConfig,
+    TransferFeeAmount,
+    MintCloseAuthority,
+    ConfidentialTransferMint,
+    ConfidentialTransferAccount,
+    DefaultAccountState,
+    ImmutableOwner,
+    MemoTransfer,
+    NonTransferable,
+    InterestBearingConfig,
+    CpiGuard,
+    PermanentDelegate,
+    NonTransferableAccount,
+    TransferHook,
+    TransferHookAccount,
+    ConfidentialTransferFee,
+    ConfidentialTransferFeeAmount,
+    ScaledUiAmountConfig,
+    PausableConfig,
+    PausableAccount,
+    MetadataPointer,
+    TokenMetadata,
+    GroupPointer,
+    TokenGroup,
+    GroupMemberPointer,
+    TokenGroupMember,
 }
 
 impl From<crate::types::ExtensionType> for ExtensionTypeGraphQL {
@@ -47,7 +47,9 @@ impl From<crate::types::ExtensionType> for ExtensionTypeGraphQL {
             crate::types::ExtensionType::TransferFeeAmount => Self::TransferFeeAmount,
             crate::types::ExtensionType::MintCloseAuthority => Self::MintCloseAuthority,
             crate::types::ExtensionType::ConfidentialTransferMint => Self::ConfidentialTransferMint,
-            crate::types::ExtensionType::ConfidentialTransferAccount => Self::ConfidentialTransferAccount,
+            crate::types::ExtensionType::ConfidentialTransferAccount => {
+                Self::ConfidentialTransferAccount
+            }
             crate::types::ExtensionType::DefaultAccountState => Self::DefaultAccountState,
             crate::types::ExtensionType::ImmutableOwner => Self::ImmutableOwner,
             crate::types::ExtensionType::MemoTransfer => Self::MemoTransfer,
@@ -59,7 +61,9 @@ impl From<crate::types::ExtensionType> for ExtensionTypeGraphQL {
             crate::types::ExtensionType::TransferHook => Self::TransferHook,
             crate::types::ExtensionType::TransferHookAccount => Self::TransferHookAccount,
             crate::types::ExtensionType::ConfidentialTransferFee => Self::ConfidentialTransferFee,
-            crate::types::ExtensionType::ConfidentialTransferFeeAmount => Self::ConfidentialTransferFeeAmount,
+            crate::types::ExtensionType::ConfidentialTransferFeeAmount => {
+                Self::ConfidentialTransferFeeAmount
+            }
             crate::types::ExtensionType::ScaledUiAmountConfig => Self::ScaledUiAmountConfig,
             crate::types::ExtensionType::PausableConfig => Self::PausableConfig,
             crate::types::ExtensionType::PausableAccount => Self::PausableAccount,
@@ -72,4 +76,3 @@ impl From<crate::types::ExtensionType> for ExtensionTypeGraphQL {
         }
     }
 }
-

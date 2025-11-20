@@ -2,10 +2,10 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
+use crate::types::AuthorityType;
 use carbon_core::instruction::InstructionMetadata;
 use carbon_core::postgres::metadata::InstructionRowMetadata;
 use carbon_core::postgres::primitives::Pubkey;
-use crate::types::AuthorityType;
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct SetAuthorityRow {
@@ -16,7 +16,10 @@ pub struct SetAuthorityRow {
 }
 
 impl SetAuthorityRow {
-    pub fn from_parts(source: crate::instructions::set_authority::SetAuthority, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        source: crate::instructions::set_authority::SetAuthority,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             authority_type: sqlx::types::Json(source.authority_type.into()),
@@ -55,21 +58,24 @@ impl carbon_core::postgres::operations::Table for crate::instructions::set_autho
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for SetAuthorityRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO set_authority_instruction (
                 "authority_type",
                 "new_authority",
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6
-            )"#)
+            )"#,
+        )
         .bind(self.authority_type.clone())
         .bind(self.new_authority.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -78,7 +84,8 @@ impl carbon_core::postgres::operations::Insert for SetAuthorityRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for SetAuthorityRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO set_authority_instruction (
+        sqlx::query(
+            r#"INSERT INTO set_authority_instruction (
                 "authority_type",
                 "new_authority",
                 __signature, __instruction_index, __stack_height, __slot
@@ -92,14 +99,16 @@ impl carbon_core::postgres::operations::Upsert for SetAuthorityRow {
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
-            "#)
+            "#,
+        )
         .bind(self.authority_type.clone())
         .bind(self.new_authority.clone())
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index.clone())
         .bind(self.instruction_metadata.stack_height.clone())
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -107,16 +116,23 @@ impl carbon_core::postgres::operations::Upsert for SetAuthorityRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for SetAuthorityRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM set_authority_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM set_authority_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -124,16 +140,26 @@ impl carbon_core::postgres::operations::Delete for SetAuthorityRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for SetAuthorityRow {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM set_authority_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM set_authority_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -143,8 +169,12 @@ pub struct SetAuthorityMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for SetAuthorityMigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS set_authority_instruction (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS set_authority_instruction (
                 -- Instruction data
                 "authority_type" JSONB NOT NULL,
                 "new_authority" BYTEA,
@@ -154,12 +184,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetAuthorityMigrationOperation
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_authority_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS set_authority_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }
