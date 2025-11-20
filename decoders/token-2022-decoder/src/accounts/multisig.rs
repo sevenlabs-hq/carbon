@@ -4,13 +4,10 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use carbon_core::borsh;
-use carbon_core::deserialize::CarbonDeserialize;
-use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Multisig {
     /// Number of signers required.
     pub m: u8,
@@ -22,16 +19,13 @@ pub struct Multisig {
     pub signers: [Pubkey; 11],
 }
 
-impl Multisig {
-    pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() != 355 {
-            return None;
+impl From<spl_token_2022::state::Multisig> for Multisig {
+    fn from(value: spl_token_2022::state::Multisig) -> Self {
+        Multisig {
+            m: value.m,
+            n: value.n,
+            is_initialized: value.is_initialized,
+            signers: value.signers,
         }
-
-        let data_slice = data;
-
-        let data_slice = &data_slice[0..];
-
-        Self::deserialize(data_slice)
     }
 }

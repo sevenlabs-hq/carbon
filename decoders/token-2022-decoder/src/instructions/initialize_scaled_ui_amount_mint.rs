@@ -10,6 +10,7 @@ use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
+use spl_pod::optional_keys::OptionalNonZeroPubkey;
 
 /// Initialize a new mint with the `ScaledUiAmount` extension.
 ///
@@ -19,12 +20,19 @@ use solana_pubkey::Pubkey;
 /// plus 83 bytes of padding, 1 byte reserved for the account type,
 /// then space required for this extension, plus any others.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct InitializeScaledUiAmountMint {
     pub scaled_ui_amount_mint_discriminator: u8,
     /// The authority that can update the multiplier
     pub authority: Option<Pubkey>,
     /// The initial multiplier for the scaled UI extension
+    pub multiplier: f64,
+}
+
+#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+pub struct InitializeScaledUiAmountMintDeser {
+    pub scaled_ui_amount_mint_discriminator: u8,
+    pub authority: OptionalNonZeroPubkey,
     pub multiplier: f64,
 }
 
@@ -49,7 +57,14 @@ impl InitializeScaledUiAmountMint {
 
         let data_slice = &data_slice[1..];
 
-        Self::deserialize(data_slice)
+        let scaled_ui_amount_mint = InitializeScaledUiAmountMintDeser::deserialize(data_slice)?;
+
+        Some(InitializeScaledUiAmountMint {
+            scaled_ui_amount_mint_discriminator: scaled_ui_amount_mint
+                .scaled_ui_amount_mint_discriminator,
+            authority: scaled_ui_amount_mint.authority.into(),
+            multiplier: scaled_ui_amount_mint.multiplier,
+        })
     }
 }
 

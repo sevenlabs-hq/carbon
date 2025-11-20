@@ -21,7 +21,7 @@ use solana_pubkey::Pubkey;
 /// The instruction fails if the `TokenInstruction::InitializeMint`
 /// instruction has already executed for the mint.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct InitializeConfidentialTransferMint {
     pub confidential_transfer_discriminator: u8,
     /// Authority to modify the `ConfidentialTransferMint` configuration and to
@@ -32,6 +32,14 @@ pub struct InitializeConfidentialTransferMint {
     pub auto_approve_new_accounts: bool,
     /// New authority to decode any transfer amount in a confidential transfer.
     pub auditor_elgamal_pubkey: Option<Pubkey>,
+}
+
+#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+pub struct InitializeConfidentialTransferMintDeser {
+    pub confidential_transfer_discriminator: u8,
+    pub authority: Pubkey, // spl_pod::optional_keys::OptionalNonZeroPubkey-like deserialize
+    pub auto_approve_new_accounts: bool,
+    pub auditor_elgamal_pubkey: Pubkey, // spl_pod::optional_keys::OptionalNonZeroPubkey-like deserialize
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -55,7 +63,16 @@ impl InitializeConfidentialTransferMint {
 
         let data_slice = &data_slice[1..];
 
-        Self::deserialize(data_slice)
+        let confidential_transfer_mint =
+            InitializeConfidentialTransferMintDeser::deserialize(data_slice)?;
+
+        Some(InitializeConfidentialTransferMint {
+            confidential_transfer_discriminator: confidential_transfer_mint
+                .confidential_transfer_discriminator,
+            authority: confidential_transfer_mint.authority.into(),
+            auto_approve_new_accounts: confidential_transfer_mint.auto_approve_new_accounts,
+            auditor_elgamal_pubkey: confidential_transfer_mint.auditor_elgamal_pubkey.into(),
+        })
     }
 }
 

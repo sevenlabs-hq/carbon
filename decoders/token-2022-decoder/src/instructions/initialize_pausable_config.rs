@@ -10,16 +10,23 @@ use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
+use spl_pod::optional_keys::OptionalNonZeroPubkey;
 
 /// Initialize a new mint with the `Pausable` extension.
 ///
 /// Fails if the mint has already been initialized, so must be called before `InitializeMint`.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct InitializePausableConfig {
     pub pausable_discriminator: u8,
     /// The authority that can pause and resume the mint.
     pub authority: Option<Pubkey>,
+}
+
+#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+pub struct InitializePausableConfigDeser {
+    pub pausable_discriminator: u8,
+    pub authority: OptionalNonZeroPubkey,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -43,7 +50,12 @@ impl InitializePausableConfig {
 
         let data_slice = &data_slice[1..];
 
-        Self::deserialize(data_slice)
+        let pausable_config = InitializePausableConfigDeser::deserialize(data_slice)?;
+
+        Some(InitializePausableConfig {
+            pausable_discriminator: pausable_config.pausable_discriminator,
+            authority: pausable_config.authority.into(),
+        })
     }
 }
 

@@ -10,6 +10,7 @@ use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
+use spl_pod::optional_keys::OptionalNonZeroPubkey;
 
 /// Update the transfer hook program id. Only supported for mints that
 /// include the `TransferHook` extension.
@@ -19,11 +20,17 @@ use solana_pubkey::Pubkey;
 ///   0. `[writable]` The mint.
 ///   1. `[signer]` The transfer hook authority.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct UpdateTransferHook {
     pub transfer_hook_discriminator: u8,
     /// The program id that performs logic during transfers
     pub program_id: Option<Pubkey>,
+}
+
+#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+pub struct UpdateTransferHookDeser {
+    pub transfer_hook_discriminator: u8,
+    pub program_id: OptionalNonZeroPubkey,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -48,7 +55,12 @@ impl UpdateTransferHook {
 
         let data_slice = &data_slice[1..];
 
-        Self::deserialize(data_slice)
+        let transfer_hook = UpdateTransferHookDeser::deserialize(data_slice)?;
+
+        Some(UpdateTransferHook {
+            transfer_hook_discriminator: transfer_hook.transfer_hook_discriminator,
+            program_id: transfer_hook.program_id.into(),
+        })
     }
 }
 
