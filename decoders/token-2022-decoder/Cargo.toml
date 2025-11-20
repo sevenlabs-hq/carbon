@@ -40,7 +40,7 @@ solana-instruction = { workspace = true, default-features = false }
 serde_json = { workspace = true }
 solana-program-pack = { workspace = true }
 spl-token-2022 = { workspace = true }
-spl-pod = { workspace = true }
+spl-pod = { workspace = true, features = ["borsh"] }
 spl-token-metadata-interface = { workspace = true }
 spl-token-group-interface = { workspace = true }
 spl-type-length-value = { workspace = true }

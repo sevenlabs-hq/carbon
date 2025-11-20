@@ -10,7 +10,6 @@ use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
-use spl_pod::optional_keys::OptionalNonZeroPubkey;
 
 /// Initialize a new mint with the `Pausable` extension.
 ///
@@ -26,7 +25,7 @@ pub struct InitializePausableConfig {
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializePausableConfigDeser {
     pub pausable_discriminator: u8,
-    pub authority: OptionalNonZeroPubkey,
+    pub authority: spl_pod::optional_keys::OptionalNonZeroPubkey,
 }
 
 #[derive(Debug, Clone, PartialEq)]

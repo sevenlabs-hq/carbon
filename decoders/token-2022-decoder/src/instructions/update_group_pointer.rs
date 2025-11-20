@@ -10,7 +10,6 @@ use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
-use spl_pod::optional_keys::OptionalNonZeroPubkey;
 
 /// Update the group pointer address. Only supported for mints that
 /// include the `GroupPointer` extension.
@@ -25,7 +24,7 @@ pub struct UpdateGroupPointer {
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct UpdateGroupPointerDeser {
     pub group_pointer_discriminator: u8,
-    pub group_address: OptionalNonZeroPubkey,
+    pub group_address: spl_pod::optional_keys::OptionalNonZeroPubkey,
 }
 
 #[derive(Debug, Clone, PartialEq)]

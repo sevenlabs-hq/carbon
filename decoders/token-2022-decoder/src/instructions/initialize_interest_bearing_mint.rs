@@ -10,7 +10,6 @@ use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
-use spl_pod::optional_keys::OptionalNonZeroPubkey;
 
 /// Initialize a new mint with the `InterestBearing` extension.
 ///
@@ -33,7 +32,7 @@ pub struct InitializeInterestBearingMint {
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeInterestBearingMintDeser {
     pub interest_bearing_mint_discriminator: u8,
-    pub rate_authority: OptionalNonZeroPubkey,
+    pub rate_authority: spl_pod::optional_keys::OptionalNonZeroPubkey,
     pub rate: i16,
 }
 

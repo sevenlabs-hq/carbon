@@ -30,8 +30,8 @@ pub struct InitializeConfidentialTransferFee {
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeConfidentialTransferFeeDeser {
     pub confidential_transfer_fee_discriminator: u8,
-    pub authority: Pubkey, // spl_pod::optional_keys::OptionalNonZeroPubkey-like deserialize
-    pub withdraw_withheld_authority_el_gamal_pubkey: Pubkey, // spl_pod::optional_keys::OptionalNonZeroPubkey-like deserialize
+    pub authority: spl_pod::optional_keys::OptionalNonZeroPubkey,
+    pub withdraw_withheld_authority_el_gamal_pubkey: spl_pod::optional_keys::OptionalNonZeroPubkey,
 }
 
 #[derive(Debug, Clone, PartialEq)]

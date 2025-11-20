@@ -32,8 +32,8 @@ pub struct InitializeGroupMemberPointer {
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeGroupMemberPointerDeser {
     pub group_member_pointer_discriminator: u8,
-    pub authority: Pubkey, // spl_pod::optional_keys::OptionalNonZeroPubkey-like deserialize
-    pub member_address: Pubkey, // spl_pod::optional_keys::OptionalNonZeroPubkey-like deserialize
+    pub authority: spl_pod::optional_keys::OptionalNonZeroPubkey,
+    pub member_address: spl_pod::optional_keys::OptionalNonZeroPubkey,
 }
 
 #[derive(Debug, Clone, PartialEq)]

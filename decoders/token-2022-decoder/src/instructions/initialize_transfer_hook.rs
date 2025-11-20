@@ -10,7 +10,6 @@ use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
-use spl_pod::optional_keys::OptionalNonZeroPubkey;
 
 /// Initialize a new mint with a transfer hook program.
 ///
@@ -32,8 +31,8 @@ pub struct InitializeTransferHook {
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeTransferHookDeser {
     pub transfer_hook_discriminator: u8,
-    pub authority: OptionalNonZeroPubkey,
-    pub program_id: OptionalNonZeroPubkey,
+    pub authority: spl_pod::optional_keys::OptionalNonZeroPubkey,
+    pub program_id: spl_pod::optional_keys::OptionalNonZeroPubkey,
 }
 
 #[derive(Debug, Clone, PartialEq)]

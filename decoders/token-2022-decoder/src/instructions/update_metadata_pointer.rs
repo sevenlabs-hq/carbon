@@ -10,7 +10,6 @@ use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
-use spl_pod::optional_keys::OptionalNonZeroPubkey;
 
 /// Update the metadata pointer address. Only supported for mints that
 /// include the `MetadataPointer` extension.
@@ -25,7 +24,7 @@ pub struct UpdateMetadataPointer {
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct UpdateMetadataPointerDeser {
     pub metadata_pointer_discriminator: u8,
-    pub metadata_address: OptionalNonZeroPubkey,
+    pub metadata_address: spl_pod::optional_keys::OptionalNonZeroPubkey,
 }
 
 #[derive(Debug, Clone, PartialEq)]

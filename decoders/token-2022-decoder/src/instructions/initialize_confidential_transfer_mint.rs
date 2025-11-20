@@ -37,9 +37,9 @@ pub struct InitializeConfidentialTransferMint {
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeConfidentialTransferMintDeser {
     pub confidential_transfer_discriminator: u8,
-    pub authority: Pubkey, // spl_pod::optional_keys::OptionalNonZeroPubkey-like deserialize
+    pub authority: spl_pod::optional_keys::OptionalNonZeroPubkey,
     pub auto_approve_new_accounts: bool,
-    pub auditor_elgamal_pubkey: Pubkey, // spl_pod::optional_keys::OptionalNonZeroPubkey-like deserialize
+    pub auditor_elgamal_pubkey: spl_pod::optional_keys::OptionalNonZeroPubkey,
 }
 
 #[derive(Debug, Clone, PartialEq)]

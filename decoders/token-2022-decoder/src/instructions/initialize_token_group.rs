@@ -10,7 +10,6 @@ use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
-use spl_pod::optional_keys::OptionalNonZeroPubkey;
 
 /// Initialize a new `Group`
 ///
@@ -26,7 +25,7 @@ pub struct InitializeTokenGroup {
 
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeTokenGroupDeser {
-    pub update_authority: OptionalNonZeroPubkey,
+    pub update_authority: spl_pod::optional_keys::OptionalNonZeroPubkey,
     pub max_size: u64,
 }
 
