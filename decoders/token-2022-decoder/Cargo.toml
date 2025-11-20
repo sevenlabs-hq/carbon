@@ -28,7 +28,6 @@ postgres = [
 graphql = [
     "carbon-core/graphql",
     "dep:juniper",
-    "dep:base64",
     "serde",
 ]
 
@@ -48,7 +47,6 @@ async-trait = { workspace = true, optional = true }
 sqlx_migrator = { workspace = true, optional = true }
 
 juniper = { workspace = true, optional = true }
-base64 = { workspace = true, optional = true }
 
 [dev-dependencies]
 carbon-test-utils = { workspace = true }
