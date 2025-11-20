@@ -15,7 +15,6 @@ use carbon_core::CarbonDeserialize;
 /// This instruction succeeds if the mint has no configured transfer fee
 /// and the provided fee is 0. This allows applications to use
 /// `TransferCheckedWithFee` with any mint.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct TransferCheckedWithFee {
@@ -42,11 +41,11 @@ pub struct TransferCheckedWithFeeInstructionAccounts {
 
 impl TransferCheckedWithFee {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[26] {
+        if discriminator != [26] {
             return None;
         }
 

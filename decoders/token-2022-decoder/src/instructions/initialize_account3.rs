@@ -12,7 +12,6 @@ use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
 
 /// Like InitializeAccount2, but does not require the Rent sysvar to be provided.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeAccount3 {
@@ -30,11 +29,11 @@ pub struct InitializeAccount3InstructionAccounts {
 
 impl InitializeAccount3 {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[18] {
+        if discriminator != [18] {
             return None;
         }
 

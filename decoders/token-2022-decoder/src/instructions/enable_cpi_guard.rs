@@ -17,7 +17,6 @@ use carbon_core::CarbonDeserialize;
 /// * Approve is disallowed entirely.
 ///
 /// In addition, CPI Guard cannot be enabled or disabled via CPI.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct EnableCpiGuard {
@@ -34,11 +33,11 @@ pub struct EnableCpiGuardInstructionAccounts {
 
 impl EnableCpiGuard {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[34] {
+        if discriminator != [34] {
             return None;
         }
 

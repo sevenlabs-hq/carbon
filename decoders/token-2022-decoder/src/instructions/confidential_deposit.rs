@@ -19,7 +19,6 @@ use carbon_core::CarbonDeserialize;
 ///
 /// Fails if the source or destination accounts are frozen.
 /// Fails if the associated mint is extended as `NonTransferable`.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct ConfidentialDeposit {
@@ -41,11 +40,11 @@ pub struct ConfidentialDepositInstructionAccounts {
 
 impl ConfidentialDeposit {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[27] {
+        if discriminator != [27] {
             return None;
         }
 

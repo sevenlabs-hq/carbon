@@ -23,8 +23,8 @@ impl UpdateMultiplierScaledUiMintRow {
         Self {
             instruction_metadata: metadata.into(),
             scaled_ui_amount_mint_discriminator: source.scaled_ui_amount_mint_discriminator.into(),
-            multiplier: source.multiplier.into(),
-            effective_timestamp: source.effective_timestamp.into(),
+            multiplier: source.multiplier,
+            effective_timestamp: source.effective_timestamp,
         }
     }
 }
@@ -43,8 +43,8 @@ impl TryFrom<UpdateMultiplierScaledUiMintRow>
                         "Failed to convert value from postgres primitive".to_string(),
                     )
                 })?,
-            multiplier: source.multiplier.into(),
-            effective_timestamp: source.effective_timestamp.into(),
+            multiplier: source.multiplier,
+            effective_timestamp: source.effective_timestamp,
         })
     }
 }
@@ -83,13 +83,13 @@ impl carbon_core::postgres::operations::Insert for UpdateMultiplierScaledUiMintR
                 $1, $2, $3, $4, $5, $6, $7
             )"#,
         )
-        .bind(self.scaled_ui_amount_mint_discriminator.clone())
-        .bind(self.multiplier.clone())
-        .bind(self.effective_timestamp.clone())
+        .bind(self.scaled_ui_amount_mint_discriminator)
+        .bind(self.multiplier)
+        .bind(self.effective_timestamp)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -117,13 +117,13 @@ impl carbon_core::postgres::operations::Upsert for UpdateMultiplierScaledUiMintR
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
             "#)
-        .bind(self.scaled_ui_amount_mint_discriminator.clone())
-        .bind(self.multiplier.clone())
-        .bind(self.effective_timestamp.clone())
+        .bind(self.scaled_ui_amount_mint_discriminator)
+        .bind(self.multiplier)
+        .bind(self.effective_timestamp)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())

@@ -13,7 +13,6 @@ use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
 
 /// Sets a new authority of a mint or account.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct SetAuthority {
@@ -33,11 +32,11 @@ pub struct SetAuthorityInstructionAccounts {
 
 impl SetAuthority {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[6] {
+        if discriminator != [6] {
             return None;
         }
 

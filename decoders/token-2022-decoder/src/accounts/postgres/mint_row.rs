@@ -28,7 +28,7 @@ impl MintRow {
             mint_authority: source.mint_authority.map(|value| value.into()),
             supply: source.supply.into(),
             decimals: source.decimals.into(),
-            is_initialized: source.is_initialized.into(),
+            is_initialized: source.is_initialized,
             freeze_authority: source.freeze_authority.map(|value| value.into()),
             extensions: source.extensions.map(|value| value.into()),
         }
@@ -46,7 +46,7 @@ impl TryFrom<MintRow> for crate::accounts::mint::Mint {
                     "Failed to convert value from postgres primitive".to_string(),
                 )
             })?,
-            is_initialized: source.is_initialized.into(),
+            is_initialized: source.is_initialized,
             freeze_authority: source.freeze_authority.map(|value| *value),
             extensions: source.extensions.map(|value| value.0),
         })
@@ -89,14 +89,14 @@ impl carbon_core::postgres::operations::Insert for MintRow {
                 $1, $2, $3, $4, $5, $6, $7, $8
             )"#,
         )
-        .bind(self.mint_authority.clone())
-        .bind(self.supply.clone())
-        .bind(self.decimals.clone())
-        .bind(self.is_initialized.clone())
-        .bind(self.freeze_authority.clone())
-        .bind(self.extensions.clone())
-        .bind(self.account_metadata.pubkey.clone())
-        .bind(self.account_metadata.slot.clone())
+        .bind(self.mint_authority)
+        .bind(&self.supply)
+        .bind(self.decimals)
+        .bind(self.is_initialized)
+        .bind(self.freeze_authority)
+        .bind(&self.extensions)
+        .bind(self.account_metadata.pubkey)
+        .bind(&self.account_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -130,14 +130,14 @@ impl carbon_core::postgres::operations::Upsert for MintRow {
                 __slot = EXCLUDED.__slot
             "#,
         )
-        .bind(self.mint_authority.clone())
-        .bind(self.supply.clone())
-        .bind(self.decimals.clone())
-        .bind(self.is_initialized.clone())
-        .bind(self.freeze_authority.clone())
-        .bind(self.extensions.clone())
+        .bind(self.mint_authority)
+        .bind(&self.supply)
+        .bind(self.decimals)
+        .bind(self.is_initialized)
+        .bind(self.freeze_authority)
+        .bind(&self.extensions)
         .bind(self.account_metadata.pubkey)
-        .bind(self.account_metadata.slot.clone())
+        .bind(&self.account_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

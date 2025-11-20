@@ -29,17 +29,15 @@ impl ConfidentialTransferWithFeeRow {
             instruction_metadata: metadata.into(),
             confidential_transfer_discriminator: source.confidential_transfer_discriminator.into(),
             new_source_decryptable_available_balance: sqlx::types::Json(
-                source.new_source_decryptable_available_balance.into(),
+                source.new_source_decryptable_available_balance,
             ),
-            equality_proof_instruction_offset: source.equality_proof_instruction_offset.into(),
+            equality_proof_instruction_offset: source.equality_proof_instruction_offset,
             transfer_amount_ciphertext_validity_proof_instruction_offset: source
-                .transfer_amount_ciphertext_validity_proof_instruction_offset
-                .into(),
-            fee_sigma_proof_instruction_offset: source.fee_sigma_proof_instruction_offset.into(),
+                .transfer_amount_ciphertext_validity_proof_instruction_offset,
+            fee_sigma_proof_instruction_offset: source.fee_sigma_proof_instruction_offset,
             fee_ciphertext_validity_proof_instruction_offset: source
-                .fee_ciphertext_validity_proof_instruction_offset
-                .into(),
-            range_proof_instruction_offset: source.range_proof_instruction_offset.into(),
+                .fee_ciphertext_validity_proof_instruction_offset,
+            range_proof_instruction_offset: source.range_proof_instruction_offset,
         }
     }
 }
@@ -61,15 +59,13 @@ impl TryFrom<ConfidentialTransferWithFeeRow>
             new_source_decryptable_available_balance: source
                 .new_source_decryptable_available_balance
                 .0,
-            equality_proof_instruction_offset: source.equality_proof_instruction_offset.into(),
+            equality_proof_instruction_offset: source.equality_proof_instruction_offset,
             transfer_amount_ciphertext_validity_proof_instruction_offset: source
-                .transfer_amount_ciphertext_validity_proof_instruction_offset
-                .into(),
-            fee_sigma_proof_instruction_offset: source.fee_sigma_proof_instruction_offset.into(),
+                .transfer_amount_ciphertext_validity_proof_instruction_offset,
+            fee_sigma_proof_instruction_offset: source.fee_sigma_proof_instruction_offset,
             fee_ciphertext_validity_proof_instruction_offset: source
-                .fee_ciphertext_validity_proof_instruction_offset
-                .into(),
-            range_proof_instruction_offset: source.range_proof_instruction_offset.into(),
+                .fee_ciphertext_validity_proof_instruction_offset,
+            range_proof_instruction_offset: source.range_proof_instruction_offset,
         })
     }
 }
@@ -116,23 +112,17 @@ impl carbon_core::postgres::operations::Insert for ConfidentialTransferWithFeeRo
                 $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
             )"#,
         )
-        .bind(self.confidential_transfer_discriminator.clone())
-        .bind(self.new_source_decryptable_available_balance.clone())
-        .bind(self.equality_proof_instruction_offset.clone())
-        .bind(
-            self.transfer_amount_ciphertext_validity_proof_instruction_offset
-                .clone(),
-        )
-        .bind(self.fee_sigma_proof_instruction_offset.clone())
-        .bind(
-            self.fee_ciphertext_validity_proof_instruction_offset
-                .clone(),
-        )
-        .bind(self.range_proof_instruction_offset.clone())
+        .bind(self.confidential_transfer_discriminator)
+        .bind(&self.new_source_decryptable_available_balance)
+        .bind(self.equality_proof_instruction_offset)
+        .bind(self.transfer_amount_ciphertext_validity_proof_instruction_offset)
+        .bind(self.fee_sigma_proof_instruction_offset)
+        .bind(self.fee_ciphertext_validity_proof_instruction_offset)
+        .bind(self.range_proof_instruction_offset)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -168,17 +158,17 @@ impl carbon_core::postgres::operations::Upsert for ConfidentialTransferWithFeeRo
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
             "#)
-        .bind(self.confidential_transfer_discriminator.clone())
-        .bind(self.new_source_decryptable_available_balance.clone())
-        .bind(self.equality_proof_instruction_offset.clone())
-        .bind(self.transfer_amount_ciphertext_validity_proof_instruction_offset.clone())
-        .bind(self.fee_sigma_proof_instruction_offset.clone())
-        .bind(self.fee_ciphertext_validity_proof_instruction_offset.clone())
-        .bind(self.range_proof_instruction_offset.clone())
+        .bind(self.confidential_transfer_discriminator)
+        .bind(&self.new_source_decryptable_available_balance)
+        .bind(self.equality_proof_instruction_offset)
+        .bind(self.transfer_amount_ciphertext_validity_proof_instruction_offset)
+        .bind(self.fee_sigma_proof_instruction_offset)
+        .bind(self.fee_ciphertext_validity_proof_instruction_offset)
+        .bind(self.range_proof_instruction_offset)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())

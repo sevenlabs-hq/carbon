@@ -11,7 +11,6 @@ use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 
 /// Freeze an Initialized account using the Mint's freeze_authority (if set).
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct FreezeAccount {}
@@ -27,11 +26,11 @@ pub struct FreezeAccountInstructionAccounts {
 
 impl FreezeAccount {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[10] {
+        if discriminator != [10] {
             return None;
         }
 

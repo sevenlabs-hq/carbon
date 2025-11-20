@@ -14,7 +14,6 @@ use solana_pubkey::Pubkey;
 /// Initialize a new mint with the `Pausable` extension.
 ///
 /// Fails if the mint has already been initialized, so must be called before `InitializeMint`.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializePausableConfig {
@@ -32,11 +31,11 @@ pub struct InitializePausableConfigInstructionAccounts {
 
 impl InitializePausableConfig {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[44] {
+        if discriminator != [44] {
             return None;
         }
 

@@ -26,7 +26,7 @@ impl InitializeConfidentialTransferMintRow {
             instruction_metadata: metadata.into(),
             confidential_transfer_discriminator: source.confidential_transfer_discriminator.into(),
             authority: source.authority.map(|value| value.into()),
-            auto_approve_new_accounts: source.auto_approve_new_accounts.into(),
+            auto_approve_new_accounts: source.auto_approve_new_accounts,
             auditor_elgamal_pubkey: source.auditor_elgamal_pubkey.map(|value| value.into()),
         }
     }
@@ -38,7 +38,7 @@ impl TryFrom<InitializeConfidentialTransferMintRow> for crate::instructions::ini
         Ok(Self {
             confidential_transfer_discriminator: source.confidential_transfer_discriminator.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
             authority: source.authority.map(|value| *value),
-            auto_approve_new_accounts: source.auto_approve_new_accounts.into(),
+            auto_approve_new_accounts: source.auto_approve_new_accounts,
             auditor_elgamal_pubkey: source.auditor_elgamal_pubkey.map(|value| *value),
         })
     }
@@ -78,14 +78,14 @@ impl carbon_core::postgres::operations::Insert for InitializeConfidentialTransfe
                 $1, $2, $3, $4, $5, $6, $7, $8
             )"#,
         )
-        .bind(self.confidential_transfer_discriminator.clone())
-        .bind(self.authority.clone())
-        .bind(self.auto_approve_new_accounts.clone())
-        .bind(self.auditor_elgamal_pubkey.clone())
+        .bind(self.confidential_transfer_discriminator)
+        .bind(self.authority)
+        .bind(self.auto_approve_new_accounts)
+        .bind(self.auditor_elgamal_pubkey)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -115,14 +115,14 @@ impl carbon_core::postgres::operations::Upsert for InitializeConfidentialTransfe
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
             "#)
-        .bind(self.confidential_transfer_discriminator.clone())
-        .bind(self.authority.clone())
-        .bind(self.auto_approve_new_accounts.clone())
-        .bind(self.auditor_elgamal_pubkey.clone())
+        .bind(self.confidential_transfer_discriminator)
+        .bind(self.authority)
+        .bind(self.auto_approve_new_accounts)
+        .bind(self.auditor_elgamal_pubkey)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())

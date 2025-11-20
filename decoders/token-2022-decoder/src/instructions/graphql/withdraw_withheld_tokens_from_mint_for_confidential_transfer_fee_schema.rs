@@ -34,7 +34,7 @@ impl
                 .new_decryptable_available_balance
                 .0
                 .into_iter()
-                .map(|item| carbon_core::graphql::primitives::U8(item))
+                .map(carbon_core::graphql::primitives::U8)
                 .collect(),
         })
     }

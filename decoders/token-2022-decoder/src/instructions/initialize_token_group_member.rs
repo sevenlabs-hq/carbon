@@ -14,7 +14,6 @@ use carbon_core::CarbonDeserialize;
 ///
 /// Assumes the `Group` has already been initialized,
 /// as well as the mint for the member.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeTokenGroupMember {}
@@ -36,7 +35,7 @@ impl InitializeTokenGroupMember {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[152, 32, 222, 176, 223, 237, 116, 134] {
+        if discriminator != [152, 32, 222, 176, 223, 237, 116, 134] {
             return None;
         }
 

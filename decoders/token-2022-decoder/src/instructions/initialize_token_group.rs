@@ -14,7 +14,6 @@ use solana_pubkey::Pubkey;
 /// Initialize a new `Group`
 ///
 /// Assumes one has already initialized a mint for the group.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeTokenGroup {
@@ -39,7 +38,7 @@ impl InitializeTokenGroup {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[121, 113, 108, 39, 54, 51, 0, 4] {
+        if discriminator != [121, 113, 108, 39, 54, 51, 0, 4] {
             return None;
         }
 

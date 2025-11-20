@@ -23,7 +23,7 @@ impl QueryRoot {
         let row = crate::accounts::postgres::MintRow::lookup(pk, &context.pool)
             .await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(row.map(|row| row.try_into().ok()).flatten())
+        Ok(row.and_then(|row| row.try_into().ok()))
     }
 
     async fn list_mint(
@@ -57,7 +57,7 @@ impl QueryRoot {
         let row = crate::accounts::postgres::TokenRow::lookup(pk, &context.pool)
             .await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(row.map(|row| row.try_into().ok()).flatten())
+        Ok(row.and_then(|row| row.try_into().ok()))
     }
 
     async fn list_token(
@@ -92,7 +92,7 @@ impl QueryRoot {
         let row = crate::accounts::postgres::MultisigRow::lookup(pk, &context.pool)
             .await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(row.map(|row| row.try_into().ok()).flatten())
+        Ok(row.and_then(|row| row.try_into().ok()))
     }
 
     async fn list_multisig(

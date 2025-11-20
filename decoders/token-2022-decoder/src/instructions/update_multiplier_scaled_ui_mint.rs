@@ -13,7 +13,6 @@ use carbon_core::CarbonDeserialize;
 /// Update the multiplier. Only supported for mints that include the
 /// `ScaledUiAmountConfig` extension.
 /// You can set a specific timestamp for the multiplier to take effect.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct UpdateMultiplierScaledUiMint {
@@ -34,11 +33,11 @@ pub struct UpdateMultiplierScaledUiMintInstructionAccounts {
 
 impl UpdateMultiplierScaledUiMint {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[43] {
+        if discriminator != [43] {
             return None;
         }
 

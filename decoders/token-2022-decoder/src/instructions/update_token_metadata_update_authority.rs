@@ -12,7 +12,6 @@ use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
 
 /// Updates the token-metadata authority.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct UpdateTokenMetadataUpdateAuthority {
@@ -34,7 +33,7 @@ impl UpdateTokenMetadataUpdateAuthority {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[215, 228, 166, 228, 84, 100, 86, 123] {
+        if discriminator != [215, 228, 166, 228, 84, 100, 86, 123] {
             return None;
         }
 

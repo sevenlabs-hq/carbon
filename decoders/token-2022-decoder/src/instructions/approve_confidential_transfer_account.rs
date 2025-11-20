@@ -17,7 +17,6 @@ use carbon_core::CarbonDeserialize;
 /// SPL Token mint.  This instruction must be executed after the account
 /// owner configures their account for confidential transfers with
 /// `ConfidentialTransferInstruction::ConfigureAccount`.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct ApproveConfidentialTransferAccount {
@@ -35,11 +34,11 @@ pub struct ApproveConfidentialTransferAccountInstructionAccounts {
 
 impl ApproveConfidentialTransferAccount {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[27] {
+        if discriminator != [27] {
             return None;
         }
 

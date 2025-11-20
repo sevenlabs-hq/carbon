@@ -16,7 +16,6 @@ use carbon_core::CarbonDeserialize;
 ///
 /// Accounts provided should include the `TransferFeeAmount` extension.
 /// If not, the account is skipped.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct HarvestWithheldTokensToMint {
@@ -32,11 +31,11 @@ pub struct HarvestWithheldTokensToMintInstructionAccounts {
 
 impl HarvestWithheldTokensToMint {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[26] {
+        if discriminator != [26] {
             return None;
         }
 

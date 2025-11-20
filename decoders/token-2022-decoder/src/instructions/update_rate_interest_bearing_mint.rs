@@ -12,7 +12,6 @@ use carbon_core::CarbonDeserialize;
 
 /// Update the interest rate. Only supported for mints that include the
 /// `InterestBearingConfig` extension.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct UpdateRateInterestBearingMint {
@@ -31,11 +30,11 @@ pub struct UpdateRateInterestBearingMintInstructionAccounts {
 
 impl UpdateRateInterestBearingMint {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[33] {
+        if discriminator != [33] {
             return None;
         }
 

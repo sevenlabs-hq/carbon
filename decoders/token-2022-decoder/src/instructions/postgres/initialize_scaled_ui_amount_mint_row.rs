@@ -25,7 +25,7 @@ impl InitializeScaledUiAmountMintRow {
             instruction_metadata: metadata.into(),
             scaled_ui_amount_mint_discriminator: source.scaled_ui_amount_mint_discriminator.into(),
             authority: source.authority.map(|value| value.into()),
-            multiplier: source.multiplier.into(),
+            multiplier: source.multiplier,
         }
     }
 }
@@ -45,7 +45,7 @@ impl TryFrom<InitializeScaledUiAmountMintRow>
                     )
                 })?,
             authority: source.authority.map(|value| *value),
-            multiplier: source.multiplier.into(),
+            multiplier: source.multiplier,
         })
     }
 }
@@ -84,13 +84,13 @@ impl carbon_core::postgres::operations::Insert for InitializeScaledUiAmountMintR
                 $1, $2, $3, $4, $5, $6, $7
             )"#,
         )
-        .bind(self.scaled_ui_amount_mint_discriminator.clone())
-        .bind(self.authority.clone())
-        .bind(self.multiplier.clone())
+        .bind(self.scaled_ui_amount_mint_discriminator)
+        .bind(self.authority)
+        .bind(self.multiplier)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -118,13 +118,13 @@ impl carbon_core::postgres::operations::Upsert for InitializeScaledUiAmountMintR
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
             "#)
-        .bind(self.scaled_ui_amount_mint_discriminator.clone())
-        .bind(self.authority.clone())
-        .bind(self.multiplier.clone())
+        .bind(self.scaled_ui_amount_mint_discriminator)
+        .bind(self.authority)
+        .bind(self.multiplier)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())

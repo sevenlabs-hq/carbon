@@ -13,7 +13,6 @@ use solana_pubkey::Pubkey;
 
 /// Update the group member pointer address. Only supported for mints that
 /// include the `GroupMemberPointer` extension.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct UpdateGroupMemberPointer {
@@ -32,11 +31,11 @@ pub struct UpdateGroupMemberPointerInstructionAccounts {
 
 impl UpdateGroupMemberPointer {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[41] {
+        if discriminator != [41] {
             return None;
         }
 

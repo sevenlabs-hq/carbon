@@ -13,7 +13,6 @@ use carbon_core::CarbonDeserialize;
 /// Allow all token operations to happen via CPI as normal.
 ///
 /// Implicitly initializes the extension in the case where it is not present.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct DisableCpiGuard {
@@ -30,11 +29,11 @@ pub struct DisableCpiGuardInstructionAccounts {
 
 impl DisableCpiGuard {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[34] {
+        if discriminator != [34] {
             return None;
         }
 

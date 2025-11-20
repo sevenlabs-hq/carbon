@@ -17,7 +17,6 @@ use carbon_core::CarbonDeserialize;
 ///
 /// No-ops in this version of the program, but is included for compatibility
 /// with the Associated Token Account program.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeImmutableOwner {}
@@ -31,11 +30,11 @@ pub struct InitializeImmutableOwnerInstructionAccounts {
 
 impl InitializeImmutableOwner {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[22] {
+        if discriminator != [22] {
             return None;
         }
 

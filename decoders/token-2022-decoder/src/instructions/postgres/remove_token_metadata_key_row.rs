@@ -20,8 +20,8 @@ impl RemoveTokenMetadataKeyRow {
     ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            idempotent: source.idempotent.into(),
-            key: source.key.into(),
+            idempotent: source.idempotent,
+            key: source.key,
         }
     }
 }
@@ -32,8 +32,8 @@ impl TryFrom<RemoveTokenMetadataKeyRow>
     type Error = carbon_core::error::Error;
     fn try_from(source: RemoveTokenMetadataKeyRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            idempotent: source.idempotent.into(),
-            key: source.key.into(),
+            idempotent: source.idempotent,
+            key: source.key,
         })
     }
 }
@@ -70,12 +70,12 @@ impl carbon_core::postgres::operations::Insert for RemoveTokenMetadataKeyRow {
                 $1, $2, $3, $4, $5, $6
             )"#,
         )
-        .bind(self.idempotent.clone())
-        .bind(self.key.clone())
+        .bind(self.idempotent)
+        .bind(&self.key)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -103,12 +103,12 @@ impl carbon_core::postgres::operations::Upsert for RemoveTokenMetadataKeyRow {
                 __slot = EXCLUDED.__slot
             "#,
         )
-        .bind(self.idempotent.clone())
-        .bind(self.key.clone())
+        .bind(self.idempotent)
+        .bind(&self.key)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;

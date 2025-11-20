@@ -13,7 +13,6 @@ use carbon_core::CarbonDeserialize;
 /// Transfers tokens from one account to another either directly or via a delegate.
 /// If this account is associated with the native mint then equal amounts
 /// of SOL and Tokens will be transferred to the destination account.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct Transfer {
@@ -32,11 +31,11 @@ pub struct TransferInstructionAccounts {
 
 impl Transfer {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[3] {
+        if discriminator != [3] {
             return None;
         }
 

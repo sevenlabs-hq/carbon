@@ -16,7 +16,6 @@ use carbon_core::CarbonDeserialize;
 /// Use `HarvestWithheldTokensToMint` and `WithdrawWithheldTokensFromMint` as alternative.
 ///
 /// Must be accompanied by the VerifyWithdrawWithheldTokens instruction.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct WithdrawWithheldTokensFromAccountsForConfidentialTransferFee {
@@ -42,11 +41,11 @@ pub struct WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeInstructi
 
 impl WithdrawWithheldTokensFromAccountsForConfidentialTransferFee {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[37] {
+        if discriminator != [37] {
             return None;
         }
 

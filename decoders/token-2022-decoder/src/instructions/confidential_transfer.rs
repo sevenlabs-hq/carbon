@@ -19,12 +19,12 @@ use carbon_core::CarbonDeserialize;
 /// - `VerifyCiphertextCommitmentEquality`
 /// - `VerifyBatchedGroupedCiphertext3HandlesValidity`
 /// - `VerifyBatchedRangeProofU128`
+///
 /// These instructions can be accompanied in the same transaction or can be
 /// pre-verified into a context state account, in which case, only their
 /// context state account addresses need to be provided.
 ///
 /// Fails if the associated mint is extended as `NonTransferable`.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct ConfidentialTransfer {
@@ -63,11 +63,11 @@ pub struct ConfidentialTransferInstructionAccounts {
 
 impl ConfidentialTransfer {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[27] {
+        if discriminator != [27] {
             return None;
         }
 

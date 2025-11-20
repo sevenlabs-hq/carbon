@@ -11,7 +11,6 @@ use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 
 /// Mints new tokens to an account. The native mint does not support minting.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct MintTo {
@@ -30,11 +29,11 @@ pub struct MintToInstructionAccounts {
 
 impl MintTo {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[7] {
+        if discriminator != [7] {
             return None;
         }
 

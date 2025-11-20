@@ -15,7 +15,6 @@ use carbon_core::CarbonDeserialize;
 /// This is useful if a non-wrapped SOL account uses
 /// `system_instruction::transfer` to move lamports to a wrapped token
 /// account, and needs to have its token `amount` field updated.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct SyncNative {}
@@ -29,11 +28,11 @@ pub struct SyncNativeInstructionAccounts {
 
 impl SyncNative {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[17] {
+        if discriminator != [17] {
             return None;
         }
 

@@ -13,7 +13,6 @@ use carbon_core::CarbonDeserialize;
 /// Initialize the non transferable extension for the given mint account
 ///
 /// Fails if the account has already been initialized, so must be called before `InitializeMint`.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeNonTransferableMint {}
@@ -27,11 +26,11 @@ pub struct InitializeNonTransferableMintInstructionAccounts {
 
 impl InitializeNonTransferableMint {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[32] {
+        if discriminator != [32] {
             return None;
         }
 

@@ -18,7 +18,6 @@ use solana_pubkey::Pubkey;
 /// The mint must have exactly enough space allocated for the base mint (82 bytes),
 /// plus 83 bytes of padding, 1 byte reserved for the account type,
 /// then space required for this extension, plus any others.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializePermanentDelegate {
@@ -35,11 +34,11 @@ pub struct InitializePermanentDelegateInstructionAccounts {
 
 impl InitializePermanentDelegate {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[35] {
+        if discriminator != [35] {
             return None;
         }
 

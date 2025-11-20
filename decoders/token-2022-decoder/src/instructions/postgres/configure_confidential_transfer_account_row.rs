@@ -26,11 +26,11 @@ impl ConfigureConfidentialTransferAccountRow {
         Self {
             instruction_metadata: metadata.into(),
             confidential_transfer_discriminator: source.confidential_transfer_discriminator.into(),
-            decryptable_zero_balance: sqlx::types::Json(source.decryptable_zero_balance.into()),
+            decryptable_zero_balance: sqlx::types::Json(source.decryptable_zero_balance),
             maximum_pending_balance_credit_counter: source
                 .maximum_pending_balance_credit_counter
                 .into(),
-            proof_instruction_offset: source.proof_instruction_offset.into(),
+            proof_instruction_offset: source.proof_instruction_offset,
         }
     }
 }
@@ -42,7 +42,7 @@ impl TryFrom<ConfigureConfidentialTransferAccountRow> for crate::instructions::c
             confidential_transfer_discriminator: source.confidential_transfer_discriminator.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
             decryptable_zero_balance: source.decryptable_zero_balance.0,
             maximum_pending_balance_credit_counter: *source.maximum_pending_balance_credit_counter,
-            proof_instruction_offset: source.proof_instruction_offset.into(),
+            proof_instruction_offset: source.proof_instruction_offset,
         })
     }
 }
@@ -81,14 +81,14 @@ impl carbon_core::postgres::operations::Insert for ConfigureConfidentialTransfer
                 $1, $2, $3, $4, $5, $6, $7, $8
             )"#,
         )
-        .bind(self.confidential_transfer_discriminator.clone())
-        .bind(self.decryptable_zero_balance.clone())
-        .bind(self.maximum_pending_balance_credit_counter.clone())
-        .bind(self.proof_instruction_offset.clone())
+        .bind(self.confidential_transfer_discriminator)
+        .bind(&self.decryptable_zero_balance)
+        .bind(&self.maximum_pending_balance_credit_counter)
+        .bind(self.proof_instruction_offset)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -118,14 +118,14 @@ impl carbon_core::postgres::operations::Upsert for ConfigureConfidentialTransfer
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
             "#)
-        .bind(self.confidential_transfer_discriminator.clone())
-        .bind(self.decryptable_zero_balance.clone())
-        .bind(self.maximum_pending_balance_credit_counter.clone())
-        .bind(self.proof_instruction_offset.clone())
+        .bind(self.confidential_transfer_discriminator)
+        .bind(&self.decryptable_zero_balance)
+        .bind(&self.maximum_pending_balance_credit_counter)
+        .bind(self.proof_instruction_offset)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())

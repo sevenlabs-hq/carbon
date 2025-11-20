@@ -18,7 +18,6 @@ use carbon_core::CarbonDeserialize;
 ///
 /// Return data can be fetched using `sol_get_return_data` and deserialized
 /// with `String::from_utf8`.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct AmountToUiAmount {
@@ -35,11 +34,11 @@ pub struct AmountToUiAmountInstructionAccounts {
 
 impl AmountToUiAmount {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[23] {
+        if discriminator != [23] {
             return None;
         }
 

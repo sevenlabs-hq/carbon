@@ -79,12 +79,12 @@ impl carbon_core::postgres::operations::Insert for UpdateGroupMemberPointerRow {
                 $1, $2, $3, $4, $5, $6
             )"#,
         )
-        .bind(self.group_member_pointer_discriminator.clone())
-        .bind(self.member_address.clone())
+        .bind(self.group_member_pointer_discriminator)
+        .bind(self.member_address)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool)
         .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -110,12 +110,12 @@ impl carbon_core::postgres::operations::Upsert for UpdateGroupMemberPointerRow {
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
             "#)
-        .bind(self.group_member_pointer_discriminator.clone())
-        .bind(self.member_address.clone())
+        .bind(self.group_member_pointer_discriminator)
+        .bind(self.member_address)
         .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())

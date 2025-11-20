@@ -12,7 +12,6 @@ use carbon_core::CarbonDeserialize;
 
 /// Burns tokens by removing them from an account. `Burn` does not support
 /// accounts associated with the native mint, use `CloseAccount` instead.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct Burn {
@@ -30,11 +29,11 @@ pub struct BurnInstructionAccounts {
 
 impl Burn {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[8] {
+        if discriminator != [8] {
             return None;
         }
 

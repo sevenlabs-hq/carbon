@@ -37,7 +37,7 @@ impl TryFrom<crate::instructions::postgres::ConfidentialWithdrawRow>
                 .new_decryptable_available_balance
                 .0
                 .into_iter()
-                .map(|item| carbon_core::graphql::primitives::U8(item))
+                .map(carbon_core::graphql::primitives::U8)
                 .collect(),
             equality_proof_instruction_offset: row.equality_proof_instruction_offset as i32,
             range_proof_instruction_offset: row.range_proof_instruction_offset as i32,
