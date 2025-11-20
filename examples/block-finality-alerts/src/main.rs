@@ -50,10 +50,7 @@ pub struct BlockProcessor;
 impl Processor for BlockProcessor {
     type InputType = BlockDetails;
 
-    async fn process(
-        &mut self,
-        block_details: Self::InputType,
-    ) -> CarbonResult<()> {
+    async fn process(&mut self, block_details: Self::InputType) -> CarbonResult<()> {
         log::info!("Final block: {:?}", &block_details);
 
         Ok(())
