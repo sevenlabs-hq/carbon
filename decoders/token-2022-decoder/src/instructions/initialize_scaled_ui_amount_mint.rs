@@ -10,7 +10,6 @@ use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
-use spl_pod::optional_keys::OptionalNonZeroPubkey;
 
 /// Initialize a new mint with the `ScaledUiAmount` extension.
 ///
@@ -32,7 +31,7 @@ pub struct InitializeScaledUiAmountMint {
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeScaledUiAmountMintDeser {
     pub scaled_ui_amount_mint_discriminator: u8,
-    pub authority: OptionalNonZeroPubkey,
+    pub authority: spl_pod::optional_keys::OptionalNonZeroPubkey,
     pub multiplier: f64,
 }
 

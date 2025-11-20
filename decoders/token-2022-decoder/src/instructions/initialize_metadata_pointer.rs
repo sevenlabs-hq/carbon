@@ -33,8 +33,8 @@ pub struct InitializeMetadataPointer {
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct InitializeMetadataPointerDeser {
     pub metadata_pointer_discriminator: u8,
-    pub authority: Pubkey, // spl_pod::optional_keys::OptionalNonZeroPubkey-like deserialize
-    pub metadata_address: Pubkey, // spl_pod::optional_keys::OptionalNonZeroPubkey-like deserialize
+    pub authority: spl_pod::optional_keys::OptionalNonZeroPubkey,
+    pub metadata_address: spl_pod::optional_keys::OptionalNonZeroPubkey,
 }
 
 #[derive(Debug, Clone, PartialEq)]

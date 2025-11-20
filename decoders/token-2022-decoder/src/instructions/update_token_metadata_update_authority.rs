@@ -10,7 +10,6 @@ use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
-use spl_pod::optional_keys::OptionalNonZeroPubkey;
 
 /// Updates the token-metadata authority.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -22,7 +21,7 @@ pub struct UpdateTokenMetadataUpdateAuthority {
 
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct UpdateTokenMetadataUpdateAuthorityDeser {
-    pub new_update_authority: OptionalNonZeroPubkey,
+    pub new_update_authority: spl_pod::optional_keys::OptionalNonZeroPubkey,
 }
 
 #[derive(Debug, Clone, PartialEq)]

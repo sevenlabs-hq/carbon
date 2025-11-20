@@ -10,7 +10,6 @@ use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
-use spl_pod::optional_keys::OptionalNonZeroPubkey;
 
 /// Updates the confidential transfer mint configuration for a mint.
 ///
@@ -31,7 +30,7 @@ pub struct UpdateConfidentialTransferMint {
 pub struct UpdateConfidentialTransferMintDeser {
     pub confidential_transfer_discriminator: u8,
     pub auto_approve_new_accounts: bool,
-    pub auditor_elgamal_pubkey: OptionalNonZeroPubkey,
+    pub auditor_elgamal_pubkey: spl_pod::optional_keys::OptionalNonZeroPubkey,
 }
 
 #[derive(Debug, Clone, PartialEq)]
