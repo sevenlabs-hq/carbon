@@ -35,6 +35,7 @@ carbon-circle-token-messenger-v2-decoder = { path = "decoders/carbon-circle-toke
 
 # main
 carbon-core = { path = "crates/core", version = "0.11.0" }
+carbon-dflow-aggregator-v4-decoder = { path = "decoders/dflow-aggregator-v4-decoder", version = "0.11.0" }
 carbon-drift-v2-decoder = { path = "decoders/drift-v2-decoder", version = "0.11.0" }
 carbon-fluxbeam-decoder = { path = "decoders/fluxbeam-decoder", version = "0.11.0" }
 carbon-gavel-decoder = { path = "decoders/gavel-decoder", version = "0.11.0" }
