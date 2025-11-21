@@ -37,11 +37,15 @@ pub struct UpdateGroupPointerInstructionAccounts {
 
 impl UpdateGroupPointer {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.is_empty() {
+        if data.len() < 2 {
             return None;
         }
         let discriminator = &data[0..1];
         if discriminator != [40] {
+            return None;
+        }
+        let group_pointer_discriminator = data[1];
+        if group_pointer_discriminator != 1 {
             return None;
         }
 

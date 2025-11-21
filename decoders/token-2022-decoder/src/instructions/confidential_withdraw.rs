@@ -61,11 +61,15 @@ pub struct ConfidentialWithdrawInstructionAccounts {
 
 impl ConfidentialWithdraw {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.is_empty() {
+        if data.len() < 2 {
             return None;
         }
         let discriminator = &data[0..1];
         if discriminator != [27] {
+            return None;
+        }
+        let confidential_transfer_discriminator = data[1];
+        if confidential_transfer_discriminator != 6 {
             return None;
         }
 

@@ -45,11 +45,15 @@ pub struct InitializeMetadataPointerInstructionAccounts {
 
 impl InitializeMetadataPointer {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.is_empty() {
+        if data.len() < 2 {
             return None;
         }
         let discriminator = &data[0..1];
         if discriminator != [39] {
+            return None;
+        }
+        let metadata_pointer_discriminator = data[1];
+        if metadata_pointer_discriminator != 0 {
             return None;
         }
 

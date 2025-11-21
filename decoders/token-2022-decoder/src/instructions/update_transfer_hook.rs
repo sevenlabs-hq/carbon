@@ -42,11 +42,15 @@ pub struct UpdateTransferHookInstructionAccounts {
 
 impl UpdateTransferHook {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.is_empty() {
+        if data.len() < 2 {
             return None;
         }
         let discriminator = &data[0..1];
         if discriminator != [36] {
+            return None;
+        }
+        let transfer_hook_discriminator = data[1];
+        if transfer_hook_discriminator != 1 {
             return None;
         }
 

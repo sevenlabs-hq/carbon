@@ -45,11 +45,15 @@ pub struct InitializeInterestBearingMintInstructionAccounts {
 
 impl InitializeInterestBearingMint {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.is_empty() {
+        if data.len() < 2 {
             return None;
         }
         let discriminator = &data[0..1];
         if discriminator != [33] {
+            return None;
+        }
+        let interest_bearing_mint_discriminator = data[1];
+        if interest_bearing_mint_discriminator != 0 {
             return None;
         }
 

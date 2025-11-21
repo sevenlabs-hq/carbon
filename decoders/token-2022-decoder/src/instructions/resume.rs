@@ -29,11 +29,15 @@ pub struct ResumeInstructionAccounts {
 
 impl Resume {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.is_empty() {
+        if data.len() < 2 {
             return None;
         }
         let discriminator = &data[0..1];
         if discriminator != [44] {
+            return None;
+        }
+        let pausable_discriminator = data[1];
+        if pausable_discriminator != 2 {
             return None;
         }
 
