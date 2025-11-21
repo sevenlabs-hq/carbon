@@ -59,6 +59,7 @@ carbon-lifinity-amm-v2-decoder = { path = "decoders/lifinity-amm-v2-decoder", ve
 
 # metrics
 carbon-log-metrics = { path = "metrics/log-metrics", version = "0.11.0" }
+carbon-dflow-aggregator-v4-decoder = { path = "decoders/dflow-aggregator-v4-decoder", version = "0.11.0" }
 carbon-macros = { path = "crates/macros", version = "0.11.0" }
 carbon-marginfi-v2-decoder = { path = "decoders/marginfi-v2-decoder", version = "0.11.0" }
 carbon-marinade-finance-decoder = { path = "decoders/marinade-finance-decoder", version = "0.11.0" }
@@ -107,7 +108,6 @@ carbon-virtuals-decoder = { path = "decoders/virtuals-decoder", version = "0.11.
 carbon-wavebreak-decoder = { path = "decoders/wavebreak-decoder", version = "0.11.0" }
 carbon-yellowstone-grpc-datasource = { path = "datasources/yellowstone-grpc-datasource", version = "0.11.0" }
 carbon-zeta-decoder = { path = "decoders/zeta-decoder", version = "0.11.0" }
-carbon-dflow-aggregator-v4-decoder = { path = "decoders/dflow-aggregator-v4-decoder", version = "0.11.0"}
 
 # misc
 chrono = { version = "0.4.42", features = ["serde"] }
