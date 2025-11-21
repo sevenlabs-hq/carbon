@@ -35,6 +35,7 @@ carbon-circle-token-messenger-v2-decoder = { path = "decoders/carbon-circle-toke
 
 # main
 carbon-core = { path = "crates/core", version = "0.11.0" }
+carbon-dflow-aggregator-v4-decoder = { path = "decoders/dflow-aggregator-v4-decoder", version = "0.11.0" }
 carbon-drift-v2-decoder = { path = "decoders/drift-v2-decoder", version = "0.11.0" }
 carbon-fluxbeam-decoder = { path = "decoders/fluxbeam-decoder", version = "0.11.0" }
 carbon-gavel-decoder = { path = "decoders/gavel-decoder", version = "0.11.0" }
@@ -59,7 +60,6 @@ carbon-lifinity-amm-v2-decoder = { path = "decoders/lifinity-amm-v2-decoder", ve
 
 # metrics
 carbon-log-metrics = { path = "metrics/log-metrics", version = "0.11.0" }
-carbon-dflow-aggregator-v4-decoder = { path = "decoders/dflow-aggregator-v4-decoder", version = "0.11.0" }
 carbon-macros = { path = "crates/macros", version = "0.11.0" }
 carbon-marginfi-v2-decoder = { path = "decoders/marginfi-v2-decoder", version = "0.11.0" }
 carbon-marinade-finance-decoder = { path = "decoders/marinade-finance-decoder", version = "0.11.0" }
