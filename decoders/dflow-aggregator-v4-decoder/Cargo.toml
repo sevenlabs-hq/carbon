@@ -9,7 +9,6 @@ repository = { workspace = true }
 keywords = ["solana", "decoder", "dflow", "aggregator"]
 categories = ["encoding"]
 
-
 [lib]
 crate-type = ["rlib"]
 
@@ -33,27 +32,18 @@ graphql = [
 ]
 
 [dependencies]
-carbon-core = { workspace = true }
+async-trait = { workspace = true, optional = true }
 borsh = { workspace = true, features = ["derive"] }
-solana-pubkey = { workspace = true }
-solana-account = { workspace = true }
-solana-instruction = { workspace = true, default-features = false }
-serde_json = { workspace = true }
-solana-program-pack = { workspace = true }
-spl-token-2022 = { workspace = true }
-spl-pod = { workspace = true, features = ["borsh"] }
-spl-token-metadata-interface = { workspace = true }
-spl-token-group-interface = { workspace = true }
-spl-type-length-value = { workspace = true }
-
+carbon-core = { workspace = true }
+juniper = { workspace = true, optional = true }
 serde = { workspace = true, optional = true }
 serde-big-array = { workspace = true, optional = true }
-
+serde_json = { workspace = true }
+solana-account = { workspace = true }
+solana-instruction = { workspace = true, default-features = false }
+solana-pubkey = { workspace = true }
 sqlx = { workspace = true, optional = true }
-async-trait = { workspace = true, optional = true }
 sqlx_migrator = { workspace = true, optional = true }
-
-juniper = { workspace = true, optional = true }
 
 [dev-dependencies]
 carbon-test-utils = { workspace = true }
