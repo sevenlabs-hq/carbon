@@ -24,6 +24,6 @@ bincode = { workspace = true }
 carbon-jito-protos = { workspace = true }
 futures = { workspace = true }
 log = { workspace = true }
-scc = "2.3.4"
+scc = "2.4.0"
 tokio = { workspace = true, features = ["full"] }
 tokio-util = { workspace = true }
