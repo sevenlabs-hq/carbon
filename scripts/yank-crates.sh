@@ -74,6 +74,7 @@ workspace_crates=(
     carbon-stabble-stable-swap-decoder
     carbon-stabble-weighted-swap-decoder
     carbon-stake-program-decoder
+    carbon-swig-decoder
     carbon-system-program-decoder
     carbon-token-2022-decoder
     carbon-token-program-decoder
