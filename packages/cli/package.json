@@ -1,6 +1,6 @@
 {
     "name": "@sevenlabs-hq/carbon-cli",
-    "version": "0.3.0",
+    "version": "0.12.0",
     "description": "Generate decoders and scaffold indexers for Solana programs from Anchor or Codama IDL",
     "keywords": [
         "solana",
