@@ -1,6 +1,6 @@
 [package]
 name = "carbon-bonkswap-decoder"
-version = "0.11.0"
+version = "0.12.0"
 edition = "2021"
 
 [lib]
@@ -14,7 +14,7 @@ graphql = ["carbon-core/graphql", "dep:juniper", "serde"]
 
 [dependencies]
 # Core dependencies
-carbon-core = { version = "0.11.0", default-features = false }
+carbon-core = { version = "0.12.0", default-features = false }
 solana-account = { version = "2.2" }
 solana-instruction = { version = "~2.3", default-features = false }
 solana-pubkey = { version = "2.3" }
@@ -31,4 +31,4 @@ sqlx_migrator = { version = "0.17.0", optional = true }
 juniper = { version = "0.16.2", optional = true }
 
 [dev-dependencies]
-carbon-test-utils = { version = "0.11.0" }
+carbon-test-utils = { version = "0.12.0" }
