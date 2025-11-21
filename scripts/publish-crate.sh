@@ -78,6 +78,7 @@ workspace_crates=(
     carbon-virtuals-decoder
     carbon-wavebreak-decoder
     carbon-zeta-decoder
+    carbon-dflow-aggregator-v4-decoder
 )
 
 for crate in "${workspace_crates[@]}"; do
