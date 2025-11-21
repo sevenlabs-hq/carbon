@@ -18,6 +18,7 @@ carbon-core = { workspace = true }
 solana-account = { workspace = true }
 solana-instruction = { workspace = true, default-features = false }
 solana-pubkey = { workspace = true }
+borsh = { workspace = true }
 
 # Serialization (optional)
 serde = { workspace = true, features = ["derive"], optional = true }
