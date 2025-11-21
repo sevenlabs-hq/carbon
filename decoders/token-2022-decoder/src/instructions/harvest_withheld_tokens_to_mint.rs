@@ -31,11 +31,15 @@ pub struct HarvestWithheldTokensToMintInstructionAccounts {
 
 impl HarvestWithheldTokensToMint {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.is_empty() {
+        if data.len() < 2 {
             return None;
         }
         let discriminator = &data[0..1];
         if discriminator != [26] {
+            return None;
+        }
+        let transfer_fee_discriminator = data[1];
+        if transfer_fee_discriminator != 4 {
             return None;
         }
 

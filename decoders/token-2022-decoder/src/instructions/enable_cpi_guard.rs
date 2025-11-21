@@ -33,11 +33,15 @@ pub struct EnableCpiGuardInstructionAccounts {
 
 impl EnableCpiGuard {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.is_empty() {
+        if data.len() < 2 {
             return None;
         }
         let discriminator = &data[0..1];
         if discriminator != [34] {
+            return None;
+        }
+        let cpi_guard_discriminator = data[1];
+        if cpi_guard_discriminator != 0 {
             return None;
         }
 

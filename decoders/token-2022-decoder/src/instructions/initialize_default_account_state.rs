@@ -36,11 +36,15 @@ pub struct InitializeDefaultAccountStateInstructionAccounts {
 
 impl InitializeDefaultAccountState {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.is_empty() {
+        if data.len() < 2 {
             return None;
         }
         let discriminator = &data[0..1];
         if discriminator != [28] {
+            return None;
+        }
+        let default_account_state_discriminator = data[1];
+        if default_account_state_discriminator != 0 {
             return None;
         }
 

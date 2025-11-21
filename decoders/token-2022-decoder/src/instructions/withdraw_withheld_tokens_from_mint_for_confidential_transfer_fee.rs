@@ -42,11 +42,15 @@ pub struct WithdrawWithheldTokensFromMintForConfidentialTransferFeeInstructionAc
 
 impl WithdrawWithheldTokensFromMintForConfidentialTransferFee {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.is_empty() {
+        if data.len() < 2 {
             return None;
         }
         let discriminator = &data[0..1];
         if discriminator != [37] {
+            return None;
+        }
+        let confidential_transfer_fee_discriminator = data[1];
+        if confidential_transfer_fee_discriminator != 1 {
             return None;
         }
 

@@ -28,11 +28,15 @@ pub struct EnableMemoTransfersInstructionAccounts {
 
 impl EnableMemoTransfers {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.is_empty() {
+        if data.len() < 2 {
             return None;
         }
         let discriminator = &data[0..1];
         if discriminator != [30] {
+            return None;
+        }
+        let memo_transfers_discriminator = data[1];
+        if memo_transfers_discriminator != 0 {
             return None;
         }
 
