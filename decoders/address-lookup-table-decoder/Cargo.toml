@@ -13,7 +13,7 @@ crate-type = ["rlib"]
 
 [dependencies]
 bincode = { workspace = true }
-bytemuck = "1.23.0"
+bytemuck = "1.24.0"
 carbon-core = { workspace = true }
 serde = { workspace = true }
 solana-account = { workspace = true }
