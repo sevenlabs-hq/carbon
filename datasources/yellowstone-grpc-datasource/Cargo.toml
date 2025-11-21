@@ -21,6 +21,7 @@ solana-system-interface = { workspace = true }
 carbon-core = { workspace = true }
 
 async-trait = { workspace = true }
+chrono = { workspace = true }
 futures = { workspace = true }
 log = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
