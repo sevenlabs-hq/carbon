@@ -1,6 +1,6 @@
 [package]
 name = "carbon-fetch-ix"
-version = "0.11.0"
+version = "0.12.0"
 edition = { workspace = true }
 description = "Fetch IX for Carbon tests"
 license = { workspace = true }
