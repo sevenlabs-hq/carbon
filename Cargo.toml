@@ -21,7 +21,7 @@ base64 = "0.22.1"
 bigdecimal = "0.4.9"
 bincode = "1.3.3"
 borsh = { version = "1.5.7" }
-borsh-derive-internal-satellite = "0.12.0"
+borsh-derive-internal-satellite = "0.11.0"
 bs58 = { version = "0.5.1", default-features = false }
 
 # decoders
