@@ -33,18 +33,19 @@ const BLOCK_INTERVAL: Duration = Duration::from_millis(100);
 /// It uses a channel to send blocks to the task processor.
 pub struct RpcBlockCrawler {
     pub rpc_url: String,
-    pub start_slot: u64,
+    pub start_slot: Option<u64>,
     pub end_slot: Option<u64>,
     pub block_interval: Duration,
     pub block_config: RpcBlockConfig,
     pub max_concurrent_requests: usize,
     pub channel_buffer_size: usize,
+    pub request_throttle: Option<Duration>,
 }
 
 impl RpcBlockCrawler {
     pub fn new(
         rpc_url: String,
-        start_slot: u64,
+        start_slot: Option<u64>,
         end_slot: Option<u64>,
         block_interval: Option<Duration>,
         block_config: RpcBlockConfig,
@@ -59,6 +60,7 @@ impl RpcBlockCrawler {
             block_interval: block_interval.unwrap_or(BLOCK_INTERVAL),
             max_concurrent_requests: max_concurrent_requests.unwrap_or(MAX_CONCURRENT_REQUESTS),
             channel_buffer_size: channel_buffer_size.unwrap_or(CHANNEL_BUFFER_SIZE),
+            request_throttle: None,
         }
     }
 }
@@ -80,9 +82,21 @@ impl Datasource for RpcBlockCrawler {
         ));
         let (block_sender, block_receiver) = mpsc::channel(self.channel_buffer_size);
 
+        let start_slot = match self.start_slot {
+            Some(start_slot) => start_slot,
+            None => {
+                log::info!("RpcBlockCrawler start_slot not provided; defaulting to latest slot");
+                rpc_client.get_slot().await.map_err(|err| {
+                    carbon_core::error::Error::FailedToConsumeDatasource(format!(
+                        "Failed to determine latest slot: {err}"
+                    ))
+                })?
+            }
+        };
+
         let block_fetcher = block_fetcher(
             rpc_client,
-            self.start_slot,
+            start_slot,
             self.end_slot,
             self.block_interval,
             self.block_config,
@@ -90,6 +104,7 @@ impl Datasource for RpcBlockCrawler {
             self.max_concurrent_requests,
             cancellation_token.clone(),
             metrics.clone(),
+            self.request_throttle,
         );
 
         let task_processor = task_processor(
@@ -126,6 +141,7 @@ fn block_fetcher(
     max_concurrent_requests: usize,
     cancellation_token: CancellationToken,
     metrics: Arc<MetricsCollection>,
+    request_throttle: Option<Duration>,
 ) -> JoinHandle<()> {
     let rpc_client_clone = rpc_client.clone();
     tokio::spawn(async move {
@@ -174,55 +190,73 @@ fn block_fetcher(
                 }
             };
 
+            let retry_delay = block_interval;
             fetch_stream
                 .map(|slot| {
                     let rpc_client = Arc::clone(&rpc_client);
                     let metrics = metrics.clone();
+                    let block_config = block_config.clone();
+                    let request_throttle = request_throttle;
 
                     async move {
-                        let start = Instant::now();
-                        match rpc_client.get_block_with_config(slot, block_config).await {
-                            Ok(block) => {
-                                let time_taken = start.elapsed().as_millis();
-                                metrics
-                                    .record_histogram(
-                                        "block_crawler_blocks_fetch_times_milliseconds",
-                                        time_taken as f64,
-                                    )
-                                    .await
-                                    .unwrap_or_else(|value| {
-                                        log::error!("Error recording metric: {}", value)
-                                    });
-
-                                metrics
-                                    .increment_counter("block_crawler_blocks_fetched", 1)
-                                    .await
-                                    .unwrap_or_else(|value| {
-                                        log::error!("Error recording metric: {}", value)
-                                    });
-
-                                Some((slot, block))
+                        loop {
+                            if let Some(throttle) = request_throttle {
+                                tokio::time::sleep(throttle).await;
                             }
-                            Err(e) => {
-                                // https://support.quicknode.com/hc/en-us/articles/16459608696721-Solana-RPC-Error-Code-Reference
-                                // solana skippable errors
-                                // -32004, // Block not available for slot x
-                                // -32007, // Slot {} was skipped, or missing due to ledger jump to recent snapshot
-                                // -32009, // Slot {} was skipped, or missing in long-term storage
-                                if e.to_string().contains("-32009")
-                                    || e.to_string().contains("-32004")
-                                    || e.to_string().contains("-32007")
-                                {
+                            let start = Instant::now();
+                            match rpc_client
+                                .get_block_with_config(slot, block_config.clone())
+                                .await
+                            {
+                                Ok(block) => {
+                                    let time_taken = start.elapsed().as_millis();
                                     metrics
-                                        .increment_counter("block_crawler_blocks_skipped", 1)
+                                        .record_histogram(
+                                            "block_crawler_blocks_fetch_times_milliseconds",
+                                            time_taken as f64,
+                                        )
                                         .await
                                         .unwrap_or_else(|value| {
                                             log::error!("Error recording metric: {}", value)
                                         });
-                                } else {
-                                    log::error!("Error fetching block at slot {}: {:?}", slot, e);
+
+                                    metrics
+                                        .increment_counter("block_crawler_blocks_fetched", 1)
+                                        .await
+                                        .unwrap_or_else(|value| {
+                                            log::error!("Error recording metric: {}", value)
+                                        });
+
+                                    break Some((slot, block));
                                 }
-                                None
+                                Err(e) => {
+                                    let error_string = e.to_string();
+                                    // https://support.quicknode.com/hc/en-us/articles/16459608696721-Solana-RPC-Error-Code-Reference
+                                    // solana skippable errors
+                                    // -32004, // Block not available for slot x
+                                    // -32007, // Slot {} was skipped, or missing due to ledger jump to recent snapshot
+                                    // -32009, // Slot {} was skipped, or missing in long-term storage
+                                    if error_string.contains("-32009")
+                                        || error_string.contains("-32004")
+                                        || error_string.contains("-32007")
+                                        || error_string.contains("429")
+                                    {
+                                        log::debug!(
+                                            "Block at slot {} not ready yet ({}); retrying...",
+                                            slot,
+                                            error_string
+                                        );
+                                        tokio::time::sleep(retry_delay).await;
+                                        continue;
+                                    } else {
+                                        log::error!(
+                                            "Error fetching block at slot {}: {:?}",
+                                            slot,
+                                            e
+                                        );
+                                        break None;
+                                    }
+                                }
                             }
                         }
                     }
@@ -381,6 +415,7 @@ mod tests {
             1,
             cancellation_token.clone(),
             Arc::new(MetricsCollection::new(vec![])),
+            None,
         );
 
         // Create a task to receive blocks
@@ -462,6 +497,7 @@ mod tests {
             2,
             cancellation_token.clone(),
             Arc::new(MetricsCollection::new(vec![])),
+            None,
         );
 
         // Create a task to receive blocks
