@@ -14,7 +14,7 @@ crate-type = ["rlib"]
 
 [dependencies]
 solana-client = { workspace = true }
-solana-entry = { workspace = true }
+solana-entry = { workspace = true, features = ["agave-unstable-api"] }
 solana-transaction-status = { workspace = true }
 
 carbon-core = { workspace = true }
