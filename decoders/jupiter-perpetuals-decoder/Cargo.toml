@@ -1,6 +1,6 @@
 [package]
 name = "carbon-jupiter-perpetuals-decoder"
-version = "0.11.0"
+version = "0.12.0"
 description = "Jupiter Perpetuals Decoder"
 edition = { workspace = true }
 license = { workspace = true }

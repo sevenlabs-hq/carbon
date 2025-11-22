@@ -1,6 +1,6 @@
 [package]
 name = "carbon-associated-token-account-decoder"
-version = "0.11.0"
+version = "0.12.0"
 description = "Associated Token Account program decoder"
 edition = { workspace = true }
 license = { workspace = true }
