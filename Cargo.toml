@@ -146,28 +146,28 @@ serde_json = "1.0.145"
 sha2 = "0.10.9"
 
 # solana
-solana-account = "3.0.0"
-solana-account-decoder = "^3.0.5"
-solana-account-decoder-client-types = "^3.0.3"
-solana-client = "^3.0.3"
+solana-account = "^3.0.0"
+solana-account-decoder = "^3.0.0"
+solana-account-decoder-client-types = "^3.0.0"
+solana-client = "^3.0.0"
 solana-clock = "^3.0.0"
-solana-commitment-config = "~3.0.0"
-solana-entry = "^3.0.3"
-solana-hash = "^3.0.3"
-solana-instruction = { version = "~3.0.0", default-features = false }
-solana-message = "^3.0.1"
-solana-native-token = "~3.0.0"
-solana-program = { version = "~3.0.0", features = ["borsh"] }
-solana-program-pack = "~3.0.0"
+solana-commitment-config = "^3.0.0"
+solana-entry = "^3.0.0"
+solana-hash = "^3.0.0"
+solana-instruction = { version = "^3.0.0", default-features = false }
+solana-message = "^3.0.0"
+solana-native-token = "^3.0.0"
+solana-program = { version = "^3.0.0", features = ["borsh"] }
+solana-program-pack = "^3.0.0"
 solana-pubkey = { version = "^3.0.0", features = ["serde", "borsh", "curve25519"] }
 solana-reward-info = "^3.0.0"
-solana-signature = { version = "~3.1.0", features = ["rand"] }
-solana-system-interface = "~2.0.0"
-solana-transaction = "^3.0.1"
-solana-transaction-context = "^3.0.3"
+solana-signature = { version = "^3.0.0", features = ["rand"] }
+solana-system-interface = "^2.0.0"
+solana-transaction = "^3.0.0"
+solana-transaction-context = "^3.0.0"
 solana-transaction-error = "^3.0.0"
-solana-transaction-status = "^3.0.3"
-solana-transaction-status-client-types = "^3.0.3"
+solana-transaction-status = "^3.0.0"
+solana-transaction-status-client-types = "^3.0.0"
 
 spl-memo-interface = "2.0.0"
 spl-pod = "0.7.1"
@@ -199,7 +199,3 @@ yellowstone-grpc-client = { git = "https://github.com/rpcpool/yellowstone-grpc",
 yellowstone-grpc-proto = { git = "https://github.com/rpcpool/yellowstone-grpc", rev = "73c43e1112f6b3432a6b2df9bad73438f6c51034", features = [
   "convert",
 ] }
-
-[patch.crates-io.curve25519-dalek]
-git = "https://github.com/anza-xyz/curve25519-dalek.git"
-rev = "b500cdc2a920cd5bff9e2dd974d7b97349d61464"

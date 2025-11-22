@@ -35,18 +35,18 @@ export const VERSIONS: Record<string, CrateDependency> = {
     'carbon-stream-message-datasource': '0.12.0',
     'carbon-yellowstone-grpc-datasource': '0.12.0',
     /// Solana crates
-    'solana-account': '3.0.0',
-    'solana-account-decoder': '^3.0.5',
-    'solana-client': '^3.0.3',
+    'solana-account': '^3.0.0',
+    'solana-account-decoder': '^3.0.0',
+    'solana-client': '^3.0.0',
     'solana-instruction': {
-        version: '~3.0.0',
+        version: '^3.0.0',
         defaultFeatures: false,
     },
     'solana-pubkey': {
         version: '^3.0.0',
         features: ['borsh'],
     },
-    'solana-commitment-config': '~3.0.0',
+    'solana-commitment-config': '^3.0.0',
     'yellowstone-grpc-client': {
         git: 'https://github.com/rpcpool/yellowstone-grpc',
         rev: '73c43e1112f6b3432a6b2df9bad73438f6c51034',
