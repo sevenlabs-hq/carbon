@@ -2,7 +2,7 @@
 
 set -ex
 
-VERSION="0.11.0"
+VERSION="0.12.0"
 
 workspace_crates=(
     carbon-macros
