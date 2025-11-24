@@ -15,7 +15,7 @@ crate-type = ["rlib"]
 [features]
 default = []
 
-serde = ["dep:serde-big-array"]
+serde = []
 
 postgres = [
     "carbon-core/postgres",
@@ -28,7 +28,6 @@ postgres = [
 graphql = [
     "carbon-core/graphql",
     "dep:juniper",
-    "dep:base64",
     "postgres",
     "serde",
 ]
@@ -39,17 +38,14 @@ borsh = { workspace = true, features = ["derive"] }
 solana-pubkey = { workspace = true }
 solana-account = { workspace = true }
 solana-instruction = { workspace = true, default-features = false, features = ["std"] }
-serde_json = { workspace = true }
 
 serde = { workspace = true }
-serde-big-array = { workspace = true, optional = true }
 
 sqlx = { workspace = true, optional = true }
 async-trait = { workspace = true, optional = true }
 sqlx_migrator = { workspace = true, optional = true }
 
 juniper = { workspace = true, optional = true }
-base64 = { workspace = true, optional = true }
 
 [dev-dependencies]
 carbon-test-utils = { workspace = true }
