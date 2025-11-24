@@ -1889,6 +1889,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-swig-decoder"
+version = "0.12.0"
+dependencies = [
+ "async-trait",
+ "base64 0.22.1",
+ "borsh",
+ "carbon-core",
+ "carbon-test-utils",
+ "juniper",
+ "serde",
+ "serde-big-array",
+ "serde_json",
+ "solana-account",
+ "solana-instruction",
+ "solana-pubkey 3.0.0",
+ "sqlx",
+ "sqlx_migrator",
+]
+
+[[package]]
 name = "carbon-system-program-decoder"
 version = "0.12.0"
 dependencies = [
