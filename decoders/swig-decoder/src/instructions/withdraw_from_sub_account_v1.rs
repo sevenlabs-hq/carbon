@@ -24,11 +24,11 @@ pub struct WithdrawFromSubAccountV1InstructionAccounts {
 
 impl WithdrawFromSubAccountV1 {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[7] {
+        if discriminator != [7] {
             return None;
         }
 

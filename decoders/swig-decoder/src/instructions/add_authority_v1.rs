@@ -21,11 +21,11 @@ pub struct AddAuthorityV1InstructionAccounts {
 
 impl AddAuthorityV1 {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[1] {
+        if discriminator != [1] {
             return None;
         }
 

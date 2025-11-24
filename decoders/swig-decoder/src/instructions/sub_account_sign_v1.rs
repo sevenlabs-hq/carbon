@@ -21,11 +21,11 @@ pub struct SubAccountSignV1InstructionAccounts {
 
 impl SubAccountSignV1 {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[9] {
+        if discriminator != [9] {
             return None;
         }
 
