@@ -14,4 +14,3 @@ impl TryFrom<crate::instructions::postgres::migrate_to_wallet_address_v1_row::Mi
         })
     }
 }
-

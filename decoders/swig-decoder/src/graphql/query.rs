@@ -20,7 +20,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_create_v1(
@@ -36,7 +39,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     // Instructions - AddAuthorityV1
@@ -53,7 +59,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_add_authority_v1(
@@ -69,7 +78,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     // Instructions - RemoveAuthorityV1
@@ -86,7 +98,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_remove_authority_v1(
@@ -102,7 +117,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     // Instructions - UpdateAuthorityV1
@@ -119,7 +137,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_update_authority_v1(
@@ -135,7 +156,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     // Instructions - SignV1
@@ -152,7 +176,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_sign_v1(
@@ -168,7 +195,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     // Instructions - SignV2
@@ -185,7 +215,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_sign_v2(
@@ -201,7 +234,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     // Instructions - CreateSessionV1
@@ -218,7 +254,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_create_session_v1(
@@ -234,7 +273,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     // Instructions - CreateSubAccountV1
@@ -251,7 +293,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_create_sub_account_v1(
@@ -267,7 +312,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     // Instructions - WithdrawFromSubAccountV1
@@ -284,7 +332,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_withdraw_from_sub_account_v1(
@@ -300,7 +351,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     // Instructions - SubAccountSignV1
@@ -317,7 +371,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_sub_account_sign_v1(
@@ -333,7 +390,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     // Instructions - ToggleSubAccountV1
@@ -350,7 +410,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_toggle_sub_account_v1(
@@ -366,7 +429,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     // Instructions - MigrateToWalletAddressV1
@@ -383,7 +449,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_migrate_to_wallet_address_v1(
@@ -399,7 +468,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     // Instructions - TransferAssetsV1
@@ -416,7 +488,10 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 
     async fn list_transfer_assets_v1(
@@ -432,7 +507,9 @@ impl QueryRoot {
         .fetch_all(&*context.pool)
         .await
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(rows.into_iter().filter_map(|row| row.try_into().ok()).collect())
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
     }
 }
-

@@ -8,10 +8,11 @@ pub struct SignV1GraphQL {
 
 impl TryFrom<crate::instructions::postgres::sign_v1_row::SignV1Row> for SignV1GraphQL {
     type Error = carbon_core::error::Error;
-    fn try_from(row: crate::instructions::postgres::sign_v1_row::SignV1Row) -> Result<Self, Self::Error> {
+    fn try_from(
+        row: crate::instructions::postgres::sign_v1_row::SignV1Row,
+    ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
         })
     }
 }
-
