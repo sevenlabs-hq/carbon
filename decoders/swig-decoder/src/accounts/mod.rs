@@ -26,7 +26,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for SwigDecoder {
             return None;
         }
         
-        let data = account.data.as_slice();
+        let _data = account.data.as_slice();
         
         
         None

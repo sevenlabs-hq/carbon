@@ -21,11 +21,11 @@ pub struct SignV2InstructionAccounts {
 
 impl SignV2 {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[11] {
+        if discriminator != [11] {
             return None;
         }
 

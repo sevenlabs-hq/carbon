@@ -22,11 +22,11 @@ pub struct CreateSubAccountV1InstructionAccounts {
 
 impl CreateSubAccountV1 {
     pub fn decode(data: &[u8]) -> Option<Self> {
-        if data.len() < 1 {
+        if data.is_empty() {
             return None;
         }
         let discriminator = &data[0..1];
-        if discriminator != &[6] {
+        if discriminator != [6] {
             return None;
         }
 
