@@ -9,22 +9,28 @@ pub struct WithdrawFromSubAccountV1Row {
 }
 
 impl WithdrawFromSubAccountV1Row {
-    pub fn from_parts(_source: crate::instructions::withdraw_from_sub_account_v1::WithdrawFromSubAccountV1, metadata: InstructionMetadata) -> Self {
+    pub fn from_parts(
+        _source: crate::instructions::withdraw_from_sub_account_v1::WithdrawFromSubAccountV1,
+        metadata: InstructionMetadata,
+    ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
         }
     }
 }
 
-impl TryFrom<WithdrawFromSubAccountV1Row> for crate::instructions::withdraw_from_sub_account_v1::WithdrawFromSubAccountV1 {
+impl TryFrom<WithdrawFromSubAccountV1Row>
+    for crate::instructions::withdraw_from_sub_account_v1::WithdrawFromSubAccountV1
+{
     type Error = carbon_core::error::Error;
     fn try_from(_source: WithdrawFromSubAccountV1Row) -> Result<Self, Self::Error> {
-        Ok(Self {
-        })
+        Ok(Self {})
     }
 }
 
-impl carbon_core::postgres::operations::Table for crate::instructions::withdraw_from_sub_account_v1::WithdrawFromSubAccountV1 {
+impl carbon_core::postgres::operations::Table
+    for crate::instructions::withdraw_from_sub_account_v1::WithdrawFromSubAccountV1
+{
     fn table() -> &'static str {
         "withdraw_from_sub_account_v1_instruction"
     }
@@ -42,17 +48,20 @@ impl carbon_core::postgres::operations::Table for crate::instructions::withdraw_
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for WithdrawFromSubAccountV1Row {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"
+        sqlx::query(
+            r#"
             INSERT INTO withdraw_from_sub_account_v1_instruction (
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4
-            )"#)
+            )"#,
+        )
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -61,7 +70,8 @@ impl carbon_core::postgres::operations::Insert for WithdrawFromSubAccountV1Row {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for WithdrawFromSubAccountV1Row {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO withdraw_from_sub_account_v1_instruction (
+        sqlx::query(
+            r#"INSERT INTO withdraw_from_sub_account_v1_instruction (
                 __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
                 $1, $2, $3, $4
@@ -71,12 +81,14 @@ impl carbon_core::postgres::operations::Upsert for WithdrawFromSubAccountV1Row {
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot
-            "#)
+            "#,
+        )
         .bind(self.instruction_metadata.signature.clone())
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
         .bind(self.instruction_metadata.slot.clone())
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -84,16 +96,23 @@ impl carbon_core::postgres::operations::Upsert for WithdrawFromSubAccountV1Row {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for WithdrawFromSubAccountV1Row {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(r#"DELETE FROM withdraw_from_sub_account_v1_instruction WHERE
+        sqlx::query(
+            r#"DELETE FROM withdraw_from_sub_account_v1_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool).await
+        .execute(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -101,16 +120,26 @@ impl carbon_core::postgres::operations::Delete for WithdrawFromSubAccountV1Row {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for WithdrawFromSubAccountV1Row {
-    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
+    type Key = (
+        String,
+        carbon_core::postgres::primitives::U32,
+        carbon_core::postgres::primitives::U32,
+    );
 
-    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(r#"SELECT * FROM withdraw_from_sub_account_v1_instruction WHERE
+    async fn lookup(
+        key: Self::Key,
+        pool: &sqlx::PgPool,
+    ) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(
+            r#"SELECT * FROM withdraw_from_sub_account_v1_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#)
+            "#,
+        )
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool).await
+        .fetch_optional(pool)
+        .await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -120,8 +149,12 @@ pub struct WithdrawFromSubAccountV1MigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawFromSubAccountV1MigrationOperation {
-    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"CREATE TABLE IF NOT EXISTS withdraw_from_sub_account_v1_instruction (
+    async fn up(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(
+            r#"CREATE TABLE IF NOT EXISTS withdraw_from_sub_account_v1_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -129,12 +162,20 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawFromSubAccountV1Migrat
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#).execute(connection).await?;
+            )"#,
+        )
+        .execute(connection)
+        .await?;
         Ok(())
     }
 
-    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_from_sub_account_v1_instruction"#).execute(connection).await?;
+    async fn down(
+        &self,
+        connection: &mut sqlx::PgConnection,
+    ) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS withdraw_from_sub_account_v1_instruction"#)
+            .execute(connection)
+            .await?;
         Ok(())
     }
 }

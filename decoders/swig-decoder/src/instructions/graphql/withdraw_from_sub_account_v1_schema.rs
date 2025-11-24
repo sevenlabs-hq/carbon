@@ -14,4 +14,3 @@ impl TryFrom<crate::instructions::postgres::withdraw_from_sub_account_v1_row::Wi
         })
     }
 }
-

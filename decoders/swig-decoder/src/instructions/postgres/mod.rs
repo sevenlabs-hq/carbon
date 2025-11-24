@@ -63,10 +63,23 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for SwigInstructionsMigration {
     }
 }
 
-pub struct SwigInstructionWithMetadata(pub SwigInstruction, pub carbon_core::instruction::InstructionMetadata);
+pub struct SwigInstructionWithMetadata(
+    pub SwigInstruction,
+    pub carbon_core::instruction::InstructionMetadata,
+);
 
-impl From<(SwigInstruction, carbon_core::instruction::InstructionMetadata)> for SwigInstructionWithMetadata {
-    fn from(value: (SwigInstruction, carbon_core::instruction::InstructionMetadata)) -> Self {
+impl
+    From<(
+        SwigInstruction,
+        carbon_core::instruction::InstructionMetadata,
+    )> for SwigInstructionWithMetadata
+{
+    fn from(
+        value: (
+            SwigInstruction,
+            carbon_core::instruction::InstructionMetadata,
+        ),
+    ) -> Self {
         SwigInstructionWithMetadata(value.0, value.1)
     }
 }
@@ -77,22 +90,32 @@ impl carbon_core::postgres::operations::Insert for SwigInstructionWithMetadata {
         let SwigInstructionWithMetadata(instruction, metadata) = self;
         match instruction {
             SwigInstruction::CreateV1(instruction) => {
-                let row = create_v1_row::CreateV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    create_v1_row::CreateV1Row::from_parts(instruction.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
             SwigInstruction::AddAuthorityV1(instruction) => {
-                let row = add_authority_v1_row::AddAuthorityV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = add_authority_v1_row::AddAuthorityV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             SwigInstruction::RemoveAuthorityV1(instruction) => {
-                let row = remove_authority_v1_row::RemoveAuthorityV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = remove_authority_v1_row::RemoveAuthorityV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             SwigInstruction::UpdateAuthorityV1(instruction) => {
-                let row = update_authority_v1_row::UpdateAuthorityV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = update_authority_v1_row::UpdateAuthorityV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -107,37 +130,58 @@ impl carbon_core::postgres::operations::Insert for SwigInstructionWithMetadata {
                 Ok(())
             }
             SwigInstruction::CreateSessionV1(instruction) => {
-                let row = create_session_v1_row::CreateSessionV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = create_session_v1_row::CreateSessionV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             SwigInstruction::CreateSubAccountV1(instruction) => {
-                let row = create_sub_account_v1_row::CreateSubAccountV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = create_sub_account_v1_row::CreateSubAccountV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             SwigInstruction::WithdrawFromSubAccountV1(instruction) => {
-                let row = withdraw_from_sub_account_v1_row::WithdrawFromSubAccountV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = withdraw_from_sub_account_v1_row::WithdrawFromSubAccountV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             SwigInstruction::SubAccountSignV1(instruction) => {
-                let row = sub_account_sign_v1_row::SubAccountSignV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = sub_account_sign_v1_row::SubAccountSignV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             SwigInstruction::ToggleSubAccountV1(instruction) => {
-                let row = toggle_sub_account_v1_row::ToggleSubAccountV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = toggle_sub_account_v1_row::ToggleSubAccountV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             SwigInstruction::MigrateToWalletAddressV1(instruction) => {
-                let row = migrate_to_wallet_address_v1_row::MigrateToWalletAddressV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = migrate_to_wallet_address_v1_row::MigrateToWalletAddressV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
             SwigInstruction::TransferAssetsV1(instruction) => {
-                let row = transfer_assets_v1_row::TransferAssetsV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = transfer_assets_v1_row::TransferAssetsV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -151,22 +195,32 @@ impl carbon_core::postgres::operations::Upsert for SwigInstructionWithMetadata {
         let SwigInstructionWithMetadata(instruction, metadata) = self;
         match instruction {
             SwigInstruction::CreateV1(instruction) => {
-                let row = create_v1_row::CreateV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row =
+                    create_v1_row::CreateV1Row::from_parts(instruction.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
             SwigInstruction::AddAuthorityV1(instruction) => {
-                let row = add_authority_v1_row::AddAuthorityV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = add_authority_v1_row::AddAuthorityV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             SwigInstruction::RemoveAuthorityV1(instruction) => {
-                let row = remove_authority_v1_row::RemoveAuthorityV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = remove_authority_v1_row::RemoveAuthorityV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             SwigInstruction::UpdateAuthorityV1(instruction) => {
-                let row = update_authority_v1_row::UpdateAuthorityV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = update_authority_v1_row::UpdateAuthorityV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -181,37 +235,58 @@ impl carbon_core::postgres::operations::Upsert for SwigInstructionWithMetadata {
                 Ok(())
             }
             SwigInstruction::CreateSessionV1(instruction) => {
-                let row = create_session_v1_row::CreateSessionV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = create_session_v1_row::CreateSessionV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             SwigInstruction::CreateSubAccountV1(instruction) => {
-                let row = create_sub_account_v1_row::CreateSubAccountV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = create_sub_account_v1_row::CreateSubAccountV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             SwigInstruction::WithdrawFromSubAccountV1(instruction) => {
-                let row = withdraw_from_sub_account_v1_row::WithdrawFromSubAccountV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = withdraw_from_sub_account_v1_row::WithdrawFromSubAccountV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             SwigInstruction::SubAccountSignV1(instruction) => {
-                let row = sub_account_sign_v1_row::SubAccountSignV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = sub_account_sign_v1_row::SubAccountSignV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             SwigInstruction::ToggleSubAccountV1(instruction) => {
-                let row = toggle_sub_account_v1_row::ToggleSubAccountV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = toggle_sub_account_v1_row::ToggleSubAccountV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             SwigInstruction::MigrateToWalletAddressV1(instruction) => {
-                let row = migrate_to_wallet_address_v1_row::MigrateToWalletAddressV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = migrate_to_wallet_address_v1_row::MigrateToWalletAddressV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
             SwigInstruction::TransferAssetsV1(instruction) => {
-                let row = transfer_assets_v1_row::TransferAssetsV1Row::from_parts(instruction.clone(), metadata.clone());
+                let row = transfer_assets_v1_row::TransferAssetsV1Row::from_parts(
+                    instruction.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
