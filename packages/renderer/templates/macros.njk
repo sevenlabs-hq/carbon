@@ -14,10 +14,10 @@
 {% if name in rustKeywords %}r#{{ name }}{% else %}{{ name }}{% endif %}
 {% endmacro %}
 
-{# Core derives for decoder types (accounts, instructions, events) - uses CarbonDeserialize #}
+{# Core derives for decoder types (accounts, instructions, events) - uses BorshDeserialize #}
 {% macro coreDecoderDerives() -%}
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
+#[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 {%- endmacro %}
 
 {# Core derives for types - uses BorshDeserialize instead of CarbonDeserialize #}
