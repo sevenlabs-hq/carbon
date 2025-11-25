@@ -487,6 +487,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         });
                         // Ensure GraphQL derive is imported consistently via ImportMap
                         graphqlImports.add('juniper::GraphQLObject');
+                        graphqlImports.add('serde_json');
 
                         // GraphQLObject doesn't support empty structs
                         if (graphqlFields.length > 0) {
@@ -642,7 +643,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 options.postgresMode === 'generic'
                                     ? 'eventInstructionGraphqlSchemaPageGeneric.njk'
                                     : 'eventInstructionGraphqlSchemaPage.njk';
-                            const cpiEventSchemaImports = new ImportMap().add('juniper::GraphQLObject');
+                            const cpiEventSchemaImports = new ImportMap()
+                                .add('juniper::GraphQLObject')
+                                .add('serde_json');
                             map.add(
                                 'src/instructions/graphql/cpi_event_schema.rs',
                                 render(cpiEventSchemaTemplate, { ...ctx, imports: cpiEventSchemaImports.toString() }),
