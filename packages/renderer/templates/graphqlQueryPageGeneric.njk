@@ -130,6 +130,10 @@ impl QueryRoot {
                 if let Ok(graphql) = instruction.try_into() {
                     let mut graphql: crate::instructions::graphql::{{ instruction.name | pascalCase }}GraphQL = graphql;
                     graphql.instruction_metadata = metadata;
+                    graphql.accounts = carbon_core::graphql::primitives::Json(
+                        serde_json::to_value(&r.accounts.0)
+                            .unwrap_or(serde_json::Value::Array(vec![]))
+                    );
                     Some(graphql)
                 } else {
                     None
@@ -171,6 +175,10 @@ impl QueryRoot {
                 if let Ok(graphql) = instruction.try_into() {
                     let mut graphql: crate::instructions::graphql::{{ instruction.name | pascalCase }}GraphQL = graphql;
                     graphql.instruction_metadata = metadata;
+                    graphql.accounts = carbon_core::graphql::primitives::Json(
+                        serde_json::to_value(&r.accounts.0)
+                            .unwrap_or(serde_json::Value::Array(vec![]))
+                    );
                     Some(graphql)
                 } else {
                     None
@@ -218,6 +226,10 @@ impl QueryRoot {
                 if let Ok(graphql) = instruction.try_into() {
                     let mut graphql: crate::instructions::graphql::CpiEventGraphQL = graphql;
                     graphql.instruction_metadata = metadata;
+                    graphql.accounts = carbon_core::graphql::primitives::Json(
+                        serde_json::to_value(&r.accounts.0)
+                            .unwrap_or(serde_json::Value::Array(vec![]))
+                    );
                     Some(graphql)
                 } else {
                     None
@@ -258,6 +270,10 @@ impl QueryRoot {
                 if let Ok(graphql) = instruction.try_into() {
                     let mut graphql: crate::instructions::graphql::CpiEventGraphQL = graphql;
                     graphql.instruction_metadata = metadata;
+                    graphql.accounts = carbon_core::graphql::primitives::Json(
+                        serde_json::to_value(&r.accounts.0)
+                            .unwrap_or(serde_json::Value::Array(vec![]))
+                    );
                     Some(graphql)
                 } else {
                     None
