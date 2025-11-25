@@ -1,0 +1,51 @@
+[package]
+name = "carbon-swig-decoder"
+version = "0.12.0"
+description = "Swig Decoder"
+license = { workspace = true }
+edition = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "decoder", "swig"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[features]
+default = []
+
+serde = []
+
+postgres = [
+    "carbon-core/postgres",
+    "dep:sqlx",
+    "dep:async-trait",
+    "dep:sqlx_migrator",
+    "serde",
+]
+
+graphql = [
+    "carbon-core/graphql",
+    "dep:juniper",
+    "postgres",
+    "serde",
+]
+
+[dependencies]
+carbon-core = { workspace = true, features = ["macros"], default-features = false }
+borsh = { workspace = true, features = ["derive"] }
+solana-pubkey = { workspace = true }
+solana-account = { workspace = true }
+solana-instruction = { workspace = true, default-features = false, features = ["std"] }
+
+serde = { workspace = true }
+
+sqlx = { workspace = true, optional = true }
+async-trait = { workspace = true, optional = true }
+sqlx_migrator = { workspace = true, optional = true }
+
+juniper = { workspace = true, optional = true }
+
+[dev-dependencies]
+carbon-test-utils = { workspace = true }
