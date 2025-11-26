@@ -1,3 +1,4 @@
+use solana_instruction::AccountMeta;
 use std::sync::Arc;
 
 use crate::{
@@ -140,7 +141,7 @@ impl<T, W> PostgresInstructionProcessor<T, W> {
 impl<T, W> crate::processor::Processor for PostgresInstructionProcessor<T, W>
 where
     T: Clone + Send + Sync + 'static,
-    W: From<(T, InstructionMetadata)> + Upsert + Send + 'static,
+    W: From<(T, InstructionMetadata, Vec<AccountMeta>)> + Upsert + Send + 'static,
 {
     type InputType = InstructionProcessorInputType<T>;
 
@@ -153,7 +154,11 @@ where
 
         let start = std::time::Instant::now();
 
-        let wrapper = W::from((decoded_instruction.data, metadata));
+        let wrapper = W::from((
+            decoded_instruction.data,
+            metadata,
+            decoded_instruction.accounts,
+        ));
 
         match wrapper.upsert(&self.pool).await {
             Ok(()) => {
