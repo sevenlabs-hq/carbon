@@ -16,6 +16,9 @@ pub struct {{ entityName | pascalCase }}GraphQL {
 {% for field in graphqlFields %}
     pub {{ field.fieldName }}: {{ field.rustType }},
 {% endfor %}
+{% if not isAccount %}
+    pub accounts: carbon_core::graphql::primitives::Json,
+{% endif %}
 }
 
 impl TryFrom<{% if isAccount %}crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% else %}crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% endif %}> for {{ entityName | pascalCase }}GraphQL {
@@ -26,6 +29,9 @@ impl TryFrom<{% if isAccount %}crate::accounts::{{ macros.escapeRustKeyword(enti
 {% for field in graphqlFields %}
             {{ field.fieldName }}: {{ field.fromOriginalExpr }},
 {% endfor %}
+{% if not isAccount %}
+            accounts: carbon_core::graphql::primitives::Json(serde_json::Value::Array(vec![])),
+{% endif %}
         })
     }
 }

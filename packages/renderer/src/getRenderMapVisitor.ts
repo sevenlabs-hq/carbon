@@ -113,11 +113,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     }
 
                     const typeManifest = visit(newNode.data, typeManifestVisitor);
-                    const imports = new ImportMap()
-                        .mergeWithManifest(typeManifest)
-                        .add('carbon_core::borsh')
-                        .add('carbon_core::CarbonDeserialize')
-                        .add('carbon_core::deserialize::CarbonDeserialize');
+                    const imports = new ImportMap().mergeWithManifest(typeManifest);
 
                     const discriminatorManifest =
                         discriminators.length > 0 ? getDiscriminatorManifest(discriminators) : undefined;
@@ -191,10 +187,6 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 visitDefinedType(node) {
                     const typeManifest = visit(node.type, typeManifestVisitor);
                     const imports = new ImportMap().mergeWithManifest(typeManifest);
-                    // Only import borsh if the type is a struct or enum, to have clippy not complain
-                    if (node.type.kind === 'structTypeNode' || node.type.kind === 'enumTypeNode') {
-                        imports.add('carbon_core::borsh');
-                    }
 
                     // Check if this is a type alias that resolves to a large fixed-size array
                     // If so, we need to use a newtype wrapper instead of a type alias to allow BigArray attribute
@@ -254,9 +246,6 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     );
 
                     for (let event of options.anchorEvents ?? []) {
-                        imports.add('carbon_core::CarbonDeserialize');
-                        imports.add('carbon_core::deserialize::CarbonDeserialize');
-
                         if (camelCase(event.name) == node.name) {
                             let discriminatorManifest: DiscriminatorManifest = {
                                 bytes: `[${event.discriminator.join(', ')}]`,
@@ -354,11 +343,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 },
 
                 visitInstruction(node) {
-                    const imports = new ImportMap()
-                        .add('carbon_core::borsh')
-                        .add('carbon_core::CarbonDeserialize')
-                        .add('carbon_core::deserialize::CarbonDeserialize')
-                        .add('carbon_core::deserialize::ArrangeAccounts');
+                    const imports = new ImportMap().add('carbon_core::deserialize::ArrangeAccounts');
 
                     if (node.accounts && node.accounts.length > 0) {
                         imports.add('carbon_core::account_utils::next_account');
@@ -502,6 +487,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         });
                         // Ensure GraphQL derive is imported consistently via ImportMap
                         graphqlImports.add('juniper::GraphQLObject');
+                        graphqlImports.add('serde_json');
 
                         // GraphQLObject doesn't support empty structs
                         if (graphqlFields.length > 0) {
@@ -657,7 +643,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 options.postgresMode === 'generic'
                                     ? 'eventInstructionGraphqlSchemaPageGeneric.njk'
                                     : 'eventInstructionGraphqlSchemaPage.njk';
-                            const cpiEventSchemaImports = new ImportMap().add('juniper::GraphQLObject');
+                            const cpiEventSchemaImports = new ImportMap()
+                                .add('juniper::GraphQLObject')
+                                .add('serde_json');
                             map.add(
                                 'src/instructions/graphql/cpi_event_schema.rs',
                                 render(cpiEventSchemaTemplate, { ...ctx, imports: cpiEventSchemaImports.toString() }),
