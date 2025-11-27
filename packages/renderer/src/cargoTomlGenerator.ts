@@ -83,7 +83,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         '[package]',
         `name = "${decoderPackageName}"`,
         'version = "0.1.0"',
-        'edition = "2024"',
+        'edition = "2021"',
         '',
         ...(standalone ? ['[workspace]', ''] : []),
         '[lib]',
