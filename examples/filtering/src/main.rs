@@ -188,19 +188,19 @@ impl Processor for KaminoLendingRealtimeAccountProcessor {
             pubkey_str,
             max_total_chars(
                 &match account.data {
-                    KaminoLendingAccount::UserState(user_state) => format!("{:?}", user_state),
+                    KaminoLendingAccount::UserState(user_state) => format!("{user_state:?}"),
                     KaminoLendingAccount::LendingMarket(lending_market) =>
-                        format!("{:?}", lending_market),
-                    KaminoLendingAccount::Obligation(obligation) => format!("{:?}", obligation),
+                        format!("{lending_market:?}"),
+                    KaminoLendingAccount::Obligation(obligation) => format!("{obligation:?}"),
                     KaminoLendingAccount::ReferrerState(referrer_state) =>
-                        format!("{:?}", referrer_state),
+                        format!("{referrer_state:?}"),
                     KaminoLendingAccount::ReferrerTokenState(referrer_token_state) => {
-                        format!("{:?}", referrer_token_state)
+                        format!("{referrer_token_state:?}")
                     }
-                    KaminoLendingAccount::ShortUrl(short_url) => format!("{:?}", short_url),
+                    KaminoLendingAccount::ShortUrl(short_url) => format!("{short_url:?}"),
                     KaminoLendingAccount::UserMetadata(user_metadata) =>
-                        format!("{:?}", user_metadata),
-                    KaminoLendingAccount::Reserve(reserve) => format!("{:?}", reserve),
+                        format!("{user_metadata:?}"),
+                    KaminoLendingAccount::Reserve(reserve) => format!("{reserve:?}"),
                 },
                 100
             )
@@ -249,19 +249,19 @@ impl Processor for KaminoLendingStartupAccountProcessor {
             pubkey_str,
             max_total_chars(
                 &match account.data {
-                    KaminoLendingAccount::UserState(user_state) => format!("{:?}", user_state),
+                    KaminoLendingAccount::UserState(user_state) => format!("{user_state:?}"),
                     KaminoLendingAccount::LendingMarket(lending_market) =>
-                        format!("{:?}", lending_market),
-                    KaminoLendingAccount::Obligation(obligation) => format!("{:?}", obligation),
+                        format!("{lending_market:?}"),
+                    KaminoLendingAccount::Obligation(obligation) => format!("{obligation:?}"),
                     KaminoLendingAccount::ReferrerState(referrer_state) =>
-                        format!("{:?}", referrer_state),
+                        format!("{referrer_state:?}"),
                     KaminoLendingAccount::ReferrerTokenState(referrer_token_state) => {
-                        format!("{:?}", referrer_token_state)
+                        format!("{referrer_token_state:?}")
                     }
-                    KaminoLendingAccount::ShortUrl(short_url) => format!("{:?}", short_url),
+                    KaminoLendingAccount::ShortUrl(short_url) => format!("{short_url:?}"),
                     KaminoLendingAccount::UserMetadata(user_metadata) =>
-                        format!("{:?}", user_metadata),
-                    KaminoLendingAccount::Reserve(reserve) => format!("{:?}", reserve),
+                        format!("{user_metadata:?}"),
+                    KaminoLendingAccount::Reserve(reserve) => format!("{reserve:?}"),
                 },
                 100
             )
@@ -347,7 +347,7 @@ impl Datasource for GpaRpcDatasource {
                     }),
                     id_for_loop.clone(),
                 )) {
-                    log::error!("Failed to send account update: {:?}", e);
+                    log::error!("Failed to send account update: {e:?}");
                 }
                 metrics
                     .increment_counter("gpa_rpc_datasource_account_ingested", 1)

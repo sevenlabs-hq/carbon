@@ -100,7 +100,7 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
     type Error = crate::error::Error;
 
     fn try_from(value: crate::datasource::TransactionUpdate) -> Result<Self, Self::Error> {
-        log::trace!("try_from(transaction_update: {:?})", value);
+        log::trace!("try_from(transaction_update: {value:?})");
         let accounts = value.transaction.message.static_account_keys();
 
         Ok(TransactionMetadata {
@@ -241,7 +241,7 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
 pub fn parse_instructions<T: InstructionDecoderCollection>(
     nested_ixs: &[NestedInstruction],
 ) -> Vec<ParsedInstruction<T>> {
-    log::trace!("parse_instructions(nested_ixs: {:?})", nested_ixs);
+    log::trace!("parse_instructions(nested_ixs: {nested_ixs:?})");
 
     let mut parsed_instructions: Vec<ParsedInstruction<T>> = Vec::new();
 
@@ -296,10 +296,7 @@ where
         instructions: &[NestedInstruction],
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        log::trace!(
-            "TransactionPipe::run(instructions: {:?}, metrics)",
-            instructions,
-        );
+        log::trace!("TransactionPipe::run(instructions: {instructions:?}, metrics)",);
 
         let parsed_instructions = parse_instructions(instructions);
 

@@ -7,7 +7,6 @@ use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 
 /// Executes a token swap with a slippage fee. Outputs to the specified destination account.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct Swap2WithDestination {
