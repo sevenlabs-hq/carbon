@@ -55,8 +55,7 @@ impl BlockDetailsPipes for BlockDetailsPipe {
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         log::trace!(
-            "Block details::run(block_details: {:?}, metrics)",
-            block_details,
+            "Block details::run(block_details: {block_details:?}, metrics)",
         );
 
         self.processor.process(block_details, metrics).await?;

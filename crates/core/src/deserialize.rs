@@ -81,9 +81,7 @@ where
 ///   structures, such as those commonly found in Solana transactions.
 pub fn extract_discriminator(length: usize, data: &[u8]) -> Option<(&[u8], &[u8])> {
     log::trace!(
-        "extract_discriminator(length: {:?}, data: {:?})",
-        length,
-        data
+        "extract_discriminator(length: {length:?}, data: {data:?})"
     );
 
     if data.len() < length {

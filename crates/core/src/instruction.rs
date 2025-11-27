@@ -293,8 +293,7 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         log::trace!(
-            "InstructionPipe::run(nested_instruction: {:?}, metrics)",
-            nested_instruction,
+            "InstructionPipe::run(nested_instruction: {nested_instruction:?}, metrics)",
         );
 
         if let Some(decoded_instruction) = self
@@ -410,7 +409,7 @@ impl IntoIterator for NestedInstructions {
 /// stack depth.
 impl From<InstructionsWithMetadata> for NestedInstructions {
     fn from(instructions: InstructionsWithMetadata) -> Self {
-        log::trace!("from(instructions: {:?})", instructions);
+        log::trace!("from(instructions: {instructions:?})");
 
         // To avoid reallocations that result in dangling pointers.
         // Therefore the number of "push"s must be calculated to set the capacity

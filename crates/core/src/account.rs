@@ -190,8 +190,7 @@ impl<T: Send> AccountPipes for AccountPipe<T> {
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         log::trace!(
-            "AccountPipe::run(account_with_metadata: {:?}, metrics)",
-            account_with_metadata,
+            "AccountPipe::run(account_with_metadata: {account_with_metadata:?}, metrics)",
         );
 
         if let Some(decoded_account) = self.decoder.decode_account(&account_with_metadata.1) {
