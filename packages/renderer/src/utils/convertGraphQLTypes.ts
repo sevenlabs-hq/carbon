@@ -232,7 +232,15 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
         return buildConversionFromOriginal(typeNode.type, fieldAccess);
     }
 
+    if (isNode(typeNode, 'booleanTypeNode')) {
+        return fieldAccess;
+    }
+
     if (isNode(typeNode, 'definedTypeLinkNode')) {
+        const typeName = typeNode.name.toLowerCase();
+        if (isBooleanTypeAlias(typeName)) {
+            return fieldAccess;
+        }
         return `${fieldAccess}.into()`;
     }
 
