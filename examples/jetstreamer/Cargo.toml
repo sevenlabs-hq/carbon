@@ -10,12 +10,6 @@ carbon-jetstreamer-datasource = { workspace = true }
 carbon-token-2022-decoder = { workspace = true }
 
 async-trait = { workspace = true }
-dotenv = { workspace = true }
 env_logger = { workspace = true }
 log = { workspace = true }
-solana-account = { workspace = true }
-solana-client = { workspace = true }
-solana-instruction = { workspace = true }
-solana-pubkey = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
-tokio-util = { workspace = true }
