@@ -1,0 +1,23 @@
+[package]
+name = "carbon-jetstreamer-datasource"
+description = "Carbon Jetstreamer Datasource"
+license = { workspace = true }
+version = "0.12.0"
+edition = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "indexer", "jetstreamer", "datasource"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+carbon-core = { workspace = true }
+async-trait = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { workspace = true }
+futures-util = { workspace = true }
+solana-pubkey = { workspace = true }
+solana-transaction-status-client-types = { workspace = true }
+jetstreamer-firehose = "0.2.0"

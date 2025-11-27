@@ -128,7 +128,7 @@ export function generateIndexerCargoToml(opts: ScaffoldOptions): string {
         '[package]',
         `name = "${opts.name}-indexer"`,
         'version = "0.0.1"',
-        'edition = "2021"',
+        'edition = "2024"',
         '',
         '[dependencies]',
         ...dependencies,
