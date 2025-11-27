@@ -26,7 +26,7 @@ impl CpiEvent {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[228, 69, 165, 46, 81, 203, 154, 29] {
+        if discriminator != [228, 69, 165, 46, 81, 203, 154, 29] {
             return None;
         }
 

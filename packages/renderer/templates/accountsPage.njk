@@ -4,8 +4,8 @@
 {% block main %}
 {{ imports }}
 
-{% if account.docs and account.docs.length > 0 %}
-{{ macros.docblock(account.docs) }}
+{% if account.formattedDocs %}
+{{ account.formattedDocs }}
 {% endif %}
 {{ macros.coreDecoderDerives() }}
 pub struct {{ account.name | pascalCase }} {{ typeManifest.type }}

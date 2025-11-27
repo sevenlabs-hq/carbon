@@ -3,7 +3,9 @@
 
 {% block main %}
 {{ imports }}
+{%- if definedType.docs and definedType.docs.length > 0 %}
 {{ macros.docblock(definedType.docs) }}
+{%- endif %}
 {% if definedType.type.kind === 'enumTypeNode' %}
 {{ macros.coreTypeDerives() }}
 pub enum {{ definedType.name | pascalCase }} {{ typeManifest.type }}

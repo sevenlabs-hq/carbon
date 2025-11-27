@@ -11,6 +11,7 @@ import { extendVisitor, mergeVisitor, pipe, visit } from '@codama/visitors-core'
 
 import { ImportMap } from './ImportMap';
 import { getDiscriminatorBytes } from './utils';
+import { formatDocComments } from './utils/render';
 
 export type TypeManifest = {
     imports: ImportMap;
@@ -179,14 +180,10 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                             }
 
                             const docs = node.docs || [];
+                            // Use formatDocComments to properly handle list item indentation
                             const docComments =
                                 docs.length > 0
-                                    ? docs
-                                          .map(doc => {
-                                              const lines = doc.split('\n');
-                                              return lines.map(line => `    /// ${line}`).join('\n');
-                                          })
-                                          .join('\n') + '\n'
+                                    ? formatDocComments(docs, '    ') + '\n'
                                     : '';
 
                             return {
@@ -341,14 +338,10 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                     }
 
                     const docs = node.docs || [];
+                    // Use formatDocComments to properly handle list item indentation
                     const docComments =
                         docs.length > 0
-                            ? docs
-                                  .map(doc => {
-                                      const lines = doc.split('\n');
-                                      return lines.map(line => `    /// ${line}`).join('\n');
-                                  })
-                                  .join('\n') + '\n'
+                            ? formatDocComments(docs, '    ') + '\n'
                             : '';
 
                     return {
@@ -421,11 +414,16 @@ export function getDiscriminatorManifest(
         case 'constantDiscriminatorNode': {
             const bytes = getDiscriminatorBytes(discriminator.constant);
             const size = bytes.length;
-            const checkCode = `        if data.len() < ${discriminator.offset + size} {
+            const requiredSize = discriminator.offset + size;
+            // Use is_empty() when checking for size 1, otherwise use len() < size
+            const lengthCheck = requiredSize === 1 
+                ? 'data.is_empty()' 
+                : `data.len() < ${requiredSize}`;
+            const checkCode = `        if ${lengthCheck} {
             return None;
         }
         let discriminator = &data[${discriminator.offset}..${discriminator.offset + size}];
-        if discriminator != &[${bytes.join(', ')}] {
+        if discriminator != [${bytes.join(', ')}] {
             return None;
         }`;
             return { bytes: `[${bytes.join(', ')}]`, size, checkCode };
