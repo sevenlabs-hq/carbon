@@ -196,7 +196,5 @@ tonic = { version = "0.13.1", features = ["tls-native-roots", "tls-webpki-roots"
 tonic-build = "0.13.1"
 unicode-xid = "0.2"
 uuid = { version = "1.18.1", features = ["serde", "v7"] }
-yellowstone-grpc-client = { git = "https://github.com/rpcpool/yellowstone-grpc", rev = "73c43e1112f6b3432a6b2df9bad73438f6c51034" }
-yellowstone-grpc-proto = { git = "https://github.com/rpcpool/yellowstone-grpc", rev = "73c43e1112f6b3432a6b2df9bad73438f6c51034", features = [
-  "convert",
-] }
+yellowstone-grpc-client = { version = "10.0.0" }
+yellowstone-grpc-proto = { version = "10.0.0", features = ["convert"] }
