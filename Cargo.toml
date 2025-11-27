@@ -5,7 +5,7 @@ resolver = "2"
 [workspace.package]
 rust-version = "1.82"
 version = "0.12.0"
-edition = "2021"
+edition = "2024"
 license = "MIT"
 repository = "https://github.com/sevenlabs-hq/carbon"
 
@@ -45,6 +45,7 @@ carbon-helius-atlas-ws-datasource = { path = "datasources/helius-atlas-ws-dataso
 carbon-helius-laserstream-datasource = { path = "datasources/helius-laserstream-datasource", version = "0.12.0" }
 
 # vendor
+carbon-jetstreamer-datasource = { path = "datasources/jetstreamer-datasource", version = "0.12.0" }
 carbon-jito-protos = { path = "misc/jito-protos", version = "0.2.4" }
 carbon-jito-shredstream-grpc-datasource = { path = "datasources/jito-shredstream-grpc-datasource", version = "0.12.0" }
 carbon-jupiter-dca-decoder = { path = "decoders/jupiter-dca-decoder", version = "0.12.0" }
