@@ -118,14 +118,10 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
     where
         U: DeserializeOwned,
     {
-        log::trace!(
-            "Schema::match_schema(self: {:?}, instructions: {:?})",
-            self,
-            instructions
-        );
+        log::trace!("Schema::match_schema(self: {self:?}, instructions: {instructions:?})");
         let value = serde_json::to_value(self.match_nodes(instructions)).ok()?;
 
-        log::trace!("Schema::match_schema: deserializing value: {:?}", value);
+        log::trace!("Schema::match_schema: deserializing value: {value:?}");
         serde_json::from_value::<U>(value).ok()
     }
 
@@ -150,11 +146,7 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
         &self,
         instructions: &[ParsedInstruction<T>],
     ) -> Option<HashMap<String, (T, Vec<AccountMeta>)>> {
-        log::trace!(
-            "Schema::match_nodes(self: {:?}, instructions: {:?})",
-            self,
-            instructions
-        );
+        log::trace!("Schema::match_nodes(self: {self:?}, instructions: {instructions:?})");
         let mut output = HashMap::<String, (T, Vec<AccountMeta>)>::new();
 
         let mut node_index = 0;
@@ -163,11 +155,7 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
         let mut any = false;
 
         while let Some(node) = self.root.get(node_index) {
-            log::trace!(
-                "Schema::match_nodes: current node ({}): {:?}",
-                node_index,
-                node
-            );
+            log::trace!("Schema::match_nodes: current node ({node_index}): {node:?}");
 
             if let SchemaNode::Any = node {
                 log::trace!("Schema::match_nodes: Any node detected, skipping");
@@ -180,9 +168,7 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
 
             while let Some(current_instruction) = instructions.get(instruction_index) {
                 log::trace!(
-                    "Schema::match_nodes: current instruction ({}): {:?}",
-                    instruction_index,
-                    current_instruction
+                    "Schema::match_nodes: current instruction ({instruction_index}): {current_instruction:?}"
                 );
 
                 let SchemaNode::Instruction(instruction_node) = node else {
@@ -224,10 +210,7 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
                     output = merge_hashmaps(output, inner_output);
                 }
 
-                log::trace!(
-                    "Schema::match_nodes: instruction matched, output: {:?}",
-                    output
-                );
+                log::trace!("Schema::match_nodes: instruction matched, output: {output:?}");
 
                 instruction_index += 1;
                 node_index += 1;
@@ -242,7 +225,7 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
             }
         }
 
-        log::trace!("Schema::match_nodes: final output: {:?}", output);
+        log::trace!("Schema::match_nodes: final output: {output:?}");
 
         Some(output)
     }

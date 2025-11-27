@@ -12,5 +12,5 @@ where
 {
     let s: String = String::deserialize(deserializer)?;
     s.parse()
-        .map_err(|e| de::Error::custom(format!("Parse error: {:?}", e)))
+        .map_err(|e| de::Error::custom(format!("Parse error: {e:?}")))
 }

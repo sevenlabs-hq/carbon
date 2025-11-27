@@ -33,7 +33,7 @@ graphql = [
 ]
 
 [dependencies]
-carbon-core = { workspace = true, features = ["macros"], default-features = false }
+carbon-core = { workspace = true }
 borsh = { workspace = true, features = ["derive"] }
 solana-pubkey = { workspace = true }
 solana-account = { workspace = true }

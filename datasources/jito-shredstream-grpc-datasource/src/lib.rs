@@ -59,7 +59,7 @@ impl Datasource for JitoShredstreamGrpcClient {
             let stream = match result {
                 Ok(r) => r.into_inner(),
                 Err(e) => {
-                    log::error!("Failed to subscribe: {:?}", e);
+                    log::error!("Failed to subscribe: {e:?}");
                     return;
                 }
             };
@@ -98,7 +98,7 @@ impl Datasource for JitoShredstreamGrpcClient {
                         let entries: Vec<Entry> = match bincode::deserialize(&message.entries) {
                             Ok(e) => e,
                             Err(e) => {
-                                log::error!("Failed to deserialize entries: {:?}", e);
+                                log::error!("Failed to deserialize entries: {e:?}");
                                 return Ok(());
                             }
                         };
@@ -151,7 +151,7 @@ impl Datasource for JitoShredstreamGrpcClient {
                             )
                             .await
                             .unwrap_or_else(|value| {
-                                log::error!("Error recording metric: {}", value)
+                                log::error!("Error recording metric: {value}")
                             });
 
                         metrics
@@ -161,7 +161,7 @@ impl Datasource for JitoShredstreamGrpcClient {
                             )
                             .await
                             .unwrap_or_else(|value| {
-                                log::error!("Error recording metric: {}", value)
+                                log::error!("Error recording metric: {value}")
                             });
 
                         Ok(())
