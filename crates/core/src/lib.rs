@@ -61,10 +61,6 @@
 //!   in the pipeline. This module allows for the creation of custom data
 //!   processors that can be integrated into various stages of the pipeline.
 //!
-//! - **[`schema`]**: Defines transaction schemas, allowing for structured
-//!   parsing and validation of transaction data based on specified rules.
-//!   Supports complex nested instruction matching for comprehensive transaction
-//!   analysis.
 //!
 //! - **[`transaction`]**: Manages transaction data, including metadata
 //!   extraction and parsing. This module supports transaction validation and
@@ -96,7 +92,7 @@
 //!     TestProgramDecoder,
 //!     TestProgramAccountProcessor
 //! )
-//! .transaction(TEST_SCHEMA.clone(), TestProgramTransactionProcessor)
+//! .transaction(TestProgramTransactionProcessor)
 //! .account_deletions(TestProgramAccountDeletionProcessor)
 //! .build()?
 //! .run()
@@ -140,7 +136,6 @@ pub mod pipeline;
 #[cfg(feature = "postgres")]
 pub mod postgres;
 pub mod processor;
-pub mod schema;
 pub mod transaction;
 pub mod transformers;
 
