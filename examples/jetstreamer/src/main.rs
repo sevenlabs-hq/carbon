@@ -6,12 +6,12 @@ use carbon_core::{
     pipeline::Pipeline, processor::Processor,
 };
 use carbon_jetstreamer_datasource::{
-    JetstreamerDatasource,
     filter::{JetstreamerFilter, TransactionFilter},
     range::JetstreamerRange,
+    JetstreamerDatasource,
 };
 use carbon_log_metrics::LogMetrics;
-use carbon_token_2022_decoder::{Token2022Decoder, instructions::Token2022Instruction};
+use carbon_token_2022_decoder::{instructions::Token2022Instruction, Token2022Decoder};
 
 #[tokio::main]
 pub async fn main() -> CarbonResult<()> {
@@ -24,14 +24,14 @@ pub async fn main() -> CarbonResult<()> {
             include_transactions: true,
             include_blocks: false,
             transaction_filters: Some(vec![TransactionFilter {
-                vote: Some(false), // Exclude vote transactions
+                vote: Some(false),   // Exclude vote transactions
                 failed: Some(false), // Exclude failed transactions
                 account_include: HashSet::from([carbon_token_2022_decoder::PROGRAM_ID]), // Include only Token 2022 program transactions
                 account_exclude: HashSet::new(),
                 account_required: HashSet::new(),
             }]),
         },
-        1, // Number of Jetstreamer threads
+        1,         // Number of Jetstreamer threads
         Some(100), // Jetstreamer tracking interval in slots
     );
 
