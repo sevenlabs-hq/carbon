@@ -4741,15 +4741,9 @@ dependencies = [
  "carbon-jetstreamer-datasource",
  "carbon-log-metrics",
  "carbon-token-2022-decoder",
- "dotenv",
  "env_logger",
  "log",
- "solana-account",
- "solana-client",
- "solana-instruction",
- "solana-pubkey 3.0.0",
  "tokio",
- "tokio-util 0.7.17",
 ]
 
 [[package]]
