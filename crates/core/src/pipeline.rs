@@ -514,9 +514,7 @@ impl Pipeline {
     /// issue arises while incrementing counters or updating metrics. Handle
     /// errors gracefully to ensure continuous pipeline operation.
     async fn process(&mut self, update: Update, datasource_id: DatasourceId) -> CarbonResult<()> {
-        log::trace!(
-            "process(self, update: {update:?}, datasource_id: {datasource_id:?})"
-        );
+        log::trace!("process(self, update: {update:?}, datasource_id: {datasource_id:?})");
         match update {
             Update::Account(account_update) => {
                 let account_metadata = AccountMetadata {
@@ -822,9 +820,7 @@ impl PipelineBuilder {
     ///   sources first and allow the pipeline to finish processing any updates
     ///   that are still pending.
     pub fn shutdown_strategy(mut self, shutdown_strategy: ShutdownStrategy) -> Self {
-        log::trace!(
-            "shutdown_strategy(self, shutdown_strategy: {shutdown_strategy:?})"
-        );
+        log::trace!("shutdown_strategy(self, shutdown_strategy: {shutdown_strategy:?})");
         self.shutdown_strategy = shutdown_strategy;
         self
     }

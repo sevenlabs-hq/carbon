@@ -292,9 +292,7 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
         nested_instruction: &NestedInstruction,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        log::trace!(
-            "InstructionPipe::run(nested_instruction: {nested_instruction:?}, metrics)",
-        );
+        log::trace!("InstructionPipe::run(nested_instruction: {nested_instruction:?}, metrics)",);
 
         if let Some(decoded_instruction) = self
             .decoder

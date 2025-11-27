@@ -289,9 +289,7 @@ pub fn unnest_parsed_instructions<T: InstructionDecoderCollection>(
     instructions: Vec<ParsedInstruction<T>>,
     stack_height: u32,
 ) -> Vec<(InstructionMetadata, DecodedInstruction<T>)> {
-    log::trace!(
-        "unnest_parsed_instructions(instructions: {instructions:?})"
-    );
+    log::trace!("unnest_parsed_instructions(instructions: {instructions:?})");
 
     let mut result = Vec::new();
 
@@ -338,9 +336,7 @@ pub fn unnest_parsed_instructions<T: InstructionDecoderCollection>(
 pub fn transaction_metadata_from_original_meta(
     meta_original: UiTransactionStatusMeta,
 ) -> CarbonResult<TransactionStatusMeta> {
-    log::trace!(
-        "transaction_metadata_from_original_meta(meta_original: {meta_original:?})"
-    );
+    log::trace!("transaction_metadata_from_original_meta(meta_original: {meta_original:?})");
     Ok(TransactionStatusMeta {
         status: meta_original.status.map_err(Into::into),
         fee: meta_original.fee,

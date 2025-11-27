@@ -296,9 +296,7 @@ where
         instructions: &[NestedInstruction],
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        log::trace!(
-            "TransactionPipe::run(instructions: {instructions:?}, metrics)",
-        );
+        log::trace!("TransactionPipe::run(instructions: {instructions:?}, metrics)",);
 
         let parsed_instructions = parse_instructions(instructions);
 

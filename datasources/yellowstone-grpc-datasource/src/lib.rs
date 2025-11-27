@@ -435,8 +435,6 @@ async fn send_subscribe_update_transaction_info(
             .await
             .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
     } else {
-        log::error!(
-            "No transaction info in `UpdateOneof::Transaction` at slot {slot}"
-        );
+        log::error!("No transaction info in `UpdateOneof::Transaction` at slot {slot}");
     }
 }
