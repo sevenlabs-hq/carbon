@@ -8,7 +8,6 @@ use carbon_core::CarbonDeserialize;
 
 /// Executes a token swap. Outputs native SOL to the specified destination account by unwrapping
 /// WSOL.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct SwapWithDestinationNative {

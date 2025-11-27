@@ -80,11 +80,7 @@ where
 /// - This function is particularly useful for decoding prefixed data
 ///   structures, such as those commonly found in Solana transactions.
 pub fn extract_discriminator(length: usize, data: &[u8]) -> Option<(&[u8], &[u8])> {
-    log::trace!(
-        "extract_discriminator(length: {:?}, data: {:?})",
-        length,
-        data
-    );
+    log::trace!("extract_discriminator(length: {length:?}, data: {data:?})");
 
     if data.len() < length {
         return None;

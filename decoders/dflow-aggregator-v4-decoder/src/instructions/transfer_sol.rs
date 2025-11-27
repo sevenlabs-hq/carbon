@@ -6,7 +6,6 @@ use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 
 /// Transfer native SOL from one account to another
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct TransferSol {

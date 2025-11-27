@@ -145,16 +145,14 @@ fn block_fetcher(
                                     latest_slot = slot;
                                     if current_slot > latest_slot {
                                         log::debug!(
-                                            "Waiting for new blocks... Current: {}, Latest: {}",
-                                            current_slot,
-                                            latest_slot
+                                            "Waiting for new blocks... Current: {current_slot}, Latest: {latest_slot}"
                                         );
                                         tokio::time::sleep(block_interval).await;
                                         continue;
                                     }
                                 }
                                 Err(e) => {
-                                    log::error!("Error fetching latest slot: {:?}", e);
+                                    log::error!("Error fetching latest slot: {e:?}");
                                     tokio::time::sleep(block_interval).await;
                                     continue;
                                 }
@@ -191,14 +189,14 @@ fn block_fetcher(
                                     )
                                     .await
                                     .unwrap_or_else(|value| {
-                                        log::error!("Error recording metric: {}", value)
+                                        log::error!("Error recording metric: {value}")
                                     });
 
                                 metrics
                                     .increment_counter("block_crawler_blocks_fetched", 1)
                                     .await
                                     .unwrap_or_else(|value| {
-                                        log::error!("Error recording metric: {}", value)
+                                        log::error!("Error recording metric: {value}")
                                     });
 
                                 Some((slot, block))
@@ -217,10 +215,10 @@ fn block_fetcher(
                                         .increment_counter("block_crawler_blocks_skipped", 1)
                                         .await
                                         .unwrap_or_else(|value| {
-                                            log::error!("Error recording metric: {}", value)
+                                            log::error!("Error recording metric: {value}")
                                         });
                                 } else {
-                                    log::error!("Error fetching block at slot {}: {:?}", slot, e);
+                                    log::error!("Error fetching block at slot {slot}: {e:?}");
                                 }
                                 None
                             }
@@ -231,7 +229,7 @@ fn block_fetcher(
                 .for_each(|result| async {
                     if let Some((slot, block)) = result {
                         if let Err(e) = block_sender.send((slot, block)).await {
-                            log::error!("Failed to send block: {:?}", e);
+                            log::error!("Failed to send block: {e:?}");
                         }
                     }
                 })
@@ -274,7 +272,7 @@ fn task_processor(
                             .increment_counter("block_crawler_blocks_received", 1)
                             .await
                             .unwrap_or_else(|value| {
-                                log::error!("Error recording metric: {}", value)
+                                log::error!("Error recording metric: {value}")
                             });
                         let block_start_time = Instant::now();
                         let block_hash = Hash::from_str(&block.blockhash).ok();
@@ -293,7 +291,7 @@ fn task_processor(
                                 }
 
                                 let Some(decoded_transaction) = encoded_transaction_with_status_meta.transaction.decode() else {
-                                    log::error!("Failed to decode transaction: {:?}", encoded_transaction_with_status_meta);
+                                    log::error!("Failed to decode transaction: {encoded_transaction_with_status_meta:?}");
                                     continue;
                                 };
 
@@ -318,14 +316,14 @@ fn task_processor(
                                         start_time.elapsed().as_nanos() as f64
                                     )
                                     .await
-                                    .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                                    .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
 
                                 metrics.increment_counter("block_crawler_transactions_processed", 1)
                                     .await
-                                    .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                                    .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
 
                                 if let Err(err) = sender.try_send((update, id_for_loop.clone())) {
-                                    log::error!("Error sending transaction update: {:?}", err);
+                                    log::error!("Error sending transaction update: {err:?}");
                                     break;
                                 }
                             }
@@ -335,12 +333,12 @@ fn task_processor(
                                 "block_crawler_block_process_time_nanoseconds",
                                 block_start_time.elapsed().as_nanos() as f64
                             ).await
-                            .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                            .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
 
                         metrics
                             .increment_counter("block_crawler_blocks_processed", 1)
                             .await
-                            .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                            .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
                     }
                     None => {
                         break;
@@ -469,7 +467,7 @@ mod tests {
             let mut received_blocks = Vec::new();
 
             while let Some((slot, block)) = block_receiver.recv().await {
-                println!("Received block at slot {}", slot);
+                println!("Received block at slot {slot}");
                 received_blocks.push((slot, block));
 
                 if received_blocks.len() == 2 {
