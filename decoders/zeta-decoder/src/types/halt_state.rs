@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 use serde_big_array::BigArray;
 
 #[derive(

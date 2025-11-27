@@ -1,6 +1,6 @@
 use {
     super::super::types::*,
-    carbon_core::{CarbonDeserialize, borsh},
+    carbon_core::{borsh, CarbonDeserialize},
 };
 
 #[derive(
@@ -33,20 +33,8 @@ impl carbon_core::deserialize::ArrangeAccounts for OfferLoan {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            lender,
-            lender_value_token_account,
-            value_mint,
-            loan,
-            escrow,
-            escrow_token_account,
-            order_book,
-            system_program,
-            token_program,
-            associated_token_program,
-            rent,
-            _remaining @ ..,
-        ] = accounts
+        let [lender, lender_value_token_account, value_mint, loan, escrow, escrow_token_account, order_book, system_program, token_program, associated_token_program, rent, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

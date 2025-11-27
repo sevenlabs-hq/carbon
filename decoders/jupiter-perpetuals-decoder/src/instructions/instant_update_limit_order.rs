@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -29,19 +29,8 @@ impl carbon_core::deserialize::ArrangeAccounts for InstantUpdateLimitOrder {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            keeper,
-            api_keeper,
-            owner,
-            perpetuals,
-            pool,
-            position,
-            position_request,
-            custody,
-            custody_doves_price_account,
-            custody_pythnet_price_account,
-            _remaining @ ..,
-        ] = accounts
+        let [keeper, api_keeper, owner, perpetuals, pool, position, position_request, custody, custody_doves_price_account, custody_pythnet_price_account, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

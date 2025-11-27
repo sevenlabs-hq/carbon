@@ -1,7 +1,7 @@
 use super::super::types::*;
 
 use alloc::vec::Vec;
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -30,18 +30,8 @@ impl carbon_core::deserialize::ArrangeAccounts for PositionMovement {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            state,
-            zeta_group,
-            margin_account,
-            spread_account,
-            authority,
-            greeks,
-            oracle,
-            oracle_backup_feed,
-            oracle_backup_program,
-            _remaining @ ..,
-        ] = accounts
+        let [state, zeta_group, margin_account, spread_account, authority, greeks, oracle, oracle_backup_feed, oracle_backup_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

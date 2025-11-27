@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -21,15 +21,7 @@ impl carbon_core::deserialize::ArrangeAccounts for ForceDeleteUser {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            user,
-            user_stats,
-            state,
-            authority,
-            keeper,
-            drift_signer,
-            _remaining @ ..,
-        ] = accounts
+        let [user, user_stats, state, authority, keeper, drift_signer, _remaining @ ..] = accounts
         else {
             return None;
         };

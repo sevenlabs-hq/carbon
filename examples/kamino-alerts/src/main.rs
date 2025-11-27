@@ -8,8 +8,8 @@ use {
         processor::Processor,
     },
     carbon_kamino_lending_decoder::{
-        KaminoLendingDecoder, PROGRAM_ID as KAMINO_LENDING_PROGRAM_ID,
         accounts::KaminoLendingAccount, instructions::KaminoLendingInstruction,
+        KaminoLendingDecoder, PROGRAM_ID as KAMINO_LENDING_PROGRAM_ID,
     },
     carbon_yellowstone_grpc_datasource::{
         YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient,

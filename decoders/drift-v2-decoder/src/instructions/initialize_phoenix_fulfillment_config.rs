@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -27,19 +27,8 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializePhoenixFulfillmentC
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            base_spot_market,
-            quote_spot_market,
-            state,
-            phoenix_program,
-            phoenix_market,
-            drift_signer,
-            phoenix_fulfillment_config,
-            admin,
-            rent,
-            system_program,
-            _remaining @ ..,
-        ] = accounts
+        let [base_spot_market, quote_spot_market, state, phoenix_program, phoenix_market, drift_signer, phoenix_fulfillment_config, admin, rent, system_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

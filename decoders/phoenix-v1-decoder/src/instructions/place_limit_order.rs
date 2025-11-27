@@ -1,5 +1,5 @@
 use super::super::types::*;
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -28,19 +28,8 @@ impl carbon_core::deserialize::ArrangeAccounts for PlaceLimitOrder {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            phoenix_program,
-            log_authority,
-            market,
-            trader,
-            seat,
-            base_account,
-            quote_account,
-            base_vault,
-            quote_vault,
-            token_program,
-            _remaining @ ..,
-        ] = accounts
+        let [phoenix_program, log_authority, market, trader, seat, base_account, quote_account, base_vault, quote_vault, token_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

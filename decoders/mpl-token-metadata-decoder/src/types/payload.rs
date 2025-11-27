@@ -1,6 +1,6 @@
 use {
     super::*,
-    carbon_core::{CarbonDeserialize, borsh},
+    carbon_core::{borsh, CarbonDeserialize},
     std::hash::{Hash, Hasher},
 };
 

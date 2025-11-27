@@ -1,6 +1,6 @@
 use {
     super::super::types::*,
-    carbon_core::{CarbonDeserialize, borsh},
+    carbon_core::{borsh, CarbonDeserialize},
 };
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone)]
@@ -30,20 +30,8 @@ impl carbon_core::deserialize::ArrangeAccounts for TokenMint {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            sender,
-            backend_authority,
-            curve_account,
-            mint,
-            mint_metadata,
-            curve_token_account,
-            config_account,
-            token_program,
-            associated_token_program,
-            mpl_token_metadata,
-            system_program,
-            _remaining @ ..,
-        ] = accounts
+        let [sender, backend_authority, curve_account, mint, mint_metadata, curve_token_account, config_account, token_program, associated_token_program, mpl_token_metadata, system_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

@@ -5,11 +5,11 @@
 //! <https://github.com/codama-idl/codama>
 //!
 use crate::types::AccountState;
-use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
+use carbon_core::CarbonDeserialize;
 
 /// Initialize a new mint with the default state for new Accounts.
 ///

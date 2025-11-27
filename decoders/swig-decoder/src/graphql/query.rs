@@ -1,6 +1,6 @@
 //! GraphQL QueryRoot for swig-decoder
 //! Provides queries for all 13 instruction types (no accounts or instruction arguments)
-use juniper::{FieldResult, graphql_object};
+use juniper::{graphql_object, FieldResult};
 
 pub struct QueryRoot;
 

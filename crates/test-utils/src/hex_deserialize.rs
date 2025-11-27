@@ -1,4 +1,4 @@
-use serde::{Deserializer, de};
+use serde::{de, Deserializer};
 
 use super::*;
 

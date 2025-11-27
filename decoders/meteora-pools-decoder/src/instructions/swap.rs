@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -33,24 +33,8 @@ impl carbon_core::deserialize::ArrangeAccounts for Swap {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            pool,
-            user_source_token,
-            user_destination_token,
-            a_vault,
-            b_vault,
-            a_token_vault,
-            b_token_vault,
-            a_vault_lp_mint,
-            b_vault_lp_mint,
-            a_vault_lp,
-            b_vault_lp,
-            protocol_token_fee,
-            user,
-            vault_program,
-            token_program,
-            _remaining @ ..,
-        ] = accounts
+        let [pool, user_source_token, user_destination_token, a_vault, b_vault, a_token_vault, b_token_vault, a_vault_lp_mint, b_vault_lp_mint, a_vault_lp, b_vault_lp, protocol_token_fee, user, vault_program, token_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

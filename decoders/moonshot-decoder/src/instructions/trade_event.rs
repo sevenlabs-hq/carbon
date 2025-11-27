@@ -1,7 +1,7 @@
 use {
     super::super::types::*,
     alloc::string::String,
-    carbon_core::{CarbonDeserialize, borsh},
+    carbon_core::{borsh, CarbonDeserialize},
 };
 
 #[derive(

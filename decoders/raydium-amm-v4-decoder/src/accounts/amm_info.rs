@@ -1,6 +1,6 @@
 use {
     super::{super::types::*, fees::Fees},
-    carbon_core::{CarbonDeserialize, borsh},
+    carbon_core::{borsh, CarbonDeserialize},
 };
 
 pub const AMM_INFO_SIZE: usize = core::mem::size_of::<AmmInfo>();

@@ -1,6 +1,6 @@
 use crate::types::OptionBool;
 use carbon_core::account_utils::next_account;
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 use serde::{Deserialize, Serialize};
 
 #[derive(CarbonDeserialize, Serialize, Deserialize, Debug, PartialEq, Eq, Clone, Hash)]

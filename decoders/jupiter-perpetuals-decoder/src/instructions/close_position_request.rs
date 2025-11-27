@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -29,19 +29,8 @@ impl carbon_core::deserialize::ArrangeAccounts for ClosePositionRequest {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            keeper,
-            owner,
-            owner_ata,
-            pool,
-            position_request,
-            position_request_ata,
-            position,
-            token_program,
-            event_authority,
-            program,
-            _remaining @ ..,
-        ] = accounts
+        let [keeper, owner, owner_ata, pool, position_request, position_request_ata, position, token_program, event_authority, program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

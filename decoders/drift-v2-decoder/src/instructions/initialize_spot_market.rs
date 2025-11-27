@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -48,20 +48,8 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeSpotMarket {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            spot_market,
-            spot_market_mint,
-            spot_market_vault,
-            insurance_fund_vault,
-            drift_signer,
-            state,
-            oracle,
-            admin,
-            rent,
-            system_program,
-            token_program,
-            _remaining @ ..,
-        ] = accounts
+        let [spot_market, spot_market_mint, spot_market_vault, insurance_fund_vault, drift_signer, state, oracle, admin, rent, system_program, token_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

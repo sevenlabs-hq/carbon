@@ -14,8 +14,8 @@ use {
     tokio::{
         select,
         sync::{
-            RwLock,
             mpsc::{Receiver, Sender},
+            RwLock,
         },
     },
     tokio_util::sync::CancellationToken,

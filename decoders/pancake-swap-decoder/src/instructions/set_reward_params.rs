@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -27,15 +27,8 @@ impl carbon_core::deserialize::ArrangeAccounts for SetRewardParams {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            authority,
-            amm_config,
-            pool_state,
-            operation_state,
-            token_program,
-            token_program_2022,
-            _remaining @ ..,
-        ] = accounts
+        let [authority, amm_config, pool_state, operation_state, token_program, token_program_2022, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

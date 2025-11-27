@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -26,18 +26,8 @@ impl carbon_core::deserialize::ArrangeAccounts for AddValidator {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            state,
-            manager_authority,
-            validator_list,
-            validator_vote,
-            duplication_flag,
-            rent_payer,
-            clock,
-            rent,
-            system_program,
-            _remaining @ ..,
-        ] = accounts
+        let [state, manager_authority, validator_list, validator_vote, duplication_flag, rent_payer, clock, rent, system_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

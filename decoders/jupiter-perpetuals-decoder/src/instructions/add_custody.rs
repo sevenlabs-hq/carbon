@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -29,19 +29,8 @@ impl carbon_core::deserialize::ArrangeAccounts for AddCustody {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            admin,
-            transfer_authority,
-            perpetuals,
-            pool,
-            custody,
-            custody_token_account,
-            custody_token_mint,
-            system_program,
-            token_program,
-            rent,
-            _remaining @ ..,
-        ] = accounts
+        let [admin, transfer_authority, perpetuals, pool, custody, custody_token_account, custody_token_mint, system_program, token_program, rent, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

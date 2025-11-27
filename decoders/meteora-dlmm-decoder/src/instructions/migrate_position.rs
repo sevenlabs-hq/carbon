@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -26,19 +26,8 @@ impl carbon_core::deserialize::ArrangeAccounts for MigratePosition {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            position_v2,
-            position_v1,
-            lb_pair,
-            bin_array_lower,
-            bin_array_upper,
-            owner,
-            system_program,
-            rent_receiver,
-            event_authority,
-            program,
-            _remaining @ ..,
-        ] = accounts
+        let [position_v2, position_v1, lb_pair, bin_array_lower, bin_array_upper, owner, system_program, rent_receiver, event_authority, program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

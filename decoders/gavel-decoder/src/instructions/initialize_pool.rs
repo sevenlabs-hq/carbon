@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -30,19 +30,8 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializePool {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            plasma_program,
-            log_authority,
-            pool,
-            pool_creator,
-            base_mint,
-            quote_mint,
-            base_vault,
-            quote_vault,
-            system_program,
-            token_program,
-            _remaining @ ..,
-        ] = accounts
+        let [plasma_program, log_authority, pool, pool_creator, base_mint, quote_mint, base_vault, quote_vault, system_program, token_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

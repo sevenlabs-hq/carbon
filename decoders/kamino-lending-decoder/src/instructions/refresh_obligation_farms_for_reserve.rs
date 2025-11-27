@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -27,19 +27,8 @@ impl carbon_core::deserialize::ArrangeAccounts for RefreshObligationFarmsForRese
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            crank,
-            obligation,
-            lending_market_authority,
-            reserve,
-            reserve_farm_state,
-            obligation_farm_user_state,
-            lending_market,
-            farms_program,
-            rent,
-            system_program,
-            _remaining @ ..,
-        ] = accounts
+        let [crank, obligation, lending_market_authority, reserve, reserve_farm_state, obligation_farm_user_state, lending_market, farms_program, rent, system_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

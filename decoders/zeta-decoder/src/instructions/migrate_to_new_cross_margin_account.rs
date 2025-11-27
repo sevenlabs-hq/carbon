@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -19,13 +19,8 @@ impl carbon_core::deserialize::ArrangeAccounts for MigrateToNewCrossMarginAccoun
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            new_cross_margin_account,
-            old_cross_margin_account,
-            pricing,
-            authority,
-            _remaining @ ..,
-        ] = accounts
+        let [new_cross_margin_account, old_cross_margin_account, pricing, authority, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

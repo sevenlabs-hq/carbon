@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -22,16 +22,8 @@ impl carbon_core::deserialize::ArrangeAccounts for RebalanceInsuranceVaultV2 {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            state,
-            zeta_vault,
-            insurance_vault,
-            treasury_wallet,
-            treasury_split_token_account,
-            socialized_loss_account,
-            token_program,
-            _remaining @ ..,
-        ] = accounts
+        let [state, zeta_vault, insurance_vault, treasury_wallet, treasury_split_token_account, socialized_loss_account, token_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

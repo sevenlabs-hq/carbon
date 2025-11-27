@@ -8,8 +8,8 @@ use {
     },
     carbon_log_metrics::LogMetrics,
     carbon_raydium_cpmm_decoder::{
-        PROGRAM_ID as RAYDIUM_CPMM_PROGRAM_ID, RaydiumCpmmDecoder,
-        instructions::RaydiumCpmmInstruction, types::SwapEvent,
+        instructions::RaydiumCpmmInstruction, types::SwapEvent, RaydiumCpmmDecoder,
+        PROGRAM_ID as RAYDIUM_CPMM_PROGRAM_ID,
     },
     carbon_yellowstone_grpc_datasource::{
         YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient,

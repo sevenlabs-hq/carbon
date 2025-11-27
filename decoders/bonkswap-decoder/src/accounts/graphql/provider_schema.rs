@@ -1,8 +1,8 @@
 use crate::types::graphql::FixedPointGraphQL;
 use crate::types::graphql::TokenGraphQL;
 use carbon_core::graphql::primitives::Pubkey;
-use carbon_core::graphql::primitives::U8;
 use carbon_core::graphql::primitives::U64;
+use carbon_core::graphql::primitives::U8;
 use juniper::GraphQLObject;
 
 #[derive(Debug, Clone, GraphQLObject)]

@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh, deserialize::U64PrefixString};
+use carbon_core::{borsh, deserialize::U64PrefixString, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Clone, Eq, Hash,

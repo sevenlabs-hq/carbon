@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -28,21 +28,8 @@ impl carbon_core::deserialize::ArrangeAccounts for CloseBondingCurveVault {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            config,
-            operator,
-            vault_authority,
-            bonding_curve,
-            bonding_curve_vault,
-            mint,
-            recipient_token_account,
-            recipient,
-            token_program,
-            system_program,
-            associated_token_program,
-            rent,
-            _remaining @ ..,
-        ] = accounts
+        let [config, operator, vault_authority, bonding_curve, bonding_curve_vault, mint, recipient_token_account, recipient, token_program, system_program, associated_token_program, rent, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

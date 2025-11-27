@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -26,18 +26,8 @@ impl carbon_core::deserialize::ArrangeAccounts for AddLiquidity {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            state,
-            lp_mint,
-            lp_mint_authority,
-            liq_pool_msol_leg,
-            liq_pool_sol_leg_pda,
-            transfer_from,
-            mint_to,
-            system_program,
-            token_program,
-            _remaining @ ..,
-        ] = accounts
+        let [state, lp_mint, lp_mint_authority, liq_pool_msol_leg, liq_pool_sol_leg_pda, transfer_from, mint_to, system_program, token_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

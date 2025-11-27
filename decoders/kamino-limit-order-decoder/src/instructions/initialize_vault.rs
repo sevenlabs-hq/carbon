@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -22,16 +22,8 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeVault {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            payer,
-            global_config,
-            pda_authority,
-            mint,
-            vault,
-            token_program,
-            system_program,
-            _remaining @ ..,
-        ] = accounts
+        let [payer, global_config, pda_authority, mint, vault, token_program, system_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

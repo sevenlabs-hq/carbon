@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -19,13 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for TransferExcessSpreadBalance {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            zeta_group,
-            margin_account,
-            spread_account,
-            authority,
-            _remaining @ ..,
-        ] = accounts
+        let [zeta_group, margin_account, spread_account, authority, _remaining @ ..] = accounts
         else {
             return None;
         };

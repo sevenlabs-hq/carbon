@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -21,14 +21,8 @@ impl carbon_core::deserialize::ArrangeAccounts for SetTreeDelegate {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            tree_authority,
-            tree_creator,
-            new_tree_delegate,
-            merkle_tree,
-            system_program,
-            _remaining @ ..,
-        ] = accounts
+        let [tree_authority, tree_creator, new_tree_delegate, merkle_tree, system_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

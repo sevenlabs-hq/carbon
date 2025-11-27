@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -30,23 +30,8 @@ impl carbon_core::deserialize::ArrangeAccounts for ClaimProtocolFee {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            pool_authority,
-            pool,
-            token_a_vault,
-            token_b_vault,
-            token_a_mint,
-            token_b_mint,
-            token_a_account,
-            token_b_account,
-            claim_fee_operator,
-            operator,
-            token_a_program,
-            token_b_program,
-            event_authority,
-            program,
-            _remaining @ ..,
-        ] = accounts
+        let [pool_authority, pool, token_a_vault, token_b_vault, token_a_mint, token_b_mint, token_a_account, token_b_account, claim_fee_operator, operator, token_a_program, token_b_program, event_authority, program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

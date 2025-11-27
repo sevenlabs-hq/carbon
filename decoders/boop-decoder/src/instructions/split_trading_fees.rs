@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -40,33 +40,8 @@ impl carbon_core::deserialize::ArrangeAccounts for SplitTradingFees {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            operator,
-            mint,
-            wsol,
-            config,
-            vault_authority,
-            bonding_curve,
-            trading_fees_vault,
-            fee_splitter_program,
-            system_program,
-            token_program,
-            associated_token_program,
-            fee_splitter_config,
-            fee_splitter_creator_vault,
-            fee_splitter_vault_authority,
-            fee_splitter_creator_vault_authority,
-            fee_splitter_staking_mint,
-            fee_splitter_wsol_vault,
-            fee_splitter_creator_vault_authority_wsol_vault,
-            fee_splitter_treasury_wsol_vault,
-            fee_splitter_team_wsol_vault,
-            fee_splitter_reward_pool,
-            fee_splitter_reward_pool_staking_vault,
-            fee_splitter_reward_pool_reward_vault,
-            fee_splitter_reward_pool_program,
-            _remaining @ ..,
-        ] = accounts
+        let [operator, mint, wsol, config, vault_authority, bonding_curve, trading_fees_vault, fee_splitter_program, system_program, token_program, associated_token_program, fee_splitter_config, fee_splitter_creator_vault, fee_splitter_vault_authority, fee_splitter_creator_vault_authority, fee_splitter_staking_mint, fee_splitter_wsol_vault, fee_splitter_creator_vault_authority_wsol_vault, fee_splitter_treasury_wsol_vault, fee_splitter_team_wsol_vault, fee_splitter_reward_pool, fee_splitter_reward_pool_staking_vault, fee_splitter_reward_pool_reward_vault, fee_splitter_reward_pool_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

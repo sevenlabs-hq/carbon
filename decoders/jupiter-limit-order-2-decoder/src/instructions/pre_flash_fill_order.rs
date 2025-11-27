@@ -1,6 +1,6 @@
 use {
     super::super::types::*,
-    carbon_core::{CarbonDeserialize, borsh},
+    carbon_core::{borsh, CarbonDeserialize},
 };
 
 #[derive(
@@ -27,16 +27,8 @@ impl carbon_core::deserialize::ArrangeAccounts for PreFlashFillOrder {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            taker,
-            order,
-            input_mint_reserve,
-            taker_input_mint_account,
-            input_mint,
-            input_token_program,
-            instruction,
-            _remaining @ ..,
-        ] = accounts
+        let [taker, order, input_mint_reserve, taker_input_mint_account, input_mint, input_token_program, instruction, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

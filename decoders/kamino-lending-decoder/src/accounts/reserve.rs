@@ -1,6 +1,6 @@
 use {
     super::super::types::*,
-    carbon_core::{CarbonDeserialize, borsh},
+    carbon_core::{borsh, CarbonDeserialize},
 };
 
 use serde_big_array::BigArray;

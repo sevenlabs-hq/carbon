@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -22,16 +22,8 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateMintMetadata {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            pool,
-            lp_mint,
-            a_vault_lp,
-            mint_metadata,
-            metadata_program,
-            system_program,
-            payer,
-            _remaining @ ..,
-        ] = accounts
+        let [pool, lp_mint, a_vault_lp, mint_metadata, metadata_program, system_program, payer, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

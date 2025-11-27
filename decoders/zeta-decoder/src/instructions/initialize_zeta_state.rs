@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -31,21 +31,8 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeZetaState {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            state,
-            mint_authority,
-            serum_authority,
-            treasury_wallet,
-            referrals_admin,
-            referrals_rewards_wallet,
-            rent,
-            system_program,
-            token_program,
-            usdc_mint,
-            admin,
-            secondary_admin,
-            _remaining @ ..,
-        ] = accounts
+        let [state, mint_authority, serum_authority, treasury_wallet, referrals_admin, referrals_rewards_wallet, rent, system_program, token_program, usdc_mint, admin, secondary_admin, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

@@ -316,10 +316,10 @@ mod tests {
             claim_reward::{ClaimReward, ClaimRewardInstructionAccounts},
             claim_reward2::{ClaimReward2, ClaimReward2InstructionAccounts},
             close_position::{ClosePosition, ClosePositionInstructionAccounts},
+            close_position2::{ClosePosition2, ClosePosition2InstructionAccounts},
             close_position_if_empty::{
                 ClosePositionIfEmpty, ClosePositionIfEmptyInstructionAccounts,
             },
-            close_position2::{ClosePosition2, ClosePosition2InstructionAccounts},
             close_preset_parameter::{
                 ClosePresetParameter, ClosePresetParameterInstructionAccounts,
             },
@@ -353,13 +353,13 @@ mod tests {
             migrate_position::{MigratePosition, MigratePositionInstructionAccounts},
             remove_all_liquidity::{RemoveAllLiquidity, RemoveAllLiquidityInstructionAccounts},
             remove_liquidity::{RemoveLiquidity, RemoveLiquidityInstructionAccounts},
+            remove_liquidity2::{RemoveLiquidity2, RemoveLiquidity2InstructionAccounts},
             remove_liquidity_by_range::{
                 RemoveLiquidityByRange, RemoveLiquidityByRangeInstructionAccounts,
             },
             remove_liquidity_by_range2::{
                 RemoveLiquidityByRange2, RemoveLiquidityByRange2InstructionAccounts,
             },
-            remove_liquidity2::{RemoveLiquidity2, RemoveLiquidity2InstructionAccounts},
             set_activation_point::{SetActivationPoint, SetActivationPointInstructionAccounts},
             set_pair_status::{SetPairStatus, SetPairStatusInstructionAccounts},
             set_pair_status_permissionless::{
@@ -372,12 +372,12 @@ mod tests {
                 SetPreActivationSwapAddress, SetPreActivationSwapAddressInstructionAccounts,
             },
             swap::{Swap, SwapInstructionAccounts},
+            swap2::{Swap2, Swap2InstructionAccounts},
             swap_exact_out::{SwapExactOut, SwapExactOutInstructionAccounts},
             swap_exact_out2::{SwapExactOut2, SwapExactOut2InstructionAccounts},
             swap_with_price_impact2::{
                 SwapWithPriceImpact2, SwapWithPriceImpact2InstructionAccounts,
             },
-            swap2::{Swap2, Swap2InstructionAccounts},
             update_base_fee_parameters::{
                 UpdateBaseFeeParameters, UpdateBaseFeeParametersInstructionAccounts,
             },

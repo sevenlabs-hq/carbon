@@ -1,6 +1,6 @@
 use super::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(CarbonDeserialize, Debug, PartialEq, serde::Serialize, serde::Deserialize, Clone)]
 pub struct ProtocolConfigParams {
