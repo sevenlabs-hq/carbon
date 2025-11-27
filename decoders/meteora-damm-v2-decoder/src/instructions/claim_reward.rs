@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -29,20 +29,8 @@ impl carbon_core::deserialize::ArrangeAccounts for ClaimReward {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            pool_authority,
-            pool,
-            position,
-            reward_vault,
-            reward_mint,
-            user_token_account,
-            position_nft_account,
-            owner,
-            token_program,
-            event_authority,
-            program,
-            _remaining @ ..,
-        ] = accounts
+        let [pool_authority, pool, position, reward_vault, reward_mint, user_token_account, position_nft_account, owner, token_program, event_authority, program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

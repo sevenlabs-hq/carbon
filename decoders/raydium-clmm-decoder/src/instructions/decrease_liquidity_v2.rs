@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -36,25 +36,8 @@ impl carbon_core::deserialize::ArrangeAccounts for DecreaseLiquidityV2 {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            nft_owner,
-            nft_account,
-            personal_position,
-            pool_state,
-            protocol_position,
-            token_vault0,
-            token_vault1,
-            tick_array_lower,
-            tick_array_upper,
-            recipient_token_account0,
-            recipient_token_account1,
-            token_program,
-            token_program2022,
-            memo_program,
-            vault0_mint,
-            vault1_mint,
-            _remaining @ ..,
-        ] = accounts
+        let [nft_owner, nft_account, personal_position, pool_state, protocol_position, token_vault0, token_vault1, tick_array_lower, tick_array_upper, recipient_token_account0, recipient_token_account1, token_program, token_program2022, memo_program, vault0_mint, vault1_mint, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

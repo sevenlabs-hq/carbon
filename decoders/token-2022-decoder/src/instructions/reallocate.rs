@@ -5,11 +5,11 @@
 //! <https://github.com/codama-idl/codama>
 //!
 use crate::types::ExtensionType;
-use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
+use carbon_core::CarbonDeserialize;
 
 /// Check to see if a token account is large enough for a list of
 /// ExtensionTypes, and if not, use reallocation to increase the data

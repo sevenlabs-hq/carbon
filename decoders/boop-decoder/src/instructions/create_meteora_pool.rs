@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -37,30 +37,8 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateMeteoraPool {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            operator,
-            config,
-            vault_authority,
-            cp_amm_config,
-            pool_authority,
-            pool,
-            position,
-            position_nft_mint,
-            position_nft_account,
-            token_a_mint,
-            token_b_mint,
-            token_a_vault,
-            token_b_vault,
-            bonding_curve,
-            bonding_curve_vault,
-            bonding_curve_wsol_vault,
-            token_program,
-            token_2022_program,
-            system_program,
-            event_authority,
-            cp_amm_program,
-            _remaining @ ..,
-        ] = accounts
+        let [operator, config, vault_authority, cp_amm_config, pool_authority, pool, position, position_nft_mint, position_nft_account, token_a_mint, token_b_mint, token_a_vault, token_b_vault, bonding_curve, bonding_curve_vault, bonding_curve_wsol_vault, token_program, token_2022_program, system_program, event_authority, cp_amm_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

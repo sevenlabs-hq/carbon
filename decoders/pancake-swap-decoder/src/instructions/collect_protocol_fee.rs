@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -30,20 +30,8 @@ impl carbon_core::deserialize::ArrangeAccounts for CollectProtocolFee {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            owner,
-            pool_state,
-            amm_config,
-            token_vault_0,
-            token_vault_1,
-            vault_0_mint,
-            vault_1_mint,
-            recipient_token_account_0,
-            recipient_token_account_1,
-            token_program,
-            token_program_2022,
-            _remaining @ ..,
-        ] = accounts
+        let [owner, pool_state, amm_config, token_vault_0, token_vault_1, vault_0_mint, vault_1_mint, recipient_token_account_0, recipient_token_account_1, token_program, token_program_2022, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

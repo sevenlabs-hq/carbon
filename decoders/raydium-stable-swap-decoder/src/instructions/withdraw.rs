@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -37,28 +37,8 @@ impl carbon_core::deserialize::ArrangeAccounts for Withdraw {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            spl_token_program,
-            amm_account,
-            authority,
-            amm_open_orders,
-            amm_target_orders,
-            pool_lp_mint,
-            pool_token_coin,
-            pool_token_pc,
-            withdraw_queue,
-            token_temp_lp,
-            serum_dex_program_id,
-            serum_market,
-            coin_vault,
-            pc_vault,
-            vault_signer,
-            user_lp_token,
-            user_token_coin,
-            user_token_pc,
-            user_owner,
-            _remaining @ ..,
-        ] = accounts
+        let [spl_token_program, amm_account, authority, amm_open_orders, amm_target_orders, pool_lp_mint, pool_token_coin, pool_token_pc, withdraw_queue, token_temp_lp, serum_dex_program_id, serum_market, coin_vault, pc_vault, vault_signer, user_lp_token, user_token_coin, user_token_pc, user_owner, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

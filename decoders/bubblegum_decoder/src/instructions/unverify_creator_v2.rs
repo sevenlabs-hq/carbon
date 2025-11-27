@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -34,18 +34,8 @@ impl carbon_core::deserialize::ArrangeAccounts for UnverifyCreatorV2 {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            tree_authority,
-            payer,
-            creator,
-            leaf_owner,
-            leaf_delegate,
-            merkle_tree,
-            log_wrapper,
-            compression_program,
-            system_program,
-            _remaining @ ..,
-        ] = accounts
+        let [tree_authority, payer, creator, leaf_owner, leaf_delegate, merkle_tree, log_wrapper, compression_program, system_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

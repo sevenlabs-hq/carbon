@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, Clone)]
 #[carbon(discriminator = "0xe0fbfe63b1ae8904")]

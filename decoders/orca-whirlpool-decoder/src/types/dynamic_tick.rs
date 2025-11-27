@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 use serde::ser::SerializeTuple;
 
 #[derive(CarbonDeserialize, Debug, PartialEq, Eq, Clone, Hash, Copy)]

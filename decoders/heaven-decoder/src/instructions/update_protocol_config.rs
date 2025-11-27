@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, account_utils::next_account, borsh};
+use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
 
 #[derive(CarbonDeserialize, Debug, PartialEq, serde::Serialize, serde::Deserialize, Clone)]
 #[carbon(discriminator = "0xc5617b36dda80b87")]

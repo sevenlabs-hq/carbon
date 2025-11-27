@@ -8,8 +8,8 @@
 use solana_program_pack::Pack;
 use spl_token_2022::extension::StateWithExtensions;
 
-use crate::PROGRAM_ID;
 use crate::Token2022Decoder;
+use crate::PROGRAM_ID;
 
 #[cfg(feature = "postgres")]
 pub mod postgres;

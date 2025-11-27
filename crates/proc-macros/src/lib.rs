@@ -48,9 +48,9 @@ use {
     proc_macro2::{Span, TokenStream as TokenStream2},
     quote::{format_ident, quote},
     syn::{
-        DeriveInput, Ident, Item, ItemEnum, Lit, Meta, NestedMeta, Token, TypePath,
         parse::{Parse, ParseStream},
-        parse_macro_input,
+        parse_macro_input, DeriveInput, Ident, Item, ItemEnum, Lit, Meta, NestedMeta, Token,
+        TypePath,
     },
 };
 

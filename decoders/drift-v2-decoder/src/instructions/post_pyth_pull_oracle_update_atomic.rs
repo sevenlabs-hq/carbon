@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -22,13 +22,7 @@ impl carbon_core::deserialize::ArrangeAccounts for PostPythPullOracleUpdateAtomi
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            keeper,
-            pyth_solana_receiver,
-            guardian_set,
-            price_feed,
-            _remaining @ ..,
-        ] = accounts
+        let [keeper, pyth_solana_receiver, guardian_set, price_feed, _remaining @ ..] = accounts
         else {
             return None;
         };

@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -37,22 +37,8 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdateMetadata {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            tree_authority,
-            authority,
-            collection_mint,
-            collection_metadata,
-            collection_authority_record_pda,
-            leaf_owner,
-            leaf_delegate,
-            payer,
-            merkle_tree,
-            log_wrapper,
-            compression_program,
-            token_metadata_program,
-            system_program,
-            _remaining @ ..,
-        ] = accounts
+        let [tree_authority, authority, collection_mint, collection_metadata, collection_authority_record_pda, leaf_owner, leaf_delegate, payer, merkle_tree, log_wrapper, compression_program, token_metadata_program, system_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

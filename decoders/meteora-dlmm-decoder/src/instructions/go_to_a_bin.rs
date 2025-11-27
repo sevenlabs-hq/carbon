@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -24,15 +24,8 @@ impl carbon_core::deserialize::ArrangeAccounts for GoToABin {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            lb_pair,
-            bin_array_bitmap_extension,
-            from_bin_array,
-            to_bin_array,
-            event_authority,
-            program,
-            _remaining @ ..,
-        ] = accounts
+        let [lb_pair, bin_array_bitmap_extension, from_bin_array, to_bin_array, event_authority, program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

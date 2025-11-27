@@ -31,14 +31,14 @@ use {
     },
     solana_instruction::AccountMeta,
     solana_message::{
-        VersionedMessage, compiled_instruction::CompiledInstruction, v0::LoadedAddresses,
+        compiled_instruction::CompiledInstruction, v0::LoadedAddresses, VersionedMessage,
     },
     solana_pubkey::Pubkey,
     solana_transaction_context::TransactionReturnData,
     solana_transaction_status::{
-        InnerInstruction, InnerInstructions, Reward, TransactionStatusMeta,
-        TransactionTokenBalance, UiInstruction, UiLoadedAddresses, UiTransactionStatusMeta,
-        option_serializer::OptionSerializer,
+        option_serializer::OptionSerializer, InnerInstruction, InnerInstructions, Reward,
+        TransactionStatusMeta, TransactionTokenBalance, UiInstruction, UiLoadedAddresses,
+        UiTransactionStatusMeta,
     },
     std::{collections::HashSet, str::FromStr, sync::Arc},
 };
@@ -501,9 +501,9 @@ mod tests {
         solana_account_decoder_client_types::token::UiTokenAmount,
         solana_hash::Hash,
         solana_message::{
-            MessageHeader,
             legacy::Message,
             v0::{self, MessageAddressTableLookup},
+            MessageHeader,
         },
         solana_signature::Signature,
         solana_transaction::versioned::VersionedTransaction,

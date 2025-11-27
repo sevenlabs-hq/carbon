@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -22,14 +22,8 @@ impl carbon_core::deserialize::ArrangeAccounts for PruneOrders {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            close_market_admin,
-            open_orders_account,
-            market,
-            bids,
-            asks,
-            _remaining @ ..,
-        ] = accounts
+        let [close_market_admin, open_orders_account, market, bids, asks, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

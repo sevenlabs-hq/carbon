@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -24,16 +24,8 @@ impl carbon_core::deserialize::ArrangeAccounts for AdminCrankEventQueue {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            state,
-            authority,
-            market,
-            event_queue,
-            dex_program,
-            serum_authority,
-            open_orders,
-            _remaining @ ..,
-        ] = accounts
+        let [state, authority, market, event_queue, dex_program, serum_authority, open_orders, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

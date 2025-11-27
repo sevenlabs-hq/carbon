@@ -1,6 +1,6 @@
 use {
     super::super::types::*,
-    carbon_core::{CarbonDeserialize, borsh},
+    carbon_core::{borsh, CarbonDeserialize},
 };
 
 #[derive(
@@ -32,21 +32,8 @@ impl carbon_core::deserialize::ArrangeAccounts for PlaceOrder {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            signer,
-            open_orders_account,
-            open_orders_admin,
-            user_token_account,
-            market,
-            bids,
-            asks,
-            event_heap,
-            market_vault,
-            oracle_a,
-            oracle_b,
-            token_program,
-            _remaining @ ..,
-        ] = accounts
+        let [signer, open_orders_account, open_orders_admin, user_token_account, market, bids, asks, event_heap, market_vault, oracle_a, oracle_b, token_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

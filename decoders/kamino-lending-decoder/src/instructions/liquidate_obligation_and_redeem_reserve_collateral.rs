@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -39,29 +39,8 @@ impl carbon_core::deserialize::ArrangeAccounts for LiquidateObligationAndRedeemR
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            liquidator,
-            obligation,
-            lending_market,
-            lending_market_authority,
-            repay_reserve,
-            repay_reserve_liquidity_mint,
-            repay_reserve_liquidity_supply,
-            withdraw_reserve,
-            withdraw_reserve_liquidity_mint,
-            withdraw_reserve_collateral_mint,
-            withdraw_reserve_collateral_supply,
-            withdraw_reserve_liquidity_supply,
-            withdraw_reserve_liquidity_fee_receiver,
-            user_source_liquidity,
-            user_destination_collateral,
-            user_destination_liquidity,
-            collateral_token_program,
-            repay_liquidity_token_program,
-            withdraw_liquidity_token_program,
-            instruction_sysvar_account,
-            _remaining @ ..,
-        ] = accounts
+        let [liquidator, obligation, lending_market, lending_market_authority, repay_reserve, repay_reserve_liquidity_mint, repay_reserve_liquidity_supply, withdraw_reserve, withdraw_reserve_liquidity_mint, withdraw_reserve_collateral_mint, withdraw_reserve_collateral_supply, withdraw_reserve_liquidity_supply, withdraw_reserve_liquidity_fee_receiver, user_source_liquidity, user_destination_collateral, user_destination_liquidity, collateral_token_program, repay_liquidity_token_program, withdraw_liquidity_token_program, instruction_sysvar_account, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

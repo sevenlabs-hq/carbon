@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -22,16 +22,8 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeZetaTreasuryWallet 
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            state,
-            treasury_wallet,
-            rent,
-            system_program,
-            token_program,
-            usdc_mint,
-            admin,
-            _remaining @ ..,
-        ] = accounts
+        let [state, treasury_wallet, rent, system_program, token_program, usdc_mint, admin, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

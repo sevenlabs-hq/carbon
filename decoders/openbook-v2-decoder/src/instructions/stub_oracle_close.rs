@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -19,14 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for StubOracleClose {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            owner,
-            oracle,
-            sol_destination,
-            token_program,
-            _remaining @ ..,
-        ] = accounts
-        else {
+        let [owner, oracle, sol_destination, token_program, _remaining @ ..] = accounts else {
             return None;
         };
 

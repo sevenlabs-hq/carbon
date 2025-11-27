@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -22,16 +22,8 @@ impl carbon_core::deserialize::ArrangeAccounts for RecoverNested {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            nested_associated_account_address,
-            nested_token_mint_address,
-            destination_associated_account_address,
-            owner_associated_account_address,
-            owner_token_mint_address,
-            wallet_address,
-            token_program,
-            _remaining @ ..,
-        ] = accounts
+        let [nested_associated_account_address, nested_token_mint_address, destination_associated_account_address, owner_associated_account_address, owner_token_mint_address, wallet_address, token_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

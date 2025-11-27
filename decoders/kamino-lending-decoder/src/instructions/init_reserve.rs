@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -28,22 +28,8 @@ impl carbon_core::deserialize::ArrangeAccounts for InitReserve {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            lending_market_owner,
-            lending_market,
-            lending_market_authority,
-            reserve,
-            reserve_liquidity_mint,
-            reserve_liquidity_supply,
-            fee_receiver,
-            reserve_collateral_mint,
-            reserve_collateral_supply,
-            rent,
-            liquidity_token_program,
-            collateral_token_program,
-            system_program,
-            _remaining @ ..,
-        ] = accounts
+        let [lending_market_owner, lending_market, lending_market_authority, reserve, reserve_liquidity_mint, reserve_liquidity_supply, fee_receiver, reserve_collateral_mint, reserve_collateral_supply, rent, liquidity_token_program, collateral_token_program, system_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

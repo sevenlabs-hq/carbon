@@ -1,6 +1,6 @@
 use {
     super::super::types::*,
-    carbon_core::{CarbonDeserialize, borsh},
+    carbon_core::{borsh, CarbonDeserialize},
 };
 
 #[derive(
@@ -35,23 +35,8 @@ impl carbon_core::deserialize::ArrangeAccounts for LendingPoolAddBankWithSeed {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            marginfi_group,
-            admin,
-            fee_payer,
-            bank_mint,
-            bank,
-            liquidity_vault_authority,
-            liquidity_vault,
-            insurance_vault_authority,
-            insurance_vault,
-            fee_vault_authority,
-            fee_vault,
-            rent,
-            token_program,
-            system_program,
-            _remaining @ ..,
-        ] = accounts
+        let [marginfi_group, admin, fee_payer, bank_mint, bank, liquidity_vault_authority, liquidity_vault, insurance_vault_authority, insurance_vault, fee_vault_authority, fee_vault, rent, token_program, system_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

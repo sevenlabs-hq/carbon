@@ -1,5 +1,5 @@
 use alloc::format;
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[repr(u8)]
 #[derive(

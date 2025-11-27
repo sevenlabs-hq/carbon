@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -32,22 +32,8 @@ impl carbon_core::deserialize::ArrangeAccounts for LiquidateSpotWithSwapBegin {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            state,
-            authority,
-            liquidator,
-            liquidator_stats,
-            user,
-            user_stats,
-            liability_spot_market_vault,
-            asset_spot_market_vault,
-            liability_token_account,
-            asset_token_account,
-            token_program,
-            drift_signer,
-            instructions,
-            _remaining @ ..,
-        ] = accounts
+        let [state, authority, liquidator, liquidator_stats, user, user_stats, liability_spot_market_vault, asset_spot_market_vault, liability_token_account, asset_token_account, token_program, drift_signer, instructions, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -31,21 +31,8 @@ impl carbon_core::deserialize::ArrangeAccounts for SellToken {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            mint,
-            bonding_curve,
-            trading_fees_vault,
-            bonding_curve_vault,
-            bonding_curve_sol_vault,
-            seller_token_account,
-            seller,
-            recipient,
-            config,
-            system_program,
-            token_program,
-            associated_token_program,
-            _remaining @ ..,
-        ] = accounts
+        let [mint, bonding_curve, trading_fees_vault, bonding_curve_vault, bonding_curve_sol_vault, seller_token_account, seller, recipient, config, system_program, token_program, associated_token_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

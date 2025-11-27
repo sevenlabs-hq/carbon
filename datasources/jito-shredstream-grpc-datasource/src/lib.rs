@@ -6,9 +6,9 @@ use {
         metrics::MetricsCollection,
     },
     carbon_jito_protos::shredstream::{
-        SubscribeEntriesRequest, shredstream_proxy_client::ShredstreamProxyClient,
+        shredstream_proxy_client::ShredstreamProxyClient, SubscribeEntriesRequest,
     },
-    futures::{TryStreamExt, stream::try_unfold},
+    futures::{stream::try_unfold, TryStreamExt},
     scc::HashCache,
     solana_client::rpc_client::SerializableTransaction,
     solana_entry::entry::Entry,

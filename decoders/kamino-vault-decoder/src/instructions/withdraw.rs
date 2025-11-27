@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -19,11 +19,7 @@ impl carbon_core::deserialize::ArrangeAccounts for Withdraw {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            withdraw_from_available,
-            withdraw_from_reserve_accounts,
-            _remaining @ ..,
-        ] = accounts
+        let [withdraw_from_available, withdraw_from_reserve_accounts, _remaining @ ..] = accounts
         else {
             return None;
         };

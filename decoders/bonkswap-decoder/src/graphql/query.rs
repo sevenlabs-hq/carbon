@@ -1,4 +1,4 @@
-use juniper::{FieldResult, graphql_object};
+use juniper::{graphql_object, FieldResult};
 use std::str::FromStr;
 
 pub struct QueryRoot;

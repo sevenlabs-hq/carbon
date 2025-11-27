@@ -209,14 +209,14 @@ impl carbon_core::instruction::InstructionDecoder<'_> for TokenMetadataDecoder {
 mod tests {
     use super::*;
     use crate::{
-        TokenMetadataDecoder,
         instructions::{
-            TokenMetadataInstruction,
             create_metadata_account_v3::{
                 CreateMetadataAccountV3, CreateMetadataAccountV3InstructionAccounts,
             },
+            TokenMetadataInstruction,
         },
         types::{CreateMetadataAccountArgsV3, Creator, DataV2},
+        TokenMetadataDecoder,
     };
     use carbon_core::{deserialize::ArrangeAccounts, instruction::InstructionDecoder};
     use carbon_test_utils::read_instruction;

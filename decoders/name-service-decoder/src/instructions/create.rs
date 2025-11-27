@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -25,15 +25,8 @@ impl carbon_core::deserialize::ArrangeAccounts for Create {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            system_program,
-            funding_account,
-            name_record,
-            account_class,
-            parent_name_record,
-            parent_name_record_class,
-            _remaining @ ..,
-        ] = accounts
+        let [system_program, funding_account, name_record, account_class, parent_name_record, parent_name_record_class, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

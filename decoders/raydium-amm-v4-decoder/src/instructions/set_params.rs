@@ -1,7 +1,7 @@
 use {
     super::super::types::*,
     crate::accounts::fees::Fees,
-    carbon_core::{CarbonDeserialize, borsh},
+    carbon_core::{borsh, CarbonDeserialize},
 };
 
 #[derive(
@@ -43,25 +43,8 @@ impl carbon_core::deserialize::ArrangeAccounts for SetParams {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            token_program,
-            amm,
-            amm_authority,
-            amm_open_orders,
-            amm_target_orders,
-            amm_coin_vault,
-            amm_pc_vault,
-            serum_program,
-            serum_market,
-            serum_coin_vault,
-            serum_pc_vault,
-            serum_vault_signer,
-            serum_event_queue,
-            serum_bids,
-            serum_asks,
-            amm_admin_account,
-            _remaining @ ..,
-        ] = accounts
+        let [token_program, amm, amm_authority, amm_open_orders, amm_target_orders, amm_coin_vault, amm_pc_vault, serum_program, serum_market, serum_coin_vault, serum_pc_vault, serum_vault_signer, serum_event_queue, serum_bids, serum_asks, amm_admin_account, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

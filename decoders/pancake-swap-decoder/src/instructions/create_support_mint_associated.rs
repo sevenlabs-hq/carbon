@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -20,13 +20,8 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateSupportMintAssociated {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            owner,
-            token_mint,
-            support_mint_associated,
-            system_program,
-            _remaining @ ..,
-        ] = accounts
+        let [owner, token_mint, support_mint_associated, system_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };

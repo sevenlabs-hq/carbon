@@ -1,4 +1,4 @@
-use carbon_core::{CarbonDeserialize, borsh};
+use carbon_core::{borsh, CarbonDeserialize};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -28,18 +28,8 @@ impl carbon_core::deserialize::ArrangeAccounts for LendingPoolSetupEmissions {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [
-            marginfi_group,
-            admin,
-            bank,
-            emissions_mint,
-            emissions_auth,
-            emissions_token_account,
-            emissions_funding_account,
-            token_program,
-            system_program,
-            _remaining @ ..,
-        ] = accounts
+        let [marginfi_group, admin, bank, emissions_mint, emissions_auth, emissions_token_account, emissions_funding_account, token_program, system_program, _remaining @ ..] =
+            accounts
         else {
             return None;
         };
