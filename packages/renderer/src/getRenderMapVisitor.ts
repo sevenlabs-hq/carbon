@@ -25,6 +25,7 @@ import { partition, render } from './utils';
 import { getPostgresTypeManifestVisitor, PostgresTypeManifest } from './getPostgresTypeManifestVisitor';
 import { FlattenedGraphQLField, flattenTypeForGraphQL } from './utils/flattenGraphqlFields';
 import { generateDecoderCargoToml } from './cargoTomlGenerator';
+import { formatDocComments } from './utils/render';
 
 export type GetRenderMapOptions = {
     renderParentInstructions?: boolean;
@@ -50,12 +51,11 @@ type FlattenedField = {
     docs: string[];
     postgresManifest: PostgresTypeManifest;
     needsBigArray?: boolean;
+    isCopyType?: boolean;
 };
 
 export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
     const renderParentInstructions = options.renderParentInstructions ?? false;
-    // We'll create a map of defined types when we visit the root node
-    // and pass it to a factory function that creates the visitor
     let definedTypesMap: Map<string, any> | null = null;
     const newtypeWrapperTypes = new Set<string>(); // Track which types were converted to newtype wrappers
     const createTypeManifestVisitor = () => getTypeManifestVisitor(definedTypesMap, newtypeWrapperTypes);
@@ -118,7 +118,6 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const discriminatorManifest =
                         discriminators.length > 0 ? getDiscriminatorManifest(discriminators) : undefined;
 
-                    // Postgres generation
                     const flatFields = flattenType(newNode.data, [], [], new Set());
                     const postgresImports = new ImportMap()
                         .add('carbon_core::account::AccountMetadata')
@@ -127,10 +126,15 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         postgresImports.mergeWith(f.postgresManifest.imports);
                     });
 
+                    // Process all docs together to maintain list context across doc strings
+                    const formattedAccountDocs = newNode.docs && newNode.docs.length > 0
+                        ? formatDocComments(newNode.docs, '')
+                        : '';
+                    
                     let renderMap = new RenderMap().add(
                         `src/accounts/${snakeCase(node.name)}.rs`,
                         render('accountsPage.njk', {
-                            account: newNode,
+                            account: { ...newNode, formattedDocs: formattedAccountDocs },
                             imports: imports.toString(),
                             program: currentProgram,
                             discriminatorManifest,
@@ -159,7 +163,6 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         graphqlFields.forEach((f: FlattenedGraphQLField) => {
                             graphqlImports.mergeWith(f.graphqlManifest.imports);
                         });
-                        // Ensure GraphQL derive is imported consistently via ImportMap
                         graphqlImports.add('juniper::GraphQLObject');
 
                         // GraphQLObject doesn't support empty structs
@@ -188,14 +191,12 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const typeManifest = visit(node.type, typeManifestVisitor);
                     const imports = new ImportMap().mergeWithManifest(typeManifest);
 
-                    // Check if this is a type alias that resolves to a large fixed-size array
-                    // If so, we need to use a newtype wrapper instead of a type alias to allow BigArray attribute
+                    // Use newtype wrapper instead of type alias to allow BigArray attribute for large arrays
                     let needsNewtypeWrapper = false;
                     let arraySize: number | undefined = undefined;
                     if (node.type.kind !== 'structTypeNode' && node.type.kind !== 'enumTypeNode') {
                         // Resolve the underlying type to check if it's a large array
                         let resolvedRaw: any = undefined;
-                        // First check if the type node itself is a fixed-size array
                         if (isNode(node.type, 'fixedSizeTypeNode')) {
                             resolvedRaw = node.type;
                         } else if (isNode(node.type, 'arrayTypeNode')) {
@@ -229,7 +230,6 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         }
                     }
 
-                    // Track if this type was converted to a newtype wrapper
                     if (needsNewtypeWrapper) {
                         newtypeWrapperTypes.add(node.name);
                     }
@@ -254,7 +254,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             return None;
         }
         let discriminator = &data[0..${event.discriminator.length}];
-        if discriminator != &[${event.discriminator.join(', ')}] {
+        if discriminator != [${event.discriminator.join(', ')}] {
             return None;
         }`,
                             };
@@ -271,7 +271,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         }
                     }
 
-                    // GraphQL generation for structs and enums - only if withGraphql is enabled
+                    // GraphQL generation for structs and enums - if withGraphql is enabled
                     if (options.withGraphql !== false) {
                         if (node.type.kind === 'structTypeNode') {
                             if (node.type.fields.length > 0) {
@@ -354,16 +354,14 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         arg => arg.name == 'discriminator',
                     );
 
-                    // Collect all types from arguments
                     const argumentTypes = regularArguments.map(arg => {
                         const manifest = visit(arg.type, typeManifestVisitor);
                         imports.mergeWithManifest(manifest);
 
-                        // visitDefinedTypeLink already sets requiredBigArray appropriately (including undefined for newtype wrappers)
-                        // Only need to override if it's a newtype wrapper to ensure it's undefined
+                        // Newtype wrapper handles serialization itself, so don't apply BigArray
                         let requiredBigArray = manifest.requiredBigArray;
                         if (isNode(arg.type, 'definedTypeLinkNode') && newtypeWrapperTypes.has(arg.type.name)) {
-                            requiredBigArray = undefined; // Newtype wrapper handles serialization itself
+                            requiredBigArray = undefined;
                         }
 
                         return {
@@ -485,7 +483,6 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         graphqlFields.forEach((f: FlattenedGraphQLField) => {
                             graphqlImports.mergeWith(f.graphqlManifest.imports);
                         });
-                        // Ensure GraphQL derive is imported consistently via ImportMap
                         graphqlImports.add('juniper::GraphQLObject');
                         graphqlImports.add('serde_json');
 
@@ -666,7 +663,6 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         map.add('src/graphql/mod.rs', render('graphqlRootMod.njk', ctx));
                         map.add('src/graphql/context.rs', render('graphqlContextPage.njk', ctx));
 
-                        // Use different query template based on postgres mode
                         if (options.postgresMode === 'generic') {
                             const graphqlQueryGenericImports = new ImportMap().add(
                                 'juniper::{graphql_object, FieldResult}',
@@ -689,10 +685,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         }
                     }
 
-                    // Generate lib.rs
                     map.add('src/lib.rs', render('lib.njk', ctx));
 
-                    // Generate Cargo.toml
                     const cargoToml = generateDecoderCargoToml({
                         packageName: options.packageName,
                         programName: program.name,
@@ -703,11 +697,62 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     });
                     map.add('Cargo.toml', cargoToml);
 
-                    // Process only the main program (ignore additionalPrograms)
                     return map.mergeWith(visit(program, self));
                 },
             }),
     );
+
+    function isPostgresPrimitiveType(type: string): boolean {
+        return type.includes('U8') || 
+               type.includes('U16') ||
+               type.includes('U32') ||
+               type.includes('U64') ||
+               type.includes('U128') ||
+               type.includes('I128');
+    }
+
+    // Determines if a Rust type is Copy based on its string representation.
+    function isCopyType(rowType: string): boolean {
+        const trimmed = rowType.trim();
+        
+        const copyPrimitives = [
+            'bool', 'i8', 'i16', 'i32', 'i64', 'f32', 'f64',
+            'carbon_core::postgres::primitives::Pubkey',
+            'Pubkey', // May be used without full path
+            'carbon_core::postgres::primitives::U8',
+            'U8',
+            'carbon_core::postgres::primitives::U16',
+            'U16',
+            'carbon_core::postgres::primitives::U32',
+            'U32',
+        ];
+        
+        if (trimmed.startsWith('Option<')) {
+            const innerMatch = trimmed.match(/^Option<(.+)>$/);
+            if (innerMatch) {
+                const innerType = innerMatch[1].trim();
+                return isCopyType(innerType);
+            }
+        }
+        
+        // Json<T> implements Copy if T implements Copy
+        const jsonMatch = trimmed.match(/(?:sqlx::types::)?Json<(.+)>/);
+        if (jsonMatch) {
+            const innerType = jsonMatch[1].trim();
+            const unwrappedType = innerType.replace(/^Option<(.+)>$/, '$1');
+            const lowerType = unwrappedType.toLowerCase();
+            if (lowerType === 'bool' || lowerType.endsWith('bool') || lowerType.includes('::bool')) {
+                return true;
+            }
+            return isCopyType(unwrappedType);
+        }
+        
+        if (copyPrimitives.includes(trimmed)) {
+            return true;
+        }
+        
+        return false;
+    }
 
     function flattenType(
         typeNode: TypeNode,
@@ -731,6 +776,64 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             return col;
         };
 
+        const flattenOptionType = (
+            typeNode: TypeNode,
+            prefix: string[],
+            docsPrefix: string[],
+        ): FlattenedField[] => {
+            const column = makeName(prefix);
+            const itemType = isNode(typeNode, 'optionTypeNode') 
+                ? typeNode.item 
+                : isNode(typeNode, 'zeroableOptionTypeNode') 
+                    ? typeNode.item 
+                    : (typeNode as any).item; // remainderOptionTypeNode
+            const manifest = visit(itemType, postgresTypeManifestVisitor) as PostgresTypeManifest;
+            const isJson = (manifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
+
+            const rowType = isJson
+                ? manifest.sqlxType.includes('Json<')
+                    ? `Option<${manifest.sqlxType}>`
+                    : `Option<sqlx::types::Json<${manifest.sqlxType}>>`
+                : `Option<${manifest.sqlxType}>`;
+
+            const innerRustManifest = visit(itemType, typeManifestVisitor);
+            // Pubkey always needs conversion
+            const needsConversion = isNode(itemType, 'publicKeyTypeNode') 
+                ? true 
+                : !typesMatch(manifest.sqlxType, innerRustManifest.type);
+            
+            const sourceField = `source.${prefix.join('.')}`;
+            const sourceColumn = `source.${column}`;
+            
+            const expr = isJson
+                ? manifest.sqlxType.includes('Json<')
+                    ? needsConversion
+                        ? `${sourceField}.map(|value| value.into())`
+                        : sourceField
+                    : needsConversion
+                        ? `${sourceField}.map(|value| sqlx::types::Json(value.into()))`
+                        : `${sourceField}.map(sqlx::types::Json)`
+                : needsConversion
+                    ? `${sourceField}.map(|value| value.into())`
+                    : sourceField;
+
+            const reverseExpr = isJson
+                ? `${sourceColumn}.map(|value| value.0)`
+                : buildReverseOptionType(typeNode, sourceColumn, manifest);
+
+            return [{
+                column,
+                rustPath: prefix.join('.'),
+                rowType,
+                postgresColumnType: `${manifest.postgresColumnType}`,
+                docs: docsPrefix,
+                postgresManifest: manifest,
+                expr,
+                reverseExpr,
+                isCopyType: isCopyType(rowType),
+            }];
+        };
+
         if (isNode(typeNode, 'structTypeNode')) {
             for (const field of typeNode.fields) {
                 out.push(...flattenType(field.type, [...prefix, snakeCase(field.name)], [], seen, { inOption }));
@@ -739,76 +842,12 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
         }
 
         if (isNode(typeNode, 'optionTypeNode')) {
-            const column = makeName(prefix);
-            const manifest = visit(typeNode.item, postgresTypeManifestVisitor) as PostgresTypeManifest;
-            const isJson = (manifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
-
-            const rowType = isJson
-                ? manifest.sqlxType.includes('Json<')
-                    ? `Option<${manifest.sqlxType}>`
-                    : `Option<sqlx::types::Json<${manifest.sqlxType}>>`
-                : `Option<${manifest.sqlxType}>`;
-
-            const expr = isJson
-                ? manifest.sqlxType.includes('Json<')
-                    ? `${`source.${prefix.join('.')}`}.map(|value| value.into())`
-                    : `${`source.${prefix.join('.')}`}.map(|value| sqlx::types::Json(value.into()))`
-                : `${`source.${prefix.join('.')}`}.map(|value| value.into())`;
-
-            // Handle reverse conversion based on inner type
-            const reverseExpr = isJson
-                ? `${`source.${column}`}.map(|value| value.0)` // Always single unwrap for JSONB types
-                : buildReverseOptionType(typeNode, `source.${column}`, manifest);
-
-            out.push({
-                column,
-                rustPath: prefix.join('.'),
-                rowType,
-                postgresColumnType: `${manifest.postgresColumnType}`,
-                docs: docsPrefix,
-                postgresManifest: manifest,
-                expr,
-                reverseExpr,
-            });
-
-            return out;
+            return flattenOptionType(typeNode, prefix, docsPrefix);
         }
 
         // Handle zeroableOptionTypeNode, remainderOptionTypeNode - same as optionTypeNode
         if (isNode(typeNode, 'zeroableOptionTypeNode') || isNode(typeNode, 'remainderOptionTypeNode')) {
-            const column = makeName(prefix);
-            const manifest = visit(typeNode.item, postgresTypeManifestVisitor) as PostgresTypeManifest;
-            const isJson = (manifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
-
-            const rowType = isJson
-                ? manifest.sqlxType.includes('Json<')
-                    ? `Option<${manifest.sqlxType}>`
-                    : `Option<sqlx::types::Json<${manifest.sqlxType}>>`
-                : `Option<${manifest.sqlxType}>`;
-
-            const expr = isJson
-                ? manifest.sqlxType.includes('Json<')
-                    ? `${`source.${prefix.join('.')}`}.map(|value| value.into())`
-                    : `${`source.${prefix.join('.')}`}.map(|value| sqlx::types::Json(value.into()))`
-                : `${`source.${prefix.join('.')}`}.map(|value| value.into())`;
-
-            // Handle reverse conversion based on inner type
-            const reverseExpr = isJson
-                ? `${`source.${column}`}.map(|value| value.0)` // Always single unwrap for JSONB types
-                : buildReverseOptionType(typeNode, `source.${column}`, manifest);
-
-            out.push({
-                column,
-                rustPath: prefix.join('.'),
-                rowType,
-                postgresColumnType: `${manifest.postgresColumnType}`,
-                docs: docsPrefix,
-                postgresManifest: manifest,
-                expr,
-                reverseExpr,
-            });
-
-            return out;
+            return flattenOptionType(typeNode, prefix, docsPrefix);
         }
 
         // Handle hiddenPrefixTypeNode - unwrap and process inner type
@@ -820,14 +859,21 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             const column = makeName(prefix);
             const manifest = visit(typeNode, postgresTypeManifestVisitor) as PostgresTypeManifest;
             const isJson = (manifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
+            const typeManifest = visit(typeNode, typeManifestVisitor);
+            const originalTypeName = typeManifest.type;
 
             const rowType = isJson ? `sqlx::types::Json<${manifest.sqlxType}>` : `${manifest.sqlxType}`;
 
+            // Check if Postgres type matches original type (no conversion needed)
+            const needsConversion = manifest.sqlxType !== originalTypeName;
+            const sourceField = `source.${prefix.join('.')}`;
             const expr = isJson
-                ? `sqlx::types::Json(${`source.${prefix.join('.')}`}.into())`
-                : `${`source.${prefix.join('.')}`}.into()`;
+                ? `sqlx::types::Json(${needsConversion ? `${sourceField}.into()` : sourceField})`
+                : needsConversion ? `${sourceField}.into()` : sourceField;
 
-            const reverseExpr = isJson ? `${`source.${column}`}.0` : `${`source.${column}`}.into()`;
+            // For reverse conversion, check if types match
+            const sourceColumn = `source.${column}`;
+            const reverseExpr = isJson ? `${sourceColumn}.0` : (needsConversion ? `${sourceColumn}.into()` : sourceColumn);
 
             // Check if this defined type alias resolves to a large fixed-size array that needs BigArray
             // But skip if it's a newtype wrapper (which handles serialization itself)
@@ -873,6 +919,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 expr,
                 reverseExpr,
                 needsBigArray,
+                isCopyType: isCopyType(rowType),
             });
             return out;
         }
@@ -887,6 +934,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             postgresColumnType: `${manifest.postgresColumnType} NOT NULL`,
             docs: docsPrefix,
             postgresManifest: manifest,
+            isCopyType: isCopyType(manifest.sqlxType),
         };
 
         field.expr = buildExpression(typeNode, `source.${field.rustPath}`);
@@ -906,12 +954,28 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 isNode(typeNode.item, 'stringTypeNode') ||
                 isNode(typeNode.item, 'publicKeyTypeNode')
             ) {
+                if (isNode(typeNode.item, 'publicKeyTypeNode')) {
+                    return `${prefix}.into_iter().map(|element| element.into()).collect()`;
+                }
+                
+                const postgresManifest = visit(typeNode.item, postgresTypeManifestVisitor) as PostgresTypeManifest;
+                const rustManifest = visit(typeNode.item, typeManifestVisitor);
+                const postgresType = postgresManifest.sqlxType;
+                const rustType = rustManifest.type;
+                const isPostgresWrapper = isPostgresPrimitiveType(postgresType);
+                
+                if (postgresType === rustType && !isPostgresWrapper) {
+                    return `${prefix}.to_vec()`;
+                }
                 return `${prefix}.into_iter().map(|element| element.into()).collect()`;
             } else {
-                return `sqlx::types::Json(${prefix}.into_iter().map(|element| ${buildExpression(typeNode.item, `element`)}).collect())`;
+                const innerExpr = buildExpression(typeNode.item, `element`);
+                if (innerExpr === 'element') {
+                    return `sqlx::types::Json(${prefix}.to_vec())`;
+                }
+                return `sqlx::types::Json(${prefix}.into_iter().map(|element| ${innerExpr}).collect())`;
             }
         } else if (isNode(typeNode, 'fixedSizeTypeNode')) {
-            // Fixed-size bytes [u8; N] → Vec<u8> for Postgres storage
             if (isNode(typeNode.type, 'bytesTypeNode')) {
                 return `${prefix}.to_vec()`;
             }
@@ -929,7 +993,21 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 return `${buildExpression(typeNode.items[0], `${prefix}`)}`;
             }
             return `(${typeNode.items.map((item, i) => buildExpression(item, `${prefix}.${i}`)).join(', ')})`;
+        } else if (isNode(typeNode, 'publicKeyTypeNode')) {
+            // Pubkey from Rust needs conversion to Postgres Pubkey (solana_pubkey::Pubkey)
+            return `${prefix}.into()`;
+        } else if (isNode(typeNode, 'booleanTypeNode') || isNode(typeNode, 'stringTypeNode')) {
+            return prefix;
         } else {
+            try {
+                const postgresManifest = visit(typeNode, postgresTypeManifestVisitor) as PostgresTypeManifest;
+                const rustManifest = visit(typeNode, typeManifestVisitor);
+                if (typesMatch(postgresManifest.sqlxType, rustManifest.type)) {
+                    return prefix;
+                }
+            } catch (e) {
+                // If we can't get the manifests, fall back to .into()
+            }
             return `${prefix}.into()`;
         }
     }
@@ -946,37 +1024,71 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
         const innerType = typeNode.item;
 
         if (isNode(innerType, 'booleanTypeNode')) {
-            return `${prefix}.map(|value| value)`;
+            return prefix;
         } else if (isNode(innerType, 'numberTypeNode')) {
-            const isPostgresPrimitive =
-                manifest.sqlxType.includes('U8') ||
-                manifest.sqlxType.includes('U16') ||
-                manifest.sqlxType.includes('U32') ||
-                manifest.sqlxType.includes('U64') ||
-                manifest.sqlxType.includes('I128') ||
-                manifest.sqlxType.includes('U128');
+            const rustManifest = visit(innerType, typeManifestVisitor);
+            const rustType = rustManifest.type;
+            const postgresType = manifest.sqlxType;
+            
+            if (typesMatch(postgresType, rustType)) {
+                return prefix;
+            }
+            
+            const isPostgresPrimitive = isPostgresPrimitiveType(manifest.sqlxType);
 
             if (isPostgresPrimitive) {
-                // For postgres primitives that need try_into(), use transpose() to handle Result
-                if (manifest.sqlxType.includes('U16')) {
-                    return `${prefix}.map(|value| value.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))).transpose()?`;
-                } else if (manifest.sqlxType.includes('U32')) {
-                    return `${prefix}.map(|value| value.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))).transpose()?`;
-                } else if (manifest.sqlxType.includes('U8')) {
+                // U8, U16, U32 need try_into() with transpose() to handle Result
+                if (manifest.sqlxType.includes('U16') || 
+                    manifest.sqlxType.includes('U32') || 
+                    manifest.sqlxType.includes('U8')) {
                     return `${prefix}.map(|value| value.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))).transpose()?`;
                 } else {
                     return `${prefix}.map(|value| *value)`;
                 }
             } else {
-                return `${prefix}.map(|value| value)`;
+                return prefix;
             }
         } else if (isNode(innerType, 'publicKeyTypeNode')) {
+            // Use * to dereference since carbon_core::postgres::primitives::Pubkey implements Deref
             return `${prefix}.map(|value| *value)`;
         } else if (isNode(innerType, 'stringTypeNode') || isNode(innerType, 'bytesTypeNode')) {
             return `${prefix}.map(|value| *value)`;
         } else {
+            const rustManifest = visit(innerType, typeManifestVisitor);
+            if (typesMatch(manifest.sqlxType, rustManifest.type)) {
+                return prefix;
+            }
             return `${prefix}.map(|value| value.into())`;
         }
+    }
+
+    /**
+     * Checks if two types match, accounting for Json wrappers and type aliases.
+     * Strips Json<...> wrappers and compares base types.
+     */
+    function typesMatch(postgresType: string, rustType: string): boolean {
+        let pgType = postgresType.trim();
+        const jsonMatch = pgType.match(/^Json<(.+)>$/);
+        if (jsonMatch) {
+            pgType = jsonMatch[1].trim();
+        }
+        
+        const rustTypeBase = rustType.trim();
+        
+        if (pgType === rustTypeBase) {
+            return true;
+        }
+        
+        // Handle cases like sqlx::types::Json<T> vs T
+        if (pgType.endsWith(rustTypeBase) || rustTypeBase.endsWith(pgType)) {
+            const pgBase = pgType.split('::').pop() || pgType;
+            const rustBase = rustTypeBase.split('::').pop() || rustTypeBase;
+            if (pgBase === rustBase) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     function buildReverse(typeNode: TypeNode, prefix: string): string {
@@ -1009,12 +1121,45 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             );
                         }
                         // JSON-stored vectors of primitives/arrays need element-level reverse then try_into at this level
-                        return (
-                            `${prefix}.0.into_iter().map(|element| Ok(${buildReverse(typeNode.item, 'element')})).collect::<Result<Vec<_>, _>>()?` +
-                            `.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?`
-                        );
+                        const innerReverse = buildReverse(typeNode.item, 'element');
+                        // If buildReverse already returns a Result (contains '?'), the collect gives us Result<Vec<T>, E>
+                        // Then we need to convert Vec<T> to [T; N] using try_into()
+                        if (innerReverse.includes('?')) {
+                            // innerReverse contains ?, so it returns Result<T, E> for each element
+                            // Collect gives Result<Vec<T>, E>, then convert Vec<T> to [T; N]
+                            // Remove the ? from innerReverse and handle Result properly
+                            const innerWithoutQuestion = innerReverse.replace(/\?$/, '');
+                            return (
+                                `${prefix}.0.into_iter().map(|element| ${innerWithoutQuestion}).collect::<Result<Vec<_>, carbon_core::error::Error>>()?` +
+                                `.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?`
+                            );
+                        } else {
+                            // For simple expressions, wrap in Ok() for collect::<Result<Vec<_>, carbon_core::error::Error>>()
+                            // Then convert Vec<T> to [T; N] using try_into()
+                            // Check if innerReverse is just the element itself - if so, use Ok directly instead of closure
+                            const mapExpr = innerReverse === 'element' ? 'Ok' : `|element| Ok(${innerReverse})`;
+                            return (
+                                `${prefix}.0.into_iter().map(${mapExpr}).collect::<Result<Vec<_>, carbon_core::error::Error>>()` +
+                                `.map_err(|_| carbon_core::error::Error::Custom("Failed to collect array elements".to_string()))?` +
+                                `.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?`
+                            );
+                        }
                     } else {
-                        return `${prefix}.into_iter().map(|element| Ok(${buildReverse(typeNode.item, 'element')})).collect::<Result<Vec<_>, _>>()?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
+                        const innerReverse = buildReverse(typeNode.item, 'element');
+                        // If buildReverse already returns a Result (contains '?'), don't wrap in Ok()
+                        if (innerReverse.includes('?')) {
+                            // innerReverse contains ?, so it returns Result<T, E> for each element
+                            // Collect gives Result<Vec<T>, E>, then convert Vec<T> to [T; N]
+                            // Remove the ? from innerReverse and handle Result properly
+                            const innerWithoutQuestion = innerReverse.replace(/\?$/, '');
+                            return `${prefix}.into_iter().map(|element| ${innerWithoutQuestion}).collect::<Result<Vec<_>, carbon_core::error::Error>>()?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
+                        } else {
+                            // For simple expressions, wrap in Ok() for collect::<Result<Vec<_>, carbon_core::error::Error>>()
+                            // Then convert Vec<T> to [T; N] using try_into()
+                            // Check if innerReverse is just the element itself - if so, use Ok directly instead of closure
+                            const mapExpr = innerReverse === 'element' ? 'Ok' : `|element| Ok(${innerReverse})`;
+                            return `${prefix}.into_iter().map(${mapExpr}).collect::<Result<Vec<_>, carbon_core::error::Error>>().map_err(|_| carbon_core::error::Error::Custom("Failed to collect array elements".to_string()))?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
+                        }
                     }
                     break;
                 // our target type is Vec<T>, T is typeNode.item - from Vec<sqlx::types::Json<T>> or Vec<PrimitiveT>
@@ -1027,9 +1172,16 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         ) {
                             return `${prefix}.0`;
                         }
-                        return `${prefix}.0.into_iter().map(|element| ${buildReverse(typeNode.item, 'element')}).collect()`;
+                        const innerReverse = buildReverse(typeNode.item, 'element');
+                        // Check if innerReverse is just the element itself (identity function)
+                        if (innerReverse === 'element' || innerReverse === '*element') {
+                            return `${prefix}.0`;
+                        }
+                        return `${prefix}.0.into_iter().map(|element| ${innerReverse}).collect()`;
                     } else {
                         if (isNode(typeNode.item, 'publicKeyTypeNode')) {
+                            // Pubkey from Postgres (carbon_core::postgres::primitives::Pubkey) needs conversion to Rust Pubkey (solana_pubkey::Pubkey)
+                            // Use * to dereference since carbon_core::postgres::primitives::Pubkey implements Deref to solana_pubkey::Pubkey
                             return `${prefix}.into_iter().map(|element| *element).collect()`;
                         }
                         return `${prefix}.into_iter().map(|element| element.try_into()).collect::<Result<_, _>>().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
@@ -1044,11 +1196,29 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         ) {
                             return `${prefix}.0`;
                         }
-                        return `${prefix}.0.into_iter().map(|element| ${buildReverse(typeNode.item, 'element')}).collect()`;
+                        const innerReverse = buildReverse(typeNode.item, 'element');
+                        // Check if innerReverse is just the element itself (identity function)
+                        // But exclude Pubkey and other types that need conversion
+                        if ((innerReverse === 'element' || innerReverse === '*element') && 
+                            !isNode(typeNode.item, 'publicKeyTypeNode')) {
+                            return `${prefix}.0`;
+                        }
+                        return `${prefix}.0.into_iter().map(|element| ${innerReverse}).collect()`;
                     } else {
                         if (isNode(typeNode.item, 'publicKeyTypeNode')) {
+                            // Pubkey from Postgres (carbon_core::postgres::primitives::Pubkey) needs conversion to Rust Pubkey (solana_pubkey::Pubkey)
+                            // Use * to dereference since carbon_core::postgres::primitives::Pubkey implements Deref to solana_pubkey::Pubkey
                             return `${prefix}.into_iter().map(|element| *element).collect()`;
                         }
+                        // Check if conversion is needed by comparing Postgres and Rust types
+                        const postgresManifest = visit(typeNode.item, postgresTypeManifestVisitor) as PostgresTypeManifest;
+                        const rustManifest = visit(typeNode.item, typeManifestVisitor);
+                        
+                        // If Postgres type matches Rust type, no conversion needed
+                        if (typesMatch(postgresManifest.sqlxType, rustManifest.type)) {
+                            return `${prefix}.to_vec()`;
+                        }
+                        // Conversion needed, use try_into()
                         return `${prefix}.into_iter().map(|element| element.try_into()).collect::<Result<_, _>>().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
                     }
                     break;
@@ -1067,6 +1237,10 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 const innerWithoutQuestion = innerReverse.replace(/\?$/, '');
                 return `${prefix}.map(|value| ${innerWithoutQuestion}).transpose()?`;
             }
+            // Check if innerReverse is just the variable (no conversion needed)
+            if (innerReverse === 'value' || innerReverse === '*value') {
+                return prefix;
+            }
             return `${prefix}.map(|value| ${innerReverse})`;
         }
         if (isNode(typeNode, 'tupleTypeNode')) {
@@ -1083,10 +1257,23 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             return `${prefix}.0`;
         }
         if (isNode(typeNode, 'publicKeyTypeNode')) {
+            // Pubkey from Postgres (carbon_core::postgres::primitives::Pubkey) needs conversion to Rust Pubkey (solana_pubkey::Pubkey)
+            // Use * to dereference since carbon_core::postgres::primitives::Pubkey implements Deref to solana_pubkey::Pubkey
             return `*${prefix}`;
         }
 
         if (isNode(typeNode, 'numberTypeNode')) {
+            // Get Postgres type manifest to check if conversion is needed
+            const postgresManifest = visit(typeNode, postgresTypeManifestVisitor) as PostgresTypeManifest;
+            const rustManifest = visit(typeNode, typeManifestVisitor);
+            const postgresType = postgresManifest.sqlxType;
+            const rustType = rustManifest.type;
+            
+            // Check if types match (no conversion needed)
+            if (typesMatch(postgresType, rustType)) {
+                return prefix;
+            }
+            
             switch (typeNode.format) {
                 case 'u8':
                 case 'u16':
@@ -1096,11 +1283,29 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 case 'u128':
                 case 'i128':
                     return `*${prefix}`;
+                case 'i32':
+                case 'i64':
+                    // Direct types that match between Postgres and Rust
+                    if (postgresType === rustType || (postgresType.includes(rustType) && !postgresType.includes('U') && !postgresType.includes('I'))) {
+                        return prefix;
+                    }
+                    break;
                 default:
                     break;
             }
         }
 
+        // Check if conversion is needed by comparing types
+        try {
+            const postgresManifest = visit(typeNode, postgresTypeManifestVisitor) as PostgresTypeManifest;
+            const rustManifest = visit(typeNode, typeManifestVisitor);
+            if (typesMatch(postgresManifest.sqlxType, rustManifest.type)) {
+                return prefix;
+            }
+        } catch (e) {
+            // If we can't get manifests, fall back to .into()
+        }
+        
         return `${prefix}.into()`;
     }
 }

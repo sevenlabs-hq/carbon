@@ -35,7 +35,7 @@ impl QueryRoot {
             if let crate::accounts::{{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(account) = r.data.0 {
                 // Create metadata from database values
                 let metadata = crate::accounts::graphql::AccountMetadataGraphQL {
-                    pubkey: carbon_core::graphql::primitives::Pubkey(*r.metadata.pubkey.clone()),
+                    pubkey: carbon_core::graphql::primitives::Pubkey(*r.metadata.pubkey),
                     slot: r.metadata.slot.map(|s| carbon_core::graphql::primitives::U64(s.0)),
                 };
                 
@@ -74,7 +74,7 @@ impl QueryRoot {
             if let crate::accounts::{{ program.name | pascalCase }}Account::{{ account.name | pascalCase }}(account) = r.data.0 {
                 // Create metadata from database values
                 let metadata = crate::accounts::graphql::AccountMetadataGraphQL {
-                    pubkey: carbon_core::graphql::primitives::Pubkey(*r.metadata.pubkey.clone()),
+                    pubkey: carbon_core::graphql::primitives::Pubkey(*r.metadata.pubkey),
                     slot: r.metadata.slot.map(|s| carbon_core::graphql::primitives::U64(s.0)),
                 };
                 
@@ -120,7 +120,7 @@ impl QueryRoot {
             if let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) = r.data.0 {
                 // Create metadata from database values
                 let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
-                    signature: r.metadata.signature.clone(),
+                    signature: &r.metadata.signature,
                     instruction_index: carbon_core::graphql::primitives::U32(r.metadata.instruction_index.0 as u32),
                     stack_height: carbon_core::graphql::primitives::U32(r.metadata.stack_height.0 as u32),
                     slot: r.metadata.slot.map(|s| carbon_core::graphql::primitives::U64(s.0)),
@@ -165,7 +165,7 @@ impl QueryRoot {
             if let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) = r.data.0 {
                 // Create metadata from database values
                 let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
-                    signature: r.metadata.signature.clone(),
+                    signature: &r.metadata.signature,
                     instruction_index: carbon_core::graphql::primitives::U32(r.metadata.instruction_index.0 as u32),
                     stack_height: carbon_core::graphql::primitives::U32(r.metadata.stack_height.0 as u32),
                     slot: r.metadata.slot.map(|s| carbon_core::graphql::primitives::U64(s.0)),
@@ -214,9 +214,10 @@ impl QueryRoot {
         
         Ok(rows.into_iter().filter_map(|r| {
             if let crate::instructions::{{ program.name | pascalCase }}Instruction::CpiEvent(instruction) = r.data.0 {
+                let instruction = *instruction;
                 // Create metadata from database values
                 let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
-                    signature: r.metadata.signature.clone(),
+                    signature: &r.metadata.signature,
                     instruction_index: carbon_core::graphql::primitives::U32(r.metadata.instruction_index.0 as u32),
                     stack_height: carbon_core::graphql::primitives::U32(r.metadata.stack_height.0 as u32),
                     slot: r.metadata.slot.map(|s| carbon_core::graphql::primitives::U64(s.0)),
@@ -258,9 +259,10 @@ impl QueryRoot {
         
         Ok(rows.into_iter().filter_map(|r| {
             if let crate::instructions::{{ program.name | pascalCase }}Instruction::CpiEvent(instruction) = r.data.0 {
+                let instruction = *instruction;
                 // Create metadata from database values
                 let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
-                    signature: r.metadata.signature.clone(),
+                    signature: &r.metadata.signature,
                     instruction_index: carbon_core::graphql::primitives::U32(r.metadata.instruction_index.0 as u32),
                     stack_height: carbon_core::graphql::primitives::U32(r.metadata.stack_height.0 as u32),
                     slot: r.metadata.slot.map(|s| carbon_core::graphql::primitives::U64(s.0)),

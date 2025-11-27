@@ -67,7 +67,7 @@ impl carbon_core::postgres::operations::Insert for {{ program.name | pascalCase 
 {% endfor %}
 {% if hasAnchorEvents %}
             {{ program.name | pascalCase }}Instruction::CpiEvent(instruction) => {
-                let row = cpi_event_row::CpiEventRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+                let row = cpi_event_row::CpiEventRow::from_parts((**instruction).clone(), metadata.clone(), accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -90,7 +90,7 @@ impl carbon_core::postgres::operations::Upsert for {{ program.name | pascalCase 
 {% endfor %}
 {% if hasAnchorEvents %}
             {{ program.name | pascalCase }}Instruction::CpiEvent(instruction) => {
-                let row = cpi_event_row::CpiEventRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+                let row = cpi_event_row::CpiEventRow::from_parts((**instruction).clone(), metadata.clone(), accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }

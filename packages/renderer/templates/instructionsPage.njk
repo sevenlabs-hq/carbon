@@ -3,15 +3,13 @@
 
 {% block main %}
 {{ imports }}
-
-{% if instruction.docs and instruction.docs.length > 0 %}
+{%- if instruction.docs and instruction.docs.length > 0 %}
 {{ macros.docblock(instruction.docs) }}
-{% endif %}
+{%- endif %}
 {{ macros.coreDecoderDerives() }}
 pub struct {{ instruction.name | pascalCase }} {
 {% for arg in instruction.arguments -%}
-  {% if arg.docs %}{% for doc in arg.docs %}{% set lines = doc.split('\n') %}{% for line in lines %}    /// {{ line }}
-{% endfor %}{% endfor %}{% endif %}
+  {% if arg.docs %}{{ macros.fieldDocblock(arg.docs) }}{% endif %}
   {% if argumentTypes[loop.index0].requiredBigArray %}  #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
   {% endif %}
   pub {{ arg.name | snakeCase }}: {{ argumentTypes[loop.index0].type }},

@@ -97,17 +97,17 @@ impl carbon_core::postgres::operations::Insert for {{ entityName | pascalCase }}
 
             )"#)
 {% for field in flatFields %}
-        .bind(self.{{ field.column }}.clone())
+        .bind({% if field.isCopyType %}self.{{ field.column }}{% else %}&self.{{ field.column }}{% endif %})
 {% endfor %}
 {% if isAccount %}
-        .bind(self.account_metadata.pubkey.clone())
-        .bind(self.account_metadata.slot.clone())
+        .bind(self.account_metadata.pubkey)
+        .bind(&self.account_metadata.slot)
 {% else %}
-        .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
-        .bind(self.accounts.clone())
+        .bind(&self.instruction_metadata.signature)
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
+        .bind(&self.accounts)
 {% endif %}
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
@@ -156,17 +156,17 @@ impl carbon_core::postgres::operations::Upsert for {{ entityName | pascalCase }}
 {% endif %}
             "#)
 {% for field in flatFields %}
-        .bind(self.{{ field.column }}.clone())
+        .bind({% if field.isCopyType %}self.{{ field.column }}{% else %}&self.{{ field.column }}{% endif %})
 {% endfor %}
 {% if isAccount %}
         .bind(self.account_metadata.pubkey)
-        .bind(self.account_metadata.slot.clone())
+        .bind(&self.account_metadata.slot)
 {% else %}
-        .bind(self.instruction_metadata.signature.clone())
-        .bind(self.instruction_metadata.instruction_index.clone())
-        .bind(self.instruction_metadata.stack_height.clone())
-        .bind(self.instruction_metadata.slot.clone())
-        .bind(self.accounts.clone())
+        .bind(&self.instruction_metadata.signature)
+        .bind(self.instruction_metadata.instruction_index)
+        .bind(self.instruction_metadata.stack_height)
+        .bind(&self.instruction_metadata.slot)
+        .bind(&self.accounts)
 {% endif %}
         .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
