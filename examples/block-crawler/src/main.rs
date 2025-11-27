@@ -8,7 +8,7 @@ use {
         error::CarbonResult, instruction::InstructionProcessorInputType,
         metrics::MetricsCollection, processor::Processor,
     },
-    carbon_pumpfun_decoder::{instructions::PumpfunInstruction, PumpfunDecoder},
+    carbon_pumpfun_decoder::{PumpfunDecoder, instructions::PumpfunInstruction},
     carbon_rpc_block_crawler_datasource::{RpcBlockConfig, RpcBlockCrawler},
     clap::Parser,
 };

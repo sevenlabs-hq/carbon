@@ -2,7 +2,7 @@ use {
     super::TokenMetadataDecoder,
     crate::types::Key,
     carbon_core::{account::AccountDecoder, deserialize::CarbonDeserialize},
-    solana_pubkey::{pubkey, Pubkey},
+    solana_pubkey::{Pubkey, pubkey},
 };
 pub mod collection_authority_record;
 pub mod edition;

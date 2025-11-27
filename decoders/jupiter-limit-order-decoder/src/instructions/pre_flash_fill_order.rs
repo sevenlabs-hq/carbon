@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -25,8 +25,17 @@ impl carbon_core::deserialize::ArrangeAccounts for PreFlashFillOrder {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [order, reserve, taker, taker_output_account, input_mint, input_mint_token_program, instruction, system_program, _remaining @ ..] =
-            accounts
+        let [
+            order,
+            reserve,
+            taker,
+            taker_output_account,
+            input_mint,
+            input_mint_token_program,
+            instruction,
+            system_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

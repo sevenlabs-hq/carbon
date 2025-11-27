@@ -1,7 +1,7 @@
 use crate::types::SplitAmountInfo;
 use crate::types::SplitPositionInfo;
 use crate::types::SplitPositionParameters2;
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 use solana_pubkey::Pubkey;
 
 #[derive(

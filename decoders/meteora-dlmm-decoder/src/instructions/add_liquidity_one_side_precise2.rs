@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -31,8 +31,19 @@ impl carbon_core::deserialize::ArrangeAccounts for AddLiquidityOneSidePrecise2 {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [position, lb_pair, bin_array_bitmap_extension, user_token, reserve, token_mint, sender, token_program, event_authority, program, _remaining @ ..] =
-            accounts
+        let [
+            position,
+            lb_pair,
+            bin_array_bitmap_extension,
+            user_token,
+            reserve,
+            token_mint,
+            sender,
+            token_program,
+            event_authority,
+            program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -42,8 +42,25 @@ impl carbon_core::deserialize::ArrangeAccounts for SetAndVerifyCollection {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [tree_authority, leaf_owner, leaf_delegate, merkle_tree, payer, tree_delegate, collection_authority, collection_authority_record_pda, collection_mint, collection_metadata, edition_account, bubblegum_signer, log_wrapper, compression_program, token_metadata_program, system_program, _remaining @ ..] =
-            accounts
+        let [
+            tree_authority,
+            leaf_owner,
+            leaf_delegate,
+            merkle_tree,
+            payer,
+            tree_delegate,
+            collection_authority,
+            collection_authority_record_pda,
+            collection_mint,
+            collection_metadata,
+            edition_account,
+            bubblegum_signer,
+            log_wrapper,
+            compression_program,
+            token_metadata_program,
+            system_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

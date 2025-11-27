@@ -4733,6 +4733,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4a5f13b858c8d314ee3e8f639011f7ccefe71f97f96e50151fb991f267928e2c"
 
 [[package]]
+name = "jetstreamer-carbon-example"
+version = "0.2.1"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "carbon-jetstreamer-datasource",
+ "carbon-log-metrics",
+ "carbon-token-2022-decoder",
+ "dotenv",
+ "env_logger",
+ "log",
+ "solana-account",
+ "solana-client",
+ "solana-instruction",
+ "solana-pubkey 3.0.0",
+ "tokio",
+ "tokio-util 0.7.17",
+]
+
+[[package]]
 name = "jetstreamer-firehose"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"

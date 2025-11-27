@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
@@ -18,7 +18,7 @@ pub struct DynamicTickArray {
 mod tests {
     use carbon_core::account::AccountDecoder;
 
-    use crate::{accounts::WhirlpoolAccount, types::DynamicTick, OrcaWhirlpoolDecoder};
+    use crate::{OrcaWhirlpoolDecoder, accounts::WhirlpoolAccount, types::DynamicTick};
 
     #[test]
     fn test_decode_dynamic_tick_array_accounts() {

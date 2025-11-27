@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Clone)]
 #[carbon(discriminator = "0x181ec828051c0777")]
@@ -31,8 +31,22 @@ impl carbon_core::deserialize::ArrangeAccounts for Create {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [payer, owner, token_wallet_authority, mint_a, mint_b, token_wallet_b, pool, vault_a, vault_b, token_program_a, token_program_b, system_program, rent, _remaining @ ..] =
-            accounts
+        let [
+            payer,
+            owner,
+            token_wallet_authority,
+            mint_a,
+            mint_b,
+            token_wallet_b,
+            pool,
+            vault_a,
+            vault_b,
+            token_program_a,
+            token_program_b,
+            system_program,
+            rent,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

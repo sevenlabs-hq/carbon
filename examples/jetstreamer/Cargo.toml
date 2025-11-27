@@ -1,0 +1,21 @@
+[package]
+name = "jetstreamer-carbon-example"
+version = "0.2.1"
+edition = { workspace = true }
+
+[dependencies]
+carbon-core = { workspace = true }
+carbon-log-metrics = { workspace = true }
+carbon-jetstreamer-datasource = { workspace = true }
+carbon-token-2022-decoder = { workspace = true }
+
+async-trait = { workspace = true }
+dotenv = { workspace = true }
+env_logger = { workspace = true }
+log = { workspace = true }
+solana-account = { workspace = true }
+solana-client = { workspace = true }
+solana-instruction = { workspace = true }
+solana-pubkey = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+tokio-util = { workspace = true }

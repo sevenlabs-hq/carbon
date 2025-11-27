@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -36,8 +36,26 @@ impl carbon_core::deserialize::ArrangeAccounts for Swap2 {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [owner, funding_account, receiving_account, transfer_authority, perpetuals, pool, receiving_custody, receiving_custody_doves_price_account, receiving_custody_pythnet_price_account, receiving_custody_token_account, dispensing_custody, dispensing_custody_doves_price_account, dispensing_custody_pythnet_price_account, dispensing_custody_token_account, token_program, event_authority, program, _remaining @ ..] =
-            accounts
+        let [
+            owner,
+            funding_account,
+            receiving_account,
+            transfer_authority,
+            perpetuals,
+            pool,
+            receiving_custody,
+            receiving_custody_doves_price_account,
+            receiving_custody_pythnet_price_account,
+            receiving_custody_token_account,
+            dispensing_custody,
+            dispensing_custody_doves_price_account,
+            dispensing_custody_pythnet_price_account,
+            dispensing_custody_token_account,
+            token_program,
+            event_authority,
+            program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

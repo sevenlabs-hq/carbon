@@ -10,12 +10,12 @@ use {
     },
     carbon_log_metrics::LogMetrics,
     carbon_raydium_amm_v4_decoder::{
+        PROGRAM_ID as RAYDIUM_AMM_V4_PROGRAM_ID, RaydiumAmmV4Decoder,
         accounts::RaydiumAmmV4Account,
         instructions::{
-            swap_base_in::SwapBaseIn, swap_base_in_v2::SwapBaseInV2, swap_base_out::SwapBaseOut,
-            swap_base_out_v2::SwapBaseOutV2, RaydiumAmmV4Instruction,
+            RaydiumAmmV4Instruction, swap_base_in::SwapBaseIn, swap_base_in_v2::SwapBaseInV2,
+            swap_base_out::SwapBaseOut, swap_base_out_v2::SwapBaseOutV2,
         },
-        RaydiumAmmV4Decoder, PROGRAM_ID as RAYDIUM_AMM_V4_PROGRAM_ID,
     },
     carbon_yellowstone_grpc_datasource::{
         YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient,
@@ -137,7 +137,9 @@ impl Processor for RaydiumAmmV4InstructionProcessor {
                 log::info!("Withdraw: signature: {signature}, withdraw: {withdraw:?}");
             }
             RaydiumAmmV4Instruction::MigrateToOpenBook(migrate_to_open_book) => {
-                log::info!("MigrateToOpenBook: signature: {signature}, migrate_to_open_book: {migrate_to_open_book:?}");
+                log::info!(
+                    "MigrateToOpenBook: signature: {signature}, migrate_to_open_book: {migrate_to_open_book:?}"
+                );
             }
             RaydiumAmmV4Instruction::SetParams(set_params) => {
                 log::info!("SetParams: signature: {signature}, set_params: {set_params:?}");
@@ -154,8 +156,8 @@ impl Processor for RaydiumAmmV4InstructionProcessor {
                 match SwapBaseIn::arrange_accounts(&accounts) {
                     Some(accounts) => {
                         log::info!(
-                        "SwapBaseIn: signature: {signature}, swap_base_in: {swap_base_in:?}, accounts: {accounts:#?}",
-                    );
+                            "SwapBaseIn: signature: {signature}, swap_base_in: {swap_base_in:?}, accounts: {accounts:#?}",
+                        );
                     }
                     None => log::error!(
                         "Failed to arrange accounts for SwapBaseIn {}",
@@ -167,8 +169,8 @@ impl Processor for RaydiumAmmV4InstructionProcessor {
                 match SwapBaseInV2::arrange_accounts(&accounts) {
                     Some(accounts) => {
                         log::info!(
-                        "SwapBaseInV2: signature: {signature}, swap_base_in: {swap_base_in:?}, accounts: {accounts:#?}",
-                    );
+                            "SwapBaseInV2: signature: {signature}, swap_base_in: {swap_base_in:?}, accounts: {accounts:#?}",
+                        );
                     }
                     None => log::error!(
                         "Failed to arrange accounts for SwapBaseInV2 {}",

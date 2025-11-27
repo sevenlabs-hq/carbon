@@ -1,6 +1,6 @@
 use {
     super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
+    carbon_core::{CarbonDeserialize, borsh},
 };
 
 #[derive(CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, Clone)]

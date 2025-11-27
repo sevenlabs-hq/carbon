@@ -1,4 +1,4 @@
-use solana_pubkey::{pubkey, Pubkey};
+use solana_pubkey::{Pubkey, pubkey};
 pub struct TokenMessengerMinterV2Decoder;
 pub mod accounts;
 pub mod instructions;

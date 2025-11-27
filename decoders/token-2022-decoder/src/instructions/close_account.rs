@@ -4,11 +4,11 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
+use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
-use carbon_core::CarbonDeserialize;
 
 /// Close an account by transferring all its SOL to the destination account.
 /// Non-native accounts may only be closed if its token amount is zero.

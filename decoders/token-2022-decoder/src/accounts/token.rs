@@ -6,9 +6,9 @@
 //!
 use crate::types::AccountState;
 use crate::types::Extension;
+use carbon_core::CarbonDeserialize;
 use carbon_core::borsh;
 use carbon_core::deserialize::CarbonDeserialize;
-use carbon_core::CarbonDeserialize;
 use solana_pubkey::Pubkey;
 use spl_token_2022::extension::BaseStateWithExtensions as _;
 use spl_token_2022::extension::StateWithExtensions;

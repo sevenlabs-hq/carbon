@@ -13,9 +13,9 @@ use {
     carbon_log_metrics::LogMetrics,
     carbon_rpc_program_subscribe_datasource::{Filters, RpcProgramSubscribe},
     carbon_sharky_decoder::{
+        PROGRAM_ID as SHARKY_PROGRAM_ID, SharkyDecoder,
         accounts::SharkyAccount,
         instructions::{SharkyInstruction, SharkyInstructionType},
-        SharkyDecoder, PROGRAM_ID as SHARKY_PROGRAM_ID,
     },
     solana_account::Account,
     solana_account_decoder::UiAccountEncoding,

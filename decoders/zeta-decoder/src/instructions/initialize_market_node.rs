@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -24,7 +24,14 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeMarketNode {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [zeta_group, market_node, greeks, payer, system_program, _remaining @ ..] = accounts
+        let [
+            zeta_group,
+            market_node,
+            greeks,
+            payer,
+            system_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

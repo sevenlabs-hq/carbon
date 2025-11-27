@@ -10,8 +10,8 @@ use {
         processor::Processor,
     },
     carbon_kamino_lending_decoder::{
-        accounts::KaminoLendingAccount, instructions::KaminoLendingInstruction,
         KaminoLendingDecoder, PROGRAM_ID as KAMINO_LENDING_PROGRAM_ID,
+        accounts::KaminoLendingAccount, instructions::KaminoLendingInstruction,
     },
     carbon_log_metrics::LogMetrics,
     carbon_yellowstone_grpc_datasource::{
@@ -26,7 +26,7 @@ use {
         sync::Arc,
         time::Duration,
     },
-    tokio::sync::{mpsc::Sender, RwLock},
+    tokio::sync::{RwLock, mpsc::Sender},
     tokio_util::sync::CancellationToken,
     yellowstone_grpc_proto::geyser::{
         CommitmentLevel, SubscribeRequestFilterAccounts, SubscribeRequestFilterTransactions,

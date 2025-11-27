@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -20,7 +20,12 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeNonceAccount {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [nonce_account, recent_blockhashes_sysvar, rent_sysvar, _remaining @ ..] = accounts
+        let [
+            nonce_account,
+            recent_blockhashes_sysvar,
+            rent_sysvar,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

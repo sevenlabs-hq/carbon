@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -34,8 +34,26 @@ impl carbon_core::deserialize::ArrangeAccounts for AdminCancelOrders {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [token_program, amm, amm_authority, amm_open_orders, amm_target_orders, pool_coin_token_account, pool_pc_token_account, amm_owner_account, amm_config, serum_program, serum_market, serum_coin_vault_account, serum_pc_vault_account, serum_vault_signer, serum_event_q, serum_bids, serum_asks, _remaining @ ..] =
-            accounts
+        let [
+            token_program,
+            amm,
+            amm_authority,
+            amm_open_orders,
+            amm_target_orders,
+            pool_coin_token_account,
+            pool_pc_token_account,
+            amm_owner_account,
+            amm_config,
+            serum_program,
+            serum_market,
+            serum_coin_vault_account,
+            serum_pc_vault_account,
+            serum_vault_signer,
+            serum_event_q,
+            serum_bids,
+            serum_asks,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

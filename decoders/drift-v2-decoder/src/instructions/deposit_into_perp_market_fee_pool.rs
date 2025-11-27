@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -25,8 +25,17 @@ impl carbon_core::deserialize::ArrangeAccounts for DepositIntoPerpMarketFeePool 
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [state, perp_market, admin, source_vault, drift_signer, quote_spot_market, spot_market_vault, token_program, _remaining @ ..] =
-            accounts
+        let [
+            state,
+            perp_market,
+            admin,
+            source_vault,
+            drift_signer,
+            quote_spot_market,
+            spot_market_vault,
+            token_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

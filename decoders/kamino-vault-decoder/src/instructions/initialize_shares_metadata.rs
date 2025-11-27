@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -27,8 +27,17 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeSharesMetadata {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [admin_authority, vault_state, shares_mint, base_vault_authority, shares_metadata, system_program, rent, metadata_program, _remaining @ ..] =
-            accounts
+        let [
+            admin_authority,
+            vault_state,
+            shares_mint,
+            base_vault_authority,
+            shares_metadata,
+            system_program,
+            rent,
+            metadata_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

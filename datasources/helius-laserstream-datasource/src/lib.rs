@@ -8,7 +8,7 @@ use {
         error::CarbonResult,
         metrics::MetricsCollection,
     },
-    futures::{sink::SinkExt, StreamExt},
+    futures::{StreamExt, sink::SinkExt},
     solana_account::Account,
     solana_pubkey::Pubkey,
     solana_signature::Signature,
@@ -19,7 +19,7 @@ use {
         time::Duration,
     },
     tokio::{
-        sync::{mpsc::Sender, RwLock},
+        sync::{RwLock, mpsc::Sender},
         time::sleep,
     },
     tokio_util::sync::CancellationToken,
@@ -28,10 +28,10 @@ use {
     yellowstone_grpc_proto::{
         convert_from::{create_tx_meta, create_tx_versioned},
         geyser::{
-            subscribe_update::UpdateOneof, CommitmentLevel, SubscribeRequest,
-            SubscribeRequestFilterAccounts, SubscribeRequestFilterBlocks,
-            SubscribeRequestFilterSlots, SubscribeRequestFilterTransactions, SubscribeRequestPing,
-            SubscribeUpdateAccountInfo, SubscribeUpdateTransactionInfo,
+            CommitmentLevel, SubscribeRequest, SubscribeRequestFilterAccounts,
+            SubscribeRequestFilterBlocks, SubscribeRequestFilterSlots,
+            SubscribeRequestFilterTransactions, SubscribeRequestPing, SubscribeUpdateAccountInfo,
+            SubscribeUpdateTransactionInfo, subscribe_update::UpdateOneof,
         },
         tonic::{codec::CompressionEncoding, transport::ClientTlsConfig},
     },

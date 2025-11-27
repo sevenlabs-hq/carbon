@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -26,8 +26,15 @@ impl carbon_core::deserialize::ArrangeAccounts for TreasuryMovement {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [state, insurance_vault, treasury_wallet, referrals_rewards_wallet, token_program, admin, _remaining @ ..] =
-            accounts
+        let [
+            state,
+            insurance_vault,
+            treasury_wallet,
+            referrals_rewards_wallet,
+            token_program,
+            admin,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

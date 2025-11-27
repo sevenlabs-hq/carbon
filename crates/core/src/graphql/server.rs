@@ -1,6 +1,6 @@
 use axum::{
-    routing::{get, on, MethodFilter},
     Extension, Router,
+    routing::{MethodFilter, get, on},
 };
 use juniper::{EmptyMutation, EmptySubscription, RootNode};
 use juniper_axum::{extract::JuniperRequest, graphiql, response::JuniperResponse};

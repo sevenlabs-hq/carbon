@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -33,8 +33,22 @@ impl carbon_core::deserialize::ArrangeAccounts for DecompressV1 {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [voucher, leaf_owner, token_account, mint, mint_authority, metadata, master_edition, system_program, sysvar_rent, token_metadata_program, token_program, associated_token_program, log_wrapper, _remaining @ ..] =
-            accounts
+        let [
+            voucher,
+            leaf_owner,
+            token_account,
+            mint,
+            mint_authority,
+            metadata,
+            master_edition,
+            system_program,
+            sysvar_rent,
+            token_metadata_program,
+            token_program,
+            associated_token_program,
+            log_wrapper,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

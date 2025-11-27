@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 pub const FEES_SIZE: usize = core::mem::size_of::<Fees>();
 

@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -25,8 +25,18 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawLpFees {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [plasma_program, log_authority, pool, trader, lp_position_owner, lp_position, quote_account, quote_vault, token_program, _remaining @ ..] =
-            accounts
+        let [
+            plasma_program,
+            log_authority,
+            pool,
+            trader,
+            lp_position_owner,
+            lp_position,
+            quote_account,
+            quote_vault,
+            token_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

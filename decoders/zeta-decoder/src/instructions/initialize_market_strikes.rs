@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -20,8 +20,14 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeMarketStrikes {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [state, zeta_group, oracle, oracle_backup_feed, oracle_backup_program, _remaining @ ..] =
-            accounts
+        let [
+            state,
+            zeta_group,
+            oracle,
+            oracle_backup_feed,
+            oracle_backup_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

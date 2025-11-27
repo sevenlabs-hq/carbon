@@ -1,5 +1,5 @@
 use alloc::string::String;
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -22,8 +22,13 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeReferrerAccounts {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [authority, referrer_id_account, referrer_pubkey_account, system_program, _remaining @ ..] =
-            accounts
+        let [
+            authority,
+            referrer_id_account,
+            referrer_pubkey_account,
+            system_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

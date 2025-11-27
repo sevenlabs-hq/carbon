@@ -1,6 +1,6 @@
 use {
     super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
+    carbon_core::{CarbonDeserialize, borsh},
 };
 
 #[derive(
@@ -29,8 +29,18 @@ impl carbon_core::deserialize::ArrangeAccounts for InitObligation {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [obligation_owner, fee_payer, obligation, lending_market, seed1_account, seed2_account, owner_user_metadata, rent, system_program, _remaining @ ..] =
-            accounts
+        let [
+            obligation_owner,
+            fee_payer,
+            obligation,
+            lending_market,
+            seed1_account,
+            seed2_account,
+            owner_user_metadata,
+            rent,
+            system_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

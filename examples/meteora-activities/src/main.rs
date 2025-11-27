@@ -8,7 +8,7 @@ use {
     },
     carbon_log_metrics::LogMetrics,
     carbon_meteora_dlmm_decoder::{
-        instructions::MeteoraDlmmInstruction, MeteoraDlmmDecoder, PROGRAM_ID as METEORA_PROGRAM_ID,
+        MeteoraDlmmDecoder, PROGRAM_ID as METEORA_PROGRAM_ID, instructions::MeteoraDlmmInstruction,
     },
     carbon_rpc_transaction_crawler_datasource::{
         ConnectionConfig, Filters, RetryConfig, RpcTransactionCrawler,

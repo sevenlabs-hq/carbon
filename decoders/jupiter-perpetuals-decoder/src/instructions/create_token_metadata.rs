@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -28,8 +28,18 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateTokenMetadata {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [admin, perpetuals, pool, transfer_authority, metadata, lp_token_mint, token_metadata_program, system_program, rent, _remaining @ ..] =
-            accounts
+        let [
+            admin,
+            perpetuals,
+            pool,
+            transfer_authority,
+            metadata,
+            lp_token_mint,
+            token_metadata_program,
+            system_program,
+            rent,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

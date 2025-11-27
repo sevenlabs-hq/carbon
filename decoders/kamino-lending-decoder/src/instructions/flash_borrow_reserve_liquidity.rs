@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -29,8 +29,21 @@ impl carbon_core::deserialize::ArrangeAccounts for FlashBorrowReserveLiquidity {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [user_transfer_authority, lending_market_authority, lending_market, reserve, reserve_liquidity_mint, reserve_source_liquidity, user_destination_liquidity, reserve_liquidity_fee_receiver, referrer_token_state, referrer_account, sysvar_info, token_program, _remaining @ ..] =
-            accounts
+        let [
+            user_transfer_authority,
+            lending_market_authority,
+            lending_market,
+            reserve,
+            reserve_liquidity_mint,
+            reserve_source_liquidity,
+            user_destination_liquidity,
+            reserve_liquidity_fee_receiver,
+            referrer_token_state,
+            referrer_account,
+            sysvar_info,
+            token_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

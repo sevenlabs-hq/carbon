@@ -1,6 +1,6 @@
 use crate::types::SwapParameters2;
 use crate::types::SwapResult2;
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 use solana_pubkey::Pubkey;
 
 #[derive(

@@ -1,4 +1,4 @@
-use solana_pubkey::{pubkey, Pubkey};
+use solana_pubkey::{Pubkey, pubkey};
 
 pub struct MessageTransmitterV2Decoder;
 pub mod accounts;

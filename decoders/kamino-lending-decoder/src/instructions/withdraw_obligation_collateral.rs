@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -26,8 +26,18 @@ impl carbon_core::deserialize::ArrangeAccounts for WithdrawObligationCollateral 
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [owner, obligation, lending_market, lending_market_authority, withdraw_reserve, reserve_source_collateral, user_destination_collateral, token_program, instruction_sysvar_account, _remaining @ ..] =
-            accounts
+        let [
+            owner,
+            obligation,
+            lending_market,
+            lending_market_authority,
+            withdraw_reserve,
+            reserve_source_collateral,
+            user_destination_collateral,
+            token_program,
+            instruction_sysvar_account,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

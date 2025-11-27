@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -41,8 +41,30 @@ impl carbon_core::deserialize::ArrangeAccounts for DepositIntoRaydium {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [config, amm_config, operator, operator_wsol_account, vault_authority, authority, pool_state, token_0_vault, token_1_vault, bonding_curve_vault, bonding_curve_wsol_vault, token_program, token_program_2022, system_program, associated_token_program, lp_mint, cpmm_program, owner_lp_token, bonding_curve, token_0_mint, token_1_mint, _remaining @ ..] =
-            accounts
+        let [
+            config,
+            amm_config,
+            operator,
+            operator_wsol_account,
+            vault_authority,
+            authority,
+            pool_state,
+            token_0_vault,
+            token_1_vault,
+            bonding_curve_vault,
+            bonding_curve_wsol_vault,
+            token_program,
+            token_program_2022,
+            system_program,
+            associated_token_program,
+            lp_mint,
+            cpmm_program,
+            owner_lp_token,
+            bonding_curve,
+            token_0_mint,
+            token_1_mint,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

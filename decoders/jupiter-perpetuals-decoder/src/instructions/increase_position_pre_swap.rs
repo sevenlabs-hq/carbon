@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -30,8 +30,20 @@ impl carbon_core::deserialize::ArrangeAccounts for IncreasePositionPreSwap {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [keeper, keeper_ata, position_request, position_request_ata, position, collateral_custody, collateral_custody_token_account, instruction, token_program, event_authority, program, _remaining @ ..] =
-            accounts
+        let [
+            keeper,
+            keeper_ata,
+            position_request,
+            position_request_ata,
+            position,
+            collateral_custody,
+            collateral_custody_token_account,
+            instruction,
+            token_program,
+            event_authority,
+            program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

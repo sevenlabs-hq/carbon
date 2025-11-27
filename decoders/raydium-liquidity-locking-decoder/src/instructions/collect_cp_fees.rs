@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -35,8 +35,27 @@ impl carbon_core::deserialize::ArrangeAccounts for CollectCpFees {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [authority, fee_nft_owner, fee_nft_account, locked_liquidity, cp_swap_program, cp_authority, pool_state, lp_mint, recipient_token0_account, recipient_token1_account, token0_vault, token1_vault, vault0_mint, vault1_mint, locked_lp_vault, token_program, token_program2022, memo_program, _remaining @ ..] =
-            accounts
+        let [
+            authority,
+            fee_nft_owner,
+            fee_nft_account,
+            locked_liquidity,
+            cp_swap_program,
+            cp_authority,
+            pool_state,
+            lp_mint,
+            recipient_token0_account,
+            recipient_token1_account,
+            token0_vault,
+            token1_vault,
+            vault0_mint,
+            vault1_mint,
+            locked_lp_vault,
+            token_program,
+            token_program2022,
+            memo_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

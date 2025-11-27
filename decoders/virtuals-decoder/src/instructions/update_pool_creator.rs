@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -25,8 +25,19 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdatePoolCreator {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [creator, new_creator, virtuals_mint, token_mint, new_creator_virtuals_ata, new_creator_token_ata, vpool, token_program, associated_token_program, system_program, _remaining @ ..] =
-            accounts
+        let [
+            creator,
+            new_creator,
+            virtuals_mint,
+            token_mint,
+            new_creator_virtuals_ata,
+            new_creator_token_ata,
+            vpool,
+            token_program,
+            associated_token_program,
+            system_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

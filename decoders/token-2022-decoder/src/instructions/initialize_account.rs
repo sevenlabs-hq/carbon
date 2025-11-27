@@ -4,11 +4,11 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
+use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
-use carbon_core::CarbonDeserialize;
 
 /// Initializes a new account to hold tokens. If this account is associated
 /// with the native mint then the token balance of the initialized account

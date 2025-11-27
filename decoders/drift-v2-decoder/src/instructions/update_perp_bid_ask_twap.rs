@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -20,7 +20,14 @@ impl carbon_core::deserialize::ArrangeAccounts for UpdatePerpBidAskTwap {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [state, perp_market, oracle, keeper_stats, authority, _remaining @ ..] = accounts
+        let [
+            state,
+            perp_market,
+            oracle,
+            keeper_stats,
+            authority,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

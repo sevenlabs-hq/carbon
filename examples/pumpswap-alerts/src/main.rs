@@ -9,7 +9,7 @@ use {
     carbon_helius_laserstream_datasource::{LaserStreamClientConfig, LaserStreamGeyserClient},
     carbon_log_metrics::LogMetrics,
     carbon_pump_swap_decoder::{
-        instructions::PumpSwapInstruction, PumpSwapDecoder, PROGRAM_ID as PUMPSWAP_PROGRAM_ID,
+        PROGRAM_ID as PUMPSWAP_PROGRAM_ID, PumpSwapDecoder, instructions::PumpSwapInstruction,
     },
     solana_native_token::LAMPORTS_PER_SOL,
     std::{
@@ -138,7 +138,9 @@ impl Processor for PumpSwapInstructionProcessor {
                 );
             }
             PumpSwapInstruction::UpdateFeeConfig(update_fee_config) => {
-                log::info!("UpdateFeeConfig: signature: {signature}, update_fee_config: {update_fee_config:?}");
+                log::info!(
+                    "UpdateFeeConfig: signature: {signature}, update_fee_config: {update_fee_config:?}"
+                );
             }
             PumpSwapInstruction::UpdateAdmin(update_admin) => {
                 log::info!("UpdateAdmin: signature: {signature}, update_admin: {update_admin:?}");
@@ -185,7 +187,9 @@ impl Processor for PumpSwapInstructionProcessor {
                 );
             }
             PumpSwapInstruction::UpdateFeeConfigEvent(fee_config_event) => {
-                log::info!("UpdateFeeConfigEvent: signature: {signature}, fee_config_event: {fee_config_event:?}");
+                log::info!(
+                    "UpdateFeeConfigEvent: signature: {signature}, fee_config_event: {fee_config_event:?}"
+                );
             }
             PumpSwapInstruction::UpdateAdminEvent(admin_event) => {
                 log::info!(
@@ -201,13 +205,19 @@ impl Processor for PumpSwapInstructionProcessor {
                 );
             }
             PumpSwapInstruction::ClaimTokenIncentivesEvent(incentive_event) => {
-                log::info!("ClaimTokenIncentivesEvent: signature: {signature}, incentive_event: {incentive_event:?}");
+                log::info!(
+                    "ClaimTokenIncentivesEvent: signature: {signature}, incentive_event: {incentive_event:?}"
+                );
             }
             PumpSwapInstruction::InitUserVolumeAccumulatorEvent(volume_event) => {
-                log::info!("InitUserVolumeAccumulatorEvent: signature: {signature}, volume_event: {volume_event:?}");
+                log::info!(
+                    "InitUserVolumeAccumulatorEvent: signature: {signature}, volume_event: {volume_event:?}"
+                );
             }
             _ => {
-                log::debug!("Other PumpSwap instruction: signature: {signature}, data: {pumpswap_instruction:?}");
+                log::debug!(
+                    "Other PumpSwap instruction: signature: {signature}, data: {pumpswap_instruction:?}"
+                );
             }
         }
 

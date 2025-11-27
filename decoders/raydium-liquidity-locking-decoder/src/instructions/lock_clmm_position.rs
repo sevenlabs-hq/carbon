@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -35,8 +35,27 @@ impl carbon_core::deserialize::ArrangeAccounts for LockClmmPosition {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [authority, payer, position_nft_owner, fee_nft_owner, position_nft_account, personal_position, position_nft_mint, locked_nft_account, locked_position, fee_nft_mint, fee_nft_account, metadata_account, metadata_program, associated_token_program, rent, fee_nft_token_program, locked_nft_token_program, system_program, _remaining @ ..] =
-            accounts
+        let [
+            authority,
+            payer,
+            position_nft_owner,
+            fee_nft_owner,
+            position_nft_account,
+            personal_position,
+            position_nft_mint,
+            locked_nft_account,
+            locked_position,
+            fee_nft_mint,
+            fee_nft_account,
+            metadata_account,
+            metadata_program,
+            associated_token_program,
+            rent,
+            fee_nft_token_program,
+            locked_nft_token_program,
+            system_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

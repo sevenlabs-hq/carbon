@@ -4,11 +4,11 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
+use carbon_core::CarbonDeserialize;
 use carbon_core::account_utils::next_account;
 use carbon_core::borsh;
 use carbon_core::deserialize::ArrangeAccounts;
 use carbon_core::deserialize::CarbonDeserialize;
-use carbon_core::CarbonDeserialize;
 
 /// Given a wrapped / native token account (a token account containing SOL)
 /// updates its amount field based on the account's underlying `lamports`.

@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -21,7 +21,15 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateLockEscrow {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [pool, lock_escrow, owner, lp_mint, payer, system_program, _remaining @ ..] = accounts
+        let [
+            pool,
+            lock_escrow,
+            owner,
+            lp_mint,
+            payer,
+            system_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

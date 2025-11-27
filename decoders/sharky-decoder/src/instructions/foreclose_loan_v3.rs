@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -30,8 +30,24 @@ impl carbon_core::deserialize::ArrangeAccounts for ForecloseLoanV3 {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [loan, escrow, escrow_collateral_token_account, collateral_mint, borrower, lender, lender_collateral_token_account, borrower_collateral_token_account, metadata, edition, system_program, token_program, associated_token_program, rent, mpl_token_metadata_program, _remaining @ ..] =
-            accounts
+        let [
+            loan,
+            escrow,
+            escrow_collateral_token_account,
+            collateral_mint,
+            borrower,
+            lender,
+            lender_collateral_token_account,
+            borrower_collateral_token_account,
+            metadata,
+            edition,
+            system_program,
+            token_program,
+            associated_token_program,
+            rent,
+            mpl_token_metadata_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

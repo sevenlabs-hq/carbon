@@ -1,5 +1,5 @@
 use {
-    carbon_core::{borsh, CarbonDeserialize},
+    carbon_core::{CarbonDeserialize, borsh},
     serde_big_array::BigArray,
 };
 

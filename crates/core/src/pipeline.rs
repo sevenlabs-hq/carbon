@@ -327,7 +327,8 @@ impl Pipeline {
     /// - The `run` method operates in an infinite loop, handling updates until
     ///   a termination condition occurs.
     pub async fn run(&mut self) -> CarbonResult<()> {
-        log::info!("starting pipeline. num_datasources: {}, num_metrics: {}, num_account_pipes: {}, num_account_deletion_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}",
+        log::info!(
+            "starting pipeline. num_datasources: {}, num_metrics: {}, num_account_pipes: {}, num_account_deletion_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}",
             self.datasources.len(),
             self.metrics.metrics.len(),
             self.account_pipes.len(),
@@ -1188,9 +1189,9 @@ impl PipelineBuilder {
     pub fn transaction<T, U>(
         mut self,
         processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
-            + Send
-            + Sync
-            + 'static,
+        + Send
+        + Sync
+        + 'static,
         schema: Option<TransactionSchema<T>>,
     ) -> Self
     where
@@ -1245,9 +1246,9 @@ impl PipelineBuilder {
     pub fn transaction_with_filters<T, U>(
         mut self,
         processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
-            + Send
-            + Sync
-            + 'static,
+        + Send
+        + Sync
+        + 'static,
         schema: Option<TransactionSchema<T>>,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
     ) -> Self
