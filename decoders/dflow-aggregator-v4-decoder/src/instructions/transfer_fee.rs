@@ -6,7 +6,6 @@ use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 
 /// Transfer an SPL token fee if the receiving account can receive it
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct TransferFee {
