@@ -101,7 +101,7 @@ impl Datasource for GpaBackfillDatasource {
                     }),
                     id_for_loop.clone(),
                 )) {
-                    log::error!("Failed to send account update: {:?}", e);
+                    log::error!("Failed to send account update: {e:?}");
                 }
             }
         }

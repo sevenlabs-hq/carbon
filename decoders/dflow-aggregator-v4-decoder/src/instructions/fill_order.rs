@@ -7,7 +7,6 @@ use carbon_core::deserialize::CarbonDeserialize;
 use carbon_core::CarbonDeserialize;
 
 /// Fills an order, closing the order after filling it
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct FillOrder {

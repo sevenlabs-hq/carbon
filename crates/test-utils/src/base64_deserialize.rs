@@ -8,5 +8,5 @@ where
     let field_string = String::deserialize(deserializer)?;
     STANDARD
         .decode(field_string)
-        .map_err(|e| de::Error::custom(format!("base64 decoding error: {:?}", e)))
+        .map_err(|e| de::Error::custom(format!("base64 decoding error: {e:?}")))
 }

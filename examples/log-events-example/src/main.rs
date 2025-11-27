@@ -102,7 +102,7 @@ impl Processor for RaydiumCpmmInstructionProcessor {
         let logs = metadata.decode_log_events::<SwapEvent>();
 
         if !logs.is_empty() {
-            println!("Swap Events: {:?}", logs);
+            println!("Swap Events: {logs:?}");
         }
 
         Ok(())

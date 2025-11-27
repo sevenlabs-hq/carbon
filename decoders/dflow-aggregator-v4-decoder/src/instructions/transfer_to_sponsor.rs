@@ -7,7 +7,6 @@ use carbon_core::CarbonDeserialize;
 
 /// Transfer an SPL token to a sponsor's token account, creating the sponsor's token account if
 /// necessary.
-
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
 pub struct TransferToSponsor {

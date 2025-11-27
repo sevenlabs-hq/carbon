@@ -302,7 +302,7 @@ fn signature_fetcher(
                                     match Signature::from_str(&signatures[0].signature) {
                                         Ok(sig) => most_recent_signature = Some(sig),
                                         Err(e) => {
-                                            log::error!("Invalid signature: {:?}", e);
+                                            log::error!("Invalid signature: {e:?}");
                                         }
                                     }
                                 }
@@ -311,13 +311,13 @@ fn signature_fetcher(
                                     let signature = match Signature::from_str(&sig_info.signature) {
                                         Ok(sig) => sig,
                                         Err(e) => {
-                                            log::error!("Invalid signature: {:?}", e);
+                                            log::error!("Invalid signature: {e:?}");
                                             continue;
                                         }
                                     };
 
                                     if let Err(e) = signature_sender.send(signature).await {
-                                        log::error!("Failed to send signature: {:?}", e);
+                                        log::error!("Failed to send signature: {e:?}");
                                         break;
                                     }
                                 }
@@ -329,16 +329,16 @@ fn signature_fetcher(
                                 let time_taken = start.elapsed().as_millis();
 
                                 metrics.record_histogram("transaction_crawler_signatures_fetch_times_milliseconds", time_taken as f64)
-                                    .await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                                    .await.unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
 
                                 metrics.increment_counter("transaction_crawler_signatures_fetched", signatures.len() as u64)
-                                    .await.unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                                    .await.unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
 
                                 break;
                             }
                             Err(e) => {
                                 if retries >= connection_config.retry_config.max_retries {
-                                    log::error!("Failed to fetch signatures after {} retries: {:?}", retries, e);
+                                    log::error!("Failed to fetch signatures after {retries} retries: {e:?}");
                                     break;
                                 }
 
@@ -420,7 +420,7 @@ fn transaction_fetcher(
                                 }
                                 Err(e) => {
                                     if retries >= connection_config.retry_config.max_retries {
-                                        log::error!("Failed to fetch transaction {} after {} retries: {:?}", signature, retries, e);
+                                        log::error!("Failed to fetch transaction {signature} after {retries} retries: {e:?}");
                                         return None;
                                     }
 
@@ -447,14 +447,14 @@ fn transaction_fetcher(
                     metrics
                         .increment_counter("transaction_crawler_transactions_fetched", 1)
                         .await
-                        .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                        .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
 
                     if let Some((signature, fetched_transaction)) = result {
                         if let Err(e) = transaction_sender
                             .send((signature, fetched_transaction))
                             .await
                         {
-                            log::error!("Failed to send transaction: {:?}", e);
+                            log::error!("Failed to send transaction: {e:?}");
                         }
                     }
                 })
@@ -497,7 +497,7 @@ fn task_processor(
                     let meta_original = if let Some(meta) = transaction.clone().meta {
                         meta
                     } else {
-                        log::warn!("Meta is malformed for transaction: {:?}", signature);
+                        log::warn!("Meta is malformed for transaction: {signature:?}");
                         continue;
                     };
 
@@ -506,7 +506,7 @@ fn task_processor(
                     }
 
                     let Some(decoded_transaction) = transaction.transaction.decode() else {
-                        log::error!("Failed to decode transaction: {:?}", transaction);
+                        log::error!("Failed to decode transaction: {transaction:?}");
                         continue;
                     };
 
@@ -571,18 +571,18 @@ fn task_processor(
                                 start.elapsed().as_millis() as f64
                             )
                             .await
-                            .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+                            .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
 
 
                     if connection_config.blocking_send {
                         if let Err(e) = sender.send((update.clone(), id_for_loop.clone())).await {
-                            log::warn!("Failed to send update: {:?}", e);
+                            log::warn!("Failed to send update: {e:?}");
                             continue;
                         }
                     }
                     if !connection_config.blocking_send {
                         if let Err(e) = sender.try_send((update.clone(), id_for_loop.clone())) {
-                            log::warn!("Failed to send update: {:?}", e);
+                            log::warn!("Failed to send update: {e:?}");
                             continue;
                         }
                     }
