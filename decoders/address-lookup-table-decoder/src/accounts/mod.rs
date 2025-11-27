@@ -1,8 +1,8 @@
 use {
     super::AddressLookupTableDecoder,
     crate::{
-        types::{LookupTableAddresses, ProgramState},
         PROGRAM_ID,
+        types::{LookupTableAddresses, ProgramState},
     },
     address_lookup_table::AddressLookupTable,
     carbon_core::account::AccountDecoder,

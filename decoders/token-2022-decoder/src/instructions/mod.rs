@@ -4,8 +4,8 @@
 //!
 //! <https://github.com/codama-idl/codama>
 //!
-use crate::Token2022Decoder;
 use crate::PROGRAM_ID;
+use crate::Token2022Decoder;
 #[cfg(feature = "postgres")]
 pub mod postgres;
 
@@ -142,8 +142,8 @@ pub use self::initialize_immutable_owner::*;
 pub use self::initialize_interest_bearing_mint::*;
 pub use self::initialize_metadata_pointer::*;
 pub use self::initialize_mint::*;
-pub use self::initialize_mint2::*;
 pub use self::initialize_mint_close_authority::*;
+pub use self::initialize_mint2::*;
 pub use self::initialize_multisig::*;
 pub use self::initialize_multisig2::*;
 pub use self::initialize_non_transferable_mint::*;

@@ -12,8 +12,8 @@ use crate::types::Token;
 use carbon_core::account::AccountMetadata;
 use carbon_core::postgres::metadata::AccountRowMetadata;
 use carbon_core::postgres::primitives::Pubkey;
-use carbon_core::postgres::primitives::U64;
 use carbon_core::postgres::primitives::U8;
+use carbon_core::postgres::primitives::U64;
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct PoolRow {

@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -31,8 +31,21 @@ impl carbon_core::deserialize::ArrangeAccounts for CreateOrder {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [maker, global_config, pda_authority, order, input_mint, output_mint, maker_ata, input_vault, input_token_program, output_token_program, event_authority, program, _remaining @ ..] =
-            accounts
+        let [
+            maker,
+            global_config,
+            pda_authority,
+            order,
+            input_mint,
+            output_mint,
+            maker_ata,
+            input_vault,
+            input_token_program,
+            output_token_program,
+            event_authority,
+            program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

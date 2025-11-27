@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -25,8 +25,19 @@ impl carbon_core::deserialize::ArrangeAccounts for InitiateDlmmFill {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [keeper, dca, input_mint, keeper_in_ata, in_ata, out_ata, instructions_sysvar, system_program, token_program, associated_token_program, _remaining @ ..] =
-            accounts
+        let [
+            keeper,
+            dca,
+            input_mint,
+            keeper_in_ata,
+            in_ata,
+            out_ata,
+            instructions_sysvar,
+            system_program,
+            token_program,
+            associated_token_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

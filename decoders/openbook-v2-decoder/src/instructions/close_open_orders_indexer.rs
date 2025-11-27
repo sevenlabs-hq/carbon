@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -19,8 +19,13 @@ impl carbon_core::deserialize::ArrangeAccounts for CloseOpenOrdersIndexer {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [owner, open_orders_indexer, sol_destination, token_program, _remaining @ ..] =
-            accounts
+        let [
+            owner,
+            open_orders_indexer,
+            sol_destination,
+            token_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

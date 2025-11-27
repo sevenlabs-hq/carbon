@@ -5,8 +5,8 @@
 //! <https://github.com/codama-idl/codama>
 //!
 use crate::types::Extension;
-use carbon_core::borsh;
 use carbon_core::CarbonDeserialize;
+use carbon_core::borsh;
 use solana_pubkey::Pubkey;
 use spl_token_2022::extension::{BaseStateWithExtensions, StateWithExtensions};
 

@@ -94,10 +94,18 @@ impl Metrics for LogMetrics {
             start.elapsed().as_secs() % 60,
             last_flush.elapsed(),
             updates_processed,
-            if total_updates_received > 0 {(*updates_processed * 100) / total_updates_received} else {0},
+            if total_updates_received > 0 {
+                (*updates_processed * 100) / total_updates_received
+            } else {
+                0
+            },
             updates_successful,
             updates_failed,
-            if *updates_processed > 0 {(*updates_failed * 100) / *updates_processed} else {0},
+            if *updates_processed > 0 {
+                (*updates_failed * 100) / *updates_processed
+            } else {
+                0
+            },
             updates_queued,
             updates_processing_times_avg,
             updates_processing_times_min,

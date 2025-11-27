@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -46,8 +46,29 @@ impl carbon_core::deserialize::ArrangeAccounts for OpenPositionWithToken22Nft {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [payer, position_nft_owner, position_nft_mint, position_nft_account, pool_state, protocol_position, tick_array_lower, tick_array_upper, personal_position, token_account0, token_account1, token_vault0, token_vault1, rent, system_program, token_program, associated_token_program, token_program2022, vault0_mint, vault1_mint, _remaining @ ..] =
-            accounts
+        let [
+            payer,
+            position_nft_owner,
+            position_nft_mint,
+            position_nft_account,
+            pool_state,
+            protocol_position,
+            tick_array_lower,
+            tick_array_upper,
+            personal_position,
+            token_account0,
+            token_account1,
+            token_vault0,
+            token_vault1,
+            rent,
+            system_program,
+            token_program,
+            associated_token_program,
+            token_program2022,
+            vault0_mint,
+            vault1_mint,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

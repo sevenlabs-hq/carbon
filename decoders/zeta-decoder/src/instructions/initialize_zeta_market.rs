@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -39,8 +39,29 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeZetaMarket {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [state, market_indexes, pricing, admin, market, request_queue, event_queue, bids, asks, base_mint, quote_mint, dex_base_vault, dex_quote_vault, vault_owner, mint_authority, serum_authority, dex_program, system_program, token_program, rent, _remaining @ ..] =
-            accounts
+        let [
+            state,
+            market_indexes,
+            pricing,
+            admin,
+            market,
+            request_queue,
+            event_queue,
+            bids,
+            asks,
+            base_mint,
+            quote_mint,
+            dex_base_vault,
+            dex_quote_vault,
+            vault_owner,
+            mint_authority,
+            serum_authority,
+            dex_program,
+            system_program,
+            token_program,
+            rent,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

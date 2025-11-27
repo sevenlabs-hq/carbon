@@ -7,8 +7,8 @@ use {
         processor::Processor,
     },
     carbon_jupiter_swap_decoder::{
-        instructions::JupiterSwapInstruction, JupiterSwapDecoder,
-        PROGRAM_ID as JUPITER_SWAP_PROGRAM_ID,
+        JupiterSwapDecoder, PROGRAM_ID as JUPITER_SWAP_PROGRAM_ID,
+        instructions::JupiterSwapInstruction,
     },
     carbon_log_metrics::LogMetrics,
     carbon_yellowstone_grpc_datasource::{
@@ -109,7 +109,9 @@ impl Processor for JupiterSwapInstructionProcessor {
                 log::info!("claim_token: signature: {signature}, claim_token: {claim_token:?}");
             }
             JupiterSwapInstruction::CreateTokenLedger(create_token_ledger) => {
-                log::info!("create_token_ledger: signature: {signature}, create_token_ledger: {create_token_ledger:?}");
+                log::info!(
+                    "create_token_ledger: signature: {signature}, create_token_ledger: {create_token_ledger:?}"
+                );
             }
             JupiterSwapInstruction::ExactOutRoute(exact_out_route) => {
                 assert!(
@@ -135,10 +137,14 @@ impl Processor for JupiterSwapInstructionProcessor {
                     "nested instructions empty: {} ",
                     signature
                 );
-                log::info!("route_with_token_ledger: signature: {signature}, route_with_token_ledger: {route_with_token_ledger:?}");
+                log::info!(
+                    "route_with_token_ledger: signature: {signature}, route_with_token_ledger: {route_with_token_ledger:?}"
+                );
             }
             JupiterSwapInstruction::SetTokenLedger(set_token_ledger) => {
-                log::info!("set_token_ledger: signature: {signature}, set_token_ledger: {set_token_ledger:?}");
+                log::info!(
+                    "set_token_ledger: signature: {signature}, set_token_ledger: {set_token_ledger:?}"
+                );
             }
             JupiterSwapInstruction::SharedAccountsExactOutRoute(
                 shared_accounts_exact_out_route,
@@ -148,7 +154,9 @@ impl Processor for JupiterSwapInstructionProcessor {
                     "nested instructions empty: {} ",
                     signature
                 );
-                log::info!("shared_accounts_exact_out_route: signature: {signature}, shared_accounts_exact_out_route: {shared_accounts_exact_out_route:?}");
+                log::info!(
+                    "shared_accounts_exact_out_route: signature: {signature}, shared_accounts_exact_out_route: {shared_accounts_exact_out_route:?}"
+                );
             }
             JupiterSwapInstruction::ExactOutRouteV2(exact_out_route_v2) => {
                 assert!(
@@ -156,7 +164,9 @@ impl Processor for JupiterSwapInstructionProcessor {
                     "nested instructions empty: {} ",
                     signature
                 );
-                log::info!("exact_out_route_v2: signature: {signature}, exact_out_route_v2: {exact_out_route_v2:?}");
+                log::info!(
+                    "exact_out_route_v2: signature: {signature}, exact_out_route_v2: {exact_out_route_v2:?}"
+                );
             }
             JupiterSwapInstruction::RouteV2(route_v2) => {
                 assert!(
@@ -174,7 +184,9 @@ impl Processor for JupiterSwapInstructionProcessor {
                     "nested instructions empty: {} ",
                     signature
                 );
-                log::info!("shared_accounts_exact_out_route_v2: signature: {signature}, shared_accounts_exact_out_route_v2: {shared_accounts_exact_out_route_v2:?}");
+                log::info!(
+                    "shared_accounts_exact_out_route_v2: signature: {signature}, shared_accounts_exact_out_route_v2: {shared_accounts_exact_out_route_v2:?}"
+                );
             }
             JupiterSwapInstruction::SharedAccountsRouteV2(shared_accounts_route_v2) => {
                 assert!(
@@ -182,7 +194,9 @@ impl Processor for JupiterSwapInstructionProcessor {
                     "nested instructions empty: {} ",
                     signature
                 );
-                log::info!("shared_accounts_route_v2: signature: {signature}, shared_accounts_route_v2: {shared_accounts_route_v2:?}");
+                log::info!(
+                    "shared_accounts_route_v2: signature: {signature}, shared_accounts_route_v2: {shared_accounts_route_v2:?}"
+                );
             }
             JupiterSwapInstruction::SharedAccountsRoute(shared_accounts_route) => {
                 assert!(
@@ -190,7 +204,9 @@ impl Processor for JupiterSwapInstructionProcessor {
                     "nested instructions empty: {} ",
                     signature
                 );
-                log::info!("shared_accounts_route: signature: {signature}, shared_accounts_route: {shared_accounts_route:?}");
+                log::info!(
+                    "shared_accounts_route: signature: {signature}, shared_accounts_route: {shared_accounts_route:?}"
+                );
             }
             JupiterSwapInstruction::SharedAccountsRouteWithTokenLedger(
                 shared_accounts_route_with_token_ledger,
@@ -200,7 +216,9 @@ impl Processor for JupiterSwapInstructionProcessor {
                     "nested instructions empty: {} ",
                     signature
                 );
-                log::info!("shared_accounts_route_with_token_ledger: signature: {signature}, shared_accounts_route_with_token_ledger: {shared_accounts_route_with_token_ledger:?}");
+                log::info!(
+                    "shared_accounts_route_with_token_ledger: signature: {signature}, shared_accounts_route_with_token_ledger: {shared_accounts_route_with_token_ledger:?}"
+                );
             }
             JupiterSwapInstruction::FeeEvent(fee_event) => {
                 log::info!("fee_event: signature: {signature}, fee_event: {fee_event:?}");
@@ -212,7 +230,9 @@ impl Processor for JupiterSwapInstructionProcessor {
                 log::info!("close_token: signature: {signature}, close_token: {close_token:?}");
             }
             JupiterSwapInstruction::CreateTokenAccount(create_token_account) => {
-                log::info!("create_token_account: signature: {signature}, create_token_account: {create_token_account:?}");
+                log::info!(
+                    "create_token_account: signature: {signature}, create_token_account: {create_token_account:?}"
+                );
             }
             JupiterSwapInstruction::SwapsEvent(swaps_event) => {
                 log::info!("swaps_event: signature: {signature}, swaps_event: {swaps_event:?}");

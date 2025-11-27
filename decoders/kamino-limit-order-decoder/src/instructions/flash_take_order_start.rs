@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -42,8 +42,32 @@ impl carbon_core::deserialize::ArrangeAccounts for FlashTakeOrderStart {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [taker, maker, global_config, pda_authority, order, input_mint, output_mint, input_vault, taker_input_ata, taker_output_ata, intermediary_output_token_account, maker_output_ata, express_relay, express_relay_metadata, sysvar_instructions, permission, config_router, input_token_program, output_token_program, system_program, rent, event_authority, program, _remaining @ ..] =
-            accounts
+        let [
+            taker,
+            maker,
+            global_config,
+            pda_authority,
+            order,
+            input_mint,
+            output_mint,
+            input_vault,
+            taker_input_ata,
+            taker_output_ata,
+            intermediary_output_token_account,
+            maker_output_ata,
+            express_relay,
+            express_relay_metadata,
+            sysvar_instructions,
+            permission,
+            config_router,
+            input_token_program,
+            output_token_program,
+            system_program,
+            rent,
+            event_authority,
+            program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

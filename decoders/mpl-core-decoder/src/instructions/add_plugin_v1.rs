@@ -1,6 +1,6 @@
 use {
     super::super::types::*,
-    carbon_core::{borsh, CarbonDeserialize},
+    carbon_core::{CarbonDeserialize, borsh},
 };
 
 #[derive(
@@ -26,8 +26,15 @@ impl carbon_core::deserialize::ArrangeAccounts for AddPluginV1 {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [asset, collection, payer, authority, system_program, log_wrapper, _remaining @ ..] =
-            accounts
+        let [
+            asset,
+            collection,
+            payer,
+            authority,
+            system_program,
+            log_wrapper,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

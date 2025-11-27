@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -30,8 +30,21 @@ impl carbon_core::deserialize::ArrangeAccounts for FillOrder {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [order, reserve, maker, taker, taker_output_account, maker_output_account, taker_input_account, fee_authority, program_fee_account, referral, token_program, system_program, _remaining @ ..] =
-            accounts
+        let [
+            order,
+            reserve,
+            maker,
+            taker,
+            taker_output_account,
+            maker_output_account,
+            taker_input_account,
+            fee_authority,
+            program_fee_account,
+            referral,
+            token_program,
+            system_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

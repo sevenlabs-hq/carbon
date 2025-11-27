@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -27,8 +27,19 @@ impl carbon_core::deserialize::ArrangeAccounts for LiquidUnstake {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [state, msol_mint, liq_pool_sol_leg_pda, liq_pool_msol_leg, treasury_msol_account, get_msol_from, get_msol_from_authority, transfer_sol_to, system_program, token_program, _remaining @ ..] =
-            accounts
+        let [
+            state,
+            msol_mint,
+            liq_pool_sol_leg_pda,
+            liq_pool_msol_leg,
+            treasury_msol_account,
+            get_msol_from,
+            get_msol_from_authority,
+            transfer_sol_to,
+            system_program,
+            token_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

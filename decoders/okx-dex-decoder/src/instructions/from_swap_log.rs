@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -32,8 +32,19 @@ impl carbon_core::deserialize::ArrangeAccounts for FromSwapLog {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [payer, source_token_account, destination_token_account, source_mint, destination_mint, bridge_program, associated_token_program, token_program, token_2022_program, system_program, _remaining @ ..] =
-            accounts
+        let [
+            payer,
+            source_token_account,
+            destination_token_account,
+            source_mint,
+            destination_mint,
+            bridge_program,
+            associated_token_program,
+            token_program,
+            token_2022_program,
+            system_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

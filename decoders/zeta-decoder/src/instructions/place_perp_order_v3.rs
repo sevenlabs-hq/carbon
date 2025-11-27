@@ -1,7 +1,7 @@
 use super::super::types::*;
 
 use alloc::string::String;
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -43,8 +43,25 @@ impl carbon_core::deserialize::ArrangeAccounts for PlacePerpOrderV3 {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [state, pricing, margin_account, authority, dex_program, token_program, serum_authority, open_orders, rent, market_accounts, oracle, oracle_backup_feed, oracle_backup_program, market_mint, mint_authority, perp_sync_queue, _remaining @ ..] =
-            accounts
+        let [
+            state,
+            pricing,
+            margin_account,
+            authority,
+            dex_program,
+            token_program,
+            serum_authority,
+            open_orders,
+            rent,
+            market_accounts,
+            oracle,
+            oracle_backup_feed,
+            oracle_backup_program,
+            market_mint,
+            mint_authority,
+            perp_sync_queue,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

@@ -182,9 +182,9 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
     pub fn new(
         schema: Option<TransactionSchema<T>>,
         processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
-            + Send
-            + Sync
-            + 'static,
+        + Send
+        + Sync
+        + 'static,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
     ) -> Self {
         log::trace!(

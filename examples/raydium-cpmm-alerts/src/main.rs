@@ -8,8 +8,8 @@ use {
     },
     carbon_log_metrics::LogMetrics,
     carbon_raydium_cpmm_decoder::{
-        instructions::RaydiumCpmmInstruction, RaydiumCpmmDecoder,
-        PROGRAM_ID as RAYDIUM_CPMM_PROGRAM_ID,
+        PROGRAM_ID as RAYDIUM_CPMM_PROGRAM_ID, RaydiumCpmmDecoder,
+        instructions::RaydiumCpmmInstruction,
     },
     carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
     solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
@@ -68,19 +68,29 @@ impl Processor for RaydiumCpmmInstructionProcessor {
 
         match instruction.data {
             RaydiumCpmmInstruction::CreateAmmConfig(create_amm_config) => {
-                log::info!("CreateAmmConfig: signature: {signature}, create_amm_config: {create_amm_config:?}");
+                log::info!(
+                    "CreateAmmConfig: signature: {signature}, create_amm_config: {create_amm_config:?}"
+                );
             }
             RaydiumCpmmInstruction::UpdateAmmConfig(update_amm_config) => {
-                log::info!("UpdateAmmConfig: signature: {signature}, update_amm_config: {update_amm_config:?}");
+                log::info!(
+                    "UpdateAmmConfig: signature: {signature}, update_amm_config: {update_amm_config:?}"
+                );
             }
             RaydiumCpmmInstruction::UpdatePoolStatus(update_pool_status) => {
-                log::info!("UpdatePoolStatus: signature: {signature}, update_pool_status: {update_pool_status:?}");
+                log::info!(
+                    "UpdatePoolStatus: signature: {signature}, update_pool_status: {update_pool_status:?}"
+                );
             }
             RaydiumCpmmInstruction::CollectProtocolFee(collect_protocol_fee) => {
-                log::info!("CollectProtocolFee: signature: {signature}, collect_protocol_fee: {collect_protocol_fee:?}");
+                log::info!(
+                    "CollectProtocolFee: signature: {signature}, collect_protocol_fee: {collect_protocol_fee:?}"
+                );
             }
             RaydiumCpmmInstruction::CollectFundFee(collect_fund_fee) => {
-                log::info!("CollectFundFee: signature: {signature}, collect_fund_fee: {collect_fund_fee:?}");
+                log::info!(
+                    "CollectFundFee: signature: {signature}, collect_fund_fee: {collect_fund_fee:?}"
+                );
             }
             RaydiumCpmmInstruction::Initialize(initialize) => {
                 log::info!("Initialize: signature: {signature}, initialize: {initialize:?}");
@@ -97,7 +107,9 @@ impl Processor for RaydiumCpmmInstructionProcessor {
                 );
             }
             RaydiumCpmmInstruction::SwapBaseOutput(swap_base_output) => {
-                log::info!("SwapBaseOutput: signature: {signature}, swap_base_output: {swap_base_output:?}");
+                log::info!(
+                    "SwapBaseOutput: signature: {signature}, swap_base_output: {swap_base_output:?}"
+                );
             }
             RaydiumCpmmInstruction::LpChangeEvent(lp_change_event) => {
                 log::info!(
@@ -108,16 +120,24 @@ impl Processor for RaydiumCpmmInstructionProcessor {
                 log::info!("SwapEvent: signature: {signature}, swap_event: {swap_event:?}");
             }
             RaydiumCpmmInstruction::ClosePermissionPda(close_permission_pda) => {
-                log::info!("ClosePermissionPda: signature: {signature}, close_permission_pda: {close_permission_pda:?}");
+                log::info!(
+                    "ClosePermissionPda: signature: {signature}, close_permission_pda: {close_permission_pda:?}"
+                );
             }
             RaydiumCpmmInstruction::CollectCreatorFee(collect_creator_fee) => {
-                log::info!("CollectCreatorFee: signature: {signature}, collect_creator_fee: {collect_creator_fee:?}");
+                log::info!(
+                    "CollectCreatorFee: signature: {signature}, collect_creator_fee: {collect_creator_fee:?}"
+                );
             }
             RaydiumCpmmInstruction::CreatePermissionPda(create_permission_pda) => {
-                log::info!("CreatePermissionPda: signature: {signature}, create_permission_pda: {create_permission_pda:?}");
+                log::info!(
+                    "CreatePermissionPda: signature: {signature}, create_permission_pda: {create_permission_pda:?}"
+                );
             }
             RaydiumCpmmInstruction::InitializeWithPermission(initialize_with_permission) => {
-                log::info!("InitializeWithPermission: signature: {signature}, initialize_with_permission: {initialize_with_permission:?}");
+                log::info!(
+                    "InitializeWithPermission: signature: {signature}, initialize_with_permission: {initialize_with_permission:?}"
+                );
             }
         };
 

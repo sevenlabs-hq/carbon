@@ -5,9 +5,9 @@
 use carbon_core::instruction::InstructionMetadata;
 use carbon_core::postgres::metadata::InstructionRowMetadata;
 use carbon_core::postgres::primitives::Pubkey;
+use carbon_core::postgres::primitives::U8;
 use carbon_core::postgres::primitives::U16;
 use carbon_core::postgres::primitives::U64;
-use carbon_core::postgres::primitives::U8;
 
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct InitializeTransferFeeConfigRow {

@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -25,8 +25,16 @@ impl carbon_core::deserialize::ArrangeAccounts for CancelRedeem {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [tree_authority, leaf_owner, merkle_tree, voucher, log_wrapper, compression_program, system_program, _remaining @ ..] =
-            accounts
+        let [
+            tree_authority,
+            leaf_owner,
+            merkle_tree,
+            voucher,
+            log_wrapper,
+            compression_program,
+            system_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

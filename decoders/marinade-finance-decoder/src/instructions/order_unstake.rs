@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -25,8 +25,17 @@ impl carbon_core::deserialize::ArrangeAccounts for OrderUnstake {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [state, msol_mint, burn_msol_from, burn_msol_authority, new_ticket_account, clock, rent, token_program, _remaining @ ..] =
-            accounts
+        let [
+            state,
+            msol_mint,
+            burn_msol_from,
+            burn_msol_authority,
+            new_ticket_account,
+            clock,
+            rent,
+            token_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

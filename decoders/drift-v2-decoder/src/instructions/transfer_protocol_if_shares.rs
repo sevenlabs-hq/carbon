@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -26,8 +26,17 @@ impl carbon_core::deserialize::ArrangeAccounts for TransferProtocolIfShares {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [signer, transfer_config, state, spot_market, insurance_fund_stake, user_stats, authority, insurance_fund_vault, _remaining @ ..] =
-            accounts
+        let [
+            signer,
+            transfer_config,
+            state,
+            spot_market,
+            insurance_fund_stake,
+            user_stats,
+            authority,
+            insurance_fund_vault,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -22,8 +22,14 @@ impl carbon_core::deserialize::ArrangeAccounts for SocializeLoss {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [risk_council, obligation, lending_market, reserve, instruction_sysvar_account, _remaining @ ..] =
-            accounts
+        let [
+            risk_council,
+            obligation,
+            lending_market,
+            reserve,
+            instruction_sysvar_account,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

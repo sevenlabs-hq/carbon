@@ -9,11 +9,11 @@ use {
     },
     carbon_log_metrics::LogMetrics,
     carbon_moonshot_decoder::{
-        instructions::{
-            buy::Buy, config_init::ConfigInit, config_update::ConfigUpdate,
-            migrate_funds::MigrateFunds, sell::Sell, token_mint::TokenMint, MoonshotInstruction,
-        },
         MoonshotDecoder, PROGRAM_ID as MOONSHOT_PROGRAM_ID,
+        instructions::{
+            MoonshotInstruction, buy::Buy, config_init::ConfigInit, config_update::ConfigUpdate,
+            migrate_funds::MigrateFunds, sell::Sell, token_mint::TokenMint,
+        },
     },
     carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
     solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
@@ -75,7 +75,9 @@ impl Processor for MoonshotInstructionProcessor {
             MoonshotInstruction::TokenMint(token_mint) => {
                 match TokenMint::arrange_accounts(&accounts) {
                     Some(accounts) => {
-                        log::info!("TokenMint: signature: {signature}, token_mint: {token_mint:?}, accounts: {accounts:#?}");
+                        log::info!(
+                            "TokenMint: signature: {signature}, token_mint: {token_mint:?}, accounts: {accounts:#?}"
+                        );
                     }
                     None => log::error!(
                         "Failed to arrange accounts for TokenMint {}",

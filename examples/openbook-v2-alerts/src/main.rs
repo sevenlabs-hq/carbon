@@ -8,8 +8,8 @@ use {
     },
     carbon_log_metrics::LogMetrics,
     carbon_openbook_v2_decoder::{
-        instructions::OpenbookV2Instruction, OpenbookV2Decoder,
-        PROGRAM_ID as OPENBOOK_V2_PROGRAM_ID,
+        OpenbookV2Decoder, PROGRAM_ID as OPENBOOK_V2_PROGRAM_ID,
+        instructions::OpenbookV2Instruction,
     },
     carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
     solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},

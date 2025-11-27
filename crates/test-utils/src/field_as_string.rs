@@ -1,6 +1,6 @@
 use {
     serde::Deserialize,
-    serde::{de, Deserializer},
+    serde::{Deserializer, de},
     std::str::FromStr,
 };
 

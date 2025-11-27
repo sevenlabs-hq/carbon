@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -36,8 +36,30 @@ impl carbon_core::deserialize::ArrangeAccounts for MigrateToOpenBook {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [token_program, system_program, rent, amm, amm_authority, amm_open_orders, amm_token_coin, amm_token_pc, amm_target_orders, serum_program, serum_market, serum_bids, serum_asks, serum_event_queue, serum_coin_vault, serum_pc_vault, serum_vault_signer, new_amm_open_orders, new_serum_program, new_serum_market, admin, _remaining @ ..] =
-            accounts
+        let [
+            token_program,
+            system_program,
+            rent,
+            amm,
+            amm_authority,
+            amm_open_orders,
+            amm_token_coin,
+            amm_token_pc,
+            amm_target_orders,
+            serum_program,
+            serum_market,
+            serum_bids,
+            serum_asks,
+            serum_event_queue,
+            serum_coin_vault,
+            serum_pc_vault,
+            serum_vault_signer,
+            new_amm_open_orders,
+            new_serum_program,
+            new_serum_market,
+            admin,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

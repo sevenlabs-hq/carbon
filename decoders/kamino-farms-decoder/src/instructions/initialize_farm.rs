@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -24,8 +24,18 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeFarm {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [farm_admin, farm_state, global_config, farm_vault, farm_vaults_authority, token_mint, token_program, system_program, rent, _remaining @ ..] =
-            accounts
+        let [
+            farm_admin,
+            farm_state,
+            global_config,
+            farm_vault,
+            farm_vaults_authority,
+            token_mint,
+            token_program,
+            system_program,
+            rent,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

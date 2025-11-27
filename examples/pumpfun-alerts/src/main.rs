@@ -5,7 +5,7 @@ use {
         metrics::MetricsCollection, processor::Processor,
     },
     carbon_pumpfun_decoder::{
-        instructions::PumpfunInstruction, PumpfunDecoder, PROGRAM_ID as PUMPFUN_PROGRAM_ID,
+        PROGRAM_ID as PUMPFUN_PROGRAM_ID, PumpfunDecoder, instructions::PumpfunInstruction,
     },
     helius::types::{
         Cluster, RpcTransactionsConfig, TransactionCommitment, TransactionDetails,

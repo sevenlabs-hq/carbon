@@ -1,6 +1,6 @@
 use crate::types::SplitPositionParameters;
 use carbon_core::deserialize::ArrangeAccounts;
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -29,8 +29,18 @@ impl ArrangeAccounts for SplitPosition {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [pool, first_position, first_position_nft_account, second_position, second_position_nft_account, first_owner, second_owner, event_authority, program, _remaining @ ..] =
-            accounts
+        let [
+            pool,
+            first_position,
+            first_position_nft_account,
+            second_position,
+            second_position_nft_account,
+            first_owner,
+            second_owner,
+            event_authority,
+            program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

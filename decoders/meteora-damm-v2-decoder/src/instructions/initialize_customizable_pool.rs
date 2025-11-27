@@ -1,6 +1,6 @@
 use super::super::types::*;
 
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -39,8 +39,28 @@ impl carbon_core::deserialize::ArrangeAccounts for InitializeCustomizablePool {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [creator, position_nft_mint, position_nft_account, payer, pool_authority, pool, position, token_a_mint, token_b_mint, token_a_vault, token_b_vault, payer_token_a, payer_token_b, token_a_program, token_b_program, token_2022_program, system_program, event_authority, program, _remaining @ ..] =
-            accounts
+        let [
+            creator,
+            position_nft_mint,
+            position_nft_account,
+            payer,
+            pool_authority,
+            pool,
+            position,
+            token_a_mint,
+            token_b_mint,
+            token_a_vault,
+            token_b_vault,
+            payer_token_a,
+            payer_token_b,
+            token_a_program,
+            token_b_program,
+            token_2022_program,
+            system_program,
+            event_authority,
+            program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };

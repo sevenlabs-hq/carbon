@@ -1,5 +1,5 @@
 use alloc::vec::Vec;
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -27,8 +27,15 @@ impl carbon_core::deserialize::ArrangeAccounts for SwapRouterBaseIn {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [payer, input_token_account, input_token_mint, token_program, token_program2022, memo_program, remaining_accounts @ ..] =
-            accounts
+        let [
+            payer,
+            input_token_account,
+            input_token_mint,
+            token_program,
+            token_program2022,
+            memo_program,
+            remaining_accounts @ ..,
+        ] = accounts
         else {
             return None;
         };

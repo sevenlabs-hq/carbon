@@ -1,6 +1,6 @@
 use {
     super::super::types::*,
-    carbon_core::{account_utils::next_account, borsh, CarbonDeserialize},
+    carbon_core::{CarbonDeserialize, account_utils::next_account, borsh},
 };
 
 #[derive(

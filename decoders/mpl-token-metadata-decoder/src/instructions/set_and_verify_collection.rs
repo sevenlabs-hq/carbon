@@ -1,4 +1,4 @@
-use carbon_core::{account_utils::next_account, borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, account_utils::next_account, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,

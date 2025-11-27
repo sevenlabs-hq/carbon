@@ -1,4 +1,4 @@
-use carbon_core::{borsh, CarbonDeserialize};
+use carbon_core::{CarbonDeserialize, borsh};
 
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
@@ -35,8 +35,20 @@ impl carbon_core::deserialize::ArrangeAccounts for TransferV2 {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [tree_authority, payer, authority, leaf_owner, leaf_delegate, new_leaf_owner, merkle_tree, core_collection, log_wrapper, compression_program, system_program, _remaining @ ..] =
-            accounts
+        let [
+            tree_authority,
+            payer,
+            authority,
+            leaf_owner,
+            leaf_delegate,
+            new_leaf_owner,
+            merkle_tree,
+            core_collection,
+            log_wrapper,
+            compression_program,
+            system_program,
+            _remaining @ ..,
+        ] = accounts
         else {
             return None;
         };
