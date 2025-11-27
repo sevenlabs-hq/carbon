@@ -49,6 +49,9 @@ jobs:
       - name: Install `clippy`
         run: rustup component add  clippy --toolchain 1.88.0
 
+      - name: Install LLVM/Clang
+        run: sudo apt-get update && sudo apt-get install -y libclang-dev
+
       - name: cargo clippy
         run: cargo clippy --all-targets --all-features -- -D warnings
 
@@ -98,6 +101,9 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
+
+      - name: Install LLVM/Clang
+        run: sudo apt-get update && sudo apt-get install -y libclang-dev
 
       - name: Check test
         run: cargo test --all-targets --all-features
