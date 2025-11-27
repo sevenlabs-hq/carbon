@@ -48,18 +48,18 @@ impl TransactionFilter {
             }
         }
 
-        if !self.account_include.is_empty() && self.account_include.is_disjoint(&accounts) {
+        if !self.account_include.is_empty() && self.account_include.is_disjoint(accounts) {
             return false;
         }
 
-        if !self.account_exclude.is_disjoint(&accounts) {
+        if !self.account_exclude.is_disjoint(accounts) {
             return false;
         }
 
-        if !self.account_required.is_subset(&accounts) {
+        if !self.account_required.is_subset(accounts) {
             return false;
         }
 
-        return true;
+        true
     }
 }
