@@ -19,7 +19,10 @@ use {
     },
     std::{collections::HashSet, str::FromStr, sync::Arc, time::Duration},
     tokio::{
-        sync::mpsc::{self, Receiver, Sender},
+        sync::{
+            mpsc::{self, Receiver, Sender},
+            Mutex,
+        },
         task::JoinHandle,
         time::Instant,
     },
@@ -98,6 +101,7 @@ pub struct ConnectionConfig {
     pub max_transaction_channel_size: Option<usize>,
     pub retry_config: RetryConfig,
     pub blocking_send: bool,
+    pub rate_limiter: Option<RateLimiter>,
 }
 
 impl ConnectionConfig {
@@ -118,6 +122,7 @@ impl ConnectionConfig {
             max_signature_channel_size,
             max_transaction_channel_size,
             blocking_send,
+            rate_limiter: None,
         }
     }
 
@@ -130,6 +135,47 @@ impl ConnectionConfig {
             max_signature_channel_size: None,
             max_transaction_channel_size: None,
             blocking_send: false,
+            rate_limiter: None,
+        }
+    }
+
+    pub fn with_rate_limit(mut self, requests_per_second: u32) -> Self {
+        if requests_per_second == 0 {
+            return self;
+        }
+        self.rate_limiter = Some(RateLimiter::new(requests_per_second));
+        self
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct RateLimiter {
+    interval: Duration,
+    next_allowed: Arc<Mutex<Instant>>,
+}
+
+impl RateLimiter {
+    pub fn new(requests_per_second: u32) -> Self {
+        assert!(requests_per_second > 0, "requests_per_second must be > 0");
+        Self {
+            interval: Duration::from_secs_f64(1.0 / requests_per_second as f64),
+            next_allowed: Arc::new(Mutex::new(Instant::now())),
+        }
+    }
+
+    pub async fn acquire(&self) {
+        loop {
+            let wait_duration = {
+                let mut guard = self.next_allowed.lock().await;
+                let now = Instant::now();
+                if *guard <= now {
+                    *guard = now + self.interval;
+                    return;
+                }
+                *guard - now
+            };
+
+            tokio::time::sleep(wait_duration).await;
         }
     }
 }
@@ -266,6 +312,10 @@ fn signature_fetcher(
                     let mut backoff = connection_config.retry_config.initial_backoff_ms;
 
                     loop {
+                        if let Some(rate_limiter) = connection_config.rate_limiter.as_ref() {
+                            rate_limiter.acquire().await;
+                        }
+
                         match rpc_client.get_signatures_for_address_with_config(
                             &account,
                             GetConfirmedSignaturesForAddress2Config {
@@ -395,6 +445,10 @@ fn transaction_fetcher(
                         let mut backoff = connection_config.retry_config.initial_backoff_ms;
 
                         loop {
+                            if let Some(rate_limiter) = connection_config.rate_limiter.as_ref() {
+                                rate_limiter.acquire().await;
+                            }
+
                             match rpc_client.get_transaction_with_config(
                                 &signature,
                                 RpcTransactionConfig {
