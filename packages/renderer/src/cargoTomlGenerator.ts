@@ -67,17 +67,34 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         solanaAccountDep,
         solanaInstructionDep,
         serdeJsonDep,
-        '',
-        serdeDep,
-        serdeBigArrayDep,
-        '',
-        sqlxDep,
-        asyncTraitDep,
-        sqlxMigratorDep,
-        '',
-        juniperDep,
-        base64Dep,
     ];
+
+    if (withSerde || withPostgres || withGraphQL) {
+        dependencies.push('');
+        dependencies.push(serdeDep);
+        dependencies.push(serdeBigArrayDep);
+    }
+
+    if (withPostgres) {
+        dependencies.push('');
+        dependencies.push(sqlxDep);
+        dependencies.push(asyncTraitDep);
+        dependencies.push(sqlxMigratorDep);
+    }
+
+    if (withGraphQL) {
+        dependencies.push('');
+        dependencies.push(juniperDep);
+        dependencies.push(base64Dep);
+    }
+
+    const macheteIgnored: string[] = [];
+    if (withSerde || withPostgres || withGraphQL) {
+        macheteIgnored.push('serde-big-array');
+    }
+    if (withGraphQL) {
+        macheteIgnored.push('base64');
+    }
 
     const toml = [
         '[package]',
@@ -85,6 +102,13 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         'version = "0.1.0"',
         'edition = "2021"',
         '',
+        ...(macheteIgnored.length > 0
+            ? [
+                  '[package.metadata.cargo-machete]',
+                  `ignored = [${macheteIgnored.map(dep => `"${dep}"`).join(', ')}]`,
+                  '',
+              ]
+            : []),
         ...(standalone ? ['[workspace]', ''] : []),
         '[lib]',
         'crate-type = ["rlib"]',
