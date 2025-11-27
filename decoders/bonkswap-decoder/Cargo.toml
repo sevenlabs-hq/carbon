@@ -1,7 +1,12 @@
 [package]
 name = "carbon-bonkswap-decoder"
 version = "0.12.0"
-edition = "2021"
+description = "Carbon BonkSwap Decoder"
+edition = { workspace = true }
+license = { workspace = true }
+readme = "README.md"
+keywords = ["solana", "decoder", "bonkswap"]
+categories = ["encoding"]
 
 [lib]
 crate-type = ["rlib"]
