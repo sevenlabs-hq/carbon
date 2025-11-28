@@ -13,12 +13,12 @@ pub mod token_ledger;
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
-pub enum JupiterAccount {
+pub enum JupiterSwapAccount {
     TokenLedger(Box<token_ledger::TokenLedger>),
 }
 
 impl<'a> carbon_core::account::AccountDecoder<'a> for JupiterSwapDecoder {
-    type AccountType = JupiterAccount;
+    type AccountType = JupiterSwapAccount;
 
     fn decode_account(
         &self,
@@ -34,7 +34,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for JupiterSwapDecoder {
             if let Some(decoded) = token_ledger::TokenLedger::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
-                    data: JupiterAccount::TokenLedger(Box::new(decoded)),
+                    data: JupiterSwapAccount::TokenLedger(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

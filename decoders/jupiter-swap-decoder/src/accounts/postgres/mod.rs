@@ -3,11 +3,11 @@ pub mod token_ledger_row;
 
 pub use self::token_ledger_row::*;
 
-use super::JupiterAccount;
+use super::JupiterSwapAccount;
 
-pub struct JupiterAccountsMigration;
+pub struct JupiterSwapAccountsMigration;
 
-impl sqlx_migrator::Migration<sqlx::Postgres> for JupiterAccountsMigration {
+impl sqlx_migrator::Migration<sqlx::Postgres> for JupiterSwapAccountsMigration {
     fn app(&self) -> &str {
         "jupiter-swap"
     }
@@ -25,24 +25,26 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for JupiterAccountsMigration {
     }
 }
 
-pub struct JupiterAccountWithMetadata(
-    pub JupiterAccount,
+pub struct JupiterSwapAccountWithMetadata(
+    pub JupiterSwapAccount,
     pub carbon_core::account::AccountMetadata,
 );
 
-impl From<(JupiterAccount, carbon_core::account::AccountMetadata)> for JupiterAccountWithMetadata {
-    fn from(value: (JupiterAccount, carbon_core::account::AccountMetadata)) -> Self {
-        JupiterAccountWithMetadata(value.0, value.1)
+impl From<(JupiterSwapAccount, carbon_core::account::AccountMetadata)>
+    for JupiterSwapAccountWithMetadata
+{
+    fn from(value: (JupiterSwapAccount, carbon_core::account::AccountMetadata)) -> Self {
+        JupiterSwapAccountWithMetadata(value.0, value.1)
     }
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Insert for JupiterAccountWithMetadata {
+impl carbon_core::postgres::operations::Insert for JupiterSwapAccountWithMetadata {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let JupiterAccountWithMetadata(account, metadata) = self;
+        let JupiterSwapAccountWithMetadata(account, metadata) = self;
 
         match account {
-            JupiterAccount::TokenLedger(account) => {
+            JupiterSwapAccount::TokenLedger(account) => {
                 let row = token_ledger_row::TokenLedgerRow::from_parts(
                     *account.clone(),
                     metadata.clone(),
@@ -55,11 +57,11 @@ impl carbon_core::postgres::operations::Insert for JupiterAccountWithMetadata {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Upsert for JupiterAccountWithMetadata {
+impl carbon_core::postgres::operations::Upsert for JupiterSwapAccountWithMetadata {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let JupiterAccountWithMetadata(account, metadata) = self;
+        let JupiterSwapAccountWithMetadata(account, metadata) = self;
         match account {
-            JupiterAccount::TokenLedger(account) => {
+            JupiterSwapAccount::TokenLedger(account) => {
                 let row = token_ledger_row::TokenLedgerRow::from_parts(
                     *account.clone(),
                     metadata.clone(),
