@@ -1794,6 +1794,7 @@ dependencies = [
  "async-trait",
  "carbon-core",
  "log",
+ "serde_json",
  "solana-account",
  "solana-account-decoder",
  "solana-client",

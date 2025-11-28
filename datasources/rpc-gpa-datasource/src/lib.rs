@@ -9,27 +9,33 @@ use {
     solana_client::{
         nonblocking::rpc_client::RpcClient,
         rpc_config::{RpcAccountInfoConfig, RpcProgramAccountsConfig},
+        rpc_filter::RpcFilterType,
+        rpc_request::RpcRequest,
+        rpc_response::{OptionalContext, RpcKeyedAccount},
     },
     solana_commitment_config::CommitmentConfig,
     solana_pubkey::Pubkey,
-    std::sync::Arc,
+    std::{str::FromStr, sync::Arc},
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
 
 #[derive(Debug, Clone, Default)]
 pub struct GpaDatasourceConfig {
-    pub program_accounts_config: Option<RpcProgramAccountsConfig>,
+    pub filters: Option<Vec<RpcFilterType>>,
+    pub min_context_slot: Option<u64>,
     pub commitment: Option<CommitmentConfig>,
 }
 
 impl GpaDatasourceConfig {
     pub const fn new(
-        program_accounts_config: Option<RpcProgramAccountsConfig>,
+        filters: Option<Vec<RpcFilterType>>,
+        min_context_slot: Option<u64>,
         commitment: Option<CommitmentConfig>,
     ) -> Self {
         Self {
-            program_accounts_config,
+            filters,
+            min_context_slot,
             commitment,
         }
     }
@@ -88,26 +94,52 @@ impl Datasource for GpaDatasource {
             current_slot
         );
 
-        let rpc_config = self
-            .config
-            .program_accounts_config
-            .clone()
-            .unwrap_or_else(|| RpcProgramAccountsConfig {
-                account_config: RpcAccountInfoConfig {
-                    encoding: Some(solana_account_decoder::UiAccountEncoding::Base64),
-                    ..Default::default()
-                },
-                filters: None,
-                with_context: None,
-                sort_results: None,
-            });
+        let rpc_config = RpcProgramAccountsConfig {
+            account_config: RpcAccountInfoConfig {
+                encoding: Some(solana_account_decoder::UiAccountEncoding::Base64),
+                min_context_slot: self.config.min_context_slot,
+                ..Default::default()
+            },
+            filters: self.config.filters.clone(),
+            with_context: Some(true),
+            sort_results: None,
+        };
 
-        let program_accounts_result = rpc_client
-            .get_program_ui_accounts_with_config(&self.program_id, rpc_config.clone())
+        let params = serde_json::json!([self.program_id.to_string(), rpc_config]);
+
+        let response = rpc_client
+            .send::<OptionalContext<Vec<RpcKeyedAccount>>>(RpcRequest::GetProgramAccounts, params)
             .await;
 
-        let program_accounts = match program_accounts_result {
-            Ok(accounts) => accounts,
+        let (program_accounts, context_slot) = match response {
+            Ok(OptionalContext::Context(rpc_response)) => {
+                let slot = rpc_response.context.slot;
+                let keyed_accounts = rpc_response.value;
+
+                let accounts: Result<Vec<(Pubkey, solana_account_decoder::UiAccount)>, String> =
+                    keyed_accounts
+                        .into_iter()
+                        .map(|keyed_account| {
+                            let pubkey = Pubkey::from_str(&keyed_account.pubkey)
+                                .map_err(|e| format!("Failed to parse pubkey: {e}"))?;
+                            Ok((pubkey, keyed_account.account))
+                        })
+                        .collect();
+
+                match accounts {
+                    Ok(accs) => (accs, slot),
+                    Err(e) => {
+                        return Err(carbon_core::error::Error::FailedToConsumeDatasource(
+                            format!("Failed to parse program accounts: {e}"),
+                        ));
+                    }
+                }
+            }
+            Ok(_) => {
+                return Err(carbon_core::error::Error::FailedToConsumeDatasource(
+                    "Did not receive context in RPC response".to_string(),
+                ));
+            }
             Err(e) => {
                 return Err(carbon_core::error::Error::FailedToConsumeDatasource(
                     format!("Failed to fetch program accounts: {e}"),
@@ -116,9 +148,10 @@ impl Datasource for GpaDatasource {
         };
 
         log::info!(
-            "Fetched {} accounts for program {}",
+            "Fetched {} accounts for program {} (slot: {})",
             program_accounts.len(),
-            self.program_id
+            self.program_id,
+            context_slot
         );
 
         let id_for_loop = id.clone();
@@ -140,7 +173,7 @@ impl Datasource for GpaDatasource {
                 }
             };
 
-            let account_slot = current_slot;
+            let account_slot = context_slot;
 
             let update = Update::Account(AccountUpdate {
                 pubkey,
