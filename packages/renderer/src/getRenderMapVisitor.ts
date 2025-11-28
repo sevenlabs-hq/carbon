@@ -548,6 +548,15 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     });
                     const definedTypesToExport = allDefinedTypes;
 
+                    // Override program.name with packageName if provided (for custom decoder names)
+                    const programName = options.packageName
+                        ? options.packageName.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join('')
+                        : program.name;
+                    const programWithCustomName = {
+                        ...program,
+                        name: programName,
+                    };
+
                     // Visit the program first to populate instructionsWithGraphQLSchemas Set
                     const programRenderMap = visit(program, self);
 
@@ -575,7 +584,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         accountsToExport,
                         definedTypesToExport,
                         instructionsToExport,
-                        program,
+                        program: programWithCustomName,
                         root: node,
                         packageName: options.packageName,
                         hasAnchorEvents,
@@ -593,7 +602,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     // Build mod-level imports via ImportMap
                     const accountsModImports = new ImportMap()
                         .add('crate::PROGRAM_ID')
-                        .add(`crate::${pascalCase(program.name)}Decoder`);
+                        .add(`crate::${pascalCase(programName)}Decoder`);
                     map.add(
                         'src/accounts/mod.rs',
                         render('accountsMod.njk', { ...ctx, imports: accountsModImports.toString() }),
@@ -615,7 +624,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     if (instructionsToExport.length > 0) {
                         const instructionsModImports = new ImportMap()
                             .add('crate::PROGRAM_ID')
-                            .add(`crate::${pascalCase(program.name)}Decoder`);
+                            .add(`crate::${pascalCase(programName)}Decoder`);
                         map.add(
                             'src/instructions/mod.rs',
                             render('instructionsMod.njk', { ...ctx, imports: instructionsModImports.toString() }),
@@ -731,7 +740,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                     const cargoToml = generateDecoderCargoToml({
                         packageName: options.packageName,
-                        programName: program.name,
+                        programName: programName,
                         withPostgres: options.withPostgres !== false,
                         withGraphQL: options.withGraphql !== false,
                         withSerde: options.withSerde ?? false,
