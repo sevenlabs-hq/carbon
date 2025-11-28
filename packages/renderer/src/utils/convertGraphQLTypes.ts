@@ -241,6 +241,9 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
         if (isBooleanTypeAlias(typeName)) {
             return fieldAccess;
         }
+        if (typeName.includes('decrypt') || typeName.includes('cipher') || typeName.includes('elgamal')) {
+            return `${fieldAccess}.0.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
+        }
         return `${fieldAccess}.into()`;
     }
 

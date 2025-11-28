@@ -30,7 +30,6 @@
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 {%- endmacro %}
 
-{# Core derives for types - uses BorshDeserialize instead of CarbonDeserialize #}
 {% macro coreTypeDerives() -%}
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
@@ -64,7 +63,6 @@
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 {%- endmacro %}
 
-{# CpiEvent enum derives - uses carbon_core::borsh and BorshDeserialize instead of CarbonDeserialize #}
 {% macro cpiEventDerives() -%}
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]

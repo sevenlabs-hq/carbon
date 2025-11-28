@@ -20,7 +20,7 @@ impl QueryRoot {
 
         let pg_pubkey = PgPubkey(
             solana_pubkey::Pubkey::from_str(&pubkey)
-                .map_err(|e| juniper::FieldError::new(format!("Invalid pubkey: {}", e), juniper::Value::null()))?
+                .map_err(|e| juniper::FieldError::new(format!("Invalid pubkey: {e}"), juniper::Value::null()))?
         );
 
         let row: Option<AccountRow<crate::accounts::{{ program.name | pascalCase }}Account>> = sqlx::query_as(

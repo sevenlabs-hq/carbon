@@ -404,10 +404,95 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
 
 export function getDiscriminatorManifest(
     discriminators: DiscriminatorNode[] | undefined,
+    programName?: string | null,
+    discriminatorNames?: Map<number, string>,
 ): DiscriminatorManifest | null {
     if (!discriminators || discriminators.length === 0) return null;
 
-    // For now, handle the first discriminator (can be extended for multiple)
+    // Handle multiple discriminators explicitly (for any IDL with nested discriminators)
+    if (discriminators.length > 1) {
+        const constantDiscriminators = discriminators.filter(
+            d => d.kind === 'constantDiscriminatorNode'
+        );
+
+        if (constantDiscriminators.length > 1) {
+            // Sort by offset to ensure correct order
+            const sorted = [...constantDiscriminators].sort((a, b) => {
+                if (a.kind === 'constantDiscriminatorNode' && b.kind === 'constantDiscriminatorNode') {
+                    return a.offset - b.offset;
+                }
+                return 0;
+            });
+
+            // Calculate maximum required size
+            const maxRequiredSize = Math.max(
+                ...sorted.map(d => {
+                    if (d.kind === 'constantDiscriminatorNode') {
+                        const bytes = getDiscriminatorBytes(d.constant);
+                        return d.offset + bytes.length;
+                    }
+                    return 0;
+                })
+            );
+
+            // Generate check code for all discriminators
+            const checkParts: string[] = [];
+            const lengthCheck = maxRequiredSize === 1 
+                ? 'data.is_empty()' 
+                : `data.len() < ${maxRequiredSize}`;
+            checkParts.push(`        if ${lengthCheck} {`);
+            checkParts.push(`            return None;`);
+            checkParts.push(`        }`);
+
+            // Check each discriminator in sequence
+            for (const discriminator of sorted) {
+                if (discriminator.kind === 'constantDiscriminatorNode') {
+                    const bytes = getDiscriminatorBytes(discriminator.constant);
+                    const size = bytes.length;
+                    // Get variable name: use provided name map, or default based on offset
+                    let varName: string;
+                    if (discriminator.offset === 0) {
+                        varName = 'discriminator';
+                    } else if (discriminatorNames && discriminatorNames.has(discriminator.offset)) {
+                        const name = discriminatorNames.get(discriminator.offset)!;
+                        // Convert camelCase to snake_case
+                        varName = name.replace(/([A-Z])/g, '_$1').toLowerCase();
+                    } else {
+                        varName = `discriminator_${discriminator.offset}`;
+                    }
+                    
+                    if (size === 1) {
+                        // Single byte discriminator
+                        checkParts.push(`        let ${varName} = data[${discriminator.offset}];`);
+                        checkParts.push(`        if ${varName} != ${bytes[0]} {`);
+                        checkParts.push(`            return None;`);
+                        checkParts.push(`        }`);
+                    } else {
+                        // Multi-byte discriminator
+                        checkParts.push(`        let ${varName} = &data[${discriminator.offset}..${discriminator.offset + size}];`);
+                        checkParts.push(`        if ${varName} != [${bytes.join(', ')}] {`);
+                        checkParts.push(`            return None;`);
+                        checkParts.push(`        }`);
+                    }
+                }
+            }
+
+            // Use the size of the first discriminator for slicing (as per manually modified version)
+            const firstDiscriminator = sorted[0];
+            if (firstDiscriminator.kind === 'constantDiscriminatorNode') {
+                const firstBytes = getDiscriminatorBytes(firstDiscriminator.constant);
+                const firstSize = firstBytes.length;
+                const checkCode = checkParts.join('\n');
+                return { 
+                    bytes: `[${firstBytes.join(', ')}]`, 
+                    size: firstSize, 
+                    checkCode 
+                };
+            }
+        }
+    }
+
+    // For other programs or single discriminator, use original logic
     const discriminator = discriminators[0];
 
     switch (discriminator.kind) {

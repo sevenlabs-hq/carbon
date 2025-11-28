@@ -2,7 +2,7 @@
 
 {% block main %}
 pub mod context;
-{% if hasGraphQLFields %}
+{% if hasActualGraphQLFields %}
 pub mod query;
 
 pub use query::*;
