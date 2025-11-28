@@ -18,7 +18,7 @@ impl TryFrom<crate::instructions::cpi_event::CpiEvent> for CpiEventGraphQL {
     fn try_from(event: crate::instructions::cpi_event::CpiEvent) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: crate::instructions::graphql::InstructionMetadataGraphQL::default(),
-            name: format!("{:?}", event),
+            name: format!("{event:?}"),
             data: carbon_core::graphql::primitives::Json(
                 serde_json::to_value(event)
                     .map_err(|error| carbon_core::error::Error::Custom(error.to_string()))?,

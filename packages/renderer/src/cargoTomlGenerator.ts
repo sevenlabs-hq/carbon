@@ -1,9 +1,18 @@
 import { kebabCase } from '@codama/nodes';
 import { VERSIONS, getCrateDependencyString } from '@sevenlabs-hq/carbon-versions';
 
+/**
+ * Helper function to check if a program is token-2022
+ * Checks original program name and package name for consistency
+ */
+function isToken2022Program(originalProgramName?: string, packageName?: string): boolean {
+    return originalProgramName === 'token-2022' || packageName === 'token-2022';
+}
+
 export type DecoderCargoTomlOptions = {
     packageName?: string;
     programName: string;
+    originalProgramName?: string; // Original program name from IDL (for token-2022 checks)
     withPostgres: boolean;
     withGraphQL: boolean;
     withSerde: boolean;
@@ -11,11 +20,13 @@ export type DecoderCargoTomlOptions = {
 };
 
 export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): string {
-    const { packageName, programName, withPostgres, withGraphQL, withSerde, standalone = true } = options;
+    const { packageName, programName, originalProgramName, withPostgres, withGraphQL, withSerde, standalone = true } = options;
 
-    const decoderPackageName = packageName
+    const decoderPackageName = (packageName && packageName.trim())
         ? `carbon-${kebabCase(packageName)}-decoder`
-        : `carbon-${kebabCase(programName)}-decoder`;
+        : (programName && programName.trim())
+            ? `carbon-${kebabCase(programName)}-decoder`
+            : 'carbon-decoder';
 
     const carbonCoreDep = getCrateDependencyString('carbon-core', VERSIONS['carbon-core'], ['macros']);
     const carbonTestUtilsDep = getCrateDependencyString('carbon-test-utils', VERSIONS['carbon-test-utils']);
@@ -86,6 +97,18 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         dependencies.push('');
         dependencies.push(juniperDep);
         dependencies.push(base64Dep);
+    }
+
+    // Add SPL Token 2022 dependencies for token-2022 program
+    // Check originalProgramName or packageName to handle PascalCase transformation
+    if (isToken2022Program(originalProgramName, packageName)) {
+        dependencies.push('');
+        dependencies.push(getCrateDependencyString('solana-program-pack', VERSIONS['solana-program-pack']));
+        dependencies.push(getCrateDependencyString('spl-token-2022', VERSIONS['spl-token-2022']));
+        dependencies.push(getCrateDependencyString('spl-pod', VERSIONS['spl-pod'], ['borsh']));
+        dependencies.push(getCrateDependencyString('spl-token-metadata-interface', VERSIONS['spl-token-metadata-interface']));
+        dependencies.push(getCrateDependencyString('spl-token-group-interface', VERSIONS['spl-token-group-interface']));
+        dependencies.push(getCrateDependencyString('spl-type-length-value', VERSIONS['spl-type-length-value']));
     }
 
     const macheteIgnored: string[] = [];

@@ -54,6 +54,14 @@ type FlattenedField = {
     isCopyType?: boolean;
 };
 
+/**
+ * Helper function to check if a program is token-2022
+ * Checks both program name and original program name for consistency
+ */
+function isToken2022Program(program?: ProgramNode | null, originalName?: string): boolean {
+    return program?.name === 'token-2022' || originalName === 'token-2022';
+}
+
 export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
     const renderParentInstructions = options.renderParentInstructions ?? false;
     let definedTypesMap: Map<string, any> | null = null;
@@ -63,6 +71,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
     const postgresTypeManifestVisitor = getPostgresTypeManifestVisitor();
 
     let currentProgram: ProgramNode | null = null;
+    // Track which instructions have GraphQL schemas generated
     const instructionsWithGraphQLSchemas = new Set<string>();
 
     return pipe(
@@ -116,8 +125,33 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const typeManifest = visit(newNode.data, typeManifestVisitor);
                     const imports = new ImportMap().mergeWithManifest(typeManifest);
 
+                    // Add token-2022 specific imports for accounts that need extension handling
+                    // Note: StateWithExtensions is used in accounts/mod.rs, not in individual account files
+                    // Extension is only needed for Mint and Token accounts (not Multisig)
+                    if (isToken2022Program(currentProgram)) {
+                        const accountNameLower = node.name.toLowerCase();
+                        if (accountNameLower === 'mint' || accountNameLower === 'token') {
+                            imports.add('spl_token_2022::extension::BaseStateWithExtensions');
+                            imports.add('crate::types::Extension');
+                        }
+                        if (accountNameLower === 'token') {
+                            imports.add('crate::types::AccountState');
+                        }
+                        // Multisig doesn't need Extension import - remove it if added
+                    }
+
+                    // Build a map of offset -> field name for nested discriminator support
+                    const discriminatorNames = new Map<number, string>();
+                    for (const discriminator of discriminators) {
+                        if (discriminator.kind === 'fieldDiscriminatorNode') {
+                            discriminatorNames.set(discriminator.offset, discriminator.name);
+                        }
+                    }
+
                     const discriminatorManifest =
-                        discriminators.length > 0 ? getDiscriminatorManifest(discriminators) : undefined;
+                        discriminators.length > 0 
+                            ? getDiscriminatorManifest(discriminators, currentProgram?.name, discriminatorNames)
+                            : undefined;
 
                     const flatFields = flattenType(newNode.data, [], [], new Set());
                     const postgresImports = new ImportMap()
@@ -138,6 +172,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             account: { ...newNode, formattedDocs: formattedAccountDocs },
                             imports: imports.toString(),
                             program: currentProgram,
+                            originalProgramName: currentProgram?.name,
                             discriminatorManifest,
                             typeManifest,
                         }),
@@ -235,15 +270,44 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         newtypeWrapperTypes.add(node.name);
                     }
 
+                    // Add token-2022 specific imports for Extension type
+                    // Use case-insensitive check to match impl block condition
+                    const isToken2022ForImports = isToken2022Program(currentProgram);
+                    const isExtensionTypeForImports = node.name === 'Extension' || node.name === 'extension';
+                    if (isToken2022ForImports && isExtensionTypeForImports) {
+                        imports.add('spl_token_2022::extension::StateWithExtensions');
+                        imports.add('spl_token_2022::extension::BaseStateWithExtensions as _');
+                        imports.add('spl_token_2022::extension::ExtensionType');
+                        // solana_zk_sdk is used via full path spl_token_2022::solana_zk_sdk::*, no direct import needed
+                        imports.add('spl_token_2022::solana_zk_sdk::encryption::elgamal::ElGamalPubkey');
+                        imports.add('spl_token_2022::solana_zk_sdk::encryption::pod::elgamal::PodElGamalPubkey');
+                        imports.add('spl_pod::primitives::PodI64');
+                        imports.add('spl_type_length_value::variable_len_pack::VariableLenPack');
+                        // bytemuck is used via full path spl_pod::bytemuck::*, no direct import needed
+                    }
+
+                    let typeContent = render('typesPage.njk', {
+                        definedType: node,
+                        imports: imports.toString(),
+                        typeManifest,
+                        needsNewtypeWrapper,
+                        arraySize,
+                        program: currentProgram,
+                        originalProgramName: currentProgram?.name,
+                    });
+
+                    // Add Extension impl block for token-2022
+                    // Check both program name and node name (case-insensitive for node name)
+                    const isToken2022 = isToken2022Program(currentProgram);
+                    const isExtensionType = node.name === 'Extension' || node.name === 'extension';
+                    if (isToken2022 && isExtensionType) {
+                        const extensionImpl = render('extensionImpl.njk', {});
+                        typeContent += '\n\n' + extensionImpl;
+                    }
+
                     let renderMap = new RenderMap().add(
                         `src/types/${snakeCase(node.name)}.rs`,
-                        render('typesPage.njk', {
-                            definedType: node,
-                            imports: imports.toString(),
-                            typeManifest,
-                            needsNewtypeWrapper,
-                            arraySize,
-                        }),
+                        typeContent,
                     );
 
                     for (let event of options.anchorEvents ?? []) {
@@ -350,9 +414,27 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         imports.add('carbon_core::account_utils::next_account');
                     }
 
+                    let discriminators = node.discriminators ?? [];
+                    
+                    // Build a set of discriminator field names to identify all discriminator arguments
+                    const discriminatorFieldNames = new Set<string>();
+                    for (const discriminator of discriminators) {
+                        if (discriminator.kind === 'fieldDiscriminatorNode') {
+                            discriminatorFieldNames.add(discriminator.name);
+                        }
+                    }
+                    
+                    // Build a map of offset -> field name for nested discriminator support
+                    const discriminatorNames = new Map<number, string>();
+                    for (const discriminator of discriminators) {
+                        if (discriminator.kind === 'fieldDiscriminatorNode') {
+                            discriminatorNames.set(discriminator.offset, discriminator.name);
+                        }
+                    }
+
                     const [discriminatorArguments, regularArguments] = partition(
                         node.arguments,
-                        arg => arg.name == 'discriminator',
+                        arg => discriminatorFieldNames.has(arg.name),
                     );
 
                     const argumentTypes = regularArguments.map(arg => {
@@ -370,8 +452,6 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             requiredBigArray,
                         };
                     });
-
-                    let discriminators = node.discriminators ?? [];
 
                     for (const discriminatorArgument of discriminatorArguments) {
                         if (discriminatorArgument.defaultValue) {
@@ -417,7 +497,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         accounts: uniqueAccounts,
                     };
 
-                    const discriminatorManifest = getDiscriminatorManifest(discriminators);
+                    const discriminatorManifest = getDiscriminatorManifest(
+                        discriminators,
+                        currentProgram?.name,
+                        discriminatorNames,
+                    );
 
                     // Postgres generation
                     const flatFields = flattenType(
@@ -541,17 +625,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     // Recreate the type manifest visitor with the defined types map
                     typeManifestVisitor = createTypeManifestVisitor();
 
-                    // Use getAll* functions but they will only process the main program
-                    const accountsToExport = getAllAccounts(node);
-                    const instructionsToExport = getAllInstructionsWithSubs(program, {
-                        leavesOnly: !renderParentInstructions,
-                    });
-                    const definedTypesToExport = allDefinedTypes;
-
                     // Override program.name with packageName if provided (for custom decoder names)
-                    const programName = options.packageName
-                        ? options.packageName.split('-').map((w: string) => w.charAt(0).toUpperCase() + w.slice(1)).join('')
-                        : program.name;
+                    // Keep original format - template filter will handle PascalCase conversion
+                    const originalProgramName = program.name || '';
+                    const programName = options.packageName || originalProgramName || 'decoder';
+                    
                     const programWithCustomName = {
                         ...program,
                         name: programName,
@@ -559,6 +637,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                     // Visit the program first to populate instructionsWithGraphQLSchemas Set
                     const programRenderMap = visit(program, self);
+
+                    // Use getAll* functions but they will only process the main program
+                    const accountsToExport = getAllAccounts(node);
+                    const instructionsToExport = getAllInstructionsWithSubs(program, {
+                        leavesOnly: !renderParentInstructions,
+                    });
+                    const definedTypesToExport = allDefinedTypes;
 
                     // Compute hasGraphQLFields: whether any GraphQL query fields will be generated
                     const hasAnchorEvents = (options.anchorEvents?.length ?? 0) > 0;
@@ -587,6 +672,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         program: programWithCustomName,
                         root: node,
                         packageName: options.packageName,
+                        originalProgramName: originalProgramName, // Keep original program name for token-2022 checks
                         hasAnchorEvents,
                         hasGraphQLFields,
                         events: options.anchorEvents ?? [],
@@ -603,6 +689,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const accountsModImports = new ImportMap()
                         .add('crate::PROGRAM_ID')
                         .add(`crate::${pascalCase(programName)}Decoder`);
+                    
+                    // Add token-2022 specific imports for StateWithExtensions unpacking
+                    if (isToken2022Program(program)) {
+                        accountsModImports.add('solana_program_pack::Pack');
+                        // StateWithExtensions is used directly in unpack() calls, no import needed
+                    }
+                    
                     map.add(
                         'src/accounts/mod.rs',
                         render('accountsMod.njk', { ...ctx, imports: accountsModImports.toString() }),
@@ -638,7 +731,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                     ? 'instructionsGraphqlModGeneric.njk'
                                     : 'instructionsGraphqlMod.njk';
                             const instructionsGraphqlImports = new ImportMap().add('juniper::GraphQLObject');
-                            // Use all instructions that have GraphQL schemas generated
+                            // Filter instructions to only include those that have GraphQL schemas generated
                             const instructionsWithSchemas = instructionsToExport.filter(inst => 
                                 instructionsWithGraphQLSchemas.has(inst.name)
                             );
@@ -699,16 +792,24 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                     // GraphQL root (context + query) - only if withGraphql is enabled
                     if (options.withGraphql !== false) {
-                        map.add('src/graphql/mod.rs', render('graphqlRootMod.njk', ctx));
-                        map.add('src/graphql/context.rs', render('graphqlContextPage.njk', ctx));
-
-                        // Only generate query.rs if there are GraphQL fields to expose
-                        if (hasGraphQLFields) {
-                            // Check if we need FromStr import (only needed for accounts with fields)
-                            const hasAccountsWithFields = accountsToExport.some(
+                        // Filter instructions to only include those that have GraphQL schemas generated
+                        const instructionsWithSchemas = instructionsToExport.filter(inst => 
+                            instructionsWithGraphQLSchemas.has(inst.name)
+                        );
+                        
+                        // Check if there are actually any GraphQL fields to generate
+                        const hasAccountsWithFields = options.postgresMode === 'generic'
+                            ? accountsToExport.length > 0
+                            : accountsToExport.some(
                                 acc => acc.data.kind === 'structTypeNode' && acc.data.fields.length > 0,
                             );
-                            
+                        const hasActualGraphQLFields = hasAnchorEvents || hasAccountsWithFields || instructionsWithSchemas.length > 0;
+                        
+                        map.add('src/graphql/mod.rs', render('graphqlRootMod.njk', { ...ctx, hasActualGraphQLFields }));
+                        map.add('src/graphql/context.rs', render('graphqlContextPage.njk', ctx));
+                        
+                        // Only generate query.rs if there are GraphQL fields to expose
+                        if (hasActualGraphQLFields) {
                             // Use different query template based on postgres mode
                             if (options.postgresMode === 'generic') {
                                 const graphqlQueryGenericImports = new ImportMap().add(
@@ -718,7 +819,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                     'src/graphql/query.rs',
                                     render('graphqlQueryPageGeneric.njk', {
                                         ...ctx,
+                                        instructionsToExport: instructionsWithSchemas,
                                         imports: graphqlQueryGenericImports.toString(),
+                                        hasAccountsWithFields,
                                     }),
                                 );
                             } else {
@@ -730,7 +833,12 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                 }
                                 map.add(
                                     'src/graphql/query.rs',
-                                    render('graphqlQueryPage.njk', { ...ctx, imports: graphqlQueryImports.toString() }),
+                                    render('graphqlQueryPage.njk', { 
+                                        ...ctx, 
+                                        instructionsToExport: instructionsWithSchemas,
+                                        imports: graphqlQueryImports.toString(),
+                                        hasAccountsWithFields,
+                                    }),
                                 );
                             }
                         }
@@ -741,6 +849,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const cargoToml = generateDecoderCargoToml({
                         packageName: options.packageName,
                         programName: programName,
+                        originalProgramName: originalProgramName, // Pass original program name for token-2022 checks
                         withPostgres: options.withPostgres !== false,
                         withGraphQL: options.withGraphql !== false,
                         withSerde: options.withSerde ?? false,
@@ -748,7 +857,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     });
                     map.add('Cargo.toml', cargoToml);
 
-                    return map.mergeWith(visit(program, self));
+                    return map.mergeWith(programRenderMap);
                 },
             }),
     );
