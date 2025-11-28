@@ -9,7 +9,6 @@ use {
     solana_client::{
         nonblocking::rpc_client::RpcClient,
         rpc_config::{RpcAccountInfoConfig, RpcProgramAccountsConfig},
-        rpc_filter::RpcFilterType,
         rpc_request::RpcRequest,
         rpc_response::{OptionalContext, RpcKeyedAccount},
     },
@@ -22,21 +21,13 @@ use {
 
 #[derive(Debug, Clone, Default)]
 pub struct GpaDatasourceConfig {
-    pub filters: Option<Vec<RpcFilterType>>,
-    pub min_context_slot: Option<u64>,
-    pub commitment: Option<CommitmentConfig>,
+    pub program_accounts_config: Option<RpcProgramAccountsConfig>,
 }
 
 impl GpaDatasourceConfig {
-    pub const fn new(
-        filters: Option<Vec<RpcFilterType>>,
-        min_context_slot: Option<u64>,
-        commitment: Option<CommitmentConfig>,
-    ) -> Self {
+    pub const fn new(program_accounts_config: Option<RpcProgramAccountsConfig>) -> Self {
         Self {
-            filters,
-            min_context_slot,
-            commitment,
+            program_accounts_config,
         }
     }
 }
@@ -70,12 +61,14 @@ impl Datasource for GpaDatasource {
         cancellation_token: CancellationToken,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let rpc_client = RpcClient::new_with_commitment(
-            self.rpc_url.clone(),
-            self.config
-                .commitment
-                .unwrap_or(CommitmentConfig::confirmed()),
-        );
+        let commitment = self
+            .config
+            .program_accounts_config
+            .as_ref()
+            .and_then(|config| config.account_config.commitment)
+            .unwrap_or(CommitmentConfig::confirmed());
+
+        let rpc_client = RpcClient::new_with_commitment(self.rpc_url.clone(), commitment);
 
         let start_time = std::time::Instant::now();
 
@@ -94,16 +87,21 @@ impl Datasource for GpaDatasource {
             current_slot
         );
 
-        let rpc_config = RpcProgramAccountsConfig {
-            account_config: RpcAccountInfoConfig {
-                encoding: Some(solana_account_decoder::UiAccountEncoding::Base64),
-                min_context_slot: self.config.min_context_slot,
-                ..Default::default()
-            },
-            filters: self.config.filters.clone(),
-            with_context: Some(true),
-            sort_results: None,
-        };
+        let mut rpc_config = self
+            .config
+            .program_accounts_config
+            .clone()
+            .unwrap_or_else(|| RpcProgramAccountsConfig {
+                account_config: RpcAccountInfoConfig {
+                    encoding: Some(solana_account_decoder::UiAccountEncoding::Base64),
+                    ..Default::default()
+                },
+                filters: None,
+                with_context: None,
+                sort_results: None,
+            });
+
+        rpc_config.with_context = Some(true);
 
         let params = serde_json::json!([self.program_id.to_string(), rpc_config]);
 
