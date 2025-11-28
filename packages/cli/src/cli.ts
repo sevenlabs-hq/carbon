@@ -3,7 +3,7 @@ import { resolve, join } from 'path';
 import { promptForParse, promptForScaffold } from './lib/prompts';
 import { generateDecoder, parseIdlSource, getIdlMetadata } from './lib/decoder';
 import { validateDataSource, validateMetrics } from './lib/validation';
-import { resolveRpcUrl } from './lib/utils';
+import { resolveRpcUrl, runCargoFmt } from './lib/utils';
 import { logger, showBanner } from './lib/logger';
 
 const program = new Command();
@@ -37,7 +37,6 @@ program.addHelpText(
 `,
 );
 
-// Parse command
 program
     .command('parse')
     .description('Parse an IDL and generate a decoder')
@@ -93,7 +92,15 @@ program
 
             logger.succeedSpinner('Decoder generated');
 
-            // Print success message
+            logger.startSpinner('Formatting generated code...');
+            try {
+                await runCargoFmt(outDir);
+                logger.succeedSpinner('Code formatted successfully');
+            } catch (error) {
+                logger.failSpinner('Failed to format code');
+                logger.warning(`Formatting failed: ${error instanceof Error ? error.message : String(error)}`);
+            }
+
             const idlSource = parseIdlSource(String(opts.idl));
             const source =
                 idlSource.type === 'program'
@@ -227,7 +234,15 @@ program
             throw error;
         }
 
-        // Print success message
+        logger.startSpinner('Formatting generated code...');
+        try {
+            await runCargoFmt(workspaceDir);
+            logger.succeedSpinner('Code formatted successfully');
+        } catch (error) {
+            logger.failSpinner('Failed to format code');
+            logger.warning(`Formatting failed: ${error instanceof Error ? error.message : String(error)}`);
+        }
+
         const decoderInfo = `${decoder} (generated from IDL)`;
 
         logger.scaffoldSuccess(join(outDir, name), decoderInfo);
