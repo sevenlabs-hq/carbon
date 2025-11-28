@@ -8,8 +8,7 @@ use {
     },
     carbon_jupiter_swap_decoder::{
         instructions::{CpiEvent, JupiterSwapInstruction},
-        JupiterSwapDecoder,
-        PROGRAM_ID as JUPITER_SWAP_PROGRAM_ID,
+        JupiterSwapDecoder, PROGRAM_ID as JUPITER_SWAP_PROGRAM_ID,
     },
     carbon_log_metrics::LogMetrics,
     carbon_yellowstone_grpc_datasource::{
@@ -199,25 +198,23 @@ impl Processor for JupiterSwapInstructionProcessor {
             JupiterSwapInstruction::CreateTokenAccount(create_token_account) => {
                 log::info!("create_token_account: signature: {signature}, create_token_account: {create_token_account:?}");
             }
-            JupiterSwapInstruction::CpiEvent(cpi_event) => {
-                match *cpi_event {
-                    CpiEvent::FeeEvent(fee_event) => {
-                        log::info!("fee_event: signature: {signature}, fee_event: {fee_event:?}");
-                    }
-                    CpiEvent::SwapEvent(swap_event) => {
-                        log::info!("swap_event: signature: {signature}, swap_event: {swap_event:?}");
-                    }
-                    CpiEvent::SwapsEvent(swaps_event) => {
-                        log::info!("swaps_event: signature: {signature}, swaps_event: {swaps_event:?}");
-                    }
-                    CpiEvent::CandidateSwapResults(candidate_swap_results) => {
-                        log::info!("candidate_swap_results: signature: {signature}, candidate_swap_results: {candidate_swap_results:?}");
-                    }
-                    CpiEvent::BestSwapOutAmountViolation(best_swap_out_amount_violation) => {
-                        log::info!("best_swap_out_amount_violation: signature: {signature}, best_swap_out_amount_violation: {best_swap_out_amount_violation:?}");
-                    }
+            JupiterSwapInstruction::CpiEvent(cpi_event) => match *cpi_event {
+                CpiEvent::FeeEvent(fee_event) => {
+                    log::info!("fee_event: signature: {signature}, fee_event: {fee_event:?}");
                 }
-            }
+                CpiEvent::SwapEvent(swap_event) => {
+                    log::info!("swap_event: signature: {signature}, swap_event: {swap_event:?}");
+                }
+                CpiEvent::SwapsEvent(swaps_event) => {
+                    log::info!("swaps_event: signature: {signature}, swaps_event: {swaps_event:?}");
+                }
+                CpiEvent::CandidateSwapResults(candidate_swap_results) => {
+                    log::info!("candidate_swap_results: signature: {signature}, candidate_swap_results: {candidate_swap_results:?}");
+                }
+                CpiEvent::BestSwapOutAmountViolation(best_swap_out_amount_violation) => {
+                    log::info!("best_swap_out_amount_violation: signature: {signature}, best_swap_out_amount_violation: {best_swap_out_amount_violation:?}");
+                }
+            },
         };
 
         Ok(())
