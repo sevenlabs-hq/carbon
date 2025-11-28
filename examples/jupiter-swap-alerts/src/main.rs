@@ -7,7 +7,8 @@ use {
         processor::Processor,
     },
     carbon_jupiter_swap_decoder::{
-        instructions::JupiterSwapInstruction, JupiterSwapDecoder,
+        instructions::{CpiEvent, JupiterSwapInstruction},
+        JupiterSwapDecoder,
         PROGRAM_ID as JUPITER_SWAP_PROGRAM_ID,
     },
     carbon_log_metrics::LogMetrics,
@@ -192,20 +193,30 @@ impl Processor for JupiterSwapInstructionProcessor {
                 );
                 log::info!("shared_accounts_route_with_token_ledger: signature: {signature}, shared_accounts_route_with_token_ledger: {shared_accounts_route_with_token_ledger:?}");
             }
-            JupiterSwapInstruction::FeeEvent(fee_event) => {
-                log::info!("fee_event: signature: {signature}, fee_event: {fee_event:?}");
-            }
-            JupiterSwapInstruction::SwapEvent(swap_event) => {
-                log::info!("swap_event: signature: {signature}, swap_event: {swap_event:?}");
-            }
             JupiterSwapInstruction::CloseToken(close_token) => {
                 log::info!("close_token: signature: {signature}, close_token: {close_token:?}");
             }
             JupiterSwapInstruction::CreateTokenAccount(create_token_account) => {
                 log::info!("create_token_account: signature: {signature}, create_token_account: {create_token_account:?}");
             }
-            JupiterSwapInstruction::SwapsEvent(swaps_event) => {
-                log::info!("swaps_event: signature: {signature}, swaps_event: {swaps_event:?}");
+            JupiterSwapInstruction::CpiEvent(cpi_event) => {
+                match *cpi_event {
+                    CpiEvent::FeeEvent(fee_event) => {
+                        log::info!("fee_event: signature: {signature}, fee_event: {fee_event:?}");
+                    }
+                    CpiEvent::SwapEvent(swap_event) => {
+                        log::info!("swap_event: signature: {signature}, swap_event: {swap_event:?}");
+                    }
+                    CpiEvent::SwapsEvent(swaps_event) => {
+                        log::info!("swaps_event: signature: {signature}, swaps_event: {swaps_event:?}");
+                    }
+                    CpiEvent::CandidateSwapResults(candidate_swap_results) => {
+                        log::info!("candidate_swap_results: signature: {signature}, candidate_swap_results: {candidate_swap_results:?}");
+                    }
+                    CpiEvent::BestSwapOutAmountViolation(best_swap_out_amount_violation) => {
+                        log::info!("best_swap_out_amount_violation: signature: {signature}, best_swap_out_amount_violation: {best_swap_out_amount_violation:?}");
+                    }
+                }
             }
         };
 
