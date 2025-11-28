@@ -91,6 +91,7 @@ carbon-raydium-liquidity-locking-decoder = { path = "decoders/carbon-raydium-liq
 carbon-raydium-stable-swap-decoder = { path = "decoders/raydium-stable-swap-decoder", version = "0.12.0" }
 carbon-rpc-block-crawler-datasource = { path = "datasources/rpc-block-crawler-datasource", version = "0.12.0" }
 carbon-rpc-block-subscribe-datasource = { path = "datasources/rpc-block-subscribe-datasource", version = "0.12.0" }
+carbon-rpc-gpa-datasource = { path = "datasources/rpc-gpa-datasource", version = "0.12.0" }
 carbon-rpc-program-subscribe-datasource = { path = "datasources/rpc-program-subscribe-datasource", version = "0.12.0" }
 carbon-rpc-transaction-crawler-datasource = { path = "datasources/rpc-transaction-crawler-datasource", version = "0.12.0" }
 carbon-sharky-decoder = { path = "decoders/sharky-decoder", version = "0.12.0" }
