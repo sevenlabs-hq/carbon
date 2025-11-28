@@ -2,19 +2,57 @@
 name = "carbon-jupiter-swap-decoder"
 version = "0.12.0"
 description = "Jupiter Swap Decoder"
-license = { workspace = true }
 edition = { workspace = true }
+license = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
 keywords = ["solana", "decoder", "jupiter"]
 categories = ["encoding"]
 
+[package.metadata.cargo-machete]
+ignored = ["serde-big-array", "base64"]
+
 [lib]
 crate-type = ["rlib"]
 
+[features]
+default = []
+
+serde = ["dep:serde"]
+
+postgres = [
+    "carbon-core/postgres",
+    "dep:sqlx",
+    "dep:async-trait",
+    "dep:sqlx_migrator",
+    "serde",
+]
+
+graphql = [
+    "carbon-core/graphql",
+    "dep:juniper",
+    "dep:base64",
+    "postgres",
+    "serde",
+]
+
 [dependencies]
 carbon-core = { workspace = true }
-serde = { workspace = true }
+borsh = { workspace = true, features = ["derive"] }
+solana-pubkey = { workspace = true }
 solana-account = { workspace = true }
 solana-instruction = { workspace = true, default-features = false }
-solana-pubkey = { workspace = true }
+serde_json = { workspace = true }
+
+serde = { workspace = true, optional = true }
+serde-big-array = { workspace = true, optional = true }
+
+sqlx = { workspace = true, optional = true }
+async-trait = { workspace = true, optional = true }
+sqlx_migrator = { workspace = true, optional = true }
+
+juniper = { workspace = true, optional = true }
+base64 = { workspace = true, optional = true }
+
+[dev-dependencies]
+carbon-test-utils = { workspace = true }
