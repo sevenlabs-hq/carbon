@@ -1248,6 +1248,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-helius-gpa-v2-datasource"
+version = "0.12.0"
+dependencies = [
+ "async-trait",
+ "base64 0.22.1",
+ "carbon-core",
+ "log",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "solana-account",
+ "solana-account-decoder",
+ "solana-client",
+ "solana-pubkey 3.0.0",
+ "tokio",
+ "tokio-util",
+]
+
+[[package]]
 name = "carbon-helius-laserstream-datasource"
 version = "0.12.0"
 dependencies = [
