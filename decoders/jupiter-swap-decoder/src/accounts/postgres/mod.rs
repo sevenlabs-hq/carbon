@@ -9,11 +9,11 @@ pub struct JupiterAccountsMigration;
 
 impl sqlx_migrator::Migration<sqlx::Postgres> for JupiterAccountsMigration {
     fn app(&self) -> &str {
-        "jupiter"
+        "jupiter-swap"
     }
 
     fn name(&self) -> &str {
-        "jupiter_accounts"
+        "jupiter_swap_accounts"
     }
 
     fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
