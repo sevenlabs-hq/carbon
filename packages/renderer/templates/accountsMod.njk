@@ -36,7 +36,11 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for {{ program.name | pascalCa
             return None;
         }
         
+{% if accountsToExport.length == 0 %}
+        let _data = account.data.as_slice();
+{% else %}
         let data = account.data.as_slice();
+{% endif %}
         
 {% for account in accountsToExport %}
         {

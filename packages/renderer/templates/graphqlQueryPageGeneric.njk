@@ -134,7 +134,6 @@ impl QueryRoot {
 
     // Instruction queries
 {% for instruction in instructionsToExport %}
-{% if instruction.arguments.length > 1 %}
     async fn {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -274,7 +273,6 @@ impl QueryRoot {
     }
 {% if not loop.last %}
 
-{% endif %}
 {% endif %}
 {% endfor %}
 
