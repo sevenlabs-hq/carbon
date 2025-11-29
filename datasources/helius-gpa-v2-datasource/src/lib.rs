@@ -1,4 +1,4 @@
-mod helius_gpa_v2_types;
+mod types;
 
 use {
     async_trait::async_trait,
@@ -16,7 +16,7 @@ use {
     tokio_util::sync::CancellationToken,
 };
 
-use helius_gpa_v2_types::{HeliusGpaV2Request, HeliusGpaV2Response, HeliusGpaV2Value};
+use types::{HeliusGpaV2Request, HeliusGpaV2Response, HeliusGpaV2Value};
 
 const DEFAULT_LIMIT: u32 = 1000;
 const MAX_LIMIT: u32 = 10000;
@@ -240,7 +240,6 @@ impl Datasource for HeliusGpaV2Datasource {
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let client = reqwest::Client::new();
-        let start_time = std::time::Instant::now();
 
         log::info!(
             "Starting Helius gPA V2 account indexing for program {}",
@@ -249,7 +248,6 @@ impl Datasource for HeliusGpaV2Datasource {
 
         let id_for_loop = id.clone();
         let mut accounts_sent = 0u64;
-        let mut accounts_failed = 0u64;
         let mut pages_fetched = 0u64;
         let mut pagination_key: Option<String> = None;
 
@@ -259,11 +257,25 @@ impl Datasource for HeliusGpaV2Datasource {
                 break;
             }
 
+            let fetch_start = std::time::Instant::now();
             let (result, slot) = self
                 .fetch_accounts_page(&client, pagination_key.as_deref())
                 .await?;
+            let fetch_elapsed = fetch_start.elapsed();
+
+            metrics
+                .record_histogram(
+                    "helius_gpa_v2_fetch_duration_seconds",
+                    fetch_elapsed.as_secs_f64(),
+                )
+                .await
+                .unwrap_or_else(|e| log::error!("Error recording histogram: {e}"));
 
             pages_fetched += 1;
+            metrics
+                .increment_counter("helius_gpa_v2_pages_fetched", 1)
+                .await
+                .unwrap_or_else(|e| log::error!("Error recording counter: {e}"));
             log::debug!(
                 "Fetched page {} with {} accounts (slot: {:?})",
                 pages_fetched,
@@ -281,7 +293,6 @@ impl Datasource for HeliusGpaV2Datasource {
                     Ok(pk) => pk,
                     Err(e) => {
                         log::warn!("Failed to parse pubkey {}: {e}", account_data.pubkey);
-                        accounts_failed += 1;
                         continue;
                     }
                 };
@@ -293,7 +304,6 @@ impl Datasource for HeliusGpaV2Datasource {
                         Ok(bytes) => bytes,
                         Err(e) => {
                             log::warn!("Failed to decode base64 data for account {pubkey}: {e}");
-                            accounts_failed += 1;
                             continue;
                         }
                     };
@@ -305,7 +315,6 @@ impl Datasource for HeliusGpaV2Datasource {
                             Ok(owner) => owner,
                             Err(e) => {
                                 log::warn!("Failed to parse owner for account {pubkey}: {e}");
-                                accounts_failed += 1;
                                 continue;
                             }
                         },
@@ -316,7 +325,6 @@ impl Datasource for HeliusGpaV2Datasource {
                     log::warn!(
                         "Account {pubkey} has invalid data format (expected [data, encoding])"
                     );
-                    accounts_failed += 1;
                     continue;
                 };
 
@@ -330,10 +338,14 @@ impl Datasource for HeliusGpaV2Datasource {
                 match sender.try_send((update, id_for_loop.clone())) {
                     Ok(_) => {
                         accounts_sent += 1;
+
+                        metrics
+                            .increment_counter("helius_gpa_v2_accounts_processed", 1)
+                            .await
+                            .unwrap_or_else(|e| log::error!("Error recording counter: {e}"));
                     }
                     Err(e) => {
                         log::error!("Failed to send account update: {e:?}");
-                        accounts_failed += 1;
                     }
                 }
             }
@@ -346,36 +358,8 @@ impl Datasource for HeliusGpaV2Datasource {
             }
         }
 
-        let elapsed = start_time.elapsed();
-
-        metrics
-            .increment_counter("helius_gpa_v2_accounts_processed", accounts_sent)
-            .await
-            .unwrap_or_else(|e| log::error!("Error recording counter: {e}"));
-
-        if accounts_failed > 0 {
-            metrics
-                .increment_counter("helius_gpa_v2_accounts_failed", accounts_failed)
-                .await
-                .unwrap_or_else(|e| log::error!("Error recording counter: {e}"));
-        }
-
-        metrics
-            .increment_counter("helius_gpa_v2_pages_fetched", pages_fetched)
-            .await
-            .unwrap_or_else(|e| log::error!("Error recording counter: {e}"));
-
-        metrics
-            .record_histogram("helius_gpa_v2_duration_seconds", elapsed.as_secs_f64())
-            .await
-            .unwrap_or_else(|e| log::error!("Error recording histogram: {e}"));
-
         log::info!(
-            "Helius gPA V2 account indexing completed: {} accounts sent, {} failed, {} pages fetched, took {:.2}s",
-            accounts_sent,
-            accounts_failed,
-            pages_fetched,
-            elapsed.as_secs_f64()
+            "Helius gPA V2 account indexing completed: {accounts_sent} accounts sent, {pages_fetched} pages fetched"
         );
 
         Ok(())
