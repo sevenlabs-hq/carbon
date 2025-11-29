@@ -6,7 +6,7 @@ use solana_pubkey::Pubkey;
 pub struct JetstreamerFilter {
     pub include_transactions: bool,
     pub include_blocks: bool,
-    pub transaction_filters: Option<Vec<TransactionFilter>>,
+    pub transaction_filters: Vec<TransactionFilter>,
 }
 
 #[derive(Clone, Debug, Default)]

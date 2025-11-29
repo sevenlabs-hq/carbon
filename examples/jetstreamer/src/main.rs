@@ -23,13 +23,13 @@ pub async fn main() -> CarbonResult<()> {
         JetstreamerFilter {
             include_transactions: true,
             include_blocks: false,
-            transaction_filters: Some(vec![TransactionFilter {
+            transaction_filters: vec![TransactionFilter {
                 vote: Some(false),   // Exclude vote transactions
                 failed: Some(false), // Exclude failed transactions
                 account_include: HashSet::from([carbon_token_2022_decoder::PROGRAM_ID]), // Include only Token 2022 program transactions
                 account_exclude: HashSet::new(),
                 account_required: HashSet::new(),
-            }]),
+            }],
         },
         1,         // Number of Jetstreamer threads
         Some(100), // Jetstreamer tracking interval in slots
