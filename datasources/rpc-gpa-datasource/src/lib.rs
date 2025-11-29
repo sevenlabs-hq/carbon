@@ -105,9 +105,19 @@ impl Datasource for GpaDatasource {
 
         let params = serde_json::json!([self.program_id.to_string(), rpc_config]);
 
+        let fetch_start = std::time::Instant::now();
         let response = rpc_client
             .send::<OptionalContext<Vec<RpcKeyedAccount>>>(RpcRequest::GetProgramAccounts, params)
             .await;
+        let fetch_duration = fetch_start.elapsed();
+
+        metrics
+            .record_histogram(
+                "gpa_datasource_fetch_duration_seconds",
+                fetch_duration.as_secs_f64(),
+            )
+            .await
+            .unwrap_or_else(|e| log::error!("Error recording histogram: {e}"));
 
         let (program_accounts, context_slot) = match response {
             Ok(OptionalContext::Context(rpc_response)) => {
@@ -154,7 +164,6 @@ impl Datasource for GpaDatasource {
 
         let id_for_loop = id.clone();
         let mut accounts_sent = 0u64;
-        let mut accounts_failed = 0u64;
 
         for (pubkey, account) in program_accounts {
             if cancellation_token.is_cancelled() {
@@ -166,7 +175,6 @@ impl Datasource for GpaDatasource {
                 Some(acc) => acc,
                 None => {
                     log::warn!("Failed to decode account: {pubkey}");
-                    accounts_failed += 1;
                     continue;
                 }
             };
@@ -183,37 +191,22 @@ impl Datasource for GpaDatasource {
             match sender.try_send((update, id_for_loop.clone())) {
                 Ok(_) => {
                     accounts_sent += 1;
+                    metrics
+                        .increment_counter("gpa_datasource_accounts_processed", 1)
+                        .await
+                        .unwrap_or_else(|e| log::error!("Error recording counter: {e}"));
                 }
                 Err(e) => {
                     log::error!("Failed to send account update: {e:?}");
-                    accounts_failed += 1;
                 }
             }
         }
 
         let elapsed = start_time.elapsed();
 
-        metrics
-            .increment_counter("gpa_datasource_accounts_processed", accounts_sent)
-            .await
-            .unwrap_or_else(|e| log::error!("Error recording counter: {e}"));
-
-        if accounts_failed > 0 {
-            metrics
-                .increment_counter("gpa_datasource_accounts_failed", accounts_failed)
-                .await
-                .unwrap_or_else(|e| log::error!("Error recording counter: {e}"));
-        }
-
-        metrics
-            .record_histogram("gpa_datasource_duration_seconds", elapsed.as_secs_f64())
-            .await
-            .unwrap_or_else(|e| log::error!("Error recording histogram: {e}"));
-
         log::info!(
-            "Account indexing completed: {} accounts sent, {} failed, took {:.2}s",
+            "Account indexing completed: {} accounts sent, took {:.2}s",
             accounts_sent,
-            accounts_failed,
             elapsed.as_secs_f64()
         );
 
