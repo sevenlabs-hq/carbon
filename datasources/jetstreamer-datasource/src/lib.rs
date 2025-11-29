@@ -213,10 +213,10 @@ impl JetstreamerDatasource {
         transaction: TransactionData,
         id: DatasourceId,
         sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
-        transaction_filters: Option<Vec<TransactionFilter>>,
+        transaction_filters: Vec<TransactionFilter>,
         metrics: Arc<MetricsCollection>,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        if let Some(filters) = transaction_filters {
+        if !transaction_filters.is_empty() {
             let mut accounts = HashSet::new();
             accounts.extend(transaction.transaction.message.static_account_keys());
             accounts.extend(
@@ -234,7 +234,7 @@ impl JetstreamerDatasource {
                     .iter(),
             );
 
-            if filters.iter().all(|filter| {
+            if transaction_filters.iter().all(|filter| {
                 !filter.matches(
                     &accounts,
                     transaction.is_vote,
