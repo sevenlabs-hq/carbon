@@ -36,7 +36,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for {{ program.name | pascalCa
             return None;
         }
 
-{% if (originalProgramName or program.name) === 'token-2022' %}
+{% if originalProgramName === 'token-2022' %}
         // Token-2022 uses StateWithExtensions for variable-length accounts with extensions
         {% for account in accountsToExport %}
         {% if account.name | lower === 'mint' %}

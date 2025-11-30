@@ -22,6 +22,7 @@ import { DiscriminatorManifest, getDiscriminatorManifest, getTypeManifestVisitor
 import { getGraphQLTypeManifestVisitor } from './getGraphQLTypeManifestVisitor';
 import { ImportMap } from './ImportMap';
 import { partition, render } from './utils';
+import { isToken2022Program } from './utils/helpers';
 import { getPostgresTypeManifestVisitor, PostgresTypeManifest } from './getPostgresTypeManifestVisitor';
 import { FlattenedGraphQLField, flattenTypeForGraphQL } from './utils/flattenGraphqlFields';
 import { generateDecoderCargoToml } from './cargoTomlGenerator';
@@ -53,14 +54,6 @@ type FlattenedField = {
     needsBigArray?: boolean;
     isCopyType?: boolean;
 };
-
-/**
- * Helper function to check if a program is token-2022
- * Checks both program name and original program name for consistency
- */
-function isToken2022Program(program?: ProgramNode | null, originalName?: string): boolean {
-    return program?.name === 'token-2022' || originalName === 'token-2022';
-}
 
 export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
     const renderParentInstructions = options.renderParentInstructions ?? false;
