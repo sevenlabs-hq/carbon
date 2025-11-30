@@ -1,13 +1,6 @@
 import { kebabCase } from '@codama/nodes';
 import { VERSIONS, getCrateDependencyString } from '@sevenlabs-hq/carbon-versions';
-
-/**
- * Helper function to check if a program is token-2022
- * Checks original program name and package name for consistency
- */
-function isToken2022Program(originalProgramName?: string, packageName?: string): boolean {
-    return originalProgramName === 'token-2022' || packageName === 'token-2022';
-}
+import { isToken2022Program } from './utils/helpers';
 
 export type DecoderCargoTomlOptions = {
     packageName?: string;
@@ -110,7 +103,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
 
     // Add SPL Token 2022 dependencies for token-2022 program
     // Check originalProgramName or packageName to handle PascalCase transformation
-    if (isToken2022Program(originalProgramName, packageName)) {
+    if (isToken2022Program(undefined, originalProgramName, packageName)) {
         dependencies.push('');
         dependencies.push(getCrateDependencyString('solana-program-pack', VERSIONS['solana-program-pack']));
         dependencies.push(getCrateDependencyString('spl-token-2022', VERSIONS['spl-token-2022']));
