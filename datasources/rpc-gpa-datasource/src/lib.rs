@@ -5,6 +5,7 @@ use {
         error::CarbonResult,
         metrics::MetricsCollection,
     },
+    solana_account_decoder::UiAccountEncoding,
     solana_client::{
         nonblocking::rpc_client::RpcClient,
         rpc_config::RpcProgramAccountsConfig,
@@ -60,6 +61,7 @@ impl Datasource for GpaDatasource {
         let rpc_client = RpcClient::new_with_commitment(self.rpc_url.clone(), commitment);
         let mut rpc_config = self.config.clone();
         rpc_config.with_context = Some(true);
+        rpc_config.account_config.encoding = Some(UiAccountEncoding::Base64);
 
         let params = serde_json::json!([self.program_id.to_string(), rpc_config]);
 
