@@ -44,9 +44,7 @@ export function generateIndexerCargoToml(opts: ScaffoldOptions): string {
 
     const isGrpcDataSource = opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream';
     const grpcDeps = isGrpcDataSource
-        ? [
-              getCrateDependencyString('yellowstone-grpc-proto', VERSIONS['yellowstone-grpc-proto']),
-          ]
+        ? [getCrateDependencyString('yellowstone-grpc-proto', VERSIONS['yellowstone-grpc-proto'])]
         : [];
 
     const rustlsDep = isGrpcDataSource ? getCrateDependencyString('rustls', VERSIONS.rustls) : null;
@@ -68,9 +66,7 @@ export function generateIndexerCargoToml(opts: ScaffoldOptions): string {
           ]
         : [];
 
-    const gqlDeps = opts.withGraphql
-        ? [getCrateDependencyString('axum', VERSIONS.axum)]
-        : [];
+    const gqlDeps = opts.withGraphql ? [getCrateDependencyString('axum', VERSIONS.axum)] : [];
 
     const features: string[] = ['default = []'];
     if (opts.withPostgres) {

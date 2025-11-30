@@ -149,7 +149,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     }
 
                     const discriminatorManifest =
-                        discriminators.length > 0 
+                        discriminators.length > 0
                             ? getDiscriminatorManifest(discriminators, currentProgram?.name, discriminatorNames)
                             : undefined;
 
@@ -162,10 +162,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     });
 
                     // Process all docs together to maintain list context across doc strings
-                    const formattedAccountDocs = newNode.docs && newNode.docs.length > 0
-                        ? formatDocComments(newNode.docs, '')
-                        : '';
-                    
+                    const formattedAccountDocs =
+                        newNode.docs && newNode.docs.length > 0 ? formatDocComments(newNode.docs, '') : '';
+
                     let renderMap = new RenderMap().add(
                         `src/accounts/${snakeCase(node.name)}.rs`,
                         render('accountsPage.njk', {
@@ -305,10 +304,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         typeContent += '\n\n' + extensionImpl;
                     }
 
-                    let renderMap = new RenderMap().add(
-                        `src/types/${snakeCase(node.name)}.rs`,
-                        typeContent,
-                    );
+                    let renderMap = new RenderMap().add(`src/types/${snakeCase(node.name)}.rs`, typeContent);
 
                     for (let event of options.anchorEvents ?? []) {
                         if (camelCase(event.name) == node.name) {
@@ -415,7 +411,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     }
 
                     let discriminators = node.discriminators ?? [];
-                    
+
                     // Build a set of discriminator field names to identify all discriminator arguments
                     const discriminatorFieldNames = new Set<string>();
                     for (const discriminator of discriminators) {
@@ -423,7 +419,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             discriminatorFieldNames.add(discriminator.name);
                         }
                     }
-                    
+
                     // Build a map of offset -> field name for nested discriminator support
                     const discriminatorNames = new Map<number, string>();
                     for (const discriminator of discriminators) {
@@ -432,9 +428,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         }
                     }
 
-                    const [discriminatorArguments, regularArguments] = partition(
-                        node.arguments,
-                        arg => discriminatorFieldNames.has(arg.name),
+                    const [discriminatorArguments, regularArguments] = partition(node.arguments, arg =>
+                        discriminatorFieldNames.has(arg.name),
                     );
 
                     const argumentTypes = regularArguments.map(arg => {
@@ -629,7 +624,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     // Keep original format - template filter will handle PascalCase conversion
                     const originalProgramName = program.name || '';
                     const programName = options.packageName || originalProgramName || 'decoder';
-                    
+
                     const programWithCustomName = {
                         ...program,
                         name: programName,
@@ -651,10 +646,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         if (hasAnchorEvents) return true;
                         if (options.postgresMode === 'generic') {
                             // Generic mode: any accounts or instructions exist
-                            return (
-                                accountsToExport.length > 0 ||
-                                instructionsToExport.length > 0
-                            );
+                            return accountsToExport.length > 0 || instructionsToExport.length > 0;
                         } else {
                             // Typed mode: accounts with structTypeNode and fields, or any instructions exist
                             return (
@@ -689,13 +681,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     const accountsModImports = new ImportMap()
                         .add('crate::PROGRAM_ID')
                         .add(`crate::${pascalCase(programName)}Decoder`);
-                    
+
                     // Add token-2022 specific imports for StateWithExtensions unpacking
                     if (isToken2022Program(program, originalProgramName)) {
                         accountsModImports.add('solana_program_pack::Pack');
                         // StateWithExtensions is used directly in unpack() calls, no import needed
                     }
-                    
+
                     map.add(
                         'src/accounts/mod.rs',
                         render('accountsMod.njk', { ...ctx, imports: accountsModImports.toString() }),
@@ -732,8 +724,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                     : 'instructionsGraphqlMod.njk';
                             const instructionsGraphqlImports = new ImportMap().add('juniper::GraphQLObject');
                             // Filter instructions to only include those that have GraphQL schemas generated
-                            const instructionsWithSchemas = instructionsToExport.filter(inst => 
-                                instructionsWithGraphQLSchemas.has(inst.name)
+                            const instructionsWithSchemas = instructionsToExport.filter(inst =>
+                                instructionsWithGraphQLSchemas.has(inst.name),
                             );
                             map.add(
                                 'src/instructions/graphql/mod.rs',
@@ -793,21 +785,23 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     // GraphQL root (context + query) - only if withGraphql is enabled
                     if (options.withGraphql !== false) {
                         // Filter instructions to only include those that have GraphQL schemas generated
-                        const instructionsWithSchemas = instructionsToExport.filter(inst => 
-                            instructionsWithGraphQLSchemas.has(inst.name)
+                        const instructionsWithSchemas = instructionsToExport.filter(inst =>
+                            instructionsWithGraphQLSchemas.has(inst.name),
                         );
-                        
+
                         // Check if there are actually any GraphQL fields to generate
-                        const hasAccountsWithFields = options.postgresMode === 'generic'
-                            ? accountsToExport.length > 0
-                            : accountsToExport.some(
-                                acc => acc.data.kind === 'structTypeNode' && acc.data.fields.length > 0,
-                            );
-                        const hasActualGraphQLFields = hasAnchorEvents || hasAccountsWithFields || instructionsWithSchemas.length > 0;
-                        
+                        const hasAccountsWithFields =
+                            options.postgresMode === 'generic'
+                                ? accountsToExport.length > 0
+                                : accountsToExport.some(
+                                      acc => acc.data.kind === 'structTypeNode' && acc.data.fields.length > 0,
+                                  );
+                        const hasActualGraphQLFields =
+                            hasAnchorEvents || hasAccountsWithFields || instructionsWithSchemas.length > 0;
+
                         map.add('src/graphql/mod.rs', render('graphqlRootMod.njk', { ...ctx, hasActualGraphQLFields }));
                         map.add('src/graphql/context.rs', render('graphqlContextPage.njk', ctx));
-                        
+
                         // Only generate query.rs if there are GraphQL fields to expose
                         if (hasActualGraphQLFields) {
                             // Use different query template based on postgres mode
@@ -825,16 +819,17 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                                     }),
                                 );
                             } else {
-                                const graphqlQueryImports = new ImportMap()
-                                    .add('juniper::{graphql_object, FieldResult}');
+                                const graphqlQueryImports = new ImportMap().add(
+                                    'juniper::{graphql_object, FieldResult}',
+                                );
                                 // Only add FromStr if there are accounts with fields that need it
                                 if (hasAccountsWithFields) {
                                     graphqlQueryImports.add('std::str::FromStr');
                                 }
                                 map.add(
                                     'src/graphql/query.rs',
-                                    render('graphqlQueryPage.njk', { 
-                                        ...ctx, 
+                                    render('graphqlQueryPage.njk', {
+                                        ...ctx,
                                         instructionsToExport: instructionsWithSchemas,
                                         imports: graphqlQueryImports.toString(),
                                         hasAccountsWithFields,
@@ -863,20 +858,28 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
     );
 
     function isPostgresPrimitiveType(type: string): boolean {
-        return type.includes('U8') || 
-               type.includes('U16') ||
-               type.includes('U32') ||
-               type.includes('U64') ||
-               type.includes('U128') ||
-               type.includes('I128');
+        return (
+            type.includes('U8') ||
+            type.includes('U16') ||
+            type.includes('U32') ||
+            type.includes('U64') ||
+            type.includes('U128') ||
+            type.includes('I128')
+        );
     }
 
     // Determines if a Rust type is Copy based on its string representation.
     function isCopyType(rowType: string): boolean {
         const trimmed = rowType.trim();
-        
+
         const copyPrimitives = [
-            'bool', 'i8', 'i16', 'i32', 'i64', 'f32', 'f64',
+            'bool',
+            'i8',
+            'i16',
+            'i32',
+            'i64',
+            'f32',
+            'f64',
             'carbon_core::postgres::primitives::Pubkey',
             'Pubkey', // May be used without full path
             'carbon_core::postgres::primitives::U8',
@@ -886,7 +889,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             'carbon_core::postgres::primitives::U32',
             'U32',
         ];
-        
+
         if (trimmed.startsWith('Option<')) {
             const innerMatch = trimmed.match(/^Option<(.+)>$/);
             if (innerMatch) {
@@ -894,7 +897,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 return isCopyType(innerType);
             }
         }
-        
+
         // Json<T> implements Copy if T implements Copy
         const jsonMatch = trimmed.match(/(?:sqlx::types::)?Json<(.+)>/);
         if (jsonMatch) {
@@ -906,11 +909,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             }
             return isCopyType(unwrappedType);
         }
-        
+
         if (copyPrimitives.includes(trimmed)) {
             return true;
         }
-        
+
         return false;
     }
 
@@ -936,17 +939,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             return col;
         };
 
-        const flattenOptionType = (
-            typeNode: TypeNode,
-            prefix: string[],
-            docsPrefix: string[],
-        ): FlattenedField[] => {
+        const flattenOptionType = (typeNode: TypeNode, prefix: string[], docsPrefix: string[]): FlattenedField[] => {
             const column = makeName(prefix);
-            const itemType = isNode(typeNode, 'optionTypeNode') 
-                ? typeNode.item 
-                : isNode(typeNode, 'zeroableOptionTypeNode') 
-                    ? typeNode.item 
-                    : (typeNode as any).item; // remainderOptionTypeNode
+            const itemType = isNode(typeNode, 'optionTypeNode')
+                ? typeNode.item
+                : isNode(typeNode, 'zeroableOptionTypeNode')
+                  ? typeNode.item
+                  : (typeNode as any).item; // remainderOptionTypeNode
             const manifest = visit(itemType, postgresTypeManifestVisitor) as PostgresTypeManifest;
             const isJson = (manifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
 
@@ -958,40 +957,42 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
             const innerRustManifest = visit(itemType, typeManifestVisitor);
             // Pubkey always needs conversion
-            const needsConversion = isNode(itemType, 'publicKeyTypeNode') 
-                ? true 
+            const needsConversion = isNode(itemType, 'publicKeyTypeNode')
+                ? true
                 : !typesMatch(manifest.sqlxType, innerRustManifest.type);
-            
+
             const sourceField = `source.${prefix.join('.')}`;
             const sourceColumn = `source.${column}`;
-            
+
             const expr = isJson
                 ? manifest.sqlxType.includes('Json<')
                     ? needsConversion
                         ? `${sourceField}.map(|value| value.into())`
                         : sourceField
                     : needsConversion
-                        ? `${sourceField}.map(|value| sqlx::types::Json(value.into()))`
-                        : `${sourceField}.map(sqlx::types::Json)`
+                      ? `${sourceField}.map(|value| sqlx::types::Json(value.into()))`
+                      : `${sourceField}.map(sqlx::types::Json)`
                 : needsConversion
-                    ? `${sourceField}.map(|value| value.into())`
-                    : sourceField;
+                  ? `${sourceField}.map(|value| value.into())`
+                  : sourceField;
 
             const reverseExpr = isJson
                 ? `${sourceColumn}.map(|value| value.0)`
                 : buildReverseOptionType(typeNode, sourceColumn, manifest);
 
-            return [{
-                column,
-                rustPath: prefix.join('.'),
-                rowType,
-                postgresColumnType: `${manifest.postgresColumnType}`,
-                docs: docsPrefix,
-                postgresManifest: manifest,
-                expr,
-                reverseExpr,
-                isCopyType: isCopyType(rowType),
-            }];
+            return [
+                {
+                    column,
+                    rustPath: prefix.join('.'),
+                    rowType,
+                    postgresColumnType: `${manifest.postgresColumnType}`,
+                    docs: docsPrefix,
+                    postgresManifest: manifest,
+                    expr,
+                    reverseExpr,
+                    isCopyType: isCopyType(rowType),
+                },
+            ];
         };
 
         if (isNode(typeNode, 'structTypeNode')) {
@@ -1029,11 +1030,17 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             const sourceField = `source.${prefix.join('.')}`;
             const expr = isJson
                 ? `sqlx::types::Json(${needsConversion ? `${sourceField}.into()` : sourceField})`
-                : needsConversion ? `${sourceField}.into()` : sourceField;
+                : needsConversion
+                  ? `${sourceField}.into()`
+                  : sourceField;
 
             // For reverse conversion, check if types match
             const sourceColumn = `source.${column}`;
-            const reverseExpr = isJson ? `${sourceColumn}.0` : (needsConversion ? `${sourceColumn}.into()` : sourceColumn);
+            const reverseExpr = isJson
+                ? `${sourceColumn}.0`
+                : needsConversion
+                  ? `${sourceColumn}.into()`
+                  : sourceColumn;
 
             // Check if this defined type alias resolves to a large fixed-size array that needs BigArray
             // But skip if it's a newtype wrapper (which handles serialization itself)
@@ -1117,13 +1124,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 if (isNode(typeNode.item, 'publicKeyTypeNode')) {
                     return `${prefix}.into_iter().map(|element| element.into()).collect()`;
                 }
-                
+
                 const postgresManifest = visit(typeNode.item, postgresTypeManifestVisitor) as PostgresTypeManifest;
                 const rustManifest = visit(typeNode.item, typeManifestVisitor);
                 const postgresType = postgresManifest.sqlxType;
                 const rustType = rustManifest.type;
                 const isPostgresWrapper = isPostgresPrimitiveType(postgresType);
-                
+
                 if (postgresType === rustType && !isPostgresWrapper) {
                     return `${prefix}.to_vec()`;
                 }
@@ -1189,18 +1196,20 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             const rustManifest = visit(innerType, typeManifestVisitor);
             const rustType = rustManifest.type;
             const postgresType = manifest.sqlxType;
-            
+
             if (typesMatch(postgresType, rustType)) {
                 return prefix;
             }
-            
+
             const isPostgresPrimitive = isPostgresPrimitiveType(manifest.sqlxType);
 
             if (isPostgresPrimitive) {
                 // U8, U16, U32 need try_into() with transpose() to handle Result
-                if (manifest.sqlxType.includes('U16') || 
-                    manifest.sqlxType.includes('U32') || 
-                    manifest.sqlxType.includes('U8')) {
+                if (
+                    manifest.sqlxType.includes('U16') ||
+                    manifest.sqlxType.includes('U32') ||
+                    manifest.sqlxType.includes('U8')
+                ) {
                     return `${prefix}.map(|value| value.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))).transpose()?`;
                 } else {
                     return `${prefix}.map(|value| *value)`;
@@ -1232,13 +1241,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
         if (jsonMatch) {
             pgType = jsonMatch[1].trim();
         }
-        
+
         const rustTypeBase = rustType.trim();
-        
+
         if (pgType === rustTypeBase) {
             return true;
         }
-        
+
         // Handle cases like sqlx::types::Json<T> vs T
         if (pgType.endsWith(rustTypeBase) || rustTypeBase.endsWith(pgType)) {
             const pgBase = pgType.split('::').pop() || pgType;
@@ -1247,7 +1256,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 return true;
             }
         }
-        
+
         return false;
     }
 
@@ -1359,8 +1368,10 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         const innerReverse = buildReverse(typeNode.item, 'element');
                         // Check if innerReverse is just the element itself (identity function)
                         // But exclude Pubkey and other types that need conversion
-                        if ((innerReverse === 'element' || innerReverse === '*element') && 
-                            !isNode(typeNode.item, 'publicKeyTypeNode')) {
+                        if (
+                            (innerReverse === 'element' || innerReverse === '*element') &&
+                            !isNode(typeNode.item, 'publicKeyTypeNode')
+                        ) {
                             return `${prefix}.0`;
                         }
                         return `${prefix}.0.into_iter().map(|element| ${innerReverse}).collect()`;
@@ -1371,9 +1382,12 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             return `${prefix}.into_iter().map(|element| *element).collect()`;
                         }
                         // Check if conversion is needed by comparing Postgres and Rust types
-                        const postgresManifest = visit(typeNode.item, postgresTypeManifestVisitor) as PostgresTypeManifest;
+                        const postgresManifest = visit(
+                            typeNode.item,
+                            postgresTypeManifestVisitor,
+                        ) as PostgresTypeManifest;
                         const rustManifest = visit(typeNode.item, typeManifestVisitor);
-                        
+
                         // If Postgres type matches Rust type, no conversion needed
                         if (typesMatch(postgresManifest.sqlxType, rustManifest.type)) {
                             return `${prefix}.to_vec()`;
@@ -1428,12 +1442,12 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             const rustManifest = visit(typeNode, typeManifestVisitor);
             const postgresType = postgresManifest.sqlxType;
             const rustType = rustManifest.type;
-            
+
             // Check if types match (no conversion needed)
             if (typesMatch(postgresType, rustType)) {
                 return prefix;
             }
-            
+
             switch (typeNode.format) {
                 case 'u8':
                 case 'u16':
@@ -1446,7 +1460,10 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 case 'i32':
                 case 'i64':
                     // Direct types that match between Postgres and Rust
-                    if (postgresType === rustType || (postgresType.includes(rustType) && !postgresType.includes('U') && !postgresType.includes('I'))) {
+                    if (
+                        postgresType === rustType ||
+                        (postgresType.includes(rustType) && !postgresType.includes('U') && !postgresType.includes('I'))
+                    ) {
                         return prefix;
                     }
                     break;
@@ -1465,7 +1482,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
         } catch (e) {
             // If we can't get manifests, fall back to .into()
         }
-        
+
         return `${prefix}.into()`;
     }
 }

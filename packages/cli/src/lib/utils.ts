@@ -29,17 +29,17 @@ export function resolveRpcUrl(input: string): string {
  */
 export async function runCargoFmt(
     directory: string,
-    options?: Record<string, string | number | boolean>
+    options?: Record<string, string | number | boolean>,
 ): Promise<void> {
     let command = 'cargo fmt';
-    
+
     if (options && Object.keys(options).length > 0) {
         const configArgs = Object.entries(options)
             .map(([key, value]) => `--config ${key}=${value}`)
             .join(' ');
         command = `cargo fmt -- ${configArgs}`;
     }
-    
+
     try {
         await execAsync(command, {
             cwd: directory,
@@ -49,15 +49,16 @@ export async function runCargoFmt(
         const stderr = error.stderr || '';
         const stdout = error.stdout || '';
         const fullOutput = stderr + stdout;
-        
+
         const errorLines = fullOutput
             .split('\n')
-            .filter((line: string) => 
-                line.includes('error') && 
-                !line.includes('Warning: can\'t set') &&
-                !line.includes('unstable features')
+            .filter(
+                (line: string) =>
+                    line.includes('error') &&
+                    !line.includes("Warning: can't set") &&
+                    !line.includes('unstable features'),
             );
-        
+
         if (errorLines.length > 0) {
             const errorMessage = errorLines.join('\n') || error.message || 'Unknown error';
             throw new Error(`Failed to format code with cargo fmt: ${errorMessage}`);

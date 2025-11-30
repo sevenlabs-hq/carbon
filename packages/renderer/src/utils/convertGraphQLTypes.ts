@@ -45,18 +45,14 @@ function shortenFunctionReference(funcRef: string): string {
     return funcRef;
 }
 
-function buildOptionMapExpression(
-    fieldAccess: string, 
-    innerExpr: string, 
-    param: string = 'v'
-): string {
+function buildOptionMapExpression(fieldAccess: string, innerExpr: string, param: string = 'v'): string {
     if (innerExpr === param) {
         return fieldAccess;
     }
     if (innerExpr.includes(`*${param}`)) {
         return `${fieldAccess}.map(|${param}| ${innerExpr})`;
     }
-    
+
     const funcRef = extractFunctionReference(innerExpr, param);
     if (funcRef) {
         if (requiresClosureForPrimitive(funcRef, innerExpr, param)) {
@@ -65,22 +61,18 @@ function buildOptionMapExpression(
         const shortenedRef = shortenFunctionReference(funcRef);
         return `${fieldAccess}.map(${shortenedRef})`;
     }
-    
+
     return `${fieldAccess}.map(|${param}| ${innerExpr})`;
 }
 
-function buildArrayMapExpression(
-    fieldAccess: string,
-    innerExpr: string,
-    param: string = 'item'
-): string {
+function buildArrayMapExpression(fieldAccess: string, innerExpr: string, param: string = 'item'): string {
     if (innerExpr === param) {
         return `${fieldAccess}.to_vec()`;
     }
     if (innerExpr.includes(`*${param}`) || innerExpr.includes('*inner_item')) {
         return `${fieldAccess}.into_iter().map(|${param}| ${innerExpr.replace(/inner_item/g, param)}).collect()`;
     }
-    
+
     const funcRef = extractFunctionReference(innerExpr, param);
     if (funcRef) {
         if (requiresClosureForPrimitive(funcRef, innerExpr, param)) {
@@ -89,42 +81,42 @@ function buildArrayMapExpression(
         const shortenedRef = shortenFunctionReference(funcRef);
         return `${fieldAccess}.into_iter().map(${shortenedRef}).collect()`;
     }
-    
+
     return `${fieldAccess}.into_iter().map(|${param}| ${innerExpr.replace(/inner_item/g, param)}).collect()`;
 }
 
 function extractFunctionReference(expr: string, param: string): string | null {
     const trimmed = expr.trim();
     const escapedParam = param.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    
+
     const exactMatchPattern = `^([a-zA-Z_][a-zA-Z0-9_]*(?:::[a-zA-Z_][a-zA-Z0-9_]*)+)\\(${escapedParam}\\)$`;
     const exactMatch = new RegExp(exactMatchPattern);
     const match = trimmed.match(exactMatch);
     if (match) {
         return match[1];
     }
-    
+
     const simpleMatchPattern = `^([a-zA-Z_][a-zA-Z0-9_]*)\\(${escapedParam}\\)$`;
     const simpleMatch = new RegExp(simpleMatchPattern);
     const simpleMatchResult = trimmed.match(simpleMatch);
     if (simpleMatchResult) {
         return simpleMatchResult[1];
     }
-    
+
     const derefMatchPattern = `^([a-zA-Z_][a-zA-Z0-9_]*(?:::[a-zA-Z_][a-zA-Z0-9_]*)+)\\(\\\\*${escapedParam}\\)$`;
     const derefMatch = new RegExp(derefMatchPattern);
     const derefMatchResult = trimmed.match(derefMatch);
     if (derefMatchResult) {
         return derefMatchResult[1];
     }
-    
+
     const fieldMatchPattern = `^([a-zA-Z_][a-zA-Z0-9_]*(?:::[a-zA-Z_][a-zA-Z0-9_]*)+)\\(${escapedParam}\\.[a-zA-Z0-9_]+\\)$`;
     const fieldMatch = new RegExp(fieldMatchPattern);
     const fieldMatchResult = trimmed.match(fieldMatch);
     if (fieldMatchResult) {
         return fieldMatchResult[1];
     }
-    
+
     return null;
 }
 
@@ -262,7 +254,7 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
     if (isNode(typeNode, 'numberTypeNode')) {
         const postgresManifest = visit(typeNode, getPostgresTypeManifestVisitor()) as PostgresTypeManifest;
         const postgresType = postgresManifest.sqlxType;
-        
+
         switch (typeNode.format) {
             case 'u8': {
                 if (postgresType === 'u8') {
@@ -323,7 +315,7 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
     if (isNode(typeNode, 'optionTypeNode')) {
         const postgresManifest = visit(typeNode.item, getPostgresTypeManifestVisitor()) as PostgresTypeManifest;
         const isJson = (postgresManifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
-        
+
         if (isNode(typeNode.item, 'arrayTypeNode') && isNode(typeNode.item.item, 'definedTypeLinkNode')) {
             const innerExpr = buildConversionFromPostgresRow(typeNode.item, 'v.0.clone()');
             return `${fieldAccess}.map(|v| ${innerExpr})`;
@@ -433,7 +425,7 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
     if (isNode(typeNode, 'zeroableOptionTypeNode')) {
         const postgresManifest = visit(typeNode.item, getPostgresTypeManifestVisitor()) as PostgresTypeManifest;
         const isJson = (postgresManifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
-        
+
         if (isJson) {
             if (isNode(typeNode.item, 'booleanTypeNode')) {
                 return handleBooleanTypeConversion(fieldAccess, true, false);

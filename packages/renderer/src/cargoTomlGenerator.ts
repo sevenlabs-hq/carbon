@@ -20,13 +20,22 @@ export type DecoderCargoTomlOptions = {
 };
 
 export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): string {
-    const { packageName, programName, originalProgramName, withPostgres, withGraphQL, withSerde, standalone = true } = options;
+    const {
+        packageName,
+        programName,
+        originalProgramName,
+        withPostgres,
+        withGraphQL,
+        withSerde,
+        standalone = true,
+    } = options;
 
-    const decoderPackageName = (packageName && packageName.trim())
-        ? `carbon-${kebabCase(packageName)}-decoder`
-        : (programName && programName.trim())
-            ? `carbon-${kebabCase(programName)}-decoder`
-            : 'carbon-decoder';
+    const decoderPackageName =
+        packageName && packageName.trim()
+            ? `carbon-${kebabCase(packageName)}-decoder`
+            : programName && programName.trim()
+              ? `carbon-${kebabCase(programName)}-decoder`
+              : 'carbon-decoder';
 
     const carbonCoreDep = getCrateDependencyString('carbon-core', VERSIONS['carbon-core'], ['macros']);
     const carbonTestUtilsDep = getCrateDependencyString('carbon-test-utils', VERSIONS['carbon-test-utils']);
@@ -106,7 +115,9 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         dependencies.push(getCrateDependencyString('solana-program-pack', VERSIONS['solana-program-pack']));
         dependencies.push(getCrateDependencyString('spl-token-2022', VERSIONS['spl-token-2022']));
         dependencies.push(getCrateDependencyString('spl-pod', VERSIONS['spl-pod'], ['borsh']));
-        dependencies.push(getCrateDependencyString('spl-token-metadata-interface', VERSIONS['spl-token-metadata-interface']));
+        dependencies.push(
+            getCrateDependencyString('spl-token-metadata-interface', VERSIONS['spl-token-metadata-interface']),
+        );
         dependencies.push(getCrateDependencyString('spl-token-group-interface', VERSIONS['spl-token-group-interface']));
         dependencies.push(getCrateDependencyString('spl-type-length-value', VERSIONS['spl-type-length-value']));
     }
