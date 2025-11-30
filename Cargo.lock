@@ -1259,7 +1259,6 @@ dependencies = [
  "serde",
  "serde_json",
  "solana-account",
- "solana-account-decoder",
  "solana-client",
  "solana-pubkey 3.0.0",
  "tokio",
