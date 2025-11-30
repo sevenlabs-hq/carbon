@@ -21,7 +21,6 @@ reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 solana-account = { workspace = true }
-solana-account-decoder = { workspace = true }
 solana-client = { workspace = true }
 solana-pubkey = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
