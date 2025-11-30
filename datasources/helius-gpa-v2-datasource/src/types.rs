@@ -1,4 +1,6 @@
 use serde::{Deserialize, Serialize};
+use solana_account::Account;
+use solana_pubkey::Pubkey;
 
 #[derive(Debug, Serialize)]
 pub struct HeliusGpaV2Request {
@@ -23,8 +25,6 @@ pub struct HeliusGpaV2Response {
 pub struct HeliusGpaV2Result {
     #[serde(default)]
     pub context: Option<HeliusGpaV2Context>,
-    #[serde(default)]
-    pub value: Option<HeliusGpaV2Value>,
     #[serde(flatten)]
     pub accounts: Option<Vec<HeliusGpaV2Account>>,
     #[serde(flatten)]
@@ -40,13 +40,11 @@ pub struct HeliusGpaV2Context {
     pub api_version: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
-pub struct HeliusGpaV2Value {
-    pub accounts: Vec<HeliusGpaV2Account>,
-    #[serde(rename = "paginationKey")]
+#[derive(Debug, Clone)]
+pub struct FetchHeliusGpaV2AccountsPageResult {
+    pub accounts: Vec<(Pubkey, Account)>,
+    pub slot: u64,
     pub pagination_key: Option<String>,
-    #[allow(dead_code)]
-    pub count: Option<u32>,
 }
 
 #[derive(Debug, Deserialize)]
