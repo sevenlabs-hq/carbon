@@ -183,12 +183,12 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                             // Use formatDocComments to properly handle list item indentation
                             const docComments =
                                 docs.length > 0
-                                    ? formatDocComments(docs, '    ') + '\n'
+                                    ? formatDocComments(docs) + '\n'
                                     : '';
 
                             return {
                                 imports: fieldManifest.imports,
-                                type: `${docComments}${needsBigArray ? '    #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]\n' : ''}    ${fieldName}: ${fieldManifest.type},`,
+                                type: `${docComments}${needsBigArray ? '#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]\n' : ''}${fieldName}: ${fieldManifest.type},`,
                                 borshType: `${fieldName}: ${fieldManifest.borshType},`,
                             };
                         },
@@ -220,8 +220,8 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                 visitEnumType(node, { self }) {
                     const variants = node.variants.map(variant => visit(variant, self));
                     const mergedImports = new ImportMap().mergeWith(...variants.map(v => v.imports));
-                    const variantTypes = variants.map(v => '    ' + v.type).join('\n');
-                    const variantBorshTypes = variants.map(v => '    ' + v.borshType).join('\n');
+                    const variantTypes = variants.map(v => v.type).join('\n');
+                    const variantBorshTypes = variants.map(v => v.borshType).join('\n');
 
                     return {
                         imports: mergedImports,
@@ -341,13 +341,13 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                     // Use formatDocComments to properly handle list item indentation
                     const docComments =
                         docs.length > 0
-                            ? formatDocComments(docs, '    ') + '\n'
+                            ? formatDocComments(docs) + '\n'
                             : '';
 
                     return {
                         imports: fieldManifest.imports,
-                        type: `${docComments}${needsBigArray ? '    #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]\n' : ''}    pub ${fieldName}: ${fieldManifest.type},`,
-                        borshType: `    ${fieldName}: ${fieldManifest.borshType},`,
+                        type: `${docComments}${needsBigArray ? '#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]\n' : ''}pub ${fieldName}: ${fieldManifest.type},`,
+                        borshType: `${fieldName}: ${fieldManifest.borshType},`,
                     };
                 },
 
@@ -440,9 +440,9 @@ export function getDiscriminatorManifest(
             const lengthCheck = maxRequiredSize === 1 
                 ? 'data.is_empty()' 
                 : `data.len() < ${maxRequiredSize}`;
-            checkParts.push(`        if ${lengthCheck} {`);
-            checkParts.push(`            return None;`);
-            checkParts.push(`        }`);
+            checkParts.push(`if ${lengthCheck} {`);
+            checkParts.push(`    return None;`);
+            checkParts.push(`}`);
 
             // Check each discriminator in sequence
             for (const discriminator of sorted) {
@@ -463,16 +463,16 @@ export function getDiscriminatorManifest(
                     
                     if (size === 1) {
                         // Single byte discriminator
-                        checkParts.push(`        let ${varName} = data[${discriminator.offset}];`);
-                        checkParts.push(`        if ${varName} != ${bytes[0]} {`);
-                        checkParts.push(`            return None;`);
-                        checkParts.push(`        }`);
+                        checkParts.push(`let ${varName} = data[${discriminator.offset}];`);
+                        checkParts.push(`if ${varName} != ${bytes[0]} {`);
+                        checkParts.push(`    return None;`);
+                        checkParts.push(`}`);
                     } else {
                         // Multi-byte discriminator
-                        checkParts.push(`        let ${varName} = &data[${discriminator.offset}..${discriminator.offset + size}];`);
-                        checkParts.push(`        if ${varName} != [${bytes.join(', ')}] {`);
-                        checkParts.push(`            return None;`);
-                        checkParts.push(`        }`);
+                        checkParts.push(`let ${varName} = &data[${discriminator.offset}..${discriminator.offset + size}];`);
+                        checkParts.push(`if ${varName} != [${bytes.join(', ')}] {`);
+                        checkParts.push(`    return None;`);
+                        checkParts.push(`}`);
                     }
                 }
             }
@@ -504,27 +504,27 @@ export function getDiscriminatorManifest(
             const lengthCheck = requiredSize === 1 
                 ? 'data.is_empty()' 
                 : `data.len() < ${requiredSize}`;
-            const checkCode = `        if ${lengthCheck} {
-            return None;
-        }
-        let discriminator = &data[${discriminator.offset}..${discriminator.offset + size}];
-        if discriminator != [${bytes.join(', ')}] {
-            return None;
-        }`;
+            const checkCode = `if ${lengthCheck} {
+    return None;
+}
+let discriminator = &data[${discriminator.offset}..${discriminator.offset + size}];
+if discriminator != [${bytes.join(', ')}] {
+    return None;
+}`;
             return { bytes: `[${bytes.join(', ')}]`, size, checkCode };
         }
 
         case 'fieldDiscriminatorNode': {
             // Field discriminators check a specific field value after deserialization
-            const checkCode = `        // Field discriminator: ${discriminator.name} at offset ${discriminator.offset}
-        // This check happens after deserialization`;
+            const checkCode = `// Field discriminator: ${discriminator.name} at offset ${discriminator.offset}
+// This check happens after deserialization`;
             return { bytes: '[]', size: 0, checkCode };
         }
 
         case 'sizeDiscriminatorNode': {
-            const checkCode = `        if data.len() != ${discriminator.size} {
-            return None;
-        }`;
+            const checkCode = `if data.len() != ${discriminator.size} {
+    return None;
+}`;
             return { bytes: '[]', size: 0, checkCode };
         }
 
