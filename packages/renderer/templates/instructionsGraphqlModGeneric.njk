@@ -3,18 +3,14 @@
 
 {% block main %}
 {% for instruction in instructionsToExport %}
-{% if instruction.arguments.length > 1 %}
 pub mod {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_schema;
-{% endif %}
 {% endfor %}
 {% if hasAnchorEvents %}
 pub mod cpi_event_schema;
 {% endif %}
 
 {% for instruction in instructionsToExport %}
-{% if instruction.arguments.length > 1 %}
 pub use {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_schema::*;
-{% endif %}
 {% endfor %}
 {% if hasAnchorEvents %}
 pub use cpi_event_schema::*;

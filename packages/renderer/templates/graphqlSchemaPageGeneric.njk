@@ -23,7 +23,7 @@ pub struct {{ entityName | pascalCase }}GraphQL {
 
 impl TryFrom<{% if isAccount %}crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% else %}crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% endif %}> for {{ entityName | pascalCase }}GraphQL {
     type Error = carbon_core::error::Error;
-    fn try_from(original: {% if isAccount %}crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% else %}crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% endif %}) -> Result<Self, Self::Error> {
+    fn try_from({% if graphqlFields.length == 0 %}_original{% else %}original{% endif %}: {% if isAccount %}crate::accounts::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% else %}crate::instructions::{{ macros.escapeRustKeyword(entityName | snakeCase) }}::{{ entityName | pascalCase }}{% endif %}) -> Result<Self, Self::Error> {
         Ok(Self {
             {% if isAccount %}account_metadata{% else %}instruction_metadata{% endif %}: {% if isAccount %}crate::accounts::graphql::AccountMetadataGraphQL::default(){% else %}crate::instructions::graphql::InstructionMetadataGraphQL::default(){% endif %},
 {% for field in graphqlFields %}

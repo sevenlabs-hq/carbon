@@ -20,17 +20,9 @@ export function generateIndexerCargoToml(opts: ScaffoldOptions): string {
     if (opts.withSerde) decoderFeatures.push('serde');
 
     const carbonCoreDep = getCrateDependencyString('carbon-core', VERSIONS['carbon-core'], ['postgres', 'graphql']);
-    const asyncTraitDep = getCrateDependencyString('async-trait', VERSIONS['async-trait']);
-    const solanaPubkeyDep = getCrateDependencyString('solana-pubkey', VERSIONS['solana-pubkey']);
-    const solanaClientDep = getCrateDependencyString('solana-client', VERSIONS['solana-client']);
-    const solanaInstructionDep = getCrateDependencyString('solana-instruction', VERSIONS['solana-instruction']);
     const tokioDep = getCrateDependencyString('tokio', VERSIONS['tokio']);
     const dotenvDep = getCrateDependencyString('dotenv', VERSIONS['dotenv']);
     const envLoggerDep = getCrateDependencyString('env_logger', VERSIONS['env_logger']);
-    const logDep = getCrateDependencyString('log', VERSIONS['log']);
-    const anyhowDep = getCrateDependencyString('anyhow', VERSIONS['anyhow']);
-    const tracingDep = getCrateDependencyString('tracing', VERSIONS['tracing']);
-    const tracingSubscriberDep = getCrateDependencyString('tracing-subscriber', VERSIONS['tracing-subscriber']);
 
     const decoderFeaturesStr =
         decoderFeatures.length > 0 ? `, features = [${decoderFeatures.map(f => `"${f}"`).join(', ')}]` : '';
@@ -52,10 +44,7 @@ export function generateIndexerCargoToml(opts: ScaffoldOptions): string {
 
     const isGrpcDataSource = opts.dataSource === 'yellowstone-grpc' || opts.dataSource === 'helius-laserstream';
     const grpcDeps = isGrpcDataSource
-        ? [
-              getCrateDependencyString('yellowstone-grpc-client', VERSIONS['yellowstone-grpc-client']),
-              getCrateDependencyString('yellowstone-grpc-proto', VERSIONS['yellowstone-grpc-proto']),
-          ]
+        ? [getCrateDependencyString('yellowstone-grpc-proto', VERSIONS['yellowstone-grpc-proto'])]
         : [];
 
     const rustlsDep = isGrpcDataSource ? getCrateDependencyString('rustls', VERSIONS.rustls) : null;
@@ -77,9 +66,7 @@ export function generateIndexerCargoToml(opts: ScaffoldOptions): string {
           ]
         : [];
 
-    const gqlDeps = opts.withGraphql
-        ? [getCrateDependencyString('juniper', VERSIONS.juniper), getCrateDependencyString('axum', VERSIONS.axum)]
-        : [];
+    const gqlDeps = opts.withGraphql ? [getCrateDependencyString('axum', VERSIONS.axum)] : [];
 
     const features: string[] = ['default = []'];
     if (opts.withPostgres) {
@@ -89,7 +76,7 @@ export function generateIndexerCargoToml(opts: ScaffoldOptions): string {
         features.push('graphql = []');
     }
 
-    const dependencies: string[] = [asyncTraitDep, carbonCoreDep, decoderDep, datasourceDep, metricsDep];
+    const dependencies: string[] = [carbonCoreDep, decoderDep, datasourceDep, metricsDep];
 
     if (crawlerDeps) {
         dependencies.push(crawlerDeps);
@@ -98,18 +85,7 @@ export function generateIndexerCargoToml(opts: ScaffoldOptions): string {
         dependencies.push(programDeps);
     }
 
-    dependencies.push(
-        solanaPubkeyDep,
-        solanaClientDep,
-        solanaInstructionDep,
-        tokioDep,
-        dotenvDep,
-        envLoggerDep,
-        logDep,
-        anyhowDep,
-        tracingDep,
-        tracingSubscriberDep,
-    );
+    dependencies.push(tokioDep, dotenvDep, envLoggerDep);
 
     if (rustlsDep) {
         dependencies.push(rustlsDep);

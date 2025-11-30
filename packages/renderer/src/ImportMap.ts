@@ -25,9 +25,14 @@ export class ImportMap {
     }
 
     toString(): string {
-        return [...this._imports]
-            .sort()
-            .map(i => `use ${i};`)
-            .join('\n');
+        if (this._imports.size === 0) {
+            return '';
+        }
+        return (
+            [...this._imports]
+                .sort()
+                .map(i => `use ${i};`)
+                .join('\n') + '\n'
+        );
     }
 }

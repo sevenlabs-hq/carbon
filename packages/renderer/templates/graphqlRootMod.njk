@@ -2,8 +2,10 @@
 
 {% block main %}
 pub mod context;
+{% if hasActualGraphQLFields %}
 pub mod query;
 
 pub use query::*;
+{% endif %}
 {% endblock %}
 

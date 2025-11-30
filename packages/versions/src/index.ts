@@ -47,6 +47,16 @@ export const VERSIONS: Record<string, CrateDependency> = {
         features: ['borsh'],
     },
     'solana-commitment-config': '^3.0.0',
+    /// SPL Token 2022 dependencies
+    'solana-program-pack': '^3.0.0',
+    'spl-token-2022': '10.0.0',
+    'spl-pod': {
+        version: '0.7.1',
+        features: ['borsh'],
+    },
+    'spl-token-metadata-interface': '0.8.0',
+    'spl-token-group-interface': '0.7.1',
+    'spl-type-length-value': '0.9.0',
     'yellowstone-grpc-client': {
         git: 'https://github.com/rpcpool/yellowstone-grpc',
         rev: '73c43e1112f6b3432a6b2df9bad73438f6c51034',
