@@ -27,31 +27,24 @@ function handleBooleanTypeConversion(fieldAccess: string, isJson: boolean, isOpt
     }
 }
 
-/**
- * Checks if a type name indicates a boolean type alias.
- * 
- * @param typeName - The type name to check
- * @returns True if the type name suggests a boolean type
- */
 function isBooleanTypeAlias(typeName: string): boolean {
     return typeName.toLowerCase().includes('bool');
 }
 
-/**
- * Checks if a GraphQL primitive function requires closure usage (cannot use function reference directly).
- * Primitives like Pubkey, U64, U128, I128 from Postgres need dereference, so they require closures.
- */
-function requiresClosureForPrimitive(funcRef: string): boolean {
-    return funcRef.includes('graphql::primitives::Pubkey') || 
-           funcRef.includes('graphql::primitives::U64') ||
-           funcRef.includes('graphql::primitives::U128') ||
-           funcRef.includes('graphql::primitives::I128');
+function requiresClosureForPrimitive(funcRef: string, innerExpr: string, param: string): boolean {
+    return innerExpr.includes(`${param}.`);
 }
 
-/**
- * Builds an Option.map expression, optimizing for function references when possible.
- * Handles identity, dereference, function references, and primitives that need closures.
- */
+function shortenFunctionReference(funcRef: string): string {
+    const graphqlPrimitives = ['Pubkey', 'U8', 'U32', 'I64', 'U64', 'I128', 'U128'];
+    for (const primitive of graphqlPrimitives) {
+        if (funcRef.endsWith(`::${primitive}`) || funcRef === primitive) {
+            return primitive;
+        }
+    }
+    return funcRef;
+}
+
 function buildOptionMapExpression(
     fieldAccess: string, 
     innerExpr: string, 
@@ -63,20 +56,19 @@ function buildOptionMapExpression(
     if (innerExpr.includes(`*${param}`)) {
         return `${fieldAccess}.map(|${param}| ${innerExpr})`;
     }
+    
     const funcRef = extractFunctionReference(innerExpr, param);
     if (funcRef) {
-        if (requiresClosureForPrimitive(funcRef) || innerExpr.includes(`${param}.0`)) {
+        if (requiresClosureForPrimitive(funcRef, innerExpr, param)) {
             return `${fieldAccess}.map(|${param}| ${innerExpr})`;
         }
-        return `${fieldAccess}.map(${funcRef})`;
+        const shortenedRef = shortenFunctionReference(funcRef);
+        return `${fieldAccess}.map(${shortenedRef})`;
     }
+    
     return `${fieldAccess}.map(|${param}| ${innerExpr})`;
 }
 
-/**
- * Builds an array map expression, optimizing for function references when possible.
- * Handles identity, dereference, function references, and primitives that need closures.
- */
 function buildArrayMapExpression(
     fieldAccess: string,
     innerExpr: string,
@@ -88,37 +80,46 @@ function buildArrayMapExpression(
     if (innerExpr.includes(`*${param}`) || innerExpr.includes('*inner_item')) {
         return `${fieldAccess}.into_iter().map(|${param}| ${innerExpr.replace(/inner_item/g, param)}).collect()`;
     }
+    
     const funcRef = extractFunctionReference(innerExpr, param);
     if (funcRef) {
-        if (requiresClosureForPrimitive(funcRef)) {
+        if (requiresClosureForPrimitive(funcRef, innerExpr, param)) {
             return `${fieldAccess}.into_iter().map(|${param}| ${innerExpr.replace(/inner_item/g, param)}).collect()`;
         }
-        return `${fieldAccess}.into_iter().map(${funcRef}).collect()`;
+        const shortenedRef = shortenFunctionReference(funcRef);
+        return `${fieldAccess}.into_iter().map(${shortenedRef}).collect()`;
     }
+    
     return `${fieldAccess}.into_iter().map(|${param}| ${innerExpr.replace(/inner_item/g, param)}).collect()`;
 }
 
-/**
- * Extracts function reference from expression if it's a simple function call.
- * Detects patterns like `FunctionName(param)` or `FunctionName(*param)` and returns the function name.
- * Returns null if the expression is not a simple function call.
- */
 function extractFunctionReference(expr: string, param: string): string | null {
     const trimmed = expr.trim();
+    const escapedParam = param.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     
-    const exactMatch = new RegExp(`^([a-zA-Z_][a-zA-Z0-9_:]*(?:::[a-zA-Z_][a-zA-Z0-9_]*)*)\\(${param}\\)$`);
+    const exactMatchPattern = `^([a-zA-Z_][a-zA-Z0-9_]*(?:::[a-zA-Z_][a-zA-Z0-9_]*)+)\\(${escapedParam}\\)$`;
+    const exactMatch = new RegExp(exactMatchPattern);
     const match = trimmed.match(exactMatch);
     if (match) {
         return match[1];
     }
     
-    const derefMatch = new RegExp(`^([a-zA-Z_][a-zA-Z0-9_:]*(?:::[a-zA-Z_][a-zA-Z0-9_]*)*)\\(\\*${param}\\)$`);
+    const simpleMatchPattern = `^([a-zA-Z_][a-zA-Z0-9_]*)\\(${escapedParam}\\)$`;
+    const simpleMatch = new RegExp(simpleMatchPattern);
+    const simpleMatchResult = trimmed.match(simpleMatch);
+    if (simpleMatchResult) {
+        return simpleMatchResult[1];
+    }
+    
+    const derefMatchPattern = `^([a-zA-Z_][a-zA-Z0-9_]*(?:::[a-zA-Z_][a-zA-Z0-9_]*)+)\\(\\\\*${escapedParam}\\)$`;
+    const derefMatch = new RegExp(derefMatchPattern);
     const derefMatchResult = trimmed.match(derefMatch);
     if (derefMatchResult) {
         return derefMatchResult[1];
     }
     
-    const fieldMatch = new RegExp(`^([a-zA-Z_][a-zA-Z0-9_:]*(?:::[a-zA-Z_][a-zA-Z0-9_]*)*)\\(${param}\\.[a-zA-Z0-9_]+\\)$`);
+    const fieldMatchPattern = `^([a-zA-Z_][a-zA-Z0-9_]*(?:::[a-zA-Z_][a-zA-Z0-9_]*)+)\\(${escapedParam}\\.[a-zA-Z0-9_]+\\)$`;
+    const fieldMatch = new RegExp(fieldMatchPattern);
     const fieldMatchResult = trimmed.match(fieldMatch);
     if (fieldMatchResult) {
         return fieldMatchResult[1];
@@ -167,18 +168,10 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
 
     if (isNode(typeNode, 'optionTypeNode')) {
         const innerExpr = buildConversionFromOriginal(typeNode.item, 'v');
-        if (innerExpr === 'v') {
-            return fieldAccess;
-        }
-        const funcRef = extractFunctionReference(innerExpr, 'v');
-        if (funcRef) {
-            return `${fieldAccess}.map(${funcRef})`;
-        }
-        return `${fieldAccess}.map(|v| ${innerExpr})`;
+        return buildOptionMapExpression(fieldAccess, innerExpr, 'v');
     }
 
     if (isNode(typeNode, 'arrayTypeNode')) {
-        // Special case: Vec<u8> should be treated like bytes
         if (isNode(typeNode.item, 'numberTypeNode') && typeNode.item.format === 'u8') {
             return `${fieldAccess}.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
         }
@@ -215,16 +208,15 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
 
     if (isNode(typeNode, 'remainderOptionTypeNode')) {
         const innerExpr = buildConversionFromOriginal(typeNode.item, 'v');
-        const funcRef = extractFunctionReference(innerExpr, 'v');
-        if (funcRef) {
-            return `${fieldAccess}.map(${funcRef})`;
-        }
-        return `${fieldAccess}.map(|v| ${innerExpr})`;
+        return buildOptionMapExpression(fieldAccess, innerExpr, 'v');
     }
 
     if (isNode(typeNode, 'zeroableOptionTypeNode')) {
         const innerExpr = buildConversionFromOriginal(typeNode.item, 'v');
         const convertedExpr = innerExpr === 'v' ? 'v.into()' : innerExpr;
+        if (convertedExpr !== 'v.into()') {
+            return buildOptionMapExpression(fieldAccess, convertedExpr, 'v');
+        }
         return `${fieldAccess}.map(|v| ${convertedExpr})`;
     }
 
@@ -279,7 +271,6 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
                 return `carbon_core::graphql::primitives::U8((*${fieldAccess}) as u8)`;
             }
             case 'u16': {
-                // U16 wrapper dereferences to i32
                 if (postgresType === 'U16') {
                     return `*${fieldAccess}`;
                 }
@@ -333,7 +324,6 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
         const postgresManifest = visit(typeNode.item, getPostgresTypeManifestVisitor()) as PostgresTypeManifest;
         const isJson = (postgresManifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
         
-        // Needs .clone() to avoid move
         if (isNode(typeNode.item, 'arrayTypeNode') && isNode(typeNode.item.item, 'definedTypeLinkNode')) {
             const innerExpr = buildConversionFromPostgresRow(typeNode.item, 'v.0.clone()');
             return `${fieldAccess}.map(|v| ${innerExpr})`;
@@ -379,7 +369,7 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
                 const tempExpr = buildConversionFromPostgresRow(innerItemType, 'item');
                 const funcRef = extractFunctionReference(tempExpr, 'item');
                 if (funcRef) {
-                    if (requiresClosureForPrimitive(funcRef) || tempExpr.includes('*item')) {
+                    if (requiresClosureForPrimitive(funcRef, tempExpr, 'item') || tempExpr.includes('*item')) {
                         innerItemExpr = `${funcRef}(*item)`;
                     } else {
                         innerItemExpr = tempExpr;
@@ -393,7 +383,6 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
             return `${fieldAccess}.0.into_iter().map(|item| item.into_iter().map(|item| ${innerItemExpr}).collect()).collect()`;
         }
         if (isNode(typeNode.item, 'definedTypeLinkNode')) {
-            // Use as_ref to avoid move when unwrapping Json
             if (fieldAccess.includes('.0')) {
                 return `${fieldAccess}.as_ref().clone().into_iter().map(|item| item.into()).collect()`;
             }
@@ -433,7 +422,6 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
     }
 
     if (isNode(typeNode, 'remainderOptionTypeNode')) {
-        // Needs .clone() to avoid move
         if (isNode(typeNode.item, 'arrayTypeNode') && isNode(typeNode.item.item, 'definedTypeLinkNode')) {
             const innerExpr = buildConversionFromPostgresRow(typeNode.item, 'v.0.clone()');
             return `${fieldAccess}.map(|v| ${innerExpr})`;
@@ -443,7 +431,6 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
     }
 
     if (isNode(typeNode, 'zeroableOptionTypeNode')) {
-        // For JSONB storage, fieldAccess is Json<T>, not Option<Json<T>>
         const postgresManifest = visit(typeNode.item, getPostgresTypeManifestVisitor()) as PostgresTypeManifest;
         const isJson = (postgresManifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
         
@@ -454,14 +441,12 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
             if (isNode(typeNode.item, 'publicKeyTypeNode')) {
                 return `carbon_core::graphql::primitives::Pubkey(${fieldAccess}.0)`;
             }
-            // Needs .clone() to avoid move
             if (isNode(typeNode.item, 'arrayTypeNode') && isNode(typeNode.item.item, 'definedTypeLinkNode')) {
                 const innerExpr = buildConversionFromPostgresRow(typeNode.item, `${fieldAccess}.0.clone()`);
                 return innerExpr;
             }
-            // For other types, unwrap .0 and then convert
-                const innerExpr = buildConversionFromPostgresRow(typeNode.item, `${fieldAccess}.0`);
-                return innerExpr;
+            const innerExpr = buildConversionFromPostgresRow(typeNode.item, `${fieldAccess}.0`);
+            return innerExpr;
         } else {
             if (isNode(typeNode.item, 'publicKeyTypeNode')) {
                 return `${fieldAccess}.map(|v| carbon_core::graphql::primitives::Pubkey(v.0))`;
@@ -469,7 +454,6 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
             if (isNode(typeNode.item, 'booleanTypeNode')) {
                 return handleBooleanTypeConversion(fieldAccess, false, true);
             }
-            // Needs .clone() to avoid move
             if (isNode(typeNode.item, 'arrayTypeNode') && isNode(typeNode.item.item, 'definedTypeLinkNode')) {
                 const innerExpr = buildConversionFromPostgresRow(typeNode.item, 'v.0.clone()');
                 return `${fieldAccess}.map(|v| ${innerExpr})`;

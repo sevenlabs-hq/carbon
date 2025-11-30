@@ -691,7 +691,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         .add(`crate::${pascalCase(programName)}Decoder`);
                     
                     // Add token-2022 specific imports for StateWithExtensions unpacking
-                    if (isToken2022Program(program)) {
+                    if (isToken2022Program(program, originalProgramName)) {
                         accountsModImports.add('solana_program_pack::Pack');
                         // StateWithExtensions is used directly in unpack() calls, no import needed
                     }
