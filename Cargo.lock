@@ -1795,8 +1795,6 @@ dependencies = [
  "carbon-core",
  "log",
  "serde_json",
- "solana-account",
- "solana-account-decoder",
  "solana-client",
  "solana-commitment-config",
  "solana-pubkey 3.0.0",
