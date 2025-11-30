@@ -11,6 +11,15 @@ const program = new Command();
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../package.json');
 
+// Rustfmt configuration options matching carbon's rustfmt.toml
+const cargoFmtOptions: Record<string, string | number | boolean> = {
+    comment_width: 80,
+    edition: '2021',
+    group_imports: 'One',
+    imports_granularity: 'One',
+    wrap_comments: true,
+};
+
 program
     .name('carbon-cli')
     .description('Carbon CLI: Parse IDLs and generate decoders')
@@ -94,7 +103,7 @@ program
 
             logger.startSpinner('Formatting generated code...');
             try {
-                await runCargoFmt(outDir);
+                await runCargoFmt(outDir, cargoFmtOptions);
                 logger.succeedSpinner('Code formatted successfully');
             } catch (error) {
                 logger.failSpinner('Failed to format code');
@@ -236,7 +245,7 @@ program
 
         logger.startSpinner('Formatting generated code...');
         try {
-            await runCargoFmt(workspaceDir);
+            await runCargoFmt(workspaceDir, cargoFmtOptions);
             logger.succeedSpinner('Code formatted successfully');
         } catch (error) {
             logger.failSpinner('Failed to format code');

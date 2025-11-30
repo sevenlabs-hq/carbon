@@ -24,11 +24,24 @@ export function resolveRpcUrl(input: string): string {
 /**
  * Runs cargo fmt in the specified directory to format Rust code
  * @param directory The directory containing Rust code to format
+ * @param options Optional rustfmt configuration options
  * @throws Error if cargo fmt fails
  */
-export async function runCargoFmt(directory: string): Promise<void> {
+export async function runCargoFmt(
+    directory: string,
+    options?: Record<string, string | number | boolean>
+): Promise<void> {
+    let command = 'cargo fmt';
+    
+    if (options && Object.keys(options).length > 0) {
+        const configArgs = Object.entries(options)
+            .map(([key, value]) => `--config ${key}=${value}`)
+            .join(' ');
+        command = `cargo fmt -- ${configArgs}`;
+    }
+    
     try {
-        await execAsync('cargo fmt', {
+        await execAsync(command, {
             cwd: directory,
             env: process.env,
         });
