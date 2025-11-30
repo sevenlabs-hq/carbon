@@ -76,7 +76,8 @@ program
         const withGraphql =
             opts.withGraphql !== undefined ? opts.withGraphql === 'true' || opts.withGraphql === true : true;
         const withSerdeDefault = !withPostgres && !withGraphql ? true : false;
-        const withSerde = opts.withSerde !== undefined ? opts.withSerde === 'true' || opts.withSerde === true : withSerdeDefault;
+        const withSerde =
+            opts.withSerde !== undefined ? opts.withSerde === 'true' || opts.withSerde === true : withSerdeDefault;
 
         const outDir = resolve(process.cwd(), opts.outDir);
 
@@ -166,7 +167,8 @@ program
         // Default serde to true if both postgres and graphql are disabled (since generated code always includes serde attributes)
         // Otherwise, serde will be auto-enabled by postgres/graphql, so default to false
         const withSerdeDefault = !withPostgres && !withGraphql ? true : false;
-        const withSerde = opts.withSerde !== undefined ? opts.withSerde === 'true' || opts.withSerde === true : withSerdeDefault;
+        const withSerde =
+            opts.withSerde !== undefined ? opts.withSerde === 'true' || opts.withSerde === true : withSerdeDefault;
         const force = Boolean(opts.force);
 
         // Use provided decoder name or auto-detect from IDL

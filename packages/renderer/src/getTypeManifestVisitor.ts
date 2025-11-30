@@ -181,10 +181,7 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
 
                             const docs = node.docs || [];
                             // Use formatDocComments to properly handle list item indentation
-                            const docComments =
-                                docs.length > 0
-                                    ? formatDocComments(docs) + '\n'
-                                    : '';
+                            const docComments = docs.length > 0 ? formatDocComments(docs) + '\n' : '';
 
                             return {
                                 imports: fieldManifest.imports,
@@ -339,10 +336,7 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
 
                     const docs = node.docs || [];
                     // Use formatDocComments to properly handle list item indentation
-                    const docComments =
-                        docs.length > 0
-                            ? formatDocComments(docs) + '\n'
-                            : '';
+                    const docComments = docs.length > 0 ? formatDocComments(docs) + '\n' : '';
 
                     return {
                         imports: fieldManifest.imports,
@@ -411,9 +405,7 @@ export function getDiscriminatorManifest(
 
     // Handle multiple discriminators explicitly (for any IDL with nested discriminators)
     if (discriminators.length > 1) {
-        const constantDiscriminators = discriminators.filter(
-            d => d.kind === 'constantDiscriminatorNode'
-        );
+        const constantDiscriminators = discriminators.filter(d => d.kind === 'constantDiscriminatorNode');
 
         if (constantDiscriminators.length > 1) {
             // Sort by offset to ensure correct order
@@ -432,14 +424,12 @@ export function getDiscriminatorManifest(
                         return d.offset + bytes.length;
                     }
                     return 0;
-                })
+                }),
             );
 
             // Generate check code for all discriminators
             const checkParts: string[] = [];
-            const lengthCheck = maxRequiredSize === 1 
-                ? 'data.is_empty()' 
-                : `data.len() < ${maxRequiredSize}`;
+            const lengthCheck = maxRequiredSize === 1 ? 'data.is_empty()' : `data.len() < ${maxRequiredSize}`;
             checkParts.push(`if ${lengthCheck} {`);
             checkParts.push(`    return None;`);
             checkParts.push(`}`);
@@ -460,7 +450,7 @@ export function getDiscriminatorManifest(
                     } else {
                         varName = `discriminator_${discriminator.offset}`;
                     }
-                    
+
                     if (size === 1) {
                         // Single byte discriminator
                         checkParts.push(`let ${varName} = data[${discriminator.offset}];`);
@@ -469,7 +459,9 @@ export function getDiscriminatorManifest(
                         checkParts.push(`}`);
                     } else {
                         // Multi-byte discriminator
-                        checkParts.push(`let ${varName} = &data[${discriminator.offset}..${discriminator.offset + size}];`);
+                        checkParts.push(
+                            `let ${varName} = &data[${discriminator.offset}..${discriminator.offset + size}];`,
+                        );
                         checkParts.push(`if ${varName} != [${bytes.join(', ')}] {`);
                         checkParts.push(`    return None;`);
                         checkParts.push(`}`);
@@ -483,10 +475,10 @@ export function getDiscriminatorManifest(
                 const firstBytes = getDiscriminatorBytes(firstDiscriminator.constant);
                 const firstSize = firstBytes.length;
                 const checkCode = checkParts.join('\n');
-                return { 
-                    bytes: `[${firstBytes.join(', ')}]`, 
-                    size: firstSize, 
-                    checkCode 
+                return {
+                    bytes: `[${firstBytes.join(', ')}]`,
+                    size: firstSize,
+                    checkCode,
                 };
             }
         }
@@ -501,9 +493,7 @@ export function getDiscriminatorManifest(
             const size = bytes.length;
             const requiredSize = discriminator.offset + size;
             // Use is_empty() when checking for size 1, otherwise use len() < size
-            const lengthCheck = requiredSize === 1 
-                ? 'data.is_empty()' 
-                : `data.len() < ${requiredSize}`;
+            const lengthCheck = requiredSize === 1 ? 'data.is_empty()' : `data.len() < ${requiredSize}`;
             const checkCode = `if ${lengthCheck} {
     return None;
 }

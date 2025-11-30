@@ -19,20 +19,20 @@ export function formatDocComments(docs: string[], indent: string = ''): string {
     const allLines = docs.join('\n').split('\n');
     const result: string[] = [];
     let inListContext = false;
-    
+
     for (let i = 0; i < allLines.length; i++) {
         const line = allLines[i];
         const trimmed = line.trim();
-        
+
         // Skip empty lines completely - never output them
         if (trimmed === '') {
             // Empty line resets list context
             inListContext = false;
             continue;
         }
-        
+
         const isListItem = trimmed.startsWith('*') || trimmed.startsWith('-');
-        
+
         if (isListItem) {
             // List item - output trimmed version, set context to true
             result.push(`${indent}/// ${trimmed}`);
@@ -61,7 +61,7 @@ export function formatDocComments(docs: string[], indent: string = ''): string {
                     inListContext = true;
                 }
             }
-            
+
             if (inListContext) {
                 // Continuation line after list item - indent it with 3 spaces after ///
                 // CRITICAL: Must use exactly 3 spaces after /// for clippy doc_lazy_continuation
@@ -75,7 +75,7 @@ export function formatDocComments(docs: string[], indent: string = ''): string {
             }
         }
     }
-    
+
     // Join with newlines - no trailing newline to avoid empty_line_after_doc_comment errors
     return result.join('\n');
 }
