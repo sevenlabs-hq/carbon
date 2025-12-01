@@ -34,7 +34,7 @@ pub enum {{ program.name | pascalCase }}Instruction {
 {% endfor %}
 {% if hasAnchorEvents %}
     // Anchor CPI Event Instruction
-    CpiEvent(CpiEvent)
+    CpiEvent(Box<CpiEvent>)
 {% endif %}
 }
 
@@ -45,7 +45,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for {{ program.name | pasc
         &self,
         instruction: &solana_instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
-        if !instruction.program_id.eq(&PROGRAM_ID) {
+        if instruction.program_id != PROGRAM_ID {
             return None;
         }
 
@@ -67,7 +67,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for {{ program.name | pasc
             if let Some(decoded) = cpi_event::CpiEvent::decode(data) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    data: {{ program.name | pascalCase }}Instruction::CpiEvent(decoded),
+                    data: {{ program.name | pascalCase }}Instruction::CpiEvent(Box::new(decoded)),
                     accounts: instruction.accounts.clone(),
                 });
             }
