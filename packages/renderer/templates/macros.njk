@@ -1,12 +1,22 @@
 {# Write a docblock from an array of strings. #}
+{# Handles continuation lines and empty lines properly to avoid clippy doc_lazy_continuation errors #}
+{# Note: Does not add trailing newline to avoid empty_line_after_doc_comment errors #}
+{# Process all docs together to maintain list context across doc strings #}
 {% macro docblock(docs) %}
-{% for doc in docs %}
-{% set lines = doc.split('\n') %}
-{% for line in lines %}
-/// {{ line }}
-{% endfor %}
-{% endfor %}
+{% if docs and docs.length > 0 %}
+{{ docs | formatDocComments('') }}
+{% endif %}
 {% endmacro %}
+
+{# Write a docblock for field comments with indentation (4 spaces) #}
+{# Handles continuation lines and empty lines properly to avoid clippy doc_lazy_continuation errors #}
+{# Note: Does not add trailing newline to avoid empty_line_after_doc_comment errors #}
+{# Process all docs together to maintain list context across doc strings #}
+{% macro fieldDocblock(docs) -%}
+{% if docs and docs.length > 0 %}
+{{ docs | formatDocComments('    ') }}
+{% endif %}
+{%- endmacro %}
 
 {# Escape Rust keywords by adding r# prefix #}
 {% macro escapeRustKeyword(name) %}
@@ -20,7 +30,6 @@
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 {%- endmacro %}
 
-{# Core derives for types - uses BorshDeserialize instead of CarbonDeserialize #}
 {% macro coreTypeDerives() -%}
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
@@ -54,7 +63,6 @@
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 {%- endmacro %}
 
-{# CpiEvent enum derives - uses carbon_core::borsh and BorshDeserialize instead of CarbonDeserialize #}
 {% macro cpiEventDerives() -%}
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]

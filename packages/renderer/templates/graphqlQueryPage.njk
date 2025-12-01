@@ -20,7 +20,7 @@ impl QueryRoot {
         let pk = PgPubkey(solana_pubkey::Pubkey::from_str(&pubkey).map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?);
         let row = crate::accounts::postgres::{{ account.name | pascalCase }}Row::lookup(pk, &context.pool).await
             .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
-        Ok(row.map(|row| row.try_into().ok()).flatten())
+        Ok(row.and_then(|row| row.try_into().ok()))
     }
 
     async fn list_{{ macros.escapeRustKeyword(account.name | snakeCase) }}(
@@ -46,7 +46,6 @@ impl QueryRoot {
 
     // Instructions (per-instruction list and lookup by signature+index)
 {% for instruction in instructionsToExport %}
-{% if instruction.arguments.length > 1 %}
     async fn {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -80,7 +79,6 @@ impl QueryRoot {
     }
 {% if not loop.last %}
 
-{% endif %}
 {% endif %}
 {% endfor %}
 

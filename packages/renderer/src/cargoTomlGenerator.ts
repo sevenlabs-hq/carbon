@@ -1,9 +1,11 @@
 import { kebabCase } from '@codama/nodes';
 import { VERSIONS, getCrateDependencyString } from '@sevenlabs-hq/carbon-versions';
+import { isToken2022Program } from './utils/helpers';
 
 export type DecoderCargoTomlOptions = {
     packageName?: string;
     programName: string;
+    originalProgramName?: string; // Original program name from IDL (for token-2022 checks)
     withPostgres: boolean;
     withGraphQL: boolean;
     withSerde: boolean;
@@ -11,11 +13,22 @@ export type DecoderCargoTomlOptions = {
 };
 
 export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): string {
-    const { packageName, programName, withPostgres, withGraphQL, withSerde, standalone = true } = options;
+    const {
+        packageName,
+        programName,
+        originalProgramName,
+        withPostgres,
+        withGraphQL,
+        withSerde,
+        standalone = true,
+    } = options;
 
-    const decoderPackageName = packageName
-        ? `carbon-${kebabCase(packageName)}-decoder`
-        : `carbon-${kebabCase(programName)}-decoder`;
+    const decoderPackageName =
+        packageName && packageName.trim()
+            ? `carbon-${kebabCase(packageName)}-decoder`
+            : programName && programName.trim()
+              ? `carbon-${kebabCase(programName)}-decoder`
+              : 'carbon-decoder';
 
     const carbonCoreDep = getCrateDependencyString('carbon-core', VERSIONS['carbon-core'], ['macros']);
     const carbonTestUtilsDep = getCrateDependencyString('carbon-test-utils', VERSIONS['carbon-test-utils']);
@@ -67,17 +80,48 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         solanaAccountDep,
         solanaInstructionDep,
         serdeJsonDep,
-        '',
-        serdeDep,
-        serdeBigArrayDep,
-        '',
-        sqlxDep,
-        asyncTraitDep,
-        sqlxMigratorDep,
-        '',
-        juniperDep,
-        base64Dep,
     ];
+
+    if (withSerde || withPostgres || withGraphQL) {
+        dependencies.push('');
+        dependencies.push(serdeDep);
+        dependencies.push(serdeBigArrayDep);
+    }
+
+    if (withPostgres) {
+        dependencies.push('');
+        dependencies.push(sqlxDep);
+        dependencies.push(asyncTraitDep);
+        dependencies.push(sqlxMigratorDep);
+    }
+
+    if (withGraphQL) {
+        dependencies.push('');
+        dependencies.push(juniperDep);
+        dependencies.push(base64Dep);
+    }
+
+    // Add SPL Token 2022 dependencies for token-2022 program
+    // Check originalProgramName or packageName to handle PascalCase transformation
+    if (isToken2022Program(undefined, originalProgramName, packageName)) {
+        dependencies.push('');
+        dependencies.push(getCrateDependencyString('solana-program-pack', VERSIONS['solana-program-pack']));
+        dependencies.push(getCrateDependencyString('spl-token-2022', VERSIONS['spl-token-2022']));
+        dependencies.push(getCrateDependencyString('spl-pod', VERSIONS['spl-pod'], ['borsh']));
+        dependencies.push(
+            getCrateDependencyString('spl-token-metadata-interface', VERSIONS['spl-token-metadata-interface']),
+        );
+        dependencies.push(getCrateDependencyString('spl-token-group-interface', VERSIONS['spl-token-group-interface']));
+        dependencies.push(getCrateDependencyString('spl-type-length-value', VERSIONS['spl-type-length-value']));
+    }
+
+    const macheteIgnored: string[] = [];
+    if (withSerde || withPostgres || withGraphQL) {
+        macheteIgnored.push('serde-big-array');
+    }
+    if (withGraphQL) {
+        macheteIgnored.push('base64');
+    }
 
     const toml = [
         '[package]',
@@ -85,6 +129,13 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         'version = "0.1.0"',
         'edition = "2021"',
         '',
+        ...(macheteIgnored.length > 0
+            ? [
+                  '[package.metadata.cargo-machete]',
+                  `ignored = [${macheteIgnored.map(dep => `"${dep}"`).join(', ')}]`,
+                  '',
+              ]
+            : []),
         ...(standalone ? ['[workspace]', ''] : []),
         '[lib]',
         'crate-type = ["rlib"]',

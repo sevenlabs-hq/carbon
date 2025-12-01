@@ -4,9 +4,78 @@
 {% block main %}
 {{ imports }}
 
-{% if account.docs and account.docs.length > 0 %}
-{{ macros.docblock(account.docs) }}
+{% if account.formattedDocs %}
+{{ account.formattedDocs }}
 {% endif %}
+{% if originalProgramName == 'token-2022' and (account.name | lower == 'mint' or account.name | lower == 'token' or account.name | lower == 'multisig') %}
+{# Token-2022 accounts use BorshDeserialize but rely on From implementations for extension handling #}
+{# Note: decode() method is not provided for token-2022 accounts; StateWithExtensions::unpack() is used in accounts/mod.rs instead #}
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
+pub struct {{ account.name | pascalCase }} {{ typeManifest.type }}
+
+{% if account.name | lower === 'mint' %}
+impl From<spl_token_2022::extension::StateWithExtensions<'_, spl_token_2022::state::Mint>> for {{ account.name | pascalCase }} {
+    fn from(value: spl_token_2022::extension::StateWithExtensions<'_, spl_token_2022::state::Mint>) -> Self {
+        let extensions = value.get_extension_types().ok().map(|extensions| {
+            extensions
+                .iter()
+                .filter_map(|extension_type| crate::types::Extension::from_mint_and_type(&value, extension_type))
+                .collect::<Vec<_>>()
+        });
+
+        {{ account.name | pascalCase }} {
+            mint_authority: value.base.mint_authority.into(),
+            supply: value.base.supply,
+            decimals: value.base.decimals,
+            is_initialized: value.base.is_initialized,
+            freeze_authority: value.base.freeze_authority.into(),
+            extensions,
+        }
+    }
+}
+{% elif account.name | lower === 'token' %}
+impl From<spl_token_2022::extension::StateWithExtensions<'_, spl_token_2022::state::Account>> for {{ account.name | pascalCase }} {
+    fn from(value: spl_token_2022::extension::StateWithExtensions<'_, spl_token_2022::state::Account>) -> Self {
+        let extensions = value.get_extension_types().ok().map(|extensions| {
+            extensions
+                .iter()
+                .filter_map(|extension_type| {
+                    crate::types::Extension::from_account_and_type(&value, extension_type)
+                })
+                .collect::<Vec<_>>()
+        });
+
+        {{ account.name | pascalCase }} {
+            mint: value.base.mint,
+            owner: value.base.owner,
+            amount: value.base.amount,
+            delegate: value.base.delegate.into(),
+            state: match value.base.state {
+                spl_token_2022::state::AccountState::Uninitialized => crate::types::AccountState::Uninitialized,
+                spl_token_2022::state::AccountState::Initialized => crate::types::AccountState::Initialized,
+                spl_token_2022::state::AccountState::Frozen => crate::types::AccountState::Frozen,
+            },
+            is_native: value.base.is_native.into(),
+            delegated_amount: value.base.delegated_amount,
+            close_authority: value.base.close_authority.into(),
+            extensions,
+        }
+    }
+}
+{% elif account.name | lower === 'multisig' %}
+impl From<spl_token_2022::state::Multisig> for {{ account.name | pascalCase }} {
+    fn from(value: spl_token_2022::state::Multisig) -> Self {
+        {{ account.name | pascalCase }} {
+            m: value.m,
+            n: value.n,
+            is_initialized: value.is_initialized,
+            signers: value.signers,
+        }
+    }
+}
+{% endif %}
+{% else %}
 {{ macros.coreDecoderDerives() }}
 pub struct {{ account.name | pascalCase }} {{ typeManifest.type }}
 
@@ -25,4 +94,5 @@ impl {{ account.name | pascalCase }} {
         borsh::BorshDeserialize::deserialize(&mut data_slice).ok()
     }
 }
+{% endif %}
 {% endblock %}
