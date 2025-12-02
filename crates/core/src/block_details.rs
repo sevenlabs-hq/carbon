@@ -21,7 +21,7 @@ use std::sync::Arc;
 ///   (return `true`) will be processed. If this collection is empty, all
 ///   updates are processed.
 pub struct BlockDetailsPipe {
-    pub processor: Box<dyn Processor<InputType = BlockDetails> + Send + Sync>,
+    pub processor: Box<dyn Processor<InputType = Arc<BlockDetails>> + Send + Sync>,
     pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
 }
 
@@ -40,7 +40,7 @@ pub struct BlockDetailsPipe {
 pub trait BlockDetailsPipes: Send + Sync {
     async fn run(
         &mut self,
-        block_details: BlockDetails,
+        block_details: Arc<BlockDetails>,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
 
@@ -51,7 +51,7 @@ pub trait BlockDetailsPipes: Send + Sync {
 impl BlockDetailsPipes for BlockDetailsPipe {
     async fn run(
         &mut self,
-        block_details: BlockDetails,
+        block_details: Arc<BlockDetails>,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         log::trace!("Block details::run(block_details: {block_details:?}, metrics)",);

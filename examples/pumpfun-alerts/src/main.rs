@@ -68,7 +68,7 @@ impl Processor for PumpfunInstructionProcessor {
         data: Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let pumpfun_instruction: PumpfunInstruction = data.1.data;
+        let pumpfun_instruction: PumpfunInstruction = data.1.data.clone();
 
         match pumpfun_instruction {
             PumpfunInstruction::CreateEvent(create_event) => {

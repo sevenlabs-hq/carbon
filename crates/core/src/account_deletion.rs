@@ -75,7 +75,7 @@ use {
 /// - This struct is typically used within the broader pipeline structure for
 ///   managing updates.
 pub struct AccountDeletionPipe {
-    pub processor: Box<dyn Processor<InputType = AccountDeletion> + Send + Sync>,
+    pub processor: Box<dyn Processor<InputType = Arc<AccountDeletion>> + Send + Sync>,
     pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
 }
 
@@ -94,7 +94,7 @@ pub struct AccountDeletionPipe {
 pub trait AccountDeletionPipes: Send + Sync {
     async fn run(
         &mut self,
-        account_deletion: AccountDeletion,
+        account_deletion: Arc<AccountDeletion>,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
 
@@ -105,7 +105,7 @@ pub trait AccountDeletionPipes: Send + Sync {
 impl AccountDeletionPipes for AccountDeletionPipe {
     async fn run(
         &mut self,
-        account_deletion: AccountDeletion,
+        account_deletion: Arc<AccountDeletion>,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         log::trace!("AccountDeletionPipe::run(account_deletion: {account_deletion:?}, metrics)",);

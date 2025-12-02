@@ -130,8 +130,11 @@ pub trait AccountDecoder<'a> {
 /// The input type for the account processor.
 ///
 /// - `T`: The account type, as determined by the decoder.
-pub type AccountProcessorInputType<T> =
-    (AccountMetadata, DecodedAccount<T>, solana_account::Account);
+pub type AccountProcessorInputType<T> = (
+    Arc<AccountMetadata>,
+    Arc<DecodedAccount<T>>,
+    Arc<solana_account::Account>,
+);
 
 /// A processing pipe that decodes and processes Solana account updates.
 ///
@@ -175,7 +178,7 @@ pub struct AccountPipe<T: Send> {
 pub trait AccountPipes: Send + Sync {
     async fn run(
         &mut self,
-        account_with_metadata: (AccountMetadata, solana_account::Account),
+        account_with_metadata: (Arc<AccountMetadata>, Arc<solana_account::Account>),
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
 
@@ -186,7 +189,7 @@ pub trait AccountPipes: Send + Sync {
 impl<T: Send> AccountPipes for AccountPipe<T> {
     async fn run(
         &mut self,
-        account_with_metadata: (AccountMetadata, solana_account::Account),
+        account_with_metadata: (Arc<AccountMetadata>, Arc<solana_account::Account>),
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         log::trace!("AccountPipe::run(account_with_metadata: {account_with_metadata:?}, metrics)",);
@@ -203,7 +206,11 @@ impl<T: Send> AccountPipes for AccountPipe<T> {
             let (account_metadata, account) = account_with_metadata;
             self.processor
                 .process(
-                    (account_metadata.clone(), decoded_account, account),
+                    (
+                        account_metadata.clone(),
+                        Arc::new(decoded_account),
+                        account.clone(),
+                    ),
                     metrics.clone(),
                 )
                 .await?;

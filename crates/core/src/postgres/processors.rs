@@ -155,9 +155,9 @@ where
         let start = std::time::Instant::now();
 
         let wrapper = W::from((
-            decoded_instruction.data,
-            metadata,
-            decoded_instruction.accounts,
+            decoded_instruction.data.clone(),
+            (*metadata).clone(),
+            decoded_instruction.accounts.clone(),
         ));
 
         match wrapper.upsert(&self.pool).await {
@@ -212,9 +212,9 @@ where
         let (metadata, decoded_instruction, _nested_instructions, _raw) = input;
 
         let instruction_row = InstructionRow::from_parts(
-            decoded_instruction.data,
-            metadata,
-            decoded_instruction.accounts,
+            decoded_instruction.data.clone(),
+            (*metadata).clone(),
+            decoded_instruction.accounts.clone(),
         );
 
         let start = std::time::Instant::now();

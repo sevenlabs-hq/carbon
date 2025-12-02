@@ -229,10 +229,10 @@ pub trait InstructionDecoder<'a> {
 ///
 /// - `T`: The instruction type
 pub type InstructionProcessorInputType<T> = (
-    InstructionMetadata,
-    DecodedInstruction<T>,
-    NestedInstructions,
-    solana_instruction::Instruction,
+    Arc<InstructionMetadata>,
+    Arc<DecodedInstruction<T>>,
+    Arc<NestedInstructions>,
+    Arc<solana_instruction::Instruction>,
 );
 
 /// A processing pipeline for instructions, using a decoder and processor.
@@ -308,10 +308,10 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
             self.processor
                 .process(
                     (
-                        nested_instruction.metadata.clone(),
-                        decoded_instruction,
-                        nested_instruction.inner_instructions.clone(),
-                        nested_instruction.instruction.clone(),
+                        Arc::new(nested_instruction.metadata.clone()),
+                        Arc::new(decoded_instruction),
+                        Arc::new(nested_instruction.inner_instructions.clone()),
+                        Arc::new(nested_instruction.instruction.clone()),
                     ),
                     metrics.clone(),
                 )

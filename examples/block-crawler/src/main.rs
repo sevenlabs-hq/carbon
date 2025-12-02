@@ -68,7 +68,7 @@ impl Processor for PumpfunInstructionProcessor {
     ) -> CarbonResult<()> {
         let (metadata, pumpfun_instruction, _nested_instructions, _) = data;
 
-        match pumpfun_instruction.data {
+        match pumpfun_instruction.data.clone() {
             PumpfunInstruction::CreateEvent(create_event) => {
                 log::info!(
                     "New token created: {:#?} on slot {}",

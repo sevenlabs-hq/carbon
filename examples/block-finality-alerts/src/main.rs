@@ -48,7 +48,7 @@ pub struct BlockProcessor;
 
 #[async_trait]
 impl Processor for BlockProcessor {
-    type InputType = BlockDetails;
+    type InputType = Arc<BlockDetails>;
 
     async fn process(
         &mut self,

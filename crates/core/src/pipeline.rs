@@ -587,8 +587,8 @@ impl Pipeline {
                         let pipe_start = Instant::now();
                         pipe.run(
                             (
-                                account_metadata_clone.clone(),
-                                account_update.account.clone(),
+                                Arc::new(account_metadata_clone.clone()),
+                                Arc::new(account_update.account.clone()),
                             ),
                             self.metrics.clone(),
                         )
@@ -702,8 +702,11 @@ impl Pipeline {
 
                     if filter_result {
                         let deletion_pipe_start = Instant::now();
-                        pipe.run(account_deletion_clone.clone(), self.metrics.clone())
-                            .await?;
+                        pipe.run(
+                            Arc::new(account_deletion_clone.clone()),
+                            self.metrics.clone(),
+                        )
+                        .await?;
                         let deletion_pipe_time_ns = deletion_pipe_start.elapsed().as_nanos();
                         self.metrics
                             .record_histogram(
@@ -746,7 +749,7 @@ impl Pipeline {
 
                     if filter_result {
                         let block_pipe_start = Instant::now();
-                        pipe.run(block_details_clone.clone(), self.metrics.clone())
+                        pipe.run(Arc::new(block_details_clone.clone()), self.metrics.clone())
                             .await?;
                         let block_pipe_time_ns = block_pipe_start.elapsed().as_nanos();
                         self.metrics
@@ -1083,7 +1086,7 @@ impl PipelineBuilder {
     /// ```
     pub fn account_deletions(
         mut self,
-        processor: impl Processor<InputType = AccountDeletion> + Send + Sync + 'static,
+        processor: impl Processor<InputType = Arc<AccountDeletion>> + Send + Sync + 'static,
     ) -> Self {
         log::trace!(
             "account_deletions(self, processor: {:?})",
@@ -1128,7 +1131,7 @@ impl PipelineBuilder {
     /// ```
     pub fn account_deletions_with_filters(
         mut self,
-        processor: impl Processor<InputType = AccountDeletion> + Send + Sync + 'static,
+        processor: impl Processor<InputType = Arc<AccountDeletion>> + Send + Sync + 'static,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
     ) -> Self {
         log::trace!(
@@ -1163,7 +1166,7 @@ impl PipelineBuilder {
     /// ```
     pub fn block_details(
         mut self,
-        processor: impl Processor<InputType = BlockDetails> + Send + Sync + 'static,
+        processor: impl Processor<InputType = Arc<BlockDetails>> + Send + Sync + 'static,
     ) -> Self {
         log::trace!(
             "block_details(self, processor: {:?})",
@@ -1207,7 +1210,7 @@ impl PipelineBuilder {
     /// ```
     pub fn block_details_with_filters(
         mut self,
-        processor: impl Processor<InputType = BlockDetails> + Send + Sync + 'static,
+        processor: impl Processor<InputType = Arc<BlockDetails>> + Send + Sync + 'static,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
     ) -> Self {
         log::trace!(

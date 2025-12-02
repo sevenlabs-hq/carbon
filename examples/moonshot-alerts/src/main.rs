@@ -1,10 +1,8 @@
 use {
     async_trait::async_trait,
     carbon_core::{
-        deserialize::ArrangeAccounts,
-        error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
+        deserialize::ArrangeAccounts, error::CarbonResult,
+        instruction::InstructionProcessorInputType, metrics::MetricsCollection,
         processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
@@ -56,12 +54,7 @@ pub struct MoonshotInstructionProcessor;
 
 #[async_trait]
 impl Processor for MoonshotInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<MoonshotInstruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
+    type InputType = InstructionProcessorInputType<MoonshotInstruction>;
 
     async fn process(
         &mut self,
@@ -69,9 +62,9 @@ impl Processor for MoonshotInstructionProcessor {
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let signature = metadata.transaction_metadata.signature;
-        let accounts = instruction.accounts;
+        let accounts = instruction.accounts.clone();
 
-        match instruction.data {
+        match instruction.data.clone() {
             MoonshotInstruction::TokenMint(token_mint) => {
                 match TokenMint::arrange_accounts(&accounts) {
                     Some(accounts) => {

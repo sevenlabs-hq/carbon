@@ -1,10 +1,8 @@
 use {
     async_trait::async_trait,
     carbon_core::{
-        error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType,
+        metrics::MetricsCollection, processor::Processor,
     },
     carbon_jupiter_swap_decoder::{
         instructions::{CpiEvent, JupiterSwapInstruction},
@@ -88,12 +86,7 @@ pub struct JupiterSwapInstructionProcessor;
 
 #[async_trait]
 impl Processor for JupiterSwapInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<JupiterSwapInstruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
+    type InputType = InstructionProcessorInputType<JupiterSwapInstruction>;
     async fn process(
         &mut self,
         (metadata, instruction, nested_instructions, _): Self::InputType,
@@ -101,7 +94,7 @@ impl Processor for JupiterSwapInstructionProcessor {
     ) -> CarbonResult<()> {
         let signature = metadata.transaction_metadata.signature;
 
-        match instruction.data {
+        match instruction.data.clone() {
             JupiterSwapInstruction::Claim(claim) => {
                 log::info!("claim: signature: {signature}, claim: {claim:?}");
             }

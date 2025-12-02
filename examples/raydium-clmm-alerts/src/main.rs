@@ -1,10 +1,8 @@
 use {
     async_trait::async_trait,
     carbon_core::{
-        deserialize::ArrangeAccounts,
-        error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
+        deserialize::ArrangeAccounts, error::CarbonResult,
+        instruction::InstructionProcessorInputType, metrics::MetricsCollection,
         processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
@@ -53,12 +51,7 @@ pub struct RaydiumClmmInstructionProcessor;
 
 #[async_trait]
 impl Processor for RaydiumClmmInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<RaydiumClmmInstruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
+    type InputType = InstructionProcessorInputType<RaydiumClmmInstruction>;
 
     async fn process(
         &mut self,
@@ -66,9 +59,9 @@ impl Processor for RaydiumClmmInstructionProcessor {
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let signature = metadata.transaction_metadata.signature;
-        let accounts = instruction.accounts;
+        let accounts = instruction.accounts.clone();
 
-        match instruction.data {
+        match instruction.data.clone() {
             RaydiumClmmInstruction::CreateAmmConfig(create_amm_cfg) => {
                 log::info!(
                     "CreateAmmConfig: signature: {signature}, create_amm_cfg: {create_amm_cfg:?}"

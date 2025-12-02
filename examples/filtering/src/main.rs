@@ -1,11 +1,11 @@
 use {
     async_trait::async_trait,
     carbon_core::{
-        account::{AccountMetadata, DecodedAccount},
+        account::AccountProcessorInputType,
         datasource::{AccountUpdate, Datasource, DatasourceId, Update, UpdateType},
         error::CarbonResult,
         filter::DatasourceFilter,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
+        instruction::InstructionProcessorInputType,
         metrics::MetricsCollection,
         processor::Processor,
     },
@@ -123,12 +123,7 @@ pub struct KaminoLendingInstructionProcessor;
 
 #[async_trait]
 impl Processor for KaminoLendingInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<KaminoLendingInstruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
+    type InputType = InstructionProcessorInputType<KaminoLendingInstruction>;
 
     async fn process(
         &mut self,
@@ -146,7 +141,7 @@ impl Processor for KaminoLendingInstructionProcessor {
         log::info!(
             "instruction processed ({}) {:?}",
             signature,
-            instruction.data
+            instruction.data.clone()
         );
 
         Ok(())
@@ -156,18 +151,14 @@ impl Processor for KaminoLendingInstructionProcessor {
 pub struct KaminoLendingRealtimeAccountProcessor;
 #[async_trait]
 impl Processor for KaminoLendingRealtimeAccountProcessor {
-    type InputType = (
-        AccountMetadata,
-        DecodedAccount<KaminoLendingAccount>,
-        solana_account::Account,
-    );
+    type InputType = AccountProcessorInputType<KaminoLendingAccount>;
 
     async fn process(
         &mut self,
         data: Self::InputType,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let account = data.1;
+        let account = &*data.1;
 
         let pubkey_str = format!(
             "{}...{}",
@@ -187,7 +178,7 @@ impl Processor for KaminoLendingRealtimeAccountProcessor {
             "account updated ({}) {:?}",
             pubkey_str,
             max_total_chars(
-                &match account.data {
+                &match &account.data {
                     KaminoLendingAccount::UserState(user_state) => format!("{user_state:?}"),
                     KaminoLendingAccount::LendingMarket(lending_market) =>
                         format!("{lending_market:?}"),
@@ -217,18 +208,14 @@ impl Processor for KaminoLendingRealtimeAccountProcessor {
 pub struct KaminoLendingStartupAccountProcessor;
 #[async_trait]
 impl Processor for KaminoLendingStartupAccountProcessor {
-    type InputType = (
-        AccountMetadata,
-        DecodedAccount<KaminoLendingAccount>,
-        solana_account::Account,
-    );
+    type InputType = AccountProcessorInputType<KaminoLendingAccount>;
 
     async fn process(
         &mut self,
         data: Self::InputType,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let account = data.1;
+        let account = &*data.1;
 
         let pubkey_str = format!(
             "{}...{}",
@@ -248,7 +235,7 @@ impl Processor for KaminoLendingStartupAccountProcessor {
             "gpa account received ({}) {:?}",
             pubkey_str,
             max_total_chars(
-                &match account.data {
+                &match &account.data {
                     KaminoLendingAccount::UserState(user_state) => format!("{user_state:?}"),
                     KaminoLendingAccount::LendingMarket(lending_market) =>
                         format!("{lending_market:?}"),

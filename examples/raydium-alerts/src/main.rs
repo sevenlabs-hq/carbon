@@ -1,11 +1,8 @@
 use {
     async_trait::async_trait,
     carbon_core::{
-        account::{AccountMetadata, DecodedAccount},
-        deserialize::ArrangeAccounts,
-        error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
+        account::AccountProcessorInputType, deserialize::ArrangeAccounts, error::CarbonResult,
+        instruction::InstructionProcessorInputType, metrics::MetricsCollection,
         processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
@@ -105,12 +102,7 @@ pub struct RaydiumAmmV4InstructionProcessor;
 
 #[async_trait]
 impl Processor for RaydiumAmmV4InstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<RaydiumAmmV4Instruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
+    type InputType = InstructionProcessorInputType<RaydiumAmmV4Instruction>;
 
     async fn process(
         &mut self,
@@ -118,9 +110,9 @@ impl Processor for RaydiumAmmV4InstructionProcessor {
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let signature = metadata.transaction_metadata.signature;
-        let accounts = instruction.accounts;
+        let accounts = instruction.accounts.clone();
 
-        match instruction.data {
+        match instruction.data.clone() {
             RaydiumAmmV4Instruction::Initialize2(init_pool) => {
                 log::info!("Initialize2: signature: {signature}, init_pool: {init_pool:?}");
             }
@@ -236,20 +228,16 @@ impl Processor for RaydiumAmmV4InstructionProcessor {
 pub struct RaydiumAmmV4AccountProcessor;
 #[async_trait]
 impl Processor for RaydiumAmmV4AccountProcessor {
-    type InputType = (
-        AccountMetadata,
-        DecodedAccount<RaydiumAmmV4Account>,
-        solana_account::Account,
-    );
+    type InputType = AccountProcessorInputType<RaydiumAmmV4Account>;
 
     async fn process(
         &mut self,
         data: Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let account = data.1;
+        let account = &*data.1;
 
-        match account.data {
+        match &account.data {
             RaydiumAmmV4Account::AmmInfo(pool) => {
                 log::info!("Account: {:#?}\nPool: {:#?}", data.0.pubkey, pool);
             }

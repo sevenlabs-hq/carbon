@@ -1,10 +1,8 @@
 use {
     async_trait::async_trait,
     carbon_core::{
-        error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType,
+        metrics::MetricsCollection, processor::Processor,
     },
     carbon_helius_laserstream_datasource::{LaserStreamClientConfig, LaserStreamGeyserClient},
     carbon_log_metrics::LogMetrics,
@@ -100,12 +98,7 @@ pub struct PumpSwapInstructionProcessor;
 
 #[async_trait]
 impl Processor for PumpSwapInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<PumpSwapInstruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
+    type InputType = InstructionProcessorInputType<PumpSwapInstruction>;
 
     async fn process(
         &mut self,
@@ -113,8 +106,8 @@ impl Processor for PumpSwapInstructionProcessor {
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let signature = metadata.transaction_metadata.signature;
-        let _accounts = instruction.accounts;
-        let pumpswap_instruction = instruction.data;
+        let _accounts = instruction.accounts.clone();
+        let pumpswap_instruction = instruction.data.clone();
 
         match pumpswap_instruction {
             PumpSwapInstruction::Buy(buy) => {

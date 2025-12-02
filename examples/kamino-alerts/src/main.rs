@@ -1,10 +1,8 @@
 use {
     async_trait::async_trait,
     carbon_core::{
-        account::{AccountMetadata, DecodedAccount},
-        error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
+        account::AccountProcessorInputType, error::CarbonResult,
+        instruction::InstructionProcessorInputType, metrics::MetricsCollection,
         processor::Processor,
     },
     carbon_kamino_lending_decoder::{
@@ -92,12 +90,7 @@ pub struct KaminoLendingInstructionProcessor;
 
 #[async_trait]
 impl Processor for KaminoLendingInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<KaminoLendingInstruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
+    type InputType = InstructionProcessorInputType<KaminoLendingInstruction>;
 
     async fn process(
         &mut self,
@@ -115,7 +108,7 @@ impl Processor for KaminoLendingInstructionProcessor {
         log::info!(
             "instruction processed ({}) {:?}",
             signature,
-            instruction.data
+            instruction.data.clone()
         );
 
         Ok(())
@@ -125,18 +118,14 @@ impl Processor for KaminoLendingInstructionProcessor {
 pub struct KaminoLendingAccountProcessor;
 #[async_trait]
 impl Processor for KaminoLendingAccountProcessor {
-    type InputType = (
-        AccountMetadata,
-        DecodedAccount<KaminoLendingAccount>,
-        solana_account::Account,
-    );
+    type InputType = AccountProcessorInputType<KaminoLendingAccount>;
 
     async fn process(
         &mut self,
         data: Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let account = data.1;
+        let account = &*data.1;
 
         let pubkey_str = format!(
             "{}...{}",
@@ -156,7 +145,7 @@ impl Processor for KaminoLendingAccountProcessor {
             "account updated ({}) {:?}",
             pubkey_str,
             max_total_chars(
-                &match account.data {
+                &match &account.data {
                     KaminoLendingAccount::UserState(user_state) => format!("{user_state:?}"),
                     KaminoLendingAccount::LendingMarket(lending_market) =>
                         format!("{lending_market:?}"),
