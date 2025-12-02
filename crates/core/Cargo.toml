@@ -38,6 +38,10 @@ thiserror = { workspace = true }
 tokio = { workspace = true }
 tokio-util = { workspace = true }
 uuid = { workspace = true, features = ["v4"] }
+ahash = "0.8"
+hashbrown = "0.14"
+lru = "0.12"
+once_cell = "1"
 
 # Optional macro dependencies
 carbon-macros = { workspace = true, optional = true }

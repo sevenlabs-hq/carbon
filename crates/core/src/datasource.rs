@@ -194,6 +194,10 @@ impl DatasourceId {
     pub fn new_named(name: &str) -> Self {
         Self(name.to_string())
     }
+
+    pub fn as_str(&self) -> &str {
+        &self.0
+    }
 }
 
 /// Represents a data update in the `carbon-core` pipeline, encompassing
