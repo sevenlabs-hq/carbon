@@ -9,9 +9,6 @@ edition = "2021"
 license = "MIT"
 repository = "https://github.com/sevenlabs-hq/carbon"
 
-[profile.release]
-debug = true
-
 [workspace.dependencies]
 
 # other
@@ -204,3 +201,6 @@ unicode-xid = "0.2"
 uuid = { version = "1.18.1", features = ["serde", "v7"] }
 yellowstone-grpc-client = { version = "10.0.0" }
 yellowstone-grpc-proto = { version = "10.0.0", features = ["convert"] }
+
+[profile.release]
+debug = true
