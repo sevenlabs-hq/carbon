@@ -191,16 +191,25 @@ impl<T: Send> AccountPipes for AccountPipe<T> {
     ) -> CarbonResult<()> {
         log::trace!("AccountPipe::run(account_with_metadata: {account_with_metadata:?}, metrics)",);
 
-        if let Some(decoded_account) = self.decoder.decode_account(&account_with_metadata.1) {
+        let decode_start = std::time::Instant::now();
+        let decoded_account = self.decoder.decode_account(&account_with_metadata.1);
+        let decode_time_ns = decode_start.elapsed().as_nanos();
+        metrics
+            .record_histogram("account_decode_time_nanoseconds", decode_time_ns as f64)
+            .await?;
+
+        if let Some(decoded_account) = decoded_account {
+            let process_start = std::time::Instant::now();
+            let (account_metadata, account) = account_with_metadata;
             self.processor
                 .process(
-                    (
-                        account_with_metadata.0.clone(),
-                        decoded_account,
-                        account_with_metadata.1,
-                    ),
+                    (account_metadata.clone(), decoded_account, account),
                     metrics.clone(),
                 )
+                .await?;
+            let process_time_ns = process_start.elapsed().as_nanos();
+            metrics
+                .record_histogram("account_process_time_nanoseconds", process_time_ns as f64)
                 .await?;
         }
         Ok(())

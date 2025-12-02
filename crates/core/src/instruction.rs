@@ -294,10 +294,17 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
     ) -> CarbonResult<()> {
         log::trace!("InstructionPipe::run(nested_instruction: {nested_instruction:?}, metrics)",);
 
-        if let Some(decoded_instruction) = self
+        let decode_start = std::time::Instant::now();
+        let decoded_instruction = self
             .decoder
-            .decode_instruction(&nested_instruction.instruction)
-        {
+            .decode_instruction(&nested_instruction.instruction);
+        let decode_time_ns = decode_start.elapsed().as_nanos();
+        metrics
+            .record_histogram("instruction_decode_time_nanoseconds", decode_time_ns as f64)
+            .await?;
+
+        if let Some(decoded_instruction) = decoded_instruction {
+            let process_start = std::time::Instant::now();
             self.processor
                 .process(
                     (
@@ -307,6 +314,13 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
                         nested_instruction.instruction.clone(),
                     ),
                     metrics.clone(),
+                )
+                .await?;
+            let process_time_ns = process_start.elapsed().as_nanos();
+            metrics
+                .record_histogram(
+                    "instruction_process_time_nanoseconds",
+                    process_time_ns as f64,
                 )
                 .await?;
         }

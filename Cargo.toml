@@ -9,6 +9,9 @@ edition = "2021"
 license = "MIT"
 repository = "https://github.com/sevenlabs-hq/carbon"
 
+[profile.release]
+debug = true
+
 [workspace.dependencies]
 
 # other

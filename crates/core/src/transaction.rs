@@ -117,6 +117,27 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
     }
 }
 
+impl TryFrom<&crate::datasource::TransactionUpdate> for TransactionMetadata {
+    type Error = crate::error::Error;
+
+    fn try_from(value: &crate::datasource::TransactionUpdate) -> Result<Self, Self::Error> {
+        log::trace!("try_from(transaction_update: {value:?})");
+        let accounts = value.transaction.message.static_account_keys();
+
+        Ok(TransactionMetadata {
+            slot: value.slot,
+            signature: value.signature,
+            fee_payer: *accounts
+                .first()
+                .ok_or(crate::error::Error::MissingFeePayer)?,
+            meta: value.meta.clone(),
+            message: value.transaction.message.clone(),
+            block_time: value.block_time,
+            block_hash: value.block_hash,
+        })
+    }
+}
+
 /// The input type for the transaction processor.
 ///
 /// - `T`: The instruction type, implementing `InstructionDecoderCollection`.

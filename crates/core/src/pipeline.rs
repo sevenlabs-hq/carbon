@@ -375,6 +375,8 @@ impl Pipeline {
             self.metrics_flush_interval.unwrap_or(5),
         ));
 
+        let mut last_update_processed_at = Instant::now();
+
         loop {
             tokio::select! {
                 _ = datasource_cancellation_token.cancelled() => {
@@ -402,12 +404,33 @@ impl Pipeline {
                 update = update_receiver.recv() => {
                     match update {
                         Some((update, datasource_id)) => {
+                            let now = Instant::now();
+                            let recv_wait_time_ns = now.duration_since(last_update_processed_at).as_nanos();
+
+                            self
+                                .metrics
+                                .record_histogram(
+                                    "updates_recv_wait_time_nanoseconds",
+                                    recv_wait_time_ns as f64,
+                                )
+                                .await?;
+
                             self
                                 .metrics.increment_counter("updates_received", 1)
                                 .await?;
 
+                            let wait_time_nanoseconds = recv_wait_time_ns;
+
+                            self
+                                .metrics
+                                .record_histogram(
+                                    "updates_interarrival_time_nanoseconds",
+                                    wait_time_nanoseconds as f64,
+                                )
+                                .await?;
+
                             let start = Instant::now();
-                            let process_result = self.process(update.clone(), datasource_id.clone()).await;
+                            let process_result = self.process(update, datasource_id.clone()).await;
                             let time_taken_nanoseconds = start.elapsed().as_nanos();
                             let time_taken_milliseconds = time_taken_nanoseconds / 1_000_000;
 
@@ -430,18 +453,27 @@ impl Pipeline {
                                     log::trace!("processed update")
                                 }
                                 Err(error) => {
-                                    log::error!("error processing update ({update:?}): {error:?}");
+                                    log::error!("error processing update: {error:?}");
                                     self.metrics.increment_counter("updates_failed", 1).await?;
                                 }
                             };
+                            let queued_len = update_receiver.len() as f64;
 
                             self
                                 .metrics.increment_counter("updates_processed", 1)
                                 .await?;
 
                             self
-                                .metrics.update_gauge("updates_queued", update_receiver.len() as f64)
+                                .metrics
+                                .update_gauge("updates_queued", queued_len)
                                 .await?;
+
+                            self
+                                .metrics
+                                .record_histogram("updates_queue_length", queued_len)
+                                .await?;
+
+                            last_update_processed_at = Instant::now();
                         }
                         None => {
                             log::info!("update_receiver closed, shutting down.");
@@ -517,35 +549,77 @@ impl Pipeline {
         log::trace!("process(self, update: {update:?}, datasource_id: {datasource_id:?})");
         match update {
             Update::Account(account_update) => {
+                let account_start = Instant::now();
+
+                let metadata_start = Instant::now();
                 let account_metadata = AccountMetadata {
                     slot: account_update.slot,
                     pubkey: account_update.pubkey,
                     transaction_signature: account_update.transaction_signature,
                 };
+                let metadata_time_ns = metadata_start.elapsed().as_nanos();
+                self.metrics
+                    .record_histogram(
+                        "account_metadata_build_time_nanoseconds",
+                        metadata_time_ns as f64,
+                    )
+                    .await?;
 
+                let account_metadata_clone = account_metadata.clone();
                 for pipe in self.account_pipes.iter_mut() {
-                    if pipe.filters().iter().all(|filter| {
+                    let filter_start = Instant::now();
+                    let filter_result = pipe.filters().iter().all(|filter| {
                         filter.filter_account(
                             &datasource_id,
                             &account_metadata,
                             &account_update.account,
                         )
-                    }) {
+                    });
+                    let filter_time_ns = filter_start.elapsed().as_nanos();
+                    self.metrics
+                        .record_histogram(
+                            "account_filter_eval_time_nanoseconds",
+                            filter_time_ns as f64,
+                        )
+                        .await?;
+
+                    if filter_result {
+                        let pipe_start = Instant::now();
                         pipe.run(
-                            (account_metadata.clone(), account_update.account.clone()),
+                            (
+                                account_metadata_clone.clone(),
+                                account_update.account.clone(),
+                            ),
                             self.metrics.clone(),
                         )
                         .await?;
+                        let pipe_time_ns = pipe_start.elapsed().as_nanos();
+                        self.metrics
+                            .record_histogram("account_pipe_time_nanoseconds", pipe_time_ns as f64)
+                            .await?;
                     }
                 }
+
+                let account_time_ns = account_start.elapsed().as_nanos();
+                self.metrics
+                    .record_histogram(
+                        "account_update_total_time_nanoseconds",
+                        account_time_ns as f64,
+                    )
+                    .await?;
 
                 self.metrics
                     .increment_counter("account_updates_processed", 1)
                     .await?;
             }
             Update::Transaction(transaction_update) => {
-                let transaction_metadata = Arc::new((*transaction_update).clone().try_into()?);
+                let tx_start = Instant::now();
 
+                let metadata_start = Instant::now();
+                let transaction_metadata = Arc::new((&*transaction_update).try_into()?);
+                let metadata_time_ns = metadata_start.elapsed().as_nanos();
+
+                let instruction_extract_start = Instant::now();
                 let instructions_with_metadata: InstructionsWithMetadata =
                     transformers::extract_instructions_with_metadata(
                         &transaction_metadata,
@@ -553,63 +627,141 @@ impl Pipeline {
                     )?;
 
                 let nested_instructions: NestedInstructions = instructions_with_metadata.into();
+                let instruction_extract_time_ns = instruction_extract_start.elapsed().as_nanos();
+
+                self.metrics
+                    .record_histogram(
+                        "transaction_metadata_build_time_nanoseconds",
+                        metadata_time_ns as f64,
+                    )
+                    .await?;
+
+                self.metrics
+                    .record_histogram(
+                        "transformers_extract_instructions_time_nanoseconds",
+                        instruction_extract_time_ns as f64,
+                    )
+                    .await?;
 
                 for pipe in self.instruction_pipes.iter_mut() {
                     for nested_instruction in nested_instructions.iter() {
-                        if pipe.filters().iter().all(|filter| {
+                        let filter_start = Instant::now();
+                        let filter_result = pipe.filters().iter().all(|filter| {
                             filter.filter_instruction(&datasource_id, nested_instruction)
-                        }) {
+                        });
+                        let filter_time_ns = filter_start.elapsed().as_nanos();
+                        self.metrics
+                            .record_histogram(
+                                "instruction_filter_eval_time_nanoseconds",
+                                filter_time_ns as f64,
+                            )
+                            .await?;
+
+                        if filter_result {
+                            let instr_pipe_start = Instant::now();
                             pipe.run(nested_instruction, self.metrics.clone()).await?;
+                            let instr_pipe_time_ns = instr_pipe_start.elapsed().as_nanos();
+                            self.metrics
+                                .record_histogram(
+                                    "instruction_pipe_time_nanoseconds",
+                                    instr_pipe_time_ns as f64,
+                                )
+                                .await?;
                         }
                     }
                 }
 
-                for pipe in self.transaction_pipes.iter_mut() {
-                    if pipe.filters().iter().all(|filter| {
-                        filter.filter_transaction(
-                            &datasource_id,
-                            &transaction_metadata,
-                            &nested_instructions,
-                        )
-                    }) {
-                        pipe.run(
-                            transaction_metadata.clone(),
-                            &nested_instructions,
-                            self.metrics.clone(),
-                        )
-                        .await?;
-                    }
-                }
+                let tx_time_ns = tx_start.elapsed().as_nanos();
+                self.metrics
+                    .record_histogram(
+                        "transaction_update_total_time_nanoseconds",
+                        tx_time_ns as f64,
+                    )
+                    .await?;
 
                 self.metrics
                     .increment_counter("transaction_updates_processed", 1)
                     .await?;
             }
             Update::AccountDeletion(account_deletion) => {
+                let deletion_start = Instant::now();
+
+                let account_deletion_clone = account_deletion.clone();
                 for pipe in self.account_deletion_pipes.iter_mut() {
-                    if pipe.filters().iter().all(|filter| {
+                    let filter_start = Instant::now();
+                    let filter_result = pipe.filters().iter().all(|filter| {
                         filter.filter_account_deletion(&datasource_id, &account_deletion)
-                    }) {
-                        pipe.run(account_deletion.clone(), self.metrics.clone())
+                    });
+                    let filter_time_ns = filter_start.elapsed().as_nanos();
+                    self.metrics
+                        .record_histogram(
+                            "account_deletion_filter_eval_time_nanoseconds",
+                            filter_time_ns as f64,
+                        )
+                        .await?;
+
+                    if filter_result {
+                        let deletion_pipe_start = Instant::now();
+                        pipe.run(account_deletion_clone.clone(), self.metrics.clone())
+                            .await?;
+                        let deletion_pipe_time_ns = deletion_pipe_start.elapsed().as_nanos();
+                        self.metrics
+                            .record_histogram(
+                                "account_deletion_pipe_time_nanoseconds",
+                                deletion_pipe_time_ns as f64,
+                            )
                             .await?;
                     }
                 }
+
+                let deletion_time_ns = deletion_start.elapsed().as_nanos();
+                self.metrics
+                    .record_histogram(
+                        "account_deletion_total_time_nanoseconds",
+                        deletion_time_ns as f64,
+                    )
+                    .await?;
 
                 self.metrics
                     .increment_counter("account_deletions_processed", 1)
                     .await?;
             }
             Update::BlockDetails(block_details) => {
+                let block_start = Instant::now();
+
+                let block_details_clone = block_details.clone();
                 for pipe in self.block_details_pipes.iter_mut() {
-                    if pipe
+                    let filter_start = Instant::now();
+                    let filter_result = pipe
                         .filters()
                         .iter()
-                        .all(|filter| filter.filter_block_details(&datasource_id, &block_details))
-                    {
-                        pipe.run(block_details.clone(), self.metrics.clone())
+                        .all(|filter| filter.filter_block_details(&datasource_id, &block_details));
+                    let filter_time_ns = filter_start.elapsed().as_nanos();
+                    self.metrics
+                        .record_histogram(
+                            "block_details_filter_eval_time_nanoseconds",
+                            filter_time_ns as f64,
+                        )
+                        .await?;
+
+                    if filter_result {
+                        let block_pipe_start = Instant::now();
+                        pipe.run(block_details_clone.clone(), self.metrics.clone())
+                            .await?;
+                        let block_pipe_time_ns = block_pipe_start.elapsed().as_nanos();
+                        self.metrics
+                            .record_histogram(
+                                "block_details_pipe_time_nanoseconds",
+                                block_pipe_time_ns as f64,
+                            )
                             .await?;
                     }
                 }
+
+                let block_time_ns = block_start.elapsed().as_nanos();
+                self.metrics
+                    .record_histogram("block_details_total_time_nanoseconds", block_time_ns as f64)
+                    .await?;
 
                 self.metrics
                     .increment_counter("block_details_processed", 1)
