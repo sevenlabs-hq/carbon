@@ -27,4 +27,3 @@ env_logger = { workspace = true }
 log = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 solana-instruction = { workspace = true }
-serde = { workspace = true }

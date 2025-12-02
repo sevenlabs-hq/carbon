@@ -43,7 +43,7 @@ where
 
         let start = std::time::Instant::now();
 
-        let wrapper = W::from(((*decoded_account).data.clone(), (*metadata).clone()));
+        let wrapper = W::from((decoded_account.data.clone(), (*metadata).clone()));
 
         match wrapper.upsert(&self.pool).await {
             Ok(()) => {
@@ -96,7 +96,7 @@ where
     ) -> CarbonResult<()> {
         let (metadata, decoded_account, _raw) = input;
 
-        let account_row = AccountRow::from_parts((*decoded_account).data.clone(), metadata);
+        let account_row = AccountRow::from_parts(decoded_account.data.clone(), metadata);
 
         let start = std::time::Instant::now();
 
@@ -155,9 +155,9 @@ where
         let start = std::time::Instant::now();
 
         let wrapper = W::from((
-            (*decoded_instruction).data.clone(),
+            decoded_instruction.data.clone(),
             (*metadata).clone(),
-            (*decoded_instruction).accounts.clone(),
+            decoded_instruction.accounts.clone(),
         ));
 
         match wrapper.upsert(&self.pool).await {
@@ -212,9 +212,9 @@ where
         let (metadata, decoded_instruction, _nested_instructions, _raw) = input;
 
         let instruction_row = InstructionRow::from_parts(
-            (*decoded_instruction).data.clone(),
+            decoded_instruction.data.clone(),
             metadata,
-            (*decoded_instruction).accounts.clone(),
+            decoded_instruction.accounts.clone(),
         );
 
         let start = std::time::Instant::now();

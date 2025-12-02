@@ -89,14 +89,10 @@ pub async fn main() -> CarbonResult<()> {
     });
 
     builder = match args.processing_mode.as_str() {
-        "account" => builder.account(
-            SyntheticAccountDecoder,
-            SyntheticAccountProcessor::default(),
-        ),
-        "instruction" => builder.instruction(
-            SyntheticInstructionDecoder,
-            SyntheticInstructionProcessor::default(),
-        ),
+        "account" => builder.account(SyntheticAccountDecoder, SyntheticAccountProcessor),
+        "instruction" => {
+            builder.instruction(SyntheticInstructionDecoder, SyntheticInstructionProcessor)
+        }
         _ => {
             return Err(carbon_core::error::Error::Custom(format!(
                 "unsupported processing mode: {}",
@@ -310,8 +306,7 @@ impl carbon_core::datasource::Datasource for SyntheticDatasource {
                             });
                         }
 
-                        let num_readonly_unsigned =
-                            ((account_keys.len() - 1).max(0) as u8).min(255);
+                        let num_readonly_unsigned = (account_keys.len() - 1).max(0) as u8;
                         let message = Message::new_with_compiled_instructions(
                             1,
                             0,
@@ -341,7 +336,7 @@ impl carbon_core::datasource::Datasource for SyntheticDatasource {
                         Update::Transaction(Box::new(tx_update))
                     }
                     _ => {
-                        log::error!("unsupported processing mode: {}", processing_mode);
+                        log::error!("unsupported processing mode: {processing_mode}");
                         break;
                     }
                 };
@@ -363,7 +358,7 @@ impl carbon_core::datasource::Datasource for SyntheticDatasource {
                 }
             }
 
-            log::info!("synthetic producer finished after sending {} updates", sent);
+            log::info!("synthetic producer finished after sending {sent} updates");
         });
 
         let _ = handle.await;
