@@ -305,15 +305,21 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
 
         if let Some(decoded_instruction) = decoded_instruction {
             let process_start = std::time::Instant::now();
+            let inner_instructions_arc = if nested_instruction.inner_instructions.is_empty() {
+                Arc::new(NestedInstructions::default())
+            } else {
+                Arc::new(nested_instruction.inner_instructions.clone())
+            };
+            let process_metrics = metrics.clone();
             self.processor
                 .process(
                     (
                         Arc::new(nested_instruction.metadata.clone()),
                         Arc::new(decoded_instruction),
-                        Arc::new(nested_instruction.inner_instructions.clone()),
+                        inner_instructions_arc,
                         Arc::new(nested_instruction.instruction.clone()),
                     ),
-                    metrics.clone(),
+                    process_metrics,
                 )
                 .await?;
             let process_time_ns = process_start.elapsed().as_nanos();
@@ -325,8 +331,10 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
                 .await?;
         }
 
+        let inner_metrics = metrics.clone();
         for nested_inner_instruction in nested_instruction.inner_instructions.iter() {
-            self.run(nested_inner_instruction, metrics.clone()).await?;
+            self.run(nested_inner_instruction, inner_metrics.clone())
+                .await?;
         }
 
         Ok(())

@@ -625,9 +625,11 @@ impl Pipeline {
                         &transaction_metadata,
                         &transaction_update,
                     )?;
-
-                let nested_instructions: NestedInstructions = instructions_with_metadata.into();
                 let instruction_extract_time_ns = instruction_extract_start.elapsed().as_nanos();
+
+                let nested_conversion_start = Instant::now();
+                let nested_instructions: NestedInstructions = instructions_with_metadata.into();
+                let nested_conversion_time_ns = nested_conversion_start.elapsed().as_nanos();
 
                 self.metrics
                     .record_histogram(
@@ -643,33 +645,78 @@ impl Pipeline {
                     )
                     .await?;
 
+                self.metrics
+                    .record_histogram(
+                        "transformers_nested_conversion_time_nanoseconds",
+                        nested_conversion_time_ns as f64,
+                    )
+                    .await?;
+
+                let instruction_loop_start = Instant::now();
+                let metrics_arc = self.metrics.clone();
                 for pipe in self.instruction_pipes.iter_mut() {
+                    let pipe_iter_start = Instant::now();
+                    let pipe_metrics = metrics_arc.clone();
+                    let mut total_filter_time_ns = 0u128;
+                    let mut matching_instructions = Vec::new();
+
                     for nested_instruction in nested_instructions.iter() {
                         let filter_start = Instant::now();
                         let filter_result = pipe.filters().iter().all(|filter| {
                             filter.filter_instruction(&datasource_id, nested_instruction)
                         });
-                        let filter_time_ns = filter_start.elapsed().as_nanos();
-                        self.metrics
-                            .record_histogram(
-                                "instruction_filter_eval_time_nanoseconds",
-                                filter_time_ns as f64,
-                            )
-                            .await?;
+                        total_filter_time_ns += filter_start.elapsed().as_nanos();
 
                         if filter_result {
-                            let instr_pipe_start = Instant::now();
-                            pipe.run(nested_instruction, self.metrics.clone()).await?;
-                            let instr_pipe_time_ns = instr_pipe_start.elapsed().as_nanos();
-                            self.metrics
-                                .record_histogram(
-                                    "instruction_pipe_time_nanoseconds",
-                                    instr_pipe_time_ns as f64,
-                                )
-                                .await?;
+                            matching_instructions.push(nested_instruction);
                         }
                     }
+
+                    if total_filter_time_ns > 0 {
+                        pipe_metrics
+                            .record_histogram(
+                                "instruction_filter_eval_time_nanoseconds",
+                                total_filter_time_ns as f64 / nested_instructions.len() as f64,
+                            )
+                            .await?;
+                    }
+
+                    for nested_instruction in matching_instructions.iter() {
+                        let instr_pipe_start = Instant::now();
+                        pipe.run(nested_instruction, pipe_metrics.clone()).await?;
+                        let instr_pipe_time_ns = instr_pipe_start.elapsed().as_nanos();
+                        pipe_metrics
+                            .record_histogram(
+                                "instruction_pipe_time_nanoseconds",
+                                instr_pipe_time_ns as f64,
+                            )
+                            .await?;
+                    }
+
+                    let pipe_iter_time_ns = pipe_iter_start.elapsed().as_nanos();
+                    metrics_arc
+                        .record_histogram(
+                            "instruction_pipe_iteration_time_nanoseconds",
+                            pipe_iter_time_ns as f64,
+                        )
+                        .await?;
                 }
+                let instruction_loop_time_ns = instruction_loop_start.elapsed().as_nanos();
+                metrics_arc
+                    .record_histogram(
+                        "instruction_processing_loop_time_nanoseconds",
+                        instruction_loop_time_ns as f64,
+                    )
+                    .await?;
+
+                let post_loop_start = Instant::now();
+                let post_loop_time_ns = post_loop_start.elapsed().as_nanos();
+                self.metrics
+                    .record_histogram(
+                        "transaction_post_loop_time_nanoseconds",
+                        post_loop_time_ns as f64,
+                    )
+                    .await?;
 
                 let tx_time_ns = tx_start.elapsed().as_nanos();
                 self.metrics
