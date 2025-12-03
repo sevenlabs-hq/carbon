@@ -552,11 +552,12 @@ impl Pipeline {
                 let account_start = Instant::now();
 
                 let metadata_start = Instant::now();
-                let account_metadata = AccountMetadata {
+                let account_metadata = Arc::new(AccountMetadata {
                     slot: account_update.slot,
                     pubkey: account_update.pubkey,
                     transaction_signature: account_update.transaction_signature,
-                };
+                });
+                let account_update_account = Arc::new(account_update.account.clone());
                 let metadata_time_ns = metadata_start.elapsed().as_nanos();
                 self.metrics
                     .record_histogram(
@@ -565,14 +566,13 @@ impl Pipeline {
                     )
                     .await?;
 
-                let account_metadata_clone = account_metadata.clone();
                 for pipe in self.account_pipes.iter_mut() {
                     let filter_start = Instant::now();
                     let filter_result = pipe.filters().iter().all(|filter| {
                         filter.filter_account(
                             &datasource_id,
                             &account_metadata,
-                            &account_update.account,
+                            &account_update_account,
                         )
                     });
                     let filter_time_ns = filter_start.elapsed().as_nanos();
@@ -586,10 +586,7 @@ impl Pipeline {
                     if filter_result {
                         let pipe_start = Instant::now();
                         pipe.run(
-                            (
-                                Arc::new(account_metadata_clone.clone()),
-                                Arc::new(account_update.account.clone()),
-                            ),
+                            (account_metadata.clone(), account_update_account.clone()),
                             self.metrics.clone(),
                         )
                         .await?;
@@ -653,12 +650,10 @@ impl Pipeline {
                     .await?;
 
                 let instruction_loop_start = Instant::now();
-                let metrics_arc = self.metrics.clone();
                 for pipe in self.instruction_pipes.iter_mut() {
                     let pipe_iter_start = Instant::now();
-                    let pipe_metrics = metrics_arc.clone();
                     let mut total_filter_time_ns = 0u128;
-                    let mut matching_instructions = Vec::new();
+                    let mut matching_instructions = Vec::with_capacity(nested_instructions.len());
 
                     for nested_instruction in nested_instructions.iter() {
                         let filter_start = Instant::now();
@@ -673,7 +668,7 @@ impl Pipeline {
                     }
 
                     if total_filter_time_ns > 0 {
-                        pipe_metrics
+                        self.metrics
                             .record_histogram(
                                 "instruction_filter_eval_time_nanoseconds",
                                 total_filter_time_ns as f64 / nested_instructions.len() as f64,
@@ -683,9 +678,9 @@ impl Pipeline {
 
                     for nested_instruction in matching_instructions.iter() {
                         let instr_pipe_start = Instant::now();
-                        pipe.run(nested_instruction, pipe_metrics.clone()).await?;
+                        pipe.run(nested_instruction, self.metrics.clone()).await?;
                         let instr_pipe_time_ns = instr_pipe_start.elapsed().as_nanos();
-                        pipe_metrics
+                        self.metrics
                             .record_histogram(
                                 "instruction_pipe_time_nanoseconds",
                                 instr_pipe_time_ns as f64,
@@ -694,7 +689,7 @@ impl Pipeline {
                     }
 
                     let pipe_iter_time_ns = pipe_iter_start.elapsed().as_nanos();
-                    metrics_arc
+                    self.metrics
                         .record_histogram(
                             "instruction_pipe_iteration_time_nanoseconds",
                             pipe_iter_time_ns as f64,
@@ -702,7 +697,7 @@ impl Pipeline {
                         .await?;
                 }
                 let instruction_loop_time_ns = instruction_loop_start.elapsed().as_nanos();
-                metrics_arc
+                self.metrics
                     .record_histogram(
                         "instruction_processing_loop_time_nanoseconds",
                         instruction_loop_time_ns as f64,
@@ -733,7 +728,7 @@ impl Pipeline {
             Update::AccountDeletion(account_deletion) => {
                 let deletion_start = Instant::now();
 
-                let account_deletion_clone = account_deletion.clone();
+                let account_deletion = Arc::new(account_deletion);
                 for pipe in self.account_deletion_pipes.iter_mut() {
                     let filter_start = Instant::now();
                     let filter_result = pipe.filters().iter().all(|filter| {
@@ -749,11 +744,8 @@ impl Pipeline {
 
                     if filter_result {
                         let deletion_pipe_start = Instant::now();
-                        pipe.run(
-                            Arc::new(account_deletion_clone.clone()),
-                            self.metrics.clone(),
-                        )
-                        .await?;
+                        pipe.run(account_deletion.clone(), self.metrics.clone())
+                            .await?;
                         let deletion_pipe_time_ns = deletion_pipe_start.elapsed().as_nanos();
                         self.metrics
                             .record_histogram(
@@ -779,7 +771,7 @@ impl Pipeline {
             Update::BlockDetails(block_details) => {
                 let block_start = Instant::now();
 
-                let block_details_clone = block_details.clone();
+                let block_details = Arc::new(block_details);
                 for pipe in self.block_details_pipes.iter_mut() {
                     let filter_start = Instant::now();
                     let filter_result = pipe
@@ -796,7 +788,7 @@ impl Pipeline {
 
                     if filter_result {
                         let block_pipe_start = Instant::now();
-                        pipe.run(Arc::new(block_details_clone.clone()), self.metrics.clone())
+                        pipe.run(block_details.clone(), self.metrics.clone())
                             .await?;
                         let block_pipe_time_ns = block_pipe_start.elapsed().as_nanos();
                         self.metrics

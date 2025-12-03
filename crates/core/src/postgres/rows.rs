@@ -169,11 +169,11 @@ impl<
 {
     pub fn from_parts(
         source: T,
-        metadata: Arc<InstructionMetadata>,
+        metadata: InstructionMetadata,
         accounts: Vec<AccountMeta>,
     ) -> Self {
         Self {
-            metadata: (*metadata).clone().into(),
+            metadata: metadata.clone().into(),
             data: sqlx::types::Json(source),
             accounts: sqlx::types::Json(accounts),
         }

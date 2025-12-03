@@ -156,7 +156,7 @@ where
 
         let wrapper = W::from((
             decoded_instruction.data.clone(),
-            (*metadata).clone(),
+            metadata.clone(),
             decoded_instruction.accounts.clone(),
         ));
 

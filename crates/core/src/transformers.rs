@@ -159,7 +159,7 @@ fn process_instructions<F1, F2>(
                                 transaction_metadata: transaction_metadata.clone(),
                                 stack_height: stack_height as u32,
                                 index: inner_tx.index as u32,
-                                absolute_path: path_stack[..stack_height].into(),
+                                absolute_path: path_stack[..stack_height].to_vec(),
                             },
                             build_instruction(
                                 account_keys,
@@ -191,19 +191,16 @@ where
         .get(instruction.program_id_index as usize)
         .unwrap_or(&Pubkey::default());
 
-    let accounts = instruction
-        .accounts
-        .iter()
-        .filter_map(|account_idx| {
-            account_keys
-                .get(*account_idx as usize)
-                .map(|key| AccountMeta {
-                    pubkey: *key,
-                    is_writable: is_writable(key, *account_idx as usize),
-                    is_signer: is_signer(key, *account_idx as usize),
-                })
-        })
-        .collect();
+    let mut accounts = Vec::with_capacity(instruction.accounts.len());
+    for account_idx in &instruction.accounts {
+        if let Some(key) = account_keys.get(*account_idx as usize) {
+            accounts.push(AccountMeta {
+                pubkey: *key,
+                is_writable: is_writable(key, *account_idx as usize),
+                is_signer: is_signer(key, *account_idx as usize),
+            });
+        }
+    }
 
     solana_instruction::Instruction {
         program_id,
