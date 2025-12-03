@@ -14,14 +14,15 @@ use std::sync::Arc;
 ///
 /// ## Fields
 ///
-/// - `processor`: A `Processor` that processes block details updates.
+/// - `processor`: A concrete `Processor` instance (not boxed). Each pipe is
+///   monomorphic for its specific processor type.
 /// - `filters`: A collection of filters that determine which block details
 ///   updates should be processed. Each filter in this collection is applied to
 ///   incoming block details updates, and only updates that pass all filters
 ///   (return `true`) will be processed. If this collection is empty, all
 ///   updates are processed.
-pub struct BlockDetailsPipe {
-    pub processor: Box<dyn Processor<InputType = Arc<BlockDetails>> + Send + Sync>,
+pub struct BlockDetailsPipe<P> {
+    pub processor: P,
     pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
 }
 
@@ -40,7 +41,7 @@ pub struct BlockDetailsPipe {
 pub trait BlockDetailsPipes: Send + Sync {
     async fn run(
         &mut self,
-        block_details: Arc<BlockDetails>,
+        block_details: &BlockDetails,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
 
@@ -48,10 +49,13 @@ pub trait BlockDetailsPipes: Send + Sync {
 }
 
 #[async_trait]
-impl BlockDetailsPipes for BlockDetailsPipe {
+impl<P> BlockDetailsPipes for BlockDetailsPipe<P>
+where
+    P: Processor<BlockDetails> + Send + Sync,
+{
     async fn run(
         &mut self,
-        block_details: Arc<BlockDetails>,
+        block_details: &BlockDetails,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         log::trace!("Block details::run(block_details: {block_details:?}, metrics)",);

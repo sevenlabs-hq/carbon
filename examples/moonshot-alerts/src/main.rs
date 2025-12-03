@@ -1,5 +1,4 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
         deserialize::ArrangeAccounts, error::CarbonResult,
         instruction::InstructionProcessorInputType, metrics::MetricsCollection,
@@ -52,95 +51,98 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct MoonshotInstructionProcessor;
 
-#[async_trait]
-impl Processor for MoonshotInstructionProcessor {
-    type InputType = InstructionProcessorInputType<MoonshotInstruction>;
-
-    async fn process(
+impl Processor<InstructionProcessorInputType<MoonshotInstruction>>
+    for MoonshotInstructionProcessor
+{
+    fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions, _): Self::InputType,
+        (metadata, instruction, _nested_instructions, _): &InstructionProcessorInputType<
+            MoonshotInstruction,
+        >,
         _metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
-        let signature = metadata.transaction_metadata.signature;
-        let accounts = instruction.accounts.clone();
+    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
+        async move {
+            let signature = metadata.transaction_metadata.signature;
+            let accounts = instruction.accounts.clone();
 
-        match instruction.data.clone() {
-            MoonshotInstruction::TokenMint(token_mint) => {
-                match TokenMint::arrange_accounts(&accounts) {
-                    Some(accounts) => {
-                        log::info!("TokenMint: signature: {signature}, token_mint: {token_mint:?}, accounts: {accounts:#?}");
+            match instruction.data.clone() {
+                MoonshotInstruction::TokenMint(token_mint) => {
+                    match TokenMint::arrange_accounts(&accounts) {
+                        Some(accounts) => {
+                            log::info!("TokenMint: signature: {signature}, token_mint: {token_mint:?}, accounts: {accounts:#?}");
+                        }
+                        None => log::error!(
+                            "Failed to arrange accounts for TokenMint {}",
+                            accounts.len()
+                        ),
                     }
-                    None => log::error!(
-                        "Failed to arrange accounts for TokenMint {}",
-                        accounts.len()
-                    ),
                 }
-            }
-            MoonshotInstruction::Buy(buy) => match Buy::arrange_accounts(&accounts) {
-                Some(accounts) => {
-                    log::info!(
-                        "Buy: signature: {signature}, buy: {buy:?}, accounts: {accounts:#?}"
-                    );
-                }
-                None => log::error!("Failed to arrange accounts for Buy {}", accounts.len()),
-            },
-            MoonshotInstruction::Sell(sell) => match Sell::arrange_accounts(&accounts) {
-                Some(accounts) => {
-                    log::info!(
-                        "Sell: signature: {signature}, sell: {sell:?}, accounts: {accounts:#?}"
-                    );
-                }
-                None => log::error!("Failed to arrange accounts for Sell {}", accounts.len()),
-            },
-            MoonshotInstruction::MigrateFunds(migrate_funds) => {
-                match MigrateFunds::arrange_accounts(&accounts) {
+                MoonshotInstruction::Buy(buy) => match Buy::arrange_accounts(&accounts) {
                     Some(accounts) => {
                         log::info!(
+                            "Buy: signature: {signature}, buy: {buy:?}, accounts: {accounts:#?}"
+                        );
+                    }
+                    None => log::error!("Failed to arrange accounts for Buy {}", accounts.len()),
+                },
+                MoonshotInstruction::Sell(sell) => match Sell::arrange_accounts(&accounts) {
+                    Some(accounts) => {
+                        log::info!(
+                            "Sell: signature: {signature}, sell: {sell:?}, accounts: {accounts:#?}"
+                        );
+                    }
+                    None => log::error!("Failed to arrange accounts for Sell {}", accounts.len()),
+                },
+                MoonshotInstruction::MigrateFunds(migrate_funds) => {
+                    match MigrateFunds::arrange_accounts(&accounts) {
+                        Some(accounts) => {
+                            log::info!(
                             "MigrateFunds: signature: {signature}, migrate_funds: {migrate_funds:?}, accounts: {accounts:#?}"
                         );
+                        }
+                        None => log::error!(
+                            "Failed to arrange accounts for MigrateFunds {}",
+                            accounts.len()
+                        ),
                     }
-                    None => log::error!(
-                        "Failed to arrange accounts for MigrateFunds {}",
-                        accounts.len()
-                    ),
                 }
-            }
-            MoonshotInstruction::ConfigInit(config_init) => {
-                match ConfigInit::arrange_accounts(&accounts) {
-                    Some(accounts) => {
-                        log::info!(
+                MoonshotInstruction::ConfigInit(config_init) => {
+                    match ConfigInit::arrange_accounts(&accounts) {
+                        Some(accounts) => {
+                            log::info!(
                             "ConfigInit: signature: {signature}, config_init: {config_init:?}, accounts: {accounts:#?}"
                         );
+                        }
+                        None => log::error!(
+                            "Failed to arrange accounts for ConfigInit {}",
+                            accounts.len()
+                        ),
                     }
-                    None => log::error!(
-                        "Failed to arrange accounts for ConfigInit {}",
-                        accounts.len()
-                    ),
                 }
-            }
-            MoonshotInstruction::ConfigUpdate(config_update) => {
-                match ConfigUpdate::arrange_accounts(&accounts) {
-                    Some(accounts) => {
-                        log::info!(
+                MoonshotInstruction::ConfigUpdate(config_update) => {
+                    match ConfigUpdate::arrange_accounts(&accounts) {
+                        Some(accounts) => {
+                            log::info!(
                             "ConfigUpdate: signature: {signature}, config_update: {config_update:?}, accounts: {accounts:#?}"
                         );
+                        }
+                        None => log::error!(
+                            "Failed to arrange accounts for ConfigUpdate {}",
+                            accounts.len()
+                        ),
                     }
-                    None => log::error!(
-                        "Failed to arrange accounts for ConfigUpdate {}",
-                        accounts.len()
-                    ),
                 }
-            }
-            MoonshotInstruction::TradeEvent(trade_event) => {
-                log::info!("TradeEvent: signature: {signature}, trade_event: {trade_event:?}");
-            }
-            MoonshotInstruction::MigrationEvent(migration_event) => {
-                log::info!(
+                MoonshotInstruction::TradeEvent(trade_event) => {
+                    log::info!("TradeEvent: signature: {signature}, trade_event: {trade_event:?}");
+                }
+                MoonshotInstruction::MigrationEvent(migration_event) => {
+                    log::info!(
                     "MigrationEvent: signature: {signature}, migration_event: {migration_event:?}"
                 );
-            }
-        };
+                }
+            };
 
-        Ok(())
+            Ok(())
+        }
     }
 }

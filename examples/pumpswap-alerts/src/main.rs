@@ -1,5 +1,4 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
         error::CarbonResult, instruction::InstructionProcessorInputType,
         metrics::MetricsCollection, processor::Processor,
@@ -96,114 +95,121 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct PumpSwapInstructionProcessor;
 
-#[async_trait]
-impl Processor for PumpSwapInstructionProcessor {
-    type InputType = InstructionProcessorInputType<PumpSwapInstruction>;
-
-    async fn process(
+impl Processor<InstructionProcessorInputType<PumpSwapInstruction>>
+    for PumpSwapInstructionProcessor
+{
+    fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions, _): Self::InputType,
+        (metadata, instruction, _nested_instructions, _): &InstructionProcessorInputType<
+            PumpSwapInstruction,
+        >,
         _metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
-        let signature = metadata.transaction_metadata.signature;
-        let _accounts = instruction.accounts.clone();
-        let pumpswap_instruction = instruction.data.clone();
+    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
+        async move {
+            let signature = metadata.transaction_metadata.signature;
+            let _accounts = instruction.accounts.clone();
+            let pumpswap_instruction = instruction.data.clone();
 
-        match pumpswap_instruction {
-            PumpSwapInstruction::Buy(buy) => {
-                log::info!("Buy: signature: {signature}, buy: {buy:?}");
-            }
-            PumpSwapInstruction::Sell(sell) => {
-                log::info!("Sell: signature: {signature}, sell: {sell:?}");
-            }
-            PumpSwapInstruction::CreatePool(create_pool) => {
-                log::info!("CreatePool: signature: {signature}, create_pool: {create_pool:?}");
-            }
-            PumpSwapInstruction::Deposit(deposit) => {
-                log::info!("Deposit: signature: {signature}, deposit: {deposit:?}");
-            }
-            PumpSwapInstruction::Withdraw(withdraw) => {
-                log::info!("Withdraw: signature: {signature}, withdraw: {withdraw:?}");
-            }
-            PumpSwapInstruction::CreateConfig(create_config) => {
-                log::info!(
-                    "CreateConfig: signature: {signature}, create_config: {create_config:?}"
-                );
-            }
-            PumpSwapInstruction::UpdateFeeConfig(update_fee_config) => {
-                log::info!("UpdateFeeConfig: signature: {signature}, update_fee_config: {update_fee_config:?}");
-            }
-            PumpSwapInstruction::UpdateAdmin(update_admin) => {
-                log::info!("UpdateAdmin: signature: {signature}, update_admin: {update_admin:?}");
-            }
-            PumpSwapInstruction::CollectCoinCreatorFee(collect_fee) => {
-                log::info!(
+            match pumpswap_instruction {
+                PumpSwapInstruction::Buy(buy) => {
+                    log::info!("Buy: signature: {signature}, buy: {buy:?}");
+                }
+                PumpSwapInstruction::Sell(sell) => {
+                    log::info!("Sell: signature: {signature}, sell: {sell:?}");
+                }
+                PumpSwapInstruction::CreatePool(create_pool) => {
+                    log::info!("CreatePool: signature: {signature}, create_pool: {create_pool:?}");
+                }
+                PumpSwapInstruction::Deposit(deposit) => {
+                    log::info!("Deposit: signature: {signature}, deposit: {deposit:?}");
+                }
+                PumpSwapInstruction::Withdraw(withdraw) => {
+                    log::info!("Withdraw: signature: {signature}, withdraw: {withdraw:?}");
+                }
+                PumpSwapInstruction::CreateConfig(create_config) => {
+                    log::info!(
+                        "CreateConfig: signature: {signature}, create_config: {create_config:?}"
+                    );
+                }
+                PumpSwapInstruction::UpdateFeeConfig(update_fee_config) => {
+                    log::info!("UpdateFeeConfig: signature: {signature}, update_fee_config: {update_fee_config:?}");
+                }
+                PumpSwapInstruction::UpdateAdmin(update_admin) => {
+                    log::info!(
+                        "UpdateAdmin: signature: {signature}, update_admin: {update_admin:?}"
+                    );
+                }
+                PumpSwapInstruction::CollectCoinCreatorFee(collect_fee) => {
+                    log::info!(
                     "CollectCoinCreatorFee: signature: {signature}, collect_fee: {collect_fee:?}"
                 );
-            }
-            PumpSwapInstruction::BuyEvent(buy_event) => {
-                let sol_amount = buy_event.quote_amount_in as f64 / LAMPORTS_PER_SOL as f64;
-                log::info!(
-                    "BuyEvent: signature: {signature}, SOL: {:.4}, pool: {}, user: {}",
-                    sol_amount,
-                    buy_event.pool,
-                    buy_event.user,
-                );
-            }
-            PumpSwapInstruction::SellEvent(sell_event) => {
-                let sol_amount = sell_event.quote_amount_out as f64 / LAMPORTS_PER_SOL as f64;
-                log::info!(
-                    "SellEvent: signature: {signature}, SOL: {:.4}, pool: {}, user: {}",
-                    sol_amount,
-                    sell_event.pool,
-                    sell_event.user
-                );
-            }
-            PumpSwapInstruction::CreatePoolEvent(pool_event) => {
-                log::info!("CreatePoolEvent: signature: {signature}, pool_event: {pool_event:?}");
-            }
-            PumpSwapInstruction::DepositEvent(deposit_event) => {
-                log::info!(
-                    "DepositEvent: signature: {signature}, deposit_event: {deposit_event:?}"
-                );
-            }
-            PumpSwapInstruction::WithdrawEvent(withdraw_event) => {
-                log::info!(
-                    "WithdrawEvent: signature: {signature}, withdraw_event: {withdraw_event:?}"
-                );
-            }
-            PumpSwapInstruction::CreateConfigEvent(config_event) => {
-                log::info!(
-                    "CreateConfigEvent: signature: {signature}, config_event: {config_event:?}"
-                );
-            }
-            PumpSwapInstruction::UpdateFeeConfigEvent(fee_config_event) => {
-                log::info!("UpdateFeeConfigEvent: signature: {signature}, fee_config_event: {fee_config_event:?}");
-            }
-            PumpSwapInstruction::UpdateAdminEvent(admin_event) => {
-                log::info!(
-                    "UpdateAdminEvent: signature: {signature}, admin_event: {admin_event:?}"
-                );
-            }
-            PumpSwapInstruction::CollectCoinCreatorFeeEvent(fee_event) => {
-                let fee_amount = fee_event.coin_creator_fee as f64 / LAMPORTS_PER_SOL as f64;
-                log::info!(
+                }
+                PumpSwapInstruction::BuyEvent(buy_event) => {
+                    let sol_amount = buy_event.quote_amount_in as f64 / LAMPORTS_PER_SOL as f64;
+                    log::info!(
+                        "BuyEvent: signature: {signature}, SOL: {:.4}, pool: {}, user: {}",
+                        sol_amount,
+                        buy_event.pool,
+                        buy_event.user,
+                    );
+                }
+                PumpSwapInstruction::SellEvent(sell_event) => {
+                    let sol_amount = sell_event.quote_amount_out as f64 / LAMPORTS_PER_SOL as f64;
+                    log::info!(
+                        "SellEvent: signature: {signature}, SOL: {:.4}, pool: {}, user: {}",
+                        sol_amount,
+                        sell_event.pool,
+                        sell_event.user
+                    );
+                }
+                PumpSwapInstruction::CreatePoolEvent(pool_event) => {
+                    log::info!(
+                        "CreatePoolEvent: signature: {signature}, pool_event: {pool_event:?}"
+                    );
+                }
+                PumpSwapInstruction::DepositEvent(deposit_event) => {
+                    log::info!(
+                        "DepositEvent: signature: {signature}, deposit_event: {deposit_event:?}"
+                    );
+                }
+                PumpSwapInstruction::WithdrawEvent(withdraw_event) => {
+                    log::info!(
+                        "WithdrawEvent: signature: {signature}, withdraw_event: {withdraw_event:?}"
+                    );
+                }
+                PumpSwapInstruction::CreateConfigEvent(config_event) => {
+                    log::info!(
+                        "CreateConfigEvent: signature: {signature}, config_event: {config_event:?}"
+                    );
+                }
+                PumpSwapInstruction::UpdateFeeConfigEvent(fee_config_event) => {
+                    log::info!("UpdateFeeConfigEvent: signature: {signature}, fee_config_event: {fee_config_event:?}");
+                }
+                PumpSwapInstruction::UpdateAdminEvent(admin_event) => {
+                    log::info!(
+                        "UpdateAdminEvent: signature: {signature}, admin_event: {admin_event:?}"
+                    );
+                }
+                PumpSwapInstruction::CollectCoinCreatorFeeEvent(fee_event) => {
+                    let fee_amount = fee_event.coin_creator_fee as f64 / LAMPORTS_PER_SOL as f64;
+                    log::info!(
                     "CollectCoinCreatorFeeEvent: signature: {signature}, fee: {:.6} SOL, creator: {}",
                     fee_amount,
                     fee_event.coin_creator
                 );
+                }
+                PumpSwapInstruction::ClaimTokenIncentivesEvent(incentive_event) => {
+                    log::info!("ClaimTokenIncentivesEvent: signature: {signature}, incentive_event: {incentive_event:?}");
+                }
+                PumpSwapInstruction::InitUserVolumeAccumulatorEvent(volume_event) => {
+                    log::info!("InitUserVolumeAccumulatorEvent: signature: {signature}, volume_event: {volume_event:?}");
+                }
+                _ => {
+                    log::debug!("Other PumpSwap instruction: signature: {signature}, data: {pumpswap_instruction:?}");
+                }
             }
-            PumpSwapInstruction::ClaimTokenIncentivesEvent(incentive_event) => {
-                log::info!("ClaimTokenIncentivesEvent: signature: {signature}, incentive_event: {incentive_event:?}");
-            }
-            PumpSwapInstruction::InitUserVolumeAccumulatorEvent(volume_event) => {
-                log::info!("InitUserVolumeAccumulatorEvent: signature: {signature}, volume_event: {volume_event:?}");
-            }
-            _ => {
-                log::debug!("Other PumpSwap instruction: signature: {signature}, data: {pumpswap_instruction:?}");
-            }
-        }
 
-        Ok(())
+            Ok(())
+        }
     }
 }

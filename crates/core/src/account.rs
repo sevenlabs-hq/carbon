@@ -127,14 +127,13 @@ pub trait AccountDecoder<'a> {
     ) -> Option<DecodedAccount<Self::AccountType>>;
 }
 
-/// The input type for the account processor.
+/// The data type for account processing.
 ///
 /// - `T`: The account type, as determined by the decoder.
-pub type AccountProcessorInputType<T> = (
-    Arc<AccountMetadata>,
-    Arc<DecodedAccount<T>>,
-    Arc<solana_account::Account>,
-);
+///
+/// Processors receive a reference to this data to avoid cloning.
+pub type AccountProcessorInputType<T> =
+    (AccountMetadata, DecodedAccount<T>, solana_account::Account);
 
 /// A processing pipe that decodes and processes Solana account updates.
 ///
@@ -147,20 +146,21 @@ pub type AccountProcessorInputType<T> = (
 ///
 /// - `T`: The data type of the decoded account information, as determined by
 ///   the decoder.
+/// - `P`: The concrete processor type that handles decoded accounts.
 ///
 /// # Fields
 ///
 /// - `decoder`: An `AccountDecoder` that decodes raw account data into
 ///   structured form.
-/// - `processor`: A `Processor` that handles the processing logic for decoded
-///   accounts.
+/// - `processor`: A concrete `Processor` instance (not boxed). Each pipe is
+///   monomorphic for its specific processor type.
 /// - `filters`: A collection of filters that determine which account updates
 ///   should be processed. Each filter in this collection is applied to incoming
 ///   account updates, and only updates that pass all filters (return `true`)
 ///   will be processed. If this collection is empty, all updates are processed.
-pub struct AccountPipe<T: Send> {
+pub struct AccountPipe<T, P> {
     pub decoder: Box<dyn for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static>,
-    pub processor: Box<dyn Processor<InputType = AccountProcessorInputType<T>> + Send + Sync>,
+    pub processor: P,
     pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
 }
 
@@ -178,7 +178,8 @@ pub struct AccountPipe<T: Send> {
 pub trait AccountPipes: Send + Sync {
     async fn run(
         &mut self,
-        account_with_metadata: (Arc<AccountMetadata>, Arc<solana_account::Account>),
+        account_metadata: &AccountMetadata,
+        account: &solana_account::Account,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
 
@@ -186,16 +187,21 @@ pub trait AccountPipes: Send + Sync {
 }
 
 #[async_trait]
-impl<T: Send> AccountPipes for AccountPipe<T> {
+impl<T, P> AccountPipes for AccountPipe<T, P>
+where
+    T: Send + Sync,
+    P: Processor<AccountProcessorInputType<T>> + Send + Sync,
+{
     async fn run(
         &mut self,
-        account_with_metadata: (Arc<AccountMetadata>, Arc<solana_account::Account>),
+        account_metadata: &AccountMetadata,
+        account: &solana_account::Account,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        log::trace!("AccountPipe::run(account_with_metadata: {account_with_metadata:?}, metrics)",);
+        log::trace!("AccountPipe::run(account_metadata: {account_metadata:?}, account: {account:?}, metrics)",);
 
         let decode_start = std::time::Instant::now();
-        let decoded_account = self.decoder.decode_account(&account_with_metadata.1);
+        let decoded_account = self.decoder.decode_account(account);
         let decode_time_ns = decode_start.elapsed().as_nanos();
         metrics
             .record_histogram("account_decode_time_nanoseconds", decode_time_ns as f64)
@@ -203,17 +209,11 @@ impl<T: Send> AccountPipes for AccountPipe<T> {
 
         if let Some(decoded_account) = decoded_account {
             let process_start = std::time::Instant::now();
-            let (account_metadata, account) = account_with_metadata;
-            self.processor
-                .process(
-                    (
-                        account_metadata.clone(),
-                        Arc::new(decoded_account),
-                        account.clone(),
-                    ),
-                    metrics.clone(),
-                )
-                .await?;
+
+            // Create owned data to pass by reference to the processor
+            let data = (account_metadata.clone(), decoded_account, account.clone());
+            self.processor.process(&data, metrics.clone()).await?;
+
             let process_time_ns = process_start.elapsed().as_nanos();
             metrics
                 .record_histogram("account_process_time_nanoseconds", process_time_ns as f64)

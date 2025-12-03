@@ -395,16 +395,13 @@ impl<'a> InstructionDecoder<'a> for SyntheticInstructionDecoder {
 #[derive(Default)]
 struct SyntheticInstructionProcessor;
 
-#[async_trait]
-impl Processor for SyntheticInstructionProcessor {
-    type InputType = InstructionProcessorInputType<()>;
-
-    async fn process(
+impl Processor<InstructionProcessorInputType<()>> for SyntheticInstructionProcessor {
+    fn process(
         &mut self,
-        _data: Self::InputType,
+        _data: &InstructionProcessorInputType<()>,
         _metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
-        Ok(())
+    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
+        async move { Ok(()) }
     }
 }
 
@@ -430,15 +427,12 @@ impl<'a> AccountDecoder<'a> for SyntheticAccountDecoder {
 #[derive(Default)]
 struct SyntheticAccountProcessor;
 
-#[async_trait]
-impl Processor for SyntheticAccountProcessor {
-    type InputType = AccountProcessorInputType<()>;
-
-    async fn process(
+impl Processor<AccountProcessorInputType<()>> for SyntheticAccountProcessor {
+    fn process(
         &mut self,
-        _data: Self::InputType,
+        _data: &AccountProcessorInputType<()>,
         _metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
-        Ok(())
+    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
+        async move { Ok(()) }
     }
 }

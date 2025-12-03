@@ -3,7 +3,6 @@ use std::{env, sync::Arc};
 use solana_transaction_status::UiTransactionEncoding;
 
 use {
-    async_trait::async_trait,
     carbon_core::{
         error::CarbonResult, instruction::InstructionProcessorInputType,
         metrics::MetricsCollection, processor::Processor,
@@ -57,35 +56,34 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct PumpfunInstructionProcessor;
 
-#[async_trait]
-impl Processor for PumpfunInstructionProcessor {
-    type InputType = InstructionProcessorInputType<PumpfunInstruction>;
-
-    async fn process(
+impl Processor<InstructionProcessorInputType<PumpfunInstruction>> for PumpfunInstructionProcessor {
+    fn process(
         &mut self,
-        data: Self::InputType,
+        data: &InstructionProcessorInputType<PumpfunInstruction>,
         _metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
-        let (metadata, pumpfun_instruction, _nested_instructions, _) = data;
+    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
+        async move {
+            let (metadata, pumpfun_instruction, _nested_instructions, _) = data;
 
-        match pumpfun_instruction.data.clone() {
-            PumpfunInstruction::CreateEvent(create_event) => {
-                log::info!(
-                    "New token created: {:#?} on slot {}",
-                    create_event,
-                    metadata.transaction_metadata.slot
-                );
-            }
-            PumpfunInstruction::TradeEvent(trade_event) => {
-                log::info!(
-                    "New trade occured: {:#?} on slot {:#?}",
-                    trade_event,
-                    metadata.transaction_metadata.slot
-                );
-            }
-            _ => {}
-        };
+            match pumpfun_instruction.data.clone() {
+                PumpfunInstruction::CreateEvent(create_event) => {
+                    log::info!(
+                        "New token created: {:#?} on slot {}",
+                        create_event,
+                        metadata.transaction_metadata.slot
+                    );
+                }
+                PumpfunInstruction::TradeEvent(trade_event) => {
+                    log::info!(
+                        "New trade occured: {:#?} on slot {:#?}",
+                        trade_event,
+                        metadata.transaction_metadata.slot
+                    );
+                }
+                _ => {}
+            };
 
-        Ok(())
+            Ok(())
+        }
     }
 }

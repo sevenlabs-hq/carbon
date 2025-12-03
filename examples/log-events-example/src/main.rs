@@ -1,5 +1,4 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
         error::CarbonResult, instruction::InstructionProcessorInputType,
         metrics::MetricsCollection, processor::Processor,
@@ -84,20 +83,22 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct RaydiumCpmmInstructionProcessor;
 
-#[async_trait]
-impl Processor for RaydiumCpmmInstructionProcessor {
-    type InputType = InstructionProcessorInputType<RaydiumCpmmInstruction>;
-    async fn process(
+impl Processor<InstructionProcessorInputType<RaydiumCpmmInstruction>>
+    for RaydiumCpmmInstructionProcessor
+{
+    fn process(
         &mut self,
-        (metadata, _, _, _): Self::InputType,
+        (metadata, _, _, _): &InstructionProcessorInputType<RaydiumCpmmInstruction>,
         _metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
-        let logs = metadata.decode_log_events::<SwapEvent>();
+    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
+        async move {
+            let logs = metadata.decode_log_events::<SwapEvent>();
 
-        if !logs.is_empty() {
-            println!("Swap Events: {logs:?}");
+            if !logs.is_empty() {
+                println!("Swap Events: {logs:?}");
+            }
+
+            Ok(())
         }
-
-        Ok(())
     }
 }

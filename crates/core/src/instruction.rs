@@ -248,17 +248,17 @@ pub type InstructionProcessorInputType<T> = (
 /// # Fields
 ///
 /// - `decoder`: The decoder used for parsing instructions.
-/// - `processor`: The processor that handles decoded instructions.
+/// - `processor`: A concrete `Processor` instance (not boxed). Each pipe is
+///   monomorphic for its specific processor type.
 /// - `filters`: A collection of filters that determine which instruction
 ///   updates should be processed. Each filter in this collection is applied to
 ///   incoming instruction updates, and only updates that pass all filters
 ///   (return `true`) will be processed. If this collection is empty, all
 ///   updates are processed.
-pub struct InstructionPipe<T: Send> {
+pub struct InstructionPipe<T: Send, P> {
     pub decoder:
         Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
-    pub processor:
-        Box<dyn Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static>,
+    pub processor: P,
     pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
 }
 
@@ -286,7 +286,11 @@ pub trait InstructionPipes<'a>: Send + Sync {
 }
 
 #[async_trait]
-impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
+impl<T, P> InstructionPipes<'_> for InstructionPipe<T, P>
+where
+    T: Send + Sync + 'static,
+    P: Processor<InstructionProcessorInputType<T>> + Send + Sync,
+{
     async fn run(
         &mut self,
         nested_instruction: &NestedInstruction,
@@ -306,17 +310,16 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
         if let Some(decoded_instruction) = decoded_instruction {
             let process_start = std::time::Instant::now();
             let process_metrics = metrics.clone();
-            self.processor
-                .process(
-                    (
-                        nested_instruction.metadata.clone(),
-                        decoded_instruction,
-                        nested_instruction.inner_instructions.clone(),
-                        nested_instruction.instruction.clone(),
-                    ),
-                    process_metrics,
-                )
-                .await?;
+
+            // Create owned data to pass by reference to processor
+            let data = (
+                nested_instruction.metadata.clone(),
+                decoded_instruction,
+                nested_instruction.inner_instructions.clone(),
+                nested_instruction.instruction.clone(),
+            );
+
+            self.processor.process(&data, process_metrics).await?;
             let process_time_ns = process_start.elapsed().as_nanos();
             metrics
                 .record_histogram(

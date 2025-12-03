@@ -1,5 +1,4 @@
 use solana_instruction::AccountMeta;
-use std::sync::Arc;
 
 use crate::{
     account::AccountMetadata,
@@ -25,9 +24,9 @@ impl<
         T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
     > AccountRow<T>
 {
-    pub fn from_parts(source: T, metadata: Arc<AccountMetadata>) -> Self {
+    pub fn from_parts(source: T, metadata: &AccountMetadata) -> Self {
         Self {
-            metadata: (*metadata).clone().into(),
+            metadata: metadata.clone().into(),
             data: sqlx::types::Json(source),
         }
     }

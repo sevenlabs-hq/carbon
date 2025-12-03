@@ -55,9 +55,7 @@ use crate::datasource::{BlockDetails, DatasourceId};
 use crate::filter::Filter;
 use {
     crate::{
-        account::{
-            AccountDecoder, AccountMetadata, AccountPipe, AccountPipes, AccountProcessorInputType,
-        },
+        account::{AccountProcessorInputType, AccountDecoder, AccountMetadata, AccountPipe, AccountPipes},
         account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
         collection::InstructionDecoderCollection,
         datasource::{AccountDeletion, Datasource, Update},
@@ -552,12 +550,11 @@ impl Pipeline {
                 let account_start = Instant::now();
 
                 let metadata_start = Instant::now();
-                let account_metadata = Arc::new(AccountMetadata {
+                let account_metadata = AccountMetadata {
                     slot: account_update.slot,
                     pubkey: account_update.pubkey,
                     transaction_signature: account_update.transaction_signature,
-                });
-                let account_update_account = Arc::new(account_update.account.clone());
+                };
                 let metadata_time_ns = metadata_start.elapsed().as_nanos();
                 self.metrics
                     .record_histogram(
@@ -572,7 +569,7 @@ impl Pipeline {
                         filter.filter_account(
                             &datasource_id,
                             &account_metadata,
-                            &account_update_account,
+                            &account_update.account,
                         )
                     });
                     let filter_time_ns = filter_start.elapsed().as_nanos();
@@ -586,7 +583,8 @@ impl Pipeline {
                     if filter_result {
                         let pipe_start = Instant::now();
                         pipe.run(
-                            (account_metadata.clone(), account_update_account.clone()),
+                            &account_metadata,
+                            &account_update.account,
                             self.metrics.clone(),
                         )
                         .await?;
@@ -728,7 +726,6 @@ impl Pipeline {
             Update::AccountDeletion(account_deletion) => {
                 let deletion_start = Instant::now();
 
-                let account_deletion = Arc::new(account_deletion);
                 for pipe in self.account_deletion_pipes.iter_mut() {
                     let filter_start = Instant::now();
                     let filter_result = pipe.filters().iter().all(|filter| {
@@ -744,8 +741,7 @@ impl Pipeline {
 
                     if filter_result {
                         let deletion_pipe_start = Instant::now();
-                        pipe.run(account_deletion.clone(), self.metrics.clone())
-                            .await?;
+                        pipe.run(&account_deletion, self.metrics.clone()).await?;
                         let deletion_pipe_time_ns = deletion_pipe_start.elapsed().as_nanos();
                         self.metrics
                             .record_histogram(
@@ -771,7 +767,6 @@ impl Pipeline {
             Update::BlockDetails(block_details) => {
                 let block_start = Instant::now();
 
-                let block_details = Arc::new(block_details);
                 for pipe in self.block_details_pipes.iter_mut() {
                     let filter_start = Instant::now();
                     let filter_result = pipe
@@ -788,8 +783,7 @@ impl Pipeline {
 
                     if filter_result {
                         let block_pipe_start = Instant::now();
-                        pipe.run(block_details.clone(), self.metrics.clone())
-                            .await?;
+                        pipe.run(&block_details, self.metrics.clone()).await?;
                         let block_pipe_time_ns = block_pipe_start.elapsed().as_nanos();
                         self.metrics
                             .record_histogram(
@@ -1038,11 +1032,15 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .account(MyAccountDecoder, MyAccountProcessor);
     /// ```
-    pub fn account<T: Send + Sync + 'static>(
+    pub fn account<T, P>(
         mut self,
         decoder: impl for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
-        processor: impl Processor<InputType = AccountProcessorInputType<T>> + Send + Sync + 'static,
-    ) -> Self {
+        processor: P,
+    ) -> Self
+    where
+        T: Send + Sync + 'static,
+        P: Processor<AccountProcessorInputType<T>> + Send + Sync + 'static,
+    {
         log::trace!(
             "account(self, decoder: {:?}, processor: {:?})",
             stringify!(decoder),
@@ -1050,7 +1048,7 @@ impl PipelineBuilder {
         );
         self.account_pipes.push(Box::new(AccountPipe {
             decoder: Box::new(decoder),
-            processor: Box::new(processor),
+            processor,
             filters: vec![],
         }));
         self
@@ -1086,12 +1084,16 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .account_with_filters(MyAccountDecoder, MyAccountProcessor, filters);
     /// ```
-    pub fn account_with_filters<T: Send + Sync + 'static>(
+    pub fn account_with_filters<T, P>(
         mut self,
         decoder: impl for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
-        processor: impl Processor<InputType = AccountProcessorInputType<T>> + Send + Sync + 'static,
+        processor: P,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
-    ) -> Self {
+    ) -> Self
+    where
+        T: Send + Sync + 'static,
+        P: Processor<AccountProcessorInputType<T>> + Send + Sync + 'static,
+    {
         log::trace!(
             "account_with_filters(self, decoder: {:?}, processor: {:?}, filters: {:?})",
             stringify!(decoder),
@@ -1100,7 +1102,7 @@ impl PipelineBuilder {
         );
         self.account_pipes.push(Box::new(AccountPipe {
             decoder: Box::new(decoder),
-            processor: Box::new(processor),
+            processor,
             filters,
         }));
         self
@@ -1123,17 +1125,17 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .account_deletions(MyAccountDeletionProcessor);
     /// ```
-    pub fn account_deletions(
-        mut self,
-        processor: impl Processor<InputType = Arc<AccountDeletion>> + Send + Sync + 'static,
-    ) -> Self {
+    pub fn account_deletions<P>(mut self, processor: P) -> Self
+    where
+        P: Processor<AccountDeletion> + Send + Sync + 'static,
+    {
         log::trace!(
             "account_deletions(self, processor: {:?})",
             stringify!(processor)
         );
         self.account_deletion_pipes
             .push(Box::new(AccountDeletionPipe {
-                processor: Box::new(processor),
+                processor,
                 filters: vec![],
             }));
         self
@@ -1168,21 +1170,21 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .account_deletions_with_filters(MyAccountDeletionProcessor, filters);
     /// ```
-    pub fn account_deletions_with_filters(
+    pub fn account_deletions_with_filters<P>(
         mut self,
-        processor: impl Processor<InputType = Arc<AccountDeletion>> + Send + Sync + 'static,
+        processor: P,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
-    ) -> Self {
+    ) -> Self
+    where
+        P: Processor<AccountDeletion> + Send + Sync + 'static,
+    {
         log::trace!(
             "account_deletions_with_filters(self, processor: {:?}, filters: {:?})",
             stringify!(processor),
             stringify!(filters)
         );
         self.account_deletion_pipes
-            .push(Box::new(AccountDeletionPipe {
-                processor: Box::new(processor),
-                filters,
-            }));
+            .push(Box::new(AccountDeletionPipe { processor, filters }));
         self
     }
 
@@ -1203,16 +1205,16 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .block_details(MyBlockDetailsProcessor);
     /// ```
-    pub fn block_details(
-        mut self,
-        processor: impl Processor<InputType = Arc<BlockDetails>> + Send + Sync + 'static,
-    ) -> Self {
+    pub fn block_details<P>(mut self, processor: P) -> Self
+    where
+        P: Processor<BlockDetails> + Send + Sync + 'static,
+    {
         log::trace!(
             "block_details(self, processor: {:?})",
             stringify!(processor)
         );
         self.block_details_pipes.push(Box::new(BlockDetailsPipe {
-            processor: Box::new(processor),
+            processor,
             filters: vec![],
         }));
         self
@@ -1247,20 +1249,21 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .block_details_with_filters(MyBlockDetailsProcessor, filters);
     /// ```
-    pub fn block_details_with_filters(
+    pub fn block_details_with_filters<P>(
         mut self,
-        processor: impl Processor<InputType = Arc<BlockDetails>> + Send + Sync + 'static,
+        processor: P,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
-    ) -> Self {
+    ) -> Self
+    where
+        P: Processor<BlockDetails> + Send + Sync + 'static,
+    {
         log::trace!(
             "block_details_with_filters(self, processor: {:?}, filters: {:?})",
             stringify!(processor),
             stringify!(filters)
         );
-        self.block_details_pipes.push(Box::new(BlockDetailsPipe {
-            processor: Box::new(processor),
-            filters,
-        }));
+        self.block_details_pipes
+            .push(Box::new(BlockDetailsPipe { processor, filters }));
         self
     }
 
@@ -1283,11 +1286,15 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .instruction(MyDecoder, MyInstructionProcessor);
     /// ```
-    pub fn instruction<T: Send + Sync + 'static>(
+    pub fn instruction<T, P>(
         mut self,
         decoder: impl for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
-        processor: impl Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static,
-    ) -> Self {
+        processor: P,
+    ) -> Self
+    where
+        T: Send + Sync + 'static,
+        P: Processor<InstructionProcessorInputType<T>> + Send + Sync + 'static,
+    {
         log::trace!(
             "instruction(self, decoder: {:?}, processor: {:?})",
             stringify!(decoder),
@@ -1295,7 +1302,7 @@ impl PipelineBuilder {
         );
         self.instruction_pipes.push(Box::new(InstructionPipe {
             decoder: Box::new(decoder),
-            processor: Box::new(processor),
+            processor,
             filters: vec![],
         }));
         self
@@ -1332,12 +1339,16 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .instruction_with_filters(MyDecoder, MyInstructionProcessor, filters);
     /// ```
-    pub fn instruction_with_filters<T: Send + Sync + 'static>(
+    pub fn instruction_with_filters<T, P>(
         mut self,
         decoder: impl for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
-        processor: impl Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static,
+        processor: P,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
-    ) -> Self {
+    ) -> Self
+    where
+        T: Send + Sync + 'static,
+        P: Processor<InstructionProcessorInputType<T>> + Send + Sync + 'static,
+    {
         log::trace!(
             "instruction_with_filters(self, decoder: {:?}, processor: {:?}, filters: {:?})",
             stringify!(decoder),
@@ -1346,7 +1357,7 @@ impl PipelineBuilder {
         );
         self.instruction_pipes.push(Box::new(InstructionPipe {
             decoder: Box::new(decoder),
-            processor: Box::new(processor),
+            processor,
             filters,
         }));
         self
@@ -1372,17 +1383,15 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .transaction(MY_SCHEMA.clone(), MyTransactionProcessor);
     /// ```
-    pub fn transaction<T, U>(
+    pub fn transaction<T, U, P>(
         mut self,
-        processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
-            + Send
-            + Sync
-            + 'static,
+        processor: P,
         schema: Option<TransactionSchema<T>>,
     ) -> Self
     where
         T: InstructionDecoderCollection + 'static,
         U: DeserializeOwned + Send + Sync + 'static,
+        P: Processor<TransactionProcessorInputType<T, U>> + Send + Sync + 'static,
     {
         log::trace!(
             "transaction(self, schema: {:?}, processor: {:?})",
@@ -1390,11 +1399,7 @@ impl PipelineBuilder {
             stringify!(processor)
         );
         self.transaction_pipes
-            .push(Box::new(TransactionPipe::<T, U>::new(
-                schema,
-                processor,
-                vec![],
-            )));
+            .push(Box::new(TransactionPipe::new(schema, processor, vec![])));
         self
     }
 
@@ -1429,18 +1434,16 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .transaction_with_filters(MyTransactionProcessor, MY_SCHEMA.clone(), filters);
     /// ```
-    pub fn transaction_with_filters<T, U>(
+    pub fn transaction_with_filters<T, U, P>(
         mut self,
-        processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
-            + Send
-            + Sync
-            + 'static,
+        processor: P,
         schema: Option<TransactionSchema<T>>,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
     ) -> Self
     where
         T: InstructionDecoderCollection + 'static,
         U: DeserializeOwned + Send + Sync + 'static,
+        P: Processor<TransactionProcessorInputType<T, U>> + Send + Sync + 'static,
     {
         log::trace!(
             "transaction_with_filters(self, schema: {:?}, processor: {:?}, filters: {:?})",
@@ -1449,9 +1452,7 @@ impl PipelineBuilder {
             stringify!(filters)
         );
         self.transaction_pipes
-            .push(Box::new(TransactionPipe::<T, U>::new(
-                schema, processor, filters,
-            )));
+            .push(Box::new(TransactionPipe::new(schema, processor, filters)));
         self
     }
 

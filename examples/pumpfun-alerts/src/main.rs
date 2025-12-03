@@ -1,5 +1,4 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
         error::CarbonResult, instruction::InstructionProcessorInputType,
         metrics::MetricsCollection, processor::Processor,
@@ -59,32 +58,31 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct PumpfunInstructionProcessor;
 
-#[async_trait]
-impl Processor for PumpfunInstructionProcessor {
-    type InputType = InstructionProcessorInputType<PumpfunInstruction>;
-
-    async fn process(
+impl Processor<InstructionProcessorInputType<PumpfunInstruction>> for PumpfunInstructionProcessor {
+    fn process(
         &mut self,
-        data: Self::InputType,
+        (_metadata, decoded_instruction, _nested_instructions, _raw_instruction): &InstructionProcessorInputType<PumpfunInstruction>,
         _metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
-        let pumpfun_instruction: PumpfunInstruction = data.1.data.clone();
+    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
+        async move {
+            let pumpfun_instruction: PumpfunInstruction = decoded_instruction.data.clone();
 
-        match pumpfun_instruction {
-            PumpfunInstruction::CreateEvent(create_event) => {
-                log::info!("New token created: {create_event:#?}");
-            }
-            PumpfunInstruction::TradeEvent(trade_event) => {
-                if trade_event.sol_amount > 10 * LAMPORTS_PER_SOL {
-                    log::info!("Big trade occured: {trade_event:#?}");
+            match pumpfun_instruction {
+                PumpfunInstruction::CreateEvent(create_event) => {
+                    log::info!("New token created: {create_event:#?}");
                 }
-            }
-            PumpfunInstruction::CompleteEvent(complete_event) => {
-                log::info!("Bonded: {complete_event:#?}");
-            }
-            _ => {}
-        };
+                PumpfunInstruction::TradeEvent(trade_event) => {
+                    if trade_event.sol_amount > 10 * LAMPORTS_PER_SOL {
+                        log::info!("Big trade occured: {trade_event:#?}");
+                    }
+                }
+                PumpfunInstruction::CompleteEvent(complete_event) => {
+                    log::info!("Bonded: {complete_event:#?}");
+                }
+                _ => {}
+            };
 
-        Ok(())
+            Ok(())
+        }
     }
 }

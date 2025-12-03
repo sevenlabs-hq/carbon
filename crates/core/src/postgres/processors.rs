@@ -2,7 +2,7 @@ use solana_instruction::AccountMeta;
 use std::sync::Arc;
 
 use crate::{
-    account::{AccountMetadata, AccountProcessorInputType},
+    account::AccountMetadata,
     error::CarbonResult,
     instruction::{InstructionMetadata, InstructionProcessorInputType},
     metrics::MetricsCollection,
@@ -26,43 +26,46 @@ impl<T, W> PostgresAccountProcessor<T, W> {
     }
 }
 
-#[async_trait::async_trait]
-impl<T, W> crate::processor::Processor for PostgresAccountProcessor<T, W>
+impl<T, W> crate::processor::Processor<(AccountMetadata, T, solana_account::Account)>
+    for PostgresAccountProcessor<T, W>
 where
     T: Clone + Send + Sync + 'static,
     W: From<(T, AccountMetadata)> + Upsert + Send + 'static,
 {
-    type InputType = AccountProcessorInputType<T>;
-
-    async fn process(
+    fn process(
         &mut self,
-        input: Self::InputType,
+        input: &(AccountMetadata, T, solana_account::Account),
         metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
+    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
         let (metadata, decoded_account, _raw) = input;
+        let metadata = metadata.clone();
+        let decoded_account = decoded_account.clone();
+        let pool = self.pool.clone();
 
-        let start = std::time::Instant::now();
+        async move {
+            let start = std::time::Instant::now();
 
-        let wrapper = W::from((decoded_account.data.clone(), (*metadata).clone()));
+            let wrapper = W::from((decoded_account, metadata));
 
-        match wrapper.upsert(&self.pool).await {
-            Ok(()) => {
-                metrics
-                    .increment_counter("postgres.accounts.upsert.upserted", 1)
-                    .await?;
-                metrics
-                    .record_histogram(
-                        "postgres.accounts.upsert.duration_milliseconds",
-                        start.elapsed().as_millis() as f64,
-                    )
-                    .await?;
-                Ok(())
-            }
-            Err(e) => {
-                metrics
-                    .increment_counter("postgres.accounts.upsert.failed", 1)
-                    .await?;
-                return Err(e);
+            match wrapper.upsert(&pool).await {
+                Ok(()) => {
+                    metrics
+                        .increment_counter("postgres.accounts.upsert.upserted", 1)
+                        .await?;
+                    metrics
+                        .record_histogram(
+                            "postgres.accounts.upsert.duration_milliseconds",
+                            start.elapsed().as_millis() as f64,
+                        )
+                        .await?;
+                    Ok(())
+                }
+                Err(e) => {
+                    metrics
+                        .increment_counter("postgres.accounts.upsert.failed", 1)
+                        .await?;
+                    return Err(e);
+                }
             }
         }
     }
@@ -82,42 +85,42 @@ impl<T> PostgresJsonAccountProcessor<T> {
     }
 }
 
-#[async_trait::async_trait]
-impl<T> crate::processor::Processor for PostgresJsonAccountProcessor<T>
+impl<T> crate::processor::Processor<(AccountMetadata, T, solana_account::Account)>
+    for PostgresJsonAccountProcessor<T>
 where
     T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
 {
-    type InputType = AccountProcessorInputType<T>;
-
-    async fn process(
+    fn process(
         &mut self,
-        input: Self::InputType,
+        input: &(AccountMetadata, T, solana_account::Account),
         metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
-        let (metadata, decoded_account, _raw) = input;
+    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
+        async move {
+            let (metadata, decoded_account, _raw) = input;
 
-        let account_row = AccountRow::from_parts(decoded_account.data.clone(), metadata);
+            let account_row = AccountRow::from_parts(decoded_account.clone(), metadata);
 
-        let start = std::time::Instant::now();
+            let start = std::time::Instant::now();
 
-        match account_row.upsert(&self.pool).await {
-            Ok(()) => {
-                metrics
-                    .increment_counter("postgres.accounts.upsert.upserted", 1)
-                    .await?;
-                metrics
-                    .record_histogram(
-                        "postgres.accounts.upsert.duration_milliseconds",
-                        start.elapsed().as_millis() as f64,
-                    )
-                    .await?;
-                Ok(())
-            }
-            Err(e) => {
-                metrics
-                    .increment_counter("postgres.accounts.upsert.failed", 1)
-                    .await?;
-                return Err(e);
+            match account_row.upsert(&self.pool).await {
+                Ok(()) => {
+                    metrics
+                        .increment_counter("postgres.accounts.upsert.upserted", 1)
+                        .await?;
+                    metrics
+                        .record_histogram(
+                            "postgres.accounts.upsert.duration_milliseconds",
+                            start.elapsed().as_millis() as f64,
+                        )
+                        .await?;
+                    Ok(())
+                }
+                Err(e) => {
+                    metrics
+                        .increment_counter("postgres.accounts.upsert.failed", 1)
+                        .await?;
+                    return Err(e);
+                }
             }
         }
     }
@@ -137,47 +140,47 @@ impl<T, W> PostgresInstructionProcessor<T, W> {
     }
 }
 
-#[async_trait::async_trait]
-impl<T, W> crate::processor::Processor for PostgresInstructionProcessor<T, W>
+impl<T, W> crate::processor::Processor<InstructionProcessorInputType<T>>
+    for PostgresInstructionProcessor<T, W>
 where
     T: Clone + Send + Sync + 'static,
     W: From<(T, InstructionMetadata, Vec<AccountMeta>)> + Upsert + Send + 'static,
 {
-    type InputType = InstructionProcessorInputType<T>;
-
-    async fn process(
+    fn process(
         &mut self,
-        input: Self::InputType,
+        input: &InstructionProcessorInputType<T>,
         metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
-        let (metadata, decoded_instruction, _nested_instructions, _raw) = input;
+    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
+        async move {
+            let (metadata, decoded_instruction, _nested_instructions, _raw) = input;
 
-        let start = std::time::Instant::now();
+            let start = std::time::Instant::now();
 
-        let wrapper = W::from((
-            decoded_instruction.data.clone(),
-            metadata.clone(),
-            decoded_instruction.accounts.clone(),
-        ));
+            let wrapper = W::from((
+                decoded_instruction.data.clone(),
+                metadata.clone(),
+                decoded_instruction.accounts.clone(),
+            ));
 
-        match wrapper.upsert(&self.pool).await {
-            Ok(()) => {
-                metrics
-                    .increment_counter("postgres.instructions.upsert.upserted", 1)
-                    .await?;
-                metrics
-                    .record_histogram(
-                        "postgres.instructions.upsert.duration_milliseconds",
-                        start.elapsed().as_millis() as f64,
-                    )
-                    .await?;
-                Ok(())
-            }
-            Err(e) => {
-                metrics
-                    .increment_counter("postgres.instructions.upsert.failed", 1)
-                    .await?;
-                return Err(e);
+            match wrapper.upsert(&self.pool).await {
+                Ok(()) => {
+                    metrics
+                        .increment_counter("postgres.instructions.upsert.upserted", 1)
+                        .await?;
+                    metrics
+                        .record_histogram(
+                            "postgres.instructions.upsert.duration_milliseconds",
+                            start.elapsed().as_millis() as f64,
+                        )
+                        .await?;
+                    Ok(())
+                }
+                Err(e) => {
+                    metrics
+                        .increment_counter("postgres.instructions.upsert.failed", 1)
+                        .await?;
+                    return Err(e);
+                }
             }
         }
     }
@@ -197,46 +200,46 @@ impl<T> PostgresJsonInstructionProcessor<T> {
     }
 }
 
-#[async_trait::async_trait]
-impl<T> crate::processor::Processor for PostgresJsonInstructionProcessor<T>
+impl<T> crate::processor::Processor<InstructionProcessorInputType<T>>
+    for PostgresJsonInstructionProcessor<T>
 where
     T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
 {
-    type InputType = InstructionProcessorInputType<T>;
-
-    async fn process(
+    fn process(
         &mut self,
-        input: Self::InputType,
+        input: &InstructionProcessorInputType<T>,
         metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
-        let (metadata, decoded_instruction, _nested_instructions, _raw) = input;
+    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
+        async move {
+            let (metadata, decoded_instruction, _nested_instructions, _raw) = input;
 
-        let instruction_row = InstructionRow::from_parts(
-            decoded_instruction.data.clone(),
-            metadata,
-            decoded_instruction.accounts.clone(),
-        );
+            let instruction_row = InstructionRow::from_parts(
+                decoded_instruction.data.clone(),
+                metadata.clone(),
+                decoded_instruction.accounts.clone(),
+            );
 
-        let start = std::time::Instant::now();
+            let start = std::time::Instant::now();
 
-        match instruction_row.upsert(&self.pool).await {
-            Ok(()) => {
-                metrics
-                    .increment_counter("postgres.instructions.upsert.upserted", 1)
-                    .await?;
-                metrics
-                    .record_histogram(
-                        "postgres.instructions.upsert.duration_milliseconds",
-                        start.elapsed().as_millis() as f64,
-                    )
-                    .await?;
-                Ok(())
-            }
-            Err(e) => {
-                metrics
-                    .increment_counter("postgres.instructions.upsert.failed", 1)
-                    .await?;
-                return Err(e);
+            match instruction_row.upsert(&self.pool).await {
+                Ok(()) => {
+                    metrics
+                        .increment_counter("postgres.instructions.upsert.upserted", 1)
+                        .await?;
+                    metrics
+                        .record_histogram(
+                            "postgres.instructions.upsert.duration_milliseconds",
+                            start.elapsed().as_millis() as f64,
+                        )
+                        .await?;
+                    Ok(())
+                }
+                Err(e) => {
+                    metrics
+                        .increment_counter("postgres.instructions.upsert.failed", 1)
+                        .await?;
+                    return Err(e);
+                }
             }
         }
     }

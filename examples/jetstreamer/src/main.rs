@@ -1,6 +1,5 @@
 use std::{collections::HashSet, sync::Arc};
 
-use async_trait::async_trait;
 use carbon_core::{
     error::CarbonResult, instruction::InstructionProcessorInputType, metrics::MetricsCollection,
     pipeline::Pipeline, processor::Processor,
@@ -49,21 +48,20 @@ pub async fn main() -> CarbonResult<()> {
 
 struct Token2022InstructionLogger;
 
-#[async_trait]
-impl Processor for Token2022InstructionLogger {
-    type InputType = InstructionProcessorInputType<Token2022Instruction>;
-
-    async fn process(
+impl Processor<InstructionProcessorInputType<Token2022Instruction>> for Token2022InstructionLogger {
+    fn process(
         &mut self,
-        (metadata, decoded_instruction, _nested_instructions, _raw_instruction): Self::InputType,
+        (metadata, decoded_instruction, _nested_instructions, _raw_instruction): &InstructionProcessorInputType<Token2022Instruction>,
         _metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
-        log::info!(
-            "Token2022InstructionLogger: signature: {:?}, absolute path: {:?}, decoded_instruction: {:?}",
-            metadata.transaction_metadata.signature,
-            metadata.absolute_path,
-            decoded_instruction.data
-        );
-        Ok(())
+    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
+        async move {
+            log::info!(
+                "Token2022InstructionLogger: signature: {:?}, absolute path: {:?}, decoded_instruction: {:?}",
+                metadata.transaction_metadata.signature,
+                metadata.absolute_path,
+                decoded_instruction.data
+            );
+            Ok(())
+        }
     }
 }
