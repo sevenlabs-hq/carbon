@@ -10,8 +10,8 @@ use {
 
 const MAX_RETRIES: u32 = 3;
 const MAX_REDIRECTS: usize = 10;
-const PROGRESS_LOG_INTERVAL: u64 = 50 * 1024 * 1024; 
-const PROGRESS_LOG_TIME_INTERVAL: u64 = 5; 
+const PROGRESS_LOG_INTERVAL: u64 = 50 * 1024 * 1024;
+const PROGRESS_LOG_TIME_INTERVAL: u64 = 5;
 
 pub async fn download_and_setup_ledger(
     base_url: &str,
