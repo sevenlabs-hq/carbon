@@ -63,7 +63,7 @@ where
                 metrics
                     .increment_counter("postgres.accounts.upsert.failed", 1)
                     .await?;
-                return Err(e);
+                Err(e)
             }
         }
     }
@@ -116,7 +116,7 @@ where
                 metrics
                     .increment_counter("postgres.accounts.upsert.failed", 1)
                     .await?;
-                return Err(e);
+                Err(e)
             }
         }
     }
@@ -175,7 +175,7 @@ where
                 metrics
                     .increment_counter("postgres.instructions.upsert.failed", 1)
                     .await?;
-                return Err(e);
+                Err(e)
             }
         }
     }
@@ -233,7 +233,7 @@ where
                 metrics
                     .increment_counter("postgres.instructions.upsert.failed", 1)
                     .await?;
-                return Err(e);
+                Err(e)
             }
         }
     }
