@@ -32,40 +32,38 @@ where
     T: Clone + Send + Sync + 'static,
     W: From<(T, AccountMetadata)> + Upsert + Send + 'static,
 {
-    fn process(
+    async fn process(
         &mut self,
         input: &(AccountMetadata, T, solana_account::Account),
         metrics: Arc<MetricsCollection>,
-    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
+    ) -> CarbonResult<()> {
         let (metadata, decoded_account, _raw) = input;
         let metadata = metadata.clone();
         let decoded_account = decoded_account.clone();
         let pool = self.pool.clone();
 
-        async move {
-            let start = std::time::Instant::now();
+        let start = std::time::Instant::now();
 
-            let wrapper = W::from((decoded_account, metadata));
+        let wrapper = W::from((decoded_account, metadata));
 
-            match wrapper.upsert(&pool).await {
-                Ok(()) => {
-                    metrics
-                        .increment_counter("postgres.accounts.upsert.upserted", 1)
-                        .await?;
-                    metrics
-                        .record_histogram(
-                            "postgres.accounts.upsert.duration_milliseconds",
-                            start.elapsed().as_millis() as f64,
-                        )
-                        .await?;
-                    Ok(())
-                }
-                Err(e) => {
-                    metrics
-                        .increment_counter("postgres.accounts.upsert.failed", 1)
-                        .await?;
-                    return Err(e);
-                }
+        match wrapper.upsert(&pool).await {
+            Ok(()) => {
+                metrics
+                    .increment_counter("postgres.accounts.upsert.upserted", 1)
+                    .await?;
+                metrics
+                    .record_histogram(
+                        "postgres.accounts.upsert.duration_milliseconds",
+                        start.elapsed().as_millis() as f64,
+                    )
+                    .await?;
+                Ok(())
+            }
+            Err(e) => {
+                metrics
+                    .increment_counter("postgres.accounts.upsert.failed", 1)
+                    .await?;
+                return Err(e);
             }
         }
     }
@@ -90,37 +88,35 @@ impl<T> crate::processor::Processor<(AccountMetadata, T, solana_account::Account
 where
     T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
 {
-    fn process(
+    async fn process(
         &mut self,
         input: &(AccountMetadata, T, solana_account::Account),
         metrics: Arc<MetricsCollection>,
-    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
-        async move {
-            let (metadata, decoded_account, _raw) = input;
+    ) -> CarbonResult<()> {
+        let (metadata, decoded_account, _raw) = input;
 
-            let account_row = AccountRow::from_parts(decoded_account.clone(), metadata);
+        let account_row = AccountRow::from_parts(decoded_account.clone(), metadata);
 
-            let start = std::time::Instant::now();
+        let start = std::time::Instant::now();
 
-            match account_row.upsert(&self.pool).await {
-                Ok(()) => {
-                    metrics
-                        .increment_counter("postgres.accounts.upsert.upserted", 1)
-                        .await?;
-                    metrics
-                        .record_histogram(
-                            "postgres.accounts.upsert.duration_milliseconds",
-                            start.elapsed().as_millis() as f64,
-                        )
-                        .await?;
-                    Ok(())
-                }
-                Err(e) => {
-                    metrics
-                        .increment_counter("postgres.accounts.upsert.failed", 1)
-                        .await?;
-                    return Err(e);
-                }
+        match account_row.upsert(&self.pool).await {
+            Ok(()) => {
+                metrics
+                    .increment_counter("postgres.accounts.upsert.upserted", 1)
+                    .await?;
+                metrics
+                    .record_histogram(
+                        "postgres.accounts.upsert.duration_milliseconds",
+                        start.elapsed().as_millis() as f64,
+                    )
+                    .await?;
+                Ok(())
+            }
+            Err(e) => {
+                metrics
+                    .increment_counter("postgres.accounts.upsert.failed", 1)
+                    .await?;
+                return Err(e);
             }
         }
     }
@@ -146,42 +142,40 @@ where
     T: Clone + Send + Sync + 'static,
     W: From<(T, InstructionMetadata, Vec<AccountMeta>)> + Upsert + Send + 'static,
 {
-    fn process(
+    async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, T>,
         metrics: Arc<MetricsCollection>,
-    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
-        async move {
-            let metadata = input.metadata;
-            let decoded_instruction = input.decoded_instruction;
+    ) -> CarbonResult<()> {
+        let metadata = input.metadata;
+        let decoded_instruction = input.decoded_instruction;
 
-            let start = std::time::Instant::now();
+        let start = std::time::Instant::now();
 
-            let wrapper = W::from((
-                decoded_instruction.data.clone(),
-                metadata.clone(),
-                decoded_instruction.accounts.clone(),
-            ));
+        let wrapper = W::from((
+            decoded_instruction.data.clone(),
+            metadata.clone(),
+            decoded_instruction.accounts.clone(),
+        ));
 
-            match wrapper.upsert(&self.pool).await {
-                Ok(()) => {
-                    metrics
-                        .increment_counter("postgres.instructions.upsert.upserted", 1)
-                        .await?;
-                    metrics
-                        .record_histogram(
-                            "postgres.instructions.upsert.duration_milliseconds",
-                            start.elapsed().as_millis() as f64,
-                        )
-                        .await?;
-                    Ok(())
-                }
-                Err(e) => {
-                    metrics
-                        .increment_counter("postgres.instructions.upsert.failed", 1)
-                        .await?;
-                    return Err(e);
-                }
+        match wrapper.upsert(&self.pool).await {
+            Ok(()) => {
+                metrics
+                    .increment_counter("postgres.instructions.upsert.upserted", 1)
+                    .await?;
+                metrics
+                    .record_histogram(
+                        "postgres.instructions.upsert.duration_milliseconds",
+                        start.elapsed().as_millis() as f64,
+                    )
+                    .await?;
+                Ok(())
+            }
+            Err(e) => {
+                metrics
+                    .increment_counter("postgres.instructions.upsert.failed", 1)
+                    .await?;
+                return Err(e);
             }
         }
     }
@@ -206,42 +200,40 @@ impl<T> crate::processor::Processor<InstructionProcessorInputType<'_, T>>
 where
     T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
 {
-    fn process(
+    async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, T>,
         metrics: Arc<MetricsCollection>,
-    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
-        async move {
-            let metadata = input.metadata;
-            let decoded_instruction = input.decoded_instruction;
+    ) -> CarbonResult<()> {
+        let metadata = input.metadata;
+        let decoded_instruction = input.decoded_instruction;
 
-            let instruction_row = InstructionRow::from_parts(
-                decoded_instruction.data.clone(),
-                metadata.clone(),
-                decoded_instruction.accounts.clone(),
-            );
+        let instruction_row = InstructionRow::from_parts(
+            decoded_instruction.data.clone(),
+            metadata.clone(),
+            decoded_instruction.accounts.clone(),
+        );
 
-            let start = std::time::Instant::now();
+        let start = std::time::Instant::now();
 
-            match instruction_row.upsert(&self.pool).await {
-                Ok(()) => {
-                    metrics
-                        .increment_counter("postgres.instructions.upsert.upserted", 1)
-                        .await?;
-                    metrics
-                        .record_histogram(
-                            "postgres.instructions.upsert.duration_milliseconds",
-                            start.elapsed().as_millis() as f64,
-                        )
-                        .await?;
-                    Ok(())
-                }
-                Err(e) => {
-                    metrics
-                        .increment_counter("postgres.instructions.upsert.failed", 1)
-                        .await?;
-                    return Err(e);
-                }
+        match instruction_row.upsert(&self.pool).await {
+            Ok(()) => {
+                metrics
+                    .increment_counter("postgres.instructions.upsert.upserted", 1)
+                    .await?;
+                metrics
+                    .record_histogram(
+                        "postgres.instructions.upsert.duration_milliseconds",
+                        start.elapsed().as_millis() as f64,
+                    )
+                    .await?;
+                Ok(())
+            }
+            Err(e) => {
+                metrics
+                    .increment_counter("postgres.instructions.upsert.failed", 1)
+                    .await?;
+                return Err(e);
             }
         }
     }
