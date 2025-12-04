@@ -395,7 +395,7 @@ impl<'a> InstructionDecoder<'a> for SyntheticInstructionDecoder {
 #[derive(Default)]
 struct SyntheticInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<()>> for SyntheticInstructionProcessor {
+impl Processor<InstructionProcessorInputType<'_, ()>> for SyntheticInstructionProcessor {
     fn process(
         &mut self,
         _data: &InstructionProcessorInputType<()>,
@@ -427,7 +427,7 @@ impl<'a> AccountDecoder<'a> for SyntheticAccountDecoder {
 #[derive(Default)]
 struct SyntheticAccountProcessor;
 
-impl Processor<AccountProcessorInputType<()>> for SyntheticAccountProcessor {
+impl Processor<AccountProcessorInputType<'_, ()>> for SyntheticAccountProcessor {
     fn process(
         &mut self,
         _data: &AccountProcessorInputType<()>,

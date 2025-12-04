@@ -56,28 +56,28 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct PumpfunInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<PumpfunInstruction>> for PumpfunInstructionProcessor {
+impl Processor<InstructionProcessorInputType<'_, PumpfunInstruction>>
+    for PumpfunInstructionProcessor
+{
     fn process(
         &mut self,
-        data: &InstructionProcessorInputType<PumpfunInstruction>,
+        data: &InstructionProcessorInputType<'_, PumpfunInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
         async move {
-            let (metadata, pumpfun_instruction, _nested_instructions, _) = data;
-
-            match pumpfun_instruction.data.clone() {
+            match data.decoded_instruction.data.clone() {
                 PumpfunInstruction::CreateEvent(create_event) => {
                     log::info!(
                         "New token created: {:#?} on slot {}",
                         create_event,
-                        metadata.transaction_metadata.slot
+                        data.metadata.transaction_metadata.slot
                     );
                 }
                 PumpfunInstruction::TradeEvent(trade_event) => {
                     log::info!(
                         "New trade occured: {:#?} on slot {:#?}",
                         trade_event,
-                        metadata.transaction_metadata.slot
+                        data.metadata.transaction_metadata.slot
                     );
                 }
                 _ => {}

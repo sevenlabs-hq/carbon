@@ -95,20 +95,18 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct PumpSwapInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<PumpSwapInstruction>>
+impl Processor<InstructionProcessorInputType<'_, PumpSwapInstruction>>
     for PumpSwapInstructionProcessor
 {
     fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions, _): &InstructionProcessorInputType<
-            PumpSwapInstruction,
-        >,
+        input: &InstructionProcessorInputType<'_, PumpSwapInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
         async move {
-            let signature = metadata.transaction_metadata.signature;
-            let _accounts = instruction.accounts.clone();
-            let pumpswap_instruction = instruction.data.clone();
+            let signature = input.metadata.transaction_metadata.signature;
+            let _accounts = input.decoded_instruction.accounts.clone();
+            let pumpswap_instruction = input.decoded_instruction.data.clone();
 
             match pumpswap_instruction {
                 PumpSwapInstruction::Buy(buy) => {

@@ -48,21 +48,19 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct RaydiumClmmInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<RaydiumClmmInstruction>>
+impl Processor<InstructionProcessorInputType<'_, RaydiumClmmInstruction>>
     for RaydiumClmmInstructionProcessor
 {
     fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions, _): &InstructionProcessorInputType<
-            RaydiumClmmInstruction,
-        >,
+        input: &InstructionProcessorInputType<'_, RaydiumClmmInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
         async move {
-            let signature = metadata.transaction_metadata.signature;
-            let accounts = instruction.accounts.clone();
+            let signature = input.metadata.transaction_metadata.signature;
+            let accounts = input.decoded_instruction.accounts.clone();
 
-            match instruction.data.clone() {
+            match input.decoded_instruction.data.clone() {
                 RaydiumClmmInstruction::CreateAmmConfig(create_amm_cfg) => {
                     log::info!(
                     "CreateAmmConfig: signature: {signature}, create_amm_cfg: {create_amm_cfg:?}"

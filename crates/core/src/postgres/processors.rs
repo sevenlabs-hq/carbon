@@ -140,7 +140,7 @@ impl<T, W> PostgresInstructionProcessor<T, W> {
     }
 }
 
-impl<T, W> crate::processor::Processor<InstructionProcessorInputType<T>>
+impl<T, W> crate::processor::Processor<InstructionProcessorInputType<'_, T>>
     for PostgresInstructionProcessor<T, W>
 where
     T: Clone + Send + Sync + 'static,
@@ -148,11 +148,12 @@ where
 {
     fn process(
         &mut self,
-        input: &InstructionProcessorInputType<T>,
+        input: &InstructionProcessorInputType<'_, T>,
         metrics: Arc<MetricsCollection>,
     ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
         async move {
-            let (metadata, decoded_instruction, _nested_instructions, _raw) = input;
+            let metadata = input.metadata;
+            let decoded_instruction = input.decoded_instruction;
 
             let start = std::time::Instant::now();
 
@@ -200,18 +201,19 @@ impl<T> PostgresJsonInstructionProcessor<T> {
     }
 }
 
-impl<T> crate::processor::Processor<InstructionProcessorInputType<T>>
+impl<T> crate::processor::Processor<InstructionProcessorInputType<'_, T>>
     for PostgresJsonInstructionProcessor<T>
 where
     T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
 {
     fn process(
         &mut self,
-        input: &InstructionProcessorInputType<T>,
+        input: &InstructionProcessorInputType<'_, T>,
         metrics: Arc<MetricsCollection>,
     ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
         async move {
-            let (metadata, decoded_instruction, _nested_instructions, _raw) = input;
+            let metadata = input.metadata;
+            let decoded_instruction = input.decoded_instruction;
 
             let instruction_row = InstructionRow::from_parts(
                 decoded_instruction.data.clone(),

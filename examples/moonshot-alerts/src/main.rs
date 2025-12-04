@@ -51,21 +51,19 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct MoonshotInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<MoonshotInstruction>>
+impl Processor<InstructionProcessorInputType<'_, MoonshotInstruction>>
     for MoonshotInstructionProcessor
 {
     fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions, _): &InstructionProcessorInputType<
-            MoonshotInstruction,
-        >,
+        input: &InstructionProcessorInputType<'_, MoonshotInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
         async move {
-            let signature = metadata.transaction_metadata.signature;
-            let accounts = instruction.accounts.clone();
+            let signature = input.metadata.transaction_metadata.signature;
+            let accounts = input.decoded_instruction.accounts.clone();
 
-            match instruction.data.clone() {
+            match input.decoded_instruction.data.clone() {
                 MoonshotInstruction::TokenMint(token_mint) => {
                     match TokenMint::arrange_accounts(&accounts) {
                         Some(accounts) => {

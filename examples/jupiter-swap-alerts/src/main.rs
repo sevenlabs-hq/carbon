@@ -83,20 +83,18 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct JupiterSwapInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<JupiterSwapInstruction>>
+impl Processor<InstructionProcessorInputType<'_, JupiterSwapInstruction>>
     for JupiterSwapInstructionProcessor
 {
     fn process(
         &mut self,
-        (metadata, instruction, nested_instructions, _): &InstructionProcessorInputType<
-            JupiterSwapInstruction,
-        >,
+        input: &InstructionProcessorInputType<'_, JupiterSwapInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
         async move {
-            let signature = metadata.transaction_metadata.signature;
+            let signature = input.metadata.transaction_metadata.signature;
 
-            match instruction.data.clone() {
+            match input.decoded_instruction.data.clone() {
                 JupiterSwapInstruction::Claim(claim) => {
                     log::info!("claim: signature: {signature}, claim: {claim:?}");
                 }
@@ -108,7 +106,7 @@ impl Processor<InstructionProcessorInputType<JupiterSwapInstruction>>
                 }
                 JupiterSwapInstruction::ExactOutRoute(exact_out_route) => {
                     assert!(
-                        !nested_instructions.is_empty(),
+                        !input.nested_instructions.is_empty(),
                         "nested instructions empty: {signature} "
                     );
                     log::info!(
@@ -117,14 +115,14 @@ impl Processor<InstructionProcessorInputType<JupiterSwapInstruction>>
                 }
                 JupiterSwapInstruction::Route(route) => {
                     assert!(
-                        !nested_instructions.is_empty(),
+                        !input.nested_instructions.is_empty(),
                         "nested instructions empty: {signature} "
                     );
                     log::info!("route: signature: {signature}, route: {route:?}");
                 }
                 JupiterSwapInstruction::RouteWithTokenLedger(route_with_token_ledger) => {
                     assert!(
-                        !nested_instructions.is_empty(),
+                        !input.nested_instructions.is_empty(),
                         "nested instructions empty: {signature} "
                     );
                     log::info!("route_with_token_ledger: signature: {signature}, route_with_token_ledger: {route_with_token_ledger:?}");
@@ -136,21 +134,21 @@ impl Processor<InstructionProcessorInputType<JupiterSwapInstruction>>
                     shared_accounts_exact_out_route,
                 ) => {
                     assert!(
-                        !nested_instructions.is_empty(),
+                        !input.nested_instructions.is_empty(),
                         "nested instructions empty: {signature} "
                     );
                     log::info!("shared_accounts_exact_out_route: signature: {signature}, shared_accounts_exact_out_route: {shared_accounts_exact_out_route:?}");
                 }
                 JupiterSwapInstruction::ExactOutRouteV2(exact_out_route_v2) => {
                     assert!(
-                        !nested_instructions.is_empty(),
+                        !input.nested_instructions.is_empty(),
                         "nested instructions empty: {signature} "
                     );
                     log::info!("exact_out_route_v2: signature: {signature}, exact_out_route_v2: {exact_out_route_v2:?}");
                 }
                 JupiterSwapInstruction::RouteV2(route_v2) => {
                     assert!(
-                        !nested_instructions.is_empty(),
+                        !input.nested_instructions.is_empty(),
                         "nested instructions empty: {signature} "
                     );
                     log::info!("route_v2: signature: {signature}, route_v2: {route_v2:?}");
@@ -159,21 +157,21 @@ impl Processor<InstructionProcessorInputType<JupiterSwapInstruction>>
                     shared_accounts_exact_out_route_v2,
                 ) => {
                     assert!(
-                        !nested_instructions.is_empty(),
+                        !input.nested_instructions.is_empty(),
                         "nested instructions empty: {signature} "
                     );
                     log::info!("shared_accounts_exact_out_route_v2: signature: {signature}, shared_accounts_exact_out_route_v2: {shared_accounts_exact_out_route_v2:?}");
                 }
                 JupiterSwapInstruction::SharedAccountsRouteV2(shared_accounts_route_v2) => {
                     assert!(
-                        !nested_instructions.is_empty(),
+                        !input.nested_instructions.is_empty(),
                         "nested instructions empty: {signature} "
                     );
                     log::info!("shared_accounts_route_v2: signature: {signature}, shared_accounts_route_v2: {shared_accounts_route_v2:?}");
                 }
                 JupiterSwapInstruction::SharedAccountsRoute(shared_accounts_route) => {
                     assert!(
-                        !nested_instructions.is_empty(),
+                        !input.nested_instructions.is_empty(),
                         "nested instructions empty: {signature} "
                     );
                     log::info!("shared_accounts_route: signature: {signature}, shared_accounts_route: {shared_accounts_route:?}");
@@ -182,7 +180,7 @@ impl Processor<InstructionProcessorInputType<JupiterSwapInstruction>>
                     shared_accounts_route_with_token_ledger,
                 ) => {
                     assert!(
-                        !nested_instructions.is_empty(),
+                        !input.nested_instructions.is_empty(),
                         "nested instructions empty: {signature} "
                     );
                     log::info!("shared_accounts_route_with_token_ledger: signature: {signature}, shared_accounts_route_with_token_ledger: {shared_accounts_route_with_token_ledger:?}");

@@ -47,20 +47,18 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct OpenbookV2InstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<OpenbookV2Instruction>>
+impl Processor<InstructionProcessorInputType<'_, OpenbookV2Instruction>>
     for OpenbookV2InstructionProcessor
 {
     fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions, _): &InstructionProcessorInputType<
-            OpenbookV2Instruction,
-        >,
+        input: &InstructionProcessorInputType<'_, OpenbookV2Instruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
         async move {
-            let signature = metadata.transaction_metadata.signature;
+            let signature = input.metadata.transaction_metadata.signature;
 
-            match instruction.data.clone() {
+            match input.decoded_instruction.data.clone() {
                 OpenbookV2Instruction::CreateMarket(create_market) => {
                     log::info!(
                         "CreateMarket: signature: {signature}, create_market: {create_market:?}"

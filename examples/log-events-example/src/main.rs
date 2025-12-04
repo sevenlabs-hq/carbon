@@ -83,16 +83,16 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct RaydiumCpmmInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<RaydiumCpmmInstruction>>
+impl Processor<InstructionProcessorInputType<'_, RaydiumCpmmInstruction>>
     for RaydiumCpmmInstructionProcessor
 {
     fn process(
         &mut self,
-        (metadata, _, _, _): &InstructionProcessorInputType<RaydiumCpmmInstruction>,
+        input: &InstructionProcessorInputType<'_, RaydiumCpmmInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
         async move {
-            let logs = metadata.decode_log_events::<SwapEvent>();
+            let logs = input.metadata.decode_log_events::<SwapEvent>();
 
             if !logs.is_empty() {
                 println!("Swap Events: {logs:?}");

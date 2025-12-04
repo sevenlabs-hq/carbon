@@ -99,21 +99,19 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct RaydiumAmmV4InstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<RaydiumAmmV4Instruction>>
+impl Processor<InstructionProcessorInputType<'_, RaydiumAmmV4Instruction>>
     for RaydiumAmmV4InstructionProcessor
 {
     fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions, _): &InstructionProcessorInputType<
-            RaydiumAmmV4Instruction,
-        >,
+        input: &InstructionProcessorInputType<'_, RaydiumAmmV4Instruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
         async move {
-            let signature = metadata.transaction_metadata.signature;
-            let accounts = instruction.accounts.clone();
+            let signature = input.metadata.transaction_metadata.signature;
+            let accounts = input.decoded_instruction.accounts.clone();
 
-            match instruction.data.clone() {
+            match input.decoded_instruction.data.clone() {
                 RaydiumAmmV4Instruction::Initialize2(init_pool) => {
                     log::info!("Initialize2: signature: {signature}, init_pool: {init_pool:?}");
                 }
@@ -232,21 +230,21 @@ impl Processor<InstructionProcessorInputType<RaydiumAmmV4Instruction>>
 }
 
 pub struct RaydiumAmmV4AccountProcessor;
-impl Processor<AccountProcessorInputType<RaydiumAmmV4Account>> for RaydiumAmmV4AccountProcessor {
+impl Processor<AccountProcessorInputType<'_, RaydiumAmmV4Account>>
+    for RaydiumAmmV4AccountProcessor
+{
     fn process(
         &mut self,
-        (account_metadata, decoded_account, _account): &AccountProcessorInputType<
-            RaydiumAmmV4Account,
-        >,
+        input: &AccountProcessorInputType<'_, RaydiumAmmV4Account>,
         _metrics: Arc<MetricsCollection>,
     ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
         async move {
-            match &decoded_account.data {
+            match &input.decoded_account.data {
                 RaydiumAmmV4Account::AmmInfo(pool) => {
-                    log::info!("Account: {:#?}\nPool: {:#?}", account_metadata.pubkey, pool);
+                    log::info!("Account: {:#?}\nPool: {:#?}", input.metadata.pubkey, pool);
                 }
                 _ => {
-                    log::warn!("Unnecessary Account: {:#?}", account_metadata.pubkey);
+                    log::warn!("Unnecessary Account: {:#?}", input.metadata.pubkey);
                 }
             };
 

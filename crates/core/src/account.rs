@@ -129,11 +129,15 @@ pub trait AccountDecoder<'a> {
 
 /// The data type for account processing.
 ///
-/// - `T`: The account type, as determined by the decoder.
+/// Holds references to avoid cloning. Processors receive a reference to this struct.
 ///
-/// Processors receive a reference to this data to avoid cloning.
-pub type AccountProcessorInputType<T> =
-    (AccountMetadata, DecodedAccount<T>, solana_account::Account);
+/// - `T`: The account type, as determined by the decoder.
+#[derive(Debug)]
+pub struct AccountProcessorInputType<'a, T> {
+    pub metadata: &'a AccountMetadata,
+    pub decoded_account: &'a DecodedAccount<T>,
+    pub raw_account: &'a solana_account::Account,
+}
 
 /// A processing pipe that decodes and processes Solana account updates.
 ///
@@ -190,7 +194,7 @@ pub trait AccountPipes: Send + Sync {
 impl<T, P> AccountPipes for AccountPipe<T, P>
 where
     T: Send + Sync,
-    P: Processor<AccountProcessorInputType<T>> + Send + Sync,
+    P: for<'a> Processor<AccountProcessorInputType<'a, T>> + Send + Sync,
 {
     async fn run(
         &mut self,
@@ -210,8 +214,11 @@ where
         if let Some(decoded_account) = decoded_account {
             let process_start = std::time::Instant::now();
 
-            // Create owned data to pass by reference to the processor
-            let data = (account_metadata.clone(), decoded_account, account.clone());
+            let data = AccountProcessorInputType {
+                metadata: account_metadata,
+                decoded_account: &decoded_account,
+                raw_account: account,
+            };
             self.processor.process(&data, metrics.clone()).await?;
 
             let process_time_ns = process_start.elapsed().as_nanos();

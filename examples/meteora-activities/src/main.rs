@@ -52,19 +52,17 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct MeteoraInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<MeteoraDlmmInstruction>>
+impl Processor<InstructionProcessorInputType<'_, MeteoraDlmmInstruction>>
     for MeteoraInstructionProcessor
 {
     fn process(
         &mut self,
-        (_metadata, decoded_instruction, _nested_instructions, _): &InstructionProcessorInputType<
-            MeteoraDlmmInstruction,
-        >,
+        input: &InstructionProcessorInputType<'_, MeteoraDlmmInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
         async move {
             // Process all Meteora Events and add each to DB
-            match decoded_instruction.data.clone() {
+            match input.decoded_instruction.data.clone() {
                 MeteoraDlmmInstruction::AddLiquidity(_add_liquidity) => {}
                 MeteoraDlmmInstruction::RemoveLiquidity(_remove_liquidity) => {}
                 MeteoraDlmmInstruction::Swap(_swap) => {}

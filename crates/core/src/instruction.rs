@@ -227,13 +227,16 @@ pub trait InstructionDecoder<'a> {
 
 /// The input type for the instruction processor.
 ///
+/// Holds references to avoid cloning. Processors receive a reference to this struct.
+///
 /// - `T`: The instruction type
-pub type InstructionProcessorInputType<T> = (
-    InstructionMetadata,
-    DecodedInstruction<T>,
-    NestedInstructions,
-    solana_instruction::Instruction,
-);
+#[derive(Debug)]
+pub struct InstructionProcessorInputType<'a, T> {
+    pub metadata: &'a InstructionMetadata,
+    pub decoded_instruction: &'a DecodedInstruction<T>,
+    pub nested_instructions: &'a NestedInstructions,
+    pub raw_instruction: &'a solana_instruction::Instruction,
+}
 
 /// A processing pipeline for instructions, using a decoder and processor.
 ///
@@ -289,7 +292,7 @@ pub trait InstructionPipes<'a>: Send + Sync {
 impl<T, P> InstructionPipes<'_> for InstructionPipe<T, P>
 where
     T: Send + Sync + 'static,
-    P: Processor<InstructionProcessorInputType<T>> + Send + Sync,
+    P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync,
 {
     async fn run(
         &mut self,
@@ -311,13 +314,12 @@ where
             let process_start = std::time::Instant::now();
             let process_metrics = metrics.clone();
 
-            // Create owned data to pass by reference to processor
-            let data = (
-                nested_instruction.metadata.clone(),
-                decoded_instruction,
-                nested_instruction.inner_instructions.clone(),
-                nested_instruction.instruction.clone(),
-            );
+            let data = InstructionProcessorInputType {
+                metadata: &nested_instruction.metadata,
+                decoded_instruction: &decoded_instruction,
+                nested_instructions: &nested_instruction.inner_instructions,
+                raw_instruction: &nested_instruction.instruction,
+            };
 
             self.processor.process(&data, process_metrics).await?;
             let process_time_ns = process_start.elapsed().as_nanos();

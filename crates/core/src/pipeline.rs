@@ -55,7 +55,9 @@ use crate::datasource::{BlockDetails, DatasourceId};
 use crate::filter::Filter;
 use {
     crate::{
-        account::{AccountProcessorInputType, AccountDecoder, AccountMetadata, AccountPipe, AccountPipes},
+        account::{
+            AccountDecoder, AccountMetadata, AccountPipe, AccountPipes, AccountProcessorInputType,
+        },
         account_deletion::{AccountDeletionPipe, AccountDeletionPipes},
         collection::InstructionDecoderCollection,
         datasource::{AccountDeletion, Datasource, Update},
@@ -1039,7 +1041,7 @@ impl PipelineBuilder {
     ) -> Self
     where
         T: Send + Sync + 'static,
-        P: Processor<AccountProcessorInputType<T>> + Send + Sync + 'static,
+        P: for<'a> Processor<AccountProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
         log::trace!(
             "account(self, decoder: {:?}, processor: {:?})",
@@ -1092,7 +1094,7 @@ impl PipelineBuilder {
     ) -> Self
     where
         T: Send + Sync + 'static,
-        P: Processor<AccountProcessorInputType<T>> + Send + Sync + 'static,
+        P: for<'a> Processor<AccountProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
         log::trace!(
             "account_with_filters(self, decoder: {:?}, processor: {:?}, filters: {:?})",
@@ -1293,7 +1295,7 @@ impl PipelineBuilder {
     ) -> Self
     where
         T: Send + Sync + 'static,
-        P: Processor<InstructionProcessorInputType<T>> + Send + Sync + 'static,
+        P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
         log::trace!(
             "instruction(self, decoder: {:?}, processor: {:?})",
@@ -1347,7 +1349,7 @@ impl PipelineBuilder {
     ) -> Self
     where
         T: Send + Sync + 'static,
-        P: Processor<InstructionProcessorInputType<T>> + Send + Sync + 'static,
+        P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
         log::trace!(
             "instruction_with_filters(self, decoder: {:?}, processor: {:?}, filters: {:?})",

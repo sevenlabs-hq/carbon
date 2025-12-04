@@ -87,18 +87,16 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct KaminoLendingInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<KaminoLendingInstruction>>
+impl Processor<InstructionProcessorInputType<'_, KaminoLendingInstruction>>
     for KaminoLendingInstructionProcessor
 {
     fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions, _): &InstructionProcessorInputType<
-            KaminoLendingInstruction,
-        >,
+        input: &InstructionProcessorInputType<'_, KaminoLendingInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
         async move {
-            let signature = metadata.transaction_metadata.signature;
+            let signature = input.metadata.transaction_metadata.signature;
 
             let signature = format!(
                 "{}...{}",
@@ -110,7 +108,7 @@ impl Processor<InstructionProcessorInputType<KaminoLendingInstruction>>
             log::info!(
                 "instruction processed ({}) {:?}",
                 signature,
-                instruction.data.clone()
+                input.decoded_instruction.data.clone()
             );
 
             Ok(())
@@ -120,19 +118,19 @@ impl Processor<InstructionProcessorInputType<KaminoLendingInstruction>>
 
 pub struct KaminoLendingAccountProcessor;
 
-impl Processor<AccountProcessorInputType<KaminoLendingAccount>> for KaminoLendingAccountProcessor {
+impl Processor<AccountProcessorInputType<'_, KaminoLendingAccount>>
+    for KaminoLendingAccountProcessor
+{
     fn process(
         &mut self,
-        (account_metadata, decoded_account, _account): &AccountProcessorInputType<
-            KaminoLendingAccount,
-        >,
+        input: &AccountProcessorInputType<'_, KaminoLendingAccount>,
         _metrics: Arc<MetricsCollection>,
     ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
         async move {
             let pubkey_str = format!(
                 "{}...{}",
-                &account_metadata.pubkey.to_string()[..4],
-                &account_metadata.pubkey.to_string()[4..]
+                &input.metadata.pubkey.to_string()[..4],
+                &input.metadata.pubkey.to_string()[4..]
             );
 
             fn max_total_chars(s: &str, max: usize) -> String {
@@ -147,7 +145,7 @@ impl Processor<AccountProcessorInputType<KaminoLendingAccount>> for KaminoLendin
                 "account updated ({}) {:?}",
                 pubkey_str,
                 max_total_chars(
-                    &match &decoded_account.data {
+                    &match &input.decoded_account.data {
                         KaminoLendingAccount::UserState(user_state) => format!("{user_state:?}"),
                         KaminoLendingAccount::LendingMarket(lending_market) =>
                             format!("{lending_market:?}"),

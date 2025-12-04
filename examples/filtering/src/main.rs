@@ -121,18 +121,16 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct KaminoLendingInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<KaminoLendingInstruction>>
+impl Processor<InstructionProcessorInputType<'_, KaminoLendingInstruction>>
     for KaminoLendingInstructionProcessor
 {
     fn process(
         &mut self,
-        data: &InstructionProcessorInputType<KaminoLendingInstruction>,
+        data: &InstructionProcessorInputType<'_, KaminoLendingInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
         async move {
-            let (metadata, instruction, _nested_instructions, _) = data;
-
-            let signature = metadata.transaction_metadata.signature;
+            let signature = data.metadata.transaction_metadata.signature;
 
             let signature = format!(
                 "{}...{}",
@@ -144,7 +142,7 @@ impl Processor<InstructionProcessorInputType<KaminoLendingInstruction>>
             log::info!(
                 "instruction processed ({}) {:?}",
                 signature,
-                instruction.data.clone()
+                data.decoded_instruction.data.clone()
             );
 
             Ok(())
@@ -154,21 +152,21 @@ impl Processor<InstructionProcessorInputType<KaminoLendingInstruction>>
 
 pub struct KaminoLendingRealtimeAccountProcessor;
 
-impl Processor<AccountProcessorInputType<KaminoLendingAccount>>
+impl Processor<AccountProcessorInputType<'_, KaminoLendingAccount>>
     for KaminoLendingRealtimeAccountProcessor
 {
     fn process(
         &mut self,
-        data: &AccountProcessorInputType<KaminoLendingAccount>,
+        data: &AccountProcessorInputType<'_, KaminoLendingAccount>,
         metrics: Arc<MetricsCollection>,
     ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
         async move {
-            let account = &data.1;
+            let account = &data.decoded_account;
 
             let pubkey_str = format!(
                 "{}...{}",
-                &data.0.pubkey.to_string()[..4],
-                &data.0.pubkey.to_string()[4..]
+                &data.metadata.pubkey.to_string()[..4],
+                &data.metadata.pubkey.to_string()[4..]
             );
 
             fn max_total_chars(s: &str, max: usize) -> String {
@@ -213,21 +211,21 @@ impl Processor<AccountProcessorInputType<KaminoLendingAccount>>
 
 pub struct KaminoLendingStartupAccountProcessor;
 
-impl Processor<AccountProcessorInputType<KaminoLendingAccount>>
+impl Processor<AccountProcessorInputType<'_, KaminoLendingAccount>>
     for KaminoLendingStartupAccountProcessor
 {
     fn process(
         &mut self,
-        data: &AccountProcessorInputType<KaminoLendingAccount>,
+        data: &AccountProcessorInputType<'_, KaminoLendingAccount>,
         metrics: Arc<MetricsCollection>,
     ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
         async move {
-            let account = &data.1;
+            let account = &data.decoded_account;
 
             let pubkey_str = format!(
                 "{}...{}",
-                &data.0.pubkey.to_string()[..4],
-                &data.0.pubkey.to_string()[4..]
+                &data.metadata.pubkey.to_string()[..4],
+                &data.metadata.pubkey.to_string()[4..]
             );
 
             fn max_total_chars(s: &str, max: usize) -> String {
