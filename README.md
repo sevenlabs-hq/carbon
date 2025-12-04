@@ -208,6 +208,8 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-bonkswap-decoder`                  | Bonkswap Program Decoder                  | BSwp6bEBihVLdqJRKGgzjcGLHkcTuzmSo1TQkHepzH8p |
 | `carbon-boop-decoder`                      | Boop Decoder                              | boop8hVGQGqehUK2iVEMEnMrL5RbjywRzHKBmBE7ry4  |
 | `carbon-bubblegum-decoder`                 | Bubblegum Decoder                         | BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY |
+| `carbon-circle-message-transmitter-v2-decoder` | Circle CCTP Message Transmitter V2 Decoder | CCTPV2Sm4AdWt5296sk4P66VBZ7bEhcARwFaaS9YPbeC |
+| `carbon-circle-token-messenger-v2-decoder` | Circle CCTP Token Messenger V2 Decoder    | CCTPV2vPZJS2u2BBsUoscuikbYjnpFmbFsvVuJdgUMQe |
 | `carbon-drift-v2-decoder`                  | Drift V2 Program Decoder                  | dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH  |
 | `carbon-fluxbeam-decoder`                  | Fluxbeam Program Decoder                  | FLUXubRmkEi2q6K3Y9kBPg9248ggaZVsoSFhtJHSrm1X |
 | `carbon-gavel-decoder`                     | Gavel Pool Decoder                        | srAMMzfVHVAtgSJc8iH6CfKzuWuUTzLHVCE81QU1rgi  |
