@@ -1117,7 +1117,6 @@ dependencies = [
 name = "block-finality-alerts-carbon-example"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-rpc-block-subscribe-datasource",
@@ -1368,7 +1367,6 @@ dependencies = [
 name = "carbon-block-crawler-example"
 version = "0.2.1"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-pumpfun-decoder",
  "carbon-rpc-block-crawler-datasource",
@@ -4801,7 +4799,6 @@ checksum = "4a5f13b858c8d314ee3e8f639011f7ccefe71f97f96e50151fb991f267928e2c"
 name = "jetstreamer-carbon-example"
 version = "0.2.1"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-jetstreamer-datasource",
  "carbon-log-metrics",
@@ -5104,7 +5101,6 @@ dependencies = [
 name = "jupiter-swap-alerts-carbon-example"
 version = "0.2.1"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-jupiter-swap-decoder",
  "carbon-log-metrics",
@@ -5135,7 +5131,6 @@ dependencies = [
 name = "kamino-alerts-carbon-example"
 version = "0.2.1"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-kamino-lending-decoder",
  "carbon-yellowstone-grpc-datasource",
@@ -5360,7 +5355,6 @@ checksum = "34080505efa8e45a4b816c349525ebe327ceaa8559756f0356cba97ef3bf7432"
 name = "log-events-example"
 version = "0.12.0"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-raydium-cpmm-decoder",
@@ -5494,7 +5488,6 @@ dependencies = [
 name = "meteora-activities-carbon-example"
 version = "0.2.1"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-meteora-dlmm-decoder",
@@ -5637,7 +5630,6 @@ dependencies = [
 name = "moonshot-alerts-carbon-example"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-moonshot-decoder",
@@ -5941,7 +5933,6 @@ checksum = "c08d65885ee38876c4f86fa503fb49d7b507c2b62552df7c70b2fce627e06381"
 name = "openbook-v2-alerts-carbon-example"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-openbook-v2-decoder",
@@ -6667,7 +6658,6 @@ dependencies = [
 name = "pumpfun-alerts-carbon-example"
 version = "0.2.1"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-helius-atlas-ws-datasource",
  "carbon-pumpfun-decoder",
@@ -6683,7 +6673,6 @@ dependencies = [
 name = "pumpswap-alerts-carbon-example"
 version = "0.2.1"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-helius-laserstream-datasource",
  "carbon-log-metrics",
@@ -6950,7 +6939,6 @@ dependencies = [
 name = "raydium-alerts-carbon-example"
 version = "0.2.1"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-raydium-amm-v4-decoder",
@@ -6967,7 +6955,6 @@ dependencies = [
 name = "raydium-clmm-alerts-carbon-example"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-raydium-clmm-decoder",
@@ -6983,7 +6970,6 @@ dependencies = [
 name = "raydium-cpmm-alerts-carbon-example"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-raydium-cpmm-decoder",

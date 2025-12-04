@@ -9,7 +9,6 @@ carbon-jupiter-swap-decoder = { workspace = true }
 carbon-log-metrics = { workspace = true }
 carbon-yellowstone-grpc-datasource = { workspace = true }
 
-async-trait = { workspace = true }
 dotenv = { workspace = true }
 env_logger = { workspace = true }
 log = { workspace = true }

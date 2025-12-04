@@ -5,7 +5,6 @@ edition = { workspace = true }
 
 [dependencies]
 
-async-trait = { workspace = true }
 carbon-core = { workspace = true }
 carbon-log-metrics = { workspace = true }
 carbon-raydium-cpmm-decoder = { workspace = true }
