@@ -117,24 +117,22 @@ impl Datasource for GpaBackfillDatasource {
 pub struct SharkyAccountProcessor;
 
 impl Processor<AccountProcessorInputType<'_, SharkyAccount>> for SharkyAccountProcessor {
-    fn process(
+    async fn process(
         &mut self,
         input: &AccountProcessorInputType<'_, SharkyAccount>,
         _metrics: Arc<MetricsCollection>,
-    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
-        async move {
-            match &input.decoded_account.data {
-                SharkyAccount::OrderBook(order_book) => {
-                    log::info!("Orderbook: {:?}", &order_book);
-                }
-                SharkyAccount::Loan(loan) => {
-                    log::info!("Loan: {:?}", &loan);
-                }
-                _ => {}
+    ) -> CarbonResult<()> {
+        match &input.decoded_account.data {
+            SharkyAccount::OrderBook(order_book) => {
+                log::info!("Orderbook: {:?}", &order_book);
             }
-
-            Ok(())
+            SharkyAccount::Loan(loan) => {
+                log::info!("Loan: {:?}", &loan);
+            }
+            _ => {}
         }
+
+        Ok(())
     }
 }
 

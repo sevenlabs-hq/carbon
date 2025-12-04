@@ -86,135 +86,129 @@ pub struct JupiterSwapInstructionProcessor;
 impl Processor<InstructionProcessorInputType<'_, JupiterSwapInstruction>>
     for JupiterSwapInstructionProcessor
 {
-    fn process(
+    async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, JupiterSwapInstruction>,
         _metrics: Arc<MetricsCollection>,
-    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
-        async move {
-            let signature = input.metadata.transaction_metadata.signature;
+    ) -> CarbonResult<()> {
+        let signature = input.metadata.transaction_metadata.signature;
 
-            match input.decoded_instruction.data.clone() {
-                JupiterSwapInstruction::Claim(claim) => {
-                    log::info!("claim: signature: {signature}, claim: {claim:?}");
-                }
-                JupiterSwapInstruction::ClaimToken(claim_token) => {
-                    log::info!("claim_token: signature: {signature}, claim_token: {claim_token:?}");
-                }
-                JupiterSwapInstruction::CreateTokenLedger(create_token_ledger) => {
-                    log::info!("create_token_ledger: signature: {signature}, create_token_ledger: {create_token_ledger:?}");
-                }
-                JupiterSwapInstruction::ExactOutRoute(exact_out_route) => {
-                    assert!(
-                        !input.nested_instructions.is_empty(),
-                        "nested instructions empty: {signature} "
-                    );
-                    log::info!(
+        match input.decoded_instruction.data.clone() {
+            JupiterSwapInstruction::Claim(claim) => {
+                log::info!("claim: signature: {signature}, claim: {claim:?}");
+            }
+            JupiterSwapInstruction::ClaimToken(claim_token) => {
+                log::info!("claim_token: signature: {signature}, claim_token: {claim_token:?}");
+            }
+            JupiterSwapInstruction::CreateTokenLedger(create_token_ledger) => {
+                log::info!("create_token_ledger: signature: {signature}, create_token_ledger: {create_token_ledger:?}");
+            }
+            JupiterSwapInstruction::ExactOutRoute(exact_out_route) => {
+                assert!(
+                    !input.nested_instructions.is_empty(),
+                    "nested instructions empty: {signature} "
+                );
+                log::info!(
                     "exact_out_route: signature: {signature}, exact_out_route: {exact_out_route:?}"
                 );
+            }
+            JupiterSwapInstruction::Route(route) => {
+                assert!(
+                    !input.nested_instructions.is_empty(),
+                    "nested instructions empty: {signature} "
+                );
+                log::info!("route: signature: {signature}, route: {route:?}");
+            }
+            JupiterSwapInstruction::RouteWithTokenLedger(route_with_token_ledger) => {
+                assert!(
+                    !input.nested_instructions.is_empty(),
+                    "nested instructions empty: {signature} "
+                );
+                log::info!("route_with_token_ledger: signature: {signature}, route_with_token_ledger: {route_with_token_ledger:?}");
+            }
+            JupiterSwapInstruction::SetTokenLedger(set_token_ledger) => {
+                log::info!("set_token_ledger: signature: {signature}, set_token_ledger: {set_token_ledger:?}");
+            }
+            JupiterSwapInstruction::SharedAccountsExactOutRoute(
+                shared_accounts_exact_out_route,
+            ) => {
+                assert!(
+                    !input.nested_instructions.is_empty(),
+                    "nested instructions empty: {signature} "
+                );
+                log::info!("shared_accounts_exact_out_route: signature: {signature}, shared_accounts_exact_out_route: {shared_accounts_exact_out_route:?}");
+            }
+            JupiterSwapInstruction::ExactOutRouteV2(exact_out_route_v2) => {
+                assert!(
+                    !input.nested_instructions.is_empty(),
+                    "nested instructions empty: {signature} "
+                );
+                log::info!("exact_out_route_v2: signature: {signature}, exact_out_route_v2: {exact_out_route_v2:?}");
+            }
+            JupiterSwapInstruction::RouteV2(route_v2) => {
+                assert!(
+                    !input.nested_instructions.is_empty(),
+                    "nested instructions empty: {signature} "
+                );
+                log::info!("route_v2: signature: {signature}, route_v2: {route_v2:?}");
+            }
+            JupiterSwapInstruction::SharedAccountsExactOutRouteV2(
+                shared_accounts_exact_out_route_v2,
+            ) => {
+                assert!(
+                    !input.nested_instructions.is_empty(),
+                    "nested instructions empty: {signature} "
+                );
+                log::info!("shared_accounts_exact_out_route_v2: signature: {signature}, shared_accounts_exact_out_route_v2: {shared_accounts_exact_out_route_v2:?}");
+            }
+            JupiterSwapInstruction::SharedAccountsRouteV2(shared_accounts_route_v2) => {
+                assert!(
+                    !input.nested_instructions.is_empty(),
+                    "nested instructions empty: {signature} "
+                );
+                log::info!("shared_accounts_route_v2: signature: {signature}, shared_accounts_route_v2: {shared_accounts_route_v2:?}");
+            }
+            JupiterSwapInstruction::SharedAccountsRoute(shared_accounts_route) => {
+                assert!(
+                    !input.nested_instructions.is_empty(),
+                    "nested instructions empty: {signature} "
+                );
+                log::info!("shared_accounts_route: signature: {signature}, shared_accounts_route: {shared_accounts_route:?}");
+            }
+            JupiterSwapInstruction::SharedAccountsRouteWithTokenLedger(
+                shared_accounts_route_with_token_ledger,
+            ) => {
+                assert!(
+                    !input.nested_instructions.is_empty(),
+                    "nested instructions empty: {signature} "
+                );
+                log::info!("shared_accounts_route_with_token_ledger: signature: {signature}, shared_accounts_route_with_token_ledger: {shared_accounts_route_with_token_ledger:?}");
+            }
+            JupiterSwapInstruction::CloseToken(close_token) => {
+                log::info!("close_token: signature: {signature}, close_token: {close_token:?}");
+            }
+            JupiterSwapInstruction::CreateTokenAccount(create_token_account) => {
+                log::info!("create_token_account: signature: {signature}, create_token_account: {create_token_account:?}");
+            }
+            JupiterSwapInstruction::CpiEvent(cpi_event) => match *cpi_event {
+                CpiEvent::FeeEvent(fee_event) => {
+                    log::info!("fee_event: signature: {signature}, fee_event: {fee_event:?}");
                 }
-                JupiterSwapInstruction::Route(route) => {
-                    assert!(
-                        !input.nested_instructions.is_empty(),
-                        "nested instructions empty: {signature} "
-                    );
-                    log::info!("route: signature: {signature}, route: {route:?}");
+                CpiEvent::SwapEvent(swap_event) => {
+                    log::info!("swap_event: signature: {signature}, swap_event: {swap_event:?}");
                 }
-                JupiterSwapInstruction::RouteWithTokenLedger(route_with_token_ledger) => {
-                    assert!(
-                        !input.nested_instructions.is_empty(),
-                        "nested instructions empty: {signature} "
-                    );
-                    log::info!("route_with_token_ledger: signature: {signature}, route_with_token_ledger: {route_with_token_ledger:?}");
+                CpiEvent::SwapsEvent(swaps_event) => {
+                    log::info!("swaps_event: signature: {signature}, swaps_event: {swaps_event:?}");
                 }
-                JupiterSwapInstruction::SetTokenLedger(set_token_ledger) => {
-                    log::info!("set_token_ledger: signature: {signature}, set_token_ledger: {set_token_ledger:?}");
+                CpiEvent::CandidateSwapResults(candidate_swap_results) => {
+                    log::info!("candidate_swap_results: signature: {signature}, candidate_swap_results: {candidate_swap_results:?}");
                 }
-                JupiterSwapInstruction::SharedAccountsExactOutRoute(
-                    shared_accounts_exact_out_route,
-                ) => {
-                    assert!(
-                        !input.nested_instructions.is_empty(),
-                        "nested instructions empty: {signature} "
-                    );
-                    log::info!("shared_accounts_exact_out_route: signature: {signature}, shared_accounts_exact_out_route: {shared_accounts_exact_out_route:?}");
+                CpiEvent::BestSwapOutAmountViolation(best_swap_out_amount_violation) => {
+                    log::info!("best_swap_out_amount_violation: signature: {signature}, best_swap_out_amount_violation: {best_swap_out_amount_violation:?}");
                 }
-                JupiterSwapInstruction::ExactOutRouteV2(exact_out_route_v2) => {
-                    assert!(
-                        !input.nested_instructions.is_empty(),
-                        "nested instructions empty: {signature} "
-                    );
-                    log::info!("exact_out_route_v2: signature: {signature}, exact_out_route_v2: {exact_out_route_v2:?}");
-                }
-                JupiterSwapInstruction::RouteV2(route_v2) => {
-                    assert!(
-                        !input.nested_instructions.is_empty(),
-                        "nested instructions empty: {signature} "
-                    );
-                    log::info!("route_v2: signature: {signature}, route_v2: {route_v2:?}");
-                }
-                JupiterSwapInstruction::SharedAccountsExactOutRouteV2(
-                    shared_accounts_exact_out_route_v2,
-                ) => {
-                    assert!(
-                        !input.nested_instructions.is_empty(),
-                        "nested instructions empty: {signature} "
-                    );
-                    log::info!("shared_accounts_exact_out_route_v2: signature: {signature}, shared_accounts_exact_out_route_v2: {shared_accounts_exact_out_route_v2:?}");
-                }
-                JupiterSwapInstruction::SharedAccountsRouteV2(shared_accounts_route_v2) => {
-                    assert!(
-                        !input.nested_instructions.is_empty(),
-                        "nested instructions empty: {signature} "
-                    );
-                    log::info!("shared_accounts_route_v2: signature: {signature}, shared_accounts_route_v2: {shared_accounts_route_v2:?}");
-                }
-                JupiterSwapInstruction::SharedAccountsRoute(shared_accounts_route) => {
-                    assert!(
-                        !input.nested_instructions.is_empty(),
-                        "nested instructions empty: {signature} "
-                    );
-                    log::info!("shared_accounts_route: signature: {signature}, shared_accounts_route: {shared_accounts_route:?}");
-                }
-                JupiterSwapInstruction::SharedAccountsRouteWithTokenLedger(
-                    shared_accounts_route_with_token_ledger,
-                ) => {
-                    assert!(
-                        !input.nested_instructions.is_empty(),
-                        "nested instructions empty: {signature} "
-                    );
-                    log::info!("shared_accounts_route_with_token_ledger: signature: {signature}, shared_accounts_route_with_token_ledger: {shared_accounts_route_with_token_ledger:?}");
-                }
-                JupiterSwapInstruction::CloseToken(close_token) => {
-                    log::info!("close_token: signature: {signature}, close_token: {close_token:?}");
-                }
-                JupiterSwapInstruction::CreateTokenAccount(create_token_account) => {
-                    log::info!("create_token_account: signature: {signature}, create_token_account: {create_token_account:?}");
-                }
-                JupiterSwapInstruction::CpiEvent(cpi_event) => match *cpi_event {
-                    CpiEvent::FeeEvent(fee_event) => {
-                        log::info!("fee_event: signature: {signature}, fee_event: {fee_event:?}");
-                    }
-                    CpiEvent::SwapEvent(swap_event) => {
-                        log::info!(
-                            "swap_event: signature: {signature}, swap_event: {swap_event:?}"
-                        );
-                    }
-                    CpiEvent::SwapsEvent(swaps_event) => {
-                        log::info!(
-                            "swaps_event: signature: {signature}, swaps_event: {swaps_event:?}"
-                        );
-                    }
-                    CpiEvent::CandidateSwapResults(candidate_swap_results) => {
-                        log::info!("candidate_swap_results: signature: {signature}, candidate_swap_results: {candidate_swap_results:?}");
-                    }
-                    CpiEvent::BestSwapOutAmountViolation(best_swap_out_amount_violation) => {
-                        log::info!("best_swap_out_amount_violation: signature: {signature}, best_swap_out_amount_violation: {best_swap_out_amount_violation:?}");
-                    }
-                },
-            };
+            },
+        };
 
-            Ok(())
-        }
+        Ok(())
     }
 }

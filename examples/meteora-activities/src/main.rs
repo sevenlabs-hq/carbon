@@ -55,39 +55,37 @@ pub struct MeteoraInstructionProcessor;
 impl Processor<InstructionProcessorInputType<'_, MeteoraDlmmInstruction>>
     for MeteoraInstructionProcessor
 {
-    fn process(
+    async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, MeteoraDlmmInstruction>,
         _metrics: Arc<MetricsCollection>,
-    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
-        async move {
-            // Process all Meteora Events and add each to DB
-            match input.decoded_instruction.data.clone() {
-                MeteoraDlmmInstruction::AddLiquidity(_add_liquidity) => {}
-                MeteoraDlmmInstruction::RemoveLiquidity(_remove_liquidity) => {}
-                MeteoraDlmmInstruction::Swap(_swap) => {}
-                MeteoraDlmmInstruction::ClaimReward(_claim_reward) => {}
-                MeteoraDlmmInstruction::FundReward(_fund_reward) => {}
-                MeteoraDlmmInstruction::InitializeReward(_initialize_reward) => {}
-                MeteoraDlmmInstruction::UpdateRewardFunder(_update_reward_funder) => {}
-                MeteoraDlmmInstruction::UpdateRewardDuration(_update_reward_duration) => {}
-                MeteoraDlmmInstruction::ClaimFee(_claim_fee) => {}
-                MeteoraDlmmInstruction::ClosePosition(_position_close) => {}
-                MeteoraDlmmInstruction::LbPairCreateEvent(_lb_pair_create) => {}
-                MeteoraDlmmInstruction::PositionCreateEvent(_position_create) => {}
-                MeteoraDlmmInstruction::FeeParameterUpdateEvent(_fee_parameter_update) => {}
-                MeteoraDlmmInstruction::IncreaseObservationEvent(_increase_observation) => {}
-                MeteoraDlmmInstruction::WithdrawIneligibleReward(_withdraw_ineligible_reward) => {}
-                MeteoraDlmmInstruction::UpdatePositionOperator(_update_position_operator) => {}
-                MeteoraDlmmInstruction::UpdatePositionLockReleasePointEvent(
-                    _update_position_lock_release_point,
-                ) => {}
-                MeteoraDlmmInstruction::InitializeLbPair(_initialize_lb_pair) => {}
-                MeteoraDlmmInstruction::GoToABin(_go_to_abin) => {}
-                _ => {}
-            };
+    ) -> CarbonResult<()> {
+        // Process all Meteora Events and add each to DB
+        match input.decoded_instruction.data.clone() {
+            MeteoraDlmmInstruction::AddLiquidity(_add_liquidity) => {}
+            MeteoraDlmmInstruction::RemoveLiquidity(_remove_liquidity) => {}
+            MeteoraDlmmInstruction::Swap(_swap) => {}
+            MeteoraDlmmInstruction::ClaimReward(_claim_reward) => {}
+            MeteoraDlmmInstruction::FundReward(_fund_reward) => {}
+            MeteoraDlmmInstruction::InitializeReward(_initialize_reward) => {}
+            MeteoraDlmmInstruction::UpdateRewardFunder(_update_reward_funder) => {}
+            MeteoraDlmmInstruction::UpdateRewardDuration(_update_reward_duration) => {}
+            MeteoraDlmmInstruction::ClaimFee(_claim_fee) => {}
+            MeteoraDlmmInstruction::ClosePosition(_position_close) => {}
+            MeteoraDlmmInstruction::LbPairCreateEvent(_lb_pair_create) => {}
+            MeteoraDlmmInstruction::PositionCreateEvent(_position_create) => {}
+            MeteoraDlmmInstruction::FeeParameterUpdateEvent(_fee_parameter_update) => {}
+            MeteoraDlmmInstruction::IncreaseObservationEvent(_increase_observation) => {}
+            MeteoraDlmmInstruction::WithdrawIneligibleReward(_withdraw_ineligible_reward) => {}
+            MeteoraDlmmInstruction::UpdatePositionOperator(_update_position_operator) => {}
+            MeteoraDlmmInstruction::UpdatePositionLockReleasePointEvent(
+                _update_position_lock_release_point,
+            ) => {}
+            MeteoraDlmmInstruction::InitializeLbPair(_initialize_lb_pair) => {}
+            MeteoraDlmmInstruction::GoToABin(_go_to_abin) => {}
+            _ => {}
+        };
 
-            Ok(())
-        }
+        Ok(())
     }
 }

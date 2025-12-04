@@ -51,19 +51,17 @@ struct Token2022InstructionLogger;
 impl Processor<InstructionProcessorInputType<'_, Token2022Instruction>>
     for Token2022InstructionLogger
 {
-    fn process(
+    async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, Token2022Instruction>,
         _metrics: Arc<MetricsCollection>,
-    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
-        async move {
-            log::info!(
+    ) -> CarbonResult<()> {
+        log::info!(
                 "Token2022InstructionLogger: signature: {:?}, absolute path: {:?}, decoded_instruction: {:?}",
                 input.metadata.transaction_metadata.signature,
                 input.metadata.absolute_path,
                 input.decoded_instruction.data
             );
-            Ok(())
-        }
+        Ok(())
     }
 }

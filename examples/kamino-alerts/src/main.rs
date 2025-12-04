@@ -90,29 +90,26 @@ pub struct KaminoLendingInstructionProcessor;
 impl Processor<InstructionProcessorInputType<'_, KaminoLendingInstruction>>
     for KaminoLendingInstructionProcessor
 {
-    fn process(
+    async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, KaminoLendingInstruction>,
         _metrics: Arc<MetricsCollection>,
-    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
-        async move {
-            let signature = input.metadata.transaction_metadata.signature;
+    ) -> CarbonResult<()> {
+        let signature = input.metadata.transaction_metadata.signature;
 
-            let signature = format!(
-                "{}...{}",
-                &signature.to_string()[..4],
-                &signature.to_string()
-                    [signature.to_string().len() - 4..signature.to_string().len()]
-            );
+        let signature = format!(
+            "{}...{}",
+            &signature.to_string()[..4],
+            &signature.to_string()[signature.to_string().len() - 4..signature.to_string().len()]
+        );
 
-            log::info!(
-                "instruction processed ({}) {:?}",
-                signature,
-                input.decoded_instruction.data.clone()
-            );
+        log::info!(
+            "instruction processed ({}) {:?}",
+            signature,
+            input.decoded_instruction.data.clone()
+        );
 
-            Ok(())
-        }
+        Ok(())
     }
 }
 
@@ -121,50 +118,48 @@ pub struct KaminoLendingAccountProcessor;
 impl Processor<AccountProcessorInputType<'_, KaminoLendingAccount>>
     for KaminoLendingAccountProcessor
 {
-    fn process(
+    async fn process(
         &mut self,
         input: &AccountProcessorInputType<'_, KaminoLendingAccount>,
         _metrics: Arc<MetricsCollection>,
-    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
-        async move {
-            let pubkey_str = format!(
-                "{}...{}",
-                &input.metadata.pubkey.to_string()[..4],
-                &input.metadata.pubkey.to_string()[4..]
-            );
+    ) -> CarbonResult<()> {
+        let pubkey_str = format!(
+            "{}...{}",
+            &input.metadata.pubkey.to_string()[..4],
+            &input.metadata.pubkey.to_string()[4..]
+        );
 
-            fn max_total_chars(s: &str, max: usize) -> String {
-                if s.len() > max {
-                    format!("{}...", &s[..max])
-                } else {
-                    s.to_string()
-                }
+        fn max_total_chars(s: &str, max: usize) -> String {
+            if s.len() > max {
+                format!("{}...", &s[..max])
+            } else {
+                s.to_string()
             }
-
-            log::info!(
-                "account updated ({}) {:?}",
-                pubkey_str,
-                max_total_chars(
-                    &match &input.decoded_account.data {
-                        KaminoLendingAccount::UserState(user_state) => format!("{user_state:?}"),
-                        KaminoLendingAccount::LendingMarket(lending_market) =>
-                            format!("{lending_market:?}"),
-                        KaminoLendingAccount::Obligation(obligation) => format!("{obligation:?}"),
-                        KaminoLendingAccount::ReferrerState(referrer_state) =>
-                            format!("{referrer_state:?}"),
-                        KaminoLendingAccount::ReferrerTokenState(referrer_token_state) => {
-                            format!("{referrer_token_state:?}")
-                        }
-                        KaminoLendingAccount::ShortUrl(short_url) => format!("{short_url:?}"),
-                        KaminoLendingAccount::UserMetadata(user_metadata) =>
-                            format!("{user_metadata:?}"),
-                        KaminoLendingAccount::Reserve(reserve) => format!("{reserve:?}"),
-                    },
-                    100
-                )
-            );
-
-            Ok(())
         }
+
+        log::info!(
+            "account updated ({}) {:?}",
+            pubkey_str,
+            max_total_chars(
+                &match &input.decoded_account.data {
+                    KaminoLendingAccount::UserState(user_state) => format!("{user_state:?}"),
+                    KaminoLendingAccount::LendingMarket(lending_market) =>
+                        format!("{lending_market:?}"),
+                    KaminoLendingAccount::Obligation(obligation) => format!("{obligation:?}"),
+                    KaminoLendingAccount::ReferrerState(referrer_state) =>
+                        format!("{referrer_state:?}"),
+                    KaminoLendingAccount::ReferrerTokenState(referrer_token_state) => {
+                        format!("{referrer_token_state:?}")
+                    }
+                    KaminoLendingAccount::ShortUrl(short_url) => format!("{short_url:?}"),
+                    KaminoLendingAccount::UserMetadata(user_metadata) =>
+                        format!("{user_metadata:?}"),
+                    KaminoLendingAccount::Reserve(reserve) => format!("{reserve:?}"),
+                },
+                100
+            )
+        );
+
+        Ok(())
     }
 }

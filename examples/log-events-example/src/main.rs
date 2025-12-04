@@ -86,19 +86,17 @@ pub struct RaydiumCpmmInstructionProcessor;
 impl Processor<InstructionProcessorInputType<'_, RaydiumCpmmInstruction>>
     for RaydiumCpmmInstructionProcessor
 {
-    fn process(
+    async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, RaydiumCpmmInstruction>,
         _metrics: Arc<MetricsCollection>,
-    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
-        async move {
-            let logs = input.metadata.decode_log_events::<SwapEvent>();
+    ) -> CarbonResult<()> {
+        let logs = input.metadata.decode_log_events::<SwapEvent>();
 
-            if !logs.is_empty() {
-                println!("Swap Events: {logs:?}");
-            }
-
-            Ok(())
+        if !logs.is_empty() {
+            println!("Swap Events: {logs:?}");
         }
+
+        Ok(())
     }
 }

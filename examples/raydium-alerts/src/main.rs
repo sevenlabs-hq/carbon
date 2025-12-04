@@ -102,130 +102,124 @@ pub struct RaydiumAmmV4InstructionProcessor;
 impl Processor<InstructionProcessorInputType<'_, RaydiumAmmV4Instruction>>
     for RaydiumAmmV4InstructionProcessor
 {
-    fn process(
+    async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, RaydiumAmmV4Instruction>,
         _metrics: Arc<MetricsCollection>,
-    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
-        async move {
-            let signature = input.metadata.transaction_metadata.signature;
-            let accounts = input.decoded_instruction.accounts.clone();
+    ) -> CarbonResult<()> {
+        let signature = input.metadata.transaction_metadata.signature;
+        let accounts = input.decoded_instruction.accounts.clone();
 
-            match input.decoded_instruction.data.clone() {
-                RaydiumAmmV4Instruction::Initialize2(init_pool) => {
-                    log::info!("Initialize2: signature: {signature}, init_pool: {init_pool:?}");
-                }
-                RaydiumAmmV4Instruction::Initialize(initialize) => {
-                    log::info!("Initialize: signature: {signature}, initialize: {initialize:?}");
-                }
-                RaydiumAmmV4Instruction::MonitorStep(monitor_step) => {
-                    log::info!(
-                        "MonitorStep: signature: {signature}, monitor_step: {monitor_step:?}"
-                    );
-                }
-                RaydiumAmmV4Instruction::Deposit(deposit) => {
-                    log::info!("Deposit: signature: {signature}, deposit: {deposit:?}");
-                }
-                RaydiumAmmV4Instruction::Withdraw(withdraw) => {
-                    log::info!("Withdraw: signature: {signature}, withdraw: {withdraw:?}");
-                }
-                RaydiumAmmV4Instruction::MigrateToOpenBook(migrate_to_open_book) => {
-                    log::info!("MigrateToOpenBook: signature: {signature}, migrate_to_open_book: {migrate_to_open_book:?}");
-                }
-                RaydiumAmmV4Instruction::SetParams(set_params) => {
-                    log::info!("SetParams: signature: {signature}, set_params: {set_params:?}");
-                }
-                RaydiumAmmV4Instruction::WithdrawPnl(withdraw_pnl) => {
-                    log::info!(
+        match input.decoded_instruction.data.clone() {
+            RaydiumAmmV4Instruction::Initialize2(init_pool) => {
+                log::info!("Initialize2: signature: {signature}, init_pool: {init_pool:?}");
+            }
+            RaydiumAmmV4Instruction::Initialize(initialize) => {
+                log::info!("Initialize: signature: {signature}, initialize: {initialize:?}");
+            }
+            RaydiumAmmV4Instruction::MonitorStep(monitor_step) => {
+                log::info!("MonitorStep: signature: {signature}, monitor_step: {monitor_step:?}");
+            }
+            RaydiumAmmV4Instruction::Deposit(deposit) => {
+                log::info!("Deposit: signature: {signature}, deposit: {deposit:?}");
+            }
+            RaydiumAmmV4Instruction::Withdraw(withdraw) => {
+                log::info!("Withdraw: signature: {signature}, withdraw: {withdraw:?}");
+            }
+            RaydiumAmmV4Instruction::MigrateToOpenBook(migrate_to_open_book) => {
+                log::info!("MigrateToOpenBook: signature: {signature}, migrate_to_open_book: {migrate_to_open_book:?}");
+            }
+            RaydiumAmmV4Instruction::SetParams(set_params) => {
+                log::info!("SetParams: signature: {signature}, set_params: {set_params:?}");
+            }
+            RaydiumAmmV4Instruction::WithdrawPnl(withdraw_pnl) => {
+                log::info!(
                     "SetPaWithdrawPnlrams: signature: {signature}, withdraw_pnl: {withdraw_pnl:?}"
                 );
-                }
-                RaydiumAmmV4Instruction::WithdrawSrm(withdraw_srm) => {
-                    log::info!(
-                        "WithdrawSrm: signature: {signature}, withdraw_srm: {withdraw_srm:?}"
-                    );
-                }
-                RaydiumAmmV4Instruction::SwapBaseIn(swap_base_in) => {
-                    match SwapBaseIn::arrange_accounts(&accounts) {
-                        Some(accounts) => {
-                            log::info!(
+            }
+            RaydiumAmmV4Instruction::WithdrawSrm(withdraw_srm) => {
+                log::info!("WithdrawSrm: signature: {signature}, withdraw_srm: {withdraw_srm:?}");
+            }
+            RaydiumAmmV4Instruction::SwapBaseIn(swap_base_in) => {
+                match SwapBaseIn::arrange_accounts(&accounts) {
+                    Some(accounts) => {
+                        log::info!(
                         "SwapBaseIn: signature: {signature}, swap_base_in: {swap_base_in:?}, accounts: {accounts:#?}",
                     );
-                        }
-                        None => log::error!(
-                            "Failed to arrange accounts for SwapBaseIn {}",
-                            accounts.len()
-                        ),
                     }
+                    None => log::error!(
+                        "Failed to arrange accounts for SwapBaseIn {}",
+                        accounts.len()
+                    ),
                 }
-                RaydiumAmmV4Instruction::SwapBaseInV2(swap_base_in) => {
-                    match SwapBaseInV2::arrange_accounts(&accounts) {
-                        Some(accounts) => {
-                            log::info!(
+            }
+            RaydiumAmmV4Instruction::SwapBaseInV2(swap_base_in) => {
+                match SwapBaseInV2::arrange_accounts(&accounts) {
+                    Some(accounts) => {
+                        log::info!(
                         "SwapBaseInV2: signature: {signature}, swap_base_in: {swap_base_in:?}, accounts: {accounts:#?}",
                     );
-                        }
-                        None => log::error!(
-                            "Failed to arrange accounts for SwapBaseInV2 {}",
-                            accounts.len()
-                        ),
                     }
+                    None => log::error!(
+                        "Failed to arrange accounts for SwapBaseInV2 {}",
+                        accounts.len()
+                    ),
                 }
-                RaydiumAmmV4Instruction::PreInitialize(pre_initialize) => {
-                    log::info!(
-                        "PreInitialize: signature: {signature}, pre_initialize: {pre_initialize:?}"
-                    );
-                }
-                RaydiumAmmV4Instruction::SwapBaseOut(swap_base_out) => {
-                    match SwapBaseOut::arrange_accounts(&accounts) {
-                        Some(accounts) => {
-                            log::info!(
+            }
+            RaydiumAmmV4Instruction::PreInitialize(pre_initialize) => {
+                log::info!(
+                    "PreInitialize: signature: {signature}, pre_initialize: {pre_initialize:?}"
+                );
+            }
+            RaydiumAmmV4Instruction::SwapBaseOut(swap_base_out) => {
+                match SwapBaseOut::arrange_accounts(&accounts) {
+                    Some(accounts) => {
+                        log::info!(
                             "SwapBaseOut: signature: {signature}, swap_base_out: {swap_base_out:?}, accounts: {accounts:#?}",
                         );
-                        }
-                        None => log::error!(
-                            "Failed to arrange accounts for SwapBaseOut {}",
-                            accounts.len()
-                        ),
                     }
+                    None => log::error!(
+                        "Failed to arrange accounts for SwapBaseOut {}",
+                        accounts.len()
+                    ),
                 }
-                RaydiumAmmV4Instruction::SwapBaseOutV2(swap_base_out) => {
-                    match SwapBaseOutV2::arrange_accounts(&accounts) {
-                        Some(accounts) => {
-                            log::info!(
+            }
+            RaydiumAmmV4Instruction::SwapBaseOutV2(swap_base_out) => {
+                match SwapBaseOutV2::arrange_accounts(&accounts) {
+                    Some(accounts) => {
+                        log::info!(
                             "SwapBaseOutV2: signature: {signature}, swap_base_out: {swap_base_out:?}, accounts: {accounts:#?}",
                         );
-                        }
-                        None => log::error!(
-                            "Failed to arrange accounts for SwapBaseOutV2 {}",
-                            accounts.len()
-                        ),
                     }
+                    None => log::error!(
+                        "Failed to arrange accounts for SwapBaseOutV2 {}",
+                        accounts.len()
+                    ),
                 }
-                RaydiumAmmV4Instruction::SimulateInfo(simulate_info) => {
-                    log::info!(
-                        "SimulateInfo: signature: {signature}, simulate_info: {simulate_info:?}"
-                    );
-                }
-                RaydiumAmmV4Instruction::AdminCancelOrders(admin_cancel_orders) => {
-                    log::info!(
+            }
+            RaydiumAmmV4Instruction::SimulateInfo(simulate_info) => {
+                log::info!(
+                    "SimulateInfo: signature: {signature}, simulate_info: {simulate_info:?}"
+                );
+            }
+            RaydiumAmmV4Instruction::AdminCancelOrders(admin_cancel_orders) => {
+                log::info!(
                     "AdminCancelOrders: signature: {signature}, admin_cancel_orders: {admin_cancel_orders:?}"
                 );
-                }
-                RaydiumAmmV4Instruction::CreateConfigAccount(create_config_account) => {
-                    log::info!(
+            }
+            RaydiumAmmV4Instruction::CreateConfigAccount(create_config_account) => {
+                log::info!(
                     "CreateConfigAccount: signature: {signature}, create_config_account: {create_config_account:?}"
                 );
-                }
-                RaydiumAmmV4Instruction::UpdateConfigAccount(update_config_account) => {
-                    log::info!(
+            }
+            RaydiumAmmV4Instruction::UpdateConfigAccount(update_config_account) => {
+                log::info!(
                     "UpdateConfigAccount: signature: {signature}, update_config_account: {update_config_account:?}"
                 );
-                }
-            };
+            }
+        };
 
-            Ok(())
-        }
+        Ok(())
     }
 }
 
@@ -233,22 +227,20 @@ pub struct RaydiumAmmV4AccountProcessor;
 impl Processor<AccountProcessorInputType<'_, RaydiumAmmV4Account>>
     for RaydiumAmmV4AccountProcessor
 {
-    fn process(
+    async fn process(
         &mut self,
         input: &AccountProcessorInputType<'_, RaydiumAmmV4Account>,
         _metrics: Arc<MetricsCollection>,
-    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
-        async move {
-            match &input.decoded_account.data {
-                RaydiumAmmV4Account::AmmInfo(pool) => {
-                    log::info!("Account: {:#?}\nPool: {:#?}", input.metadata.pubkey, pool);
-                }
-                _ => {
-                    log::warn!("Unnecessary Account: {:#?}", input.metadata.pubkey);
-                }
-            };
+    ) -> CarbonResult<()> {
+        match &input.decoded_account.data {
+            RaydiumAmmV4Account::AmmInfo(pool) => {
+                log::info!("Account: {:#?}\nPool: {:#?}", input.metadata.pubkey, pool);
+            }
+            _ => {
+                log::warn!("Unnecessary Account: {:#?}", input.metadata.pubkey);
+            }
+        };
 
-            Ok(())
-        }
+        Ok(())
     }
 }

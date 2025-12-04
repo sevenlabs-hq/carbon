@@ -61,30 +61,28 @@ pub struct PumpfunInstructionProcessor;
 impl Processor<InstructionProcessorInputType<'_, PumpfunInstruction>>
     for PumpfunInstructionProcessor
 {
-    fn process(
+    async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, PumpfunInstruction>,
         _metrics: Arc<MetricsCollection>,
-    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
-        async move {
-            let pumpfun_instruction: PumpfunInstruction = input.decoded_instruction.data.clone();
+    ) -> CarbonResult<()> {
+        let pumpfun_instruction: PumpfunInstruction = input.decoded_instruction.data.clone();
 
-            match pumpfun_instruction {
-                PumpfunInstruction::CreateEvent(create_event) => {
-                    log::info!("New token created: {create_event:#?}");
+        match pumpfun_instruction {
+            PumpfunInstruction::CreateEvent(create_event) => {
+                log::info!("New token created: {create_event:#?}");
+            }
+            PumpfunInstruction::TradeEvent(trade_event) => {
+                if trade_event.sol_amount > 10 * LAMPORTS_PER_SOL {
+                    log::info!("Big trade occured: {trade_event:#?}");
                 }
-                PumpfunInstruction::TradeEvent(trade_event) => {
-                    if trade_event.sol_amount > 10 * LAMPORTS_PER_SOL {
-                        log::info!("Big trade occured: {trade_event:#?}");
-                    }
-                }
-                PumpfunInstruction::CompleteEvent(complete_event) => {
-                    log::info!("Bonded: {complete_event:#?}");
-                }
-                _ => {}
-            };
+            }
+            PumpfunInstruction::CompleteEvent(complete_event) => {
+                log::info!("Bonded: {complete_event:#?}");
+            }
+            _ => {}
+        };
 
-            Ok(())
-        }
+        Ok(())
     }
 }

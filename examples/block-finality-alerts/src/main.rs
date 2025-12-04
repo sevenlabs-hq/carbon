@@ -46,15 +46,13 @@ pub async fn main() -> CarbonResult<()> {
 pub struct BlockProcessor;
 
 impl Processor<BlockDetails> for BlockProcessor {
-    fn process(
+    async fn process(
         &mut self,
         block_details: &BlockDetails,
         _metrics: Arc<MetricsCollection>,
-    ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
-        async move {
-            log::info!("Final block: {:?}", &block_details);
+    ) -> CarbonResult<()> {
+        log::info!("Final block: {:?}", &block_details);
 
-            Ok(())
-        }
+        Ok(())
     }
 }
