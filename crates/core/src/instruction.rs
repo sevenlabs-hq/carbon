@@ -251,7 +251,7 @@ pub struct InstructionProcessorInputType<'a, T> {
 /// # Fields
 ///
 /// - `decoder`: The decoder used for parsing instructions.
-/// - `processor`: A concrete `Processor` instance (not boxed). Each pipe is
+/// - `processor`: A concrete `Processor` instance. Each pipe is
 ///   monomorphic for its specific processor type.
 /// - `filters`: A collection of filters that determine which instruction
 ///   updates should be processed. Each filter in this collection is applied to

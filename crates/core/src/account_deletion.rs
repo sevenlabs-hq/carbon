@@ -60,7 +60,7 @@ use {
 ///
 /// ## Fields
 ///
-/// - `processor`: A concrete `Processor` instance (not boxed). Each pipe is
+/// - `processor`: A concrete `Processor` instance. Each pipe is
 ///   monomorphic for its specific processor type.
 /// - `filters`: A collection of filters that determine which account deletion
 ///   events should be processed. Each filter in this collection is applied to

@@ -156,8 +156,7 @@ pub struct AccountProcessorInputType<'a, T> {
 ///
 /// - `decoder`: An `AccountDecoder` that decodes raw account data into
 ///   structured form.
-/// - `processor`: A concrete `Processor` instance (not boxed). Each pipe is
-///   monomorphic for its specific processor type.
+/// - `processor`: A concrete `Processor` instance.
 /// - `filters`: A collection of filters that determine which account updates
 ///   should be processed. Each filter in this collection is applied to incoming
 ///   account updates, and only updates that pass all filters (return `true`)
