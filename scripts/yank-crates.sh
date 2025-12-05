@@ -30,6 +30,8 @@ workspace_crates=(
     carbon-bonkswap-decoder
     carbon-boop-decoder
     carbon-bubblegum-decoder
+    carbon-circle-message-transmitter-v2-decoder
+    carbon-circle-token-messenger-v2-decoder
     carbon-dflow-aggregator-v4-decoder
     carbon-drift-v2-decoder
     carbon-fluxbeam-decoder
