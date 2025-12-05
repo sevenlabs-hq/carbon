@@ -1,10 +1,7 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
-        error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType,
+        metrics::MetricsCollection, processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
     carbon_meteora_dlmm_decoder::{
@@ -55,24 +52,16 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct MeteoraInstructionProcessor;
 
-#[async_trait]
-impl Processor for MeteoraInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<MeteoraDlmmInstruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
-
+impl Processor<InstructionProcessorInputType<'_, MeteoraDlmmInstruction>>
+    for MeteoraInstructionProcessor
+{
     async fn process(
         &mut self,
-        data: Self::InputType,
+        input: &InstructionProcessorInputType<'_, MeteoraDlmmInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let (_instruction_metadata, decoded_instruction, _nested_instructions, _) = data;
-
         // Process all Meteora Events and add each to DB
-        match decoded_instruction.data {
+        match input.decoded_instruction.data.clone() {
             MeteoraDlmmInstruction::AddLiquidity(_add_liquidity) => {}
             MeteoraDlmmInstruction::RemoveLiquidity(_remove_liquidity) => {}
             MeteoraDlmmInstruction::Swap(_swap) => {}

@@ -1117,7 +1117,6 @@ dependencies = [
 name = "block-finality-alerts-carbon-example"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-rpc-block-subscribe-datasource",
@@ -1368,7 +1367,6 @@ dependencies = [
 name = "carbon-block-crawler-example"
 version = "0.2.1"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-pumpfun-decoder",
  "carbon-rpc-block-crawler-datasource",
@@ -1592,14 +1590,14 @@ dependencies = [
  "base64 0.22.1",
  "carbon-core",
  "log",
- "reqwest",
+ "reqwest 0.12.24",
  "serde",
  "serde_json",
  "solana-account",
  "solana-client",
  "solana-pubkey 3.0.0",
  "tokio",
- "tokio-util",
+ "tokio-util 0.7.17",
 ]
 
 [[package]]
@@ -1713,11 +1711,20 @@ dependencies = [
 name = "carbon-jupiter-swap-decoder"
 version = "0.12.0"
 dependencies = [
+ "async-trait",
+ "base64 0.22.1",
+ "borsh",
  "carbon-core",
+ "carbon-test-utils",
+ "juniper",
  "serde",
+ "serde-big-array",
+ "serde_json",
  "solana-account",
  "solana-instruction",
  "solana-pubkey 3.0.0",
+ "sqlx",
+ "sqlx_migrator",
 ]
 
 [[package]]
@@ -1995,6 +2002,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-pipeline-bench-example"
+version = "0.2.1"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "carbon-log-metrics",
+ "carbon-prometheus-metrics",
+ "clap 4.5.53",
+ "dotenv",
+ "env_logger",
+ "log",
+ "solana-account",
+ "solana-instruction",
+ "solana-message",
+ "solana-pubkey 3.0.0",
+ "solana-signature",
+ "solana-transaction",
+ "solana-transaction-status",
+ "tokio",
+ "tokio-util 0.7.17",
+]
+
+[[package]]
 name = "carbon-proc-macros"
 version = "0.12.0"
 dependencies = [
@@ -2169,7 +2199,7 @@ dependencies = [
  "solana-commitment-config",
  "solana-pubkey 3.0.0",
  "tokio",
- "tokio-util",
+ "tokio-util 0.7.17",
 ]
 
 [[package]]
@@ -3549,7 +3579,6 @@ dependencies = [
  "log",
  "solana-account",
  "solana-client",
- "solana-instruction",
  "solana-pubkey 3.0.0",
  "tokio",
  "tokio-util 0.7.17",
@@ -4770,7 +4799,6 @@ checksum = "4a5f13b858c8d314ee3e8f639011f7ccefe71f97f96e50151fb991f267928e2c"
 name = "jetstreamer-carbon-example"
 version = "0.2.1"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-jetstreamer-datasource",
  "carbon-log-metrics",
@@ -5073,7 +5101,6 @@ dependencies = [
 name = "jupiter-swap-alerts-carbon-example"
 version = "0.2.1"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-jupiter-swap-decoder",
  "carbon-log-metrics",
@@ -5082,7 +5109,6 @@ dependencies = [
  "env_logger",
  "log",
  "rustls 0.23.35",
- "solana-instruction",
  "tokio",
  "yellowstone-grpc-proto",
 ]
@@ -5105,15 +5131,12 @@ dependencies = [
 name = "kamino-alerts-carbon-example"
 version = "0.2.1"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-kamino-lending-decoder",
  "carbon-yellowstone-grpc-datasource",
  "dotenv",
  "env_logger",
  "log",
- "solana-account",
- "solana-instruction",
  "tokio",
  "yellowstone-grpc-proto",
 ]
@@ -5332,7 +5355,6 @@ checksum = "34080505efa8e45a4b816c349525ebe327ceaa8559756f0356cba97ef3bf7432"
 name = "log-events-example"
 version = "0.12.0"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-raydium-cpmm-decoder",
@@ -5340,7 +5362,6 @@ dependencies = [
  "dotenv",
  "env_logger",
  "rustls 0.23.35",
- "solana-instruction",
  "tokio",
  "yellowstone-grpc-proto",
 ]
@@ -5467,7 +5488,6 @@ dependencies = [
 name = "meteora-activities-carbon-example"
 version = "0.2.1"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-meteora-dlmm-decoder",
@@ -5475,7 +5495,6 @@ dependencies = [
  "dotenv",
  "env_logger",
  "solana-commitment-config",
- "solana-instruction",
  "tokio",
 ]
 
@@ -5611,7 +5630,6 @@ dependencies = [
 name = "moonshot-alerts-carbon-example"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-moonshot-decoder",
@@ -5620,7 +5638,6 @@ dependencies = [
  "env_logger",
  "log",
  "solana-client",
- "solana-instruction",
  "tokio",
 ]
 
@@ -5916,7 +5933,6 @@ checksum = "c08d65885ee38876c4f86fa503fb49d7b507c2b62552df7c70b2fce627e06381"
 name = "openbook-v2-alerts-carbon-example"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-openbook-v2-decoder",
@@ -5925,7 +5941,6 @@ dependencies = [
  "env_logger",
  "log",
  "solana-client",
- "solana-instruction",
  "tokio",
 ]
 
@@ -6643,7 +6658,6 @@ dependencies = [
 name = "pumpfun-alerts-carbon-example"
 version = "0.2.1"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-helius-atlas-ws-datasource",
  "carbon-pumpfun-decoder",
@@ -6659,7 +6673,6 @@ dependencies = [
 name = "pumpswap-alerts-carbon-example"
 version = "0.2.1"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-helius-laserstream-datasource",
  "carbon-log-metrics",
@@ -6668,7 +6681,6 @@ dependencies = [
  "env_logger",
  "log",
  "rustls 0.23.35",
- "solana-instruction",
  "solana-native-token",
  "tokio",
  "yellowstone-grpc-proto",
@@ -6927,7 +6939,6 @@ dependencies = [
 name = "raydium-alerts-carbon-example"
 version = "0.2.1"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-raydium-amm-v4-decoder",
@@ -6936,8 +6947,6 @@ dependencies = [
  "env_logger",
  "log",
  "rustls 0.23.35",
- "solana-account",
- "solana-instruction",
  "tokio",
  "yellowstone-grpc-proto",
 ]
@@ -6946,7 +6955,6 @@ dependencies = [
 name = "raydium-clmm-alerts-carbon-example"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-raydium-clmm-decoder",
@@ -6955,7 +6963,6 @@ dependencies = [
  "env_logger",
  "log",
  "solana-client",
- "solana-instruction",
  "tokio",
 ]
 
@@ -6963,7 +6970,6 @@ dependencies = [
 name = "raydium-cpmm-alerts-carbon-example"
 version = "0.1.0"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-raydium-cpmm-decoder",
@@ -6972,7 +6978,6 @@ dependencies = [
  "env_logger",
  "log",
  "solana-client",
- "solana-instruction",
  "tokio",
 ]
 

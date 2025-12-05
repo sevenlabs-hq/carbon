@@ -9,7 +9,6 @@ carbon-helius-atlas-ws-datasource = { workspace = true }
 carbon-pumpfun-decoder = { workspace = true }
 solana-native-token = { workspace = true }
 
-async-trait = { workspace = true }
 dotenv = { workspace = true }
 env_logger = { workspace = true }
 helius = { workspace = true }
