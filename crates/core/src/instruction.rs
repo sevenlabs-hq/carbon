@@ -25,9 +25,6 @@ use {
         metrics::MetricsCollection, processor::Processor, transaction::TransactionMetadata,
     },
     async_trait::async_trait,
-    serde::{Deserialize, Serialize},
-    solana_instruction::AccountMeta,
-    solana_pubkey::Pubkey,
     std::{
         ops::{Deref, DerefMut},
         sync::Arc,
@@ -177,30 +174,6 @@ impl InstructionMetadata {
 
 pub type InstructionsWithMetadata = Vec<(InstructionMetadata, solana_instruction::Instruction)>;
 
-/// A decoded instruction containing program ID, data, and associated accounts.
-///
-/// The `DecodedInstruction` struct represents the outcome of decoding a raw
-/// instruction, encapsulating its program ID, parsed data, and the accounts
-/// involved.
-///
-/// # Type Parameters
-///
-/// - `T`: The type representing the decoded data for the instruction.
-///
-/// # Fields
-///
-/// - `program_id`: The program ID that owns the instruction.
-/// - `data`: The decoded data payload for the instruction, of type `T`.
-/// - `accounts`: A vector of `AccountMeta`, representing the accounts involved
-///   in the instruction.
-
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct DecodedInstruction<T> {
-    pub program_id: Pubkey,
-    pub data: T,
-    pub accounts: Vec<AccountMeta>,
-}
-
 /// A trait for decoding Solana instructions into a structured type.
 ///
 /// Implement the `InstructionDecoder` trait for types that can decode raw
@@ -214,15 +187,15 @@ pub struct DecodedInstruction<T> {
 ///
 /// # Required Methods
 ///
-/// - `decode_instruction`: Decodes a raw Solana `Instruction` into a
-///   `DecodedInstruction`.
+/// - `decode_instruction`: Decodes a raw Solana `Instruction` into the
+///   instruction enum directly.
 pub trait InstructionDecoder<'a> {
     type InstructionType;
 
     fn decode_instruction(
         &self,
         instruction: &'a solana_instruction::Instruction,
-    ) -> Option<DecodedInstruction<Self::InstructionType>>;
+    ) -> Option<Self::InstructionType>;
 }
 
 /// The input type for the instruction processor.
@@ -233,7 +206,7 @@ pub trait InstructionDecoder<'a> {
 #[derive(Debug)]
 pub struct InstructionProcessorInputType<'a, T> {
     pub metadata: &'a InstructionMetadata,
-    pub decoded_instruction: &'a DecodedInstruction<T>,
+    pub instruction: &'a T,
     pub nested_instructions: &'a NestedInstructions,
     pub raw_instruction: &'a solana_instruction::Instruction,
 }
@@ -302,7 +275,7 @@ where
         log::trace!("InstructionPipe::run(nested_instruction: {nested_instruction:?}, metrics)",);
 
         let decode_start = std::time::Instant::now();
-        let decoded_instruction = self
+        let instruction = self
             .decoder
             .decode_instruction(&nested_instruction.instruction);
         let decode_time_ns = decode_start.elapsed().as_nanos();
@@ -310,13 +283,13 @@ where
             .record_histogram("instruction_decode_time_nanoseconds", decode_time_ns as f64)
             .await?;
 
-        if let Some(decoded_instruction) = decoded_instruction {
+        if let Some(instruction) = instruction {
             let process_start = std::time::Instant::now();
             let process_metrics = metrics.clone();
 
             let data = InstructionProcessorInputType {
                 metadata: &nested_instruction.metadata,
-                decoded_instruction: &decoded_instruction,
+                instruction: &instruction,
                 nested_instructions: &nested_instruction.inner_instructions,
                 raw_instruction: &nested_instruction.instruction,
             };
@@ -505,7 +478,8 @@ impl UnsafeNestedBuilder {
 mod tests {
 
     use {
-        super::*, solana_instruction::Instruction, solana_transaction_status::TransactionStatusMeta,
+        super::*, solana_instruction::Instruction, solana_pubkey::Pubkey,
+        solana_transaction_status::TransactionStatusMeta,
     };
 
     fn create_instruction_with_metadata(
@@ -527,7 +501,10 @@ mod tests {
         };
         let instruction = Instruction {
             program_id: Pubkey::new_unique(),
-            accounts: vec![AccountMeta::new(Pubkey::new_unique(), false)],
+            accounts: vec![solana_instruction::AccountMeta::new(
+                Pubkey::new_unique(),
+                false,
+            )],
             data: vec![],
         };
         (metadata, instruction)

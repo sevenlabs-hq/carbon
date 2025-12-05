@@ -25,7 +25,7 @@ use {
         collection::InstructionDecoderCollection,
         datasource::TransactionUpdate,
         error::{CarbonResult, Error},
-        instruction::{DecodedInstruction, InstructionMetadata, MAX_INSTRUCTION_STACK_DEPTH},
+        instruction::{InstructionMetadata, MAX_INSTRUCTION_STACK_DEPTH},
         schema::ParsedInstruction,
         transaction::TransactionMetadata,
     },
@@ -262,11 +262,10 @@ pub fn extract_account_metas(
     Ok(accounts)
 }
 
-/// Unnests parsed instructions, producing an array of `(InstructionMetadata,
-/// DecodedInstruction<T>)` tuple
+/// Unnests parsed instructions, producing an array of `(InstructionMetadata, T)` tuples
 ///
 /// This function takes a vector of `ParsedInstruction` and unnests them into a
-/// vector of `(InstructionMetadata, DecodedInstruction<T>)` tuples.
+/// vector of `(InstructionMetadata, T)` tuples.
 /// It recursively processes nested instructions, increasing the stack height
 /// for each level of nesting.
 ///
@@ -279,13 +278,13 @@ pub fn extract_account_metas(
 ///
 /// # Returns
 ///
-/// A vector of `(InstructionMetadata, DecodedInstruction<T>)` tuples
+/// A vector of `(InstructionMetadata, T)` tuples
 /// representing the unnested instructions.
 pub fn unnest_parsed_instructions<T: InstructionDecoderCollection>(
     transaction_metadata: Arc<TransactionMetadata>,
     instructions: Vec<ParsedInstruction<T>>,
     stack_height: u32,
-) -> Vec<(InstructionMetadata, DecodedInstruction<T>)> {
+) -> Vec<(InstructionMetadata, T)> {
     log::trace!("unnest_parsed_instructions(instructions: {instructions:?})");
 
     let mut result = Vec::new();
