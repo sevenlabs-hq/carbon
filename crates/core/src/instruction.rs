@@ -177,6 +177,244 @@ impl InstructionMetadata {
 
 pub type InstructionsWithMetadata = Vec<(InstructionMetadata, solana_instruction::Instruction)>;
 
+/// Slot range for filtering instructions. Both bounds are optional and inclusive.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SlotRange {
+    pub min_slot: Option<u64>,
+    pub max_slot: Option<u64>,
+}
+
+impl SlotRange {
+    /// Creates a new SlotRange.
+    pub fn new(min_slot: Option<u64>, max_slot: Option<u64>) -> Self {
+        Self { min_slot, max_slot }
+    }
+
+    /// Checks if a slot is within this range.
+    pub fn contains(&self, slot: u64) -> bool {
+        if let Some(min) = self.min_slot {
+            if slot < min {
+                return false;
+            }
+        }
+        if let Some(max) = self.max_slot {
+            if slot > max {
+                return false;
+            }
+        }
+        true
+    }
+
+    /// Creates a range that matches all slots.
+    pub fn all() -> Self {
+        Self {
+            min_slot: None,
+            max_slot: None,
+        }
+    }
+
+    /// Creates a range from a minimum slot (inclusive).
+    pub fn from(min_slot: u64) -> Self {
+        Self {
+            min_slot: Some(min_slot),
+            max_slot: None,
+        }
+    }
+
+    /// Creates a range up to a maximum slot (inclusive).
+    pub fn to(max_slot: u64) -> Self {
+        Self {
+            min_slot: None,
+            max_slot: Some(max_slot),
+        }
+    }
+
+    /// Creates a range between two slots (inclusive).
+    pub fn between(min_slot: u64, max_slot: u64) -> Self {
+        Self {
+            min_slot: Some(min_slot),
+            max_slot: Some(max_slot),
+        }
+    }
+}
+
+/// Routes to multiple decoder versions with two strategies:
+/// 1. Slot-based routing: routes based on slot when ranges are provided
+/// 2. Sequential fallback: tries decoders sequentially when ranges are `None` or metadata is missing
+///
+/// `T`: The unified instruction type that all decoders must return.
+/// For decoders with different types, use `VersionedDecoderEnum` instead.
+pub struct VersionedDecoder<T> {
+    versions: Vec<(
+        Option<SlotRange>,
+        Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
+    )>,
+}
+
+impl<T> VersionedDecoder<T> {
+    /// Creates a new VersionedDecoder.
+    pub fn new() -> Self {
+        Self {
+            versions: Vec::new(),
+        }
+    }
+
+    /// Adds a decoder with an optional slot range. If `None`, uses sequential fallback.
+    pub fn add_version(
+        mut self,
+        decoder: impl for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
+        slot_range: Option<SlotRange>,
+    ) -> Self {
+        self.versions.push((slot_range, Box::new(decoder)));
+        self
+    }
+}
+
+impl<T> Default for VersionedDecoder<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<'a, T> InstructionDecoder<'a> for VersionedDecoder<T> {
+    type InstructionType = T;
+
+    fn decode_instruction(
+        &self,
+        instruction: &'a solana_instruction::Instruction,
+        metadata: Option<&'a InstructionMetadata>,
+    ) -> Option<DecodedInstruction<Self::InstructionType>> {
+        let mut slot_based_decoders = Vec::new();
+        let mut fallback_decoders = Vec::new();
+
+        for (slot_range, decoder) in &self.versions {
+            if let Some(range) = slot_range {
+                slot_based_decoders.push((range, decoder));
+            } else {
+                fallback_decoders.push(decoder);
+            }
+        }
+
+        if let Some(metadata) = metadata {
+            let slot = metadata.transaction_metadata.slot;
+            for (range, decoder) in &slot_based_decoders {
+                if range.contains(slot) {
+                    if let Some(result) = decoder.decode_instruction(instruction, Some(metadata)) {
+                        return Some(result);
+                    }
+                }
+            }
+            if !slot_based_decoders.is_empty() {
+                return None;
+            }
+        }
+
+        for decoder in &fallback_decoders {
+            if let Some(result) = decoder.decode_instruction(instruction, metadata) {
+                return Some(result);
+            }
+        }
+        None
+    }
+}
+
+/// Routes to multiple decoder versions, wrapping results into a unified enum type.
+///
+/// `E`: The unified enum type that wraps all version-specific instruction types.
+pub struct VersionedDecoderEnum<E> {
+    versions: Vec<(
+        Option<SlotRange>,
+        Box<
+            dyn for<'b> Fn(
+                    &'b solana_instruction::Instruction,
+                    Option<&'b InstructionMetadata>,
+                ) -> Option<DecodedInstruction<E>>
+                + Send
+                + Sync,
+        >,
+    )>,
+}
+
+impl<E> VersionedDecoderEnum<E> {
+    /// Creates a new VersionedDecoderEnum.
+    pub fn new() -> Self {
+        Self {
+            versions: Vec::new(),
+        }
+    }
+
+    /// Adds a decoder with a mapper function and an optional slot range. If `None`, uses sequential fallback.
+    pub fn add_version<D, T, F>(
+        mut self,
+        decoder: D,
+        mapper: F,
+        slot_range: Option<SlotRange>,
+    ) -> Self
+    where
+        D: for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
+        F: Fn(DecodedInstruction<T>) -> DecodedInstruction<E> + Send + Sync + 'static,
+    {
+        let mapper = Box::new(
+            move |instruction: &'_ solana_instruction::Instruction,
+                  metadata: Option<&'_ InstructionMetadata>| {
+                decoder
+                    .decode_instruction(instruction, metadata)
+                    .map(&mapper)
+            },
+        );
+        self.versions.push((slot_range, mapper));
+        self
+    }
+}
+
+impl<E> Default for VersionedDecoderEnum<E> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<'a, E> InstructionDecoder<'a> for VersionedDecoderEnum<E> {
+    type InstructionType = E;
+
+    fn decode_instruction(
+        &self,
+        instruction: &'a solana_instruction::Instruction,
+        metadata: Option<&'a InstructionMetadata>,
+    ) -> Option<DecodedInstruction<Self::InstructionType>> {
+        let mut slot_based_decoders = Vec::new();
+        let mut fallback_decoders = Vec::new();
+
+        for (slot_range, decoder_fn) in &self.versions {
+            if let Some(range) = slot_range {
+                slot_based_decoders.push((range, decoder_fn));
+            } else {
+                fallback_decoders.push(decoder_fn);
+            }
+        }
+        if let Some(metadata) = metadata {
+            let slot = metadata.transaction_metadata.slot;
+            for (range, decoder_fn) in &slot_based_decoders {
+                if range.contains(slot) {
+                    if let Some(result) = decoder_fn(instruction, Some(metadata)) {
+                        return Some(result);
+                    }
+                }
+            }
+        }
+
+        for decoder_fn in slot_based_decoders
+            .iter()
+            .map(|(_, d)| d)
+            .chain(fallback_decoders.iter())
+        {
+            if let Some(result) = decoder_fn(instruction, metadata) {
+                return Some(result);
+            }
+        }
+        None
+    }
+}
+
 /// A decoded instruction containing program ID, data, and associated accounts.
 ///
 /// The `DecodedInstruction` struct represents the outcome of decoding a raw
@@ -222,6 +460,7 @@ pub trait InstructionDecoder<'a> {
     fn decode_instruction(
         &self,
         instruction: &'a solana_instruction::Instruction,
+        metadata: Option<&'a InstructionMetadata>,
     ) -> Option<DecodedInstruction<Self::InstructionType>>;
 }
 
@@ -294,10 +533,10 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
     ) -> CarbonResult<()> {
         log::trace!("InstructionPipe::run(nested_instruction: {nested_instruction:?}, metrics)",);
 
-        if let Some(decoded_instruction) = self
-            .decoder
-            .decode_instruction(&nested_instruction.instruction)
-        {
+        if let Some(decoded_instruction) = self.decoder.decode_instruction(
+            &nested_instruction.instruction,
+            Some(&nested_instruction.metadata),
+        ) {
             self.processor
                 .process(
                     (
@@ -563,5 +802,244 @@ mod tests {
             )
             .expect("decode base64")
         );
+    }
+
+    #[test]
+    fn test_slot_range_all() {
+        let range = SlotRange::all();
+        assert!(range.contains(0));
+        assert!(range.contains(1000));
+        assert!(range.contains(u64::MAX));
+    }
+
+    #[test]
+    fn test_slot_range_from() {
+        let range = SlotRange::from(100);
+        assert!(!range.contains(99));
+        assert!(range.contains(100));
+        assert!(range.contains(1000));
+        assert!(range.contains(u64::MAX));
+    }
+
+    #[test]
+    fn test_slot_range_to() {
+        let range = SlotRange::to(100);
+        assert!(range.contains(0));
+        assert!(range.contains(100));
+        assert!(!range.contains(101));
+        assert!(!range.contains(u64::MAX));
+    }
+
+    #[test]
+    fn test_slot_range_between() {
+        let range = SlotRange::between(100, 200);
+        assert!(!range.contains(99));
+        assert!(range.contains(100));
+        assert!(range.contains(150));
+        assert!(range.contains(200));
+        assert!(!range.contains(201));
+        // Test single slot case (min == max)
+        let single_slot = SlotRange::between(100, 100);
+        assert!(!single_slot.contains(99));
+        assert!(single_slot.contains(100));
+        assert!(!single_slot.contains(101));
+    }
+
+    // Test helper: A decoder that always succeeds
+    struct TestDecoder;
+
+    impl<'a> InstructionDecoder<'a> for TestDecoder {
+        type InstructionType = String;
+
+        fn decode_instruction(
+            &self,
+            instruction: &'a solana_instruction::Instruction,
+            _metadata: Option<&'a InstructionMetadata>,
+        ) -> Option<DecodedInstruction<Self::InstructionType>> {
+            Some(DecodedInstruction {
+                program_id: instruction.program_id,
+                data: "decoded".to_string(),
+                accounts: instruction.accounts.clone(),
+            })
+        }
+    }
+
+    fn create_metadata_with_slot(slot: u64) -> InstructionMetadata {
+        InstructionMetadata {
+            transaction_metadata: Arc::new(TransactionMetadata {
+                slot,
+                ..Default::default()
+            }),
+            stack_height: 1,
+            index: 0,
+            absolute_path: vec![0],
+        }
+    }
+
+    #[test]
+    fn test_versioned_decoder_filters_by_range() {
+        let range = SlotRange::between(100, 200);
+        let decoder = VersionedDecoder::new().add_version(TestDecoder, Some(range));
+        let instruction = Instruction {
+            program_id: Pubkey::new_unique(),
+            accounts: vec![],
+            data: vec![],
+        };
+
+        // Slot within range - should decode
+        let metadata_in_range = create_metadata_with_slot(150);
+        let result = decoder.decode_instruction(&instruction, Some(&metadata_in_range));
+        assert!(result.is_some());
+        assert_eq!(result.unwrap().data, "decoded");
+
+        // Slot below range - should return None
+        let metadata_below = create_metadata_with_slot(99);
+        let result = decoder.decode_instruction(&instruction, Some(&metadata_below));
+        assert!(result.is_none());
+
+        // Slot above range - should return None
+        let metadata_above = create_metadata_with_slot(201);
+        let result = decoder.decode_instruction(&instruction, Some(&metadata_above));
+        assert!(result.is_none());
+
+        // Slot at boundary - should decode
+        let metadata_min = create_metadata_with_slot(100);
+        let result = decoder.decode_instruction(&instruction, Some(&metadata_min));
+        assert!(result.is_some());
+
+        let metadata_max = create_metadata_with_slot(200);
+        let result = decoder.decode_instruction(&instruction, Some(&metadata_max));
+        assert!(result.is_some());
+    }
+
+    #[test]
+    fn test_versioned_decoder_routes_to_correct_version() {
+        // Create two decoders with different ranges
+        struct V1Decoder;
+        struct V2Decoder;
+
+        impl<'a> InstructionDecoder<'a> for V1Decoder {
+            type InstructionType = String;
+
+            fn decode_instruction(
+                &self,
+                _instruction: &'a solana_instruction::Instruction,
+                _metadata: Option<&'a InstructionMetadata>,
+            ) -> Option<DecodedInstruction<Self::InstructionType>> {
+                Some(DecodedInstruction {
+                    program_id: Pubkey::default(),
+                    data: "v1".to_string(),
+                    accounts: vec![],
+                })
+            }
+        }
+
+        impl<'a> InstructionDecoder<'a> for V2Decoder {
+            type InstructionType = String;
+
+            fn decode_instruction(
+                &self,
+                _instruction: &'a solana_instruction::Instruction,
+                _metadata: Option<&'a InstructionMetadata>,
+            ) -> Option<DecodedInstruction<Self::InstructionType>> {
+                Some(DecodedInstruction {
+                    program_id: Pubkey::default(),
+                    data: "v2".to_string(),
+                    accounts: vec![],
+                })
+            }
+        }
+
+        let decoder = VersionedDecoder::new()
+            .add_version(V1Decoder, Some(SlotRange::to(1000)))
+            .add_version(V2Decoder, Some(SlotRange::from(1001)));
+
+        let instruction = Instruction {
+            program_id: Pubkey::new_unique(),
+            accounts: vec![],
+            data: vec![],
+        };
+
+        // Should route to v1
+        let metadata_v1 = create_metadata_with_slot(500);
+        let result = decoder.decode_instruction(&instruction, Some(&metadata_v1));
+        assert!(result.is_some());
+        assert_eq!(result.unwrap().data, "v1");
+
+        // Should route to v2
+        let metadata_v2 = create_metadata_with_slot(2000);
+        let result = decoder.decode_instruction(&instruction, Some(&metadata_v2));
+        assert!(result.is_some());
+        assert_eq!(result.unwrap().data, "v2");
+    }
+
+    #[test]
+    fn test_versioned_decoder_handles_none_metadata() {
+        let decoder = VersionedDecoder::new().add_version(TestDecoder, Some(SlotRange::all()));
+        let instruction = Instruction {
+            program_id: Pubkey::new_unique(),
+            accounts: vec![],
+            data: vec![],
+        };
+
+        // Should return None when metadata is None
+        let result = decoder.decode_instruction(&instruction, None);
+        assert!(result.is_none());
+    }
+
+    #[test]
+    fn test_versioned_decoder_first_match_wins() {
+        // Test overlapping ranges - first match should win
+        struct FirstDecoder;
+        struct SecondDecoder;
+
+        impl<'a> InstructionDecoder<'a> for FirstDecoder {
+            type InstructionType = String;
+
+            fn decode_instruction(
+                &self,
+                _instruction: &'a solana_instruction::Instruction,
+                _metadata: Option<&'a InstructionMetadata>,
+            ) -> Option<DecodedInstruction<Self::InstructionType>> {
+                Some(DecodedInstruction {
+                    program_id: Pubkey::default(),
+                    data: "first".to_string(),
+                    accounts: vec![],
+                })
+            }
+        }
+
+        impl<'a> InstructionDecoder<'a> for SecondDecoder {
+            type InstructionType = String;
+
+            fn decode_instruction(
+                &self,
+                _instruction: &'a solana_instruction::Instruction,
+                _metadata: Option<&'a InstructionMetadata>,
+            ) -> Option<DecodedInstruction<Self::InstructionType>> {
+                Some(DecodedInstruction {
+                    program_id: Pubkey::default(),
+                    data: "second".to_string(),
+                    accounts: vec![],
+                })
+            }
+        }
+
+        // Both ranges include slot 150
+        let decoder = VersionedDecoder::new()
+            .add_version(FirstDecoder, Some(SlotRange::between(100, 200)))
+            .add_version(SecondDecoder, Some(SlotRange::between(150, 250)));
+
+        let instruction = Instruction {
+            program_id: Pubkey::new_unique(),
+            accounts: vec![],
+            data: vec![],
+        };
+
+        let metadata = create_metadata_with_slot(150);
+        let result = decoder.decode_instruction(&instruction, Some(&metadata));
+        assert!(result.is_some());
+        // First match should win
+        assert_eq!(result.unwrap().data, "first");
     }
 }
