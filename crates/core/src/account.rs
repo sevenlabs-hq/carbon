@@ -216,15 +216,18 @@ impl<T: Send> AccountPipes for AccountPipe<T> {
     }
 }
 
+/// Type alias for a versioned account decoder entry.
+type VersionedAccountDecoderEntry<T> = (
+    SlotRange,
+    Box<dyn for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static>,
+);
+
 /// Routes to different account decoders based on slot ranges.
 ///
 /// `T`: The unified account type that all decoders must return.
 /// For decoders with different types, use `VersionedAccountDecoderEnum` instead.
 pub struct VersionedAccountDecoder<T> {
-    versions: Vec<(
-        SlotRange,
-        Box<dyn for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static>,
-    )>,
+    versions: Vec<VersionedAccountDecoderEntry<T>>,
 }
 
 impl<T> VersionedAccountDecoder<T> {
@@ -272,21 +275,24 @@ impl<'a, T> AccountDecoder<'a> for VersionedAccountDecoder<T> {
     }
 }
 
+/// Type alias for a versioned account decoder enum entry.
+type VersionedAccountDecoderEnumEntry<E> = (
+    SlotRange,
+    Box<
+        dyn for<'b> Fn(
+                &'b solana_account::Account,
+                Option<&'b AccountMetadata>,
+            ) -> Option<DecodedAccount<E>>
+            + Send
+            + Sync,
+    >,
+);
+
 /// Routes to different account decoders based on slot ranges, wrapping results into a unified enum.
 ///
 /// `E`: The unified enum type that wraps all version-specific account types.
 pub struct VersionedAccountDecoderEnum<E> {
-    versions: Vec<(
-        SlotRange,
-        Box<
-            dyn for<'b> Fn(
-                    &'b solana_account::Account,
-                    Option<&'b AccountMetadata>,
-                ) -> Option<DecodedAccount<E>>
-                + Send
-                + Sync,
-        >,
-    )>,
+    versions: Vec<VersionedAccountDecoderEnumEntry<E>>,
 }
 
 impl<E> VersionedAccountDecoderEnum<E> {

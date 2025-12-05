@@ -4,13 +4,6 @@ import { getRenderMapVisitor, GetRenderMapOptions } from './getRenderMapVisitor'
 
 export type RenderOptions = GetRenderMapOptions & {
     deleteFolderBeforeRendering?: boolean;
-    packageName?: string;
-    anchorEvents?: {
-        name: string;
-        discriminator: number[];
-    }[];
-    postgresMode?: 'generic' | 'typed';
-    versionName?: string;
 };
 
 export function renderVisitor(path: string, options: RenderOptions = {}) {

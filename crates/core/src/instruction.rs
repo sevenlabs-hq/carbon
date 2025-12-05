@@ -238,21 +238,24 @@ impl SlotRange {
     }
 }
 
+/// Type alias for a versioned instruction decoder entry.
+type VersionedInstructionDecoderEntry<T> = (
+    Option<SlotRange>,
+    Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
+);
+
 /// Routes to multiple decoder versions with two strategies:
 /// 1. Slot-based routing: routes based on slot when ranges are provided
 /// 2. Sequential fallback: tries decoders sequentially when ranges are `None` or metadata is missing
 ///
 /// `T`: The unified instruction type that all decoders must return.
-/// For decoders with different types, use `VersionedDecoderEnum` instead.
-pub struct VersionedDecoder<T> {
-    versions: Vec<(
-        Option<SlotRange>,
-        Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
-    )>,
+/// For decoders with different types, use `VersionedInstructionDecoderEnum` instead.
+pub struct VersionedInstructionDecoder<T> {
+    versions: Vec<VersionedInstructionDecoderEntry<T>>,
 }
 
-impl<T> VersionedDecoder<T> {
-    /// Creates a new VersionedDecoder.
+impl<T> VersionedInstructionDecoder<T> {
+    /// Creates a new VersionedInstructionDecoder.
     pub fn new() -> Self {
         Self {
             versions: Vec::new(),
@@ -270,13 +273,13 @@ impl<T> VersionedDecoder<T> {
     }
 }
 
-impl<T> Default for VersionedDecoder<T> {
+impl<T> Default for VersionedInstructionDecoder<T> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<'a, T> InstructionDecoder<'a> for VersionedDecoder<T> {
+impl<'a, T> InstructionDecoder<'a> for VersionedInstructionDecoder<T> {
     type InstructionType = T;
 
     fn decode_instruction(
@@ -318,25 +321,28 @@ impl<'a, T> InstructionDecoder<'a> for VersionedDecoder<T> {
     }
 }
 
+/// Type alias for a versioned instruction decoder enum entry.
+type VersionedInstructionDecoderEnumEntry<E> = (
+    Option<SlotRange>,
+    Box<
+        dyn for<'b> Fn(
+                &'b solana_instruction::Instruction,
+                Option<&'b InstructionMetadata>,
+            ) -> Option<DecodedInstruction<E>>
+            + Send
+            + Sync,
+    >,
+);
+
 /// Routes to multiple decoder versions, wrapping results into a unified enum type.
 ///
 /// `E`: The unified enum type that wraps all version-specific instruction types.
-pub struct VersionedDecoderEnum<E> {
-    versions: Vec<(
-        Option<SlotRange>,
-        Box<
-            dyn for<'b> Fn(
-                    &'b solana_instruction::Instruction,
-                    Option<&'b InstructionMetadata>,
-                ) -> Option<DecodedInstruction<E>>
-                + Send
-                + Sync,
-        >,
-    )>,
+pub struct VersionedInstructionDecoderEnum<E> {
+    versions: Vec<VersionedInstructionDecoderEnumEntry<E>>,
 }
 
-impl<E> VersionedDecoderEnum<E> {
-    /// Creates a new VersionedDecoderEnum.
+impl<E> VersionedInstructionDecoderEnum<E> {
+    /// Creates a new VersionedInstructionDecoderEnum.
     pub fn new() -> Self {
         Self {
             versions: Vec::new(),
@@ -367,13 +373,13 @@ impl<E> VersionedDecoderEnum<E> {
     }
 }
 
-impl<E> Default for VersionedDecoderEnum<E> {
+impl<E> Default for VersionedInstructionDecoderEnum<E> {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl<'a, E> InstructionDecoder<'a> for VersionedDecoderEnum<E> {
+impl<'a, E> InstructionDecoder<'a> for VersionedInstructionDecoderEnum<E> {
     type InstructionType = E;
 
     fn decode_instruction(
@@ -879,7 +885,7 @@ mod tests {
     #[test]
     fn test_versioned_decoder_filters_by_range() {
         let range = SlotRange::between(100, 200);
-        let decoder = VersionedDecoder::new().add_version(TestDecoder, Some(range));
+        let decoder = VersionedInstructionDecoder::new().add_version(TestDecoder, Some(range));
         let instruction = Instruction {
             program_id: Pubkey::new_unique(),
             accounts: vec![],
@@ -950,7 +956,7 @@ mod tests {
             }
         }
 
-        let decoder = VersionedDecoder::new()
+        let decoder = VersionedInstructionDecoder::new()
             .add_version(V1Decoder, Some(SlotRange::to(1000)))
             .add_version(V2Decoder, Some(SlotRange::from(1001)));
 
@@ -975,7 +981,8 @@ mod tests {
 
     #[test]
     fn test_versioned_decoder_handles_none_metadata() {
-        let decoder = VersionedDecoder::new().add_version(TestDecoder, Some(SlotRange::all()));
+        let decoder =
+            VersionedInstructionDecoder::new().add_version(TestDecoder, Some(SlotRange::all()));
         let instruction = Instruction {
             program_id: Pubkey::new_unique(),
             accounts: vec![],
@@ -1026,7 +1033,7 @@ mod tests {
         }
 
         // Both ranges include slot 150
-        let decoder = VersionedDecoder::new()
+        let decoder = VersionedInstructionDecoder::new()
             .add_version(FirstDecoder, Some(SlotRange::between(100, 200)))
             .add_version(SecondDecoder, Some(SlotRange::between(150, 250)));
 

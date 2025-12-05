@@ -27,7 +27,7 @@ mod tests {
             carbon_test_utils::read_account("tests/fixtures/dynamic_tick_array_account0.json")
                 .expect("read fixture");
 
-        let decoded_account = decoder.decode_account(&account).expect("decode fixture");
+        let decoded_account = decoder.decode_account(&account, None).expect("decode fixture");
 
         match decoded_account.data {
             WhirlpoolAccount::DynamicTickArray(account) => {
