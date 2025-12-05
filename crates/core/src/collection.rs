@@ -39,7 +39,7 @@
 //! instruction handling within your application, benefiting from simplified
 //! parsing and type management capabilities.
 
-use {crate::instruction::DecodedInstruction, serde::Serialize};
+use serde::Serialize;
 
 /// A trait for defining collections of Solana instructions, enabling parsing
 /// and type-based management.
@@ -62,16 +62,15 @@ use {crate::instruction::DecodedInstruction, serde::Serialize};
 /// ### `parse_instruction`
 ///
 /// This method is responsible for converting a Solana `Instruction` object into
-/// a `DecodedInstruction` containing the custom type defined by the
-/// implementor. The parsed instruction can then be processed within the
-/// pipeline according to application-specific logic.
+/// the custom instruction enum type defined by the implementor. The parsed
+/// instruction can then be processed within the pipeline according to
+/// application-specific logic.
 ///
 /// - **Parameters**:
 ///   - `instruction`: A reference to a `solana_instruction::Instruction`,
 ///     representing the raw instruction to be decoded.
-/// - **Returns**: An `Option<DecodedInstruction<Self>>` containing the decoded
-///   instruction if successful, or `None` if parsing fails or the instruction
-///   is unsupported.
+/// - **Returns**: An `Option<Self>` containing the decoded instruction if
+///   successful, or `None` if parsing fails or the instruction is unsupported.
 ///
 /// ### `get_type`
 ///
@@ -92,12 +91,19 @@ use {crate::instruction::DecodedInstruction, serde::Serialize};
 ///   determines how raw instruction data is transformed into a decoded form,
 ///   impacting subsequent processing within the pipeline.
 pub trait InstructionDecoderCollection:
-    Clone + std::fmt::Debug + Send + Sync + Eq + std::hash::Hash + Serialize + 'static
+    Clone
+    + std::fmt::Debug
+    + Send
+    + Sync
+    + Eq
+    + std::hash::Hash
+    + Serialize
+    + 'static
 {
     type InstructionType: Clone + std::fmt::Debug + PartialEq + Eq + Send + Sync + 'static;
 
     fn parse_instruction(
         instruction: &solana_instruction::Instruction,
-    ) -> Option<DecodedInstruction<Self>>;
+    ) -> Option<Self>;
     fn get_type(&self) -> Self::InstructionType;
 }

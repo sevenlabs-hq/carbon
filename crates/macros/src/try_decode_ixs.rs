@@ -11,13 +11,13 @@
 //! decode the instruction into each type sequentially, returning the first
 //! successful match. If no match is found, `None` is returned.
 
-/// Attempts to decode an instruction into a specific variant type.
+/// Attempts to decode an instruction into a unified enum variant.
 ///
 /// The `try_decode_instructions!` macro takes an instruction and tries to
-/// decode it into one of the provided variant types. If decoding is successful,
-/// it returns a `DecodedInstruction` object with the decoded data wrapped in
-/// the specified variant. If none of the variant types match, it returns
-/// `None`.
+/// decode it into one of the provided instruction types. If decoding is
+/// successful, it returns the instruction enum with both the decoded data
+/// and arranged accounts in a single struct variant. If no variant type
+/// matches, it returns `None`.
 ///
 /// This macro is useful for handling multiple potential instruction types
 /// dynamically, enabling streamlined processing of instructions without
@@ -26,22 +26,29 @@
 /// # Syntax
 ///
 /// ```ignore
-/// try_decode_instructions!(instruction, VariantA => TypeA, VariantB => TypeB, ...);
+/// try_decode_instructions!(
+///     instruction,
+///     PROGRAM_ID,
+///     MyEnum::VariantA => TypeA,
+///     MyEnum::VariantB => TypeB,
+/// );
 /// ```
 ///
 /// - `$instruction`: The instruction to decode.
-/// - `$variant`: The enum variant to wrap the decoded instruction data.
-/// - `$ty`: The type to which the instruction data should be deserialized.
+/// - `$program_id`: The program ID for this instruction set.
+/// - `$enum_name::$variant`: The full path to the enum variant.
+/// - `$ty`: The instruction data type that implements `CarbonDeserialize` and `ArrangeAccounts`.
 ///
 /// # Example
 ///
 /// ```ignore
-///use carbon_macros::try_decode_instructions;
+/// use carbon_macros::try_decode_instructions;
 ///
 /// let instruction = Instruction { /* initialize with program_id, accounts, and data */ };
 ///
 /// let decoded = try_decode_instructions!(
 ///     instruction,
+///     PROGRAM_ID,
 ///     MyEnum::VariantOne => TypeOne,
 ///     MyEnum::VariantTwo => TypeTwo,
 /// );
@@ -50,44 +57,42 @@
 /// # Parameters
 ///
 /// - `$instruction`: The instruction being decoded, which must include
-///   `program_id`, `accounts`, and `data` fields. The `data` field should be a
-///   byte slice compatible with the deserialization process.
-/// - `$variant`: Enum variants that wrap the deserialized data. These variants
-///   should correspond to valid instruction types within the context.
-/// - `$ty`: The type for each variant, which must implement a `deserialize`
-///   method to convert the instruction data into the appropriate form.
+///   `program_id`, `accounts`, and `data` fields.
+/// - `$program_id`: The program ID to be stored in the resulting enum variant.
+/// - `$enum_name::$variant`: The enum name and variant name separated by `::`.
+///   The enum must have struct variants with `program_id`, `data`, and `accounts` fields.
+/// - `$ty`: The instruction data type, which must implement a `decode(&[u8]) -> Option<Self>`
+///   method for data deserialization and `ArrangeAccounts` for account arrangement.
 ///
 /// # Returns
 ///
-/// Returns an `Option<DecodedInstruction>` that contains the decoded
-/// instruction wrapped in the specified variant type if decoding is successful.
-/// If no variant type matches, it returns `None`.
+/// Returns an `Option<EnumType>` containing the instruction enum variant with
+/// both decoded data and arranged accounts if successful. Returns `None` if
+/// deserialization or account arrangement fails.
 ///
 /// # Notes
 ///
-/// - Ensure that each `$ty` type implements a `deserialize` method, as this is
-///   necessary for the macro to attempt decoding. The deserialization method
-///   should handle byte slices.
-/// - The macro iterates over each variant type sequentially, returning the
-///   first successful match. If no types match, `None` is returned.
-/// - This macro is especially useful for processing complex transactions where
-///   multiple instruction types are possible, improving flexibility and
-///   reducing boilerplate code.
+/// - Each instruction type must implement a `decode` method and the `ArrangeAccounts` trait.
+/// - The macro automatically arranges accounts during decoding, eliminating the need
+///   for manual arrangement in processors.
+/// - The resulting enum variant contains three fields: `program_id`, `data`, and `accounts`.
+/// - The macro iterates through each variant sequentially, returning the first successful match.
 #[macro_export]
 macro_rules! try_decode_instructions {
-    ($instruction:expr, $($variant:path => $ty:ty),* $(,)?) => {{
-        use carbon_core::deserialize::CarbonDeserialize;
+    ($instruction:expr, $program_id:expr, $($enum_name:ident :: $variant:ident => $ty:ty),* $(,)?) => {{
+        use carbon_core::deserialize::ArrangeAccounts;
         $(
-            if let Some(decoded_instruction) = <$ty>::deserialize($instruction.data.as_slice()) {
-                Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: $instruction.program_id,
-                    accounts: $instruction.accounts.clone(),
-                    data: $variant(decoded_instruction),
-                })
-            } else
+            if let Some(data) = <$ty>::decode($instruction.data.as_slice()) {
+                if let Some(accounts) = <$ty>::arrange_accounts(&$instruction.accounts) {
+                    let result = $enum_name::$variant {
+                        program_id: $program_id,
+                        data: data,
+                        accounts: accounts,
+                    };
+                    return Some(result);
+                }
+            }
         )*
-        {
-            None
-        }
+        None
     }};
 }

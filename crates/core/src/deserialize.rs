@@ -99,7 +99,11 @@ pub fn extract_discriminator(length: usize, data: &[u8]) -> Option<(&[u8], &[u8]
 /// - `ArrangedAccounts`: The output type representing the custom arrangement of
 ///   accounts.
 pub trait ArrangeAccounts {
-    type ArrangedAccounts;
+    type ArrangedAccounts: Clone
+        + Send
+        + Sync
+        + std::fmt::Debug
+        + Unpin;
 
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
