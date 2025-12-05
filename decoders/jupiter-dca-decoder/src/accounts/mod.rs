@@ -13,7 +13,8 @@ impl AccountDecoder<'_> for JupiterDcaDecoder {
     type AccountType = JupiterDcaAccount;
     fn decode_account(
         &self,
-        account: &solana_account::Account,
+        account: &'_ solana_account::Account,
+        _metadata: Option<&carbon_core::account::AccountMetadata>,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;
@@ -76,7 +77,9 @@ mod tests {
         let decoder = JupiterDcaDecoder;
         let account = carbon_test_utils::read_account("tests/fixtures/dca_account.json")
             .expect("read fixture");
-        let decoded_account = decoder.decode_account(&account).expect("decode fixture");
+        let decoded_account = decoder
+            .decode_account(&account, None)
+            .expect("decode fixture");
 
         match decoded_account.data {
             JupiterDcaAccount::Dca(dca_account) => {

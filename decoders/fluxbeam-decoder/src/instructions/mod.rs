@@ -37,6 +37,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for FluxbeamDecoder {
     fn decode_instruction(
         &self,
         instruction: &solana_instruction::Instruction,
+        _metadata: Option<&carbon_core::instruction::InstructionMetadata>,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         if !instruction.program_id.eq(&PROGRAM_ID) {
             return None;
@@ -163,7 +164,7 @@ mod tests {
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/initialize_ix.json")
             .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             initialize::Initialize::arrange_accounts(&instruction.accounts)
@@ -328,7 +329,7 @@ mod tests {
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/swap_ix.json")
             .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             swap::Swap::arrange_accounts(&instruction.accounts).expect("aranage accounts");
@@ -490,6 +491,7 @@ mod tests {
                     "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
                 ),
             };
+        use carbon_test_utils;
 
         // Act
         let decoder = FluxbeamDecoder;
@@ -497,7 +499,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/withdraw_all_token_types_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             withdraw_all_token_types::WithdrawAllTokenTypes::arrange_accounts(

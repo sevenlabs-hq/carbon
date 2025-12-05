@@ -29,7 +29,8 @@ impl AccountDecoder<'_> for DynamicBondingCurveDecoder {
     type AccountType = DynamicBondingCurveAccount;
     fn decode_account(
         &self,
-        account: &solana_account::Account,
+        account: &'_ solana_account::Account,
+        _metadata: Option<&carbon_core::account::AccountMetadata>,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if let Some(decoded_account) =
             claim_fee_operator::ClaimFeeOperator::deserialize(account.data.as_slice())
