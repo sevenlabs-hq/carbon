@@ -1,13 +1,14 @@
 use super::SplAssociatedTokenAccountDecoder;
-use carbon_core::account::AccountDecoder;
+use carbon_core::account::{AccountDecoder, AccountMetadata};
 
 pub enum SplAssociatedTokenAccountAccount {}
 
-impl AccountDecoder<'_> for SplAssociatedTokenAccountDecoder {
+impl<'a> AccountDecoder<'a> for SplAssociatedTokenAccountDecoder {
     type AccountType = SplAssociatedTokenAccountAccount;
     fn decode_account(
         &self,
-        _account: &solana_account::Account,
+        _account: &'a solana_account::Account,
+        _metadata: Option<&'a AccountMetadata>,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         None
     }

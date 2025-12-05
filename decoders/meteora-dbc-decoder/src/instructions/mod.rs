@@ -141,6 +141,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for DynamicBondingCurveDec
     fn decode_instruction(
         &self,
         instruction: &solana_instruction::Instruction,
+        _metadata: Option<&carbon_core::instruction::InstructionMetadata>,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         carbon_core::try_decode_instructions!(instruction,
             DynamicBondingCurveInstruction::ClaimCreatorTradingFee => claim_creator_trading_fee::ClaimCreatorTradingFee,

@@ -30,6 +30,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MoonshotDecoder {
     fn decode_instruction(
         &self,
         instruction: &solana_instruction::Instruction,
+        _metadata: Option<&carbon_core::instruction::InstructionMetadata>,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         if !instruction.program_id.eq(&PROGRAM_ID) {
             return None;
@@ -60,6 +61,7 @@ mod tests {
     use crate::types::{TokenMintParams, TradeParams};
 
     use super::*;
+    use carbon_test_utils;
 
     #[test]
     fn test_decode_token_mint() {
@@ -187,7 +189,7 @@ mod tests {
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/token_mint_ix.json")
             .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             token_mint::TokenMint::arrange_accounts(&instruction.accounts)
@@ -318,7 +320,7 @@ mod tests {
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/buy_ix.json")
             .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             buy::Buy::arrange_accounts(&instruction.accounts).expect("aranage accounts");
@@ -448,7 +450,7 @@ mod tests {
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/sell_ix.json")
             .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             sell::Sell::arrange_accounts(&instruction.accounts).expect("aranage accounts");
@@ -581,7 +583,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/migrate_funds_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             migrate_funds::MigrateFunds::arrange_accounts(&instruction.accounts)

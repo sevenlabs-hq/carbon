@@ -14,7 +14,8 @@ impl AccountDecoder<'_> for LifinityAmmV2Decoder {
     type AccountType = LifinityAmmV2Account;
     fn decode_account(
         &self,
-        account: &solana_account::Account,
+        account: &'_ solana_account::Account,
+        _metadata: Option<&carbon_core::account::AccountMetadata>,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;
@@ -145,7 +146,9 @@ mod tests {
         let decoder = LifinityAmmV2Decoder;
         let account = carbon_test_utils::read_account("tests/fixtures/amm_account.json")
             .expect("read fixture");
-        let decoded_account = decoder.decode_account(&account).expect("decode fixture");
+        let decoded_account = decoder
+            .decode_account(&account, None)
+            .expect("decode fixture");
 
         match decoded_account.data {
             LifinityAmmV2Account::Amm(amm_account) => {

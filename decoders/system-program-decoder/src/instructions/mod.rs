@@ -45,6 +45,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for SystemProgramDecoder {
     fn decode_instruction(
         &self,
         instruction: &solana_instruction::Instruction,
+        _metadata: Option<&carbon_core::instruction::InstructionMetadata>,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         if !instruction
             .program_id
@@ -131,7 +132,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/create_with_seed_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             create_account_with_seed::CreateAccountWithSeed::arrange_accounts(

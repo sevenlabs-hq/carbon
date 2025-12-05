@@ -23,7 +23,8 @@ impl AccountDecoder<'_> for OpenbookV2Decoder {
     type AccountType = OpenbookV2Account;
     fn decode_account(
         &self,
-        account: &solana_account::Account,
+        account: &'_ solana_account::Account,
+        _metadata: Option<&carbon_core::account::AccountMetadata>,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;

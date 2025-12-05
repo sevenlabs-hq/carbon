@@ -33,7 +33,8 @@ impl AccountDecoder<'_> for MeteoraDlmmDecoder {
     type AccountType = MeteoraDlmmAccount;
     fn decode_account(
         &self,
-        account: &solana_account::Account,
+        account: &'_ solana_account::Account,
+        _metadata: Option<&carbon_core::account::AccountMetadata>,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&PROGRAM_ID) {
             return None;
@@ -270,7 +271,9 @@ mod tests {
         let decoder = MeteoraDlmmDecoder;
         let account = carbon_test_utils::read_account("tests/fixtures/lb_pair_account.json")
             .expect("read fixture");
-        let decoded_account = decoder.decode_account(&account).expect("decode fixture");
+        let decoded_account = decoder
+            .decode_account(&account, None)
+            .expect("decode fixture");
 
         // Assert
         match decoded_account.data {
@@ -773,7 +776,9 @@ mod tests {
         let decoder = MeteoraDlmmDecoder;
         let account = carbon_test_utils::read_account("tests/fixtures/position_account.json")
             .expect("read fixture");
-        let decoded_account = decoder.decode_account(&account).expect("decode fixture");
+        let decoded_account = decoder
+            .decode_account(&account, None)
+            .expect("decode fixture");
 
         // Assert
         match decoded_account.data {
@@ -825,7 +830,9 @@ mod tests {
         let account =
             carbon_test_utils::read_account("tests/fixtures/preset_parameter_account.json")
                 .expect("read fixture");
-        let decoded_account = decoder.decode_account(&account).expect("decode fixture");
+        let decoded_account = decoder
+            .decode_account(&account, None)
+            .expect("decode fixture");
 
         // Assert
         match decoded_account.data {
@@ -864,7 +871,9 @@ mod tests {
         let decoder = MeteoraDlmmDecoder;
         let account = carbon_test_utils::read_account("tests/fixtures/oracle_account.json")
             .expect("read fixture");
-        let decoded_account = decoder.decode_account(&account).expect("decode fixture");
+        let decoded_account = decoder
+            .decode_account(&account, None)
+            .expect("decode fixture");
 
         // Assert
         match decoded_account.data {

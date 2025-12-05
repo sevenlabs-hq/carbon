@@ -16,7 +16,8 @@ impl AccountDecoder<'_> for TokenProgramDecoder {
 
     fn decode_account(
         &self,
-        account: &solana_account::Account,
+        account: &'_ solana_account::Account,
+        _metadata: Option<&carbon_core::account::AccountMetadata>,
     ) -> Option<DecodedAccount<Self::AccountType>> {
         if !account.owner.eq(&spl_token_interface::id()) {
             return None;
