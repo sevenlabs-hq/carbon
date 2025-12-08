@@ -16,6 +16,9 @@ pub struct {{ entityName | pascalCase }}GraphQL {
 {% for field in graphqlFields %}
     pub {{ field.fieldName }}: {{ field.rustType }},
 {% endfor %}
+{% if not isAccount %}
+    pub accounts: carbon_core::graphql::primitives::Json,
+{% endif %}
 }
 
 impl TryFrom<crate::{% if isAccount %}accounts{% else %}instructions{% endif %}::postgres::{{ entityName | pascalCase }}Row> for {{ entityName | pascalCase }}GraphQL {
@@ -26,6 +29,9 @@ impl TryFrom<crate::{% if isAccount %}accounts{% else %}instructions{% endif %}:
 {% for field in graphqlFields %}
             {{ field.fieldName }}: {{ field.fromRowExpr }},
 {% endfor %}
+{% if not isAccount %}
+            accounts: carbon_core::graphql::primitives::Json(serde_json::to_value(&row.accounts.0).map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?),
+{% endif %}
         })
     }
 }

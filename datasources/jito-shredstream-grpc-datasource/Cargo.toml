@@ -2,7 +2,7 @@
 name = "carbon-jito-shredstream-grpc-datasource"
 description = "Jito Shredstream gRPC Datasource"
 license = { workspace = true }
-version = "0.11.0"
+version = "0.12.0"
 edition = { workspace = true }
 readme = "README.md"
 repository = { workspace = true }
@@ -14,7 +14,7 @@ crate-type = ["rlib"]
 
 [dependencies]
 solana-client = { workspace = true }
-solana-entry = { workspace = true }
+solana-entry = { workspace = true, features = ["agave-unstable-api"] }
 solana-transaction-status = { workspace = true }
 
 carbon-core = { workspace = true }
@@ -24,6 +24,6 @@ bincode = { workspace = true }
 carbon-jito-protos = { workspace = true }
 futures = { workspace = true }
 log = { workspace = true }
-scc = "2.3.4"
+scc = "2.4.0"
 tokio = { workspace = true, features = ["full"] }
 tokio-util = { workspace = true }

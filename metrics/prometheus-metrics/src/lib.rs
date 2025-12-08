@@ -58,12 +58,11 @@ impl Metrics for PrometheusMetrics {
 
             match builder.install() {
                 Ok(_handle) => {
-                    log::info!("Prometheus exporter installed and listening on {}", addr);
+                    log::info!("Prometheus exporter installed and listening on {addr}");
                 }
                 Err(e) => {
                     result = Err(Error::Custom(format!(
-                        "Failed to install Prometheus exporter: {}",
-                        e
+                        "Failed to install Prometheus exporter: {e}"
                     )));
                 }
             }

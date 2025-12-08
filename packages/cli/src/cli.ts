@@ -3,13 +3,22 @@ import { resolve, join } from 'path';
 import { promptForParse, promptForScaffold } from './lib/prompts';
 import { generateDecoder, parseIdlSource, getIdlMetadata } from './lib/decoder';
 import { validateDataSource, validateMetrics } from './lib/validation';
-import { resolveRpcUrl } from './lib/utils';
+import { resolveRpcUrl, runCargoFmt } from './lib/utils';
 import { logger, showBanner } from './lib/logger';
 
 const program = new Command();
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const pkg = require('../package.json');
+
+// Rustfmt configuration options matching carbon's rustfmt.toml
+const cargoFmtOptions: Record<string, string | number | boolean> = {
+    comment_width: 80,
+    edition: '2021',
+    group_imports: 'One',
+    imports_granularity: 'One',
+    wrap_comments: true,
+};
 
 program
     .name('carbon-cli')
@@ -37,7 +46,6 @@ program.addHelpText(
 `,
 );
 
-// Parse command
 program
     .command('parse')
     .description('Parse an IDL and generate a decoder')
@@ -67,7 +75,9 @@ program
             opts.withPostgres !== undefined ? opts.withPostgres === 'true' || opts.withPostgres === true : true;
         const withGraphql =
             opts.withGraphql !== undefined ? opts.withGraphql === 'true' || opts.withGraphql === true : true;
-        const withSerde = opts.withSerde !== undefined ? opts.withSerde === 'true' || opts.withSerde === true : false;
+        const withSerdeDefault = !withPostgres && !withGraphql ? true : false;
+        const withSerde =
+            opts.withSerde !== undefined ? opts.withSerde === 'true' || opts.withSerde === true : withSerdeDefault;
 
         const outDir = resolve(process.cwd(), opts.outDir);
 
@@ -92,7 +102,15 @@ program
 
             logger.succeedSpinner('Decoder generated');
 
-            // Print success message
+            logger.startSpinner('Formatting generated code...');
+            try {
+                await runCargoFmt(outDir, cargoFmtOptions);
+                logger.succeedSpinner('Code formatted successfully');
+            } catch (error) {
+                logger.failSpinner('Failed to format code');
+                logger.warning(`Formatting failed: ${error instanceof Error ? error.message : String(error)}`);
+            }
+
             const idlSource = parseIdlSource(String(opts.idl));
             const source =
                 idlSource.type === 'program'
@@ -146,7 +164,11 @@ program
             opts.withPostgres !== undefined ? opts.withPostgres === 'true' || opts.withPostgres === true : true;
         const withGraphql =
             opts.withGraphql !== undefined ? opts.withGraphql === 'true' || opts.withGraphql === true : true;
-        const withSerde = opts.withSerde !== undefined ? opts.withSerde === 'true' || opts.withSerde === true : false;
+        // Default serde to true if both postgres and graphql are disabled (since generated code always includes serde attributes)
+        // Otherwise, serde will be auto-enabled by postgres/graphql, so default to false
+        const withSerdeDefault = !withPostgres && !withGraphql ? true : false;
+        const withSerde =
+            opts.withSerde !== undefined ? opts.withSerde === 'true' || opts.withSerde === true : withSerdeDefault;
         const force = Boolean(opts.force);
 
         // Use provided decoder name or auto-detect from IDL
@@ -223,7 +245,15 @@ program
             throw error;
         }
 
-        // Print success message
+        logger.startSpinner('Formatting generated code...');
+        try {
+            await runCargoFmt(workspaceDir, cargoFmtOptions);
+            logger.succeedSpinner('Code formatted successfully');
+        } catch (error) {
+            logger.failSpinner('Failed to format code');
+            logger.warning(`Formatting failed: ${error instanceof Error ? error.message : String(error)}`);
+        }
+
         const decoderInfo = `${decoder} (generated from IDL)`;
 
         logger.scaffoldSuccess(join(outDir, name), decoderInfo);

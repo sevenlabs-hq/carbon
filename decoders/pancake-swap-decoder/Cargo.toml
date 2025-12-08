@@ -1,7 +1,12 @@
 [package]
 name = "carbon-pancake-swap-decoder"
-version = "0.11.0"
+version = "0.12.0"
+description = "Carbon PancakeSwap Decoder"
 edition = { workspace = true }
+license = { workspace = true }
+readme = "README.md"
+keywords = ["solana", "decoder", "pancake-swap"]
+categories = ["encoding"]
 
 [lib]
 crate-type = ["rlib"]

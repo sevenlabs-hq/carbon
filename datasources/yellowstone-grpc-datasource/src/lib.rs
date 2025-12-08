@@ -366,6 +366,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                     last_disconnect_time = Some(Utc::now());
                                     last_slot_before_disconnect = Some(last_processed_slot);
                                 }
+
                             }
                         }
                     }
@@ -427,10 +428,7 @@ async fn send_subscribe_account_update_info(
                 };
                 if let Err(e) = sender.try_send((Update::AccountDeletion(account_deletion), id)) {
                     log::error!(
-                        "Failed to send account deletion update for pubkey {:?} at slot {}: {:?}",
-                        account_pubkey,
-                        slot,
-                        e
+                        "Failed to send account deletion update for pubkey {account_pubkey:?} at slot {slot}: {e:?}"
                     );
                 }
             }
@@ -446,10 +444,7 @@ async fn send_subscribe_account_update_info(
 
             if let Err(e) = sender.try_send((update, id)) {
                 log::error!(
-                    "Failed to send account update for pubkey {:?} at slot {}: {:?}",
-                    account_pubkey,
-                    slot,
-                    e
+                    "Failed to send account update for pubkey {account_pubkey:?} at slot {slot}: {e:?}"
                 );
             }
         }
@@ -465,9 +460,9 @@ async fn send_subscribe_account_update_info(
         metrics
             .increment_counter("yellowstone_grpc_account_updates_received", 1)
             .await
-            .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+            .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
     } else {
-        log::error!("No account info in UpdateOneof::Account at slot {}", slot);
+        log::error!("No account info in UpdateOneof::Account at slot {slot}");
     }
 }
 
@@ -497,7 +492,7 @@ async fn send_subscribe_update_transaction_info(
         let meta_original = match create_tx_meta(yellowstone_tx_meta) {
             Ok(meta) => meta,
             Err(err) => {
-                log::error!("Failed to create transaction meta: {:?}", err);
+                log::error!("Failed to create transaction meta: {err:?}");
                 return;
             }
         };
@@ -512,10 +507,7 @@ async fn send_subscribe_update_transaction_info(
         }));
         if let Err(e) = sender.try_send((update, id)) {
             log::error!(
-                "Failed to send transaction update with signature {:?} at slot {}: {:?}",
-                signature,
-                slot,
-                e
+                "Failed to send transaction update with signature {signature:?} at slot {slot}: {e:?}"
             );
             return;
         }
@@ -531,11 +523,8 @@ async fn send_subscribe_update_transaction_info(
         metrics
             .increment_counter("yellowstone_grpc_transaction_updates_received", 1)
             .await
-            .unwrap_or_else(|value| log::error!("Error recording metric: {}", value));
+            .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
     } else {
-        log::error!(
-            "No transaction info in `UpdateOneof::Transaction` at slot {}",
-            slot
-        );
+        log::error!("No transaction info in `UpdateOneof::Transaction` at slot {slot}");
     }
 }

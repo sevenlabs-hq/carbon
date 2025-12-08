@@ -17,6 +17,7 @@ use {
         instructions::{SharkyInstruction, SharkyInstructionType},
         SharkyDecoder, PROGRAM_ID as SHARKY_PROGRAM_ID,
     },
+    solana_account::Account,
     solana_account_decoder::UiAccountEncoding,
     solana_client::{
         nonblocking::rpc_client::RpcClient,
@@ -68,10 +69,17 @@ impl Datasource for GpaBackfillDatasource {
         let program_accounts = match &self.config {
             Some(config) => {
                 rpc_client
-                    .get_program_accounts_with_config(&self.program_id, config.clone())
+                    .get_program_ui_accounts_with_config(&self.program_id, config.clone())
                     .await
             }
-            None => rpc_client.get_program_accounts(&self.program_id).await,
+            None => {
+                rpc_client
+                    .get_program_ui_accounts_with_config(
+                        &self.program_id,
+                        RpcProgramAccountsConfig::default(),
+                    )
+                    .await
+            }
         };
 
         let Ok(program_accounts) = program_accounts else {
@@ -83,16 +91,18 @@ impl Datasource for GpaBackfillDatasource {
         let id_for_loop = id.clone();
 
         for (pubkey, account) in program_accounts {
-            if let Err(e) = sender.try_send((
-                Update::Account(AccountUpdate {
-                    pubkey,
-                    account,
-                    slot,
-                    transaction_signature: None,
-                }),
-                id_for_loop.clone(),
-            )) {
-                log::error!("Failed to send account update: {:?}", e);
+            if let Some(account) = account.decode::<Account>() {
+                if let Err(e) = sender.try_send((
+                    Update::Account(AccountUpdate {
+                        pubkey,
+                        account,
+                        slot,
+                        transaction_signature: None,
+                    }),
+                    id_for_loop.clone(),
+                )) {
+                    log::error!("Failed to send account update: {e:?}");
+                }
             }
         }
 

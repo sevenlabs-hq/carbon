@@ -31,7 +31,7 @@ mod tests {
 
         match decoded_account.data {
             WhirlpoolAccount::DynamicTickArray(account) => {
-                println!("{:#?}", account);
+                println!("{account:#?}");
                 for i in 0..account.ticks.len() {
                     let tick = account.ticks[i];
                     let is_uninitialized = account.tick_bitmap & (1 << i) == 0;

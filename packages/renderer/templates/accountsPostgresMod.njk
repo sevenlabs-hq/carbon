@@ -46,7 +46,10 @@ impl From<({{ program.name | pascalCase }}Account, carbon_core::account::Account
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for {{ program.name | pascalCase }}AccountWithMetadata {
-    async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
+    async fn insert(&self, {% if accountsToExport.length == 0 %}_pool{% else %}pool{% endif %}: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
+{% if accountsToExport.length == 0 %}
+        unreachable!("No accounts to decode")
+{% else %}
         let {{ program.name | pascalCase }}AccountWithMetadata(account, metadata) = self;
 
         match account {
@@ -57,16 +60,17 @@ impl carbon_core::postgres::operations::Insert for {{ program.name | pascalCase 
                 Ok(())
             }
 {% endfor %}
-{% if accountsToExport.length == 0 %}
-            _ => unreachable!("No accounts to decode"),
-{% endif %}
         }
+{% endif %}
     }
 }
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for {{ program.name | pascalCase }}AccountWithMetadata {
-    async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
+    async fn upsert(&self, {% if accountsToExport.length == 0 %}_pool{% else %}pool{% endif %}: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
+{% if accountsToExport.length == 0 %}
+        unreachable!("No accounts to decode")
+{% else %}
         let {{ program.name | pascalCase}}AccountWithMetadata(account, metadata) = self;
         match account {
 {% for account in accountsToExport %}
@@ -76,10 +80,8 @@ impl carbon_core::postgres::operations::Upsert for {{ program.name | pascalCase 
                 Ok(())
             }
 {% endfor %}
-{% if accountsToExport.length == 0 %}
-            _ => unreachable!("No accounts to decode"),
-{% endif %}
         }
+{% endif %}
     }
 }
 
