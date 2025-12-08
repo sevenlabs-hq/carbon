@@ -1445,6 +1445,7 @@ dependencies = [
 name = "carbon-core"
 version = "0.12.0"
 dependencies = [
+ "ahash 0.8.12",
  "async-trait",
  "axum 0.8.7",
  "base64 0.22.1",
@@ -1454,10 +1455,13 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "carbon-test-utils",
+ "hashbrown 0.14.5",
  "juniper",
  "juniper_axum",
  "log",
+ "lru 0.12.5",
  "num-traits",
+ "once_cell",
  "serde",
  "serde_json",
  "solana-account",
@@ -1592,14 +1596,14 @@ dependencies = [
  "base64 0.22.1",
  "carbon-core",
  "log",
- "reqwest",
+ "reqwest 0.12.24",
  "serde",
  "serde_json",
  "solana-account",
  "solana-client",
  "solana-pubkey 3.0.0",
  "tokio",
- "tokio-util",
+ "tokio-util 0.7.17",
 ]
 
 [[package]]
@@ -1713,11 +1717,20 @@ dependencies = [
 name = "carbon-jupiter-swap-decoder"
 version = "0.12.0"
 dependencies = [
+ "async-trait",
+ "base64 0.22.1",
+ "borsh",
  "carbon-core",
+ "carbon-test-utils",
+ "juniper",
  "serde",
+ "serde-big-array",
+ "serde_json",
  "solana-account",
  "solana-instruction",
  "solana-pubkey 3.0.0",
+ "sqlx",
+ "sqlx_migrator",
 ]
 
 [[package]]
@@ -2169,7 +2182,7 @@ dependencies = [
  "solana-commitment-config",
  "solana-pubkey 3.0.0",
  "tokio",
- "tokio-util",
+ "tokio-util 0.7.17",
 ]
 
 [[package]]
@@ -4017,6 +4030,10 @@ name = "hashbrown"
 version = "0.14.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1"
+dependencies = [
+ "ahash 0.8.12",
+ "allocator-api2",
+]
 
 [[package]]
 name = "hashbrown"
@@ -5352,6 +5369,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e999beba7b6e8345721bd280141ed958096a2e4abdf74f67ff4ce49b4b54e47a"
 dependencies = [
  "hashbrown 0.12.3",
+]
+
+[[package]]
+name = "lru"
+version = "0.12.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "234cf4f4a04dc1f57e24b96cc0cd600cf2af460d4161ac5ecdd0af8e1f3b2a38"
+dependencies = [
+ "hashbrown 0.15.2",
 ]
 
 [[package]]
@@ -7034,7 +7060,7 @@ dependencies = [
  "cc",
  "libc",
  "libm",
- "lru",
+ "lru 0.7.8",
  "parking_lot 0.11.2",
  "smallvec",
  "spin",
@@ -9131,7 +9157,7 @@ dependencies = [
  "indexmap 2.12.1",
  "itertools 0.12.1",
  "log",
- "lru",
+ "lru 0.7.8",
  "num-traits",
  "rand 0.8.5",
  "rand_chacha 0.3.1",
@@ -9348,7 +9374,7 @@ dependencies = [
  "itertools 0.12.1",
  "lazy-lru",
  "log",
- "lru",
+ "lru 0.7.8",
  "mockall",
  "num_cpus",
  "num_enum",
@@ -11090,7 +11116,7 @@ checksum = "bffb1d9707e2170bdc1e2828d63398e559f77b76002b18c82fb9399fc06ab8ff"
 dependencies = [
  "async-trait",
  "log",
- "lru",
+ "lru 0.7.8",
  "quinn",
  "rustls 0.23.35",
  "solana-clock",

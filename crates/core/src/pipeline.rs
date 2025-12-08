@@ -74,9 +74,88 @@ use {
     },
     core::time,
     serde::de::DeserializeOwned,
-    std::{convert::TryInto, sync::Arc, time::Instant},
+    std::{
+        collections::{HashMap, VecDeque},
+        convert::TryInto,
+        hash::Hash,
+        sync::Arc,
+        time::{Duration, Instant},
+    },
     tokio_util::sync::CancellationToken,
 };
+
+use ahash::AHasher;
+use ahash::RandomState;
+use hashbrown::HashSet;
+use lru::LruCache;
+use once_cell::sync::Lazy;
+use solana_signature::Signature;
+use std::hash::Hasher;
+use std::num::NonZeroUsize;
+use std::sync::RwLock;
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+struct AccountKey {
+    pubkey: solana_pubkey::Pubkey,
+    owner: solana_pubkey::Pubkey,
+    lamports: u64,
+    rent_epoch: u64,
+    executable: bool,
+    data_fingerprint: u64,
+    slot: u64,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+struct DeletionKey {
+    pubkey: solana_pubkey::Pubkey,
+    slot: u64,
+}
+
+struct DedupeCache<K: Eq + Hash + Copy> {
+    hot: HashSet<K, RandomState>,
+    cold: HashSet<K, RandomState>,
+    last_rotate: Instant,
+    rotate_every: Duration,
+}
+
+impl<K: Eq + Hash + Copy> DedupeCache<K> {
+    fn new(capacity: usize, rotate_every: Duration) -> Self {
+        Self {
+            hot: HashSet::with_capacity_and_hasher(capacity, RandomState::default()),
+            cold: HashSet::with_capacity_and_hasher(capacity, RandomState::default()),
+            last_rotate: Instant::now(),
+            rotate_every,
+        }
+    }
+
+    #[inline]
+    fn insert_if_fresh(&mut self, key: K) -> bool {
+        if self.hot.contains(&key) {
+            return false;
+        }
+        if self.cold.contains(&key) {
+            return false;
+        }
+        self.hot.insert(key);
+        if self.last_rotate.elapsed() >= self.rotate_every {
+            self.rotate();
+        }
+        true
+    }
+
+    #[inline]
+    fn rotate(&mut self) {
+        std::mem::swap(&mut self.hot, &mut self.cold);
+        self.hot.clear();
+        self.last_rotate = Instant::now();
+    }
+}
+
+#[derive(Default)]
+struct DatasourceStats {
+    last_slot: u64,
+    wins_per_minute: VecDeque<(u64, u64)>,
+}
 
 /// Defines the shutdown behavior for the pipeline.
 ///
@@ -116,7 +195,7 @@ pub enum ShutdownStrategy {
 /// `channel_buffer_size` is not explicitly set during pipeline construction.
 ///
 /// The default size is 10,000 updates, which provides a reasonable balance
-pub const DEFAULT_CHANNEL_BUFFER_SIZE: usize = 1_000;
+pub const DEFAULT_CHANNEL_BUFFER_SIZE: usize = 10_000;
 
 /// Represents the primary data processing pipeline in the `carbon-core`
 /// framework.
@@ -220,9 +299,185 @@ pub struct Pipeline {
     pub datasource_cancellation_token: Option<CancellationToken>,
     pub shutdown_strategy: ShutdownStrategy,
     pub channel_buffer_size: usize,
+
+    // dedupe caches
+    tx_dedupe: LruCache<Signature, ()>,
+    account_dedupe: DedupeCache<AccountKey>,
+    deletion_dedupe: DedupeCache<DeletionKey>,
+    block_dedupe: DedupeCache<u64>,
+
+    // per datasource stats
+    datasource_stats: HashMap<DatasourceId, DatasourceStats>,
+
+    // slot -> block_time index to stabilize timestamps for early arriving txs
+    slot_time_index: LruCache<u64, i64>,
+}
+
+static DATASOURCE_LAST_SLOTS: Lazy<RwLock<HashMap<String, u64>>> =
+    Lazy::new(|| RwLock::new(HashMap::new()));
+
+#[inline]
+fn extract_slot(update: &Update) -> Option<u64> {
+    match update {
+        Update::Transaction(tx) => Some(tx.slot),
+        Update::Account(acc) => Some(acc.slot),
+        Update::AccountDeletion(del) => Some(del.slot),
+        Update::BlockDetails(b) => Some(b.slot),
+    }
+}
+
+pub fn get_datasource_last_slots() -> HashMap<String, u64> {
+    DATASOURCE_LAST_SLOTS.read().unwrap().clone()
 }
 
 impl Pipeline {
+    fn ensure_stats_entry(&mut self, id: &DatasourceId) {
+        if !self.datasource_stats.contains_key(id) {
+            self.datasource_stats.insert(
+                id.clone(),
+                DatasourceStats {
+                    last_slot: 0,
+                    wins_per_minute: VecDeque::with_capacity(64),
+                },
+            );
+        }
+    }
+
+    fn record_win(&mut self, id: &DatasourceId) {
+        self.ensure_stats_entry(id);
+        let stats = self.datasource_stats.get_mut(id).unwrap();
+        let now_minute = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default()
+            .as_secs()
+            / 60;
+        if let Some(back) = stats.wins_per_minute.back_mut() {
+            if back.0 == now_minute {
+                back.1 += 1;
+            } else {
+                stats.wins_per_minute.push_back((now_minute, 1));
+            }
+        } else {
+            stats.wins_per_minute.push_back((now_minute, 1));
+        }
+        while stats.wins_per_minute.len() > 1440 {
+            stats.wins_per_minute.pop_front();
+        }
+    }
+
+    fn record_last_slot(&mut self, id: &DatasourceId, slot: u64) {
+        self.ensure_stats_entry(id);
+        let stats = self.datasource_stats.get_mut(id).unwrap();
+        if slot > stats.last_slot {
+            stats.last_slot = slot;
+        }
+    }
+
+    pub async fn emit_datasource_metrics(&self) -> CarbonResult<()> {
+        let max_slot = self
+            .datasource_stats
+            .values()
+            .map(|s| s.last_slot)
+            .max()
+            .unwrap_or(0);
+        for (id, stats) in &self.datasource_stats {
+            let id_str = id.as_str();
+            let lag = if stats.last_slot > 0 {
+                max_slot.saturating_sub(stats.last_slot)
+            } else {
+                0
+            };
+            self.metrics
+                .update_gauge(
+                    &format!("datasource_last_slot_{id_str}"),
+                    stats.last_slot as f64,
+                )
+                .await?;
+            self.metrics
+                .update_gauge(&format!("datasource_lag_vs_max_{id_str}"), lag as f64)
+                .await?;
+
+            {
+                let mut guard = DATASOURCE_LAST_SLOTS.write().unwrap();
+                guard.insert(id_str.to_string(), stats.last_slot);
+            }
+
+            let now_minute = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_secs()
+                / 60;
+            let mut sum_5m = 0u64;
+            let mut sum_1h = 0u64;
+            let mut sum_6h = 0u64;
+            let mut sum_24h = 0u64;
+            for (minute, wins) in stats.wins_per_minute.iter().rev() {
+                let age = now_minute.saturating_sub(*minute);
+                if age < 5 {
+                    sum_5m += *wins;
+                }
+                if age < 60 {
+                    sum_1h += *wins;
+                }
+                if age < 360 {
+                    sum_6h += *wins;
+                }
+                if age < 1440 {
+                    sum_24h += *wins;
+                }
+            }
+            self.metrics
+                .update_gauge(&format!("datasource_wins_5m_{id_str}"), sum_5m as f64)
+                .await?;
+            self.metrics
+                .update_gauge(&format!("datasource_wins_1h_{id_str}"), sum_1h as f64)
+                .await?;
+            self.metrics
+                .update_gauge(&format!("datasource_wins_6h_{id_str}"), sum_6h as f64)
+                .await?;
+            self.metrics
+                .update_gauge(&format!("datasource_wins_24h_{id_str}"), sum_24h as f64)
+                .await?;
+        }
+        Ok(())
+    }
+
+    fn is_duplicate(&mut self, update: &Update) -> bool {
+        let fresh = match update {
+            Update::Transaction(tx) => {
+                if self.tx_dedupe.get(&tx.signature).is_some() {
+                    false
+                } else {
+                    self.tx_dedupe.put(tx.signature, ());
+                    true
+                }
+            }
+            Update::Account(acc) => {
+                let mut hasher = AHasher::default();
+                hasher.write(&acc.account.data);
+                let data_fingerprint = hasher.finish();
+                let key = AccountKey {
+                    pubkey: acc.pubkey,
+                    owner: acc.account.owner,
+                    lamports: acc.account.lamports,
+                    rent_epoch: acc.account.rent_epoch,
+                    executable: acc.account.executable,
+                    data_fingerprint,
+                    slot: acc.slot,
+                };
+                self.account_dedupe.insert_if_fresh(key)
+            }
+            Update::AccountDeletion(del) => {
+                let key = DeletionKey {
+                    pubkey: del.pubkey,
+                    slot: del.slot,
+                };
+                self.deletion_dedupe.insert_if_fresh(key)
+            }
+            Update::BlockDetails(block) => self.block_dedupe.insert_if_fresh(block.slot),
+        };
+        !fresh
+    }
     /// Creates a new `PipelineBuilder` instance for constructing a `Pipeline`.
     ///
     /// The `builder` method returns a `PipelineBuilder` that allows you to
@@ -397,6 +652,7 @@ impl Pipeline {
                     }
                 }
                 _ = interval.tick() => {
+                    self.emit_datasource_metrics().await?;
                     self.metrics.flush_metrics().await?;
                 }
                 update = update_receiver.recv() => {
@@ -407,6 +663,35 @@ impl Pipeline {
                                 .await?;
 
                             let start = Instant::now();
+                            // dedupe: if duplicate drop and continue
+                            if self.is_duplicate(&update) {
+                                self.metrics.increment_counter("updates_duplicate_dropped", 1).await?;
+                                continue;
+                            }
+
+                            // normalize timestamps and record slot->time index without delay
+                            let mut update = update;
+                            match &mut update {
+                                Update::BlockDetails(block) => {
+                                    if let Some(bt) = block.block_time {
+                                        self.slot_time_index.put(block.slot, bt);
+                                    }
+                                }
+                                Update::Transaction(tx) => {
+                                    if tx.block_time.is_none() {
+                                        if let Some(bt) = self.slot_time_index.get(&tx.slot).copied() {
+                                            tx.block_time = Some(bt);
+                                        }
+                                    }
+                                }
+                                _ => {}
+                            }
+
+                            if let Some(slot) = extract_slot(&update) {
+                                self.record_win(&datasource_id);
+                                self.record_last_slot(&datasource_id, slot);
+                            }
+
                             let process_result = self.process(update.clone(), datasource_id.clone()).await;
                             let time_taken_nanoseconds = start.elapsed().as_nanos();
                             let time_taken_milliseconds = time_taken_nanoseconds / 1_000_000;
@@ -1409,6 +1694,12 @@ impl PipelineBuilder {
             metrics_flush_interval: self.metrics_flush_interval,
             datasource_cancellation_token: self.datasource_cancellation_token,
             channel_buffer_size: self.channel_buffer_size,
+            tx_dedupe: LruCache::new(NonZeroUsize::new(1_000_000).unwrap()),
+            account_dedupe: DedupeCache::new(1_000_000, Duration::from_millis(150)),
+            deletion_dedupe: DedupeCache::new(200_000, Duration::from_millis(150)),
+            block_dedupe: DedupeCache::new(200_000, Duration::from_millis(150)),
+            datasource_stats: HashMap::new(),
+            slot_time_index: LruCache::new(NonZeroUsize::new(200_000).unwrap()),
         })
     }
 }
