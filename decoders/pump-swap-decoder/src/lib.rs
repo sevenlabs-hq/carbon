@@ -30,7 +30,7 @@ mod tests {
                 assert!(!buy.track_volume.0);
             }
             other => {
-                panic!("Expected Buy, got {:?}", other);
+                panic!("Expected Buy, got {other:?}");
             }
         }
     }
@@ -50,7 +50,7 @@ mod tests {
                 assert!(buy.track_volume.0);
             }
             other => {
-                panic!("Expected Buy, got {:?}", other);
+                panic!("Expected Buy, got {other:?}");
             }
         }
     }

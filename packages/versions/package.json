@@ -1,6 +1,6 @@
 {
     "name": "@sevenlabs-hq/carbon-versions",
-    "version": "0.3.0",
+    "version": "0.12.0",
     "description": "Carbon version registry for Rust crate versions",
     "keywords": [
         "carbon",

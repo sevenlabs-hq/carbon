@@ -20,4 +20,4 @@ yellowstone-grpc-proto = { workspace = true }
 [dependencies.rustls]
 default-features = false
 features = ["std", "aws_lc_rs"]
-version = "0.23.0"
+version = "0.23.35"

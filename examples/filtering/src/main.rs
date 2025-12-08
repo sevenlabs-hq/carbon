@@ -17,6 +17,7 @@ use {
     carbon_yellowstone_grpc_datasource::{
         YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient,
     },
+    solana_account::Account,
     solana_client::{nonblocking::rpc_client::RpcClient, rpc_config::RpcProgramAccountsConfig},
     solana_pubkey::Pubkey,
     std::{
@@ -187,19 +188,19 @@ impl Processor for KaminoLendingRealtimeAccountProcessor {
             pubkey_str,
             max_total_chars(
                 &match account.data {
-                    KaminoLendingAccount::UserState(user_state) => format!("{:?}", user_state),
+                    KaminoLendingAccount::UserState(user_state) => format!("{user_state:?}"),
                     KaminoLendingAccount::LendingMarket(lending_market) =>
-                        format!("{:?}", lending_market),
-                    KaminoLendingAccount::Obligation(obligation) => format!("{:?}", obligation),
+                        format!("{lending_market:?}"),
+                    KaminoLendingAccount::Obligation(obligation) => format!("{obligation:?}"),
                     KaminoLendingAccount::ReferrerState(referrer_state) =>
-                        format!("{:?}", referrer_state),
+                        format!("{referrer_state:?}"),
                     KaminoLendingAccount::ReferrerTokenState(referrer_token_state) => {
-                        format!("{:?}", referrer_token_state)
+                        format!("{referrer_token_state:?}")
                     }
-                    KaminoLendingAccount::ShortUrl(short_url) => format!("{:?}", short_url),
+                    KaminoLendingAccount::ShortUrl(short_url) => format!("{short_url:?}"),
                     KaminoLendingAccount::UserMetadata(user_metadata) =>
-                        format!("{:?}", user_metadata),
-                    KaminoLendingAccount::Reserve(reserve) => format!("{:?}", reserve),
+                        format!("{user_metadata:?}"),
+                    KaminoLendingAccount::Reserve(reserve) => format!("{reserve:?}"),
                 },
                 100
             )
@@ -248,19 +249,19 @@ impl Processor for KaminoLendingStartupAccountProcessor {
             pubkey_str,
             max_total_chars(
                 &match account.data {
-                    KaminoLendingAccount::UserState(user_state) => format!("{:?}", user_state),
+                    KaminoLendingAccount::UserState(user_state) => format!("{user_state:?}"),
                     KaminoLendingAccount::LendingMarket(lending_market) =>
-                        format!("{:?}", lending_market),
-                    KaminoLendingAccount::Obligation(obligation) => format!("{:?}", obligation),
+                        format!("{lending_market:?}"),
+                    KaminoLendingAccount::Obligation(obligation) => format!("{obligation:?}"),
                     KaminoLendingAccount::ReferrerState(referrer_state) =>
-                        format!("{:?}", referrer_state),
+                        format!("{referrer_state:?}"),
                     KaminoLendingAccount::ReferrerTokenState(referrer_token_state) => {
-                        format!("{:?}", referrer_token_state)
+                        format!("{referrer_token_state:?}")
                     }
-                    KaminoLendingAccount::ShortUrl(short_url) => format!("{:?}", short_url),
+                    KaminoLendingAccount::ShortUrl(short_url) => format!("{short_url:?}"),
                     KaminoLendingAccount::UserMetadata(user_metadata) =>
-                        format!("{:?}", user_metadata),
-                    KaminoLendingAccount::Reserve(reserve) => format!("{:?}", reserve),
+                        format!("{user_metadata:?}"),
+                    KaminoLendingAccount::Reserve(reserve) => format!("{reserve:?}"),
                 },
                 100
             )
@@ -314,10 +315,17 @@ impl Datasource for GpaRpcDatasource {
         let program_accounts = match &self.config {
             Some(config) => {
                 rpc_client
-                    .get_program_accounts_with_config(&self.program_id, config.clone())
+                    .get_program_ui_accounts_with_config(&self.program_id, config.clone())
                     .await
             }
-            None => rpc_client.get_program_accounts(&self.program_id).await,
+            None => {
+                rpc_client
+                    .get_program_ui_accounts_with_config(
+                        &self.program_id,
+                        RpcProgramAccountsConfig::default(),
+                    )
+                    .await
+            }
         };
 
         let Ok(program_accounts) = program_accounts else {
@@ -329,20 +337,22 @@ impl Datasource for GpaRpcDatasource {
         let id_for_loop = id.clone();
 
         for (pubkey, account) in program_accounts {
-            if let Err(e) = sender.try_send((
-                Update::Account(AccountUpdate {
-                    pubkey,
-                    account,
-                    slot,
-                    transaction_signature: None,
-                }),
-                id_for_loop.clone(),
-            )) {
-                log::error!("Failed to send account update: {:?}", e);
+            if let Some(account) = account.decode::<Account>() {
+                if let Err(e) = sender.try_send((
+                    Update::Account(AccountUpdate {
+                        pubkey,
+                        account,
+                        slot,
+                        transaction_signature: None,
+                    }),
+                    id_for_loop.clone(),
+                )) {
+                    log::error!("Failed to send account update: {e:?}");
+                }
+                metrics
+                    .increment_counter("gpa_rpc_datasource_account_ingested", 1)
+                    .await?;
             }
-            metrics
-                .increment_counter("gpa_rpc_datasource_account_ingested", 1)
-                .await?;
         }
 
         Ok(())

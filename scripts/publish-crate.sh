@@ -8,10 +8,12 @@ workspace_crates=(
     carbon-test-utils
     carbon-core
 
-    carbon-helius-atlas-ws-datasource
+    # carbon-helius-atlas-ws-datasource
+    carbon-helius-gpa-v2-datasource
     carbon-helius-laserstream-datasource
     carbon-rpc-block-crawler-datasource
     carbon-rpc-block-subscribe-datasource
+    carbon-rpc-gpa-datasource
     carbon-rpc-program-subscribe-datasource
     carbon-rpc-transaction-crawler-datasource
     carbon-jito-shredstream-grpc-datasource
@@ -26,6 +28,9 @@ workspace_crates=(
     carbon-bonkswap-decoder
     carbon-boop-decoder
     carbon-bubblegum-decoder
+    carbon-circle-message-transmitter-v2-decoder
+    carbon-circle-token-messenger-v2-decoder
+    carbon-dflow-aggregator-v4-decoder
     carbon-drift-v2-decoder
     carbon-fluxbeam-decoder
     carbon-gavel-decoder
@@ -71,6 +76,7 @@ workspace_crates=(
     carbon-stabble-stable-swap-decoder
     carbon-stabble-weighted-swap-decoder
     carbon-stake-program-decoder
+    carbon-swig-decoder
     carbon-system-program-decoder
     carbon-token-2022-decoder
     carbon-token-program-decoder
@@ -78,10 +84,11 @@ workspace_crates=(
     carbon-virtuals-decoder
     carbon-wavebreak-decoder
     carbon-zeta-decoder
+   
 )
 
 for crate in "${workspace_crates[@]}"; do
     echo "--- $crate"
-    cargo package -p $crate
-    cargo publish -p $crate
+    # cargo package -p $crate
+    cargo publish -p $crate --allow-dirty
 done

@@ -1,0 +1,49 @@
+[package]
+name = "carbon-dflow-aggregator-v4-decoder"
+version = "0.12.0"
+description = "Dflow Aggregator V4 Decoder"
+license = { workspace = true }
+edition = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "decoder", "dflow", "aggregator"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[features]
+default = []
+
+serde = ["dep:serde", "dep:serde-big-array"]
+
+postgres = [
+    "carbon-core/postgres",
+    "dep:sqlx",
+    "dep:async-trait",
+    "dep:sqlx_migrator",
+    "serde",
+]
+
+graphql = [
+    "carbon-core/graphql",
+    "dep:juniper",
+    "serde",
+]
+
+[dependencies]
+async-trait = { workspace = true, optional = true }
+borsh = { workspace = true, features = ["derive"] }
+carbon-core = { workspace = true }
+juniper = { workspace = true, optional = true }
+serde = { workspace = true, optional = true }
+serde-big-array = { workspace = true, optional = true }
+serde_json = { workspace = true }
+solana-account = { workspace = true }
+solana-instruction = { workspace = true, default-features = false }
+solana-pubkey = { workspace = true }
+sqlx = { workspace = true, optional = true }
+sqlx_migrator = { workspace = true, optional = true }
+
+[dev-dependencies]
+carbon-test-utils = { workspace = true }
