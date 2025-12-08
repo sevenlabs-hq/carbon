@@ -277,7 +277,7 @@ fn task_processor(
                         let block_start_time = Instant::now();
                         let block_hash = Hash::from_str(&block.blockhash).ok();
                         if let Some(transactions) = block.transactions {
-                            for encoded_transaction_with_status_meta in transactions {
+                            for (tx_index, encoded_transaction_with_status_meta) in transactions.into_iter().enumerate() {
                                 let start_time = std::time::Instant::now();
 
                                 let meta_original = if let Some(meta) = encoded_transaction_with_status_meta.clone().meta {
@@ -306,6 +306,7 @@ fn task_processor(
                                     meta: meta_needed,
                                     is_vote: false,
                                     slot,
+                                    index: Some(tx_index as u64),
                                     block_time: block.block_time,
                                     block_hash,
                                 }));
