@@ -24,9 +24,9 @@ impl<
         T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
     > AccountRow<T>
 {
-    pub fn from_parts(source: T, metadata: AccountMetadata) -> Self {
+    pub fn from_parts(source: T, metadata: &AccountMetadata) -> Self {
         Self {
-            metadata: metadata.into(),
+            metadata: metadata.clone().into(),
             data: sqlx::types::Json(source),
         }
     }
@@ -172,7 +172,7 @@ impl<
         accounts: Vec<AccountMeta>,
     ) -> Self {
         Self {
-            metadata: metadata.into(),
+            metadata: metadata.clone().into(),
             data: sqlx::types::Json(source),
             accounts: sqlx::types::Json(accounts),
         }

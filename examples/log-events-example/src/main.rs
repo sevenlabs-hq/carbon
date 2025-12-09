@@ -1,10 +1,7 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
-        error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType,
+        metrics::MetricsCollection, processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
     carbon_raydium_cpmm_decoder::{
@@ -86,20 +83,15 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct RaydiumCpmmInstructionProcessor;
 
-#[async_trait]
-impl Processor for RaydiumCpmmInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<RaydiumCpmmInstruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
+impl Processor<InstructionProcessorInputType<'_, RaydiumCpmmInstruction>>
+    for RaydiumCpmmInstructionProcessor
+{
     async fn process(
         &mut self,
-        (metadata, _, _, _): Self::InputType,
+        input: &InstructionProcessorInputType<'_, RaydiumCpmmInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let logs = metadata.decode_log_events::<SwapEvent>();
+        let logs = input.metadata.decode_log_events::<SwapEvent>();
 
         if !logs.is_empty() {
             println!("Swap Events: {logs:?}");

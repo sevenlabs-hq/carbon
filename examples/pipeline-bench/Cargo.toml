@@ -1,0 +1,29 @@
+[package]
+name = "carbon-pipeline-bench-example"
+version = "0.2.1"
+edition = { workspace = true }
+
+[features]
+default = []
+channel-experiments = []
+
+[dependencies]
+carbon-core = { workspace = true }
+carbon-log-metrics = { workspace = true }
+carbon-prometheus-metrics = { workspace = true }
+
+solana-account = { workspace = true }
+solana-pubkey = { workspace = true }
+solana-transaction = { workspace = true }
+solana-transaction-status = { workspace = true }
+solana-signature = { workspace = true }
+solana-message = { workspace = true }
+
+tokio-util = { workspace = true }
+async-trait = { workspace = true }
+clap = { workspace = true }
+dotenv = { workspace = true }
+env_logger = { workspace = true }
+log = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+solana-instruction = { workspace = true }

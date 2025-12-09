@@ -1,10 +1,7 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
-        deserialize::ArrangeAccounts,
-        error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
+        deserialize::ArrangeAccounts, error::CarbonResult,
+        instruction::InstructionProcessorInputType, metrics::MetricsCollection,
         processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
@@ -51,24 +48,18 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct RaydiumClmmInstructionProcessor;
 
-#[async_trait]
-impl Processor for RaydiumClmmInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<RaydiumClmmInstruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
-
+impl Processor<InstructionProcessorInputType<'_, RaydiumClmmInstruction>>
+    for RaydiumClmmInstructionProcessor
+{
     async fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions, _): Self::InputType,
+        input: &InstructionProcessorInputType<'_, RaydiumClmmInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let signature = metadata.transaction_metadata.signature;
-        let accounts = instruction.accounts;
+        let signature = input.metadata.transaction_metadata.signature;
+        let accounts = input.decoded_instruction.accounts.clone();
 
-        match instruction.data {
+        match input.decoded_instruction.data.clone() {
             RaydiumClmmInstruction::CreateAmmConfig(create_amm_cfg) => {
                 log::info!(
                     "CreateAmmConfig: signature: {signature}, create_amm_cfg: {create_amm_cfg:?}"
@@ -152,7 +143,9 @@ impl Processor for RaydiumClmmInstructionProcessor {
                             "SwapV2: signature: {signature}, swap_v2: {swap_v2:?}, accounts: {accounts:?}",
                         );
                 }
-                None => log::error!("Failed to arrange accounts for SwapV2 {}", accounts.len()),
+                None => {
+                    log::error!("Failed to arrange accounts for SwapV2 {}", accounts.len())
+                }
             },
             RaydiumClmmInstruction::SwapRouterBaseIn(swap_base_in) => {
                 log::info!(

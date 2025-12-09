@@ -15,7 +15,6 @@ env_logger = { workspace = true }
 log = { workspace = true }
 solana-account = { workspace = true }
 solana-client = { workspace = true }
-solana-instruction = { workspace = true }
 solana-pubkey = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 tokio-util = { workspace = true }
