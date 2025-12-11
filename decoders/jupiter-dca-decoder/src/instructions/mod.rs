@@ -57,6 +57,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterDcaDecoder {
     fn decode_instruction(
         &self,
         instruction: &solana_instruction::Instruction,
+        _metadata: Option<&carbon_core::instruction::InstructionMetadata>,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         if !instruction.program_id.eq(&PROGRAM_ID) {
             return None;
@@ -219,7 +220,7 @@ mod tests {
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/open_dca_ix.json")
             .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             open_dca::OpenDca::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -365,7 +366,7 @@ mod tests {
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/open_dca_v2_ix.json")
             .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             open_dca_v2::OpenDcaV2::arrange_accounts(&instruction.accounts)
@@ -504,7 +505,7 @@ mod tests {
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/close_dca_ix.json")
             .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             close_dca::CloseDca::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -599,7 +600,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/withdraw_fees_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             withdraw_fees::WithdrawFees::arrange_accounts(&instruction.accounts)
@@ -714,7 +715,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/initiate_flash_fill_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             initiate_flash_fill::InitiateFlashFill::arrange_accounts(&instruction.accounts)
@@ -875,7 +876,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/fulfill_flash_fill_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             fulfill_flash_fill::FulfillFlashFill::arrange_accounts(&instruction.accounts)
@@ -1033,7 +1034,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/end_and_close_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             end_and_close::EndAndClose::arrange_accounts(&instruction.accounts)

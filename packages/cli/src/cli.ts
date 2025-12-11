@@ -60,6 +60,7 @@ program
     .option('--with-postgres <boolean>', 'Include Postgres wiring and deps (default: true)')
     .option('--with-graphql <boolean>', 'Include GraphQL wiring and deps (default: true)')
     .option('--with-serde <boolean>', 'Include serde feature for decoder (default: false)')
+    .option('--version-name <name>', 'Name for this decoder version (e.g., "v1", "v2")')
     .option('--no-clean', 'Do not delete output directory before rendering', false)
     .action(async opts => {
         showBanner();
@@ -98,6 +99,7 @@ program
                 withGraphql,
                 withSerde,
                 standalone: true,
+                versionName: opts.versionName,
             });
 
             logger.succeedSpinner('Decoder generated');

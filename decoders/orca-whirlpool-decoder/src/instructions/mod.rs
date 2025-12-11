@@ -157,6 +157,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OrcaWhirlpoolDecoder {
     fn decode_instruction(
         &self,
         instruction: &solana_instruction::Instruction,
+        _metadata: Option<&carbon_core::instruction::InstructionMetadata>,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         carbon_core::try_decode_instructions!(instruction,
             WhirlpoolInstruction::InitializeConfig => initialize_config::InitializeConfig,

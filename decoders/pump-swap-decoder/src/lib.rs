@@ -23,7 +23,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/buy_with_track_volume_false.json")
                 .expect("read fixture");
 
-        let maybe_decoded = decoder.decode_instruction(&ix);
+        let maybe_decoded = decoder.decode_instruction(&ix, None);
         let decoded = maybe_decoded.expect("Invalid instruction");
         match decoded.data {
             PumpSwapInstruction::Buy(buy) => {
@@ -43,7 +43,7 @@ mod tests {
                 .expect("read fixture");
 
         let decoded = decoder
-            .decode_instruction(&ix)
+            .decode_instruction(&ix, None)
             .expect("Invalid instruction");
         match decoded.data {
             PumpSwapInstruction::Buy(buy) => {

@@ -293,6 +293,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
     fn decode_instruction(
         &self,
         instruction: &solana_instruction::Instruction,
+        _metadata: Option<&carbon_core::instruction::InstructionMetadata>,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         if !instruction.program_id.eq(&PROGRAM_ID) {
             return None;

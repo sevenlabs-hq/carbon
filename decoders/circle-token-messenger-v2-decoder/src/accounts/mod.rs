@@ -24,7 +24,8 @@ impl AccountDecoder<'_> for TokenMessengerMinterV2Decoder {
     type AccountType = TokenMessengerMinterV2Account;
     fn decode_account(
         &self,
-        account: &solana_account::Account,
+        account: &'_ solana_account::Account,
+        _metadata: Option<&carbon_core::account::AccountMetadata>,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         if let Some(decoded_account) =
             denylisted_account::DenylistedAccount::deserialize(account.data.as_slice())

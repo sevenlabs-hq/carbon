@@ -193,6 +193,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDlmmDecoder {
     fn decode_instruction(
         &self,
         instruction: &solana_instruction::Instruction,
+        _metadata: Option<&carbon_core::instruction::InstructionMetadata>,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         if !instruction.program_id.eq(&PROGRAM_ID) {
             return None;
@@ -504,7 +505,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/add_liquidity_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             AddLiquidity::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -625,7 +626,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/add_liquidity_by_strategy_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             AddLiquidityByStrategy::arrange_accounts(&instruction.accounts)
@@ -728,7 +729,7 @@ mod tests {
         )
         .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             AddLiquidityByStrategyOneSide::arrange_accounts(&instruction.accounts)
@@ -938,7 +939,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/add_liquidity_by_weight_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             AddLiquidityByWeight::arrange_accounts(&instruction.accounts)
@@ -1059,7 +1060,7 @@ mod tests {
         )
         .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             AddLiquidityOneSidePrecise::arrange_accounts(&instruction.accounts)
@@ -1200,7 +1201,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/add_liquidity_one_side_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             AddLiquidityOneSide::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -1296,7 +1297,7 @@ mod tests {
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/claim_fee_ix.json")
             .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             ClaimFee::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -1378,7 +1379,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/claim_reward_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             ClaimReward::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -1439,7 +1440,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/close_position_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             ClosePosition::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -1481,7 +1482,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/close_preset_parameter_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             ClosePresetParameter::arrange_accounts(&instruction.accounts)
@@ -1538,7 +1539,7 @@ mod tests {
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/go_to_a_bin_ix.json")
             .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             GoToABin::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -1590,7 +1591,7 @@ mod tests {
         )
         .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             InitializeBinArrayBitmapExtension::arrange_accounts(&instruction.accounts)
@@ -1636,7 +1637,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/initialize_bin_array_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             InitializeBinArray::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -1746,7 +1747,7 @@ mod tests {
         )
         .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             InitializeCustomizablePermissionlessLbPair::arrange_accounts(&instruction.accounts)
@@ -1872,7 +1873,7 @@ mod tests {
         )
         .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             InitializeCustomizablePermissionlessLbPair2::arrange_accounts(&instruction.accounts)
@@ -1970,7 +1971,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/initialize_lb_pair_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             InitializeLbPair::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -2090,7 +2091,7 @@ mod tests {
         )
         .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             InitializePermissionLbPair::arrange_accounts(&instruction.accounts)
@@ -2177,7 +2178,7 @@ mod tests {
         )
         .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             InitializePositionByOperator::arrange_accounts(&instruction.accounts)
@@ -2245,7 +2246,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/initialize_position_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             InitializePosition::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -2317,7 +2318,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/initialize_position_pda_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             InitializePositionPda::arrange_accounts(&instruction.accounts)
@@ -2392,7 +2393,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/migrate_position_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             MigratePosition::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -2499,7 +2500,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/remove_all_liquidity_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             RemoveAllLiquidity::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -2610,7 +2611,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/remove_liquidity_by_range_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             RemoveLiquidityByRange::arrange_accounts(&instruction.accounts)
@@ -2813,7 +2814,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/remove_liquidity_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             RemoveLiquidity::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -2926,7 +2927,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/swap_exact_out_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             SwapExactOut::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -3042,7 +3043,7 @@ mod tests {
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/swap_ix.json")
             .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             Swap::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -3094,7 +3095,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/update_fees_and_rewards_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             UpdateFeesAndRewards::arrange_accounts(&instruction.accounts)
@@ -3147,7 +3148,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/close_position_if_empty_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             ClosePositionIfEmpty::arrange_accounts(&instruction.accounts)
@@ -3200,7 +3201,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/close_position2_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             ClosePosition2::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -3230,7 +3231,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/migrate_bin_array_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             MigrateBinArray::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -3350,7 +3351,7 @@ mod tests {
         )
         .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             RemoveLiquidityByRange2::arrange_accounts(&instruction.accounts)
@@ -3470,7 +3471,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/remove_liquidity2_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             RemoveLiquidity2::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -3509,7 +3510,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/set_activation_point_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             SetActivationPoint::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -3546,7 +3547,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/set_pair_status_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             SetPairStatus::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -3587,7 +3588,7 @@ mod tests {
         )
         .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             SetPairStatusPermissionless::arrange_accounts(&instruction.accounts)
@@ -3629,7 +3630,7 @@ mod tests {
         )
         .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             SetPreActivationDuration::arrange_accounts(&instruction.accounts)
@@ -3673,7 +3674,7 @@ mod tests {
         )
         .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             SetPreActivationSwapAddress::arrange_accounts(&instruction.accounts)
@@ -3785,7 +3786,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/swap_exact_out2_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             SwapExactOut2::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -3897,7 +3898,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/swap_with_price_impact2_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             SwapWithPriceImpact2::arrange_accounts(&instruction.accounts)
@@ -4008,7 +4009,7 @@ mod tests {
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/swap2_ix.json")
             .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             Swap2::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -4063,7 +4064,7 @@ mod tests {
         )
         .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             UpdateBaseFeeParameters::arrange_accounts(&instruction.accounts)
@@ -4175,7 +4176,7 @@ mod tests {
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/claim_fee2_ix.json")
             .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             ClaimFee2::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -4255,6 +4256,7 @@ mod tests {
             event_authority: pubkey!("D1ZN9Wj1fRSUQfCjhvnu1hqDMT7hzjzBBpi12nVniYD6"),
             program: pubkey!("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo"),
         };
+        use carbon_test_utils;
 
         // Act
         let decoder = MeteoraDlmmDecoder;
@@ -4262,7 +4264,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/claim_reward2_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             ClaimReward2::arrange_accounts(&instruction.accounts).expect("arrange accounts");
@@ -4371,7 +4373,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/initialize_lb_pair2_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             InitializeLbPair2::arrange_accounts(&instruction.accounts).expect("arrange accounts");

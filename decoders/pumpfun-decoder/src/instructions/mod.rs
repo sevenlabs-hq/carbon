@@ -106,6 +106,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpfunDecoder {
     fn decode_instruction(
         &self,
         instruction: &solana_instruction::Instruction,
+        _metadata: Option<&carbon_core::instruction::InstructionMetadata>,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         if !instruction.program_id.eq(&PROGRAM_ID) {
             return None;
@@ -290,7 +291,7 @@ mod tests {
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/buy_ix.json")
             .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             buy::Buy::arrange_accounts(&instruction.accounts).expect("aranage accounts");
@@ -404,7 +405,7 @@ mod tests {
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/sell_ix.json")
             .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             sell::Sell::arrange_accounts(&instruction.accounts).expect("aranage accounts");
@@ -496,13 +497,14 @@ mod tests {
             event_authority: pubkey!("Ce6TQqeHC9p8KetsN6JsjHK7UTZk7nasjjnr7XxXp9F1"),
             program: pubkey!("6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P"),
         };
+        use carbon_test_utils;
 
         // Act
         let decoder = PumpfunDecoder;
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/create_ix.json")
             .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             create::Create::arrange_accounts(&instruction.accounts).expect("aranage accounts");

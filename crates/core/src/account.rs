@@ -52,7 +52,8 @@
 
 use {
     crate::{
-        error::CarbonResult, filter::Filter, metrics::MetricsCollection, processor::Processor,
+        error::CarbonResult, filter::Filter, instruction::SlotRange, metrics::MetricsCollection,
+        processor::Processor,
     },
     async_trait::async_trait,
     solana_pubkey::Pubkey,
@@ -124,6 +125,7 @@ pub trait AccountDecoder<'a> {
     fn decode_account(
         &self,
         account: &'a solana_account::Account,
+        metadata: Option<&'a AccountMetadata>,
     ) -> Option<DecodedAccount<Self::AccountType>>;
 }
 
@@ -191,7 +193,10 @@ impl<T: Send> AccountPipes for AccountPipe<T> {
     ) -> CarbonResult<()> {
         log::trace!("AccountPipe::run(account_with_metadata: {account_with_metadata:?}, metrics)",);
 
-        if let Some(decoded_account) = self.decoder.decode_account(&account_with_metadata.1) {
+        if let Some(decoded_account) = self
+            .decoder
+            .decode_account(&account_with_metadata.1, Some(&account_with_metadata.0))
+        {
             self.processor
                 .process(
                     (
@@ -208,5 +213,134 @@ impl<T: Send> AccountPipes for AccountPipe<T> {
 
     fn filters(&self) -> &Vec<Box<dyn Filter + Send + Sync + 'static>> {
         &self.filters
+    }
+}
+
+/// Type alias for a versioned account decoder entry.
+type VersionedAccountDecoderEntry<T> = (
+    SlotRange,
+    Box<dyn for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static>,
+);
+
+/// Routes to different account decoders based on slot ranges.
+///
+/// `T`: The unified account type that all decoders must return.
+/// For decoders with different types, use `VersionedAccountDecoderEnum` instead.
+pub struct VersionedAccountDecoder<T> {
+    versions: Vec<VersionedAccountDecoderEntry<T>>,
+}
+
+impl<T> VersionedAccountDecoder<T> {
+    /// Creates a new VersionedAccountDecoder.
+    pub fn new() -> Self {
+        Self {
+            versions: Vec::new(),
+        }
+    }
+
+    /// Adds a decoder for a specific slot range
+    pub fn add_version(
+        mut self,
+        slot_range: SlotRange,
+        decoder: impl for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
+    ) -> Self {
+        self.versions.push((slot_range, Box::new(decoder)));
+        self
+    }
+}
+
+impl<T> Default for VersionedAccountDecoder<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<'a, T> AccountDecoder<'a> for VersionedAccountDecoder<T> {
+    type AccountType = T;
+
+    fn decode_account(
+        &self,
+        account: &'a solana_account::Account,
+        metadata: Option<&'a AccountMetadata>,
+    ) -> Option<DecodedAccount<Self::AccountType>> {
+        let metadata = metadata?;
+        let slot = metadata.slot;
+
+        for (range, decoder) in &self.versions {
+            if range.contains(slot) {
+                return decoder.decode_account(account, Some(metadata));
+            }
+        }
+        None
+    }
+}
+
+/// Type alias for a versioned account decoder enum entry.
+type VersionedAccountDecoderEnumEntry<E> = (
+    SlotRange,
+    Box<
+        dyn for<'b> Fn(
+                &'b solana_account::Account,
+                Option<&'b AccountMetadata>,
+            ) -> Option<DecodedAccount<E>>
+            + Send
+            + Sync,
+    >,
+);
+
+/// Routes to different account decoders based on slot ranges, wrapping results into a unified enum.
+///
+/// `E`: The unified enum type that wraps all version-specific account types.
+pub struct VersionedAccountDecoderEnum<E> {
+    versions: Vec<VersionedAccountDecoderEnumEntry<E>>,
+}
+
+impl<E> VersionedAccountDecoderEnum<E> {
+    /// Creates a new VersionedAccountDecoderEnum.
+    pub fn new() -> Self {
+        Self {
+            versions: Vec::new(),
+        }
+    }
+
+    /// Adds a decoder for a specific slot range with a mapper function.
+    pub fn add_version<D, T, F>(mut self, slot_range: SlotRange, decoder: D, mapper: F) -> Self
+    where
+        D: for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
+        F: Fn(DecodedAccount<T>) -> DecodedAccount<E> + Send + Sync + 'static,
+    {
+        let mapper = Box::new(
+            move |account: &'_ solana_account::Account, metadata: Option<&'_ AccountMetadata>| {
+                decoder.decode_account(account, metadata).map(&mapper)
+            },
+        );
+        self.versions.push((slot_range, mapper));
+        self
+    }
+}
+
+impl<E> Default for VersionedAccountDecoderEnum<E> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<'a, E> AccountDecoder<'a> for VersionedAccountDecoderEnum<E> {
+    type AccountType = E;
+
+    fn decode_account(
+        &self,
+        account: &'a solana_account::Account,
+        metadata: Option<&'a AccountMetadata>,
+    ) -> Option<DecodedAccount<Self::AccountType>> {
+        let metadata = metadata?;
+        let slot = metadata.slot;
+
+        for (range, decoder_fn) in &self.versions {
+            if range.contains(slot) {
+                return decoder_fn(account, Some(metadata));
+            }
+        }
+        None
     }
 }

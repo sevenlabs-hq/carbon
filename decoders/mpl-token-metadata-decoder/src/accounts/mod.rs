@@ -40,7 +40,8 @@ impl AccountDecoder<'_> for TokenMetadataDecoder {
     type AccountType = TokenMetadataAccount;
     fn decode_account(
         &self,
-        account: &solana_account::Account,
+        account: &'_ solana_account::Account,
+        _metadata: Option<&carbon_core::account::AccountMetadata>,
     ) -> Option<carbon_core::account::DecodedAccount<Self::AccountType>> {
         // Guard
         let mpl_token_metadata_id: Pubkey = pubkey!("metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s");

@@ -717,7 +717,7 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
         });
 
         parse_instruction_arms.push(quote! {
-            if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
+            if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction, None) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
                     accounts: instruction.accounts.clone(),
@@ -834,7 +834,7 @@ pub fn instruction_decoder_collection_fast(input: TokenStream) -> TokenStream {
         if let Some(program_id_path) = explicit_program_id_path {
             parse_instruction_match_arms.push(quote! {
                 #program_id_path => {
-                    if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
+                    if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction, None) {
                         Some(carbon_core::instruction::DecodedInstruction {
                             program_id: instruction.program_id,
                             accounts: instruction.accounts.clone(),
@@ -848,7 +848,7 @@ pub fn instruction_decoder_collection_fast(input: TokenStream) -> TokenStream {
         } else {
             // No program id path: include in slow-path fallback.
             fallback_decode_blocks.push(quote! {
-                if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
+                if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction, None) {
                     return Some(carbon_core::instruction::DecodedInstruction {
                         program_id: instruction.program_id,
                         accounts: instruction.accounts.clone(),

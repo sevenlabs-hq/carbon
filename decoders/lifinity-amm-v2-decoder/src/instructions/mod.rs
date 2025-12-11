@@ -27,6 +27,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for LifinityAmmV2Decoder {
     fn decode_instruction(
         &self,
         instruction: &solana_instruction::Instruction,
+        _metadata: Option<&carbon_core::instruction::InstructionMetadata>,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
         if !instruction.program_id.eq(&PROGRAM_ID) {
             return None;
@@ -179,7 +180,7 @@ mod tests {
         let instruction = carbon_test_utils::read_instruction("tests/fixtures/swap_ix.json")
             .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             swap::Swap::arrange_accounts(&instruction.accounts).expect("aranage accounts");
@@ -300,7 +301,7 @@ mod tests {
             carbon_test_utils::read_instruction("tests/fixtures/deposit_all_token_types_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             deposit_all_token_types::DepositAllTokenTypes::arrange_accounts(&instruction.accounts)
@@ -416,13 +417,14 @@ mod tests {
                     "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
                 ),
             };
+        use carbon_test_utils;
 
         let decoder = LifinityAmmV2Decoder;
         let instruction =
             carbon_test_utils::read_instruction("tests/fixtures/withdraw_all_token_types_ix.json")
                 .expect("read fixture");
         let decoded = decoder
-            .decode_instruction(&instruction)
+            .decode_instruction(&instruction, None)
             .expect("decode instruction");
         let decoded_arranged_accounts =
             withdraw_all_token_types::WithdrawAllTokenTypes::arrange_accounts(
