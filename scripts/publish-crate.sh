@@ -10,6 +10,7 @@ workspace_crates=(
 
     # carbon-helius-atlas-ws-datasource
     carbon-helius-gpa-v2-datasource
+    carbon-helius-gtfa-datasource
     carbon-helius-laserstream-datasource
     carbon-rpc-block-crawler-datasource
     carbon-rpc-block-subscribe-datasource
