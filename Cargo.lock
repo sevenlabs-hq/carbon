@@ -1592,14 +1592,14 @@ dependencies = [
  "base64 0.22.1",
  "carbon-core",
  "log",
- "reqwest",
+ "reqwest 0.12.24",
  "serde",
  "serde_json",
  "solana-account",
  "solana-client",
  "solana-pubkey 3.0.0",
  "tokio",
- "tokio-util",
+ "tokio-util 0.7.17",
 ]
 
 [[package]]
@@ -1713,11 +1713,20 @@ dependencies = [
 name = "carbon-jupiter-swap-decoder"
 version = "0.12.0"
 dependencies = [
+ "async-trait",
+ "base64 0.22.1",
+ "borsh",
  "carbon-core",
+ "carbon-test-utils",
+ "juniper",
  "serde",
+ "serde-big-array",
+ "serde_json",
  "solana-account",
  "solana-instruction",
  "solana-pubkey 3.0.0",
+ "sqlx",
+ "sqlx_migrator",
 ]
 
 [[package]]
@@ -2169,7 +2178,7 @@ dependencies = [
  "solana-commitment-config",
  "solana-pubkey 3.0.0",
  "tokio",
- "tokio-util",
+ "tokio-util 0.7.17",
 ]
 
 [[package]]
