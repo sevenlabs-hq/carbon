@@ -21,6 +21,19 @@ pub async fn main() -> CarbonResult<()> {
     dotenv::dotenv().ok();
     env_logger::init();
 
+    let ping_interval_secs = std::env::var("PING_INTERVAL_SECS")
+        .unwrap_or("10".to_string())
+        .parse::<u64>()
+        .unwrap_or(10);
+    let pong_timeout_secs = std::env::var("PONG_TIMEOUT_SECS")
+        .unwrap_or("10".to_string())
+        .parse::<u64>()
+        .unwrap_or(10);
+    let transaction_idle_timeout_secs = std::env::var("TRANSACTION_IDLE_TIMEOUT_SECS")
+        .unwrap_or("60".to_string())
+        .parse::<u64>()
+        .unwrap_or(60);
+
     let helius_websocket = carbon_helius_atlas_ws_datasource::HeliusWebsocket::new(
         std::env::var("API_KEY").expect("API_KEY must be set"),
         carbon_helius_atlas_ws_datasource::Filters {
@@ -45,7 +58,10 @@ pub async fn main() -> CarbonResult<()> {
         },
         Arc::new(RwLock::new(HashSet::new())),
         Cluster::MainnetBeta,
-    );
+    )
+    .with_ping_interval_secs(ping_interval_secs)
+    .with_pong_timeout_secs(pong_timeout_secs)
+    .with_transaction_idle_timeout_secs(transaction_idle_timeout_secs);
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(helius_websocket)
