@@ -3,15 +3,12 @@
 //! to add features, then rerun Codama to update it.
 //!
 //! <https://github.com/codama-idl/codama>
-//!
-use crate::types::AccountState;
-use crate::types::Extension;
-use carbon_core::borsh;
-use carbon_core::deserialize::CarbonDeserialize;
-use carbon_core::CarbonDeserialize;
-use solana_pubkey::Pubkey;
-use spl_token_2022::extension::BaseStateWithExtensions as _;
-use spl_token_2022::extension::StateWithExtensions;
+use {
+    crate::types::{AccountState, Extension},
+    carbon_core::{borsh, deserialize::CarbonDeserialize, CarbonDeserialize},
+    solana_pubkey::Pubkey,
+    spl_token_2022::extension::{BaseStateWithExtensions as _, StateWithExtensions},
+};
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
@@ -47,6 +44,26 @@ impl Token {
         let data_slice = &data_slice[0..];
 
         Self::deserialize(data_slice)
+    }
+}
+
+impl From<&spl_token_2022::state::Account> for Token {
+    fn from(value: &spl_token_2022::state::Account) -> Self {
+        Token {
+            mint: value.mint,
+            owner: value.owner,
+            amount: value.amount,
+            delegate: value.delegate.into(),
+            state: match value.state {
+                spl_token_2022::state::AccountState::Uninitialized => AccountState::Uninitialized,
+                spl_token_2022::state::AccountState::Initialized => AccountState::Initialized,
+                spl_token_2022::state::AccountState::Frozen => AccountState::Frozen,
+            },
+            is_native: value.is_native.into(),
+            delegated_amount: value.delegated_amount,
+            close_authority: value.close_authority.into(),
+            extensions: None,
+        }
     }
 }
 
