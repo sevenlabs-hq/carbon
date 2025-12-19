@@ -3,12 +3,12 @@
 //! to add features, then rerun Codama to update it.
 //!
 //! <https://github.com/codama-idl/codama>
-//!
-use crate::types::Extension;
-use carbon_core::borsh;
-use carbon_core::CarbonDeserialize;
-use solana_pubkey::Pubkey;
-use spl_token_2022::extension::{BaseStateWithExtensions, StateWithExtensions};
+use {
+    crate::types::Extension,
+    carbon_core::{borsh, CarbonDeserialize},
+    solana_pubkey::Pubkey,
+    spl_token_2022::extension::{BaseStateWithExtensions, StateWithExtensions},
+};
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
@@ -27,6 +27,19 @@ pub struct Mint {
     pub freeze_authority: Option<Pubkey>,
     /// The extensions activated on the mint account.
     pub extensions: Option<Vec<Extension>>,
+}
+
+impl From<&spl_token_2022::state::Mint> for Mint {
+    fn from(value: &spl_token_2022::state::Mint) -> Self {
+        Mint {
+            mint_authority: value.mint_authority.into(),
+            supply: value.supply,
+            decimals: value.decimals,
+            is_initialized: value.is_initialized,
+            freeze_authority: value.freeze_authority.into(),
+            extensions: None,
+        }
+    }
 }
 
 impl From<StateWithExtensions<'_, spl_token_2022::state::Mint>> for Mint {
