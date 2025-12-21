@@ -47,26 +47,6 @@ impl Token {
     }
 }
 
-impl From<&spl_token_2022::state::Account> for Token {
-    fn from(value: &spl_token_2022::state::Account) -> Self {
-        Token {
-            mint: value.mint,
-            owner: value.owner,
-            amount: value.amount,
-            delegate: value.delegate.into(),
-            state: match value.state {
-                spl_token_2022::state::AccountState::Uninitialized => AccountState::Uninitialized,
-                spl_token_2022::state::AccountState::Initialized => AccountState::Initialized,
-                spl_token_2022::state::AccountState::Frozen => AccountState::Frozen,
-            },
-            is_native: value.is_native.into(),
-            delegated_amount: value.delegated_amount,
-            close_authority: value.close_authority.into(),
-            extensions: None,
-        }
-    }
-}
-
 impl From<StateWithExtensions<'_, spl_token_2022::state::Account>> for Token {
     fn from(value: StateWithExtensions<'_, spl_token_2022::state::Account>) -> Self {
         let extensions = value.get_extension_types().ok().map(|extensions| {
