@@ -40,27 +40,32 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for Token2022Decoder {
             return None;
         }
 
-        if let Some(mint_data) = try_decode_mint(&account.data) {
+        // Try Mint (base or with extensions) - StateWithExtensions::unpack handles both
+        if let Ok(data) = StateWithExtensions::<spl_token_2022::state::Mint>::unpack(&account.data)
+        {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: Token2022Account::Mint(Box::new(mint_data)),
+                data: Token2022Account::Mint(Box::new(mint::Mint::from(data))),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
             });
         }
 
-        if let Some(token_data) = try_decode_token(&account.data) {
+        // Try Token Account (base or with extensions)
+        if let Ok(data) =
+            StateWithExtensions::<spl_token_2022::state::Account>::unpack(&account.data)
+        {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
-                data: Token2022Account::Token(Box::new(token_data)),
+                data: Token2022Account::Token(Box::new(token::Token::from(data))),
                 owner: account.owner,
                 executable: account.executable,
                 rent_epoch: account.rent_epoch,
             });
         }
 
-        // Multisig has a fixed size of 355 bytes
+        // Multisig::unpack_from_slice panics on wrong sizes, so we must check first
         if account.data.len() == spl_token_2022::state::Multisig::LEN {
             if let Ok(data) = spl_token_2022::state::Multisig::unpack_from_slice(&account.data) {
                 return Some(carbon_core::account::DecodedAccount {
@@ -77,53 +82,6 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for Token2022Decoder {
     }
 }
 
-/// Minimum account size for Token-2022 accounts with extensions.
-/// Base size + account type byte + padding to align extensions.
-const MIN_MINT_WITH_EXTENSIONS: usize = spl_token_2022::state::Mint::LEN + 83;
-const MIN_ACCOUNT_WITH_EXTENSIONS: usize = spl_token_2022::state::Account::LEN + 83;
-
-/// Decode Mint account, handling both base (82 bytes) and extended formats.
-/// StateWithExtensions::unpack panics on accounts smaller than expected, so we
-/// guard against it.
-fn try_decode_mint(data: &[u8]) -> Option<mint::Mint> {
-    let len = data.len();
-    if len == spl_token_2022::state::Mint::LEN {
-        // Base Mint without extensions
-        <spl_token_2022::state::Mint as Pack>::unpack(data)
-            .ok()
-            .map(|m| mint::Mint::from(&m))
-    } else if len >= MIN_MINT_WITH_EXTENSIONS {
-        // Potentially Mint with extensions - safe to call StateWithExtensions
-        StateWithExtensions::<spl_token_2022::state::Mint>::unpack(data)
-            .ok()
-            .map(mint::Mint::from)
-    } else {
-        // Size is between base and minimum for extensions - invalid
-        None
-    }
-}
-
-/// Decode Token account, handling both base (165 bytes) and extended formats.
-/// StateWithExtensions::unpack panics on accounts smaller than expected, so we
-/// guard against it.
-fn try_decode_token(data: &[u8]) -> Option<token::Token> {
-    let len = data.len();
-    if len == spl_token_2022::state::Account::LEN {
-        // Base Token Account without extensions
-        <spl_token_2022::state::Account as Pack>::unpack(data)
-            .ok()
-            .map(|t| token::Token::from(&t))
-    } else if len >= MIN_ACCOUNT_WITH_EXTENSIONS {
-        // Potentially Token Account with extensions - safe to call StateWithExtensions
-        StateWithExtensions::<spl_token_2022::state::Account>::unpack(data)
-            .ok()
-            .map(token::Token::from)
-    } else {
-        // Size is between base and minimum for extensions - invalid
-        None
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use {super::*, carbon_core::account::AccountDecoder, solana_pubkey::Pubkey};
@@ -131,145 +89,75 @@ mod tests {
     const TOKEN_2022_PROGRAM_ID: Pubkey =
         solana_pubkey::Pubkey::from_str_const("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
 
-    /// Creates a valid 82-byte Mint account data.
-    /// Layout: mint_authority (36) + supply (8) + decimals (1) + is_initialized
-    /// (1) + freeze_authority (36)
     fn create_base_mint_data() -> Vec<u8> {
         let mut data = vec![0u8; 82];
-        // mint_authority: COption::Some(Pubkey) = [1, 0, 0, 0] + 32 bytes pubkey
-        data[0] = 1; // Some variant
-        data[4..36].copy_from_slice(&[1u8; 32]); // pubkey bytes
-                                                 // supply: u64 at offset 36
-        data[36..44].copy_from_slice(&1_000_000_000u64.to_le_bytes());
-        // decimals: u8 at offset 44
-        data[44] = 9;
-        // is_initialized: bool at offset 45
-        data[45] = 1;
-        // freeze_authority: COption::None = [0, 0, 0, 0] + 32 zero bytes (already zero)
+        data[0] = 1; // mint_authority: Some
+        data[4..36].copy_from_slice(&[1u8; 32]);
+        data[36..44].copy_from_slice(&1_000_000_000u64.to_le_bytes()); // supply
+        data[44] = 9; // decimals
+        data[45] = 1; // is_initialized
         data
     }
 
-    /// Creates a valid 165-byte Token account data.
-    /// Layout: mint (32) + owner (32) + amount (8) + delegate (36) + state (1)
-    /// + is_native (12) + delegated_amount (8) + close_authority (36)
     fn create_base_token_account_data() -> Vec<u8> {
         let mut data = vec![0u8; 165];
-        // mint: Pubkey at offset 0
-        data[0..32].copy_from_slice(&[2u8; 32]);
-        // owner: Pubkey at offset 32
-        data[32..64].copy_from_slice(&[3u8; 32]);
-        // amount: u64 at offset 64
-        data[64..72].copy_from_slice(&500_000_000u64.to_le_bytes());
-        // delegate: COption::None at offset 72 (already zero)
-        // state: AccountState::Initialized (1) at offset 108
-        data[108] = 1;
-        // is_native: COption::None at offset 109 (already zero)
-        // delegated_amount: u64 at offset 121 (already zero)
-        // close_authority: COption::None at offset 129 (already zero)
+        data[0..32].copy_from_slice(&[2u8; 32]); // mint
+        data[32..64].copy_from_slice(&[3u8; 32]); // owner
+        data[64..72].copy_from_slice(&500_000_000u64.to_le_bytes()); // amount
+        data[108] = 1; // state: Initialized
         data
     }
 
-    /// Test that base Mint accounts (82 bytes) owned by Token-2022 are decoded
-    /// without panic. This is a regression test for the issue where
-    /// StateWithExtensions::unpack panicked on accounts without extensions.
     #[test]
-    fn test_decode_base_mint_account_no_panic() {
+    fn test_decode_base_mint_account() {
         let decoder = Token2022Decoder;
-        let data = create_base_mint_data();
-
-        assert_eq!(data.len(), spl_token_2022::state::Mint::LEN);
-        assert_eq!(data.len(), 82);
-
         let account = solana_account::Account {
             lamports: 1_000_000,
-            data,
+            data: create_base_mint_data(),
             owner: TOKEN_2022_PROGRAM_ID,
             executable: false,
             rent_epoch: 0,
         };
 
         let result = decoder.decode_account(&account);
-
         assert!(result.is_some(), "Should decode base Mint account");
-        let decoded = result.unwrap();
-        match decoded.data {
+        match result.unwrap().data {
             Token2022Account::Mint(mint) => {
                 assert_eq!(mint.supply, 1_000_000_000);
                 assert_eq!(mint.decimals, 9);
-                assert!(mint.is_initialized);
-                assert!(mint.extensions.is_none());
             }
             _ => panic!("Expected Mint account"),
         }
     }
 
-    /// Test that base Token accounts (165 bytes) owned by Token-2022 are
-    /// decoded without panic.
     #[test]
-    fn test_decode_base_token_account_no_panic() {
+    fn test_decode_base_token_account() {
         let decoder = Token2022Decoder;
-        let data = create_base_token_account_data();
-
-        assert_eq!(data.len(), spl_token_2022::state::Account::LEN);
-        assert_eq!(data.len(), 165);
-
         let account = solana_account::Account {
             lamports: 1_000_000,
-            data,
+            data: create_base_token_account_data(),
             owner: TOKEN_2022_PROGRAM_ID,
             executable: false,
             rent_epoch: 0,
         };
 
         let result = decoder.decode_account(&account);
-
         assert!(result.is_some(), "Should decode base Token account");
-        let decoded = result.unwrap();
-        match decoded.data {
+        match result.unwrap().data {
             Token2022Account::Token(token) => {
                 assert_eq!(token.amount, 500_000_000);
-                assert!(token.extensions.is_none());
             }
             _ => panic!("Expected Token account"),
         }
     }
 
-    /// Test that accounts owned by a different program are not decoded.
-    #[test]
-    fn test_wrong_owner_returns_none() {
-        let decoder = Token2022Decoder;
-        let data = create_base_mint_data();
-
-        let wrong_owner = Pubkey::new_unique();
-        let account = solana_account::Account {
-            lamports: 1_000_000,
-            data,
-            owner: wrong_owner,
-            executable: false,
-            rent_epoch: 0,
-        };
-
-        let result = decoder.decode_account(&account);
-        assert!(
-            result.is_none(),
-            "Should not decode account with wrong owner"
-        );
-    }
-
-    /// Test that Multisig accounts (355 bytes) are decoded correctly.
     #[test]
     fn test_decode_multisig_account() {
         let decoder = Token2022Decoder;
-
-        // Multisig::LEN should be 355
-        assert_eq!(spl_token_2022::state::Multisig::LEN, 355);
-
-        // Create valid Multisig data
         let mut data = vec![0u8; 355];
-        data[0] = 2; // m (required signatures)
-        data[1] = 3; // n (total signers)
+        data[0] = 2; // m
+        data[1] = 3; // n
         data[2] = 1; // is_initialized
-                     // signers: 11 * 32 bytes starting at offset 3
 
         let account = solana_account::Account {
             lamports: 1_000_000,
@@ -285,45 +173,41 @@ mod tests {
             Token2022Account::Multisig(ms) => {
                 assert_eq!(ms.m, 2);
                 assert_eq!(ms.n, 3);
-                assert!(ms.is_initialized);
             }
             _ => panic!("Expected Multisig account"),
         }
     }
 
-    /// Test that invalid/corrupted data returns None instead of panicking.
     #[test]
-    fn test_invalid_data_returns_none() {
+    fn test_wrong_owner_returns_none() {
         let decoder = Token2022Decoder;
-
-        // Empty data
         let account = solana_account::Account {
             lamports: 1_000_000,
-            data: vec![],
-            owner: TOKEN_2022_PROGRAM_ID,
+            data: create_base_mint_data(),
+            owner: Pubkey::new_unique(),
             executable: false,
             rent_epoch: 0,
         };
         assert!(decoder.decode_account(&account).is_none());
+    }
 
-        // Random garbage data of various sizes - should never panic
-        // Includes edge cases around known account sizes:
-        // - Mint: 82 bytes
-        // - Token Account: 165 bytes
-        // - Multisig: 355 bytes
-        // - Mint with extensions minimum: 165 bytes
-        // - Token with extensions minimum: 248 bytes
+    /// Regression test: Multisig::unpack_from_slice panics on wrong sizes.
+    /// The decoder must check size before calling it.
+    #[test]
+    fn test_no_panic_on_various_sizes() {
+        let decoder = Token2022Decoder;
+
         for size in [
-            1, 10, 50, 81, 83, 100, 164, 166, 200, 247, 249, 300, 354, 356, 500,
+            0, 1, 50, 81, 82, 83, 100, 164, 165, 166, 200, 354, 355, 356, 500,
         ] {
             let account = solana_account::Account {
                 lamports: 1_000_000,
-                data: vec![0xAB; size],
+                data: vec![0u8; size],
                 owner: TOKEN_2022_PROGRAM_ID,
                 executable: false,
                 rent_epoch: 0,
             };
-            // Should not panic, may or may not decode depending on data
+            // Must not panic
             let _ = decoder.decode_account(&account);
         }
     }

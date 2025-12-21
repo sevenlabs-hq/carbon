@@ -29,19 +29,6 @@ pub struct Mint {
     pub extensions: Option<Vec<Extension>>,
 }
 
-impl From<&spl_token_2022::state::Mint> for Mint {
-    fn from(value: &spl_token_2022::state::Mint) -> Self {
-        Mint {
-            mint_authority: value.mint_authority.into(),
-            supply: value.supply,
-            decimals: value.decimals,
-            is_initialized: value.is_initialized,
-            freeze_authority: value.freeze_authority.into(),
-            extensions: None,
-        }
-    }
-}
-
 impl From<StateWithExtensions<'_, spl_token_2022::state::Mint>> for Mint {
     fn from(value: StateWithExtensions<'_, spl_token_2022::state::Mint>) -> Self {
         let extensions = value.get_extension_types().ok().map(|extensions| {
