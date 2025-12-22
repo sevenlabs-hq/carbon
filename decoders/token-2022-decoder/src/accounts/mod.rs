@@ -65,17 +65,15 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for Token2022Decoder {
             });
         }
 
-        // Multisig::unpack_from_slice panics on wrong sizes, so we must check first
-        if account.data.len() == spl_token_2022::state::Multisig::LEN {
-            if let Ok(data) = spl_token_2022::state::Multisig::unpack_from_slice(&account.data) {
-                return Some(carbon_core::account::DecodedAccount {
-                    lamports: account.lamports,
-                    data: Token2022Account::Multisig(Box::new(multisig::Multisig::from(data))),
-                    owner: account.owner,
-                    executable: account.executable,
-                    rent_epoch: account.rent_epoch,
-                });
-            }
+        // Try Multisig (no extensions support)
+        if let Ok(data) = spl_token_2022::state::Multisig::unpack_unchecked(&account.data) {
+            return Some(carbon_core::account::DecodedAccount {
+                lamports: account.lamports,
+                data: Token2022Account::Multisig(Box::new(multisig::Multisig::from(data))),
+                owner: account.owner,
+                executable: account.executable,
+                rent_epoch: account.rent_epoch,
+            });
         }
 
         None
@@ -191,8 +189,7 @@ mod tests {
         assert!(decoder.decode_account(&account).is_none());
     }
 
-    /// Regression test: Multisig::unpack_from_slice panics on wrong sizes.
-    /// The decoder must check size before calling it.
+    /// Regression test: decoder must handle various account sizes without panic.
     #[test]
     fn test_no_panic_on_various_sizes() {
         let decoder = Token2022Decoder;
