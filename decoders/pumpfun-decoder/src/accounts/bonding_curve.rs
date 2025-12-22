@@ -19,7 +19,7 @@ pub struct BondingCurve {
     CarbonDeserialize, Debug, serde::Deserialize, serde::Serialize, PartialEq, Eq, Clone, Hash,
 )]
 #[carbon(discriminator = "0x17b7f83760d8ac60")]
-pub(super) struct BondingCurveV1 {
+pub(super) struct BondingCurve81b {
     pub virtual_token_reserves: u64,
     pub virtual_sol_reserves: u64,
     pub real_token_reserves: u64,
@@ -29,8 +29,8 @@ pub(super) struct BondingCurveV1 {
     pub creator: solana_pubkey::Pubkey,
 }
 
-impl From<BondingCurveV1> for BondingCurve {
-    fn from(value: BondingCurveV1) -> Self {
+impl From<BondingCurve81b> for BondingCurve {
+    fn from(value: BondingCurve81b) -> Self {
         Self {
             virtual_token_reserves: value.virtual_token_reserves,
             virtual_sol_reserves: value.virtual_sol_reserves,

@@ -41,7 +41,7 @@ impl AccountDecoder<'_> for PumpfunDecoder {
         }
 
         if let Some(decoded_account) =
-            bonding_curve::BondingCurveV1::deserialize(account.data.as_slice())
+            bonding_curve::BondingCurve81b::deserialize(account.data.as_slice())
         {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
