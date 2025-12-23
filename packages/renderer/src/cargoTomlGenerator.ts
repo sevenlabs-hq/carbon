@@ -9,6 +9,7 @@ export type DecoderCargoTomlOptions = {
     withPostgres: boolean;
     withGraphQL: boolean;
     withSerde: boolean;
+    withBase58?: boolean;
     standalone?: boolean;
 };
 
@@ -20,6 +21,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         withPostgres,
         withGraphQL,
         withSerde,
+        withBase58 = false,
         standalone = true,
     } = options;
 
@@ -44,10 +46,11 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
     const sqlxMigratorDep = getCrateDependencyString('sqlx_migrator', VERSIONS['sqlx_migrator'], undefined, true);
     const juniperDep = getCrateDependencyString('juniper', VERSIONS['juniper'], undefined, true);
     const base64Dep = getCrateDependencyString('base64', VERSIONS['base64'], undefined, true);
+    const fdBs58Dep = getCrateDependencyString('fd_bs58', VERSIONS['fd-bs58'], undefined, true);
 
     const features: string[] = ['default = []'];
 
-    if (withSerde || withPostgres || withGraphQL) {
+    if (withSerde || withPostgres || withGraphQL || withBase58) {
         features.push('');
         features.push('serde = ["dep:serde", "dep:serde-big-array"]');
     }
@@ -73,6 +76,11 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         features.push(']');
     }
 
+    if (withBase58) {
+        features.push('');
+        features.push('base58 = ["serde", "dep:fd_bs58"]');
+    }
+
     const dependencies: string[] = [
         carbonCoreDep,
         borshDep,
@@ -82,7 +90,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         serdeJsonDep,
     ];
 
-    if (withSerde || withPostgres || withGraphQL) {
+    if (withSerde || withPostgres || withGraphQL || withBase58) {
         dependencies.push('');
         dependencies.push(serdeDep);
         dependencies.push(serdeBigArrayDep);
@@ -101,6 +109,11 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         dependencies.push(base64Dep);
     }
 
+    if (withBase58) {
+        dependencies.push('');
+        dependencies.push(fdBs58Dep);
+    }
+
     // Add SPL Token 2022 dependencies for token-2022 program
     // Check originalProgramName or packageName to handle PascalCase transformation
     if (isToken2022Program(undefined, originalProgramName, packageName)) {
@@ -116,11 +129,14 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
     }
 
     const macheteIgnored: string[] = [];
-    if (withSerde || withPostgres || withGraphQL) {
+    if (withSerde || withPostgres || withGraphQL || withBase58) {
         macheteIgnored.push('serde-big-array');
     }
     if (withGraphQL) {
         macheteIgnored.push('base64');
+    }
+    if (withBase58) {
+        macheteIgnored.push('fd_bs58');
     }
 
     const toml = [
