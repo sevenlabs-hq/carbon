@@ -60,7 +60,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
     const renderParentInstructions = options.renderParentInstructions ?? false;
     let definedTypesMap: Map<string, any> | null = null;
     const newtypeWrapperTypes = new Set<string>(); // Track which types were converted to newtype wrappers
-    const createTypeManifestVisitor = () => getTypeManifestVisitor(definedTypesMap, newtypeWrapperTypes, options.withBase58 ?? false);
+    const createTypeManifestVisitor = () =>
+        getTypeManifestVisitor(definedTypesMap, newtypeWrapperTypes, options.withBase58 ?? false);
     let typeManifestVisitor = createTypeManifestVisitor();
     const postgresTypeManifestVisitor = getPostgresTypeManifestVisitor();
 

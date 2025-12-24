@@ -28,7 +28,11 @@ export type DiscriminatorManifest = {
     checkCode: string;
 };
 
-export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null, newtypeWrapperTypes?: Set<string>, withBase58?: boolean) {
+export function getTypeManifestVisitor(
+    definedTypesMap?: Map<string, any> | null,
+    newtypeWrapperTypes?: Set<string>,
+    withBase58?: boolean,
+) {
     const baseVisitor = pipe(
         mergeVisitor(
             (): TypeManifest => ({
@@ -189,9 +193,11 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                             let base58Attr = '';
                             if (withBase58) {
                                 if (fieldManifest.isPubkey === true) {
-                                    base58Attr = '#[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize"))]\n';
+                                    base58Attr =
+                                        '#[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize"))]\n';
                                 } else if (fieldManifest.isOptionPubkey === true) {
-                                    base58Attr = '#[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize_option"))]\n';
+                                    base58Attr =
+                                        '#[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize_option"))]\n';
                                 }
                             }
 
@@ -357,9 +363,11 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                     let base58Attr = '';
                     if (withBase58) {
                         if (fieldManifest.isPubkey === true) {
-                            base58Attr = '#[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize"))]\n';
+                            base58Attr =
+                                '#[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize"))]\n';
                         } else if (fieldManifest.isOptionPubkey === true) {
-                            base58Attr = '#[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize_option"))]\n';
+                            base58Attr =
+                                '#[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize_option"))]\n';
                         }
                     }
 
