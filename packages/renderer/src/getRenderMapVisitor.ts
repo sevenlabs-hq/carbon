@@ -39,6 +39,7 @@ export type GetRenderMapOptions = {
     withPostgres?: boolean;
     withGraphql?: boolean;
     withSerde?: boolean;
+    withBase58?: boolean;
     standalone?: boolean;
 };
 
@@ -59,7 +60,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
     const renderParentInstructions = options.renderParentInstructions ?? false;
     let definedTypesMap: Map<string, any> | null = null;
     const newtypeWrapperTypes = new Set<string>(); // Track which types were converted to newtype wrappers
-    const createTypeManifestVisitor = () => getTypeManifestVisitor(definedTypesMap, newtypeWrapperTypes);
+    const createTypeManifestVisitor = () =>
+        getTypeManifestVisitor(definedTypesMap, newtypeWrapperTypes, options.withBase58 ?? false);
     let typeManifestVisitor = createTypeManifestVisitor();
     const postgresTypeManifestVisitor = getPostgresTypeManifestVisitor();
 
@@ -520,6 +522,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             instruction: instructionWithUniqueAccounts,
                             discriminatorManifest,
                             program: currentProgram,
+                            withBase58: options.withBase58 ?? false,
                         }),
                     );
 
@@ -665,6 +668,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         withPostgres: options.withPostgres !== false,
                         withGraphQL: options.withGraphql !== false,
                         withSerde: options.withSerde ?? false,
+                        withBase58: options.withBase58 ?? false,
                     };
 
                     const map = new RenderMap();
@@ -841,6 +845,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         withPostgres: options.withPostgres !== false,
                         withGraphQL: options.withGraphql !== false,
                         withSerde: options.withSerde ?? false,
+                        withBase58: options.withBase58 ?? false,
                         standalone: options.standalone !== false,
                     });
                     map.add('Cargo.toml', cargoToml);

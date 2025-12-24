@@ -9,6 +9,7 @@ export type DecoderCargoTomlOptions = {
     withPostgres: boolean;
     withGraphQL: boolean;
     withSerde: boolean;
+    withBase58?: boolean;
     standalone?: boolean;
 };
 
@@ -20,6 +21,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         withPostgres,
         withGraphQL,
         withSerde,
+        withBase58 = false,
         standalone = true,
     } = options;
 
@@ -47,7 +49,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
 
     const features: string[] = ['default = []'];
 
-    if (withSerde || withPostgres || withGraphQL) {
+    if (withSerde || withPostgres || withGraphQL || withBase58) {
         features.push('');
         features.push('serde = ["dep:serde", "dep:serde-big-array"]');
     }
@@ -73,6 +75,11 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         features.push(']');
     }
 
+    if (withBase58) {
+        features.push('');
+        features.push('base58 = ["serde"]');
+    }
+
     const dependencies: string[] = [
         carbonCoreDep,
         borshDep,
@@ -82,7 +89,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         serdeJsonDep,
     ];
 
-    if (withSerde || withPostgres || withGraphQL) {
+    if (withSerde || withPostgres || withGraphQL || withBase58) {
         dependencies.push('');
         dependencies.push(serdeDep);
         dependencies.push(serdeBigArrayDep);
@@ -116,7 +123,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
     }
 
     const macheteIgnored: string[] = [];
-    if (withSerde || withPostgres || withGraphQL) {
+    if (withSerde || withPostgres || withGraphQL || withBase58) {
         macheteIgnored.push('serde-big-array');
     }
     if (withGraphQL) {
