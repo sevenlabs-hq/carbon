@@ -154,7 +154,9 @@ mod tests {
             carbon_test_utils::read_account("tests/fixtures/bonding_curve_account.json")
                 .expect("read fixture");
 
-        account.data.truncate(bonding_curve::BONDING_CURVE_LEN_PRE_MAYHEM_MODE);
+        account
+            .data
+            .truncate(bonding_curve::BONDING_CURVE_LEN_PRE_MAYHEM_MODE);
 
         let decoded_account = decoder.decode_account(&account).expect("decode fixture");
 
