@@ -6,21 +6,45 @@ use solana_pubkey::Pubkey;
 /// # Usage
 /// - Use with `?` to indicate the account is required:
 ///   ```
-///   let required = next_account(&mut iter)?;
+///   use carbon_core::account_utils::next_account;
+///   use solana_instruction::AccountMeta;
+///   use solana_pubkey::Pubkey;
+///
+///   let accounts = vec![
+///       AccountMeta::new(Pubkey::new_unique(), false),
+///       AccountMeta::new(Pubkey::new_unique(), false),
+///   ];
+///   let mut iter = accounts.iter();
+///   let required = next_account(&mut iter).ok_or("missing account")?; // propagates None if missing
+///   Ok::<(), &'static str>(())
 ///   ```
-///   This will propagate `None` if the account is missing.
 /// - Use without `?` to handle optional accounts:
 ///   ```
-///   let optional = next_account(&mut iter);
+///   use carbon_core::account_utils::next_account;
+///   use solana_instruction::AccountMeta;
+///   use solana_pubkey::Pubkey;
+///
+///   let accounts = vec![AccountMeta::new(Pubkey::new_unique(), false)];
+///   let mut iter = accounts.iter();
+///   let optional = next_account(&mut iter); // Option<Pubkey>
+///   Ok::<(), &'static str>(())
 ///   ```
-///   This returns `Option<Pubkey>` that you can match or use directly.
 ///
 /// # Example
 /// ```
+/// use carbon_core::account_utils::next_account;
+/// use solana_instruction::AccountMeta;
+/// use solana_pubkey::Pubkey;
+///
+/// let accounts = vec![
+///     AccountMeta::new(Pubkey::new_unique(), false),
+///     AccountMeta::new(Pubkey::new_unique(), false),
+/// ];
 /// let mut iter = accounts.iter();
-/// let required = next_account(&mut iter)?;           // required account
-/// let optional = next_account(&mut iter);            // optional account
-/// `
+/// let required = next_account(&mut iter).ok_or("missing account")?;           // required account
+/// let optional = next_account(&mut iter);                                    // optional account
+/// Ok::<(), &'static str>(())
+/// ```
 pub fn next_account<'a>(iter: &mut impl Iterator<Item = &'a AccountMeta>) -> Option<Pubkey> {
     Some(iter.next()?.pubkey)
 }
