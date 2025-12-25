@@ -3,13 +3,12 @@
 //! to add features, then rerun Codama to update it.
 //!
 //! <https://github.com/codama-idl/codama>
-//!
 
-use solana_program_pack::Pack;
-use spl_token_2022::extension::StateWithExtensions;
-
-use crate::Token2022Decoder;
-use crate::PROGRAM_ID;
+use {
+    crate::{Token2022Decoder, PROGRAM_ID},
+    solana_program_pack::Pack,
+    spl_token_2022::extension::StateWithExtensions,
+};
 
 #[cfg(feature = "postgres")]
 pub mod postgres;
@@ -41,6 +40,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for Token2022Decoder {
             return None;
         }
 
+        // Try Mint (base or with extensions) - StateWithExtensions::unpack handles both
         if let Ok(data) = StateWithExtensions::<spl_token_2022::state::Mint>::unpack(&account.data)
         {
             return Some(carbon_core::account::DecodedAccount {
@@ -52,6 +52,7 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for Token2022Decoder {
             });
         }
 
+        // Try Token Account (base or with extensions)
         if let Ok(data) =
             StateWithExtensions::<spl_token_2022::state::Account>::unpack(&account.data)
         {
@@ -64,7 +65,8 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for Token2022Decoder {
             });
         }
 
-        if let Ok(data) = spl_token_2022::state::Multisig::unpack_from_slice(&account.data) {
+        // Try Multisig (no extensions support)
+        if let Ok(data) = spl_token_2022::state::Multisig::unpack_unchecked(&account.data) {
             return Some(carbon_core::account::DecodedAccount {
                 lamports: account.lamports,
                 data: Token2022Account::Multisig(Box::new(multisig::Multisig::from(data))),
@@ -75,5 +77,135 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for Token2022Decoder {
         }
 
         None
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use {super::*, carbon_core::account::AccountDecoder, solana_pubkey::Pubkey};
+
+    const TOKEN_2022_PROGRAM_ID: Pubkey =
+        solana_pubkey::Pubkey::from_str_const("TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb");
+
+    fn create_base_mint_data() -> Vec<u8> {
+        let mut data = vec![0u8; 82];
+        data[0] = 1; // mint_authority: Some
+        data[4..36].copy_from_slice(&[1u8; 32]);
+        data[36..44].copy_from_slice(&1_000_000_000u64.to_le_bytes()); // supply
+        data[44] = 9; // decimals
+        data[45] = 1; // is_initialized
+        data
+    }
+
+    fn create_base_token_account_data() -> Vec<u8> {
+        let mut data = vec![0u8; 165];
+        data[0..32].copy_from_slice(&[2u8; 32]); // mint
+        data[32..64].copy_from_slice(&[3u8; 32]); // owner
+        data[64..72].copy_from_slice(&500_000_000u64.to_le_bytes()); // amount
+        data[108] = 1; // state: Initialized
+        data
+    }
+
+    #[test]
+    fn test_decode_base_mint_account() {
+        let decoder = Token2022Decoder;
+        let account = solana_account::Account {
+            lamports: 1_000_000,
+            data: create_base_mint_data(),
+            owner: TOKEN_2022_PROGRAM_ID,
+            executable: false,
+            rent_epoch: 0,
+        };
+
+        let result = decoder.decode_account(&account);
+        assert!(result.is_some(), "Should decode base Mint account");
+        match result.unwrap().data {
+            Token2022Account::Mint(mint) => {
+                assert_eq!(mint.supply, 1_000_000_000);
+                assert_eq!(mint.decimals, 9);
+            }
+            _ => panic!("Expected Mint account"),
+        }
+    }
+
+    #[test]
+    fn test_decode_base_token_account() {
+        let decoder = Token2022Decoder;
+        let account = solana_account::Account {
+            lamports: 1_000_000,
+            data: create_base_token_account_data(),
+            owner: TOKEN_2022_PROGRAM_ID,
+            executable: false,
+            rent_epoch: 0,
+        };
+
+        let result = decoder.decode_account(&account);
+        assert!(result.is_some(), "Should decode base Token account");
+        match result.unwrap().data {
+            Token2022Account::Token(token) => {
+                assert_eq!(token.amount, 500_000_000);
+            }
+            _ => panic!("Expected Token account"),
+        }
+    }
+
+    #[test]
+    fn test_decode_multisig_account() {
+        let decoder = Token2022Decoder;
+        let mut data = vec![0u8; 355];
+        data[0] = 2; // m
+        data[1] = 3; // n
+        data[2] = 1; // is_initialized
+
+        let account = solana_account::Account {
+            lamports: 1_000_000,
+            data,
+            owner: TOKEN_2022_PROGRAM_ID,
+            executable: false,
+            rent_epoch: 0,
+        };
+
+        let result = decoder.decode_account(&account);
+        assert!(result.is_some(), "Should decode Multisig account");
+        match result.unwrap().data {
+            Token2022Account::Multisig(ms) => {
+                assert_eq!(ms.m, 2);
+                assert_eq!(ms.n, 3);
+            }
+            _ => panic!("Expected Multisig account"),
+        }
+    }
+
+    #[test]
+    fn test_wrong_owner_returns_none() {
+        let decoder = Token2022Decoder;
+        let account = solana_account::Account {
+            lamports: 1_000_000,
+            data: create_base_mint_data(),
+            owner: Pubkey::new_unique(),
+            executable: false,
+            rent_epoch: 0,
+        };
+        assert!(decoder.decode_account(&account).is_none());
+    }
+
+    /// Regression test: decoder must handle various account sizes without panic.
+    #[test]
+    fn test_no_panic_on_various_sizes() {
+        let decoder = Token2022Decoder;
+
+        for size in [
+            0, 1, 50, 81, 82, 83, 100, 164, 165, 166, 200, 354, 355, 356, 500,
+        ] {
+            let account = solana_account::Account {
+                lamports: 1_000_000,
+                data: vec![0u8; size],
+                owner: TOKEN_2022_PROGRAM_ID,
+                executable: false,
+                rent_epoch: 0,
+            };
+            // Must not panic
+            let _ = decoder.decode_account(&account);
+        }
     }
 }

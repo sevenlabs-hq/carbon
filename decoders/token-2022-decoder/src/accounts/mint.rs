@@ -3,12 +3,12 @@
 //! to add features, then rerun Codama to update it.
 //!
 //! <https://github.com/codama-idl/codama>
-//!
-use crate::types::Extension;
-use carbon_core::borsh;
-use carbon_core::CarbonDeserialize;
-use solana_pubkey::Pubkey;
-use spl_token_2022::extension::{BaseStateWithExtensions, StateWithExtensions};
+use {
+    crate::types::Extension,
+    carbon_core::{borsh, CarbonDeserialize},
+    solana_pubkey::Pubkey,
+    spl_token_2022::extension::{BaseStateWithExtensions, StateWithExtensions},
+};
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
