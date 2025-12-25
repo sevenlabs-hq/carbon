@@ -17,4 +17,6 @@ pub struct CreateEvent {
     pub virtual_sol_reserves: u64,
     pub real_token_reserves: u64,
     pub token_total_supply: u64,
+    pub token_program: solana_pubkey::Pubkey,
+    pub is_mayhem_mode: bool,
 }
