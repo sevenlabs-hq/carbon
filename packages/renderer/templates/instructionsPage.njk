@@ -12,6 +12,10 @@ pub struct {{ instruction.name | pascalCase }} {
   {% if arg.docs %}{{ macros.fieldDocblock(arg.docs) }}{% endif %}
   {% if argumentTypes[loop.index0].requiredBigArray %}  #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
   {% endif %}
+  {% if withBase58 and argumentTypes[loop.index0].isPubkey %}  #[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize"))]
+  {% endif %}
+  {% if withBase58 and argumentTypes[loop.index0].isOptionPubkey %}  #[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize_option"))]
+  {% endif %}
   pub {{ arg.name | snakeCase }}: {{ argumentTypes[loop.index0].type }},
 {% endfor -%}
 }
@@ -19,6 +23,11 @@ pub struct {{ instruction.name | pascalCase }} {
 {{ macros.simpleStructDerives() }}
 pub struct {{ instruction.name | pascalCase }}InstructionAccounts {
 {% for account in instruction.accounts %}
+    {% if withBase58 %}
+    {% if account.isOptional %}#[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize_option"))]
+    {% else %}#[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize"))]
+    {% endif %}
+    {% endif %}
     pub {{ macros.escapeRustKeyword(account.name | snakeCase) }}: {% if account.isOptional %}Option<solana_pubkey::Pubkey>{% else %}solana_pubkey::Pubkey{% endif %},
 {% endfor %}
 {% if instruction.accounts | length > 0 %}
