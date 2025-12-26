@@ -1,10 +1,7 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
-        deserialize::ArrangeAccounts,
-        error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
+        deserialize::ArrangeAccounts, error::CarbonResult,
+        instruction::InstructionProcessorInputType, metrics::MetricsCollection,
         processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
@@ -54,24 +51,18 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct MoonshotInstructionProcessor;
 
-#[async_trait]
-impl Processor for MoonshotInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<MoonshotInstruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
-
+impl Processor<InstructionProcessorInputType<'_, MoonshotInstruction>>
+    for MoonshotInstructionProcessor
+{
     async fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions, _): Self::InputType,
+        input: &InstructionProcessorInputType<'_, MoonshotInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let signature = metadata.transaction_metadata.signature;
-        let accounts = instruction.accounts;
+        let signature = input.metadata.transaction_metadata.signature;
+        let accounts = input.decoded_instruction.accounts.clone();
 
-        match instruction.data {
+        match input.decoded_instruction.data.clone() {
             MoonshotInstruction::TokenMint(token_mint) => {
                 match TokenMint::arrange_accounts(&accounts) {
                     Some(accounts) => {
