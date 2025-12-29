@@ -5,7 +5,8 @@ use {
         metrics::MetricsCollection, processor::Processor,
     },
     carbon_pumpfun_decoder::{
-        instructions::PumpfunInstruction, PumpfunDecoder, PROGRAM_ID as PUMPFUN_PROGRAM_ID,
+        instructions::{CpiEvent, PumpfunInstruction},
+        PumpfunDecoder, PROGRAM_ID as PUMPFUN_PROGRAM_ID,
     },
     helius::types::{
         Cluster, RpcTransactionsConfig, TransactionCommitment, TransactionDetails,
@@ -71,17 +72,20 @@ impl Processor for PumpfunInstructionProcessor {
         let pumpfun_instruction: PumpfunInstruction = data.1.data;
 
         match pumpfun_instruction {
-            PumpfunInstruction::CreateEvent(create_event) => {
-                log::info!("New token created: {create_event:#?}");
-            }
-            PumpfunInstruction::TradeEvent(trade_event) => {
-                if trade_event.sol_amount > 10 * LAMPORTS_PER_SOL {
-                    log::info!("Big trade occured: {trade_event:#?}");
+            PumpfunInstruction::CpiEvent(cpi_event) => match *cpi_event {
+                CpiEvent::CreateEvent(create_event) => {
+                    log::info!("New token created: {create_event:#?}");
                 }
-            }
-            PumpfunInstruction::CompleteEvent(complete_event) => {
-                log::info!("Bonded: {complete_event:#?}");
-            }
+                CpiEvent::TradeEvent(trade_event) => {
+                    if trade_event.sol_amount > 10 * LAMPORTS_PER_SOL {
+                        log::info!("Big trade occured: {trade_event:#?}");
+                    }
+                }
+                CpiEvent::CompleteEvent(complete_event) => {
+                    log::info!("Bonded: {complete_event:#?}");
+                }
+                _ => {}
+            },
             _ => {}
         };
 
