@@ -237,6 +237,7 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-mpl-token-metadata-decoder`            | MPL Token Metadata Program Decoder         | metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s  |
 | `carbon-name-service-decoder`                  | SPL Name Service Program Decoder           | namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX  |
 | `carbon-okx-dex-decoder`                       | OKX DEX Decoder                            | 6m2CDdhRgxpH4WjvdzxAYbGxwdGUz5MziiL5jek2kBma |
+| `carbon-onchain-labs-dex-v1-decoder`           | OnChain Labs DEX V1 Decoder                | 6m2CDdhRgxpH4WjvdzxAYbGxwdGUz5MziiL5jek2kBma |
 | `carbon-openbook-v2-decoder`                   | Openbook V2 Program Decoder                | opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb  |
 | `carbon-orca-whirlpool-decoder`                | Orca Whirlpool Program Decoder             | whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc  |
 | `carbon-pancake-swap-decoder`                  | Pancake Swap Program Decoder               | HpNfyc2Saw7RKkQd8nEL4khUcuPhQ7WwY1B2qjx8jxFq |
