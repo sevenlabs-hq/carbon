@@ -71,8 +71,8 @@ impl Processor for PumpfunInstructionProcessor {
     ) -> CarbonResult<()> {
         let (metadata, pumpfun_instruction, _nested_instructions, _) = data;
 
-        match pumpfun_instruction.data {
-            PumpfunInstruction::CpiEvent(cpi_event) => match *cpi_event {
+        if let PumpfunInstruction::CpiEvent(cpi_event) = pumpfun_instruction.data {
+            match *cpi_event {
                 CpiEvent::CreateEvent(create_event) => {
                     log::info!(
                         "New token created: {:#?} on slot {}",
@@ -88,9 +88,8 @@ impl Processor for PumpfunInstructionProcessor {
                     );
                 }
                 _ => {}
-            },
-            _ => {}
-        };
+            }
+        }
 
         Ok(())
     }

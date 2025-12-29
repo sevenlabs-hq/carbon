@@ -71,8 +71,8 @@ impl Processor for PumpfunInstructionProcessor {
     ) -> CarbonResult<()> {
         let pumpfun_instruction: PumpfunInstruction = data.1.data;
 
-        match pumpfun_instruction {
-            PumpfunInstruction::CpiEvent(cpi_event) => match *cpi_event {
+        if let PumpfunInstruction::CpiEvent(cpi_event) = pumpfun_instruction {
+            match *cpi_event {
                 CpiEvent::CreateEvent(create_event) => {
                     log::info!("New token created: {create_event:#?}");
                 }
@@ -85,9 +85,8 @@ impl Processor for PumpfunInstructionProcessor {
                     log::info!("Bonded: {complete_event:#?}");
                 }
                 _ => {}
-            },
-            _ => {}
-        };
+            }
+        }
 
         Ok(())
     }
