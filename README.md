@@ -210,6 +210,7 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-bubblegum-decoder`                     | Bubblegum Decoder                          | BGUMAp9Gq7iTEuizy4pqaxsTyUCBK68MDfK752saRPUY |
 | `carbon-circle-message-transmitter-v2-decoder` | Circle CCTP Message Transmitter V2 Decoder | CCTPV2Sm4AdWt5296sk4P66VBZ7bEhcARwFaaS9YPbeC |
 | `carbon-circle-token-messenger-v2-decoder`     | Circle CCTP Token Messenger V2 Decoder     | CCTPV2vPZJS2u2BBsUoscuikbYjnpFmbFsvVuJdgUMQe |
+| `carbon-dflow-aggregator-v4-decoder`            | Dflow Aggregator V4 Decoder                | DF1ow4tspfHX9JwWJsAb9epbkA8hmpSEAtxXy1V27QBH |
 | `carbon-drift-v2-decoder`                      | Drift V2 Program Decoder                   | dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH  |
 | `carbon-fluxbeam-decoder`                      | Fluxbeam Program Decoder                   | FLUXubRmkEi2q6K3Y9kBPg9248ggaZVsoSFhtJHSrm1X |
 | `carbon-gavel-decoder`                         | Gavel Pool Decoder                         | srAMMzfVHVAtgSJc8iH6CfKzuWuUTzLHVCE81QU1rgi  |
@@ -253,7 +254,7 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-raydium-liquidity-locking-decoder`     | Raydium Liquidity Locking Program Decoder  | LockrWmn6K5twhz3y9w1dQERbmgSaRkfnTeTKbpofwE  |
 | `carbon-raydium-stable-swap-decoder`           | Raydium Stable Swap Program Decoder        | 5quBtoiQqxF9Jv6KYKctB59NT3gtJD2Y65kdnB1Uev3h |
 | `carbon-sharky-decoder`                        | SharkyFi Decoder                           | SHARKobtfF1bHhxD2eqftjHBdVSCbKo9JtgK71FhELP  |
-| `carbon-solayer-pool-restaking-decoder`        | Solayer Pool Restaking Program Decoder     | sSo1iU21jBrU9VaJ8PJib1MtorefUV4fzC9GURa2KNn  |
+| `carbon-solayer-restaking-program-decoder`      | Solayer Restaking Program Decoder          | sSo1iU21jBrU9VaJ8PJib1MtorefUV4fzC9GURa2KNn  |
 | `carbon-stabble-stable-swap-decoder`           | Stabble Stable Swap Decoder                | swapNyd8XiQwJ6ianp9snpu4brUqFxadzvHebnAXjJZ  |
 | `carbon-stabble-weighted-swap-decoder`         | Stabble Weighted Swap Decoder              | swapFpHZwjELNnjvThjajtiVmkz3yPQEHjLtka2fwHW  |
 | `carbon-stake-program-decoder`                 | Stake Program Decoder                      | Stake11111111111111111111111111111111111111  |
