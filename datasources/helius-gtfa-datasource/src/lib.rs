@@ -1,15 +1,12 @@
 mod types;
 
-use std::str::FromStr;
-
 use crate::types::{FetchHeliusGtfaTransactionsPageResult, HeliusGtfaRequest, HeliusGtfaResponse};
 use {
     async_trait::async_trait,
     carbon_core::{
         datasource::{Datasource, DatasourceId, TransactionUpdate, Update, UpdateType},
         error::CarbonResult,
-        metrics::MetricsCollection,
-        transformers::transaction_metadata_from_original_meta,
+        metrics::MetricsCollection
     },
     solana_client::rpc_client::SerializableTransaction,
     solana_commitment_config::CommitmentConfig,
@@ -372,13 +369,13 @@ impl Datasource for HeliusGtfaDatasource {
                     "helius_gtfa_fetch_duration_seconds",
                     fetch_elapsed.as_secs_f64(),
                 )
-                .await
-                .unwrap_or_else(|e| log::error!("Error recording histogram: {e}"));
+                .await?;
 
             metrics
                 .increment_counter("helius_gtfa_pages_fetched", 1)
-                .await
-                .unwrap_or_else(|e| log::error!("Error recording counter: {e}"));
+                .await?;
+
+            let status_filter = self.config.filters.clone().map(|filters| filters.status).flatten();
 
             for tx in result.transactions {
                 if cancellation_token.is_cancelled() {
@@ -386,51 +383,28 @@ impl Datasource for HeliusGtfaDatasource {
                     break;
                 }
 
-                let should_skip_failed = match &self.config.filters {
-                    Some(filters) => match &filters.status {
-                        Some(TransactionStatusFilter::Failed) => false,
-                        Some(TransactionStatusFilter::Any) => false,
-                        Some(TransactionStatusFilter::Succeeded) => true,
-                        None => true,
-                    },
-                    None => true,
+                match (&tx.meta.err, &status_filter) {
+                    (Some(_), Some(TransactionStatusFilter::Succeeded) | None) => {
+                        continue;
+                    }
+                    (None, Some(TransactionStatusFilter::Failed)) => {
+                        continue;
+                    }
+                    _ => {}
                 };
-
-                if should_skip_failed && tx.meta.err.is_some() {
-                    continue;
-                }
 
                 let Some(decoded_transaction) = tx.transaction.decode() else {
                     log::warn!("Failed to decode transaction");
                     continue;
                 };
 
-                let signature = *decoded_transaction.get_signature();
-
-                let meta_needed = match transaction_metadata_from_original_meta(tx.meta.clone()) {
-                    Ok(meta) => meta,
-                    Err(err) => {
-                        log::error!("Failed to create transaction meta for {signature}: {err:?}");
-                        continue;
-                    }
-                };
-
-                let is_vote = decoded_transaction
-                    .message
-                    .static_account_keys()
-                    .iter()
-                    .any(|key| {
-                        *key == Pubkey::from_str("Vote111111111111111111111111111111111111111")
-                            .unwrap_or_default()
-                    });
-
                 let update = Update::Transaction(Box::new(TransactionUpdate {
-                    signature,
+                    signature: *decoded_transaction.get_signature(),
                     transaction: decoded_transaction,
-                    meta: meta_needed,
-                    is_vote,
+                    meta: carbon_core::transformers::transaction_metadata_from_original_meta(tx.meta.clone())?,
+                    is_vote: false,
                     slot: tx.slot,
-                    index: tx.idx_in_block,
+                    index: tx.transaction_index,
                     block_time: tx.block_time,
                     block_hash: None,
                 }));
@@ -441,8 +415,7 @@ impl Datasource for HeliusGtfaDatasource {
 
                 metrics
                     .increment_counter("helius_gtfa_transactions_processed", 1)
-                    .await
-                    .unwrap_or_else(|e| log::error!("Error recording counter: {e}"));
+                    .await?;
             }
 
             pagination_token = result.pagination_token;
