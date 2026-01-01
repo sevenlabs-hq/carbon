@@ -1,4 +1,4 @@
-use super::DynamicBondingCurveDecoder;
+use {super::DynamicBondingCurveDecoder, crate::PROGRAM_ID};
 pub mod claim_creator_trading_fee;
 pub mod claim_protocol_fee;
 pub mod claim_trading_fee;
@@ -142,6 +142,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for DynamicBondingCurveDec
         &self,
         instruction: &solana_instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if !instruction.program_id.eq(&PROGRAM_ID) {
+            return None;
+        }
+
         carbon_core::try_decode_instructions!(instruction,
             DynamicBondingCurveInstruction::ClaimCreatorTradingFee => claim_creator_trading_fee::ClaimCreatorTradingFee,
             DynamicBondingCurveInstruction::ClaimProtocolFee => claim_protocol_fee::ClaimProtocolFee,
