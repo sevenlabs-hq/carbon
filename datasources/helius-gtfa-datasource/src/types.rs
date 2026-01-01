@@ -10,10 +10,7 @@ pub struct HeliusGtfaRequest {
 }
 
 #[derive(Debug, Deserialize)]
-#[allow(dead_code)]
 pub struct HeliusGtfaResponse {
-    pub jsonrpc: String,
-    pub id: String,
     #[serde(default)]
     pub result: Option<HeliusGtfaResult>,
     #[serde(default)]
@@ -21,23 +18,21 @@ pub struct HeliusGtfaResponse {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct HeliusGtfaResult {
     pub data: Vec<HeliusGtfaTransaction>,
-    #[serde(rename = "paginationToken")]
     pub pagination_token: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct HeliusGtfaTransaction {
     pub transaction: EncodedTransaction,
     pub meta: UiTransactionStatusMeta,
     pub slot: u64,
-    #[serde(rename = "blockTime")]
     pub block_time: Option<i64>,
-    #[serde(rename = "idxInBlock")]
     #[serde(default)]
-    #[allow(dead_code)]
-    pub idx_in_block: Option<u64>,
+    pub transaction_index: Option<u64>,
 }
 
 #[derive(Debug, Deserialize)]
