@@ -18,6 +18,7 @@ export function generateIndexerCargoToml(opts: ScaffoldOptions): string {
     if (opts.withPostgres) decoderFeatures.push('postgres');
     if (opts.withGraphql) decoderFeatures.push('graphql');
     if (opts.withSerde) decoderFeatures.push('serde');
+    if (opts.withBase58) decoderFeatures.push('base58');
 
     const carbonCoreDep = getCrateDependencyString('carbon-core', VERSIONS['carbon-core'], ['postgres', 'graphql']);
     const tokioDep = getCrateDependencyString('tokio', VERSIONS['tokio']);

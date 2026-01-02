@@ -60,6 +60,7 @@ program
     .option('--with-postgres <boolean>', 'Include Postgres wiring and deps (default: true)')
     .option('--with-graphql <boolean>', 'Include GraphQL wiring and deps (default: true)')
     .option('--with-serde <boolean>', 'Include serde feature for decoder (default: false)')
+    .option('--with-base58 <boolean>', 'Include base58 feature for decoder (default: false)')
     .option('--no-clean', 'Do not delete output directory before rendering', false)
     .action(async opts => {
         showBanner();
@@ -78,6 +79,8 @@ program
         const withSerdeDefault = !withPostgres && !withGraphql ? true : false;
         const withSerde =
             opts.withSerde !== undefined ? opts.withSerde === 'true' || opts.withSerde === true : withSerdeDefault;
+        const withBase58 =
+            opts.withBase58 !== undefined ? opts.withBase58 === 'true' || opts.withBase58 === true : false;
 
         const outDir = resolve(process.cwd(), opts.outDir);
 
@@ -97,6 +100,7 @@ program
                 withPostgres,
                 withGraphql,
                 withSerde,
+                withBase58,
                 standalone: true,
             });
 
@@ -141,6 +145,7 @@ program
     .option('--with-postgres <boolean>', 'Include Postgres wiring and deps (default: true)')
     .option('--with-graphql <boolean>', 'Include GraphQL wiring and deps (default: true)')
     .option('--with-serde <boolean>', 'Include serde feature for decoder (default: false)')
+    .option('--with-base58 <boolean>', 'Include base58 feature for decoder (default: false)')
     .option('--postgres-mode <generic|typed>', 'Postgres table storage mode', 'typed')
     .option('--force', 'Overwrite output directory if it exists', false)
     .action(async opts => {
@@ -169,6 +174,8 @@ program
         const withSerdeDefault = !withPostgres && !withGraphql ? true : false;
         const withSerde =
             opts.withSerde !== undefined ? opts.withSerde === 'true' || opts.withSerde === true : withSerdeDefault;
+        const withBase58 =
+            opts.withBase58 !== undefined ? opts.withBase58 === 'true' || opts.withBase58 === true : false;
         const force = Boolean(opts.force);
 
         // Use provided decoder name or auto-detect from IDL
@@ -206,6 +213,7 @@ program
                 withPostgres,
                 withGraphql,
                 withSerde,
+                withBase58,
                 force,
                 postgresMode: opts.postgresMode,
             });
@@ -236,6 +244,7 @@ program
                 withPostgres,
                 withGraphql,
                 withSerde,
+                withBase58,
                 standalone: false,
             });
 

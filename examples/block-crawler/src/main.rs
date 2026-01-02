@@ -8,7 +8,10 @@ use {
         error::CarbonResult, instruction::InstructionProcessorInputType,
         metrics::MetricsCollection, processor::Processor,
     },
-    carbon_pumpfun_decoder::{instructions::PumpfunInstruction, PumpfunDecoder},
+    carbon_pumpfun_decoder::{
+        instructions::{CpiEvent, PumpfunInstruction},
+        PumpfunDecoder,
+    },
     carbon_rpc_block_crawler_datasource::{RpcBlockConfig, RpcBlockCrawler},
     clap::Parser,
 };
@@ -68,23 +71,25 @@ impl Processor for PumpfunInstructionProcessor {
     ) -> CarbonResult<()> {
         let (metadata, pumpfun_instruction, _nested_instructions, _) = data;
 
-        match pumpfun_instruction.data {
-            PumpfunInstruction::CreateEvent(create_event) => {
-                log::info!(
-                    "New token created: {:#?} on slot {}",
-                    create_event,
-                    metadata.transaction_metadata.slot
-                );
+        if let PumpfunInstruction::CpiEvent(cpi_event) = pumpfun_instruction.data {
+            match *cpi_event {
+                CpiEvent::CreateEvent(create_event) => {
+                    log::info!(
+                        "New token created: {:#?} on slot {}",
+                        create_event,
+                        metadata.transaction_metadata.slot
+                    );
+                }
+                CpiEvent::TradeEvent(trade_event) => {
+                    log::info!(
+                        "New trade occured: {:#?} on slot {:#?}",
+                        trade_event,
+                        metadata.transaction_metadata.slot
+                    );
+                }
+                _ => {}
             }
-            PumpfunInstruction::TradeEvent(trade_event) => {
-                log::info!(
-                    "New trade occured: {:#?} on slot {:#?}",
-                    trade_event,
-                    metadata.transaction_metadata.slot
-                );
-            }
-            _ => {}
-        };
+        }
 
         Ok(())
     }
