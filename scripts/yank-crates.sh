@@ -61,6 +61,8 @@ workspace_crates=(
     carbon-mpl-token-metadata-decoder
     carbon-name-service-decoder
     carbon-okx-dex-decoder
+    carbon-onchain-labs-dex-v1-decoder
+    carbon-onchain-labs-dex-v2-decoder
     carbon-openbook-v2-decoder
     carbon-orca-whirlpool-decoder
     carbon-pancake-swap-decoder

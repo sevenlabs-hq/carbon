@@ -76,6 +76,7 @@ export type DecoderGenerationOptions = {
     withPostgres?: boolean;
     withGraphql?: boolean;
     withSerde?: boolean;
+    withBase58?: boolean;
     standalone?: boolean;
 };
 
@@ -227,6 +228,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
         withPostgres,
         withGraphql,
         withSerde,
+        withBase58,
         standalone,
     } = options;
 
@@ -283,6 +285,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
                 withPostgres,
                 withGraphql,
                 withSerde,
+                withBase58,
                 standalone,
             }),
         );
@@ -346,6 +349,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
                 withPostgres,
                 withGraphql,
                 withSerde,
+                withBase58,
                 standalone,
             }),
         );
@@ -359,6 +363,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
                 withPostgres,
                 withGraphql,
                 withSerde,
+                withBase58,
                 standalone,
             }),
         );
