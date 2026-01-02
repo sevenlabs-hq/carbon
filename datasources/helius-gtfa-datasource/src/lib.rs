@@ -1,6 +1,9 @@
 mod types;
 
-use crate::types::{FetchHeliusGtfaTransactionsPageResult, HeliusGtfaRequest, HeliusGtfaResponse};
+use crate::types::{
+    FetchHeliusGtfaTransactionsPageResult, HeliusGtfaRequest, HeliusGtfaRequestConfig,
+    HeliusGtfaResponse,
+};
 use {
     async_trait::async_trait,
     carbon_core::{
@@ -19,49 +22,63 @@ use {
 const DEFAULT_LIMIT: u32 = 100;
 const MAX_LIMIT: u32 = 100;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct HeliusGtfaFilters {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub slot: Option<SlotFilter>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub block_time: Option<BlockTimeFilter>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub signature: Option<SignatureFilter>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub status: Option<TransactionStatusFilter>,
 }
 
-#[derive(Debug, Clone)]
-pub struct SlotFilter {
-    pub gte: Option<u64>,
-    pub gt: Option<u64>,
-    pub lte: Option<u64>,
-    pub lt: Option<u64>,
+#[derive(Debug, Clone, serde::Serialize)]
+pub struct RangeFilter<T> {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gte: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub gt: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub lte: Option<T>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub lt: Option<T>,
 }
 
-#[derive(Debug, Clone)]
+pub type SlotFilter = RangeFilter<u64>;
+pub type SignatureFilter = RangeFilter<String>;
+
+#[derive(Debug, Clone, serde::Serialize)]
 pub struct BlockTimeFilter {
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub gte: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub gt: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub lte: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub lt: Option<i64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub eq: Option<i64>,
 }
 
-#[derive(Debug, Clone)]
-pub struct SignatureFilter {
-    pub gte: Option<String>,
-    pub gt: Option<String>,
-    pub lte: Option<String>,
-    pub lt: Option<String>,
-}
-
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub enum TransactionStatusFilter {
+    #[serde(rename = "succeeded")]
     Succeeded,
+    #[serde(rename = "failed")]
     Failed,
+    #[serde(rename = "any")]
     Any,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, serde::Serialize)]
 pub enum SortOrder {
+    #[serde(rename = "asc")]
     Asc,
+    #[serde(rename = "desc")]
     Desc,
 }
 
@@ -127,151 +144,69 @@ impl HeliusGtfaDatasource {
         }
     }
 
+    fn build_request_config(&self, pagination_token: Option<&str>) -> HeliusGtfaRequestConfig {
+        let limit = self.config.limit.unwrap_or(DEFAULT_LIMIT).min(MAX_LIMIT);
+        let sort_order = self.config.sort_order.as_ref().map(|so| match so {
+            SortOrder::Asc => "asc",
+            SortOrder::Desc => "desc",
+        });
+
+        let filters = self.config.filters.as_ref().and_then(|filters| {
+            let has_slot = filters.slot.as_ref().is_some_and(|sf| {
+                sf.gte.is_some() || sf.gt.is_some() || sf.lte.is_some() || sf.lt.is_some()
+            });
+            let has_block_time = filters.block_time.as_ref().is_some_and(|btf| {
+                btf.gte.is_some()
+                    || btf.gt.is_some()
+                    || btf.lte.is_some()
+                    || btf.lt.is_some()
+                    || btf.eq.is_some()
+            });
+            let has_signature = filters.signature.as_ref().is_some_and(|sigf| {
+                sigf.gte.is_some() || sigf.gt.is_some() || sigf.lte.is_some() || sigf.lt.is_some()
+            });
+            let has_status = filters.status.is_some();
+
+            if has_slot || has_block_time || has_signature || has_status {
+                Some(filters.clone())
+            } else {
+                None
+            }
+        });
+
+        HeliusGtfaRequestConfig {
+            transaction_details: "full".to_string(),
+            limit,
+            sort_order: sort_order.map(|s| s.to_string()),
+            pagination_token: pagination_token.map(|s| s.to_string()),
+            commitment: self
+                .config
+                .commitment
+                .as_ref()
+                .map(|c| c.commitment.to_string()),
+            encoding: "base64".to_string(),
+            max_supported_transaction_version: 0,
+            min_context_slot: self.config.min_context_slot,
+            filters,
+        }
+    }
+
     async fn fetch_transactions_page(
         &self,
         client: &reqwest::Client,
         pagination_token: Option<&str>,
     ) -> CarbonResult<FetchHeliusGtfaTransactionsPageResult> {
-        let mut params = vec![serde_json::Value::String(self.address.to_string())];
-        let mut config = serde_json::Map::new();
+        let config = self.build_request_config(pagination_token);
+        let config_value = serde_json::to_value(config).map_err(|e| {
+            carbon_core::error::Error::FailedToConsumeDatasource(format!(
+                "Failed to serialize request config: {e}"
+            ))
+        })?;
 
-        config.insert(
-            "transactionDetails".to_string(),
-            serde_json::Value::String("full".to_string()),
-        );
-
-        let limit = self.config.limit.unwrap_or(DEFAULT_LIMIT).min(MAX_LIMIT);
-        config.insert("limit".to_string(), serde_json::Value::Number(limit.into()));
-
-        if let Some(sort_order) = &self.config.sort_order {
-            let order_str = match sort_order {
-                SortOrder::Asc => "asc",
-                SortOrder::Desc => "desc",
-            };
-            config.insert(
-                "sortOrder".to_string(),
-                serde_json::Value::String(order_str.to_string()),
-            );
-        }
-
-        if let Some(pagination_token) = pagination_token {
-            config.insert(
-                "paginationToken".to_string(),
-                serde_json::Value::String(pagination_token.to_string()),
-            );
-        }
-
-        if let Some(commitment) = &self.config.commitment {
-            config.insert(
-                "commitment".to_string(),
-                serde_json::Value::String(commitment.commitment.to_string()),
-            );
-        }
-
-        config.insert(
-            "encoding".to_string(),
-            serde_json::Value::String("base64".to_string()),
-        );
-
-        config.insert(
-            "maxSupportedTransactionVersion".to_string(),
-            serde_json::Value::Number(0.into()),
-        );
-
-        if let Some(min_context_slot) = self.config.min_context_slot {
-            config.insert(
-                "minContextSlot".to_string(),
-                serde_json::Value::Number(min_context_slot.into()),
-            );
-        }
-
-        if let Some(filters) = &self.config.filters {
-            let mut filter_obj = serde_json::Map::new();
-
-            if let Some(slot_filter) = &filters.slot {
-                let mut slot_obj = serde_json::Map::new();
-                if let Some(gte) = slot_filter.gte {
-                    slot_obj.insert("gte".to_string(), serde_json::Value::Number(gte.into()));
-                }
-                if let Some(gt) = slot_filter.gt {
-                    slot_obj.insert("gt".to_string(), serde_json::Value::Number(gt.into()));
-                }
-                if let Some(lte) = slot_filter.lte {
-                    slot_obj.insert("lte".to_string(), serde_json::Value::Number(lte.into()));
-                }
-                if let Some(lt) = slot_filter.lt {
-                    slot_obj.insert("lt".to_string(), serde_json::Value::Number(lt.into()));
-                }
-                if !slot_obj.is_empty() {
-                    filter_obj.insert("slot".to_string(), serde_json::Value::Object(slot_obj));
-                }
-            }
-
-            if let Some(block_time_filter) = &filters.block_time {
-                let mut block_time_obj = serde_json::Map::new();
-                if let Some(gte) = block_time_filter.gte {
-                    block_time_obj.insert("gte".to_string(), serde_json::Value::Number(gte.into()));
-                }
-                if let Some(gt) = block_time_filter.gt {
-                    block_time_obj.insert("gt".to_string(), serde_json::Value::Number(gt.into()));
-                }
-                if let Some(lte) = block_time_filter.lte {
-                    block_time_obj.insert("lte".to_string(), serde_json::Value::Number(lte.into()));
-                }
-                if let Some(lt) = block_time_filter.lt {
-                    block_time_obj.insert("lt".to_string(), serde_json::Value::Number(lt.into()));
-                }
-                if let Some(eq) = block_time_filter.eq {
-                    block_time_obj.insert("eq".to_string(), serde_json::Value::Number(eq.into()));
-                }
-                if !block_time_obj.is_empty() {
-                    filter_obj.insert(
-                        "blockTime".to_string(),
-                        serde_json::Value::Object(block_time_obj),
-                    );
-                }
-            }
-
-            if let Some(signature_filter) = &filters.signature {
-                let mut signature_obj = serde_json::Map::new();
-                if let Some(gte) = &signature_filter.gte {
-                    signature_obj.insert("gte".to_string(), serde_json::Value::String(gte.clone()));
-                }
-                if let Some(gt) = &signature_filter.gt {
-                    signature_obj.insert("gt".to_string(), serde_json::Value::String(gt.clone()));
-                }
-                if let Some(lte) = &signature_filter.lte {
-                    signature_obj.insert("lte".to_string(), serde_json::Value::String(lte.clone()));
-                }
-                if let Some(lt) = &signature_filter.lt {
-                    signature_obj.insert("lt".to_string(), serde_json::Value::String(lt.clone()));
-                }
-                if !signature_obj.is_empty() {
-                    filter_obj.insert(
-                        "signature".to_string(),
-                        serde_json::Value::Object(signature_obj),
-                    );
-                }
-            }
-
-            if let Some(status) = &filters.status {
-                let status_str = match status {
-                    TransactionStatusFilter::Succeeded => "succeeded",
-                    TransactionStatusFilter::Failed => "failed",
-                    TransactionStatusFilter::Any => "any",
-                };
-                filter_obj.insert(
-                    "status".to_string(),
-                    serde_json::Value::String(status_str.to_string()),
-                );
-            }
-
-            if !filter_obj.is_empty() {
-                config.insert("filters".to_string(), serde_json::Value::Object(filter_obj));
-            }
-        }
-
-        params.push(serde_json::Value::Object(config));
+        let params = vec![
+            serde_json::Value::String(self.address.to_string()),
+            config_value,
+        ];
 
         let request = HeliusGtfaRequest {
             jsonrpc: "2.0".to_string(),
@@ -379,8 +314,7 @@ impl Datasource for HeliusGtfaDatasource {
                 .config
                 .filters
                 .clone()
-                .map(|filters| filters.status)
-                .flatten();
+                .and_then(|filters| filters.status);
 
             for tx in result.transactions {
                 if cancellation_token.is_cancelled() {
