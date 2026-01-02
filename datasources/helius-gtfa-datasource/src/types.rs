@@ -2,6 +2,25 @@ use serde::{Deserialize, Serialize};
 use solana_transaction_status::{EncodedTransaction, UiTransactionStatusMeta};
 
 #[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct HeliusGtfaRequestConfig {
+    pub transaction_details: String,
+    pub limit: u32,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub sort_order: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pagination_token: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub commitment: Option<String>,
+    pub encoding: String,
+    pub max_supported_transaction_version: u8,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub min_context_slot: Option<u64>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub filters: Option<crate::HeliusGtfaFilters>,
+}
+
+#[derive(Debug, Serialize)]
 pub struct HeliusGtfaRequest {
     pub jsonrpc: String,
     pub id: String,
