@@ -6,7 +6,7 @@ use {
     carbon_core::{
         datasource::{Datasource, DatasourceId, TransactionUpdate, Update, UpdateType},
         error::CarbonResult,
-        metrics::MetricsCollection
+        metrics::MetricsCollection,
     },
     solana_client::rpc_client::SerializableTransaction,
     solana_commitment_config::CommitmentConfig,
@@ -375,7 +375,12 @@ impl Datasource for HeliusGtfaDatasource {
                 .increment_counter("helius_gtfa_pages_fetched", 1)
                 .await?;
 
-            let status_filter = self.config.filters.clone().map(|filters| filters.status).flatten();
+            let status_filter = self
+                .config
+                .filters
+                .clone()
+                .map(|filters| filters.status)
+                .flatten();
 
             for tx in result.transactions {
                 if cancellation_token.is_cancelled() {
@@ -401,7 +406,9 @@ impl Datasource for HeliusGtfaDatasource {
                 let update = Update::Transaction(Box::new(TransactionUpdate {
                     signature: *decoded_transaction.get_signature(),
                     transaction: decoded_transaction,
-                    meta: carbon_core::transformers::transaction_metadata_from_original_meta(tx.meta.clone())?,
+                    meta: carbon_core::transformers::transaction_metadata_from_original_meta(
+                        tx.meta.clone(),
+                    )?,
                     is_vote: false,
                     slot: tx.slot,
                     index: tx.transaction_index,
