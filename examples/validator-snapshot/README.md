@@ -22,15 +22,15 @@ VALIDATOR_URL=https://example.com/snapshot
 # OR
 SNAPSHOT_PATH=/path/to/ledger
 
-PROGRAM_IDS=TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
+PROGRAM_OWNERS=TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA
 ACCOUNT_IDS=EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
 METRICS_FLUSH_INTERVAL=10
 ```
 
 - `VALIDATOR_URL` or `SNAPSHOT_PATH`: Snapshot source (one required)
-- `PROGRAM_IDS`: Comma-separated list of program owner pubkeys (optional)
+- `PROGRAM_OWNERS`: Comma-separated list of program owner pubkeys (optional)
 - `ACCOUNT_IDS`: Comma-separated list of specific account pubkeys (optional)
-- At least one of `PROGRAM_IDS` or `ACCOUNT_IDS` must be set
+- At least one of `PROGRAM_OWNERS` or `ACCOUNT_IDS` must be set
 
 ### Step 3: Build the Project
 
