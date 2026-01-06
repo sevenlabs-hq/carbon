@@ -30,6 +30,8 @@ workspace_crates=(
     carbon-bonkswap-decoder
     carbon-boop-decoder
     carbon-bubblegum-decoder
+    carbon-circle-message-transmitter-v2-decoder
+    carbon-circle-token-messenger-v2-decoder
     carbon-dflow-aggregator-v4-decoder
     carbon-drift-v2-decoder
     carbon-fluxbeam-decoder
@@ -58,6 +60,8 @@ workspace_crates=(
     carbon-mpl-token-metadata-decoder
     carbon-name-service-decoder
     carbon-okx-dex-decoder
+    carbon-onchain-labs-dex-v1-decoder
+    carbon-onchain-labs-dex-v2-decoder
     carbon-openbook-v2-decoder
     carbon-orca-whirlpool-decoder
     carbon-pancake-swap-decoder

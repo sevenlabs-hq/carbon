@@ -125,6 +125,7 @@ impl Datasource for JitoShredstreamGrpcClient {
                                         ..Default::default()
                                     },
                                     slot: message.slot,
+                                    index: None,
                                     block_time,
                                     block_hash: None,
                                 }));

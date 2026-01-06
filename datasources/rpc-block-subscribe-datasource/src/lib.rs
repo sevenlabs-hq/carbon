@@ -145,7 +145,7 @@ impl Datasource for RpcBlockSubscribe {
                                     }
 
                                     if let Some(transactions) = block.transactions {
-                                        for encoded_transaction_with_status_meta in transactions {
+                                        for (tx_index, encoded_transaction_with_status_meta) in transactions.into_iter().enumerate() {
                                             let start_time = std::time::Instant::now();
 
                                             let meta_original = if let Some(meta) = encoded_transaction_with_status_meta.clone().meta {
@@ -174,6 +174,7 @@ impl Datasource for RpcBlockSubscribe {
                                                 meta: meta_needed,
                                                 is_vote: false,
                                                 slot,
+                                                index: Some(tx_index as u64),
                                                 block_time: block.block_time,
                                                 block_hash,
                                             }));
