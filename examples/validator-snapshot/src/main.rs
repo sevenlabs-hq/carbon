@@ -72,7 +72,7 @@ fn parse_pubkeys(env_var: &str) -> Vec<Pubkey> {
         .filter(|s| !s.is_empty())
         .map(|s| {
             s.parse::<Pubkey>()
-                .unwrap_or_else(|_| panic!("Invalid pubkey in {}: {}", env_var, s))
+                .unwrap_or_else(|_| panic!("Invalid pubkey in {env_var}: {s}"))
         })
         .collect()
 }
@@ -82,22 +82,22 @@ async fn main() -> CarbonResult<()> {
     dotenv::dotenv().ok();
     env_logger::init();
 
-    let owners = parse_pubkeys("PROGRAM_IDS");
+    let owners = parse_pubkeys("PROGRAM_OWNERS");
     let accounts = parse_pubkeys("ACCOUNT_IDS");
 
     if owners.is_empty() && accounts.is_empty() {
-        panic!("Either PROGRAM_IDS or ACCOUNT_IDS must be set");
+        panic!("Either PROGRAM_OWNERS or ACCOUNT_IDS must be set");
     }
 
     let datasource = if let Ok(validator_url) = env::var("VALIDATOR_URL") {
-        log::info!("Using remote snapshot from: {}", validator_url);
+        log::info!("Using remote snapshot from: {validator_url}");
         SnapshotDatasource::new(
             SnapshotSource::Remote { url: validator_url },
             owners,
             accounts,
         )
     } else if let Ok(snapshot_path) = env::var("SNAPSHOT_PATH") {
-        log::info!("Using local snapshot from: {}", snapshot_path);
+        log::info!("Using local snapshot from: {snapshot_path}");
         SnapshotDatasource::new(
             SnapshotSource::LocalPath(snapshot_path.into()),
             owners,
