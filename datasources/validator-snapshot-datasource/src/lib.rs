@@ -47,14 +47,16 @@ pub enum SnapshotSource {
 #[derive(Debug, Clone)]
 pub struct SnapshotDatasource {
     pub source: SnapshotSource,
-    pub program_owners: Vec<Pubkey>,
+    pub owners: Vec<Pubkey>,
+    pub accounts: Vec<Pubkey>,
 }
 
 impl SnapshotDatasource {
-    pub const fn new(source: SnapshotSource, program_owners: Vec<Pubkey>) -> Self {
+    pub fn new(source: SnapshotSource, owners: Vec<Pubkey>, accounts: Vec<Pubkey>) -> Self {
         Self {
             source,
-            program_owners,
+            owners,
+            accounts,
         }
     }
 }
@@ -223,7 +225,8 @@ impl Datasource for SnapshotDatasource {
         );
 
         let bank = snapshot.bank;
-        let program_owners = self.program_owners.clone();
+        let owners = self.owners.clone();
+        let accounts = self.accounts.clone();
         let snapshot_slot = snapshot.slot;
         let sender_clone = sender.clone();
         let id_clone = id.clone();
@@ -231,16 +234,18 @@ impl Datasource for SnapshotDatasource {
 
         let scan_start = std::time::Instant::now();
         tokio::task::spawn_blocking(move || {
-            let program_ids_set: HashSet<SolanaPubkey> = program_owners.iter().copied().collect();
+            let owners_set: HashSet<SolanaPubkey> = owners.iter().copied().collect();
+            let accounts_set: HashSet<SolanaPubkey> = accounts.iter().copied().collect();
 
-            if program_ids_set.is_empty() {
-                log::warn!("No program owners specified, skipping account scan");
+            if owners_set.is_empty() && accounts_set.is_empty() {
+                log::warn!("No owners or accounts specified, skipping account scan");
                 return Ok::<(), Error>(());
             }
 
             log::info!(
-                "Scanning accounts for {} program owner(s) at slot {}",
-                program_ids_set.len(),
+                "Scanning accounts for {} owner(s) and {} specific account(s) at slot {}",
+                owners_set.len(),
+                accounts_set.len(),
                 snapshot_slot
             );
 
@@ -268,16 +273,16 @@ impl Datasource for SnapshotDatasource {
                             }
 
                             let owner = account.owner();
-                            if !program_ids_set.contains(owner) {
+                            if !owners_set.contains(owner) && !accounts_set.contains(pubkey) {
                                 return;
                             }
 
                             let account_update = AccountUpdate {
-                                pubkey: Pubkey::from(pubkey.to_bytes()),
+                                pubkey: *pubkey,
                                 account: solana_account::Account {
                                     lamports: account.lamports(),
                                     data: account.data().to_vec(),
-                                    owner: Pubkey::from(owner.to_bytes()),
+                                    owner: *owner,
                                     executable: account.executable(),
                                     rent_epoch: account.rent_epoch(),
                                 },
