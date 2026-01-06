@@ -11,7 +11,6 @@ use {
     futures::StreamExt,
     helius::{
         types::{Cluster, RpcTransactionsConfig},
-        websocket::EnhancedWebsocket,
         Helius,
     },
     solana_account::Account,
@@ -34,8 +33,6 @@ use {
     tokio_util::sync::CancellationToken,
 };
 
-const DEVNET_WS_URL: &str = "wss://atlas-devnet.helius-rpc.com/";
-const MAINNET_WS_URL: &str = "wss://atlas-mainnet.helius-rpc.com/";
 const MAX_MISSED_BLOCKS: u64 = 10;
 const MAX_RECONNECTION_ATTEMPTS: u32 = 30;
 const RECONNECTION_DELAY_MS: u64 = 3000;
@@ -67,6 +64,11 @@ pub struct HeliusWebsocket {
     pub filters: Filters,
     pub account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
     pub cluster: Cluster,
+    pub ping_interval_secs: Option<u64>,
+    pub pong_timeout_secs: Option<u64>,
+    // Optional safeguard for high-throughput streams.
+    // For low-frequency or naturally idle streams, this should be left unset.
+    pub transaction_idle_timeout_secs: Option<u64>,
 }
 
 impl HeliusWebsocket {
@@ -81,14 +83,28 @@ impl HeliusWebsocket {
             filters,
             account_deletions_tracked,
             cluster,
+            ping_interval_secs: None,
+            pong_timeout_secs: None,
+            transaction_idle_timeout_secs: None,
         }
     }
 
-    const fn get_ws_url(cluster: &Cluster) -> &'static str {
-        match cluster {
-            Cluster::MainnetBeta => MAINNET_WS_URL,
-            _ => DEVNET_WS_URL,
-        }
+    pub fn with_ping_interval_secs(mut self, ping_interval_secs: u64) -> Self {
+        self.ping_interval_secs = Some(ping_interval_secs);
+        self
+    }
+
+    pub fn with_pong_timeout_secs(mut self, pong_timeout_secs: u64) -> Self {
+        self.pong_timeout_secs = Some(pong_timeout_secs);
+        self
+    }
+
+    pub fn with_transaction_idle_timeout_secs(
+        mut self,
+        transaction_idle_timeout_secs: u64,
+    ) -> Self {
+        self.transaction_idle_timeout_secs = Some(transaction_idle_timeout_secs);
+        self
     }
 }
 #[async_trait]
@@ -114,7 +130,14 @@ impl Datasource for HeliusWebsocket {
                 break;
             }
 
-            let mut helius = match Helius::new(&self.api_key, self.cluster.clone()) {
+            let helius = match Helius::new_with_ws_with_timeouts(
+                &self.api_key,
+                self.cluster.clone(),
+                self.ping_interval_secs,
+                self.pong_timeout_secs,
+            )
+            .await
+            {
                 Ok(client) => client,
                 Err(err) => {
                     log::error!("Failed to create Helius client: {err}");
@@ -129,31 +152,9 @@ impl Datasource for HeliusWebsocket {
                 }
             };
 
-            let ws_url = format!(
-                "{}/?api-key={}",
-                Self::get_ws_url(&self.cluster),
-                self.api_key
-            );
-
-            let ws = match EnhancedWebsocket::new(&ws_url, None, None).await {
-                Ok(ws) => ws,
-                Err(err) => {
-                    log::error!("Failed to create Enhanced Helius Websocket: {err}");
-                    reconnection_attempts += 1;
-                    if reconnection_attempts >= MAX_RECONNECTION_ATTEMPTS {
-                        return Err(carbon_core::error::Error::Custom(format!(
-                            "Failed to create Enhanced Helius Websocket after {MAX_RECONNECTION_ATTEMPTS} attempts: {err}"
-                        )));
-                    }
-                    tokio::time::sleep(Duration::from_millis(RECONNECTION_DELAY_MS)).await;
-                    continue;
-                }
-            };
-
-            helius.ws_client = Some(Arc::new(ws));
-
             let account_deletions_tracked = Arc::clone(&self.account_deletions_tracked);
             let filters = self.filters.clone();
+            let transaction_idle_timeout_secs = self.transaction_idle_timeout_secs;
             let sender = sender.clone();
             let helius = Arc::new(helius);
             let metrics = Arc::clone(&metrics);
@@ -392,6 +393,8 @@ impl Datasource for HeliusWebsocket {
                                 }
                             };
 
+                        let mut last_transaction_update = Instant::now();
+
                         loop {
                             tokio::select! {
                                 _ = cancellation_token_tx.cancelled() => {
@@ -402,9 +405,19 @@ impl Datasource for HeliusWebsocket {
                                     log::info!("Iteration cancelled for transaction subscription");
                                     return;
                                 }
+                                _ = tokio::time::sleep(Duration::from_secs(5)) => {
+                                    if let Some(idle_timeout_secs) = transaction_idle_timeout_secs {
+                                        if last_transaction_update.elapsed() > Duration::from_secs(idle_timeout_secs) {
+                                            log::error!("No new transactions received in the last {idle_timeout_secs} seconds, triggering reconnection");
+                                            iteration_cancellation_tx.cancel();
+                                            return;
+                                        }
+                                    }
+                                }
                                 event_result = stream.next() => {
                                     match event_result {
                                         Some(tx_event) => {
+                                            last_transaction_update = std::time::Instant::now();
                                             let start_time = std::time::Instant::now();
                                             let encoded_transaction_with_status_meta = tx_event.transaction;
                                             let signature_str = tx_event.signature;
@@ -592,6 +605,7 @@ impl Datasource for HeliusWebsocket {
                                                 meta: meta_needed,
                                                 is_vote: config.filter.vote.is_some_and(|is_vote| is_vote),
                                                 slot: tx_event.slot,
+                                                index: None,
                                                 block_time: None,
                                                 block_hash: None,
                                             }));
@@ -616,7 +630,7 @@ impl Datasource for HeliusWebsocket {
                                             }
                                         },
                                         None => {
-                                            log::info!("Helius WS Accounts stream has been closed");
+                                            log::info!("Helius WS Transaction stream has been closed");
                                             break;
                                         }
                                     }
