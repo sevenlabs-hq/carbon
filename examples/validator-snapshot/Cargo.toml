@@ -1,0 +1,16 @@
+[package]
+name = "carbon-validator-snapshot-example"
+version = "0.2.1"
+edition = { workspace = true }
+
+[dependencies]
+carbon-core = { workspace = true }
+carbon-validator-snapshot-datasource = { workspace = true }
+carbon-log-metrics = { workspace = true }
+solana-account = { workspace = true }
+solana-pubkey = { workspace = true }
+async-trait = { workspace = true }
+dotenv = { workspace = true }
+env_logger = { workspace = true }
+log = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
