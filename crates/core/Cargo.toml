@@ -17,6 +17,7 @@ graphql = ["juniper", "axum", "juniper_axum"]
 
 [dependencies]
 solana-account = { workspace = true }
+solana-clock = { workspace = true }
 solana-hash = { workspace = true }
 solana-instruction = { workspace = true, default-features = false }
 solana-message = { workspace = true }
