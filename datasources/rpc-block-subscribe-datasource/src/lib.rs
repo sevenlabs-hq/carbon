@@ -45,18 +45,31 @@ impl Filters {
     }
 }
 
+/// Default timeout for detecting stale connections (30 seconds)
+pub const DEFAULT_STREAM_TIMEOUT_SECS: u64 = 30;
+
 pub struct RpcBlockSubscribe {
     pub rpc_ws_url: String,
     pub filters: Filters,
     pub disconnect_notifier: Option<mpsc::Sender<DatasourceDisconnection>>,
+    /// Timeout for detecting hung/stale connections. Default: 30 seconds.
+    pub stream_timeout: Duration,
 }
 
 impl RpcBlockSubscribe {
-    pub const fn new(rpc_ws_url: String, filters: Filters, disconnect_notifier: Option<mpsc::Sender<DatasourceDisconnection>>) -> Self {
+    /// Creates a new RpcBlockSubscribe with optional stream timeout.
+    /// If `stream_timeout` is None, defaults to 30 seconds.
+    pub fn new(
+        rpc_ws_url: String,
+        filters: Filters,
+        disconnect_notifier: Option<mpsc::Sender<DatasourceDisconnection>>,
+        stream_timeout: Option<Duration>,
+    ) -> Self {
         Self {
             rpc_ws_url,
             filters,
             disconnect_notifier,
+            stream_timeout: stream_timeout.unwrap_or(Duration::from_secs(DEFAULT_STREAM_TIMEOUT_SECS)),
         }
     }
 }
@@ -128,7 +141,7 @@ impl Datasource for RpcBlockSubscribe {
                         return Ok(());
                     }
                     block_event_result = tokio::time::timeout(
-                        Duration::from_secs(30),
+                        self.stream_timeout,
                         block_stream.next()
                     ) => {
                         let block_event = match block_event_result {
@@ -143,7 +156,7 @@ impl Datasource for RpcBlockSubscribe {
                                 break;
                             }
                             Err(_) => {
-                                log::warn!("Block stream timeout - no messages for 30 seconds");
+                                log::warn!("Block stream timeout - no messages for {:?}", self.stream_timeout);
                                 if last_disconnect_time.is_none() {
                                     last_disconnect_time = Some(Utc::now());
                                     last_slot_before_disconnect = Some(last_processed_slot);
