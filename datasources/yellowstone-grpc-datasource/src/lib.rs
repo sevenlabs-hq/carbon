@@ -34,6 +34,9 @@ use {
     },
 };
 
+/// Default timeout for detecting stale connections (30 seconds)
+pub const DEFAULT_STREAM_TIMEOUT_SECS: u64 = 30;
+
 #[derive(Debug)]
 pub struct YellowstoneGrpcGeyserClient {
     pub endpoint: String,
@@ -45,6 +48,8 @@ pub struct YellowstoneGrpcGeyserClient {
     pub account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
     pub geyser_config: YellowstoneGrpcClientConfig,
     pub disconnect_notifier: Option<mpsc::Sender<DatasourceDisconnection>>,
+    /// Timeout for detecting hung/stale connections. Default: 30 seconds.
+    pub stream_timeout: Duration,
 }
 
 #[derive(Debug, Clone)]
@@ -77,8 +82,10 @@ pub struct BlockFilters {
 }
 
 impl YellowstoneGrpcGeyserClient {
+    /// Creates a new YellowstoneGrpcGeyserClient with optional stream timeout.
+    /// If `stream_timeout` is None, defaults to 30 seconds.
     #[allow(clippy::too_many_arguments)]
-    pub const fn new(
+    pub fn new(
         endpoint: String,
         x_token: Option<String>,
         commitment: Option<CommitmentLevel>,
@@ -88,6 +95,7 @@ impl YellowstoneGrpcGeyserClient {
         account_deletions_tracked: Arc<RwLock<HashSet<Pubkey>>>,
         geyser_config: YellowstoneGrpcClientConfig,
         disconnect_notifier: Option<mpsc::Sender<DatasourceDisconnection>>,
+        stream_timeout: Option<Duration>,
     ) -> Self {
         YellowstoneGrpcGeyserClient {
             endpoint,
@@ -99,6 +107,7 @@ impl YellowstoneGrpcGeyserClient {
             account_deletions_tracked,
             geyser_config,
             disconnect_notifier,
+            stream_timeout: stream_timeout.unwrap_or(Duration::from_secs(DEFAULT_STREAM_TIMEOUT_SECS)),
         }
     }
 }
@@ -186,6 +195,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?;
 
         let disconnect_tx_clone = self.disconnect_notifier.clone();
+        let stream_timeout = self.stream_timeout;
 
         tokio::spawn(async move {
             let subscribe_request = SubscribeRequest {
@@ -225,7 +235,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                     }
 
                                     let message_result = tokio::time::timeout(
-                                        Duration::from_secs(30),
+                                        stream_timeout,
                                         stream.next()
                                     ).await;
 
@@ -241,7 +251,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                             break;
                                         }
                                         Err(_) => {
-                                            log::warn!("Stream timeout - no messages for 30 seconds");
+                                            log::warn!("Stream timeout - no messages for {:?}", stream_timeout);
                                             if last_disconnect_time.is_none() {
                                                 last_disconnect_time = Some(Utc::now());
                                                 last_slot_before_disconnect = Some(last_processed_slot);
