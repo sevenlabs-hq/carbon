@@ -33,6 +33,7 @@
 //! - Ensure implementations handle errors gracefully, especially when fetching
 //!   data and sending updates to the pipeline.
 
+use solana_clock::Slot;
 use solana_program::hash::Hash;
 use solana_transaction_status::Rewards;
 use {
@@ -52,9 +53,9 @@ use {
 pub struct DatasourceDisconnection {
     pub source: String,
     pub disconnect_time: DateTime<Utc>,
-    pub last_slot_before_disconnect: u64,
-    pub first_slot_after_reconnect: u64,
-    pub missed_slots: u64,
+    pub last_slot_before_disconnect: Slot,
+    pub first_slot_after_reconnect: Slot,
+    pub missed_slots: Slot,
 }
 
 /// Defines the interface for data sources that produce updates for accounts,

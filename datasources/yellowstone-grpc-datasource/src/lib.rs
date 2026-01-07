@@ -267,7 +267,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                     if let (Some(disconnect_time), Some(last_slot)) =
                                                         (last_disconnect_time.take(), last_slot_before_disconnect.take())
                                                     {
-                                                        let missed = if slot > last_slot { slot - last_slot } else { 0 };
+                                                        let missed = slot.saturating_sub(last_slot);
 
                                                         let disconnection = DatasourceDisconnection {
                                                             source: "yellowstone-grpc".to_string(),
