@@ -45,7 +45,6 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
     const sqlxDep = getCrateDependencyString('sqlx', VERSIONS['sqlx'], ['postgres', 'rust_decimal'], true);
     const sqlxMigratorDep = getCrateDependencyString('sqlx_migrator', VERSIONS['sqlx_migrator'], undefined, true);
     const juniperDep = getCrateDependencyString('juniper', VERSIONS['juniper'], undefined, true);
-    const base64Dep = getCrateDependencyString('base64', VERSIONS['base64'], undefined, true);
 
     const features: string[] = ['default = []'];
 
@@ -70,7 +69,6 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         features.push('graphql = [');
         features.push('    "carbon-core/graphql",');
         features.push('    "dep:juniper",');
-        features.push('    "dep:base64",');
         features.push('    "serde",');
         features.push(']');
     }
@@ -105,7 +103,6 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
     if (withGraphQL) {
         dependencies.push('');
         dependencies.push(juniperDep);
-        dependencies.push(base64Dep);
     }
 
     // Add SPL Token 2022 dependencies for token-2022 program
@@ -125,9 +122,6 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
     const macheteIgnored: string[] = [];
     if (withSerde || withPostgres || withGraphQL || withBase58) {
         macheteIgnored.push('serde-big-array');
-    }
-    if (withGraphQL) {
-        macheteIgnored.push('base64');
     }
 
     const toml = [
