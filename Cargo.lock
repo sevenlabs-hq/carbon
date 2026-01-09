@@ -1606,6 +1606,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-helius-gtfa-datasource"
+version = "0.12.0"
+dependencies = [
+ "async-trait",
+ "carbon-core",
+ "log",
+ "reqwest 0.12.24",
+ "serde",
+ "serde_json",
+ "solana-client",
+ "solana-commitment-config",
+ "solana-pubkey 3.0.0",
+ "solana-transaction-status",
+ "tokio",
+ "tokio-util 0.7.17",
+]
+
+[[package]]
 name = "carbon-helius-laserstream-datasource"
 version = "0.12.0"
 dependencies = [
@@ -1717,13 +1735,11 @@ name = "carbon-jupiter-swap-decoder"
 version = "0.12.0"
 dependencies = [
  "async-trait",
- "base64 0.22.1",
  "borsh",
  "carbon-core",
  "carbon-test-utils",
  "juniper",
  "serde",
- "serde-big-array",
  "serde_json",
  "solana-account",
  "solana-instruction",
@@ -1843,12 +1859,19 @@ dependencies = [
 name = "carbon-meteora-damm-v2-decoder"
 version = "0.12.0"
 dependencies = [
+ "async-trait",
+ "borsh",
  "carbon-core",
+ "carbon-test-utils",
+ "juniper",
  "serde",
  "serde-big-array",
+ "serde_json",
  "solana-account",
  "solana-instruction",
  "solana-pubkey 3.0.0",
+ "sqlx",
+ "sqlx_migrator",
 ]
 
 [[package]]
