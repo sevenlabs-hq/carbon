@@ -43,6 +43,7 @@ carbon-gavel-decoder = { path = "decoders/gavel-decoder", version = "0.12.0" }
 # datasources
 carbon-helius-atlas-ws-datasource = { path = "datasources/helius-atlas-ws-datasource", version = "0.12.0" }
 carbon-helius-gpa-v2-datasource = { path = "datasources/helius-gpa-v2-datasource", version = "0.12.0" }
+carbon-helius-gtfa-datasource = { path = "datasources/helius-gtfa-datasource", version = "0.12.0" }
 carbon-helius-laserstream-datasource = { path = "datasources/helius-laserstream-datasource", version = "0.12.0" }
 
 # vendor
