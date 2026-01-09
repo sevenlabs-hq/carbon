@@ -57,20 +57,36 @@ pub struct RpcBlockSubscribe {
 }
 
 impl RpcBlockSubscribe {
-    /// Creates a new RpcBlockSubscribe with optional stream timeout.
-    /// If `stream_timeout` is None, defaults to 30 seconds.
-    pub fn new(
+    /// Creates a new RpcBlockSubscribe with default settings.
+    /// Uses default stream timeout (30 seconds) and no disconnect notifier.
+    pub fn new(rpc_ws_url: String, filters: Filters) -> Self {
+        Self {
+            rpc_ws_url,
+            filters,
+            disconnect_notifier: None,
+            stream_timeout: Duration::from_secs(DEFAULT_STREAM_TIMEOUT_SECS),
+        }
+    }
+
+    /// Creates a new RpcBlockSubscribe with a disconnect notifier.
+    /// Allows tracking connection drops and missed slots.
+    pub fn with_disconnect_notifier(
         rpc_ws_url: String,
         filters: Filters,
-        disconnect_notifier: Option<mpsc::Sender<DatasourceDisconnection>>,
-        stream_timeout: Option<Duration>,
+        disconnect_notifier: mpsc::Sender<DatasourceDisconnection>,
     ) -> Self {
         Self {
             rpc_ws_url,
             filters,
-            disconnect_notifier,
-            stream_timeout: stream_timeout.unwrap_or(Duration::from_secs(DEFAULT_STREAM_TIMEOUT_SECS)),
+            disconnect_notifier: Some(disconnect_notifier),
+            stream_timeout: Duration::from_secs(DEFAULT_STREAM_TIMEOUT_SECS),
         }
+    }
+
+    /// Sets a custom stream timeout for detecting stale connections.
+    pub fn with_stream_timeout(mut self, timeout: Duration) -> Self {
+        self.stream_timeout = timeout;
+        self
     }
 }
 
