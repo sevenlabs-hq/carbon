@@ -47,7 +47,7 @@
         "@codama/nodes": "1.3.0",
         "@codama/renderers-core": "1.0.16",
         "@codama/visitors-core": "1.3.0",
-        "@sevenlabs-hq/carbon-versions": "0.12.0",
+        "@sevenlabs-hq/carbon-versions": "workspace:*",
         "@solana/codecs-strings": "^2.2.0",
         "nunjucks": "^3.2.4"
     },
