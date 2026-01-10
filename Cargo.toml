@@ -51,6 +51,7 @@ carbon-jetstreamer-datasource = { path = "datasources/jetstreamer-datasource", v
 carbon-jito-protos = { path = "misc/jito-protos", version = "0.2.4" }
 carbon-jito-shredstream-grpc-datasource = { path = "datasources/jito-shredstream-grpc-datasource", version = "0.12.0" }
 carbon-jupiter-dca-decoder = { path = "decoders/jupiter-dca-decoder", version = "0.12.0" }
+carbon-jupiter-lend-decoder = { path = "decoders/jupiter-lend-decoder", version = "0.12.0" }
 carbon-jupiter-limit-order-2-decoder = { path = "decoders/jupiter-limit-order-2-decoder", version = "0.12.0" }
 carbon-jupiter-limit-order-decoder = { path = "decoders/jupiter-limit-order-decoder", version = "0.12.0" }
 carbon-jupiter-perpetuals-decoder = { path = "decoders/jupiter-perpetuals-decoder", version = "0.12.0" }
