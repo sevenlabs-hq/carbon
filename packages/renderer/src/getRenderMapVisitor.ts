@@ -39,6 +39,7 @@ export type GetRenderMapOptions = {
     withPostgres?: boolean;
     withGraphql?: boolean;
     withSerde?: boolean;
+    withBase58?: boolean;
     standalone?: boolean;
 };
 
@@ -59,13 +60,49 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
     const renderParentInstructions = options.renderParentInstructions ?? false;
     let definedTypesMap: Map<string, any> | null = null;
     const newtypeWrapperTypes = new Set<string>(); // Track which types were converted to newtype wrappers
-    const createTypeManifestVisitor = () => getTypeManifestVisitor(definedTypesMap, newtypeWrapperTypes);
+    const createTypeManifestVisitor = () =>
+        getTypeManifestVisitor(definedTypesMap, newtypeWrapperTypes, options.withBase58 ?? false);
     let typeManifestVisitor = createTypeManifestVisitor();
     const postgresTypeManifestVisitor = getPostgresTypeManifestVisitor();
 
     let currentProgram: ProgramNode | null = null;
     // Track which instructions have GraphQL schemas generated
     const instructionsWithGraphQLSchemas = new Set<string>();
+
+    // Track if any types require serde-big-array
+    let requiresSerdeBigArray = false;
+
+    // Helper function to recursively check if a type requires serde-big-array
+    // Checks for: fixed arrays > 32 elements, byte arrays > 32 bytes, and nested types
+    function checkRequiresBigArray(typeNode: TypeNode): boolean {
+        if (isNode(typeNode, 'arrayTypeNode')) {
+            if (isNode(typeNode.count, 'fixedCountNode') && typeNode.count.value > 32) {
+                return true;
+            }
+            return checkRequiresBigArray(typeNode.item);
+        }
+        if (isNode(typeNode, 'fixedSizeTypeNode')) {
+            if (isNode(typeNode.type, 'bytesTypeNode') && typeNode.size > 32) {
+                return true;
+            }
+            return checkRequiresBigArray(typeNode.type);
+        }
+        if (isNode(typeNode, 'structTypeNode')) {
+            return typeNode.fields.some(field => checkRequiresBigArray(field.type));
+        }
+        if (isNode(typeNode, 'enumTypeNode')) {
+            return typeNode.variants.some(variant => {
+                if (variant.kind === 'enumStructVariantTypeNode' && 'fields' in variant) {
+                    return (variant as any).fields.some((field: any) => checkRequiresBigArray(field.type));
+                }
+                return false;
+            });
+        }
+        if (isNode(typeNode, 'optionTypeNode') || isNode(typeNode, 'zeroableOptionTypeNode')) {
+            return checkRequiresBigArray(typeNode.item);
+        }
+        return false;
+    }
 
     return pipe(
         staticVisitor(() => new RenderMap(), {
@@ -117,6 +154,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                     const typeManifest = visit(newNode.data, typeManifestVisitor);
                     const imports = new ImportMap().mergeWithManifest(typeManifest);
+
+                    // Check if this account's fields require serde-big-array
+                    if (checkRequiresBigArray(newNode.data)) {
+                        requiresSerdeBigArray = true;
+                    }
 
                     // Add token-2022 specific imports for accounts that need extension handling
                     // Note: StateWithExtensions is used in accounts/mod.rs, not in individual account files
@@ -218,6 +260,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                 visitDefinedType(node) {
                     const typeManifest = visit(node.type, typeManifestVisitor);
                     const imports = new ImportMap().mergeWithManifest(typeManifest);
+
+                    // Check if this type requires serde-big-array
+                    if (checkRequiresBigArray(node.type)) {
+                        requiresSerdeBigArray = true;
+                    }
 
                     // Use newtype wrapper instead of type alias to allow BigArray attribute for large arrays
                     let needsNewtypeWrapper = false;
@@ -435,6 +482,11 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             requiredBigArray = undefined;
                         }
 
+                        // Track if any argument requires serde-big-array
+                        if (checkRequiresBigArray(arg.type)) {
+                            requiresSerdeBigArray = true;
+                        }
+
                         return {
                             ...manifest,
                             requiredBigArray,
@@ -520,6 +572,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             instruction: instructionWithUniqueAccounts,
                             discriminatorManifest,
                             program: currentProgram,
+                            withBase58: options.withBase58 ?? false,
                         }),
                     );
 
@@ -665,6 +718,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         withPostgres: options.withPostgres !== false,
                         withGraphQL: options.withGraphql !== false,
                         withSerde: options.withSerde ?? false,
+                        withBase58: options.withBase58 ?? false,
                     };
 
                     const map = new RenderMap();
@@ -841,6 +895,8 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         withPostgres: options.withPostgres !== false,
                         withGraphQL: options.withGraphql !== false,
                         withSerde: options.withSerde ?? false,
+                        withBase58: options.withBase58 ?? false,
+                        withSerdeBigArray: requiresSerdeBigArray,
                         standalone: options.standalone !== false,
                     });
                     map.add('Cargo.toml', cargoToml);

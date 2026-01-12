@@ -4,7 +4,8 @@ use {
         metrics::MetricsCollection, processor::Processor,
     },
     carbon_pumpfun_decoder::{
-        instructions::PumpfunInstruction, PumpfunDecoder, PROGRAM_ID as PUMPFUN_PROGRAM_ID,
+        instructions::{CpiEvent, PumpfunInstruction},
+        PumpfunDecoder, PROGRAM_ID as PUMPFUN_PROGRAM_ID,
     },
     helius::types::{
         Cluster, RpcTransactionsConfig, TransactionCommitment, TransactionDetails,
@@ -19,6 +20,19 @@ use {
 pub async fn main() -> CarbonResult<()> {
     dotenv::dotenv().ok();
     env_logger::init();
+
+    let ping_interval_secs = std::env::var("PING_INTERVAL_SECS")
+        .unwrap_or("10".to_string())
+        .parse::<u64>()
+        .unwrap_or(10);
+    let pong_timeout_secs = std::env::var("PONG_TIMEOUT_SECS")
+        .unwrap_or("10".to_string())
+        .parse::<u64>()
+        .unwrap_or(10);
+    let transaction_idle_timeout_secs = std::env::var("TRANSACTION_IDLE_TIMEOUT_SECS")
+        .unwrap_or("60".to_string())
+        .parse::<u64>()
+        .unwrap_or(60);
 
     let helius_websocket = carbon_helius_atlas_ws_datasource::HeliusWebsocket::new(
         std::env::var("API_KEY").expect("API_KEY must be set"),
@@ -44,7 +58,10 @@ pub async fn main() -> CarbonResult<()> {
         },
         Arc::new(RwLock::new(HashSet::new())),
         Cluster::MainnetBeta,
-    );
+    )
+    .with_ping_interval_secs(ping_interval_secs)
+    .with_pong_timeout_secs(pong_timeout_secs)
+    .with_transaction_idle_timeout_secs(transaction_idle_timeout_secs);
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(helius_websocket)
@@ -68,20 +85,22 @@ impl Processor<InstructionProcessorInputType<'_, PumpfunInstruction>>
     ) -> CarbonResult<()> {
         let pumpfun_instruction: PumpfunInstruction = input.decoded_instruction.data.clone();
 
-        match pumpfun_instruction {
-            PumpfunInstruction::CreateEvent(create_event) => {
-                log::info!("New token created: {create_event:#?}");
-            }
-            PumpfunInstruction::TradeEvent(trade_event) => {
-                if trade_event.sol_amount > 10 * LAMPORTS_PER_SOL {
-                    log::info!("Big trade occured: {trade_event:#?}");
+        if let PumpfunInstruction::CpiEvent(cpi_event) = pumpfun_instruction {
+            match *cpi_event {
+                CpiEvent::CreateEvent(create_event) => {
+                    log::info!("New token created: {create_event:#?}");
                 }
+                CpiEvent::TradeEvent(trade_event) => {
+                    if trade_event.sol_amount > 10 * LAMPORTS_PER_SOL {
+                        log::info!("Big trade occured: {trade_event:#?}");
+                    }
+                }
+                CpiEvent::CompleteEvent(complete_event) => {
+                    log::info!("Bonded: {complete_event:#?}");
+                }
+                _ => {}
             }
-            PumpfunInstruction::CompleteEvent(complete_event) => {
-                log::info!("Bonded: {complete_event:#?}");
-            }
-            _ => {}
-        };
+        }
 
         Ok(())
     }

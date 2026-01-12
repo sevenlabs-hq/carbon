@@ -725,6 +725,7 @@ mod tests {
             meta: original_tx_meta.clone(),
             is_vote: false,
             slot: 123,
+            index: Some(0),
             block_time: Some(123),
             block_hash: Hash::from_str("9bit9vXNX9HyHwL89aGDNmk3vbyAM96nvb6F4SaoM1CU").ok(),
         };
@@ -1154,6 +1155,7 @@ mod tests {
             meta: original_tx_meta.clone(),
             is_vote: false,
             slot: 123,
+            index: Some(0),
             block_time: Some(123),
             block_hash: None,
         };

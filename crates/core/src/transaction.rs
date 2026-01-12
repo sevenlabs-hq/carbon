@@ -62,9 +62,11 @@ use {
 ///   balances, and other metadata
 /// - `message`: The versioned message containing the transaction instructions
 ///   and account keys
+/// - `index`: The index of the transaction within the slot (block).
 /// - `block_time`: The Unix timestamp of when the transaction was processed.
+/// - `block_hash`: Block hash that can be used to detect a fork.
 ///
-/// Note: The `block_time` field may not be returned in all scenarios.
+/// Note: The `block_time` and `index` fields may not be available in all scenarios.
 #[derive(Debug, Clone, Default)]
 pub struct TransactionMetadata {
     pub slot: u64,
@@ -72,6 +74,7 @@ pub struct TransactionMetadata {
     pub fee_payer: Pubkey,
     pub meta: solana_transaction_status::TransactionStatusMeta,
     pub message: solana_message::VersionedMessage,
+    pub index: Option<u64>,
     pub block_time: Option<i64>,
     pub block_hash: Option<Hash>,
 }
@@ -111,6 +114,7 @@ impl TryFrom<&crate::datasource::TransactionUpdate> for TransactionMetadata {
                 .ok_or(crate::error::Error::MissingFeePayer)?,
             meta: value.meta.clone(),
             message: value.transaction.message.clone(),
+            index: value.index,
             block_time: value.block_time,
             block_hash: value.block_hash,
         })

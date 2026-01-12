@@ -18,6 +18,8 @@ export type TypeManifest = {
     type: string;
     borshType: string;
     requiredBigArray?: number;
+    isPubkey?: boolean;
+    isOptionPubkey?: boolean;
 };
 
 export type DiscriminatorManifest = {
@@ -26,7 +28,11 @@ export type DiscriminatorManifest = {
     checkCode: string;
 };
 
-export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null, newtypeWrapperTypes?: Set<string>) {
+export function getTypeManifestVisitor(
+    definedTypesMap?: Map<string, any> | null,
+    newtypeWrapperTypes?: Set<string>,
+    withBase58?: boolean,
+) {
     const baseVisitor = pipe(
         mergeVisitor(
             (): TypeManifest => ({
@@ -183,9 +189,21 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                             // Use formatDocComments to properly handle list item indentation
                             const docComments = docs.length > 0 ? formatDocComments(docs) + '\n' : '';
 
+                            // Add base58 attribute for Pubkey fields (only if withBase58 is enabled)
+                            let base58Attr = '';
+                            if (withBase58) {
+                                if (fieldManifest.isPubkey === true) {
+                                    base58Attr =
+                                        '#[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize"))]\n';
+                                } else if (fieldManifest.isOptionPubkey === true) {
+                                    base58Attr =
+                                        '#[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize_option"))]\n';
+                                }
+                            }
+
                             return {
                                 imports: fieldManifest.imports,
-                                type: `${docComments}${needsBigArray ? '#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]\n' : ''}${fieldName}: ${fieldManifest.type},`,
+                                type: `${docComments}${needsBigArray ? '#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]\n' : ''}${base58Attr}${fieldName}: ${fieldManifest.type},`,
                                 borshType: `${fieldName}: ${fieldManifest.borshType},`,
                             };
                         },
@@ -268,6 +286,7 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                         imports: childManifest.imports,
                         type: `Option<${childManifest.type}>`,
                         borshType: `Option<${childManifest.borshType}>`,
+                        isOptionPubkey: childManifest.isPubkey === true,
                     };
                 },
 
@@ -277,6 +296,7 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                         imports: itemManifest.imports,
                         type: `Option<${itemManifest.type}>`,
                         borshType: `Option<${itemManifest.borshType}>`,
+                        isOptionPubkey: itemManifest.isPubkey === true,
                     };
                 },
 
@@ -290,6 +310,7 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                         imports: new ImportMap().add('solana_pubkey::Pubkey'),
                         type: 'Pubkey',
                         borshType: 'Pubkey',
+                        isPubkey: true,
                     };
                 },
 
@@ -338,9 +359,21 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                     // Use formatDocComments to properly handle list item indentation
                     const docComments = docs.length > 0 ? formatDocComments(docs) + '\n' : '';
 
+                    // Add base58 attribute for Pubkey fields (only if withBase58 is enabled)
+                    let base58Attr = '';
+                    if (withBase58) {
+                        if (fieldManifest.isPubkey === true) {
+                            base58Attr =
+                                '#[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize"))]\n';
+                        } else if (fieldManifest.isOptionPubkey === true) {
+                            base58Attr =
+                                '#[cfg_attr(feature = "base58", serde(serialize_with = "crate::base58::serialize_option"))]\n';
+                        }
+                    }
+
                     return {
                         imports: fieldManifest.imports,
-                        type: `${docComments}${needsBigArray ? '#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]\n' : ''}pub ${fieldName}: ${fieldManifest.type},`,
+                        type: `${docComments}${needsBigArray ? '#[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]\n' : ''}${base58Attr}pub ${fieldName}: ${fieldManifest.type},`,
                         borshType: `${fieldName}: ${fieldManifest.borshType},`,
                     };
                 },
@@ -384,6 +417,7 @@ export function getTypeManifestVisitor(definedTypesMap?: Map<string, any> | null
                         imports: childManifest.imports,
                         type: `Option<${childManifest.type}>`,
                         borshType: `Option<${childManifest.borshType}>`,
+                        isOptionPubkey: childManifest.isPubkey === true,
                     };
                 },
             });

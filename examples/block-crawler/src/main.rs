@@ -7,7 +7,10 @@ use {
         error::CarbonResult, instruction::InstructionProcessorInputType,
         metrics::MetricsCollection, processor::Processor,
     },
-    carbon_pumpfun_decoder::{instructions::PumpfunInstruction, PumpfunDecoder},
+    carbon_pumpfun_decoder::{
+        instructions::{CpiEvent, PumpfunInstruction},
+        PumpfunDecoder,
+    },
     carbon_rpc_block_crawler_datasource::{RpcBlockConfig, RpcBlockCrawler},
     clap::Parser,
 };
@@ -64,23 +67,27 @@ impl Processor<InstructionProcessorInputType<'_, PumpfunInstruction>>
         data: &InstructionProcessorInputType<'_, PumpfunInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        match data.decoded_instruction.data.clone() {
-            PumpfunInstruction::CreateEvent(create_event) => {
-                log::info!(
-                    "New token created: {:#?} on slot {}",
-                    create_event,
-                    data.metadata.transaction_metadata.slot
-                );
+        let (metadata, pumpfun_instruction, _nested_instructions, _) = data;
+
+        if let PumpfunInstruction::CpiEvent(cpi_event) = pumpfun_instruction.data {
+            match *cpi_event {
+                CpiEvent::CreateEvent(create_event) => {
+                    log::info!(
+                        "New token created: {:#?} on slot {}",
+                        create_event,
+                        metadata.transaction_metadata.slot
+                    );
+                }
+                CpiEvent::TradeEvent(trade_event) => {
+                    log::info!(
+                        "New trade occured: {:#?} on slot {:#?}",
+                        trade_event,
+                        metadata.transaction_metadata.slot
+                    );
+                }
+                _ => {}
             }
-            PumpfunInstruction::TradeEvent(trade_event) => {
-                log::info!(
-                    "New trade occured: {:#?} on slot {:#?}",
-                    trade_event,
-                    data.metadata.transaction_metadata.slot
-                );
-            }
-            _ => {}
-        };
+        }
 
         Ok(())
     }

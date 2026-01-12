@@ -17,6 +17,7 @@ export type ScaffoldOptions = {
     withPostgres: boolean;
     withGraphql: boolean;
     withSerde: boolean;
+    withBase58?: boolean;
     force?: boolean;
     postgresMode?: 'generic' | 'typed';
 };

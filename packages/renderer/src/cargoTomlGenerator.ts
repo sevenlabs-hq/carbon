@@ -9,6 +9,8 @@ export type DecoderCargoTomlOptions = {
     withPostgres: boolean;
     withGraphQL: boolean;
     withSerde: boolean;
+    withBase58?: boolean;
+    withSerdeBigArray?: boolean;
     standalone?: boolean;
 };
 
@@ -20,6 +22,8 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         withPostgres,
         withGraphQL,
         withSerde,
+        withBase58 = false,
+        withSerdeBigArray = false,
         standalone = true,
     } = options;
 
@@ -43,13 +47,13 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
     const sqlxDep = getCrateDependencyString('sqlx', VERSIONS['sqlx'], ['postgres', 'rust_decimal'], true);
     const sqlxMigratorDep = getCrateDependencyString('sqlx_migrator', VERSIONS['sqlx_migrator'], undefined, true);
     const juniperDep = getCrateDependencyString('juniper', VERSIONS['juniper'], undefined, true);
-    const base64Dep = getCrateDependencyString('base64', VERSIONS['base64'], undefined, true);
 
     const features: string[] = ['default = []'];
 
-    if (withSerde || withPostgres || withGraphQL) {
+    if (withSerde || withPostgres || withGraphQL || withBase58) {
         features.push('');
-        features.push('serde = ["dep:serde", "dep:serde-big-array"]');
+        const serdeDeps = withSerdeBigArray ? 'serde = ["dep:serde", "dep:serde-big-array"]' : 'serde = ["dep:serde"]';
+        features.push(serdeDeps);
     }
 
     if (withPostgres) {
@@ -68,9 +72,13 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         features.push('graphql = [');
         features.push('    "carbon-core/graphql",');
         features.push('    "dep:juniper",');
-        features.push('    "dep:base64",');
         features.push('    "serde",');
         features.push(']');
+    }
+
+    if (withBase58) {
+        features.push('');
+        features.push('base58 = ["serde"]');
     }
 
     const dependencies: string[] = [
@@ -82,10 +90,12 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         serdeJsonDep,
     ];
 
-    if (withSerde || withPostgres || withGraphQL) {
+    if (withSerde || withPostgres || withGraphQL || withBase58) {
         dependencies.push('');
         dependencies.push(serdeDep);
-        dependencies.push(serdeBigArrayDep);
+        if (withSerdeBigArray) {
+            dependencies.push(serdeBigArrayDep);
+        }
     }
 
     if (withPostgres) {
@@ -98,7 +108,6 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
     if (withGraphQL) {
         dependencies.push('');
         dependencies.push(juniperDep);
-        dependencies.push(base64Dep);
     }
 
     // Add SPL Token 2022 dependencies for token-2022 program
@@ -115,27 +124,12 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         dependencies.push(getCrateDependencyString('spl-type-length-value', VERSIONS['spl-type-length-value']));
     }
 
-    const macheteIgnored: string[] = [];
-    if (withSerde || withPostgres || withGraphQL) {
-        macheteIgnored.push('serde-big-array');
-    }
-    if (withGraphQL) {
-        macheteIgnored.push('base64');
-    }
-
     const toml = [
         '[package]',
         `name = "${decoderPackageName}"`,
         'version = "0.1.0"',
         'edition = "2021"',
         '',
-        ...(macheteIgnored.length > 0
-            ? [
-                  '[package.metadata.cargo-machete]',
-                  `ignored = [${macheteIgnored.map(dep => `"${dep}"`).join(', ')}]`,
-                  '',
-              ]
-            : []),
         ...(standalone ? ['[workspace]', ''] : []),
         '[lib]',
         'crate-type = ["rlib"]',

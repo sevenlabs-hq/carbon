@@ -260,6 +260,7 @@ impl JetstreamerDatasource {
                     meta: transaction.transaction_status_meta,
                     is_vote: transaction.is_vote,
                     slot: transaction.slot,
+                    index: None,
                     block_time: None,
                     block_hash: None,
                 })),
