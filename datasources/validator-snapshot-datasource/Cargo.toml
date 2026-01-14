@@ -1,0 +1,31 @@
+[package]
+name = "carbon-validator-snapshot-datasource"
+description = "Carbon Validator Snapshot Datasource - Index accounts from Solana validator snapshots"
+license = { workspace = true }
+version = "0.12.0"
+edition = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "indexer", "snapshot", "datasource", "backfill", "account"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[dependencies]
+solana-account = { workspace = true }
+solana-accounts-db =  { workspace = true }
+solana-genesis-utils = { workspace = true }
+solana-ledger = { workspace = true }
+solana-pubkey = { workspace = true }
+solana-runtime =  { workspace = true }
+
+carbon-core = { workspace = true }
+
+
+agave-snapshots = { workspace = true }
+async-trait = { workspace = true }
+log = { workspace = true }
+reqwest = { version = "0.12.24", default-features = false, features = ["json", "rustls-tls", "stream"] }
+tokio = { workspace = true, features = ["full"] }
+tokio-util = { workspace = true }
