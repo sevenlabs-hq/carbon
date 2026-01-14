@@ -10,6 +10,7 @@ license = "MIT"
 repository = "https://github.com/sevenlabs-hq/carbon"
 
 [workspace.dependencies]
+agave-snapshots = "^3.1.5"
 
 # other
 anyhow = "1.0.100"
@@ -111,6 +112,7 @@ carbon-system-program-decoder = { path = "decoders/system-program-decoder", vers
 carbon-test-utils = { path = "crates/test-utils", version = "0.12.0" }
 carbon-token-2022-decoder = { path = "decoders/token-2022-decoder", version = "0.12.0" }
 carbon-token-program-decoder = { path = "decoders/token-program-decoder", version = "0.12.0" }
+carbon-validator-snapshot-datasource = { path = "datasources/validator-snapshot-datasource", version = "0.12.0" }
 carbon-vertigo-decoder = { path = "decoders/vertigo-decoder", version = "0.12.0" }
 carbon-virtuals-decoder = { path = "decoders/virtuals-decoder", version = "0.12.0" }
 carbon-wavebreak-decoder = { path = "decoders/wavebreak-decoder", version = "0.12.0" }
@@ -157,18 +159,22 @@ sha2 = "0.10.9"
 solana-account = "^3.0.0"
 solana-account-decoder = "^3.0.0"
 solana-account-decoder-client-types = "^3.0.0"
+solana-accounts-db = "^3.1.5"
 solana-client = "^3.0.0"
 solana-clock = "^3.0.0"
 solana-commitment-config = "^3.0.0"
 solana-entry = "^3.0.0"
+solana-genesis-utils = { version = "^3.1.5", features = ["agave-unstable-api"] }
 solana-hash = "^3.0.0"
 solana-instruction = { version = "^3.0.0", default-features = false }
+solana-ledger = { version = "^3.1.5", features = ["agave-unstable-api"] }
 solana-message = "^3.0.0"
 solana-native-token = "^3.0.0"
 solana-program = { version = "^3.0.0", features = ["borsh"] }
 solana-program-pack = "^3.0.0"
 solana-pubkey = { version = "^3.0.0", features = ["serde", "borsh", "curve25519"] }
 solana-reward-info = "^3.0.0"
+solana-runtime = "^3.1.5"
 solana-signature = { version = "^3.0.0", features = ["rand"] }
 solana-system-interface = "^2.0.0"
 solana-transaction = "^3.0.0"

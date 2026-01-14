@@ -165,14 +165,15 @@ impl Processor for MyAccountProcessor {
 
 For most use cases, we recommend choosing from one of our datasource crates:
 
-| Crate Name                     | Description                                                                                                           | Affordability               | Ease of Setup |
-| ------------------------------ | --------------------------------------------------------------------------------------------------------------------- | --------------------------- | ------------- |
-| `carbon-block-subscribe`       | Uses `blockSubscribe` with Solana WS JSON RPC to listen to real-time on-chain transactions                            | Cheap (just RPC)            | Easy          |
-| `carbon-program-subscribe`     | Uses `programSubscribe` with Solana WS JSON RPC to listen to real-time on-chain account updates                       | Cheap (just RPC)            | Easy          |
-| `carbon-transaction-crawler`   | Crawls historical successful transactions for a specific address in reverse chronological order using Solana JSON RPC | Cheap (just RPC)            | Easy          |
-| `carbon-jito-shredstream-grpc` | Listen to JITO's shredstream                                                                                          | Medium (Shredstream proxy)  | Medium        |
-| `carbon-helius-atlas-ws`       | Utilizes Helius Geyser-enhanced WebSocket for streaming account and transaction updates                               | Medium (Helius Plan)        | Medium        |
-| `carbon-yellowstone-grpc`      | Subscribes to a Yellowstone gRPC Geyser plugin enhanced full node to stream account and transaction updates           | Expensive (Geyser Fullnode) | Complex       |
+| Crate Name                             | Description                                                                                                              | Affordability               | Ease of Setup |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | --------------------------- | ------------- |
+| `carbon-block-subscribe`               | Uses `blockSubscribe` with Solana WS JSON RPC to listen to real-time on-chain transactions                               | Cheap (just RPC)            | Easy          |
+| `carbon-program-subscribe`             | Uses `programSubscribe` with Solana WS JSON RPC to listen to real-time on-chain account updates                          | Cheap (just RPC)            | Easy          |
+| `carbon-transaction-crawler`           | Crawls historical successful transactions for a specific address in reverse chronological order using Solana JSON RPC    | Cheap (just RPC)            | Easy          |
+| `carbon-validator-snapshot-datasource` | Loads and processes accounts from Solana validator snapshots, supporting filtering by program owners and account pubkeys | Cheap (snapshot storage)    | Medium        |
+| `carbon-jito-shredstream-grpc`         | Listen to JITO's shredstream                                                                                             | Medium (Shredstream proxy)  | Medium        |
+| `carbon-helius-atlas-ws`               | Utilizes Helius Geyser-enhanced WebSocket for streaming account and transaction updates                                  | Medium (Helius Plan)        | Medium        |
+| `carbon-yellowstone-grpc`              | Subscribes to a Yellowstone gRPC Geyser plugin enhanced full node to stream account and transaction updates              | Expensive (Geyser Fullnode) | Complex       |
 
 You can still implement custom datasources in the following manner:
 
