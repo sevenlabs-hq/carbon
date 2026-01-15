@@ -55,7 +55,8 @@ pub struct DatasourceDisconnection {
     pub disconnect_time: DateTime<Utc>,
     pub last_slot_before_disconnect: Slot,
     pub first_slot_after_reconnect: Slot,
-    pub missed_slots: Slot,
+    /// Number of slots missed during disconnection
+    pub missed_slots: u64,
 }
 
 /// Defines the interface for data sources that produce updates for accounts,
