@@ -1,11 +1,7 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
-        account::{AccountMetadata, DecodedAccount},
-        deserialize::ArrangeAccounts,
-        error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
+        account::AccountProcessorInputType, deserialize::ArrangeAccounts, error::CarbonResult,
+        instruction::InstructionProcessorInputType, metrics::MetricsCollection,
         processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
@@ -103,24 +99,18 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct RaydiumAmmV4InstructionProcessor;
 
-#[async_trait]
-impl Processor for RaydiumAmmV4InstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<RaydiumAmmV4Instruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
-
+impl Processor<InstructionProcessorInputType<'_, RaydiumAmmV4Instruction>>
+    for RaydiumAmmV4InstructionProcessor
+{
     async fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions, _): Self::InputType,
+        input: &InstructionProcessorInputType<'_, RaydiumAmmV4Instruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let signature = metadata.transaction_metadata.signature;
-        let accounts = instruction.accounts;
+        let signature = input.metadata.transaction_metadata.signature;
+        let accounts = input.decoded_instruction.accounts.clone();
 
-        match instruction.data {
+        match input.decoded_instruction.data.clone() {
             RaydiumAmmV4Instruction::Initialize2(init_pool) => {
                 log::info!("Initialize2: signature: {signature}, init_pool: {init_pool:?}");
             }
@@ -234,27 +224,20 @@ impl Processor for RaydiumAmmV4InstructionProcessor {
 }
 
 pub struct RaydiumAmmV4AccountProcessor;
-#[async_trait]
-impl Processor for RaydiumAmmV4AccountProcessor {
-    type InputType = (
-        AccountMetadata,
-        DecodedAccount<RaydiumAmmV4Account>,
-        solana_account::Account,
-    );
-
+impl Processor<AccountProcessorInputType<'_, RaydiumAmmV4Account>>
+    for RaydiumAmmV4AccountProcessor
+{
     async fn process(
         &mut self,
-        data: Self::InputType,
+        input: &AccountProcessorInputType<'_, RaydiumAmmV4Account>,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let account = data.1;
-
-        match account.data {
+        match &input.decoded_account.data {
             RaydiumAmmV4Account::AmmInfo(pool) => {
-                log::info!("Account: {:#?}\nPool: {:#?}", data.0.pubkey, pool);
+                log::info!("Account: {:#?}\nPool: {:#?}", input.metadata.pubkey, pool);
             }
             _ => {
-                log::warn!("Unnecessary Account: {:#?}", data.0.pubkey);
+                log::warn!("Unnecessary Account: {:#?}", input.metadata.pubkey);
             }
         };
 

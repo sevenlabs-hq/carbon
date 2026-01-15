@@ -1,10 +1,7 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
-        error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType,
+        metrics::MetricsCollection, processor::Processor,
     },
     carbon_jupiter_swap_decoder::{
         instructions::{CpiEvent, JupiterSwapInstruction},
@@ -86,22 +83,17 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct JupiterSwapInstructionProcessor;
 
-#[async_trait]
-impl Processor for JupiterSwapInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<JupiterSwapInstruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
+impl Processor<InstructionProcessorInputType<'_, JupiterSwapInstruction>>
+    for JupiterSwapInstructionProcessor
+{
     async fn process(
         &mut self,
-        (metadata, instruction, nested_instructions, _): Self::InputType,
+        input: &InstructionProcessorInputType<'_, JupiterSwapInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let signature = metadata.transaction_metadata.signature;
+        let signature = input.metadata.transaction_metadata.signature;
 
-        match instruction.data {
+        match input.decoded_instruction.data.clone() {
             JupiterSwapInstruction::Claim(claim) => {
                 log::info!("claim: signature: {signature}, claim: {claim:?}");
             }
@@ -113,7 +105,7 @@ impl Processor for JupiterSwapInstructionProcessor {
             }
             JupiterSwapInstruction::ExactOutRoute(exact_out_route) => {
                 assert!(
-                    !nested_instructions.is_empty(),
+                    !input.nested_instructions.is_empty(),
                     "nested instructions empty: {signature} "
                 );
                 log::info!(
@@ -122,14 +114,14 @@ impl Processor for JupiterSwapInstructionProcessor {
             }
             JupiterSwapInstruction::Route(route) => {
                 assert!(
-                    !nested_instructions.is_empty(),
+                    !input.nested_instructions.is_empty(),
                     "nested instructions empty: {signature} "
                 );
                 log::info!("route: signature: {signature}, route: {route:?}");
             }
             JupiterSwapInstruction::RouteWithTokenLedger(route_with_token_ledger) => {
                 assert!(
-                    !nested_instructions.is_empty(),
+                    !input.nested_instructions.is_empty(),
                     "nested instructions empty: {signature} "
                 );
                 log::info!("route_with_token_ledger: signature: {signature}, route_with_token_ledger: {route_with_token_ledger:?}");
@@ -141,21 +133,21 @@ impl Processor for JupiterSwapInstructionProcessor {
                 shared_accounts_exact_out_route,
             ) => {
                 assert!(
-                    !nested_instructions.is_empty(),
+                    !input.nested_instructions.is_empty(),
                     "nested instructions empty: {signature} "
                 );
                 log::info!("shared_accounts_exact_out_route: signature: {signature}, shared_accounts_exact_out_route: {shared_accounts_exact_out_route:?}");
             }
             JupiterSwapInstruction::ExactOutRouteV2(exact_out_route_v2) => {
                 assert!(
-                    !nested_instructions.is_empty(),
+                    !input.nested_instructions.is_empty(),
                     "nested instructions empty: {signature} "
                 );
                 log::info!("exact_out_route_v2: signature: {signature}, exact_out_route_v2: {exact_out_route_v2:?}");
             }
             JupiterSwapInstruction::RouteV2(route_v2) => {
                 assert!(
-                    !nested_instructions.is_empty(),
+                    !input.nested_instructions.is_empty(),
                     "nested instructions empty: {signature} "
                 );
                 log::info!("route_v2: signature: {signature}, route_v2: {route_v2:?}");
@@ -164,21 +156,21 @@ impl Processor for JupiterSwapInstructionProcessor {
                 shared_accounts_exact_out_route_v2,
             ) => {
                 assert!(
-                    !nested_instructions.is_empty(),
+                    !input.nested_instructions.is_empty(),
                     "nested instructions empty: {signature} "
                 );
                 log::info!("shared_accounts_exact_out_route_v2: signature: {signature}, shared_accounts_exact_out_route_v2: {shared_accounts_exact_out_route_v2:?}");
             }
             JupiterSwapInstruction::SharedAccountsRouteV2(shared_accounts_route_v2) => {
                 assert!(
-                    !nested_instructions.is_empty(),
+                    !input.nested_instructions.is_empty(),
                     "nested instructions empty: {signature} "
                 );
                 log::info!("shared_accounts_route_v2: signature: {signature}, shared_accounts_route_v2: {shared_accounts_route_v2:?}");
             }
             JupiterSwapInstruction::SharedAccountsRoute(shared_accounts_route) => {
                 assert!(
-                    !nested_instructions.is_empty(),
+                    !input.nested_instructions.is_empty(),
                     "nested instructions empty: {signature} "
                 );
                 log::info!("shared_accounts_route: signature: {signature}, shared_accounts_route: {shared_accounts_route:?}");
@@ -187,7 +179,7 @@ impl Processor for JupiterSwapInstructionProcessor {
                 shared_accounts_route_with_token_ledger,
             ) => {
                 assert!(
-                    !nested_instructions.is_empty(),
+                    !input.nested_instructions.is_empty(),
                     "nested instructions empty: {signature} "
                 );
                 log::info!("shared_accounts_route_with_token_ledger: signature: {signature}, shared_accounts_route_with_token_ledger: {shared_accounts_route_with_token_ledger:?}");
