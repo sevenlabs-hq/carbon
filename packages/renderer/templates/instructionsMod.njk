@@ -30,11 +30,19 @@ pub use self::cpi_event::*;
 {{ macros.enumWrapperDerives() }}
 pub enum {{ program.name | pascalCase }}Instruction {
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
-    {{ instruction.name | pascalCase }}({{ instruction.name | pascalCase }}),
+    {{ instruction.name | pascalCase }} {
+        program_id: solana_pubkey::Pubkey,
+        data: {{ instruction.name | pascalCase }},
+        accounts: {{ instruction.name | pascalCase }}InstructionAccounts,
+    },
 {% endfor %}
 {% if hasAnchorEvents %}
     // Anchor CPI Event Instruction
-    CpiEvent(Box<CpiEvent>)
+    CpiEvent {
+        program_id: solana_pubkey::Pubkey,
+        data: CpiEvent,
+        accounts: CpiEventInstructionAccounts,
+    },
 {% endif %}
 }
 
@@ -44,37 +52,21 @@ impl carbon_core::instruction::InstructionDecoder<'_> for {{ program.name | pasc
     fn decode_instruction(
         &self,
         instruction: &solana_instruction::Instruction,
-    ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+    ) -> Option<Self::InstructionType> {
         if instruction.program_id != PROGRAM_ID {
             return None;
         }
 
-        let data = instruction.data.as_slice();
-
-{% for instruction in instructionsToExport %}
-        {
-            if let Some(decoded) = {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}::{{ instruction.name | pascalCase }}::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+{% for instruction in instructionsToExport | sort(false, false, 'name') %}
+            {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} => {{ instruction.name | pascalCase }},
 {% endfor %}
 {% if hasAnchorEvents %}
-        {
-            if let Some(decoded) = cpi_event::CpiEvent::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: {{ program.name | pascalCase }}Instruction::CpiEvent(Box::new(decoded)),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
+            {{ program.name | pascalCase }}Instruction::CpiEvent => CpiEvent,
 {% endif %}
-
-        None
+        )
     }
 }
 {% endblock %}

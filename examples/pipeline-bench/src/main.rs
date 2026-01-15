@@ -4,8 +4,9 @@ use async_trait::async_trait;
 use carbon_core::{
     account::{AccountDecoder, AccountProcessorInputType, DecodedAccount},
     datasource::{AccountUpdate, TransactionUpdate, Update, UpdateType},
+    deserialize::ArrangeAccounts,
     error::CarbonResult,
-    instruction::{DecodedInstruction, InstructionDecoder, InstructionProcessorInputType},
+    instruction::{InstructionDecoder, InstructionProcessorInputType},
     metrics::MetricsCollection,
     pipeline::{Pipeline, ShutdownStrategy},
     processor::Processor,
@@ -375,19 +376,52 @@ impl carbon_core::datasource::Datasource for SyntheticDatasource {
     }
 }
 
+#[derive(Debug, Clone)]
+enum SyntheticInstruction {
+    #[allow(dead_code)]
+    NoOp {
+        program_id: Pubkey,
+        data: SyntheticInstructionData,
+        accounts: SyntheticInstructionAccounts,
+    },
+}
+
+#[derive(Debug, Clone)]
+struct SyntheticInstructionData;
+
+impl SyntheticInstructionData {
+    #[allow(dead_code)]
+    fn decode(_data: &[u8]) -> Option<Self> {
+        Some(SyntheticInstructionData)
+    }
+}
+
+#[derive(Debug, Clone)]
+struct SyntheticInstructionAccounts;
+
+impl ArrangeAccounts for SyntheticInstructionData {
+    type ArrangedAccounts = SyntheticInstructionAccounts;
+
+    fn arrange_accounts(
+        _accounts: &[solana_instruction::AccountMeta],
+    ) -> Option<Self::ArrangedAccounts> {
+        Some(SyntheticInstructionAccounts)
+    }
+}
+
 struct SyntheticInstructionDecoder;
 
 impl<'a> InstructionDecoder<'a> for SyntheticInstructionDecoder {
-    type InstructionType = ();
+    type InstructionType = SyntheticInstruction;
 
     fn decode_instruction(
         &self,
         _instruction: &'a solana_instruction::Instruction,
-    ) -> Option<DecodedInstruction<Self::InstructionType>> {
-        Some(DecodedInstruction {
+    ) -> Option<Self::InstructionType> {
+        Some(SyntheticInstruction::NoOp {
             program_id: Pubkey::new_unique(),
-            data: (),
-            accounts: vec![],
+            data: SyntheticInstructionData,
+            accounts: SyntheticInstructionAccounts,
         })
     }
 }
@@ -395,10 +429,12 @@ impl<'a> InstructionDecoder<'a> for SyntheticInstructionDecoder {
 #[derive(Default)]
 struct SyntheticInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<'_, ()>> for SyntheticInstructionProcessor {
+impl Processor<InstructionProcessorInputType<'_, SyntheticInstruction>>
+    for SyntheticInstructionProcessor
+{
     async fn process(
         &mut self,
-        _data: &InstructionProcessorInputType<'_, ()>,
+        _data: &InstructionProcessorInputType<'_, SyntheticInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         Ok(())

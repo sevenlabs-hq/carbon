@@ -7,7 +7,7 @@ edition = { workspace = true }
 carbon-core = { workspace = true }
 carbon-helius-laserstream-datasource = { workspace = true }
 carbon-log-metrics = { workspace = true }
-carbon-pump-swap-decoder = { workspace = true }
+carbon-pump-amm-decoder = { path = "../../decoders/generated" }
 
 dotenv = { workspace = true }
 env_logger = { workspace = true }
