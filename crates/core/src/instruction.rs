@@ -69,6 +69,15 @@ enum LogType {
     Finish,
 }
 
+/// Known Solana precompile programs that don't emit invoke logs.
+/// These programs execute signature verification without logging.
+/// See: https://solana.com/docs/core/programs#precompile-programs
+const PRECOMPILE_PROGRAMS: &[&str] = &[
+    "Ed25519SigVerify111111111111111111111111111",
+    "KeccakSecp256k11111111111111111111111111111",
+    "Secp256r1SigVerify1111111111111111111111111",
+];
+
 impl InstructionMetadata {
     /// Decodes the log events `T` thrown by this instruction.
     ///
@@ -98,6 +107,15 @@ impl InstructionMetadata {
         let logs = match &self.transaction_metadata.meta.log_messages {
             Some(logs) => logs,
             None => return Vec::new(),
+        };
+
+        let precompile_offset = self.count_precompiles_before_index();
+        let adjusted_absolute_path: Vec<u8> = if !self.absolute_path.is_empty() {
+            let mut adjusted = self.absolute_path.clone();
+            adjusted[0] = adjusted[0].saturating_sub(precompile_offset as u8);
+            adjusted
+        } else {
+            self.absolute_path.clone()
         };
 
         let mut extracted_logs = Vec::new();
@@ -136,7 +154,7 @@ impl InstructionMetadata {
                 .map(|level| position_at_level.get(&level).copied().unwrap_or(0))
                 .collect();
 
-            if current_path == self.absolute_path && matches!(parsed_log, LogType::Data) {
+            if current_path == adjusted_absolute_path && matches!(parsed_log, LogType::Data) {
                 if let Some(data) = log.split_whitespace().last() {
                     if let Ok(buf) =
                         base64::Engine::decode(&base64::engine::general_purpose::STANDARD, data)
@@ -148,6 +166,36 @@ impl InstructionMetadata {
         }
 
         extracted_logs
+    }
+
+    /// Counts the number of precompile instructions that appear before this
+    /// instruction's outer index in the transaction message.
+    ///
+    /// Precompile programs don't emit invoke logs, which creates a mismatch between message-based indices
+    /// and log-based position counting.
+    fn count_precompiles_before_index(&self) -> usize {
+        if self.absolute_path.is_empty() {
+            return 0;
+        }
+
+        let outer_index = self.absolute_path[0] as usize;
+        let account_keys = self.transaction_metadata.message.static_account_keys();
+        let instructions = self.transaction_metadata.message.instructions();
+
+        let mut precompile_count = 0;
+        for (idx, ix) in instructions.iter().enumerate() {
+            if idx >= outer_index {
+                break;
+            }
+            if let Some(program_id) = account_keys.get(ix.program_id_index as usize) {
+                let program_id_str = program_id.to_string();
+                if PRECOMPILE_PROGRAMS.contains(&program_id_str.as_str()) {
+                    precompile_count += 1;
+                }
+            }
+        }
+
+        precompile_count
     }
 
     /// Parses a log line to determine its type
@@ -485,7 +533,8 @@ impl UnsafeNestedBuilder {
 mod tests {
 
     use {
-        super::*, solana_instruction::Instruction, solana_transaction_status::TransactionStatusMeta,
+        super::*, solana_instruction::Instruction,
+        solana_transaction_status::TransactionStatusMeta, std::str::FromStr,
     };
 
     fn create_instruction_with_metadata(
@@ -511,6 +560,41 @@ mod tests {
             data: vec![],
         };
         (metadata, instruction)
+    }
+
+    fn create_metadata_with_message(
+        absolute_path: Vec<u8>,
+        stack_height: u32,
+        logs: Vec<String>,
+        account_keys: Vec<Pubkey>,
+        instructions: Vec<solana_message::compiled_instruction::CompiledInstruction>,
+    ) -> InstructionMetadata {
+        use solana_message::{legacy::Message as LegacyMessage, VersionedMessage};
+
+        let message = VersionedMessage::Legacy(LegacyMessage {
+            header: solana_message::MessageHeader {
+                num_required_signatures: 1,
+                num_readonly_signed_accounts: 0,
+                num_readonly_unsigned_accounts: 0,
+            },
+            account_keys,
+            recent_blockhash: solana_hash::Hash::default(),
+            instructions,
+        });
+
+        InstructionMetadata {
+            transaction_metadata: Arc::new(TransactionMetadata {
+                meta: TransactionStatusMeta {
+                    log_messages: Some(logs),
+                    ..Default::default()
+                },
+                message,
+                ..Default::default()
+            }),
+            stack_height,
+            index: absolute_path.first().copied().unwrap_or(0) as u32,
+            absolute_path,
+        }
     }
 
     #[test]
@@ -563,5 +647,380 @@ mod tests {
             )
             .expect("decode base64")
         );
+    }
+
+    #[test]
+    fn test_count_precompiles_before_index_no_precompiles() {
+        use solana_message::compiled_instruction::CompiledInstruction;
+
+        // Transaction structure:
+        // ix 0: program1
+        // ix 1: program2
+        //
+        // No precompiles present, so count before ix 1 should be 0.
+
+        let program1 = Pubkey::new_unique();
+        let program2 = Pubkey::new_unique();
+
+        let metadata = create_metadata_with_message(
+            vec![1],
+            1,
+            vec![],
+            vec![Pubkey::new_unique(), program1, program2],
+            vec![
+                CompiledInstruction {
+                    program_id_index: 1,
+                    accounts: vec![],
+                    data: vec![],
+                },
+                CompiledInstruction {
+                    program_id_index: 2,
+                    accounts: vec![],
+                    data: vec![],
+                },
+            ],
+        );
+
+        assert_eq!(metadata.count_precompiles_before_index(), 0);
+    }
+
+    #[test]
+    fn test_count_precompiles_before_index_with_ed25519() {
+        use solana_message::compiled_instruction::CompiledInstruction;
+
+        // Transaction structure:
+        // ix 0: Ed25519 precompile
+        // ix 1: program1
+        // ix 2: program2
+        //
+        // One precompile before ix 2, so count should be 1.
+
+        let ed25519 = Pubkey::from_str("Ed25519SigVerify111111111111111111111111111").unwrap();
+        let program1 = Pubkey::new_unique();
+        let program2 = Pubkey::new_unique();
+
+        let metadata = create_metadata_with_message(
+            vec![2],
+            1,
+            vec![],
+            vec![Pubkey::new_unique(), ed25519, program1, program2],
+            vec![
+                CompiledInstruction {
+                    program_id_index: 1,
+                    accounts: vec![],
+                    data: vec![],
+                },
+                CompiledInstruction {
+                    program_id_index: 2,
+                    accounts: vec![],
+                    data: vec![],
+                },
+                CompiledInstruction {
+                    program_id_index: 3,
+                    accounts: vec![],
+                    data: vec![],
+                },
+            ],
+        );
+
+        assert_eq!(metadata.count_precompiles_before_index(), 1);
+    }
+
+    #[test]
+    fn test_count_precompiles_before_index_with_multiple_precompiles() {
+        use solana_message::compiled_instruction::CompiledInstruction;
+
+        // Transaction structure:
+        // ix 0: Ed25519 precompile
+        // ix 1: Secp256k1 precompile
+        // ix 2: program1
+        // ix 3: program2
+        //
+        // Two precompiles before ix 3, so count should be 2.
+
+        let ed25519 = Pubkey::from_str("Ed25519SigVerify111111111111111111111111111").unwrap();
+        let secp256k1 = Pubkey::from_str("KeccakSecp256k11111111111111111111111111111").unwrap();
+        let program1 = Pubkey::new_unique();
+        let program2 = Pubkey::new_unique();
+
+        let metadata = create_metadata_with_message(
+            vec![3],
+            1,
+            vec![],
+            vec![Pubkey::new_unique(), ed25519, secp256k1, program1, program2],
+            vec![
+                CompiledInstruction {
+                    program_id_index: 1,
+                    accounts: vec![],
+                    data: vec![],
+                },
+                CompiledInstruction {
+                    program_id_index: 2,
+                    accounts: vec![],
+                    data: vec![],
+                },
+                CompiledInstruction {
+                    program_id_index: 3,
+                    accounts: vec![],
+                    data: vec![],
+                },
+                CompiledInstruction {
+                    program_id_index: 4,
+                    accounts: vec![],
+                    data: vec![],
+                },
+            ],
+        );
+
+        assert_eq!(metadata.count_precompiles_before_index(), 2);
+    }
+
+    #[test]
+    fn test_extract_event_log_data_with_precompile_offset() {
+        use solana_message::compiled_instruction::CompiledInstruction;
+
+        // Transaction structure:
+        // ix 0: ComputeBudget (logs invoke [1])
+        // ix 1: Ed25519 precompile (NO logs)
+        // ix 2: target_program (logs invoke [1])
+        //
+        // Log positions (ignoring precompiles):
+        // Position [0] = ComputeBudget
+        // Position [1] = target_program (message index 2, but log position 1 due to 1 precompile)
+
+        let compute_budget = Pubkey::new_unique();
+        let ed25519 = Pubkey::from_str("Ed25519SigVerify111111111111111111111111111").unwrap();
+        let target_program = Pubkey::new_unique();
+
+        let logs = vec![
+            "Program ComputeBudget111111111111111111111111111 invoke [1]".to_string(),
+            "Program ComputeBudget111111111111111111111111111 success".to_string(),
+            format!("Program {} invoke [1]", target_program),
+            "Program data: dGVzdF9kYXRh".to_string(), // "test_data" in base64
+            format!("Program {} success", target_program),
+        ];
+
+        let metadata = create_metadata_with_message(
+            vec![2],
+            1,
+            logs,
+            vec![
+                Pubkey::new_unique(),
+                compute_budget,
+                ed25519,
+                target_program,
+            ],
+            vec![
+                CompiledInstruction {
+                    program_id_index: 1,
+                    accounts: vec![],
+                    data: vec![],
+                },
+                CompiledInstruction {
+                    program_id_index: 2,
+                    accounts: vec![],
+                    data: vec![],
+                },
+                CompiledInstruction {
+                    program_id_index: 3,
+                    accounts: vec![],
+                    data: vec![],
+                },
+            ],
+        );
+
+        let extracted = metadata.extract_event_log_data();
+        assert_eq!(extracted.len(), 1);
+        assert_eq!(extracted[0], b"test_data");
+    }
+
+    #[test]
+    fn test_extract_event_log_data_cpi_with_precompile_offset() {
+        use solana_message::compiled_instruction::CompiledInstruction;
+
+        // Transaction structure:
+        // ix 0: ComputeBudget (logs invoke [1])
+        // ix 1: Ed25519 precompile (NO logs)
+        // ix 2: router_program (logs invoke [1])
+        //   -> CPI to target_program (logs invoke [2])
+        //
+        // Log positions (ignoring precompiles):
+        // Position [0] = ComputeBudget
+        // Position [1] = router_program (message index 2, but log position 1 due to 1 precompile)
+        // Position [1, 0] = target_program CPI
+
+        let compute_budget = Pubkey::new_unique();
+        let ed25519 = Pubkey::from_str("Ed25519SigVerify111111111111111111111111111").unwrap();
+        let router_program = Pubkey::new_unique();
+        let target_program = Pubkey::new_unique();
+
+        let logs = vec![
+            "Program ComputeBudget111111111111111111111111111 invoke [1]".to_string(),
+            "Program ComputeBudget111111111111111111111111111 success".to_string(),
+            format!("Program {} invoke [1]", router_program),
+            format!("Program {} invoke [2]", target_program),
+            "Program data: Y3BpX2RhdGE=".to_string(), // "cpi_data" in base64
+            format!("Program {} success", target_program),
+            format!("Program {} success", router_program),
+        ];
+
+        let metadata = create_metadata_with_message(
+            vec![2, 0],
+            2,
+            logs,
+            vec![
+                Pubkey::new_unique(),
+                compute_budget,
+                ed25519,
+                router_program,
+                target_program,
+            ],
+            vec![
+                CompiledInstruction {
+                    program_id_index: 1,
+                    accounts: vec![],
+                    data: vec![],
+                },
+                CompiledInstruction {
+                    program_id_index: 2,
+                    accounts: vec![],
+                    data: vec![],
+                },
+                CompiledInstruction {
+                    program_id_index: 3,
+                    accounts: vec![],
+                    data: vec![],
+                },
+            ],
+        );
+
+        let extracted = metadata.extract_event_log_data();
+        assert_eq!(extracted.len(), 1);
+        assert_eq!(extracted[0], b"cpi_data");
+    }
+
+    #[test]
+    fn test_extract_event_log_data_cpi_with_multiple_precompiles_and_instructions() {
+        use solana_message::compiled_instruction::CompiledInstruction;
+
+        let compute_budget = Pubkey::new_unique();
+        let ed25519 = Pubkey::from_str("Ed25519SigVerify111111111111111111111111111").unwrap();
+        let secp256k1 = Pubkey::from_str("KeccakSecp256k11111111111111111111111111111").unwrap();
+        let router_program = Pubkey::new_unique();
+        let swap_program = Pubkey::new_unique();
+        let token_program = Pubkey::new_unique();
+
+        // Transaction structure:
+        // ix 0: ComputeBudget (logs invoke [1])
+        // ix 1: Ed25519 precompile
+        // ix 2: Secp256k1 precompile
+        // ix 3: Router program (logs invoke [1])
+        //   -> CPI to swap_program (logs invoke [2])
+        //      -> CPI to token_program (logs invoke [3])
+        //   -> CPI to swap_program again (logs invoke [2])
+        //
+        // Log positions (ignoring precompiles):
+        // Position [0] = ComputeBudget
+        // Position [1] = Router (message index 3, but log position 1 due to 2 precompiles)
+        // Position [1, 0] = first swap CPI
+        // Position [1, 0, 0] = token CPI inside first swap
+        // Position [1, 1] = second swap CPI
+
+        let logs = vec![
+            "Program ComputeBudget111111111111111111111111111 invoke [1]".to_string(),
+            "Program ComputeBudget111111111111111111111111111 success".to_string(),
+            format!("Program {} invoke [1]", router_program),
+            format!("Program {} invoke [2]", swap_program),
+            format!("Program {} invoke [3]", token_program),
+            "Program data: dG9rZW5fZGF0YQ==".to_string(), // "token_data" in base64
+            format!("Program {} success", token_program),
+            "Program data: c3dhcF9kYXRhXzE=".to_string(), // "swap_data_1" in base64
+            format!("Program {} success", swap_program),
+            format!("Program {} invoke [2]", swap_program),
+            "Program data: c3dhcF9kYXRhXzI=".to_string(), // "swap_data_2" in base64
+            format!("Program {} success", swap_program),
+            "Program data: cm91dGVyX2RhdGE=".to_string(), // "router_data" in base64
+            format!("Program {} success", router_program),
+        ];
+
+        let account_keys = vec![
+            Pubkey::new_unique(),
+            compute_budget,
+            ed25519,
+            secp256k1,
+            router_program,
+            swap_program,
+            token_program,
+        ];
+
+        let instructions = vec![
+            CompiledInstruction {
+                program_id_index: 1,
+                accounts: vec![],
+                data: vec![],
+            },
+            CompiledInstruction {
+                program_id_index: 2,
+                accounts: vec![],
+                data: vec![],
+            },
+            CompiledInstruction {
+                program_id_index: 3,
+                accounts: vec![],
+                data: vec![],
+            },
+            CompiledInstruction {
+                program_id_index: 4,
+                accounts: vec![],
+                data: vec![],
+            },
+        ];
+
+        let router_metadata = create_metadata_with_message(
+            vec![3],
+            1,
+            logs.clone(),
+            account_keys.clone(),
+            instructions.clone(),
+        );
+        let router_extracted = router_metadata.extract_event_log_data();
+        assert_eq!(router_extracted.len(), 1);
+        assert_eq!(router_extracted[0], b"router_data");
+
+        let first_swap_metadata = create_metadata_with_message(
+            vec![3, 0],
+            2,
+            logs.clone(),
+            account_keys.clone(),
+            instructions.clone(),
+        );
+        let first_swap_extracted = first_swap_metadata.extract_event_log_data();
+        assert_eq!(first_swap_extracted.len(), 1);
+        assert_eq!(first_swap_extracted[0], b"swap_data_1");
+
+        let token_metadata = create_metadata_with_message(
+            vec![3, 0, 0],
+            3,
+            logs.clone(),
+            account_keys.clone(),
+            instructions.clone(),
+        );
+        let token_extracted = token_metadata.extract_event_log_data();
+        assert_eq!(token_extracted.len(), 1);
+        assert_eq!(token_extracted[0], b"token_data");
+
+        let second_swap_metadata = create_metadata_with_message(
+            vec![3, 1],
+            2,
+            logs.clone(),
+            account_keys.clone(),
+            instructions.clone(),
+        );
+        let second_swap_extracted = second_swap_metadata.extract_event_log_data();
+        assert_eq!(second_swap_extracted.len(), 1);
+        assert_eq!(second_swap_extracted[0], b"swap_data_2");
+
+        assert_eq!(router_metadata.count_precompiles_before_index(), 2);
+        assert_eq!(first_swap_metadata.count_precompiles_before_index(), 2);
     }
 }
