@@ -138,12 +138,13 @@ impl<T, W> PostgresInstructionProcessor<T, W> {
 }
 
 #[async_trait::async_trait]
-impl<T, W> crate::processor::Processor for PostgresInstructionProcessor<T, W>
+impl<T, A, W> crate::processor::Processor for PostgresInstructionProcessor<T, W>
 where
     T: Clone + Send + Sync + 'static,
-    W: From<(T, InstructionMetadata, Vec<AccountMeta>)> + Upsert + Send + 'static,
+    A: Clone + Send + Sync + 'static,
+    W: From<(T, InstructionMetadata, A)> + Upsert + Send + 'static,
 {
-    type InputType = InstructionProcessorInputType<T>;
+    type InputType = InstructionProcessorInputType<T, A>;
 
     async fn process(
         &mut self,
@@ -198,11 +199,12 @@ impl<T> PostgresJsonInstructionProcessor<T> {
 }
 
 #[async_trait::async_trait]
-impl<T> crate::processor::Processor for PostgresJsonInstructionProcessor<T>
+impl<T, A> crate::processor::Processor for PostgresJsonInstructionProcessor<T>
 where
     T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
+    A: serde::Serialize + Clone + Send + Sync + 'static,
 {
-    type InputType = InstructionProcessorInputType<T>;
+    type InputType = InstructionProcessorInputType<T, A>;
 
     async fn process(
         &mut self,

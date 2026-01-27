@@ -155,21 +155,23 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for GenericAccountsMigration {
 #[derive(sqlx::FromRow, Debug, Clone)]
 pub struct InstructionRow<
     T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
+    A: serde::Serialize + Clone + Send + Sync + 'static,
 > {
     #[sqlx(flatten)]
     pub metadata: InstructionRowMetadata,
     pub data: sqlx::types::Json<T>,
-    pub accounts: sqlx::types::Json<Vec<AccountMeta>>,
+    pub accounts: sqlx::types::Json<A>,
 }
 
 impl<
         T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
-    > InstructionRow<T>
+        A: serde::Serialize + Clone + Send + Sync + 'static,
+    > InstructionRow<T, A>
 {
     pub fn from_parts(
         source: T,
         metadata: InstructionMetadata,
-        accounts: Vec<AccountMeta>,
+        accounts: A,
     ) -> Self {
         Self {
             metadata: metadata.into(),
@@ -182,7 +184,8 @@ impl<
 #[async_trait::async_trait]
 impl<
         T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
-    > Insert for InstructionRow<T>
+        A: serde::Serialize + Clone + Send + Sync + 'static,
+    > Insert for InstructionRow<T, A>
 {
     async fn insert(&self, pool: &sqlx::PgPool) -> CarbonResult<()> {
         sqlx::query(r#"INSERT INTO instructions (__signature, __instruction_index, __stack_height, __slot, data, accounts) VALUES ($1, $2, $3, $4, $5, $6)"#)
@@ -202,7 +205,8 @@ impl<
 #[async_trait::async_trait]
 impl<
         T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
-    > Upsert for InstructionRow<T>
+        A: serde::Serialize + Clone + Send + Sync + 'static,
+    > Upsert for InstructionRow<T, A>
 {
     async fn upsert(&self, pool: &sqlx::PgPool) -> CarbonResult<()> {
         sqlx::query(r#"INSERT INTO instructions (__signature, __instruction_index, __stack_height, __slot, data, accounts) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (__signature, __instruction_index, __stack_height) DO UPDATE SET __slot = $4, data = $5, accounts = $6"#)
@@ -222,7 +226,8 @@ impl<
 #[async_trait::async_trait]
 impl<
         T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
-    > Delete for InstructionRow<T>
+        A: serde::Serialize + Clone + Send + Sync + 'static,
+    > Delete for InstructionRow<T, A>
 {
     type Key = (String, U32, U32);
 
@@ -241,7 +246,8 @@ impl<
 #[async_trait::async_trait]
 impl<
         T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
-    > LookUp for InstructionRow<T>
+        A: serde::Serialize + Clone + Send + Sync + 'static,
+    > LookUp for InstructionRow<T, A>
 {
     type Key = (String, U32, U32);
 

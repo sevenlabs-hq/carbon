@@ -212,9 +212,11 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
 
     let mut instruction_variants = Vec::new();
     let mut instruction_type_variants = Vec::new();
+    let mut arranged_accounts_variants = Vec::new();
     let mut program_variants = Vec::new();
     let mut parse_instruction_arms = Vec::new();
     let mut get_type_arms = Vec::new();
+    let arranged_accounts_enum_name = format_ident!("{}Accounts", instructions_enum_name);
 
     for entry in entries {
         let program_variant = entry.program_variant;
@@ -229,21 +231,31 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
             .ident;
         let instruction_type_ident = format_ident!("{}Type", instruction_enum_ident);
 
+        // Construct arranged accounts type path: {instruction_type}Accounts
+        let mut arranged_accounts_path = instruction_type.path.clone();
+        if let Some(last_segment) = arranged_accounts_path.segments.last_mut() {
+            let arranged_accounts_ident = format_ident!("{}Accounts", last_segment.ident);
+            last_segment.ident = arranged_accounts_ident;
+        }
+
         instruction_variants.push(quote! {
             #program_variant(#instruction_enum_ident)
         });
         instruction_type_variants.push(quote! {
             #program_variant(#instruction_type_ident)
         });
+        arranged_accounts_variants.push(quote! {
+            #program_variant(#arranged_accounts_path)
+        });
         program_variants.push(quote! {
             #program_variant
         });
-
+        
         parse_instruction_arms.push(quote! {
             if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
                 return Some(carbon_core::instruction::DecodedInstruction {
                     program_id: instruction.program_id,
-                    accounts: instruction.accounts.clone(),
+                    accounts: #arranged_accounts_enum_name::#program_variant(decoded_instruction.accounts),
                     data: #instructions_enum_name::#program_variant(decoded_instruction.data),
                 });
             }
@@ -262,6 +274,11 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
             #(#instruction_variants),*
         }
 
+        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+        pub enum #arranged_accounts_enum_name {
+            #(#arranged_accounts_variants),*
+        }
+
         #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
         pub enum #instruction_types_enum_name {
             #(#instruction_type_variants),*
@@ -274,10 +291,11 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
 
         impl carbon_core::collection::InstructionDecoderCollection for #instructions_enum_name {
             type InstructionType = #instruction_types_enum_name;
+            type ArrangedAccounts = #arranged_accounts_enum_name;
 
             fn parse_instruction(
                 instruction: &solana_instruction::Instruction
-            ) -> Option<carbon_core::instruction::DecodedInstruction<Self>> {
+            ) -> Option<carbon_core::instruction::DecodedInstruction<Self, Self::ArrangedAccounts>> {
                 #(#parse_instruction_arms)*
                 None
             }
@@ -304,10 +322,12 @@ pub fn instruction_decoder_collection_fast(input: TokenStream) -> TokenStream {
 
     let mut instruction_variants = Vec::new();
     let mut instruction_type_variants = Vec::new();
+    let mut arranged_accounts_variants = Vec::new();
     let mut program_variants = Vec::new();
     let mut parse_instruction_match_arms = Vec::new();
     let mut fallback_decode_blocks = Vec::new();
     let mut get_type_arms = Vec::new();
+    let arranged_accounts_enum_name = format_ident!("{}Accounts", instructions_enum_name);
 
     for entry in entries {
         let program_variant = entry.program_variant;
@@ -328,23 +348,33 @@ pub fn instruction_decoder_collection_fast(input: TokenStream) -> TokenStream {
         // compatibility with older 3-part syntax.
         let explicit_program_id_path = entry.program_id_path;
 
+        // Construct arranged accounts type path: {instruction_type}Accounts
+        let mut arranged_accounts_path = instruction_type.path.clone();
+        if let Some(last_segment) = arranged_accounts_path.segments.last_mut() {
+            let arranged_accounts_ident = format_ident!("{}Accounts", last_segment.ident);
+            last_segment.ident = arranged_accounts_ident;
+        }
+
         instruction_variants.push(quote! {
             #program_variant(#instruction_enum_ident)
         });
         instruction_type_variants.push(quote! {
             #program_variant(#instruction_type_ident)
         });
+        arranged_accounts_variants.push(quote! {
+            #program_variant(#arranged_accounts_path)
+        });
         program_variants.push(quote! {
             #program_variant
         });
-
+        
         if let Some(program_id_path) = explicit_program_id_path {
             parse_instruction_match_arms.push(quote! {
                 #program_id_path => {
                     if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
                         Some(carbon_core::instruction::DecodedInstruction {
                             program_id: instruction.program_id,
-                            accounts: instruction.accounts.clone(),
+                            accounts: #arranged_accounts_enum_name::#program_variant(decoded_instruction.accounts),
                             data: #instructions_enum_name::#program_variant(decoded_instruction.data),
                         })
                     } else {
@@ -358,7 +388,7 @@ pub fn instruction_decoder_collection_fast(input: TokenStream) -> TokenStream {
                 if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
                     return Some(carbon_core::instruction::DecodedInstruction {
                         program_id: instruction.program_id,
-                        accounts: instruction.accounts.clone(),
+                        accounts: #arranged_accounts_enum_name::#program_variant(decoded_instruction.accounts),
                         data: #instructions_enum_name::#program_variant(decoded_instruction.data),
                     });
                 }
@@ -378,6 +408,11 @@ pub fn instruction_decoder_collection_fast(input: TokenStream) -> TokenStream {
             #(#instruction_variants),*
         }
 
+        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+        pub enum #arranged_accounts_enum_name {
+            #(#arranged_accounts_variants),*
+        }
+
         #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
         pub enum #instruction_types_enum_name {
             #(#instruction_type_variants),*
@@ -390,10 +425,11 @@ pub fn instruction_decoder_collection_fast(input: TokenStream) -> TokenStream {
 
         impl carbon_core::collection::InstructionDecoderCollection for #instructions_enum_name {
             type InstructionType = #instruction_types_enum_name;
+            type ArrangedAccounts = #arranged_accounts_enum_name;
 
             fn parse_instruction(
                 instruction: &solana_instruction::Instruction
-            ) -> Option<carbon_core::instruction::DecodedInstruction<Self>> {
+            ) -> Option<carbon_core::instruction::DecodedInstruction<Self, Self::ArrangedAccounts>> {
                 match instruction.program_id {
                     #(#parse_instruction_match_arms),*
                     _ => {

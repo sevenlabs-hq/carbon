@@ -1,7 +1,6 @@
 use {
     crate::{collection::InstructionDecoderCollection, instruction::DecodedInstruction},
     serde::de::DeserializeOwned,
-    solana_instruction::AccountMeta,
     solana_pubkey::Pubkey,
     std::collections::HashMap,
 };
@@ -22,7 +21,7 @@ pub struct InstructionSchemaNode<T: InstructionDecoderCollection> {
 #[derive(Debug)]
 pub struct ParsedInstruction<T: InstructionDecoderCollection> {
     pub program_id: Pubkey,
-    pub instruction: DecodedInstruction<T>,
+    pub instruction: DecodedInstruction<T, T::ArrangedAccounts>,
     pub inner_instructions: Vec<ParsedInstruction<T>>,
 }
 
@@ -35,6 +34,7 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
     pub fn match_schema<U>(&self, instructions: &[ParsedInstruction<T>]) -> Option<U>
     where
         U: DeserializeOwned,
+        T::ArrangedAccounts: serde::Serialize,
     {
         log::trace!("Schema::match_schema(self: {self:?}, instructions: {instructions:?})");
         let value = serde_json::to_value(self.match_nodes(instructions)).ok()?;
@@ -46,9 +46,12 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
     pub fn match_nodes(
         &self,
         instructions: &[ParsedInstruction<T>],
-    ) -> Option<HashMap<String, (T, Vec<AccountMeta>)>> {
+    ) -> Option<HashMap<String, (T, T::ArrangedAccounts)>>
+    where
+        T::ArrangedAccounts: Clone,
+    {
         log::trace!("Schema::match_nodes(self: {self:?}, instructions: {instructions:?})");
-        let mut output = HashMap::<String, (T, Vec<AccountMeta>)>::new();
+        let mut output = HashMap::<String, (T, T::ArrangedAccounts)>::new();
 
         let mut node_index = 0;
         let mut instruction_index = 0;
@@ -95,6 +98,8 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
                     continue;
                 }
 
+                // Note: accounts are now arranged accounts, not Vec<AccountMeta>
+                // If raw accounts are needed, they should be extracted from arranged accounts
                 output.insert(
                     instruction_node.name.clone(),
                     (
@@ -132,12 +137,13 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
     }
 }
 
-pub fn merge_hashmaps<K, V>(
-    a: HashMap<K, (V, Vec<AccountMeta>)>,
-    b: HashMap<K, (V, Vec<AccountMeta>)>,
-) -> HashMap<K, (V, Vec<AccountMeta>)>
+pub fn merge_hashmaps<K, V, A>(
+    a: HashMap<K, (V, A)>,
+    b: HashMap<K, (V, A)>,
+) -> HashMap<K, (V, A)>
 where
     K: std::cmp::Eq + std::hash::Hash,
+    A: Clone,
 {
     log::trace!("merge_hashmaps(a, b)");
     let mut output = a;

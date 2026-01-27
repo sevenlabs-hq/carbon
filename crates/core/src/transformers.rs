@@ -203,7 +203,7 @@ pub fn unnest_parsed_instructions<T: InstructionDecoderCollection>(
     transaction_metadata: Arc<TransactionMetadata>,
     instructions: Vec<ParsedInstruction<T>>,
     stack_height: u32,
-) -> Vec<(InstructionMetadata, DecodedInstruction<T>)> {
+) -> Vec<(InstructionMetadata, DecodedInstruction<T, T::ArrangedAccounts>)> {
     log::trace!("unnest_parsed_instructions(instructions: {instructions:?})");
 
     let mut result = Vec::new();

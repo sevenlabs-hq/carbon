@@ -5,7 +5,6 @@ use {
     },
     async_trait::async_trait,
     serde::{Deserialize, Serialize},
-    solana_instruction::AccountMeta,
     solana_pubkey::Pubkey,
     std::{
         ops::{Deref, DerefMut},
@@ -161,33 +160,34 @@ impl InstructionMetadata {
 pub type InstructionsWithMetadata = Vec<(InstructionMetadata, solana_instruction::Instruction)>;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct DecodedInstruction<T> {
+pub struct DecodedInstruction<T, A> {
     pub program_id: Pubkey,
     pub data: T,
-    pub accounts: Vec<AccountMeta>,
+    pub accounts: A,
 }
 
 pub trait InstructionDecoder<'a> {
     type InstructionType;
+    type ArrangedAccounts;
 
     fn decode_instruction(
         &self,
         instruction: &'a solana_instruction::Instruction,
-    ) -> Option<DecodedInstruction<Self::InstructionType>>;
+    ) -> Option<DecodedInstruction<Self::InstructionType, Self::ArrangedAccounts>>;
 }
 
-pub type InstructionProcessorInputType<T> = (
+pub type InstructionProcessorInputType<T, A> = (
     InstructionMetadata,
-    DecodedInstruction<T>,
+    DecodedInstruction<T, A>,
     NestedInstructions,
     solana_instruction::Instruction,
 );
 
-pub struct InstructionPipe<T: Send> {
+pub struct InstructionPipe<T: Send, A: Send> {
     pub decoder:
-        Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
+        Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T, ArrangedAccounts = A> + Send + Sync + 'static>,
     pub processor:
-        Box<dyn Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static>,
+        Box<dyn Processor<InputType = InstructionProcessorInputType<T, A>> + Send + Sync + 'static>,
     pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
 }
 
@@ -202,7 +202,7 @@ pub trait InstructionPipes<'a>: Send + Sync {
 }
 
 #[async_trait]
-impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
+impl<T: Send + 'static, A: Send + 'static> InstructionPipes<'_> for InstructionPipe<T, A> {
     async fn run(
         &mut self,
         nested_instruction: &NestedInstruction,
