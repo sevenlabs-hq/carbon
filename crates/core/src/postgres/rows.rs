@@ -168,11 +168,7 @@ impl<
         A: serde::Serialize + Clone + Send + Sync + 'static,
     > InstructionRow<T, A>
 {
-    pub fn from_parts(
-        source: T,
-        metadata: InstructionMetadata,
-        accounts: A,
-    ) -> Self {
+    pub fn from_parts(source: T, metadata: InstructionMetadata, accounts: A) -> Self {
         Self {
             metadata: metadata.into(),
             data: sqlx::types::Json(source),

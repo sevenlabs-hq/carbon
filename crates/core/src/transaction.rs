@@ -54,7 +54,10 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
 
 pub type TransactionProcessorInputType<T, U = ()> = (
     Arc<TransactionMetadata>,
-    Vec<(InstructionMetadata, DecodedInstruction<T, <T as InstructionDecoderCollection>::ArrangedAccounts>)>,
+    Vec<(
+        InstructionMetadata,
+        DecodedInstruction<T, <T as InstructionDecoderCollection>::ArrangedAccounts>,
+    )>,
     Option<U>,
 );
 

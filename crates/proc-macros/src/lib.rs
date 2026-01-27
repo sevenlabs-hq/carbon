@@ -250,7 +250,7 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
         program_variants.push(quote! {
             #program_variant
         });
-        
+
         parse_instruction_arms.push(quote! {
             if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
                 return Some(carbon_core::instruction::DecodedInstruction {
@@ -367,7 +367,7 @@ pub fn instruction_decoder_collection_fast(input: TokenStream) -> TokenStream {
         program_variants.push(quote! {
             #program_variant
         });
-        
+
         if let Some(program_id_path) = explicit_program_id_path {
             parse_instruction_match_arms.push(quote! {
                 #program_id_path => {

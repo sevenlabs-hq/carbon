@@ -184,8 +184,12 @@ pub type InstructionProcessorInputType<T, A> = (
 );
 
 pub struct InstructionPipe<T: Send, A: Send> {
-    pub decoder:
-        Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T, ArrangedAccounts = A> + Send + Sync + 'static>,
+    pub decoder: Box<
+        dyn for<'a> InstructionDecoder<'a, InstructionType = T, ArrangedAccounts = A>
+            + Send
+            + Sync
+            + 'static,
+    >,
     pub processor:
         Box<dyn Processor<InputType = InstructionProcessorInputType<T, A>> + Send + Sync + 'static>,
     pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,

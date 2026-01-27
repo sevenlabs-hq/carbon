@@ -460,11 +460,21 @@ impl PipelineBuilder {
         self
     }
 
-    pub fn instruction<T, D, A>(mut self, decoder: D, processor: impl Processor<InputType = InstructionProcessorInputType<T, A>> + Send + Sync + 'static) -> Self
+    pub fn instruction<T, D, A>(
+        mut self,
+        decoder: D,
+        processor: impl Processor<InputType = InstructionProcessorInputType<T, A>>
+            + Send
+            + Sync
+            + 'static,
+    ) -> Self
     where
         T: Send + Sync + 'static,
         A: Send + 'static,
-        D: for<'a> InstructionDecoder<'a, InstructionType = T, ArrangedAccounts = A> + Send + Sync + 'static,
+        D: for<'a> InstructionDecoder<'a, InstructionType = T, ArrangedAccounts = A>
+            + Send
+            + Sync
+            + 'static,
     {
         log::trace!(
             "instruction(self, decoder: {:?}, processor: {:?})",
@@ -479,11 +489,22 @@ impl PipelineBuilder {
         self
     }
 
-    pub fn instruction_with_filters<T, D, A>(mut self, decoder: D, processor: impl Processor<InputType = InstructionProcessorInputType<T, A>> + Send + Sync + 'static, filters: Vec<Box<dyn Filter + Send + Sync + 'static>>) -> Self
+    pub fn instruction_with_filters<T, D, A>(
+        mut self,
+        decoder: D,
+        processor: impl Processor<InputType = InstructionProcessorInputType<T, A>>
+            + Send
+            + Sync
+            + 'static,
+        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+    ) -> Self
     where
         T: Send + Sync + 'static,
         A: Send + 'static,
-        D: for<'a> InstructionDecoder<'a, InstructionType = T, ArrangedAccounts = A> + Send + Sync + 'static,
+        D: for<'a> InstructionDecoder<'a, InstructionType = T, ArrangedAccounts = A>
+            + Send
+            + Sync
+            + 'static,
     {
         log::trace!(
             "instruction_with_filters(self, decoder: {:?}, processor: {:?}, filters: {:?})",

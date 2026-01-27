@@ -137,10 +137,7 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
     }
 }
 
-pub fn merge_hashmaps<K, V, A>(
-    a: HashMap<K, (V, A)>,
-    b: HashMap<K, (V, A)>,
-) -> HashMap<K, (V, A)>
+pub fn merge_hashmaps<K, V, A>(a: HashMap<K, (V, A)>, b: HashMap<K, (V, A)>) -> HashMap<K, (V, A)>
 where
     K: std::cmp::Eq + std::hash::Hash,
     A: Clone,
