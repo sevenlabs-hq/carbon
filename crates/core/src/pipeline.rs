@@ -375,6 +375,8 @@ impl Pipeline {
             self.metrics_flush_interval.unwrap_or(5),
         ));
 
+        let mut last_update_processed_at = Instant::now();
+
         loop {
             tokio::select! {
                 _ = datasource_cancellation_token.cancelled() => {
@@ -402,12 +404,33 @@ impl Pipeline {
                 update = update_receiver.recv() => {
                     match update {
                         Some((update, datasource_id)) => {
+                            let now = Instant::now();
+                            let recv_wait_time_ns = now.duration_since(last_update_processed_at).as_nanos();
+
+                            self
+                                .metrics
+                                .record_histogram(
+                                    "updates_recv_wait_time_nanoseconds",
+                                    recv_wait_time_ns as f64,
+                                )
+                                .await?;
+
                             self
                                 .metrics.increment_counter("updates_received", 1)
                                 .await?;
 
+                            let wait_time_nanoseconds = recv_wait_time_ns;
+
+                            self
+                                .metrics
+                                .record_histogram(
+                                    "updates_interarrival_time_nanoseconds",
+                                    wait_time_nanoseconds as f64,
+                                )
+                                .await?;
+
                             let start = Instant::now();
-                            let process_result = self.process(update.clone(), datasource_id.clone()).await;
+                            let process_result = self.process(update, datasource_id.clone()).await;
                             let time_taken_nanoseconds = start.elapsed().as_nanos();
                             let time_taken_milliseconds = time_taken_nanoseconds / 1_000_000;
 
@@ -430,18 +453,27 @@ impl Pipeline {
                                     log::trace!("processed update")
                                 }
                                 Err(error) => {
-                                    log::error!("error processing update ({update:?}): {error:?}");
+                                    log::error!("error processing update: {error:?}");
                                     self.metrics.increment_counter("updates_failed", 1).await?;
                                 }
                             };
+                            let queued_len = update_receiver.len() as f64;
 
                             self
                                 .metrics.increment_counter("updates_processed", 1)
                                 .await?;
 
                             self
-                                .metrics.update_gauge("updates_queued", update_receiver.len() as f64)
+                                .metrics
+                                .update_gauge("updates_queued", queued_len)
                                 .await?;
+
+                            self
+                                .metrics
+                                .record_histogram("updates_queue_length", queued_len)
+                                .await?;
+
+                            last_update_processed_at = Instant::now();
                         }
                         None => {
                             log::info!("update_receiver closed, shutting down.");
@@ -517,99 +549,257 @@ impl Pipeline {
         log::trace!("process(self, update: {update:?}, datasource_id: {datasource_id:?})");
         match update {
             Update::Account(account_update) => {
+                let account_start = Instant::now();
+
+                let metadata_start = Instant::now();
                 let account_metadata = AccountMetadata {
                     slot: account_update.slot,
                     pubkey: account_update.pubkey,
                     transaction_signature: account_update.transaction_signature,
                 };
+                let metadata_time_ns = metadata_start.elapsed().as_nanos();
+                self.metrics
+                    .record_histogram(
+                        "account_metadata_build_time_nanoseconds",
+                        metadata_time_ns as f64,
+                    )
+                    .await?;
 
                 for pipe in self.account_pipes.iter_mut() {
-                    if pipe.filters().iter().all(|filter| {
+                    let filter_start = Instant::now();
+                    let filter_result = pipe.filters().iter().all(|filter| {
                         filter.filter_account(
                             &datasource_id,
                             &account_metadata,
                             &account_update.account,
                         )
-                    }) {
+                    });
+                    let filter_time_ns = filter_start.elapsed().as_nanos();
+                    self.metrics
+                        .record_histogram(
+                            "account_filter_eval_time_nanoseconds",
+                            filter_time_ns as f64,
+                        )
+                        .await?;
+
+                    if filter_result {
+                        let pipe_start = Instant::now();
                         pipe.run(
-                            (account_metadata.clone(), account_update.account.clone()),
+                            &account_metadata,
+                            &account_update.account,
                             self.metrics.clone(),
                         )
                         .await?;
+                        let pipe_time_ns = pipe_start.elapsed().as_nanos();
+                        self.metrics
+                            .record_histogram("account_pipe_time_nanoseconds", pipe_time_ns as f64)
+                            .await?;
                     }
                 }
+
+                let account_time_ns = account_start.elapsed().as_nanos();
+                self.metrics
+                    .record_histogram(
+                        "account_update_total_time_nanoseconds",
+                        account_time_ns as f64,
+                    )
+                    .await?;
 
                 self.metrics
                     .increment_counter("account_updates_processed", 1)
                     .await?;
             }
             Update::Transaction(transaction_update) => {
-                let transaction_metadata = Arc::new((*transaction_update).clone().try_into()?);
+                let tx_start = Instant::now();
 
+                let metadata_start = Instant::now();
+                let transaction_metadata = Arc::new((&*transaction_update).try_into()?);
+                let metadata_time_ns = metadata_start.elapsed().as_nanos();
+
+                let instruction_extract_start = Instant::now();
                 let instructions_with_metadata: InstructionsWithMetadata =
                     transformers::extract_instructions_with_metadata(
                         &transaction_metadata,
                         &transaction_update,
                     )?;
+                let instruction_extract_time_ns = instruction_extract_start.elapsed().as_nanos();
 
+                let nested_conversion_start = Instant::now();
                 let nested_instructions: NestedInstructions = instructions_with_metadata.into();
+                let nested_conversion_time_ns = nested_conversion_start.elapsed().as_nanos();
 
+                self.metrics
+                    .record_histogram(
+                        "transaction_metadata_build_time_nanoseconds",
+                        metadata_time_ns as f64,
+                    )
+                    .await?;
+
+                self.metrics
+                    .record_histogram(
+                        "transformers_extract_instructions_time_nanoseconds",
+                        instruction_extract_time_ns as f64,
+                    )
+                    .await?;
+
+                self.metrics
+                    .record_histogram(
+                        "transformers_nested_conversion_time_nanoseconds",
+                        nested_conversion_time_ns as f64,
+                    )
+                    .await?;
+
+                let instruction_loop_start = Instant::now();
                 for pipe in self.instruction_pipes.iter_mut() {
+                    let pipe_iter_start = Instant::now();
+                    let mut total_filter_time_ns = 0u128;
+                    let mut matching_instructions = Vec::with_capacity(nested_instructions.len());
+
                     for nested_instruction in nested_instructions.iter() {
-                        if pipe.filters().iter().all(|filter| {
+                        let filter_start = Instant::now();
+                        let filter_result = pipe.filters().iter().all(|filter| {
                             filter.filter_instruction(&datasource_id, nested_instruction)
-                        }) {
-                            pipe.run(nested_instruction, self.metrics.clone()).await?;
+                        });
+                        total_filter_time_ns += filter_start.elapsed().as_nanos();
+
+                        if filter_result {
+                            matching_instructions.push(nested_instruction);
                         }
                     }
-                }
 
-                for pipe in self.transaction_pipes.iter_mut() {
-                    if pipe.filters().iter().all(|filter| {
-                        filter.filter_transaction(
-                            &datasource_id,
-                            &transaction_metadata,
-                            &nested_instructions,
-                        )
-                    }) {
-                        pipe.run(
-                            transaction_metadata.clone(),
-                            &nested_instructions,
-                            self.metrics.clone(),
+                    if total_filter_time_ns > 0 {
+                        self.metrics
+                            .record_histogram(
+                                "instruction_filter_eval_time_nanoseconds",
+                                total_filter_time_ns as f64 / nested_instructions.len() as f64,
+                            )
+                            .await?;
+                    }
+
+                    for nested_instruction in matching_instructions.iter() {
+                        let instr_pipe_start = Instant::now();
+                        pipe.run(nested_instruction, self.metrics.clone()).await?;
+                        let instr_pipe_time_ns = instr_pipe_start.elapsed().as_nanos();
+                        self.metrics
+                            .record_histogram(
+                                "instruction_pipe_time_nanoseconds",
+                                instr_pipe_time_ns as f64,
+                            )
+                            .await?;
+                    }
+
+                    let pipe_iter_time_ns = pipe_iter_start.elapsed().as_nanos();
+                    self.metrics
+                        .record_histogram(
+                            "instruction_pipe_iteration_time_nanoseconds",
+                            pipe_iter_time_ns as f64,
                         )
                         .await?;
-                    }
                 }
+                let instruction_loop_time_ns = instruction_loop_start.elapsed().as_nanos();
+                self.metrics
+                    .record_histogram(
+                        "instruction_processing_loop_time_nanoseconds",
+                        instruction_loop_time_ns as f64,
+                    )
+                    .await?;
+
+                let post_loop_start = Instant::now();
+                let post_loop_time_ns = post_loop_start.elapsed().as_nanos();
+                self.metrics
+                    .record_histogram(
+                        "transaction_post_loop_time_nanoseconds",
+                        post_loop_time_ns as f64,
+                    )
+                    .await?;
+
+                let tx_time_ns = tx_start.elapsed().as_nanos();
+                self.metrics
+                    .record_histogram(
+                        "transaction_update_total_time_nanoseconds",
+                        tx_time_ns as f64,
+                    )
+                    .await?;
 
                 self.metrics
                     .increment_counter("transaction_updates_processed", 1)
                     .await?;
             }
             Update::AccountDeletion(account_deletion) => {
+                let deletion_start = Instant::now();
+
                 for pipe in self.account_deletion_pipes.iter_mut() {
-                    if pipe.filters().iter().all(|filter| {
+                    let filter_start = Instant::now();
+                    let filter_result = pipe.filters().iter().all(|filter| {
                         filter.filter_account_deletion(&datasource_id, &account_deletion)
-                    }) {
-                        pipe.run(account_deletion.clone(), self.metrics.clone())
+                    });
+                    let filter_time_ns = filter_start.elapsed().as_nanos();
+                    self.metrics
+                        .record_histogram(
+                            "account_deletion_filter_eval_time_nanoseconds",
+                            filter_time_ns as f64,
+                        )
+                        .await?;
+
+                    if filter_result {
+                        let deletion_pipe_start = Instant::now();
+                        pipe.run(&account_deletion, self.metrics.clone()).await?;
+                        let deletion_pipe_time_ns = deletion_pipe_start.elapsed().as_nanos();
+                        self.metrics
+                            .record_histogram(
+                                "account_deletion_pipe_time_nanoseconds",
+                                deletion_pipe_time_ns as f64,
+                            )
                             .await?;
                     }
                 }
+
+                let deletion_time_ns = deletion_start.elapsed().as_nanos();
+                self.metrics
+                    .record_histogram(
+                        "account_deletion_total_time_nanoseconds",
+                        deletion_time_ns as f64,
+                    )
+                    .await?;
 
                 self.metrics
                     .increment_counter("account_deletions_processed", 1)
                     .await?;
             }
             Update::BlockDetails(block_details) => {
+                let block_start = Instant::now();
+
                 for pipe in self.block_details_pipes.iter_mut() {
-                    if pipe
+                    let filter_start = Instant::now();
+                    let filter_result = pipe
                         .filters()
                         .iter()
-                        .all(|filter| filter.filter_block_details(&datasource_id, &block_details))
-                    {
-                        pipe.run(block_details.clone(), self.metrics.clone())
+                        .all(|filter| filter.filter_block_details(&datasource_id, &block_details));
+                    let filter_time_ns = filter_start.elapsed().as_nanos();
+                    self.metrics
+                        .record_histogram(
+                            "block_details_filter_eval_time_nanoseconds",
+                            filter_time_ns as f64,
+                        )
+                        .await?;
+
+                    if filter_result {
+                        let block_pipe_start = Instant::now();
+                        pipe.run(&block_details, self.metrics.clone()).await?;
+                        let block_pipe_time_ns = block_pipe_start.elapsed().as_nanos();
+                        self.metrics
+                            .record_histogram(
+                                "block_details_pipe_time_nanoseconds",
+                                block_pipe_time_ns as f64,
+                            )
                             .await?;
                     }
                 }
+
+                let block_time_ns = block_start.elapsed().as_nanos();
+                self.metrics
+                    .record_histogram("block_details_total_time_nanoseconds", block_time_ns as f64)
+                    .await?;
 
                 self.metrics
                     .increment_counter("block_details_processed", 1)
@@ -844,11 +1034,15 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .account(MyAccountDecoder, MyAccountProcessor);
     /// ```
-    pub fn account<T: Send + Sync + 'static>(
+    pub fn account<T, P>(
         mut self,
         decoder: impl for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
-        processor: impl Processor<InputType = AccountProcessorInputType<T>> + Send + Sync + 'static,
-    ) -> Self {
+        processor: P,
+    ) -> Self
+    where
+        T: Send + Sync + 'static,
+        P: for<'a> Processor<AccountProcessorInputType<'a, T>> + Send + Sync + 'static,
+    {
         log::trace!(
             "account(self, decoder: {:?}, processor: {:?})",
             stringify!(decoder),
@@ -856,7 +1050,7 @@ impl PipelineBuilder {
         );
         self.account_pipes.push(Box::new(AccountPipe {
             decoder: Box::new(decoder),
-            processor: Box::new(processor),
+            processor,
             filters: vec![],
         }));
         self
@@ -892,12 +1086,16 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .account_with_filters(MyAccountDecoder, MyAccountProcessor, filters);
     /// ```
-    pub fn account_with_filters<T: Send + Sync + 'static>(
+    pub fn account_with_filters<T, P>(
         mut self,
         decoder: impl for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
-        processor: impl Processor<InputType = AccountProcessorInputType<T>> + Send + Sync + 'static,
+        processor: P,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
-    ) -> Self {
+    ) -> Self
+    where
+        T: Send + Sync + 'static,
+        P: for<'a> Processor<AccountProcessorInputType<'a, T>> + Send + Sync + 'static,
+    {
         log::trace!(
             "account_with_filters(self, decoder: {:?}, processor: {:?}, filters: {:?})",
             stringify!(decoder),
@@ -906,7 +1104,7 @@ impl PipelineBuilder {
         );
         self.account_pipes.push(Box::new(AccountPipe {
             decoder: Box::new(decoder),
-            processor: Box::new(processor),
+            processor,
             filters,
         }));
         self
@@ -929,17 +1127,17 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .account_deletions(MyAccountDeletionProcessor);
     /// ```
-    pub fn account_deletions(
-        mut self,
-        processor: impl Processor<InputType = AccountDeletion> + Send + Sync + 'static,
-    ) -> Self {
+    pub fn account_deletions<P>(mut self, processor: P) -> Self
+    where
+        P: Processor<AccountDeletion> + Send + Sync + 'static,
+    {
         log::trace!(
             "account_deletions(self, processor: {:?})",
             stringify!(processor)
         );
         self.account_deletion_pipes
             .push(Box::new(AccountDeletionPipe {
-                processor: Box::new(processor),
+                processor,
                 filters: vec![],
             }));
         self
@@ -974,21 +1172,21 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .account_deletions_with_filters(MyAccountDeletionProcessor, filters);
     /// ```
-    pub fn account_deletions_with_filters(
+    pub fn account_deletions_with_filters<P>(
         mut self,
-        processor: impl Processor<InputType = AccountDeletion> + Send + Sync + 'static,
+        processor: P,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
-    ) -> Self {
+    ) -> Self
+    where
+        P: Processor<AccountDeletion> + Send + Sync + 'static,
+    {
         log::trace!(
             "account_deletions_with_filters(self, processor: {:?}, filters: {:?})",
             stringify!(processor),
             stringify!(filters)
         );
         self.account_deletion_pipes
-            .push(Box::new(AccountDeletionPipe {
-                processor: Box::new(processor),
-                filters,
-            }));
+            .push(Box::new(AccountDeletionPipe { processor, filters }));
         self
     }
 
@@ -1009,16 +1207,16 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .block_details(MyBlockDetailsProcessor);
     /// ```
-    pub fn block_details(
-        mut self,
-        processor: impl Processor<InputType = BlockDetails> + Send + Sync + 'static,
-    ) -> Self {
+    pub fn block_details<P>(mut self, processor: P) -> Self
+    where
+        P: Processor<BlockDetails> + Send + Sync + 'static,
+    {
         log::trace!(
             "block_details(self, processor: {:?})",
             stringify!(processor)
         );
         self.block_details_pipes.push(Box::new(BlockDetailsPipe {
-            processor: Box::new(processor),
+            processor,
             filters: vec![],
         }));
         self
@@ -1053,20 +1251,21 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .block_details_with_filters(MyBlockDetailsProcessor, filters);
     /// ```
-    pub fn block_details_with_filters(
+    pub fn block_details_with_filters<P>(
         mut self,
-        processor: impl Processor<InputType = BlockDetails> + Send + Sync + 'static,
+        processor: P,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
-    ) -> Self {
+    ) -> Self
+    where
+        P: Processor<BlockDetails> + Send + Sync + 'static,
+    {
         log::trace!(
             "block_details_with_filters(self, processor: {:?}, filters: {:?})",
             stringify!(processor),
             stringify!(filters)
         );
-        self.block_details_pipes.push(Box::new(BlockDetailsPipe {
-            processor: Box::new(processor),
-            filters,
-        }));
+        self.block_details_pipes
+            .push(Box::new(BlockDetailsPipe { processor, filters }));
         self
     }
 
@@ -1089,11 +1288,15 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .instruction(MyDecoder, MyInstructionProcessor);
     /// ```
-    pub fn instruction<T: Send + Sync + 'static>(
+    pub fn instruction<T, P>(
         mut self,
         decoder: impl for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
-        processor: impl Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static,
-    ) -> Self {
+        processor: P,
+    ) -> Self
+    where
+        T: Send + Sync + 'static,
+        P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
+    {
         log::trace!(
             "instruction(self, decoder: {:?}, processor: {:?})",
             stringify!(decoder),
@@ -1101,7 +1304,7 @@ impl PipelineBuilder {
         );
         self.instruction_pipes.push(Box::new(InstructionPipe {
             decoder: Box::new(decoder),
-            processor: Box::new(processor),
+            processor,
             filters: vec![],
         }));
         self
@@ -1138,12 +1341,16 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .instruction_with_filters(MyDecoder, MyInstructionProcessor, filters);
     /// ```
-    pub fn instruction_with_filters<T: Send + Sync + 'static>(
+    pub fn instruction_with_filters<T, P>(
         mut self,
         decoder: impl for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
-        processor: impl Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static,
+        processor: P,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
-    ) -> Self {
+    ) -> Self
+    where
+        T: Send + Sync + 'static,
+        P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
+    {
         log::trace!(
             "instruction_with_filters(self, decoder: {:?}, processor: {:?}, filters: {:?})",
             stringify!(decoder),
@@ -1152,7 +1359,7 @@ impl PipelineBuilder {
         );
         self.instruction_pipes.push(Box::new(InstructionPipe {
             decoder: Box::new(decoder),
-            processor: Box::new(processor),
+            processor,
             filters,
         }));
         self
@@ -1178,17 +1385,15 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .transaction(MY_SCHEMA.clone(), MyTransactionProcessor);
     /// ```
-    pub fn transaction<T, U>(
+    pub fn transaction<T, U, P>(
         mut self,
-        processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
-            + Send
-            + Sync
-            + 'static,
+        processor: P,
         schema: Option<TransactionSchema<T>>,
     ) -> Self
     where
         T: InstructionDecoderCollection + 'static,
         U: DeserializeOwned + Send + Sync + 'static,
+        P: Processor<TransactionProcessorInputType<T, U>> + Send + Sync + 'static,
     {
         log::trace!(
             "transaction(self, schema: {:?}, processor: {:?})",
@@ -1196,11 +1401,7 @@ impl PipelineBuilder {
             stringify!(processor)
         );
         self.transaction_pipes
-            .push(Box::new(TransactionPipe::<T, U>::new(
-                schema,
-                processor,
-                vec![],
-            )));
+            .push(Box::new(TransactionPipe::new(schema, processor, vec![])));
         self
     }
 
@@ -1235,18 +1436,16 @@ impl PipelineBuilder {
     /// let builder = PipelineBuilder::new()
     ///     .transaction_with_filters(MyTransactionProcessor, MY_SCHEMA.clone(), filters);
     /// ```
-    pub fn transaction_with_filters<T, U>(
+    pub fn transaction_with_filters<T, U, P>(
         mut self,
-        processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
-            + Send
-            + Sync
-            + 'static,
+        processor: P,
         schema: Option<TransactionSchema<T>>,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
     ) -> Self
     where
         T: InstructionDecoderCollection + 'static,
         U: DeserializeOwned + Send + Sync + 'static,
+        P: Processor<TransactionProcessorInputType<T, U>> + Send + Sync + 'static,
     {
         log::trace!(
             "transaction_with_filters(self, schema: {:?}, processor: {:?}, filters: {:?})",
@@ -1255,9 +1454,7 @@ impl PipelineBuilder {
             stringify!(filters)
         );
         self.transaction_pipes
-            .push(Box::new(TransactionPipe::<T, U>::new(
-                schema, processor, filters,
-            )));
+            .push(Box::new(TransactionPipe::new(schema, processor, filters)));
         self
     }
 

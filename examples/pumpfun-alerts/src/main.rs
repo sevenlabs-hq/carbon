@@ -1,5 +1,4 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
         error::CarbonResult, instruction::InstructionProcessorInputType,
         metrics::MetricsCollection, processor::Processor,
@@ -76,16 +75,15 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct PumpfunInstructionProcessor;
 
-#[async_trait]
-impl Processor for PumpfunInstructionProcessor {
-    type InputType = InstructionProcessorInputType<PumpfunInstruction>;
-
+impl Processor<InstructionProcessorInputType<'_, PumpfunInstruction>>
+    for PumpfunInstructionProcessor
+{
     async fn process(
         &mut self,
-        data: Self::InputType,
+        input: &InstructionProcessorInputType<'_, PumpfunInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let pumpfun_instruction: PumpfunInstruction = data.1.data;
+        let pumpfun_instruction: PumpfunInstruction = input.decoded_instruction.data.clone();
 
         if let PumpfunInstruction::CpiEvent(cpi_event) = pumpfun_instruction {
             match *cpi_event {

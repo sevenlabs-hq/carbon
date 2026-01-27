@@ -3,7 +3,6 @@ use std::{env, sync::Arc};
 use solana_transaction_status::UiTransactionEncoding;
 
 use {
-    async_trait::async_trait,
     carbon_core::{
         error::CarbonResult, instruction::InstructionProcessorInputType,
         metrics::MetricsCollection, processor::Processor,
@@ -60,13 +59,12 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct PumpfunInstructionProcessor;
 
-#[async_trait]
-impl Processor for PumpfunInstructionProcessor {
-    type InputType = InstructionProcessorInputType<PumpfunInstruction>;
-
+impl Processor<InstructionProcessorInputType<'_, PumpfunInstruction>>
+    for PumpfunInstructionProcessor
+{
     async fn process(
         &mut self,
-        data: Self::InputType,
+        data: &InstructionProcessorInputType<'_, PumpfunInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let (metadata, pumpfun_instruction, _nested_instructions, _) = data;

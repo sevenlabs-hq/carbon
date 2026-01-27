@@ -53,8 +53,7 @@
 
 use {
     crate::{error::CarbonResult, metrics::MetricsCollection},
-    async_trait::async_trait,
-    std::sync::Arc,
+    std::{future::Future, sync::Arc},
 };
 
 /// A trait for defining asynchronous data processing within the pipeline.
@@ -67,19 +66,17 @@ use {
 ///
 /// # Type Parameters
 ///
-/// - `InputType`: The type of data that this processor will handle. This can
-///   represent a variety of data structures depending on the application’s
-///   specific needs.
+/// - `T`: The type of data this processor handles. Data is passed by reference
+///   to avoid cloning. Must be `Sync` to allow safe concurrent access.
 ///
 /// # Required Methods
 ///
-/// - `process`: Processes the specified `InputType` data asynchronously,
-///   optionally updating associated metrics.
+/// - `process`: Processes the specified data asynchronously, optionally updating
+///   associated metrics. Returns an `impl Future` that is `Send`.
 ///
 /// # Example
 ///
 /// ```ignore
-/// use async_trait::async_trait;
 /// use carbon_core::error::CarbonResult;
 /// use carbon_core::metrics::MetricsCollection;
 /// use carbon_core::processor::Processor;
@@ -87,33 +84,28 @@ use {
 ///
 /// struct CustomProcessor;
 ///
-/// #[async_trait]
-/// impl Processor for CustomProcessor {
-///     type InputType = DataType;
-///
-///     async fn process(
+/// impl Processor<DataType> for CustomProcessor {
+///     fn process(
 ///         &mut self,
-///         data: Self::InputType,
+///         data: &DataType,
 ///         metrics: Arc<MetricsCollection>,
-///     ) -> CarbonResult<()> {
-///         // Perform data processing logic
-///
-///         // Optionally, update metrics
-///         for metric in &metrics {
-///             metric.increment_counter("processed_items", 1).await?;
+///     ) -> impl std::future::Future<Output = CarbonResult<()>> + Send {
+///         async move {
+///             // Perform data processing logic
+///             // Optionally, update metrics
+///             metrics.increment_counter("processed_items", 1).await?;
+///             Ok(())
 ///         }
-///
-///         Ok(())
 ///     }
 /// }
 /// ```
-#[async_trait]
-pub trait Processor {
-    type InputType;
-
-    async fn process(
+pub trait Processor<T>
+where
+    T: Sync,
+{
+    fn process(
         &mut self,
-        data: Self::InputType,
+        data: &T,
         metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()>;
+    ) -> impl Future<Output = CarbonResult<()>> + Send;
 }

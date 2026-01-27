@@ -60,8 +60,8 @@ use {
 ///
 /// ## Fields
 ///
-/// - `processor`: A boxed `Processor` that handles the specific logic of
-///   processing an account deletion event.
+/// - `processor`: A concrete `Processor` instance. Each pipe is
+///   monomorphic for its specific processor type.
 /// - `filters`: A collection of filters that determine which account deletion
 ///   events should be processed. Each filter in this collection is applied to
 ///   incoming account deletion events, and only events that pass all filters
@@ -74,8 +74,8 @@ use {
 ///   account deletions.
 /// - This struct is typically used within the broader pipeline structure for
 ///   managing updates.
-pub struct AccountDeletionPipe {
-    pub processor: Box<dyn Processor<InputType = AccountDeletion> + Send + Sync>,
+pub struct AccountDeletionPipe<P> {
+    pub processor: P,
     pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
 }
 
@@ -94,7 +94,7 @@ pub struct AccountDeletionPipe {
 pub trait AccountDeletionPipes: Send + Sync {
     async fn run(
         &mut self,
-        account_deletion: AccountDeletion,
+        account_deletion: &AccountDeletion,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
 
@@ -102,10 +102,13 @@ pub trait AccountDeletionPipes: Send + Sync {
 }
 
 #[async_trait]
-impl AccountDeletionPipes for AccountDeletionPipe {
+impl<P> AccountDeletionPipes for AccountDeletionPipe<P>
+where
+    P: Processor<AccountDeletion> + Send + Sync,
+{
     async fn run(
         &mut self,
-        account_deletion: AccountDeletion,
+        account_deletion: &AccountDeletion,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         log::trace!("AccountDeletionPipe::run(account_deletion: {account_deletion:?}, metrics)",);

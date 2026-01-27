@@ -99,10 +99,10 @@ pub struct TransactionMetadata {
 ///
 /// Returns an error if the fee payer cannot be extracted from the transaction's
 /// account keys.
-impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
+impl TryFrom<&crate::datasource::TransactionUpdate> for TransactionMetadata {
     type Error = crate::error::Error;
 
-    fn try_from(value: crate::datasource::TransactionUpdate) -> Result<Self, Self::Error> {
+    fn try_from(value: &crate::datasource::TransactionUpdate) -> Result<Self, Self::Error> {
         log::trace!("try_from(transaction_update: {value:?})");
         let accounts = value.transaction.message.static_account_keys();
 
@@ -118,6 +118,14 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
             block_time: value.block_time,
             block_hash: value.block_hash,
         })
+    }
+}
+
+impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
+    type Error = crate::error::Error;
+
+    fn try_from(value: crate::datasource::TransactionUpdate) -> Result<Self, Self::Error> {
+        Self::try_from(&value)
     }
 }
 
@@ -148,16 +156,18 @@ pub type TransactionProcessorInputType<T, U = ()> = (
 /// ## Fields
 ///
 /// - `schema`: The schema against which to match transaction instructions.
-/// - `processor`: The processor that will handle matched transaction data.
+/// - `processor`: A concrete `Processor` instance. Each pipe is
+///   monomorphic for its specific processor type.
 /// - `filters`: A collection of filters that determine which transaction
 ///   updates should be processed. Each filter in this collection is applied to
 ///   incoming transaction updates, and only updates that pass all filters
 ///   (return `true`) will be processed. If this collection is empty, all
 ///   updates are processed.
-pub struct TransactionPipe<T: InstructionDecoderCollection, U> {
+pub struct TransactionPipe<T: InstructionDecoderCollection, U, P> {
     schema: Option<TransactionSchema<T>>,
-    processor: Box<dyn Processor<InputType = TransactionProcessorInputType<T, U>> + Send + Sync>,
+    processor: P,
     filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+    _phantom: std::marker::PhantomData<U>,
 }
 
 /// Represents a parsed transaction, including its metadata and parsed
@@ -167,7 +177,11 @@ pub struct ParsedTransaction<I: InstructionDecoderCollection> {
     pub instructions: Vec<ParsedInstruction<I>>,
 }
 
-impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
+impl<T: InstructionDecoderCollection, U, P> TransactionPipe<T, U, P>
+where
+    U: Sync,
+    P: Processor<TransactionProcessorInputType<T, U>>,
+{
     /// Creates a new `TransactionPipe` with the specified schema and processor.
     ///
     /// # Parameters
@@ -185,10 +199,7 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
     /// processor.
     pub fn new(
         schema: Option<TransactionSchema<T>>,
-        processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
-            + Send
-            + Sync
-            + 'static,
+        processor: P,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
     ) -> Self {
         log::trace!(
@@ -198,8 +209,9 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
         );
         Self {
             schema,
-            processor: Box::new(processor),
+            processor,
             filters,
+            _phantom: std::marker::PhantomData,
         }
     }
 
@@ -289,10 +301,11 @@ pub trait TransactionPipes<'a>: Send + Sync {
 }
 
 #[async_trait]
-impl<T, U> TransactionPipes<'_> for TransactionPipe<T, U>
+impl<T, U, P> TransactionPipes<'_> for TransactionPipe<T, U, P>
 where
     T: InstructionDecoderCollection + Sync + 'static,
     U: DeserializeOwned + Send + Sync + 'static,
+    P: Processor<TransactionProcessorInputType<T, U>> + Send + Sync,
 {
     async fn run(
         &mut self,
@@ -312,12 +325,10 @@ where
             0,
         );
 
-        self.processor
-            .process(
-                (transaction_metadata, unnested_instructions, matched_data),
-                metrics,
-            )
-            .await?;
+        // Create owned data to pass by reference to processor
+        let data = (transaction_metadata, unnested_instructions, matched_data);
+
+        self.processor.process(&data, metrics).await?;
 
         Ok(())
     }

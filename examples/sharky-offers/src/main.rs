@@ -116,18 +116,13 @@ impl Datasource for GpaBackfillDatasource {
 
 pub struct SharkyAccountProcessor;
 
-#[async_trait]
-impl Processor for SharkyAccountProcessor {
-    type InputType = AccountProcessorInputType<SharkyAccount>;
-
+impl Processor<AccountProcessorInputType<'_, SharkyAccount>> for SharkyAccountProcessor {
     async fn process(
         &mut self,
-        update: Self::InputType,
+        input: &AccountProcessorInputType<'_, SharkyAccount>,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let (_metadata, account, _raw_account) = update;
-
-        match account.data {
+        match &input.decoded_account.data {
             SharkyAccount::OrderBook(order_book) => {
                 log::info!("Orderbook: {:?}", &order_book);
             }

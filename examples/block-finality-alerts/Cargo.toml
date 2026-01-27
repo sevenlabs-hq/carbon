@@ -11,7 +11,6 @@ solana-client = { workspace = true }
 solana-commitment-config = { workspace = true }
 solana-transaction-status = { workspace = true }
 
-async-trait = { workspace = true }
 dotenv = { workspace = true }
 env_logger = { workspace = true }
 log = { workspace = true }

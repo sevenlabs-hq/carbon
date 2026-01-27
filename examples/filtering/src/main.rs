@@ -1,11 +1,11 @@
 use {
     async_trait::async_trait,
     carbon_core::{
-        account::{AccountMetadata, DecodedAccount},
+        account::AccountProcessorInputType,
         datasource::{AccountUpdate, Datasource, DatasourceId, Update, UpdateType},
         error::CarbonResult,
         filter::DatasourceFilter,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
+        instruction::InstructionProcessorInputType,
         metrics::MetricsCollection,
         processor::Processor,
     },
@@ -121,21 +121,15 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct KaminoLendingInstructionProcessor;
 
-#[async_trait]
-impl Processor for KaminoLendingInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<KaminoLendingInstruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
-
+impl Processor<InstructionProcessorInputType<'_, KaminoLendingInstruction>>
+    for KaminoLendingInstructionProcessor
+{
     async fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions, _): Self::InputType,
+        data: &InstructionProcessorInputType<'_, KaminoLendingInstruction>,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let signature = metadata.transaction_metadata.signature;
+        let signature = data.metadata.transaction_metadata.signature;
 
         let signature = format!(
             "{}...{}",
@@ -146,7 +140,7 @@ impl Processor for KaminoLendingInstructionProcessor {
         log::info!(
             "instruction processed ({}) {:?}",
             signature,
-            instruction.data
+            data.decoded_instruction.data.clone()
         );
 
         Ok(())
@@ -154,25 +148,21 @@ impl Processor for KaminoLendingInstructionProcessor {
 }
 
 pub struct KaminoLendingRealtimeAccountProcessor;
-#[async_trait]
-impl Processor for KaminoLendingRealtimeAccountProcessor {
-    type InputType = (
-        AccountMetadata,
-        DecodedAccount<KaminoLendingAccount>,
-        solana_account::Account,
-    );
 
+impl Processor<AccountProcessorInputType<'_, KaminoLendingAccount>>
+    for KaminoLendingRealtimeAccountProcessor
+{
     async fn process(
         &mut self,
-        data: Self::InputType,
+        data: &AccountProcessorInputType<'_, KaminoLendingAccount>,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let account = data.1;
+        let account = &data.decoded_account;
 
         let pubkey_str = format!(
             "{}...{}",
-            &data.0.pubkey.to_string()[..4],
-            &data.0.pubkey.to_string()[4..]
+            &data.metadata.pubkey.to_string()[..4],
+            &data.metadata.pubkey.to_string()[4..]
         );
 
         fn max_total_chars(s: &str, max: usize) -> String {
@@ -187,7 +177,7 @@ impl Processor for KaminoLendingRealtimeAccountProcessor {
             "account updated ({}) {:?}",
             pubkey_str,
             max_total_chars(
-                &match account.data {
+                &match &account.data {
                     KaminoLendingAccount::UserState(user_state) => format!("{user_state:?}"),
                     KaminoLendingAccount::LendingMarket(lending_market) =>
                         format!("{lending_market:?}"),
@@ -215,25 +205,21 @@ impl Processor for KaminoLendingRealtimeAccountProcessor {
 }
 
 pub struct KaminoLendingStartupAccountProcessor;
-#[async_trait]
-impl Processor for KaminoLendingStartupAccountProcessor {
-    type InputType = (
-        AccountMetadata,
-        DecodedAccount<KaminoLendingAccount>,
-        solana_account::Account,
-    );
 
+impl Processor<AccountProcessorInputType<'_, KaminoLendingAccount>>
+    for KaminoLendingStartupAccountProcessor
+{
     async fn process(
         &mut self,
-        data: Self::InputType,
+        data: &AccountProcessorInputType<'_, KaminoLendingAccount>,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let account = data.1;
+        let account = &data.decoded_account;
 
         let pubkey_str = format!(
             "{}...{}",
-            &data.0.pubkey.to_string()[..4],
-            &data.0.pubkey.to_string()[4..]
+            &data.metadata.pubkey.to_string()[..4],
+            &data.metadata.pubkey.to_string()[4..]
         );
 
         fn max_total_chars(s: &str, max: usize) -> String {
@@ -248,7 +234,7 @@ impl Processor for KaminoLendingStartupAccountProcessor {
             "gpa account received ({}) {:?}",
             pubkey_str,
             max_total_chars(
-                &match account.data {
+                &match &account.data {
                     KaminoLendingAccount::UserState(user_state) => format!("{user_state:?}"),
                     KaminoLendingAccount::LendingMarket(lending_market) =>
                         format!("{lending_market:?}"),

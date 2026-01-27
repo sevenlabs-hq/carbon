@@ -275,13 +275,16 @@ pub trait InstructionDecoder<'a> {
 
 /// The input type for the instruction processor.
 ///
+/// Holds references to avoid cloning. Processors receive a reference to this struct.
+///
 /// - `T`: The instruction type
-pub type InstructionProcessorInputType<T> = (
-    InstructionMetadata,
-    DecodedInstruction<T>,
-    NestedInstructions,
-    solana_instruction::Instruction,
-);
+#[derive(Debug)]
+pub struct InstructionProcessorInputType<'a, T> {
+    pub metadata: &'a InstructionMetadata,
+    pub decoded_instruction: &'a DecodedInstruction<T>,
+    pub nested_instructions: &'a NestedInstructions,
+    pub raw_instruction: &'a solana_instruction::Instruction,
+}
 
 /// A processing pipeline for instructions, using a decoder and processor.
 ///
@@ -296,17 +299,17 @@ pub type InstructionProcessorInputType<T> = (
 /// # Fields
 ///
 /// - `decoder`: The decoder used for parsing instructions.
-/// - `processor`: The processor that handles decoded instructions.
+/// - `processor`: A concrete `Processor` instance. Each pipe is
+///   monomorphic for its specific processor type.
 /// - `filters`: A collection of filters that determine which instruction
 ///   updates should be processed. Each filter in this collection is applied to
 ///   incoming instruction updates, and only updates that pass all filters
 ///   (return `true`) will be processed. If this collection is empty, all
 ///   updates are processed.
-pub struct InstructionPipe<T: Send> {
+pub struct InstructionPipe<T: Send, P> {
     pub decoder:
         Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
-    pub processor:
-        Box<dyn Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static>,
+    pub processor: P,
     pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
 }
 
@@ -334,7 +337,11 @@ pub trait InstructionPipes<'a>: Send + Sync {
 }
 
 #[async_trait]
-impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
+impl<T, P> InstructionPipes<'_> for InstructionPipe<T, P>
+where
+    T: Send + Sync + 'static,
+    P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync,
+{
     async fn run(
         &mut self,
         nested_instruction: &NestedInstruction,
@@ -342,19 +349,32 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
     ) -> CarbonResult<()> {
         log::trace!("InstructionPipe::run(nested_instruction: {nested_instruction:?}, metrics)",);
 
-        if let Some(decoded_instruction) = self
+        let decode_start = std::time::Instant::now();
+        let decoded_instruction = self
             .decoder
-            .decode_instruction(&nested_instruction.instruction)
-        {
-            self.processor
-                .process(
-                    (
-                        nested_instruction.metadata.clone(),
-                        decoded_instruction,
-                        nested_instruction.inner_instructions.clone(),
-                        nested_instruction.instruction.clone(),
-                    ),
-                    metrics.clone(),
+            .decode_instruction(&nested_instruction.instruction);
+        let decode_time_ns = decode_start.elapsed().as_nanos();
+        metrics
+            .record_histogram("instruction_decode_time_nanoseconds", decode_time_ns as f64)
+            .await?;
+
+        if let Some(decoded_instruction) = decoded_instruction {
+            let process_start = std::time::Instant::now();
+            let process_metrics = metrics.clone();
+
+            let data = InstructionProcessorInputType {
+                metadata: &nested_instruction.metadata,
+                decoded_instruction: &decoded_instruction,
+                nested_instructions: &nested_instruction.inner_instructions,
+                raw_instruction: &nested_instruction.instruction,
+            };
+
+            self.processor.process(&data, process_metrics).await?;
+            let process_time_ns = process_start.elapsed().as_nanos();
+            metrics
+                .record_histogram(
+                    "instruction_process_time_nanoseconds",
+                    process_time_ns as f64,
                 )
                 .await?;
         }
