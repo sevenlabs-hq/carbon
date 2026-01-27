@@ -1,24 +1,3 @@
-//! Provides structures and traits for decoding and processing instructions
-//! within transactions.
-//!
-//! The module includes the following main components:
-//! - **`InstructionMetadata`**: Metadata associated with an instruction,
-//!   capturing transaction context.
-//! - **`DecodedInstruction`**: Represents an instruction that has been decoded,
-//!   with associated program ID, data, and accounts.
-//! - **`InstructionDecoder`**: A trait for decoding instructions into specific
-//!   types.
-//! - **`InstructionPipe`**: A structure that processes instructions using a
-//!   decoder and a processor.
-//! - **`InstructionPipes`**: An async trait for processing instructions within
-//!   nested contexts.
-//! - **`NestedInstruction`**: Represents instructions with potential nested
-//!   inner instructions, allowing for recursive processing.
-//!
-//! These components enable the `carbon-core` framework to handle Solana
-//! transaction instructions efficiently, decoding them into structured types
-//! and facilitating hierarchical processing.
-
 use {
     crate::{
         deserialize::CarbonDeserialize, error::CarbonResult, filter::Filter,
@@ -33,25 +12,6 @@ use {
         sync::Arc,
     },
 };
-
-/// Metadata associated with a specific instruction, including transaction-level
-/// details.
-///
-/// `InstructionMetadata` is utilized within the pipeline to associate each
-/// instruction with the broader context of its transaction, as well as its
-/// position within the instruction stack.
-///
-/// # Fields
-///
-/// - `transaction_metadata`: Metadata providing details of the entire
-///   transaction.
-/// - `stack_height`: Represents the instruction's depth within the stack, where
-///   1 is the root level.
-/// - `index`: The index of the instruction in the transaction. The index is
-///   relative within stack height and is 1-based. Note that the inner
-///   instruction indexes are grouped into one vector, so different inner
-///   instructions that have different stack heights may have continuous
-///   indexes.
 
 #[derive(Debug, Clone)]
 pub struct InstructionMetadata {
@@ -69,9 +29,6 @@ enum LogType {
     Finish,
 }
 
-/// Known Solana precompile programs that don't emit invoke logs.
-/// These programs execute signature verification without logging.
-/// See: https://solana.com/docs/core/programs#precompile-programs
 const PRECOMPILE_PROGRAMS: &[&str] = &[
     "Ed25519SigVerify111111111111111111111111111",
     "KeccakSecp256k11111111111111111111111111111",
@@ -79,15 +36,6 @@ const PRECOMPILE_PROGRAMS: &[&str] = &[
 ];
 
 impl InstructionMetadata {
-    /// Decodes the log events `T` thrown by this instruction.
-    ///
-    /// # Parameters
-    ///
-    /// - `T`: The event type to decode the instruction's logs into.
-    ///
-    /// # Returns
-    ///
-    /// All successfull events of the type `T` decoded from the logs of the instruction.
     pub fn decode_log_events<T: CarbonDeserialize>(&self) -> Vec<T> {
         self.extract_event_log_data()
             .into_iter()
@@ -96,13 +44,6 @@ impl InstructionMetadata {
             .collect()
     }
 
-    /// Extracts the `data` from log messages associated with this instruction.
-    ///
-    /// This method filters the transaction's log messages to return only those
-    /// that correspond to the current instruction, based on its stack height and
-    /// absolute path within the instruction stack.
-    ///
-    /// Returns `Vec<Vec<u8>>` containing the `data` bytes (base64 encoded) from log messages.
     fn extract_event_log_data(&self) -> Vec<Vec<u8>> {
         let logs = match &self.transaction_metadata.meta.log_messages {
             Some(logs) => logs,
@@ -168,11 +109,6 @@ impl InstructionMetadata {
         extracted_logs
     }
 
-    /// Counts the number of precompile instructions that appear before this
-    /// instruction's outer index in the transaction message.
-    ///
-    /// Precompile programs don't emit invoke logs, which creates a mismatch between message-based indices
-    /// and log-based position counting.
     fn count_precompiles_before_index(&self) -> usize {
         if self.absolute_path.is_empty() {
             return 0;
@@ -198,7 +134,6 @@ impl InstructionMetadata {
         precompile_count
     }
 
-    /// Parses a log line to determine its type
     fn parse_log(&self, log: &str) -> LogType {
         if log.starts_with("Program ") && log.contains(" invoke [") {
             let parts: Vec<&str> = log.split_whitespace().collect();
@@ -225,23 +160,6 @@ impl InstructionMetadata {
 
 pub type InstructionsWithMetadata = Vec<(InstructionMetadata, solana_instruction::Instruction)>;
 
-/// A decoded instruction containing program ID, data, and associated accounts.
-///
-/// The `DecodedInstruction` struct represents the outcome of decoding a raw
-/// instruction, encapsulating its program ID, parsed data, and the accounts
-/// involved.
-///
-/// # Type Parameters
-///
-/// - `T`: The type representing the decoded data for the instruction.
-///
-/// # Fields
-///
-/// - `program_id`: The program ID that owns the instruction.
-/// - `data`: The decoded data payload for the instruction, of type `T`.
-/// - `accounts`: A vector of `AccountMeta`, representing the accounts involved
-///   in the instruction.
-
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct DecodedInstruction<T> {
     pub program_id: Pubkey,
@@ -249,21 +167,6 @@ pub struct DecodedInstruction<T> {
     pub accounts: Vec<AccountMeta>,
 }
 
-/// A trait for decoding Solana instructions into a structured type.
-///
-/// Implement the `InstructionDecoder` trait for types that can decode raw
-/// instructions into a more meaningful structure, providing
-/// application-specific logic.
-///
-/// # Type Parameters
-///
-/// - `InstructionType`: The type into which the instruction data will be
-///   decoded.
-///
-/// # Required Methods
-///
-/// - `decode_instruction`: Decodes a raw Solana `Instruction` into a
-///   `DecodedInstruction`.
 pub trait InstructionDecoder<'a> {
     type InstructionType;
 
@@ -273,9 +176,6 @@ pub trait InstructionDecoder<'a> {
     ) -> Option<DecodedInstruction<Self::InstructionType>>;
 }
 
-/// The input type for the instruction processor.
-///
-/// - `T`: The instruction type
 pub type InstructionProcessorInputType<T> = (
     InstructionMetadata,
     DecodedInstruction<T>,
@@ -283,25 +183,6 @@ pub type InstructionProcessorInputType<T> = (
     solana_instruction::Instruction,
 );
 
-/// A processing pipeline for instructions, using a decoder and processor.
-///
-/// The `InstructionPipe` structure enables the processing of decoded
-/// instructions, pairing an `InstructionDecoder` with a `Processor`. It
-/// supports generic instruction types.
-///
-/// # Type Parameters
-///
-/// - `T`: The type representing the decoded instruction data.
-///
-/// # Fields
-///
-/// - `decoder`: The decoder used for parsing instructions.
-/// - `processor`: The processor that handles decoded instructions.
-/// - `filters`: A collection of filters that determine which instruction
-///   updates should be processed. Each filter in this collection is applied to
-///   incoming instruction updates, and only updates that pass all filters
-///   (return `true`) will be processed. If this collection is empty, all
-///   updates are processed.
 pub struct InstructionPipe<T: Send> {
     pub decoder:
         Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
@@ -310,19 +191,6 @@ pub struct InstructionPipe<T: Send> {
     pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
 }
 
-/// An async trait for processing instructions within nested contexts.
-///
-/// The `InstructionPipes` trait allows for recursive processing of instructions
-/// that may contain nested instructions. This enables complex, hierarchical
-/// instruction handling for transactions.
-///
-/// # Required Methods
-///
-/// - `run`: Processes a `NestedInstruction`, recursively processing any inner
-///   instructions.
-/// - `filters`: Returns a reference to the filters associated with this pipe,
-///   which are used by the pipeline to determine which instruction updates
-///   should be processed.
 #[async_trait]
 pub trait InstructionPipes<'a>: Send + Sync {
     async fn run(
@@ -371,19 +239,6 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
     }
 }
 
-/// Represents a nested instruction with metadata, including potential inner
-/// instructions.
-///
-/// The `NestedInstruction` struct allows for recursive instruction handling,
-/// where each instruction may have associated metadata and a list of nested
-/// instructions.
-///
-/// # Fields
-///
-/// - `metadata`: The metadata associated with the instruction.
-/// - `instruction`: The Solana instruction being processed.
-/// - `inner_instructions`: A vector of `NestedInstruction`, representing any
-///   nested instructions.
 #[derive(Debug, Clone)]
 pub struct NestedInstruction {
     pub metadata: InstructionMetadata,
@@ -437,22 +292,6 @@ impl IntoIterator for NestedInstructions {
     }
 }
 
-/// Nests instructions based on stack height, producing a hierarchy of
-/// `NestedInstruction`.
-///
-/// This function organizes instructions into a nested structure, enabling
-/// hierarchical transaction analysis. Instructions are nested according to
-/// their stack height, forming a tree-like structure.
-///
-/// # Parameters
-///
-/// - `instructions`: A list of tuples containing `InstructionMetadata` and
-///   instructions.
-///
-/// # Returns
-///
-/// A vector of `NestedInstruction`, representing the instructions organized by
-/// stack depth.
 impl From<InstructionsWithMetadata> for NestedInstructions {
     fn from(instructions: InstructionsWithMetadata) -> Self {
         log::trace!("from(instructions: {instructions:?})");
@@ -477,9 +316,6 @@ pub struct UnsafeNestedBuilder {
 }
 
 impl UnsafeNestedBuilder {
-    /// ## SAFETY:
-    /// Make sure `capacity` is large enough to avoid capacity expansion caused
-    /// by `push`
     pub fn new(capacity: usize) -> Self {
         Self {
             nested_ixs: Vec::with_capacity(capacity),
