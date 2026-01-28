@@ -22,7 +22,7 @@ pub fn extract_discriminator(length: usize, data: &[u8]) -> Option<(&[u8], &[u8]
 }
 
 pub trait ArrangeAccounts {
-    type ArrangedAccounts;
+    type ArrangedAccounts: Clone + Send + Sync + std::fmt::Debug + Unpin;
 
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],

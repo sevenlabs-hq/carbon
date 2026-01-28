@@ -1,8 +1,6 @@
 use {
-    crate::{collection::InstructionDecoderCollection, instruction::DecodedInstruction},
+    crate::collection::InstructionDecoderCollection,
     serde::de::DeserializeOwned,
-    solana_instruction::AccountMeta,
-    solana_pubkey::Pubkey,
     std::collections::HashMap,
 };
 
@@ -21,8 +19,7 @@ pub struct InstructionSchemaNode<T: InstructionDecoderCollection> {
 
 #[derive(Debug)]
 pub struct ParsedInstruction<T: InstructionDecoderCollection> {
-    pub program_id: Pubkey,
-    pub instruction: DecodedInstruction<T>,
+    pub instruction: T,
     pub inner_instructions: Vec<ParsedInstruction<T>>,
 }
 
@@ -46,9 +43,9 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
     pub fn match_nodes(
         &self,
         instructions: &[ParsedInstruction<T>],
-    ) -> Option<HashMap<String, (T, Vec<AccountMeta>)>> {
+    ) -> Option<HashMap<String, T>> {
         log::trace!("Schema::match_nodes(self: {self:?}, instructions: {instructions:?})");
-        let mut output = HashMap::<String, (T, Vec<AccountMeta>)>::new();
+        let mut output = HashMap::<String, T>::new();
 
         let mut node_index = 0;
         let mut instruction_index = 0;
@@ -76,7 +73,7 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
                     return None;
                 };
 
-                if current_instruction.instruction.data.get_type() != instruction_node.ix_type
+                if current_instruction.instruction.get_type() != instruction_node.ix_type
                     && !any
                 {
                     log::trace!(
@@ -85,7 +82,7 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
                     return None;
                 }
 
-                if current_instruction.instruction.data.get_type() != instruction_node.ix_type
+                if current_instruction.instruction.get_type() != instruction_node.ix_type
                     && any
                 {
                     log::trace!(
@@ -97,10 +94,7 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
 
                 output.insert(
                     instruction_node.name.clone(),
-                    (
-                        current_instruction.instruction.data.clone(),
-                        current_instruction.instruction.accounts.clone(),
-                    ),
+                    current_instruction.instruction.clone(),
                 );
 
                 if !instruction_node.inner_instructions.is_empty() {
@@ -133,9 +127,9 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
 }
 
 pub fn merge_hashmaps<K, V>(
-    a: HashMap<K, (V, Vec<AccountMeta>)>,
-    b: HashMap<K, (V, Vec<AccountMeta>)>,
-) -> HashMap<K, (V, Vec<AccountMeta>)>
+    a: HashMap<K, V>,
+    b: HashMap<K, V>,
+) -> HashMap<K, V>
 where
     K: std::cmp::Eq + std::hash::Hash,
 {

@@ -1,4 +1,3 @@
-use solana_instruction::AccountMeta;
 use std::sync::Arc;
 
 use crate::{
@@ -141,7 +140,7 @@ impl<T, W> PostgresInstructionProcessor<T, W> {
 impl<T, W> crate::processor::Processor for PostgresInstructionProcessor<T, W>
 where
     T: Clone + Send + Sync + 'static,
-    W: From<(T, InstructionMetadata, Vec<AccountMeta>)> + Upsert + Send + 'static,
+    W: From<(T, InstructionMetadata)> + Upsert + Send + 'static,
 {
     type InputType = InstructionProcessorInputType<T>;
 
@@ -150,15 +149,11 @@ where
         input: Self::InputType,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let (metadata, decoded_instruction, _nested_instructions, _raw) = input;
+        let (metadata, instruction, _nested_instructions, _raw) = input;
 
         let start = std::time::Instant::now();
 
-        let wrapper = W::from((
-            decoded_instruction.data,
-            metadata,
-            decoded_instruction.accounts,
-        ));
+        let wrapper = W::from((instruction, metadata));
 
         match wrapper.upsert(&self.pool).await {
             Ok(()) => {
@@ -209,13 +204,9 @@ where
         input: Self::InputType,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let (metadata, decoded_instruction, _nested_instructions, _raw) = input;
+        let (metadata, instruction, _nested_instructions, _raw) = input;
 
-        let instruction_row = InstructionRow::from_parts(
-            decoded_instruction.data,
-            metadata,
-            decoded_instruction.accounts,
-        );
+        let instruction_row = InstructionRow::from_parts(instruction, metadata);
 
         let start = std::time::Instant::now();
 
