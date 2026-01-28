@@ -158,23 +158,17 @@ pub struct InstructionRow<
 > {
     #[sqlx(flatten)]
     pub metadata: InstructionRowMetadata,
-    pub data: sqlx::types::Json<T>,
-    pub accounts: sqlx::types::Json<Vec<AccountMeta>>,
+    pub instruction: sqlx::types::Json<T>,
 }
 
 impl<
         T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
     > InstructionRow<T>
 {
-    pub fn from_parts(
-        source: T,
-        metadata: InstructionMetadata,
-        accounts: Vec<AccountMeta>,
-    ) -> Self {
+    pub fn from_parts(instruction: T, metadata: InstructionMetadata) -> Self {
         Self {
             metadata: metadata.into(),
-            data: sqlx::types::Json(source),
-            accounts: sqlx::types::Json(accounts),
+            instruction: sqlx::types::Json(instruction),
         }
     }
 }
@@ -185,13 +179,12 @@ impl<
     > Insert for InstructionRow<T>
 {
     async fn insert(&self, pool: &sqlx::PgPool) -> CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO instructions (__signature, __instruction_index, __stack_height, __slot, data, accounts) VALUES ($1, $2, $3, $4, $5, $6)"#)
+        sqlx::query(r#"INSERT INTO instructions (__signature, __instruction_index, __stack_height, __slot, instruction) VALUES ($1, $2, $3, $4, $5)"#)
             .bind(self.metadata.signature.clone())
             .bind(self.metadata.instruction_index)
             .bind(self.metadata.stack_height)
             .bind(self.metadata.slot.clone())
-            .bind(self.data.clone())
-            .bind(self.accounts.clone())
+            .bind(self.instruction.clone())
             .execute(pool)
             .await
             .map_err(|e| crate::error::Error::Custom(e.to_string()))?;
@@ -205,13 +198,12 @@ impl<
     > Upsert for InstructionRow<T>
 {
     async fn upsert(&self, pool: &sqlx::PgPool) -> CarbonResult<()> {
-        sqlx::query(r#"INSERT INTO instructions (__signature, __instruction_index, __stack_height, __slot, data, accounts) VALUES ($1, $2, $3, $4, $5, $6) ON CONFLICT (__signature, __instruction_index, __stack_height) DO UPDATE SET __slot = $4, data = $5, accounts = $6"#)
+        sqlx::query(r#"INSERT INTO instructions (__signature, __instruction_index, __stack_height, __slot, instruction) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (__signature, __instruction_index, __stack_height) DO UPDATE SET __slot = $4, instruction = $5"#)
             .bind(self.metadata.signature.clone())
             .bind(self.metadata.instruction_index)
             .bind(self.metadata.stack_height)
             .bind(self.metadata.slot.clone())
-            .bind(self.data.clone())
-            .bind(self.accounts.clone())
+            .bind(self.instruction.clone())
             .execute(pool)
             .await
             .map_err(|e| crate::error::Error::Custom(e.to_string()))?;
@@ -272,8 +264,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for InstructionRowMigrationOperati
             __instruction_index BIGINT NOT NULL,
             __stack_height BIGINT NOT NULL,
             __slot NUMERIC,
-            data JSONB NOT NULL,
-            accounts JSONB NOT NULL,
+            instruction JSONB NOT NULL,
             PRIMARY KEY (__signature, __instruction_index, __stack_height)
         )"#,
         )

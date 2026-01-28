@@ -4,9 +4,6 @@ use {
         metrics::MetricsCollection, processor::Processor, transaction::TransactionMetadata,
     },
     async_trait::async_trait,
-    serde::{Deserialize, Serialize},
-    solana_instruction::AccountMeta,
-    solana_pubkey::Pubkey,
     std::{
         ops::{Deref, DerefMut},
         sync::Arc,
@@ -160,34 +157,26 @@ impl InstructionMetadata {
 
 pub type InstructionsWithMetadata = Vec<(InstructionMetadata, solana_instruction::Instruction)>;
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
-pub struct DecodedInstruction<T> {
-    pub program_id: Pubkey,
-    pub data: T,
-    pub accounts: Vec<AccountMeta>,
-}
-
 pub trait InstructionDecoder<'a> {
     type InstructionType;
 
     fn decode_instruction(
         &self,
         instruction: &'a solana_instruction::Instruction,
-    ) -> Option<DecodedInstruction<Self::InstructionType>>;
+    ) -> Option<Self::InstructionType>;
 }
 
 pub type InstructionProcessorInputType<T> = (
     InstructionMetadata,
-    DecodedInstruction<T>,
+    T,
     NestedInstructions,
     solana_instruction::Instruction,
 );
 
-pub struct InstructionPipe<T: Send> {
+pub struct InstructionPipe<T: Send, P> {
     pub decoder:
         Box<dyn for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static>,
-    pub processor:
-        Box<dyn Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static>,
+    pub processor: P,
     pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
 }
 
@@ -202,7 +191,10 @@ pub trait InstructionPipes<'a>: Send + Sync {
 }
 
 #[async_trait]
-impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
+impl<T: Send + 'static, P> InstructionPipes<'_> for InstructionPipe<T, P>
+where
+    P: Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static,
+{
     async fn run(
         &mut self,
         nested_instruction: &NestedInstruction,
@@ -210,7 +202,7 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
     ) -> CarbonResult<()> {
         log::trace!("InstructionPipe::run(nested_instruction: {nested_instruction:?}, metrics)",);
 
-        if let Some(decoded_instruction) = self
+        if let Some(instruction) = self
             .decoder
             .decode_instruction(&nested_instruction.instruction)
         {
@@ -218,7 +210,7 @@ impl<T: Send + 'static> InstructionPipes<'_> for InstructionPipe<T> {
                 .process(
                     (
                         nested_instruction.metadata.clone(),
-                        decoded_instruction,
+                        instruction,
                         nested_instruction.inner_instructions.clone(),
                         nested_instruction.instruction.clone(),
                     ),

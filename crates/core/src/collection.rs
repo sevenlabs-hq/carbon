@@ -1,4 +1,4 @@
-use {crate::instruction::DecodedInstruction, serde::Serialize};
+use serde::Serialize;
 
 pub trait InstructionDecoderCollection:
     Clone + std::fmt::Debug + Send + Sync + Eq + std::hash::Hash + Serialize + 'static
@@ -7,6 +7,6 @@ pub trait InstructionDecoderCollection:
 
     fn parse_instruction(
         instruction: &solana_instruction::Instruction,
-    ) -> Option<DecodedInstruction<Self>>;
+    ) -> Option<Self>;
     fn get_type(&self) -> Self::InstructionType;
 }

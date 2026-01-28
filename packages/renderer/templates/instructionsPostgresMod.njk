@@ -53,21 +53,22 @@ impl From<({{ program.name | pascalCase }}Instruction, carbon_core::instruction:
     }
 }
 
+
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for {{ program.name | pascalCase }}InstructionWithMetadata {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let {{ program.name | pascalCase }}InstructionWithMetadata(instruction, metadata, accounts) = self;
+        let {{ program.name | pascalCase }}InstructionWithMetadata(instruction, metadata, raw_accounts) = self;
         match instruction {
 {% for instruction in instructionsToExport %}
-            {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) => {
-                let row = {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_row::{{ instruction.name | pascalCase }}Row::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} { data, .. } => {
+                let row = {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_row::{{ instruction.name | pascalCase }}Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
 {% endfor %}
 {% if hasAnchorEvents %}
-            {{ program.name | pascalCase }}Instruction::CpiEvent(instruction) => {
-                let row = cpi_event_row::CpiEventRow::from_parts((**instruction).clone(), metadata.clone(), accounts.clone());
+            {{ program.name | pascalCase }}Instruction::CpiEvent { data, .. } => {
+                let row = cpi_event_row::CpiEventRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -79,18 +80,18 @@ impl carbon_core::postgres::operations::Insert for {{ program.name | pascalCase 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for {{ program.name | pascalCase }}InstructionWithMetadata {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let {{ program.name | pascalCase }}InstructionWithMetadata(instruction, metadata, accounts) = self;
+        let {{ program.name | pascalCase }}InstructionWithMetadata(instruction, metadata, raw_accounts) = self;
         match instruction {
 {% for instruction in instructionsToExport %}
-            {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) => {
-                let row = {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_row::{{ instruction.name | pascalCase }}Row::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} { data, .. } => {
+                let row = {{ macros.escapeRustKeyword(instruction.name | snakeCase) }}_row::{{ instruction.name | pascalCase }}Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
 {% endfor %}
 {% if hasAnchorEvents %}
-            {{ program.name | pascalCase }}Instruction::CpiEvent(instruction) => {
-                let row = cpi_event_row::CpiEventRow::from_parts((**instruction).clone(), metadata.clone(), accounts.clone());
+            {{ program.name | pascalCase }}Instruction::CpiEvent { data, .. } => {
+                let row = cpi_event_row::CpiEventRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }

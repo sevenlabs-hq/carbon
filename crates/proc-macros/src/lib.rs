@@ -52,6 +52,14 @@ pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream
                 }
             }
         }
+
+        #[automatically_derived]
+        impl #name {
+            /// Decode method that calls deserialize for compatibility with try_decode_instructions! macro
+            pub fn decode(data: &[u8]) -> Option<Self> {
+                <Self as carbon_core::deserialize::CarbonDeserialize>::deserialize(data)
+            }
+        }
     };
 
     TokenStream::from(expanded)
@@ -240,12 +248,8 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
         });
 
         parse_instruction_arms.push(quote! {
-            if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    accounts: instruction.accounts.clone(),
-                    data: #instructions_enum_name::#program_variant(decoded_instruction.data),
-                });
+            if let Some(instruction_enum) = #decoder_expr.decode_instruction(&instruction) {
+                return Some(#instructions_enum_name::#program_variant(instruction_enum));
             }
         });
 
@@ -277,7 +281,7 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
 
             fn parse_instruction(
                 instruction: &solana_instruction::Instruction
-            ) -> Option<carbon_core::instruction::DecodedInstruction<Self>> {
+            ) -> Option<Self> {
                 #(#parse_instruction_arms)*
                 None
             }
@@ -341,12 +345,8 @@ pub fn instruction_decoder_collection_fast(input: TokenStream) -> TokenStream {
         if let Some(program_id_path) = explicit_program_id_path {
             parse_instruction_match_arms.push(quote! {
                 #program_id_path => {
-                    if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
-                        Some(carbon_core::instruction::DecodedInstruction {
-                            program_id: instruction.program_id,
-                            accounts: instruction.accounts.clone(),
-                            data: #instructions_enum_name::#program_variant(decoded_instruction.data),
-                        })
+                    if let Some(instruction_enum) = #decoder_expr.decode_instruction(&instruction) {
+                        Some(#instructions_enum_name::#program_variant(instruction_enum))
                     } else {
                         None
                     }
@@ -355,12 +355,8 @@ pub fn instruction_decoder_collection_fast(input: TokenStream) -> TokenStream {
         } else {
             // No program id path: include in slow-path fallback.
             fallback_decode_blocks.push(quote! {
-                if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
-                    return Some(carbon_core::instruction::DecodedInstruction {
-                        program_id: instruction.program_id,
-                        accounts: instruction.accounts.clone(),
-                        data: #instructions_enum_name::#program_variant(decoded_instruction.data),
-                    });
+                if let Some(instruction_enum) = #decoder_expr.decode_instruction(&instruction) {
+                    return Some(#instructions_enum_name::#program_variant(instruction_enum));
                 }
             });
         }
@@ -393,7 +389,7 @@ pub fn instruction_decoder_collection_fast(input: TokenStream) -> TokenStream {
 
             fn parse_instruction(
                 instruction: &solana_instruction::Instruction
-            ) -> Option<carbon_core::instruction::DecodedInstruction<Self>> {
+            ) -> Option<Self> {
                 match instruction.program_id {
                     #(#parse_instruction_match_arms),*
                     _ => {
