@@ -1,5 +1,3 @@
-use solana_instruction::AccountMeta;
-
 use crate::{
     account::AccountMetadata,
     error::CarbonResult,

@@ -1,6 +1,5 @@
 use {
-    crate::collection::InstructionDecoderCollection,
-    serde::de::DeserializeOwned,
+    crate::collection::InstructionDecoderCollection, serde::de::DeserializeOwned,
     std::collections::HashMap,
 };
 
@@ -40,10 +39,7 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
         serde_json::from_value::<U>(value).ok()
     }
 
-    pub fn match_nodes(
-        &self,
-        instructions: &[ParsedInstruction<T>],
-    ) -> Option<HashMap<String, T>> {
+    pub fn match_nodes(&self, instructions: &[ParsedInstruction<T>]) -> Option<HashMap<String, T>> {
         log::trace!("Schema::match_nodes(self: {self:?}, instructions: {instructions:?})");
         let mut output = HashMap::<String, T>::new();
 
@@ -73,18 +69,14 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
                     return None;
                 };
 
-                if current_instruction.instruction.get_type() != instruction_node.ix_type
-                    && !any
-                {
+                if current_instruction.instruction.get_type() != instruction_node.ix_type && !any {
                     log::trace!(
                         "Schema::match_nodes: instruction type mismatch, returning (any = false)"
                     );
                     return None;
                 }
 
-                if current_instruction.instruction.get_type() != instruction_node.ix_type
-                    && any
-                {
+                if current_instruction.instruction.get_type() != instruction_node.ix_type && any {
                     log::trace!(
                         "Schema::match_nodes: instruction type mismatch, skipping (any = true)"
                     );
@@ -126,10 +118,7 @@ impl<T: InstructionDecoderCollection> TransactionSchema<T> {
     }
 }
 
-pub fn merge_hashmaps<K, V>(
-    a: HashMap<K, V>,
-    b: HashMap<K, V>,
-) -> HashMap<K, V>
+pub fn merge_hashmaps<K, V>(a: HashMap<K, V>, b: HashMap<K, V>) -> HashMap<K, V>
 where
     K: std::cmp::Eq + std::hash::Hash,
 {
