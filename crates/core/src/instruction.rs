@@ -361,8 +361,11 @@ impl UnsafeNestedBuilder {
 mod tests {
 
     use {
-        super::*, solana_instruction::Instruction,
-        solana_transaction_status::TransactionStatusMeta, std::str::FromStr,
+        super::*,
+        solana_instruction::{AccountMeta, Instruction},
+        solana_pubkey::Pubkey,
+        solana_transaction_status::TransactionStatusMeta,
+        std::str::FromStr,
     };
 
     fn create_instruction_with_metadata(
