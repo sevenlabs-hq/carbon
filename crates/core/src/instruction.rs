@@ -202,7 +202,7 @@ where
     ) -> CarbonResult<()> {
         log::trace!("InstructionPipe::run(nested_instruction: {nested_instruction:?}, metrics)",);
 
-        if let Some(instruction) = self
+        if let Some(decoded_instruction) = self
             .decoder
             .decode_instruction(&nested_instruction.instruction)
         {
@@ -210,7 +210,7 @@ where
                 .process(
                     (
                         nested_instruction.metadata.clone(),
-                        instruction,
+                        decoded_instruction,
                         nested_instruction.inner_instructions.clone(),
                         nested_instruction.instruction.clone(),
                     ),

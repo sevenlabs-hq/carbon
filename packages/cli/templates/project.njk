@@ -128,14 +128,14 @@ impl Processor for {{ decoder.name }}InstructionProcessor {
 
     async fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions, _raw_instruction): Self::InputType,
+        (metadata, decoded_instruction, _nested_instructions, _raw_instruction): Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let signature = metadata.transaction_metadata.signature;
 
         log::info!("received the {{ decoder.name }} instruction, sig: {}", signature);
         
-        match instruction {
+        match decoded_instruction {
             _ => {}
         };
 
