@@ -1,10 +1,10 @@
-use std::{collections::HashSet, sync::Arc};
+use std::collections::HashSet;
 
 use async_trait::async_trait;
 use carbon_core::{
     datasource::{BlockDetails, Datasource, DatasourceId, TransactionUpdate, Update, UpdateType},
     error::CarbonResult,
-    metrics::MetricsCollection,
+    metrics::{Counter, Gauge, MetricsRegistry},
 };
 use futures_util::FutureExt;
 use jetstreamer_firehose::firehose::{
@@ -15,6 +15,46 @@ use tokio_util::sync::CancellationToken;
 
 use crate::filter::JetstreamerFilter;
 use crate::{filter::TransactionFilter, range::JetstreamerRange};
+
+static BLOCKS_SENT: Counter = Counter::new(
+    "jetstreamer_blocks_sent",
+    "Block details sent by Jetstreamer datasource",
+);
+static TRANSACTIONS_SENT: Counter = Counter::new(
+    "jetstreamer_transactions_sent",
+    "Transactions sent by Jetstreamer datasource",
+);
+static TRANSACTIONS_FILTERED_OUT: Counter = Counter::new(
+    "jetstreamer_transactions_filtered_out",
+    "Transactions filtered out by Jetstreamer datasource (did not match filters)",
+);
+static TRANSACTIONS_FILTERED_IN: Counter = Counter::new(
+    "jetstreamer_transactions_filtered_in",
+    "Transactions that passed filters (before send) in Jetstreamer datasource",
+);
+static INTERNAL_SLOTS_PROCESSED: Gauge = Gauge::new(
+    "jetstreamer_internal_slots_processed",
+    "Internal firehose slots processed (from Stats)",
+);
+static INTERNAL_BLOCKS_PROCESSED: Gauge = Gauge::new(
+    "jetstreamer_internal_blocks_processed",
+    "Internal firehose blocks processed (from Stats)",
+);
+static INTERNAL_TRANSACTIONS_PROCESSED: Gauge = Gauge::new(
+    "jetstreamer_internal_transactions_processed",
+    "Internal firehose transactions processed (from Stats)",
+);
+
+fn register_jetstreamer_metrics() {
+    let registry = MetricsRegistry::global();
+    registry.register_counter(&BLOCKS_SENT);
+    registry.register_counter(&TRANSACTIONS_SENT);
+    registry.register_counter(&TRANSACTIONS_FILTERED_OUT);
+    registry.register_counter(&TRANSACTIONS_FILTERED_IN);
+    registry.register_gauge(&INTERNAL_SLOTS_PROCESSED);
+    registry.register_gauge(&INTERNAL_BLOCKS_PROCESSED);
+    registry.register_gauge(&INTERNAL_TRANSACTIONS_PROCESSED);
+}
 
 pub mod filter;
 pub mod range;
@@ -64,8 +104,8 @@ impl Datasource for JetstreamerDatasource {
         id: DatasourceId,
         sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
         _cancellation_token: CancellationToken,
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
+        register_jetstreamer_metrics();
         let (start_slot, end_slot) = self.range.into_slots();
         let (include_transactions, include_blocks) =
             (self.filter.include_transactions, self.filter.include_blocks);
@@ -80,40 +120,28 @@ impl Datasource for JetstreamerDatasource {
 
         let sender_for_block = sender.clone();
         let id_for_block = id.clone();
-        let metrics_for_block = metrics.clone();
         let on_block_fn = move |_thread_id: usize, block: BlockData| {
             let sender = sender_for_block.clone();
             let id = id_for_block.clone();
-            let metrics = metrics_for_block.clone();
-            async move { JetstreamerDatasource::on_block(block, id, sender, metrics).await }.boxed()
+            async move { JetstreamerDatasource::on_block(block, id, sender).await }.boxed()
         };
 
         let sender_for_transaction = sender.clone();
         let id_for_transaction = id.clone();
         let filter_for_transaction = self.filter.transaction_filters.clone();
-        let metrics_for_transaction = metrics.clone();
         let on_transaction_fn = move |_thread_id: usize, transaction: TransactionData| {
             let sender = sender_for_transaction.clone();
             let id = id_for_transaction.clone();
             let transaction_filters = filter_for_transaction.clone();
-            let metrics = metrics_for_transaction.clone();
             async move {
-                JetstreamerDatasource::on_transaction(
-                    transaction,
-                    id,
-                    sender,
-                    transaction_filters,
-                    metrics,
-                )
-                .await
+                JetstreamerDatasource::on_transaction(transaction, id, sender, transaction_filters)
+                    .await
             }
             .boxed()
         };
 
-        let metrics_for_stats = metrics.clone();
         let on_stats_fn = move |_thread_id: usize, stats: Stats| {
-            let metrics = metrics_for_stats.clone();
-            async move { JetstreamerDatasource::on_stats(stats, metrics).await }.boxed()
+            async move { JetstreamerDatasource::on_stats(stats).await }.boxed()
         };
 
         let stats_tracking = self
@@ -160,7 +188,6 @@ impl JetstreamerDatasource {
         block: BlockData,
         id: DatasourceId,
         sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
-        metrics: Arc<MetricsCollection>,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let BlockData::Block {
             parent_blockhash,
@@ -202,10 +229,7 @@ impl JetstreamerDatasource {
             ))
             .await?;
 
-        metrics
-            .increment_counter("jetstreamer_blocks_sent", 1)
-            .await?;
-
+        BLOCKS_SENT.inc();
         Ok(())
     }
 
@@ -214,7 +238,6 @@ impl JetstreamerDatasource {
         id: DatasourceId,
         sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
         transaction_filters: Vec<TransactionFilter>,
-        metrics: Arc<MetricsCollection>,
     ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         if !transaction_filters.is_empty() {
             let mut accounts = HashSet::new();
@@ -241,16 +264,12 @@ impl JetstreamerDatasource {
                     transaction.transaction_status_meta.status.is_err(),
                 )
             }) {
-                metrics
-                    .increment_counter("jetstreamer_transactions_filtered_out", 1)
-                    .await?;
+                TRANSACTIONS_FILTERED_OUT.inc();
                 return Ok(());
             }
         }
 
-        metrics
-            .increment_counter("jetstreamer_transactions_filtered_in", 1)
-            .await?;
+        TRANSACTIONS_FILTERED_IN.inc();
 
         sender
             .send((
@@ -268,35 +287,14 @@ impl JetstreamerDatasource {
             ))
             .await?;
 
-        metrics
-            .increment_counter("jetstreamer_transactions_sent", 1)
-            .await?;
-
+        TRANSACTIONS_SENT.inc();
         Ok(())
     }
 
-    pub async fn on_stats(
-        stats: Stats,
-        metrics: Arc<MetricsCollection>,
-    ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-        metrics
-            .update_gauge(
-                "jetstreamer_internal_slots_processed",
-                stats.slots_processed as f64,
-            )
-            .await?;
-        metrics
-            .update_gauge(
-                "jetstreamer_internal_blocks_processed",
-                stats.blocks_processed as f64,
-            )
-            .await?;
-        metrics
-            .update_gauge(
-                "jetstreamer_internal_transactions_processed",
-                stats.transactions_processed as f64,
-            )
-            .await?;
+    pub async fn on_stats(stats: Stats) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+        INTERNAL_SLOTS_PROCESSED.set(stats.slots_processed as f64);
+        INTERNAL_BLOCKS_PROCESSED.set(stats.blocks_processed as f64);
+        INTERNAL_TRANSACTIONS_PROCESSED.set(stats.transactions_processed as f64);
         Ok(())
     }
 }

@@ -8,7 +8,7 @@ use {
     carbon_core::{
         datasource::{AccountUpdate, Datasource, DatasourceId, Update, UpdateType},
         error::{CarbonResult, Error},
-        metrics::MetricsCollection,
+        metrics::{Counter, Histogram, MetricsRegistry},
     },
     solana_account::ReadableAccount,
     solana_accounts_db::{
@@ -30,13 +30,48 @@ use {
     std::{
         collections::HashSet,
         path::PathBuf,
-        sync::{atomic::AtomicBool, Arc},
+        sync::{atomic::AtomicBool, Arc, OnceLock},
     },
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
 
 const MAX_GENESIS_ARCHIVE_UNPACKED_SIZE: u64 = 10_485_760; // 10MB
+
+static LOAD_DURATION_MILLIS: OnceLock<Histogram> = OnceLock::new();
+static SCAN_DURATION_MILLIS: OnceLock<Histogram> = OnceLock::new();
+static ACCOUNTS_PROCESSED: Counter = Counter::new(
+    "validator_snapshot_accounts_processed",
+    "Account updates processed (sent) by validator-snapshot datasource",
+);
+
+fn init_validator_snapshot_histograms() {
+    let boundaries = vec![
+        1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0, 5000.0, 10_000.0,
+    ];
+    LOAD_DURATION_MILLIS.get_or_init(|| {
+        Histogram::new(
+            "validator_snapshot_load_duration_milliseconds",
+            "Time to load snapshot (from path or remote) in milliseconds",
+            boundaries.clone(),
+        )
+    });
+    SCAN_DURATION_MILLIS.get_or_init(|| {
+        Histogram::new(
+            "validator_snapshot_scan_duration_milliseconds",
+            "Time to scan accounts after snapshot load in milliseconds",
+            boundaries,
+        )
+    });
+}
+
+fn register_validator_snapshot_metrics() {
+    init_validator_snapshot_histograms();
+    let registry = MetricsRegistry::global();
+    registry.register_counter(&ACCOUNTS_PROCESSED);
+    registry.register_histogram(LOAD_DURATION_MILLIS.get().unwrap());
+    registry.register_histogram(SCAN_DURATION_MILLIS.get().unwrap());
+}
 
 #[derive(Debug, Clone)]
 pub enum SnapshotSource {
@@ -198,8 +233,9 @@ impl Datasource for SnapshotDatasource {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
+        register_validator_snapshot_metrics();
+
         let load_start = std::time::Instant::now();
 
         let snapshot = match &self.source {
@@ -210,13 +246,9 @@ impl Datasource for SnapshotDatasource {
         };
 
         let load_duration = load_start.elapsed();
-        metrics
-            .record_histogram(
-                "snapshot_load_duration_seconds",
-                load_duration.as_secs_f64(),
-            )
-            .await
-            .unwrap_or_else(|e| log::error!("Error recording metric: {e}"));
+        if let Some(h) = LOAD_DURATION_MILLIS.get() {
+            h.record(load_duration.as_millis() as f64);
+        }
 
         log::info!(
             "Snapshot loaded at slot {} in {:.2}s, starting account scan",
@@ -295,6 +327,8 @@ impl Datasource for SnapshotDatasource {
                             if let Err(e) = sender_clone.blocking_send((update, id_clone.clone())) {
                                 log::error!("Failed to send account update: {e:?}");
                                 channel_closed = true;
+                            } else {
+                                ACCOUNTS_PROCESSED.inc();
                             }
                         }
                     },
@@ -310,13 +344,9 @@ impl Datasource for SnapshotDatasource {
         .map_err(|e| Error::FailedToConsumeDatasource(format!("Scan task panicked: {e}")))??;
 
         let scan_duration = scan_start.elapsed();
-        metrics
-            .record_histogram(
-                "snapshot_scan_duration_seconds",
-                scan_duration.as_secs_f64(),
-            )
-            .await
-            .unwrap_or_else(|e| log::error!("Error recording metric: {e}"));
+        if let Some(h) = SCAN_DURATION_MILLIS.get() {
+            h.record(scan_duration.as_millis() as f64);
+        }
 
         log::info!(
             "Snapshot processing completed in {:.2}s",

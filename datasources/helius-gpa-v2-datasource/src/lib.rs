@@ -10,12 +10,12 @@ use {
     carbon_core::{
         datasource::{AccountUpdate, Datasource, DatasourceId, Update, UpdateType},
         error::CarbonResult,
-        metrics::MetricsCollection,
+        metrics::{Counter, Histogram, MetricsRegistry},
     },
     solana_account::Account,
     solana_client::rpc_config::RpcProgramAccountsConfig,
     solana_pubkey::Pubkey,
-    std::sync::Arc,
+    std::sync::OnceLock,
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
@@ -23,6 +23,34 @@ use {
 use types::{FetchHeliusGpaV2AccountsPageResult, HeliusGpaV2Request, HeliusGpaV2Response};
 
 const DEFAULT_LIMIT: u32 = 1000;
+
+static FETCH_DURATION_MILLIS: OnceLock<Histogram> = OnceLock::new();
+static PAGES_FETCHED: Counter = Counter::new(
+    "helius_gpa_v2_pages_fetched",
+    "Pages fetched from Helius gPA V2 API",
+);
+static ACCOUNTS_PROCESSED: Counter = Counter::new(
+    "helius_gpa_v2_accounts_processed",
+    "Account updates processed (sent) by Helius gPA V2 datasource",
+);
+
+fn init_helius_gpa_v2_histograms() {
+    FETCH_DURATION_MILLIS.get_or_init(|| {
+        Histogram::new(
+            "helius_gpa_v2_fetch_duration_milliseconds",
+            "Time to fetch a page from Helius gPA V2 API in milliseconds",
+            vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
+        )
+    });
+}
+
+fn register_helius_gpa_v2_metrics() {
+    init_helius_gpa_v2_histograms();
+    let registry = MetricsRegistry::global();
+    registry.register_counter(&PAGES_FETCHED);
+    registry.register_counter(&ACCOUNTS_PROCESSED);
+    registry.register_histogram(FETCH_DURATION_MILLIS.get().unwrap());
+}
 const MAX_LIMIT: u32 = 10000;
 
 #[derive(Debug, Clone)]
@@ -215,8 +243,8 @@ impl Datasource for HeliusGpaV2Datasource {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
+        register_helius_gpa_v2_metrics();
         let client = reqwest::Client::new();
 
         log::info!(
@@ -238,25 +266,10 @@ impl Datasource for HeliusGpaV2Datasource {
                 .fetch_accounts_page(&client, pagination_key.as_deref())
                 .await?;
             let fetch_elapsed = fetch_start.elapsed();
-
-            metrics
-                .record_histogram(
-                    "helius_gpa_v2_fetch_duration_seconds",
-                    fetch_elapsed.as_secs_f64(),
-                )
-                .await
-                .unwrap_or_else(|e| log::error!("Error recording histogram: {e}"));
-
-            metrics
-                .increment_counter("helius_gpa_v2_pages_fetched", 1)
-                .await
-                .unwrap_or_else(|e| log::error!("Error recording counter: {e}"));
-
-            log::debug!(
-                "Fetched page with {} accounts (slot: {:?})",
-                result.accounts.len(),
-                result.slot
-            );
+            if let Some(h) = FETCH_DURATION_MILLIS.get() {
+                h.record(fetch_elapsed.as_millis() as f64);
+            }
+            PAGES_FETCHED.inc();
 
             for (pubkey, account) in result.accounts {
                 if cancellation_token.is_cancelled() {
@@ -273,12 +286,9 @@ impl Datasource for HeliusGpaV2Datasource {
 
                 if let Err(e) = sender.send((update, id_for_loop.clone())).await {
                     log::error!("Failed to send account update: {e:?}");
-                };
-
-                metrics
-                    .increment_counter("helius_gpa_v2_accounts_processed", 1)
-                    .await
-                    .unwrap_or_else(|e| log::error!("Error recording counter: {e}"));
+                } else {
+                    ACCOUNTS_PROCESSED.inc();
+                }
             }
 
             pagination_key = result.pagination_key;

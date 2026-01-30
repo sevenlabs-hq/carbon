@@ -1,122 +1,78 @@
-use std::net::SocketAddr;
-use {
-    async_trait::async_trait,
-    carbon_core::{
-        error::{CarbonResult, Error},
-        metrics::Metrics,
-    },
-    metrics::{counter, gauge, histogram},
-    metrics_exporter_prometheus::PrometheusBuilder,
-    std::{collections::HashMap, sync::Once},
-    tokio::sync::RwLock,
+use carbon_core::{
+    error::CarbonResult,
+    metrics::{MetricsExporter, MetricsRegistry, MetricsSnapshot},
 };
 
-pub struct PrometheusMetrics {
-    pub counters: RwLock<HashMap<String, metrics::Counter>>,
-    pub gauges: RwLock<HashMap<String, metrics::Gauge>>,
-    pub histograms: RwLock<HashMap<String, metrics::Histogram>>,
-    pub listen_port: u16,
-}
+pub struct PrometheusMetricsExporter;
 
-impl Default for PrometheusMetrics {
+impl Default for PrometheusMetricsExporter {
     fn default() -> Self {
-        Self {
-            counters: RwLock::new(HashMap::new()),
-            gauges: RwLock::new(HashMap::new()),
-            histograms: RwLock::new(HashMap::new()),
-            listen_port: 9100,
-        }
+        Self
     }
 }
-impl PrometheusMetrics {
+
+impl PrometheusMetricsExporter {
     pub fn new() -> Self {
-        Self::default()
+        Self
     }
 
-    pub fn new_with_port(listen_port: u16) -> Self {
-        Self {
-            gauges: RwLock::new(HashMap::new()),
-            counters: RwLock::new(HashMap::new()),
-            histograms: RwLock::new(HashMap::new()),
-            listen_port,
-        }
+    /// Returns the current metrics snapshot formatted in Prometheus exposition text format.
+    pub fn prometheus_text() -> String {
+        let snapshot = MetricsRegistry::global().snapshot();
+        format_prometheus_text(&snapshot)
     }
 }
 
-#[async_trait]
-impl Metrics for PrometheusMetrics {
-    async fn initialize(&self) -> CarbonResult<()> {
-        static INIT: Once = Once::new();
-
-        let mut result = Ok(());
-        INIT.call_once(|| {
-            let addr = format!("127.0.0.1:{}", self.listen_port)
-                .parse::<SocketAddr>()
-                .expect("Failed to parse address");
-
-            let builder = PrometheusBuilder::new().with_http_listener(addr);
-
-            match builder.install() {
-                Ok(_handle) => {
-                    log::info!("Prometheus exporter installed and listening on {addr}");
-                }
-                Err(e) => {
-                    result = Err(Error::Custom(format!(
-                        "Failed to install Prometheus exporter: {e}"
-                    )));
-                }
-            }
-        });
-        result
-    }
-
-    async fn flush(&self) -> CarbonResult<()> {
+impl MetricsExporter for PrometheusMetricsExporter {
+    fn export(&self, _snapshot: &MetricsSnapshot) -> CarbonResult<()> {
         Ok(())
     }
+}
 
-    async fn shutdown(&self) -> CarbonResult<()> {
-        Ok(())
-    }
+fn format_prometheus_text(snapshot: &MetricsSnapshot) -> String {
+    let mut out = String::new();
 
-    async fn update_gauge(&self, name: &str, value: f64) -> CarbonResult<()> {
-        let mut gauge = self.gauges.write().await;
-
-        if let Some(gauge) = gauge.get(name) {
-            gauge.set(value);
-        } else {
-            let new_gauge = gauge!(name.to_string());
-            new_gauge.set(value);
-            gauge.insert(name.to_string(), new_gauge);
+    for (name, help, value) in &snapshot.counters {
+        let base = sanitize_name(name);
+        if !help.is_empty() {
+            out.push_str(&format!("# HELP {base} {help}\n"));
         }
-
-        Ok(())
+        out.push_str(&format!("# TYPE {base} counter\n"));
+        out.push_str(&format!("{base} {value}\n"));
     }
 
-    async fn increment_counter(&self, name: &str, value: u64) -> CarbonResult<()> {
-        let mut counter = self.counters.write().await;
-
-        if let Some(counter) = counter.get(name) {
-            counter.increment(value);
-        } else {
-            let new_counter = counter!(name.to_string());
-            new_counter.increment(value);
-            counter.insert(name.to_string(), new_counter);
+    for (name, help, value) in &snapshot.gauges {
+        let base = sanitize_name(name);
+        if !help.is_empty() {
+            out.push_str(&format!("# HELP {base} {help}\n"));
         }
-
-        Ok(())
+        out.push_str(&format!("# TYPE {base} gauge\n"));
+        out.push_str(&format!("{base} {value}\n"));
     }
 
-    async fn record_histogram(&self, name: &str, value: f64) -> CarbonResult<()> {
-        let mut histogram = self.histograms.write().await;
-
-        if let Some(histogram) = histogram.get(name) {
-            histogram.record(value);
-        } else {
-            let new_histogram = histogram!(name.to_string());
-            new_histogram.record(value);
-            histogram.insert(name.to_string(), new_histogram);
+    for (name, help, hist) in &snapshot.histograms {
+        let base = sanitize_name(name);
+        if !help.is_empty() {
+            out.push_str(&format!("# HELP {base} {help}\n"));
         }
+        out.push_str(&format!("# TYPE {base} histogram\n"));
 
-        Ok(())
+        let mut cumulative: u64 = 0;
+        for (i, &boundary) in hist.boundaries.iter().enumerate() {
+            cumulative += hist.counts.get(i).copied().unwrap_or(0);
+            out.push_str(&format!(
+                "{base}_bucket{{le=\"{boundary}\"}} {cumulative}\n"
+            ));
+        }
+        let total: u64 = hist.counts.iter().sum();
+        cumulative = total;
+        out.push_str(&format!("{base}_bucket{{le=\"+Inf\"}} {cumulative}\n"));
+        out.push_str(&format!("{base}_count {total}\n"));
     }
+
+    out
+}
+
+fn sanitize_name(name: &str) -> String {
+    name.replace('-', "_")
 }
