@@ -3,7 +3,7 @@ use {
         collection::InstructionDecoderCollection,
         datasource::TransactionUpdate,
         error::{CarbonResult, Error},
-        instruction::{DecodedInstruction, InstructionMetadata, MAX_INSTRUCTION_STACK_DEPTH},
+        instruction::{InstructionMetadata, MAX_INSTRUCTION_STACK_DEPTH},
         schema::ParsedInstruction,
         transaction::TransactionMetadata,
     },
@@ -203,7 +203,7 @@ pub fn unnest_parsed_instructions<T: InstructionDecoderCollection>(
     transaction_metadata: Arc<TransactionMetadata>,
     instructions: Vec<ParsedInstruction<T>>,
     stack_height: u32,
-) -> Vec<(InstructionMetadata, DecodedInstruction<T>)> {
+) -> Vec<(InstructionMetadata, T)> {
     log::trace!("unnest_parsed_instructions(instructions: {instructions:?})");
 
     let mut result = Vec::new();
