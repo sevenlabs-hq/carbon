@@ -460,11 +460,15 @@ impl PipelineBuilder {
         self
     }
 
-    pub fn instruction<T: Send + Sync + 'static>(
+    pub fn instruction<T, P>(
         mut self,
         decoder: impl for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
-        processor: impl Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static,
-    ) -> Self {
+        processor: P,
+    ) -> Self
+    where
+        T: Send + Sync + 'static,
+        P: Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static,
+    {
         log::trace!(
             "instruction(self, decoder: {:?}, processor: {:?})",
             stringify!(decoder),
@@ -472,18 +476,22 @@ impl PipelineBuilder {
         );
         self.instruction_pipes.push(Box::new(InstructionPipe {
             decoder: Box::new(decoder),
-            processor: Box::new(processor),
+            processor,
             filters: vec![],
         }));
         self
     }
 
-    pub fn instruction_with_filters<T: Send + Sync + 'static>(
+    pub fn instruction_with_filters<T, P>(
         mut self,
         decoder: impl for<'a> InstructionDecoder<'a, InstructionType = T> + Send + Sync + 'static,
-        processor: impl Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static,
+        processor: P,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
-    ) -> Self {
+    ) -> Self
+    where
+        T: Send + Sync + crate::deserialize::ArrangeAccounts + 'static,
+        P: Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static,
+    {
         log::trace!(
             "instruction_with_filters(self, decoder: {:?}, processor: {:?}, filters: {:?})",
             stringify!(decoder),
@@ -492,7 +500,7 @@ impl PipelineBuilder {
         );
         self.instruction_pipes.push(Box::new(InstructionPipe {
             decoder: Box::new(decoder),
-            processor: Box::new(processor),
+            processor,
             filters,
         }));
         self

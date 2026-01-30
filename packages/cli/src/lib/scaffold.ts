@@ -38,7 +38,7 @@ function buildProjectImports(ctx: any): string {
     if (!ctx.withPostgres) {
         lines.push('use async_trait::async_trait;');
         lines.push('use carbon_core::deserialize::ArrangeAccounts;');
-        lines.push('use carbon_core::instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions};');
+        lines.push('use carbon_core::instruction::{InstructionMetadata, NestedInstructions};');
         lines.push('use carbon_core::metrics::MetricsCollection;');
         lines.push('use carbon_core::processor::Processor;');
     }

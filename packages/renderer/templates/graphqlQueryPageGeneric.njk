@@ -153,7 +153,7 @@ impl QueryRoot {
 
         Ok(rows.into_iter().filter_map(|r| {
 {% if instructionsToExport.length == 1 %}
-            let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) = r.data.0;
+            let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} { data: decoded_instruction, .. } = r.data.0;
             // Create metadata from database values
             let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
                 signature: r.metadata.signature.clone(),
@@ -163,7 +163,7 @@ impl QueryRoot {
             };
 
             // Convert instruction and override metadata
-            if let Ok(graphql) = instruction.try_into() {
+            if let Ok(graphql) = decoded_instruction.try_into() {
                 let mut graphql: crate::instructions::graphql::{{ instruction.name | pascalCase }}GraphQL = graphql;
                 graphql.instruction_metadata = metadata;
                 graphql.accounts = carbon_core::graphql::primitives::Json(
@@ -175,7 +175,7 @@ impl QueryRoot {
                 None
             }
 {% else %}
-            if let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) = r.data.0 {
+            if let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} { data: decoded_instruction, .. } = r.data.0 {
                 // Create metadata from database values
                 let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
                     signature: r.metadata.signature.clone(),
@@ -185,7 +185,7 @@ impl QueryRoot {
                 };
 
                 // Convert instruction and override metadata
-                if let Ok(graphql) = instruction.try_into() {
+                if let Ok(graphql) = decoded_instruction.try_into() {
                     let mut graphql: crate::instructions::graphql::{{ instruction.name | pascalCase }}GraphQL = graphql;
                     graphql.instruction_metadata = metadata;
                     graphql.accounts = carbon_core::graphql::primitives::Json(
@@ -222,7 +222,7 @@ impl QueryRoot {
 
         Ok(rows.into_iter().filter_map(|r| {
 {% if instructionsToExport.length == 1 %}
-            let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) = r.data.0;
+            let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} { data: decoded_instruction, .. } = r.data.0;
             // Create metadata from database values
             let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
                 signature: r.metadata.signature.clone(),
@@ -232,7 +232,7 @@ impl QueryRoot {
             };
 
             // Convert instruction and override metadata
-            if let Ok(graphql) = instruction.try_into() {
+            if let Ok(graphql) = decoded_instruction.try_into() {
                 let mut graphql: crate::instructions::graphql::{{ instruction.name | pascalCase }}GraphQL = graphql;
                 graphql.instruction_metadata = metadata;
                 graphql.accounts = carbon_core::graphql::primitives::Json(
@@ -244,7 +244,7 @@ impl QueryRoot {
                 None
             }
 {% else %}
-            if let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }}(instruction) = r.data.0 {
+            if let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} { data: decoded_instruction, .. } = r.data.0 {
                 // Create metadata from database values
                 let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
                     signature: r.metadata.signature.clone(),
@@ -254,7 +254,7 @@ impl QueryRoot {
                 };
 
                 // Convert instruction and override metadata
-                if let Ok(graphql) = instruction.try_into() {
+                if let Ok(graphql) = decoded_instruction.try_into() {
                     let mut graphql: crate::instructions::graphql::{{ instruction.name | pascalCase }}GraphQL = graphql;
                     graphql.instruction_metadata = metadata;
                     graphql.accounts = carbon_core::graphql::primitives::Json(
@@ -295,8 +295,7 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
 
         Ok(rows.into_iter().filter_map(|r| {
-            if let crate::instructions::{{ program.name | pascalCase }}Instruction::CpiEvent(instruction) = r.data.0 {
-                let instruction = *instruction;
+            if let crate::instructions::{{ program.name | pascalCase }}Instruction::CpiEvent { data: decoded_instruction, .. } = r.data.0 {
                 // Create metadata from database values
                 let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
                     signature: r.metadata.signature.clone(),
@@ -306,7 +305,7 @@ impl QueryRoot {
                 };
 
                 // Convert instruction and override metadata
-                if let Ok(graphql) = instruction.try_into() {
+                if let Ok(graphql) = decoded_instruction.try_into() {
                     let mut graphql: crate::instructions::graphql::CpiEventGraphQL = graphql;
                     graphql.instruction_metadata = metadata;
                     graphql.accounts = carbon_core::graphql::primitives::Json(
@@ -340,8 +339,7 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
 
         Ok(rows.into_iter().filter_map(|r| {
-            if let crate::instructions::{{ program.name | pascalCase }}Instruction::CpiEvent(instruction) = r.data.0 {
-                let instruction = *instruction;
+            if let crate::instructions::{{ program.name | pascalCase }}Instruction::CpiEvent { data: decoded_instruction, .. } = r.data.0 {
                 // Create metadata from database values
                 let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
                     signature: r.metadata.signature.clone(),
@@ -351,7 +349,7 @@ impl QueryRoot {
                 };
 
                 // Convert instruction and override metadata
-                if let Ok(graphql) = instruction.try_into() {
+                if let Ok(graphql) = decoded_instruction.try_into() {
                     let mut graphql: crate::instructions::graphql::CpiEventGraphQL = graphql;
                     graphql.instruction_metadata = metadata;
                     graphql.accounts = carbon_core::graphql::primitives::Json(

@@ -150,15 +150,11 @@ where
         input: Self::InputType,
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let (metadata, decoded_instruction, _nested_instructions, _raw) = input;
+        let (metadata, decoded_instruction, _nested_instructions, raw) = input;
 
         let start = std::time::Instant::now();
 
-        let wrapper = W::from((
-            decoded_instruction.data,
-            metadata,
-            decoded_instruction.accounts,
-        ));
+        let wrapper = W::from((decoded_instruction, metadata, raw.accounts));
 
         match wrapper.upsert(&self.pool).await {
             Ok(()) => {
@@ -211,11 +207,7 @@ where
     ) -> CarbonResult<()> {
         let (metadata, decoded_instruction, _nested_instructions, _raw) = input;
 
-        let instruction_row = InstructionRow::from_parts(
-            decoded_instruction.data,
-            metadata,
-            decoded_instruction.accounts,
-        );
+        let instruction_row = InstructionRow::from_parts(decoded_instruction, metadata);
 
         let start = std::time::Instant::now();
 
