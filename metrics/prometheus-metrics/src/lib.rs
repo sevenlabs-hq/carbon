@@ -68,11 +68,11 @@ impl PrometheusMetricsExporter {
     }
 
     #[cfg(feature = "http-server")]
-    pub fn start_server(&self) -> tokio::task::JoinHandle<Result<(), Box<dyn std::error::Error + Send + Sync>>> {
+    pub fn start_server(
+        &self,
+    ) -> tokio::task::JoinHandle<Result<(), Box<dyn std::error::Error + Send + Sync>>> {
         let config = self.config.clone().unwrap_or_default();
-        tokio::spawn(async move {
-            run_metrics_server_with_config(config).await
-        })
+        tokio::spawn(async move { run_metrics_server_with_config(config).await })
     }
 
     pub fn prometheus_text() -> String {
@@ -165,7 +165,8 @@ pub async fn run_metrics_server(
     run_metrics_server_with_config(PrometheusConfig {
         bind_addr,
         ..Default::default()
-    }).await
+    })
+    .await
 }
 
 #[cfg(feature = "http-server")]
@@ -198,15 +199,13 @@ pub async fn run_metrics_server_with_config(
             .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
     }
 
-    let mut app = Router::new()
-        .route("/metrics", get(metrics_handler))
-        .layer(
-            ServiceBuilder::new()
-                .layer(TimeoutLayer::with_status_code(
-                    StatusCode::REQUEST_TIMEOUT,
-                    std::time::Duration::from_secs(config.request_timeout_secs),
-                ))
-        );
+    let mut app =
+        Router::new()
+            .route("/metrics", get(metrics_handler))
+            .layer(ServiceBuilder::new().layer(TimeoutLayer::with_status_code(
+                StatusCode::REQUEST_TIMEOUT,
+                std::time::Duration::from_secs(config.request_timeout_secs),
+            )));
 
     if config.enable_cors {
         app = app.layer(CorsLayer::permissive());
@@ -219,7 +218,7 @@ pub async fn run_metrics_server_with_config(
     );
 
     let server = axum::serve(listener, app);
-    
+
     tokio::select! {
         result = server => {
             if let Err(e) = result {
@@ -230,6 +229,6 @@ pub async fn run_metrics_server_with_config(
             log::info!("Received shutdown signal, stopping metrics server");
         }
     }
-    
+
     Ok(())
 }
