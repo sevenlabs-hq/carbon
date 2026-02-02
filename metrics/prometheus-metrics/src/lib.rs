@@ -5,7 +5,7 @@ use carbon_core::{
 
 #[derive(Debug, Clone)]
 pub struct PrometheusConfig {
-    pub bind_addr: std::net::SocketAddr,
+    pub listen_addr: std::net::SocketAddr,
     pub enable_cors: bool,
     pub request_timeout_secs: u64,
 }
@@ -15,8 +15,8 @@ impl PrometheusConfig {
         Self::default()
     }
 
-    pub fn bind_addr(mut self, addr: std::net::SocketAddr) -> Self {
-        self.bind_addr = addr;
+    pub fn listen_addr(mut self, addr: std::net::SocketAddr) -> Self {
+        self.listen_addr = addr;
         self
     }
 
@@ -34,7 +34,7 @@ impl PrometheusConfig {
 impl Default for PrometheusConfig {
     fn default() -> Self {
         Self {
-            bind_addr: "0.0.0.0:9464".parse().unwrap(),
+            listen_addr: "0.0.0.0:9464".parse().unwrap(),
             enable_cors: true,
             request_timeout_secs: 30,
         }
@@ -160,10 +160,10 @@ fn sanitize_name(name: &str) -> String {
 
 #[cfg(feature = "http-server")]
 pub async fn run_metrics_server(
-    bind_addr: std::net::SocketAddr,
+    listen_addr: std::net::SocketAddr,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     run_metrics_server_with_config(PrometheusConfig {
-        bind_addr,
+        listen_addr,
         ..Default::default()
     })
     .await
@@ -211,10 +211,10 @@ pub async fn run_metrics_server_with_config(
         app = app.layer(CorsLayer::permissive());
     }
 
-    let listener = TcpListener::bind(config.bind_addr).await?;
+    let listener = TcpListener::bind(config.listen_addr).await?;
     log::info!(
         "Prometheus metrics server starting on http://{}/metrics",
-        config.bind_addr
+        config.listen_addr
     );
 
     let server = axum::serve(listener, app);
