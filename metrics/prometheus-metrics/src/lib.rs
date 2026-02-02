@@ -3,28 +3,108 @@ use carbon_core::{
     metrics::{MetricsExporter, MetricsRegistry, MetricsSnapshot},
 };
 
-pub struct PrometheusMetricsExporter;
+#[derive(Debug, Clone)]
+pub struct PrometheusConfig {
+    pub bind_addr: std::net::SocketAddr,
+    pub enable_cors: bool,
+    pub request_timeout_secs: u64,
+}
+
+impl PrometheusConfig {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn bind_addr(mut self, addr: std::net::SocketAddr) -> Self {
+        self.bind_addr = addr;
+        self
+    }
+
+    pub fn enable_cors(mut self, enable: bool) -> Self {
+        self.enable_cors = enable;
+        self
+    }
+
+    pub fn request_timeout_secs(mut self, timeout: u64) -> Self {
+        self.request_timeout_secs = timeout;
+        self
+    }
+}
+
+impl Default for PrometheusConfig {
+    fn default() -> Self {
+        Self {
+            bind_addr: "0.0.0.0:9464".parse().unwrap(),
+            enable_cors: true,
+            request_timeout_secs: 30,
+        }
+    }
+}
+
+pub struct PrometheusMetricsExporter {
+    #[cfg(feature = "http-server")]
+    config: Option<PrometheusConfig>,
+}
 
 impl Default for PrometheusMetricsExporter {
     fn default() -> Self {
-        Self
+        Self::new()
     }
 }
 
 impl PrometheusMetricsExporter {
     pub fn new() -> Self {
-        Self
+        Self {
+            #[cfg(feature = "http-server")]
+            config: None,
+        }
     }
 
-    /// Returns the current metrics snapshot formatted in Prometheus exposition text format.
+    #[cfg(feature = "http-server")]
+    pub fn new_with_config(config: PrometheusConfig) -> Self {
+        Self {
+            config: Some(config),
+        }
+    }
+
+    #[cfg(feature = "http-server")]
+    pub fn start_server(&self) -> tokio::task::JoinHandle<Result<(), Box<dyn std::error::Error + Send + Sync>>> {
+        let config = self.config.clone().unwrap_or_default();
+        tokio::spawn(async move {
+            run_metrics_server_with_config(config).await
+        })
+    }
+
     pub fn prometheus_text() -> String {
         let snapshot = MetricsRegistry::global().snapshot();
-        format_prometheus_text(&snapshot)
+        Self::format_snapshot(&snapshot)
+    }
+
+    pub fn format_snapshot(snapshot: &MetricsSnapshot) -> String {
+        format_prometheus_text(snapshot)
     }
 }
 
 impl MetricsExporter for PrometheusMetricsExporter {
     fn export(&self, _snapshot: &MetricsSnapshot) -> CarbonResult<()> {
+        Ok(())
+    }
+
+    #[cfg(feature = "http-server")]
+    fn initialize(&self) -> CarbonResult<()> {
+        if self.config.is_some() {
+            let config = self.config.clone().unwrap();
+            tokio::spawn(async move {
+                if let Err(e) = run_metrics_server_with_config(config).await {
+                    log::error!("Prometheus metrics server error: {}", e);
+                }
+            });
+        }
+        Ok(())
+    }
+
+    #[cfg(not(feature = "http-server"))]
+    fn initialize(&self) -> CarbonResult<()> {
         Ok(())
     }
 }
@@ -68,6 +148,7 @@ fn format_prometheus_text(snapshot: &MetricsSnapshot) -> String {
         cumulative = total;
         out.push_str(&format!("{base}_bucket{{le=\"+Inf\"}} {cumulative}\n"));
         out.push_str(&format!("{base}_count {total}\n"));
+        out.push_str(&format!("{base}_sum {}\n", hist.sum));
     }
 
     out
@@ -75,4 +156,80 @@ fn format_prometheus_text(snapshot: &MetricsSnapshot) -> String {
 
 fn sanitize_name(name: &str) -> String {
     name.replace('-', "_")
+}
+
+#[cfg(feature = "http-server")]
+pub async fn run_metrics_server(
+    bind_addr: std::net::SocketAddr,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    run_metrics_server_with_config(PrometheusConfig {
+        bind_addr,
+        ..Default::default()
+    }).await
+}
+
+#[cfg(feature = "http-server")]
+pub async fn run_default_metrics_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    run_metrics_server_with_config(PrometheusConfig::default()).await
+}
+
+#[cfg(feature = "http-server")]
+pub async fn run_metrics_server_with_config(
+    config: PrometheusConfig,
+) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
+    use axum::{
+        body::Body,
+        http::{Response, StatusCode},
+        routing::get,
+        Router,
+    };
+    use tokio::net::TcpListener;
+    use tower::ServiceBuilder;
+    use tower_http::{cors::CorsLayer, timeout::TimeoutLayer};
+
+    async fn metrics_handler() -> Result<Response<Body>, StatusCode> {
+        let text = PrometheusMetricsExporter::prometheus_text();
+
+        Response::builder()
+            .status(StatusCode::OK)
+            .header("content-type", "text/plain; charset=utf-8; version=0.0.4")
+            .header("cache-control", "no-cache, no-store, must-revalidate")
+            .body(Body::from(text))
+            .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
+    }
+
+    let mut app = Router::new()
+        .route("/metrics", get(metrics_handler))
+        .layer(
+            ServiceBuilder::new()
+                .layer(TimeoutLayer::with_status_code(
+                    StatusCode::REQUEST_TIMEOUT,
+                    std::time::Duration::from_secs(config.request_timeout_secs),
+                ))
+        );
+
+    if config.enable_cors {
+        app = app.layer(CorsLayer::permissive());
+    }
+
+    let listener = TcpListener::bind(config.bind_addr).await?;
+    log::info!(
+        "Prometheus metrics server starting on http://{}/metrics",
+        config.bind_addr
+    );
+
+    let server = axum::serve(listener, app);
+    
+    tokio::select! {
+        result = server => {
+            if let Err(e) = result {
+                log::error!("Metrics server error: {e}");
+            }
+        }
+        _ = tokio::signal::ctrl_c() => {
+            log::info!("Received shutdown signal, stopping metrics server");
+        }
+    }
+    
+    Ok(())
 }
