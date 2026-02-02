@@ -104,6 +104,7 @@ pub struct Histogram {
     help: &'static str,
     buckets: Vec<AtomicU64>,
     boundaries: Vec<f64>,
+    sum: AtomicU64,
 }
 
 impl Histogram {
@@ -119,6 +120,7 @@ impl Histogram {
             help,
             buckets,
             boundaries,
+            sum: AtomicU64::new(0),
         }
     }
 
@@ -126,6 +128,16 @@ impl Histogram {
     pub fn record(&self, value: f64) {
         let bucket = self.find_bucket(value);
         self.buckets[bucket].fetch_add(1, Ordering::Relaxed);
+        self.add_sum(value);
+    }
+
+    #[inline]
+    fn add_sum(&self, delta: f64) {
+        self.sum
+            .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |current| {
+                Some((f64::from_bits(current) + delta).to_bits())
+            })
+            .ok();
     }
 
     fn find_bucket(&self, value: f64) -> usize {
@@ -143,9 +155,11 @@ impl Histogram {
         for bucket in &self.buckets {
             counts.push(bucket.load(Ordering::Relaxed));
         }
+        let sum_f64 = f64::from_bits(self.sum.load(Ordering::Relaxed));
         HistogramSnapshot {
             counts,
             boundaries: self.boundaries.clone(),
+            sum: sum_f64,
         }
     }
 }
@@ -163,6 +177,7 @@ impl Metric for Histogram {
 pub struct HistogramSnapshot {
     pub counts: Vec<u64>,
     pub boundaries: Vec<f64>,
+    pub sum: f64,
 }
 
 pub struct MetricsSnapshot {
