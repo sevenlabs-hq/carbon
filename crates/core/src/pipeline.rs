@@ -31,22 +31,22 @@ use {
 };
 
 static UPDATES_RECEIVED: Counter = Counter::new(
-    "carbon_updates_received",
+    "carbon_updates_received_total",
     "Total updates pulled from datasources",
 );
 
 static UPDATES_PROCESSED: Counter = Counter::new(
-    "carbon_updates_processed",
+    "carbon_updates_processed_total",
     "Total updates processed by the pipeline",
 );
 
 static UPDATES_SUCCESSFUL: Counter = Counter::new(
-    "carbon_updates_successful",
+    "carbon_updates_successful_total",
     "Updates processed without error",
 );
 
 static UPDATES_FAILED: Counter = Counter::new(
-    "carbon_updates_failed",
+    "carbon_updates_failed_total",
     "Updates that errored during processing",
 );
 
@@ -56,22 +56,22 @@ static UPDATES_QUEUED: Gauge = Gauge::new(
 );
 
 static ACCOUNT_UPDATES_PROCESSED: Counter = Counter::new(
-    "carbon_account_updates_processed",
+    "carbon_account_updates_processed_total",
     "Total account updates processed",
 );
 
 static TRANSACTION_UPDATES_PROCESSED: Counter = Counter::new(
-    "carbon_transaction_updates_processed",
+    "carbon_transaction_updates_processed_total",
     "Total transaction updates processed",
 );
 
 static ACCOUNT_DELETIONS_PROCESSED: Counter = Counter::new(
-    "carbon_account_deletions_processed",
+    "carbon_account_deletions_processed_total",
     "Total account deletions processed",
 );
 
 static BLOCK_DETAILS_PROCESSED: Counter = Counter::new(
-    "carbon_block_details_processed",
+    "carbon_block_details_processed_total",
     "Total block details processed",
 );
 

@@ -33,12 +33,12 @@ use {
 
 static SIGNATURES_FETCH_TIMES_MILLIS: OnceLock<Histogram> = OnceLock::new();
 static SIGNATURES_FETCHED: Counter = Counter::new(
-    "transaction_crawler_signatures_fetched",
+    "transaction_crawler_signatures_fetched_total",
     "Signatures fetched by transaction crawler",
 );
 static TRANSACTION_FETCH_TIMES_MILLIS: OnceLock<Histogram> = OnceLock::new();
 static TRANSACTIONS_FETCHED: Counter = Counter::new(
-    "transaction_crawler_transactions_fetched",
+    "transaction_crawler_transactions_fetched_total",
     "Transactions fetched by transaction crawler",
 );
 static TRANSACTION_PROCESS_TIME_MILLIS: OnceLock<Histogram> = OnceLock::new();

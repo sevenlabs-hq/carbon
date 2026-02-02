@@ -26,11 +26,11 @@ const DEFAULT_LIMIT: u32 = 1000;
 
 static FETCH_DURATION_MILLIS: OnceLock<Histogram> = OnceLock::new();
 static PAGES_FETCHED: Counter = Counter::new(
-    "helius_gpa_v2_pages_fetched",
+    "helius_gpa_v2_pages_fetched_total",
     "Pages fetched from Helius gPA V2 API",
 );
 static ACCOUNTS_PROCESSED: Counter = Counter::new(
-    "helius_gpa_v2_accounts_processed",
+    "helius_gpa_v2_accounts_processed_total",
     "Account updates processed (sent) by Helius gPA V2 datasource",
 );
 

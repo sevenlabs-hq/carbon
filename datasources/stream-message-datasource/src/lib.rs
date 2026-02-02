@@ -26,12 +26,12 @@ use {
 
 static ACCOUNT_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
 static ACCOUNT_UPDATES_RECEIVED: Counter = Counter::new(
-    "agave_grpc_account_updates_received",
+    "agave_grpc_account_updates_received_total",
     "Account updates received from stream message",
 );
 static TRANSACTION_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
 static TRANSACTION_UPDATES_RECEIVED: Counter = Counter::new(
-    "agave_grpc_transaction_updates_received",
+    "agave_grpc_transaction_updates_received_total",
     "Transaction updates received from stream message",
 );
 

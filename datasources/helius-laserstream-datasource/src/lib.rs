@@ -42,12 +42,12 @@ const RECONNECTION_DELAY_MS: u64 = 3000;
 
 static ACCOUNT_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
 static ACCOUNT_UPDATES_RECEIVED: Counter = Counter::new(
-    "laserstream_account_updates_received",
+    "laserstream_account_updates_received_total",
     "Account updates received from Laserstream",
 );
 static TRANSACTION_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
 static TRANSACTION_UPDATES_RECEIVED: Counter = Counter::new(
-    "laserstream_transaction_updates_received",
+    "laserstream_transaction_updates_received_total",
     "Transaction updates received from Laserstream",
 );
 

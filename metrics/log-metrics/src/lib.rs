@@ -41,25 +41,25 @@ impl MetricsExporter for LogMetricsExporter {
         let updates_received = snapshot
             .counters
             .iter()
-            .find(|(name, _, _)| *name == "carbon_updates_received")
+            .find(|(name, _, _)| *name == "carbon_updates_received_total")
             .map(|(_, _, v)| *v)
             .unwrap_or(0);
         let updates_processed = snapshot
             .counters
             .iter()
-            .find(|(name, _, _)| *name == "carbon_updates_processed")
+            .find(|(name, _, _)| *name == "carbon_updates_processed_total")
             .map(|(_, _, v)| *v)
             .unwrap_or(0);
         let updates_successful = snapshot
             .counters
             .iter()
-            .find(|(name, _, _)| *name == "carbon_updates_successful")
+            .find(|(name, _, _)| *name == "carbon_updates_successful_total")
             .map(|(_, _, v)| *v)
             .unwrap_or(0);
         let updates_failed = snapshot
             .counters
             .iter()
-            .find(|(name, _, _)| *name == "carbon_updates_failed")
+            .find(|(name, _, _)| *name == "carbon_updates_failed_total")
             .map(|(_, _, v)| *v)
             .unwrap_or(0);
         let updates_queued = snapshot

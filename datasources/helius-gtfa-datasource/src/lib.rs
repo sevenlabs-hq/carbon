@@ -23,11 +23,11 @@ const DEFAULT_LIMIT: u32 = 100;
 
 static FETCH_DURATION_MILLIS: OnceLock<Histogram> = OnceLock::new();
 static PAGES_FETCHED: Counter = Counter::new(
-    "helius_gtfa_pages_fetched",
+    "helius_gtfa_pages_fetched_total",
     "Pages fetched from Helius GTFA API",
 );
 static TRANSACTIONS_PROCESSED: Counter = Counter::new(
-    "helius_gtfa_transactions_processed",
+    "helius_gtfa_transactions_processed_total",
     "Transaction updates processed (sent) by Helius GTFA datasource",
 );
 

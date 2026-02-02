@@ -41,7 +41,7 @@ const MAX_GENESIS_ARCHIVE_UNPACKED_SIZE: u64 = 10_485_760; // 10MB
 static LOAD_DURATION_MILLIS: OnceLock<Histogram> = OnceLock::new();
 static SCAN_DURATION_MILLIS: OnceLock<Histogram> = OnceLock::new();
 static ACCOUNTS_PROCESSED: Counter = Counter::new(
-    "validator_snapshot_accounts_processed",
+    "validator_snapshot_accounts_processed_total",
     "Account updates processed (sent) by validator-snapshot datasource",
 );
 

@@ -17,19 +17,19 @@ use crate::filter::JetstreamerFilter;
 use crate::{filter::TransactionFilter, range::JetstreamerRange};
 
 static BLOCKS_SENT: Counter = Counter::new(
-    "jetstreamer_blocks_sent",
+    "jetstreamer_blocks_sent_total",
     "Block details sent by Jetstreamer datasource",
 );
 static TRANSACTIONS_SENT: Counter = Counter::new(
-    "jetstreamer_transactions_sent",
+    "jetstreamer_transactions_sent_total",
     "Transactions sent by Jetstreamer datasource",
 );
 static TRANSACTIONS_FILTERED_OUT: Counter = Counter::new(
-    "jetstreamer_transactions_filtered_out",
+    "jetstreamer_transactions_filtered_out_total",
     "Transactions filtered out by Jetstreamer datasource (did not match filters)",
 );
 static TRANSACTIONS_FILTERED_IN: Counter = Counter::new(
-    "jetstreamer_transactions_filtered_in",
+    "jetstreamer_transactions_filtered_in_total",
     "Transactions that passed filters (before send) in Jetstreamer datasource",
 );
 static INTERNAL_SLOTS_PROCESSED: Gauge = Gauge::new(
