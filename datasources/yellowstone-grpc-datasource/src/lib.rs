@@ -35,44 +35,37 @@ use {
 
 static ACCOUNT_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
 static ACCOUNT_UPDATES_RECEIVED: Counter = Counter::new(
-    "yellowstone_grpc_account_updates_received",
+    "yellowstone_grpc_account_updates_received_total",
     "Total account updates received from Yellowstone gRPC",
 );
 static TRANSACTION_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
 static TRANSACTION_UPDATES_RECEIVED: Counter = Counter::new(
-    "yellowstone_grpc_transaction_updates_received",
+    "yellowstone_grpc_transaction_updates_received_total",
     "Total transaction updates received from Yellowstone gRPC",
 );
 
 fn init_yellowstone_histograms() {
+    let boundaries = vec![
+        1_000.0,
+        10_000.0,
+        100_000.0,
+        1_000_000.0,
+        10_000_000.0,
+        100_000_000.0,
+        1_000_000_000.0,
+    ];
     ACCOUNT_PROCESS_TIME_NANOS.get_or_init(|| {
         Histogram::new(
             "yellowstone_grpc_account_process_time_nanoseconds",
             "Time taken to process account updates in nanoseconds",
-            vec![
-                1_000.0,
-                10_000.0,
-                100_000.0,
-                1_000_000.0,
-                10_000_000.0,
-                100_000_000.0,
-                1_000_000_000.0,
-            ],
+            boundaries.clone(),
         )
     });
     TRANSACTION_PROCESS_TIME_NANOS.get_or_init(|| {
         Histogram::new(
             "yellowstone_grpc_transaction_process_time_nanoseconds",
             "Time taken to process transaction updates in nanoseconds",
-            vec![
-                1_000.0,
-                10_000.0,
-                100_000.0,
-                1_000_000.0,
-                10_000_000.0,
-                100_000_000.0,
-                1_000_000_000.0,
-            ],
+            boundaries.clone(),
         )
     });
 }

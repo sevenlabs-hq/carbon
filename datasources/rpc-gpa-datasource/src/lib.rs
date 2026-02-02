@@ -22,7 +22,7 @@ use {
 
 static FETCH_DURATION_MILLIS: OnceLock<Histogram> = OnceLock::new();
 static ACCOUNTS_PROCESSED: Counter = Counter::new(
-    "rpc_gpa_accounts_processed",
+    "rpc_gpa_accounts_processed_total",
     "Account updates processed (sent) by RPC gPA datasource",
 );
 

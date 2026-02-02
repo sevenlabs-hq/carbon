@@ -23,11 +23,11 @@ use {
 
 static ENTRY_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
 static ENTRY_UPDATES_RECEIVED: Counter = Counter::new(
-    "jito_shredstream_grpc_entry_updates_received",
+    "jito_shredstream_grpc_entry_updates_received_total",
     "Entry updates received from Jito Shredstream gRPC",
 );
 static DUPLICATE_ENTRIES: Counter = Counter::new(
-    "jito_shredstream_grpc_duplicate_entries",
+    "jito_shredstream_grpc_duplicate_entries_total",
     "Duplicate entries skipped in Jito Shredstream gRPC",
 );
 

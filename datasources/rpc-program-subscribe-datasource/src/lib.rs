@@ -21,7 +21,7 @@ const RECONNECTION_DELAY_MS: u64 = 3000;
 
 static ACCOUNT_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
 static ACCOUNTS_PROCESSED: Counter = Counter::new(
-    "program_subscribe_accounts_processed",
+    "program_subscribe_accounts_processed_total",
     "Accounts processed by program subscribe",
 );
 

@@ -40,17 +40,17 @@ const RECONNECTION_DELAY_MS: u64 = 3000;
 static CLOCK_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
 static ACCOUNT_DELETION_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
 static ACCOUNT_DELETIONS_RECEIVED: Counter = Counter::new(
-    "helius_atlas_ws_account_deletions_received",
+    "helius_atlas_ws_account_deletions_received_total",
     "Account deletions received from Helius Atlas WS",
 );
 static ACCOUNT_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
 static ACCOUNT_UPDATES_RECEIVED: Counter = Counter::new(
-    "helius_atlas_ws_account_updates_received",
+    "helius_atlas_ws_account_updates_received_total",
     "Account updates received from Helius Atlas WS",
 );
 static TRANSACTION_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
 static TRANSACTION_UPDATES_RECEIVED: Counter = Counter::new(
-    "helius_atlas_ws_transaction_updates_received",
+    "helius_atlas_ws_transaction_updates_received_total",
     "Transaction updates received from Helius Atlas WS",
 );
 

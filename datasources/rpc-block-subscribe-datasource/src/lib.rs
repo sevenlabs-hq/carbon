@@ -27,12 +27,12 @@ const RECONNECTION_DELAY_MS: u64 = 3000;
 
 static TRANSACTION_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
 static TRANSACTIONS_PROCESSED: Counter = Counter::new(
-    "block_subscribe_transactions_processed",
+    "block_subscribe_transactions_processed_total",
     "Transactions processed by block subscribe",
 );
 static BLOCK_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
 static BLOCKS_RECEIVED: Counter = Counter::new(
-    "block_subscribe_blocks_received",
+    "block_subscribe_blocks_received_total",
     "Blocks received by block subscribe",
 );
 

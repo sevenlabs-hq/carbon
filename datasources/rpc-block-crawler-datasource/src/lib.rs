@@ -31,25 +31,25 @@ const BLOCK_INTERVAL: Duration = Duration::from_millis(100);
 
 static BLOCKS_FETCH_TIMES_MILLIS: OnceLock<Histogram> = OnceLock::new();
 static BLOCKS_FETCHED: Counter = Counter::new(
-    "block_crawler_blocks_fetched",
+    "block_crawler_blocks_fetched_total",
     "Blocks fetched by block crawler",
 );
 static BLOCKS_SKIPPED: Counter = Counter::new(
-    "block_crawler_blocks_skipped",
+    "block_crawler_blocks_skipped_total",
     "Blocks skipped by block crawler",
 );
 static BLOCKS_RECEIVED: Counter = Counter::new(
-    "block_crawler_blocks_received",
+    "block_crawler_blocks_received_total",
     "Blocks received by task processor",
 );
 static TRANSACTION_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
 static TRANSACTIONS_PROCESSED: Counter = Counter::new(
-    "block_crawler_transactions_processed",
+    "block_crawler_transactions_processed_total",
     "Transactions processed by block crawler",
 );
 static BLOCK_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
 static BLOCKS_PROCESSED: Counter = Counter::new(
-    "block_crawler_blocks_processed",
+    "block_crawler_blocks_processed_total",
     "Blocks processed by block crawler",
 );
 
