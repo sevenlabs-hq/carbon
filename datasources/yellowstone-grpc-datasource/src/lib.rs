@@ -107,7 +107,8 @@ impl YellowstoneGrpcGeyserClient {
             account_deletions_tracked,
             geyser_config,
             disconnect_notifier,
-            stream_timeout: stream_timeout.unwrap_or(Duration::from_secs(DEFAULT_STREAM_TIMEOUT_SECS)),
+            stream_timeout: stream_timeout
+                .unwrap_or(Duration::from_secs(DEFAULT_STREAM_TIMEOUT_SECS)),
         }
     }
 }
@@ -246,16 +247,16 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                             if last_disconnect_time.is_none() {
                                                 last_disconnect_time = Some(Utc::now());
                                                 last_slot_before_disconnect = Some(last_processed_slot);
-                                                log::warn!("Disconnected at slot {}", last_processed_slot);
+                                                log::warn!("Disconnected at slot {last_processed_slot}");
                                             }
                                             break;
                                         }
                                         Err(_) => {
-                                            log::warn!("Stream timeout - no messages for {:?}", stream_timeout);
+                                            log::warn!("Stream timeout - no messages for {stream_timeout:?}");
                                             if last_disconnect_time.is_none() {
                                                 last_disconnect_time = Some(Utc::now());
                                                 last_slot_before_disconnect = Some(last_processed_slot);
-                                                log::warn!("Disconnected at slot {} (timeout)", last_processed_slot);
+                                                log::warn!("Disconnected at slot {last_processed_slot} (timeout)");
                                             }
                                             break;
                                         }
@@ -291,7 +292,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                             let _ = tx.try_send(disconnection);
                                                         }
 
-                                                        log::info!("Reconnected. Slots: {} -> {} (missed: {})", last_slot, slot, missed);
+                                                        log::info!("Reconnected. Slots: {last_slot} -> {slot} (missed: {missed})");
                                                     }
                                                 }
                                             }
@@ -361,7 +362,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                             if last_disconnect_time.is_none() {
                                                 last_disconnect_time = Some(Utc::now());
                                                 last_slot_before_disconnect = Some(last_processed_slot);
-                                                log::error!("Disconnected at slot {}", last_processed_slot);
+                                                log::error!("Disconnected at slot {last_processed_slot}");
                                             }
 
                                             break;
@@ -370,7 +371,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                 }
                             }
                             Err(e) => {
-                                log::error!("Failed to subscribe: {:?}", e);
+                                log::error!("Failed to subscribe: {e:?}");
 
                                 if last_disconnect_time.is_none() {
                                     last_disconnect_time = Some(Utc::now());

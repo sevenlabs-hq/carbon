@@ -167,7 +167,7 @@ impl Datasource for RpcBlockSubscribe {
                                 if last_disconnect_time.is_none() {
                                     last_disconnect_time = Some(Utc::now());
                                     last_slot_before_disconnect = Some(last_processed_slot);
-                                    log::warn!("Disconnected at slot {}", last_processed_slot);
+                                    log::warn!("Disconnected at slot {last_processed_slot}");
                                 }
                                 break;
                             }
@@ -176,7 +176,7 @@ impl Datasource for RpcBlockSubscribe {
                                 if last_disconnect_time.is_none() {
                                     last_disconnect_time = Some(Utc::now());
                                     last_slot_before_disconnect = Some(last_processed_slot);
-                                    log::warn!("Disconnected at slot {} (timeout)", last_processed_slot);
+                                    log::warn!("Disconnected at slot {last_processed_slot} (timeout)");
                                 }
                                 break;
                             }
@@ -192,7 +192,7 @@ impl Datasource for RpcBlockSubscribe {
                                     {
                                         let missed = slot.saturating_sub(last_slot);
 
-                                        log::warn!("Reconnected: last_slot={}, new_slot={}, missed={}", last_slot, slot, missed);
+                                        log::warn!("Reconnected: last_slot={last_slot}, new_slot={slot}, missed={missed}");
 
                                         let disconnection = DatasourceDisconnection {
                                             source: "rpc-websocket".to_string(),
@@ -205,7 +205,7 @@ impl Datasource for RpcBlockSubscribe {
                                         if let Some(tx) = &disconnect_tx_clone {
                                             match tx.try_send(disconnection) {
                                                 Ok(_) => log::warn!("Disconnection event sent successfully"),
-                                                Err(e) => log::error!("Failed to send disconnection event: {:?}", e),
+                                                Err(e) => log::error!("Failed to send disconnection event: {e:?}"),
                                             }
                                         } else {
                                             log::warn!("No disconnect channel configured");

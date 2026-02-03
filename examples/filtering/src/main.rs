@@ -85,6 +85,8 @@ pub async fn main() -> CarbonResult<()> {
         Default::default(),
         Arc::new(RwLock::new(HashSet::new())),
         geyser_config,
+        None,
+        None,
     );
     let yellowstone_grpc_id = DatasourceId::new_named("yellowstone_grpc");
 
