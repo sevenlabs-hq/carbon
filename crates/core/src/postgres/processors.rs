@@ -77,20 +77,16 @@ impl<T, W> PostgresAccountProcessor<T, W> {
     }
 }
 
-#[async_trait::async_trait]
-impl<T, W> crate::processor::Processor for PostgresAccountProcessor<T, W>
+impl<T, W> crate::processor::Processor<AccountProcessorInputType<'_, T>>
+    for PostgresAccountProcessor<T, W>
 where
     T: Clone + Send + Sync + 'static,
     W: From<(T, AccountMetadata)> + Upsert + Send + 'static,
 {
-    type InputType = AccountProcessorInputType<T>;
-
-    async fn process(&mut self, input: Self::InputType) -> CarbonResult<()> {
-        let (metadata, decoded_account, _raw) = input;
-
+    async fn process(&mut self, input: &AccountProcessorInputType<'_, T>) -> CarbonResult<()> {
         let start = std::time::Instant::now();
 
-        let wrapper = W::from((decoded_account.data, metadata));
+        let wrapper = W::from((input.decoded_account.data.clone(), input.metadata.clone()));
 
         match wrapper.upsert(&self.pool).await {
             Ok(()) => {
@@ -103,7 +99,7 @@ where
             }
             Err(e) => {
                 POSTGRES_ACCOUNTS_UPSERT_FAILED.inc();
-                return Err(e);
+                Err(e)
             }
         }
     }
@@ -123,17 +119,14 @@ impl<T> PostgresJsonAccountProcessor<T> {
     }
 }
 
-#[async_trait::async_trait]
-impl<T> crate::processor::Processor for PostgresJsonAccountProcessor<T>
+impl<T> crate::processor::Processor<AccountProcessorInputType<'_, T>>
+    for PostgresJsonAccountProcessor<T>
 where
     T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
 {
-    type InputType = AccountProcessorInputType<T>;
-
-    async fn process(&mut self, input: Self::InputType) -> CarbonResult<()> {
-        let (metadata, decoded_account, _raw) = input;
-
-        let account_row = AccountRow::from_parts(decoded_account.data, metadata);
+    async fn process(&mut self, input: &AccountProcessorInputType<'_, T>) -> CarbonResult<()> {
+        let account_row =
+            AccountRow::from_parts(input.decoded_account.data.clone(), input.metadata.clone());
 
         let start = std::time::Instant::now();
 
@@ -148,7 +141,7 @@ where
             }
             Err(e) => {
                 POSTGRES_ACCOUNTS_UPSERT_FAILED.inc();
-                return Err(e);
+                Err(e)
             }
         }
     }
@@ -168,20 +161,20 @@ impl<T, W> PostgresInstructionProcessor<T, W> {
     }
 }
 
-#[async_trait::async_trait]
-impl<T, W> crate::processor::Processor for PostgresInstructionProcessor<T, W>
+impl<T, W> crate::processor::Processor<InstructionProcessorInputType<'_, T>>
+    for PostgresInstructionProcessor<T, W>
 where
     T: Clone + Send + Sync + 'static,
     W: From<(T, InstructionMetadata, Vec<AccountMeta>)> + Upsert + Send + 'static,
 {
-    type InputType = InstructionProcessorInputType<T>;
-
-    async fn process(&mut self, input: Self::InputType) -> CarbonResult<()> {
-        let (metadata, decoded_instruction, _nested_instructions, raw) = input;
-
+    async fn process(&mut self, input: &InstructionProcessorInputType<'_, T>) -> CarbonResult<()> {
         let start = std::time::Instant::now();
 
-        let wrapper = W::from((decoded_instruction, metadata, raw.accounts));
+        let wrapper = W::from((
+            input.decoded_instruction.clone(),
+            input.metadata.clone(),
+            input.raw_instruction.accounts.clone(),
+        ));
 
         match wrapper.upsert(&self.pool).await {
             Ok(()) => {
@@ -194,7 +187,7 @@ where
             }
             Err(e) => {
                 POSTGRES_INSTRUCTIONS_UPSERT_FAILED.inc();
-                return Err(e);
+                Err(e)
             }
         }
     }
@@ -214,17 +207,14 @@ impl<T> PostgresJsonInstructionProcessor<T> {
     }
 }
 
-#[async_trait::async_trait]
-impl<T> crate::processor::Processor for PostgresJsonInstructionProcessor<T>
+impl<T> crate::processor::Processor<InstructionProcessorInputType<'_, T>>
+    for PostgresJsonInstructionProcessor<T>
 where
     T: serde::Serialize + for<'de> serde::Deserialize<'de> + Clone + Send + Sync + Unpin + 'static,
 {
-    type InputType = InstructionProcessorInputType<T>;
-
-    async fn process(&mut self, input: Self::InputType) -> CarbonResult<()> {
-        let (metadata, decoded_instruction, _nested_instructions, _raw) = input;
-
-        let instruction_row = InstructionRow::from_parts(decoded_instruction, metadata);
+    async fn process(&mut self, input: &InstructionProcessorInputType<'_, T>) -> CarbonResult<()> {
+        let instruction_row =
+            InstructionRow::from_parts(input.decoded_instruction.clone(), input.metadata.clone());
 
         let start = std::time::Instant::now();
 
@@ -239,7 +229,7 @@ where
             }
             Err(e) => {
                 POSTGRES_INSTRUCTIONS_UPSERT_FAILED.inc();
-                return Err(e);
+                Err(e)
             }
         }
     }

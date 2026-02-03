@@ -1,8 +1,8 @@
-use {crate::error::CarbonResult, async_trait::async_trait};
+use {crate::error::CarbonResult, std::future::Future};
 
-#[async_trait]
-pub trait Processor {
-    type InputType;
-
-    async fn process(&mut self, data: Self::InputType) -> CarbonResult<()>;
+pub trait Processor<T>
+where
+    T: Sync,
+{
+    fn process(&mut self, data: &T) -> impl Future<Output = CarbonResult<()>> + Send;
 }

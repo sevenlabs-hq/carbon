@@ -96,7 +96,7 @@ impl MetricsExporter for PrometheusMetricsExporter {
             let config = self.config.clone().unwrap();
             tokio::spawn(async move {
                 if let Err(e) = run_metrics_server_with_config(config).await {
-                    log::error!("Prometheus metrics server error: {}", e);
+                    log::error!("Prometheus metrics server error: {e}");
                 }
             });
         }

@@ -166,12 +166,13 @@ pub trait InstructionDecoder<'a> {
     ) -> Option<Self::InstructionType>;
 }
 
-pub type InstructionProcessorInputType<T> = (
-    InstructionMetadata,
-    T,
-    NestedInstructions,
-    solana_instruction::Instruction,
-);
+#[derive(Debug)]
+pub struct InstructionProcessorInputType<'a, T> {
+    pub metadata: &'a InstructionMetadata,
+    pub decoded_instruction: &'a T,
+    pub nested_instructions: &'a NestedInstructions,
+    pub raw_instruction: &'a solana_instruction::Instruction,
+}
 
 pub struct InstructionPipe<T: Send, P> {
     pub decoder:
@@ -187,9 +188,10 @@ pub trait InstructionPipes<'a>: Send + Sync {
 }
 
 #[async_trait]
-impl<T: Send + 'static, P> InstructionPipes<'_> for InstructionPipe<T, P>
+impl<T, P> InstructionPipes<'_> for InstructionPipe<T, P>
 where
-    P: Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static,
+    T: Send + Sync + 'static,
+    P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
 {
     async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()> {
         log::trace!("InstructionPipe::run(nested_instruction: {nested_instruction:?})");
@@ -198,14 +200,14 @@ where
             .decoder
             .decode_instruction(&nested_instruction.instruction)
         {
-            self.processor
-                .process((
-                    nested_instruction.metadata.clone(),
-                    decoded_instruction,
-                    nested_instruction.inner_instructions.clone(),
-                    nested_instruction.instruction.clone(),
-                ))
-                .await?;
+            let data = InstructionProcessorInputType {
+                metadata: &nested_instruction.metadata,
+                decoded_instruction: &decoded_instruction,
+                nested_instructions: &nested_instruction.inner_instructions,
+                raw_instruction: &nested_instruction.instruction,
+            };
+
+            self.processor.process(&data).await?;
         }
 
         for nested_inner_instruction in nested_instruction.inner_instructions.iter() {
