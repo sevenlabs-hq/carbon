@@ -147,6 +147,7 @@ proc-macro2 = "1"
 prost = "0.13.5"
 prost-types = "0.13.5"
 quote = "1.0"
+mimalloc = { version = "0.1.48" }
 reqwest = { version = "0.12.24", default-features = false, features = ["json", "rustls-tls"] }
 retry = "2.1.0"
 rust_decimal = { version = "1.39.0", features = ["db-postgres"] }
