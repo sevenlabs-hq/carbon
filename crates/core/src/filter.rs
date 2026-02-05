@@ -4,6 +4,12 @@ use crate::{
     instruction::{NestedInstruction, NestedInstructions},
     transaction::TransactionMetadata,
 };
+use solana_pubkey::Pubkey;
+use solana_signature::Signature;
+use std::collections::HashMap;
+use std::sync::atomic::{AtomicU64, Ordering};
+use std::sync::{Arc, RwLock};
+use std::time::{Duration, Instant};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FilterContext<'a> {
@@ -58,6 +64,94 @@ pub trait Filter: Send + Sync {
         _block_details: &BlockDetails,
     ) -> FilterResult {
         FilterResult::Accept
+    }
+}
+
+const DEDUP_CLEANUP_INTERVAL_SECS: u64 = 60;
+
+pub struct DeduplicationFilter {
+    seen_instructions: Arc<RwLock<HashMap<(Signature, Vec<u8>), Instant>>>,
+    seen_accounts: Arc<RwLock<HashMap<(Signature, Pubkey), Instant>>>,
+    ttl: Duration,
+    creation: Instant,
+    last_cleanup_secs: AtomicU64,
+}
+
+impl DeduplicationFilter {
+    pub fn new(ttl: Duration) -> Self {
+        let creation = Instant::now();
+        Self {
+            seen_instructions: Arc::new(RwLock::new(HashMap::new())),
+            seen_accounts: Arc::new(RwLock::new(HashMap::new())),
+            ttl,
+            creation,
+            last_cleanup_secs: AtomicU64::new(0),
+        }
+    }
+
+    pub fn cleanup_expired(&self) {
+        let cutoff = Instant::now() - self.ttl;
+        if let Ok(mut seen) = self.seen_instructions.write() {
+            seen.retain(|_, t| *t > cutoff);
+        }
+        if let Ok(mut seen) = self.seen_accounts.write() {
+            seen.retain(|_, t| *t > cutoff);
+        }
+        self.last_cleanup_secs
+            .store(self.creation.elapsed().as_secs(), Ordering::Relaxed);
+    }
+
+    #[inline(always)]
+    fn cleanup_if_needed(&self) {
+        let elapsed_secs = self.creation.elapsed().as_secs();
+        let last = self.last_cleanup_secs.load(Ordering::Relaxed);
+        if elapsed_secs.saturating_sub(last) >= DEDUP_CLEANUP_INTERVAL_SECS {
+            self.cleanup_expired();
+        }
+    }
+}
+
+impl Filter for DeduplicationFilter {
+    #[inline(always)]
+    fn filter_instruction(
+        &self,
+        _context: &FilterContext,
+        nested_instruction: &NestedInstruction,
+    ) -> FilterResult {
+        self.cleanup_if_needed();
+        let sig = nested_instruction.metadata.transaction_metadata.signature;
+        let path = nested_instruction.metadata.absolute_path.clone();
+        let key = (sig, path);
+        let Ok(mut seen) = self.seen_instructions.write() else {
+            return FilterResult::Accept;
+        };
+        if seen.insert(key, Instant::now()).is_none() {
+            FilterResult::Accept
+        } else {
+            FilterResult::Reject
+        }
+    }
+
+    #[inline(always)]
+    fn filter_account(
+        &self,
+        _context: &FilterContext,
+        account_metadata: &AccountMetadata,
+        _account: &solana_account::Account,
+    ) -> FilterResult {
+        self.cleanup_if_needed();
+        let Some(tx_sig) = account_metadata.transaction_signature else {
+            return FilterResult::Accept;
+        };
+        let key = (tx_sig, account_metadata.pubkey);
+        let Ok(mut seen) = self.seen_accounts.write() else {
+            return FilterResult::Accept;
+        };
+        if seen.insert(key, Instant::now()).is_none() {
+            FilterResult::Accept
+        } else {
+            FilterResult::Reject
+        }
     }
 }
 
