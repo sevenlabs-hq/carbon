@@ -210,10 +210,6 @@ where
             self.processor.process(&data).await?;
         }
 
-        for nested_inner_instruction in nested_instruction.inner_instructions.iter() {
-            self.run(nested_inner_instruction).await?;
-        }
-
         Ok(())
     }
 
