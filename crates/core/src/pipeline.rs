@@ -1,6 +1,6 @@
 use crate::block_details::{BlockDetailsPipe, BlockDetailsPipes};
-use crate::datasource::{BlockDetails, DatasourceId};
-use crate::filter::Filter;
+use crate::datasource::{BlockDetails, DatasourceId, UpdateType};
+use crate::filter::{Filter, FilterContext, FilterResult};
 use {
     crate::{
         account::{
@@ -315,12 +315,20 @@ impl Pipeline {
                     transaction_signature: account_update.transaction_signature,
                 };
 
+                let context = FilterContext {
+                    datasource_id: &datasource_id,
+                    update_type: UpdateType::AccountUpdate,
+                };
+
                 for pipe in self.account_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
-                        filter.filter_account(
-                            &datasource_id,
-                            &account_metadata,
-                            &account_update.account,
+                        matches!(
+                            filter.filter_account(
+                                &context,
+                                &account_metadata,
+                                &account_update.account
+                            ),
+                            FilterResult::Accept
                         )
                     }) {
                         pipe.run((account_metadata.clone(), account_update.account.clone()))
@@ -343,13 +351,19 @@ impl Pipeline {
                 let mut all_instructions = Vec::new();
                 flatten_nested_instructions(&nested_instructions, &mut all_instructions);
 
+                let context = FilterContext {
+                    datasource_id: &datasource_id,
+                    update_type: UpdateType::Transaction,
+                };
+
                 for pipe in self.instruction_pipes.iter_mut() {
                     for &nested_instruction in &all_instructions {
-                        if pipe
-                            .filters()
-                            .iter()
-                            .all(|filter| filter.filter_instruction(&datasource_id, nested_instruction))
-                        {
+                        if pipe.filters().iter().all(|filter| {
+                            matches!(
+                                filter.filter_instruction(&context, nested_instruction),
+                                FilterResult::Accept
+                            )
+                        }) {
                             pipe.run(nested_instruction).await?;
                         }
                     }
@@ -357,10 +371,13 @@ impl Pipeline {
 
                 for pipe in self.transaction_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
-                        filter.filter_transaction(
-                            &datasource_id,
-                            &transaction_metadata,
-                            &nested_instructions,
+                        matches!(
+                            filter.filter_transaction(
+                                &context,
+                                &transaction_metadata,
+                                &nested_instructions
+                            ),
+                            FilterResult::Accept
                         )
                     }) {
                         pipe.run(transaction_metadata.clone(), &nested_instructions)
@@ -371,9 +388,17 @@ impl Pipeline {
                 TRANSACTION_UPDATES_PROCESSED.inc();
             }
             Update::AccountDeletion(account_deletion) => {
+                let context = FilterContext {
+                    datasource_id: &datasource_id,
+                    update_type: UpdateType::AccountDeletion,
+                };
+
                 for pipe in self.account_deletion_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
-                        filter.filter_account_deletion(&datasource_id, &account_deletion)
+                        matches!(
+                            filter.filter_account_deletion(&context, &account_deletion),
+                            FilterResult::Accept
+                        )
                     }) {
                         pipe.run(account_deletion.clone()).await?;
                     }
@@ -382,12 +407,18 @@ impl Pipeline {
                 ACCOUNT_DELETIONS_PROCESSED.inc();
             }
             Update::BlockDetails(block_details) => {
+                let context = FilterContext {
+                    datasource_id: &datasource_id,
+                    update_type: UpdateType::BlockDetails,
+                };
+
                 for pipe in self.block_details_pipes.iter_mut() {
-                    if pipe
-                        .filters()
-                        .iter()
-                        .all(|filter| filter.filter_block_details(&datasource_id, &block_details))
-                    {
+                    if pipe.filters().iter().all(|filter| {
+                        matches!(
+                            filter.filter_block_details(&context, &block_details),
+                            FilterResult::Accept
+                        )
+                    }) {
                         pipe.run(block_details.clone()).await?;
                     }
                 }
