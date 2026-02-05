@@ -1,51 +1,63 @@
 use crate::{
     account::AccountMetadata,
-    datasource::{AccountDeletion, BlockDetails, DatasourceId},
+    datasource::{AccountDeletion, BlockDetails, DatasourceId, UpdateType},
     instruction::{NestedInstruction, NestedInstructions},
     transaction::TransactionMetadata,
 };
 
-pub trait Filter {
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FilterContext<'a> {
+    pub datasource_id: &'a DatasourceId,
+    pub update_type: UpdateType,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum FilterResult {
+    Accept,
+    Reject,
+}
+
+pub trait Filter: Send + Sync {
     fn filter_account(
         &self,
-        _datasource_id: &DatasourceId,
+        _context: &FilterContext,
         _account_metadata: &AccountMetadata,
         _account: &solana_account::Account,
-    ) -> bool {
-        true
+    ) -> FilterResult {
+        FilterResult::Accept
     }
 
     fn filter_instruction(
         &self,
-        _datasource_id: &DatasourceId,
+        _context: &FilterContext,
         _nested_instruction: &NestedInstruction,
-    ) -> bool {
-        true
+    ) -> FilterResult {
+        FilterResult::Accept
     }
 
     fn filter_transaction(
         &self,
-        _datasource_id: &DatasourceId,
+        _context: &FilterContext,
         _transaction_metadata: &TransactionMetadata,
         _nested_instructions: &NestedInstructions,
-    ) -> bool {
-        true
+    ) -> FilterResult {
+        FilterResult::Accept
     }
 
     fn filter_account_deletion(
         &self,
-        _datasource_id: &DatasourceId,
+        _context: &FilterContext,
         _account_deletion: &AccountDeletion,
-    ) -> bool {
-        true
+    ) -> FilterResult {
+        FilterResult::Accept
     }
 
     fn filter_block_details(
         &self,
-        _datasource_id: &DatasourceId,
+        _context: &FilterContext,
         _block_details: &BlockDetails,
-    ) -> bool {
-        true
+    ) -> FilterResult {
+        FilterResult::Accept
     }
 }
 
@@ -65,48 +77,72 @@ impl DatasourceFilter {
             allowed_datasources: datasource_ids,
         }
     }
+
+    fn allows(&self, datasource_id: &DatasourceId) -> bool {
+        self.allowed_datasources.contains(datasource_id)
+    }
 }
 
 impl Filter for DatasourceFilter {
     fn filter_account(
         &self,
-        datasource_id: &DatasourceId,
+        context: &FilterContext,
         _account_metadata: &AccountMetadata,
         _account: &solana_account::Account,
-    ) -> bool {
-        self.allowed_datasources.contains(datasource_id)
+    ) -> FilterResult {
+        if self.allows(context.datasource_id) {
+            FilterResult::Accept
+        } else {
+            FilterResult::Reject
+        }
     }
 
     fn filter_instruction(
         &self,
-        datasource_id: &DatasourceId,
+        context: &FilterContext,
         _nested_instruction: &NestedInstruction,
-    ) -> bool {
-        self.allowed_datasources.contains(datasource_id)
+    ) -> FilterResult {
+        if self.allows(context.datasource_id) {
+            FilterResult::Accept
+        } else {
+            FilterResult::Reject
+        }
     }
 
     fn filter_transaction(
         &self,
-        datasource_id: &DatasourceId,
+        context: &FilterContext,
         _transaction_metadata: &TransactionMetadata,
         _nested_instructions: &NestedInstructions,
-    ) -> bool {
-        self.allowed_datasources.contains(datasource_id)
+    ) -> FilterResult {
+        if self.allows(context.datasource_id) {
+            FilterResult::Accept
+        } else {
+            FilterResult::Reject
+        }
     }
 
     fn filter_account_deletion(
         &self,
-        datasource_id: &DatasourceId,
+        context: &FilterContext,
         _account_deletion: &AccountDeletion,
-    ) -> bool {
-        self.allowed_datasources.contains(datasource_id)
+    ) -> FilterResult {
+        if self.allows(context.datasource_id) {
+            FilterResult::Accept
+        } else {
+            FilterResult::Reject
+        }
     }
 
     fn filter_block_details(
         &self,
-        datasource_id: &DatasourceId,
+        context: &FilterContext,
         _block_details: &BlockDetails,
-    ) -> bool {
-        self.allowed_datasources.contains(datasource_id)
+    ) -> FilterResult {
+        if self.allows(context.datasource_id) {
+            FilterResult::Accept
+        } else {
+            FilterResult::Reject
+        }
     }
 }
