@@ -256,4 +256,7 @@ pub trait MetricsExporter: Send + Sync {
     fn shutdown(&self) -> CarbonResult<()> {
         Ok(())
     }
+    fn flush_interval_secs(&self) -> Option<u64> {
+        None
+    }
 }

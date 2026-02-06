@@ -136,7 +136,6 @@ pub struct Pipeline {
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
     pub exporters: Vec<Arc<dyn MetricsExporter>>,
-    pub metrics_flush_interval: Option<u64>,
     pub datasource_cancellation_token: Option<CancellationToken>,
     pub shutdown_strategy: ShutdownStrategy,
     pub channel_buffer_size: usize,
@@ -168,7 +167,6 @@ impl Pipeline {
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
             exporters: Vec::new(),
-            metrics_flush_interval: None,
             datasource_cancellation_token: None,
             shutdown_strategy: ShutdownStrategy::default(),
             channel_buffer_size: DEFAULT_CHANNEL_BUFFER_SIZE,
@@ -220,9 +218,14 @@ impl Pipeline {
 
         drop(update_sender);
 
-        let mut interval = tokio::time::interval(time::Duration::from_secs(
-            self.metrics_flush_interval.unwrap_or(5),
-        ));
+        let flush_interval_secs = self
+            .exporters
+            .iter()
+            .filter_map(|e| e.flush_interval_secs())
+            .min()
+            .unwrap_or(5);
+
+        let mut interval = tokio::time::interval(time::Duration::from_secs(flush_interval_secs));
 
         loop {
             tokio::select! {
@@ -395,7 +398,6 @@ pub struct PipelineBuilder {
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
     pub exporters: Vec<Arc<dyn MetricsExporter>>,
-    pub metrics_flush_interval: Option<u64>,
     pub datasource_cancellation_token: Option<CancellationToken>,
     pub shutdown_strategy: ShutdownStrategy,
     pub channel_buffer_size: usize,
@@ -642,12 +644,6 @@ impl PipelineBuilder {
         self
     }
 
-    pub fn metrics_flush_interval(mut self, interval: u64) -> Self {
-        log::trace!("metrics_flush_interval(self, interval: {interval:?})");
-        self.metrics_flush_interval = Some(interval);
-        self
-    }
-
     pub fn datasource_cancellation_token(mut self, cancellation_token: CancellationToken) -> Self {
         log::trace!(
             "datasource_cancellation_token(self, cancellation_token: {cancellation_token:?})"
@@ -673,7 +669,6 @@ impl PipelineBuilder {
             instruction_pipes: self.instruction_pipes,
             transaction_pipes: self.transaction_pipes,
             exporters: self.exporters,
-            metrics_flush_interval: self.metrics_flush_interval,
             datasource_cancellation_token: self.datasource_cancellation_token,
             shutdown_strategy: self.shutdown_strategy,
             channel_buffer_size: self.channel_buffer_size,
