@@ -1,4 +1,5 @@
-use carbon_core::datasource::{BlockDetails, DatasourceId};
+use carbon_core::datasource::{BlockDetails, DatasourceDisconnection, DatasourceId};
+use chrono::Utc;
 use solana_hash::Hash;
 use std::str::FromStr;
 
@@ -18,6 +19,7 @@ use {
         rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
     },
     std::sync::Arc,
+    tokio::sync::mpsc,
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
@@ -43,17 +45,48 @@ impl Filters {
     }
 }
 
+/// Default timeout for detecting stale connections (30 seconds)
+pub const DEFAULT_STREAM_TIMEOUT_SECS: u64 = 30;
+
 pub struct RpcBlockSubscribe {
     pub rpc_ws_url: String,
     pub filters: Filters,
+    pub disconnect_notifier: Option<mpsc::Sender<DatasourceDisconnection>>,
+    /// Timeout for detecting hung/stale connections. Default: 30 seconds.
+    pub stream_timeout: Duration,
 }
 
 impl RpcBlockSubscribe {
-    pub const fn new(rpc_ws_url: String, filters: Filters) -> Self {
+    /// Creates a new RpcBlockSubscribe with default settings.
+    /// Uses default stream timeout (30 seconds) and no disconnect notifier.
+    pub fn new(rpc_ws_url: String, filters: Filters) -> Self {
         Self {
             rpc_ws_url,
             filters,
+            disconnect_notifier: None,
+            stream_timeout: Duration::from_secs(DEFAULT_STREAM_TIMEOUT_SECS),
         }
+    }
+
+    /// Creates a new RpcBlockSubscribe with a disconnect notifier.
+    /// Allows tracking connection drops and missed slots.
+    pub fn with_disconnect_notifier(
+        rpc_ws_url: String,
+        filters: Filters,
+        disconnect_notifier: mpsc::Sender<DatasourceDisconnection>,
+    ) -> Self {
+        Self {
+            rpc_ws_url,
+            filters,
+            disconnect_notifier: Some(disconnect_notifier),
+            stream_timeout: Duration::from_secs(DEFAULT_STREAM_TIMEOUT_SECS),
+        }
+    }
+
+    /// Sets a custom stream timeout for detecting stale connections.
+    pub fn with_stream_timeout(mut self, timeout: Duration) -> Self {
+        self.stream_timeout = timeout;
+        self
     }
 }
 
@@ -67,6 +100,10 @@ impl Datasource for RpcBlockSubscribe {
         metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let mut reconnection_attempts = 0;
+        let mut last_processed_slot = 0u64;
+        let mut last_disconnect_time = None;
+        let mut last_slot_before_disconnect = None;
+        let disconnect_tx_clone = self.disconnect_notifier.clone();
 
         loop {
             if cancellation_token.is_cancelled() {
@@ -119,10 +156,64 @@ impl Datasource for RpcBlockSubscribe {
                         log::info!("Cancellation requested, stopping subscription...");
                         return Ok(());
                     }
-                    block_event = block_stream.next() => {
-                        match block_event {
+                    block_event_result = tokio::time::timeout(
+                        self.stream_timeout,
+                        block_stream.next()
+                    ) => {
+                        let block_event = match block_event_result {
+                            Ok(Some(event)) => event,
+                            Ok(None) => {
+                                log::warn!("Block stream closed");
+                                if last_disconnect_time.is_none() {
+                                    last_disconnect_time = Some(Utc::now());
+                                    last_slot_before_disconnect = Some(last_processed_slot);
+                                    log::warn!("Disconnected at slot {last_processed_slot}");
+                                }
+                                break;
+                            }
+                            Err(_) => {
+                                log::warn!("Block stream timeout - no messages for {:?}", self.stream_timeout);
+                                if last_disconnect_time.is_none() {
+                                    last_disconnect_time = Some(Utc::now());
+                                    last_slot_before_disconnect = Some(last_processed_slot);
+                                    log::warn!("Disconnected at slot {last_processed_slot} (timeout)");
+                                }
+                                break;
+                            }
+                        };
+
+                        match Some(block_event) {
                             Some(tx_event) => {
                                 let slot = tx_event.context.slot;
+
+                                if last_processed_slot > 0 {
+                                    if let (Some(disconnect_time), Some(last_slot)) =
+                                        (last_disconnect_time.take(), last_slot_before_disconnect.take())
+                                    {
+                                        let missed = slot.saturating_sub(last_slot);
+
+                                        log::warn!("Reconnected: last_slot={last_slot}, new_slot={slot}, missed={missed}");
+
+                                        let disconnection = DatasourceDisconnection {
+                                            source: "rpc-websocket".to_string(),
+                                            disconnect_time,
+                                            last_slot_before_disconnect: last_slot,
+                                            first_slot_after_reconnect: slot,
+                                            missed_slots: missed,
+                                        };
+
+                                        if let Some(tx) = &disconnect_tx_clone {
+                                            match tx.try_send(disconnection) {
+                                                Ok(_) => log::warn!("Disconnection event sent successfully"),
+                                                Err(e) => log::error!("Failed to send disconnection event: {e:?}"),
+                                            }
+                                        } else {
+                                            log::warn!("No disconnect channel configured");
+                                        }
+                                    }
+                                }
+
+                                last_processed_slot = slot;
 
                                 if let Some(block) = tx_event.value.block {
                                     let block_start_time = std::time::Instant::now();

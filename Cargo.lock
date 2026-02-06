@@ -1457,6 +1457,7 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "carbon-test-utils",
+ "chrono",
  "juniper",
  "juniper_axum",
  "log",
@@ -2243,7 +2244,8 @@ version = "0.12.0"
 dependencies = [
  "async-trait",
  "carbon-core",
- "futures 0.3.31",
+ "chrono",
+ "futures",
  "log",
  "solana-client",
  "solana-hash 3.1.0",
@@ -2526,8 +2528,11 @@ name = "carbon-yellowstone-grpc-datasource"
 version = "0.12.0"
 dependencies = [
  "async-trait",
+
  "carbon-core",
- "futures 0.3.31",
+ "chrono",
+ "futures",
+
  "log",
  "solana-account",
  "solana-pubkey 3.0.0",
