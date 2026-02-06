@@ -41,18 +41,18 @@ impl Default for PrometheusConfig {
     }
 }
 
-pub struct PrometheusMetricsExporter {
+pub struct PrometheusMetrics {
     #[cfg(feature = "http-server")]
     config: Option<PrometheusConfig>,
 }
 
-impl Default for PrometheusMetricsExporter {
+impl Default for PrometheusMetrics {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl PrometheusMetricsExporter {
+impl PrometheusMetrics {
     pub fn new() -> Self {
         Self {
             #[cfg(feature = "http-server")]
@@ -85,7 +85,7 @@ impl PrometheusMetricsExporter {
     }
 }
 
-impl MetricsExporter for PrometheusMetricsExporter {
+impl MetricsExporter for PrometheusMetrics {
     fn export(&self, _snapshot: &MetricsSnapshot) -> CarbonResult<()> {
         Ok(())
     }
@@ -189,7 +189,7 @@ pub async fn run_metrics_server_with_config(
     use tower_http::{cors::CorsLayer, timeout::TimeoutLayer};
 
     async fn metrics_handler() -> Result<Response<Body>, StatusCode> {
-        let text = PrometheusMetricsExporter::prometheus_text();
+        let text = PrometheusMetrics::prometheus_text();
 
         Response::builder()
             .status(StatusCode::OK)
