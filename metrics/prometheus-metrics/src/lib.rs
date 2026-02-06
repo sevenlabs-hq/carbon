@@ -3,6 +3,7 @@ use carbon_core::{
     metrics::{MetricsExporter, MetricsRegistry, MetricsSnapshot},
 };
 
+#[cfg(feature = "http-server")]
 #[derive(Debug, Clone)]
 pub struct PrometheusConfig {
     pub listen_addr: std::net::SocketAddr,
@@ -10,6 +11,7 @@ pub struct PrometheusConfig {
     pub request_timeout_secs: u64,
 }
 
+#[cfg(feature = "http-server")]
 impl PrometheusConfig {
     pub fn new() -> Self {
         Self::default()
@@ -31,6 +33,7 @@ impl PrometheusConfig {
     }
 }
 
+#[cfg(feature = "http-server")]
 impl Default for PrometheusConfig {
     fn default() -> Self {
         Self {
@@ -41,9 +44,13 @@ impl Default for PrometheusConfig {
     }
 }
 
+#[cfg(not(feature = "http-server"))]
+#[derive(Debug, Clone)]
+struct PrometheusConfig;
+
 pub struct PrometheusMetrics {
-    #[cfg(feature = "http-server")]
     config: Option<PrometheusConfig>,
+    auto_start_server: bool,
 }
 
 impl Default for PrometheusMetrics {
@@ -55,23 +62,23 @@ impl Default for PrometheusMetrics {
 impl PrometheusMetrics {
     pub fn new() -> Self {
         Self {
-            #[cfg(feature = "http-server")]
             config: None,
+            auto_start_server: false,
         }
     }
 
     #[cfg(feature = "http-server")]
-    pub fn new_with_config(config: PrometheusConfig) -> Self {
+    pub fn with_server(config: PrometheusConfig) -> Self {
         Self {
             config: Some(config),
+            auto_start_server: true,
         }
     }
 
     #[cfg(feature = "http-server")]
     pub fn start_server(
-        &self,
+        config: PrometheusConfig,
     ) -> tokio::task::JoinHandle<Result<(), Box<dyn std::error::Error + Send + Sync>>> {
-        let config = self.config.clone().unwrap_or_default();
         tokio::spawn(async move { run_metrics_server_with_config(config).await })
     }
 
@@ -92,13 +99,15 @@ impl MetricsExporter for PrometheusMetrics {
 
     #[cfg(feature = "http-server")]
     fn initialize(&self) -> CarbonResult<()> {
-        if self.config.is_some() {
-            let config = self.config.clone().unwrap();
-            tokio::spawn(async move {
-                if let Err(e) = run_metrics_server_with_config(config).await {
-                    log::error!("Prometheus metrics server error: {}", e);
-                }
-            });
+        if self.auto_start_server {
+            if let Some(config) = &self.config {
+                let config = config.clone();
+                tokio::spawn(async move {
+                    if let Err(e) = run_metrics_server_with_config(config).await {
+                        log::error!("Prometheus metrics server error: {}", e);
+                    }
+                });
+            }
         }
         Ok(())
     }
