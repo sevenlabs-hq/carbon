@@ -16,12 +16,10 @@ use {
         },
         metrics::{Counter, Gauge, Histogram, MetricsExporter, MetricsRegistry},
         processor::Processor,
-        schema::TransactionSchema,
         transaction::{TransactionPipe, TransactionPipes, TransactionProcessorInputType},
         transformers,
     },
     core::time,
-    serde::de::DeserializeOwned,
     std::{
         convert::TryInto,
         sync::{Arc, OnceLock},
@@ -634,51 +632,33 @@ impl PipelineBuilder {
         self
     }
 
-    pub fn transaction<T, U, P>(
-        mut self,
-        processor: P,
-        schema: Option<TransactionSchema<T>>,
-    ) -> Self
+    pub fn transaction<T, P>(mut self, processor: P) -> Self
     where
         T: InstructionDecoderCollection + 'static,
-        U: DeserializeOwned + Send + Sync + 'static,
-        P: for<'a> Processor<TransactionProcessorInputType<'a, T, U>> + Send + Sync + 'static,
+        P: for<'a> Processor<TransactionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
-        log::trace!(
-            "transaction(self, schema: {:?}, processor: {:?})",
-            stringify!(schema),
-            stringify!(processor)
-        );
+        log::trace!("transaction(self, processor: {:?})", stringify!(processor));
         self.transaction_pipes
-            .push(Box::new(TransactionPipe::<T, U, P>::new(
-                schema,
-                processor,
-                vec![],
-            )));
+            .push(Box::new(TransactionPipe::<T, P>::new(processor, vec![])));
         self
     }
 
-    pub fn transaction_with_filters<T, U, P>(
+    pub fn transaction_with_filters<T, P>(
         mut self,
         processor: P,
-        schema: Option<TransactionSchema<T>>,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
     ) -> Self
     where
         T: InstructionDecoderCollection + 'static,
-        U: DeserializeOwned + Send + Sync + 'static,
-        P: for<'a> Processor<TransactionProcessorInputType<'a, T, U>> + Send + Sync + 'static,
+        P: for<'a> Processor<TransactionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
         log::trace!(
-            "transaction_with_filters(self, schema: {:?}, processor: {:?}, filters: {:?})",
-            stringify!(schema),
+            "transaction_with_filters(self, processor: {:?}, filters: {:?})",
             stringify!(processor),
             stringify!(filters)
         );
         self.transaction_pipes
-            .push(Box::new(TransactionPipe::<T, U, P>::new(
-                schema, processor, filters,
-            )));
+            .push(Box::new(TransactionPipe::<T, P>::new(processor, filters)));
         self
     }
 

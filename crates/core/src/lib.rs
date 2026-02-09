@@ -15,7 +15,7 @@ pub mod pipeline;
 #[cfg(feature = "postgres")]
 pub mod postgres;
 pub mod processor;
-pub mod schema;
+
 pub mod transaction;
 pub mod transformers;
 
