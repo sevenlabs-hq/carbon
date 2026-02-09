@@ -14,14 +14,20 @@ use {
     solana_client::rpc_client::SerializableTransaction,
     solana_commitment_config::CommitmentConfig,
     solana_pubkey::Pubkey,
-    std::sync::OnceLock,
+    std::sync::LazyLock,
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
 
 const DEFAULT_LIMIT: u32 = 100;
 
-static FETCH_DURATION_MILLIS: OnceLock<Histogram> = OnceLock::new();
+static FETCH_DURATION_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "helius_gtfa_fetch_duration_milliseconds",
+        "Time to fetch a page from Helius GTFA API in milliseconds",
+        vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
+    )
+});
 static PAGES_FETCHED: Counter = Counter::new(
     "helius_gtfa_pages_fetched_total",
     "Pages fetched from Helius GTFA API",
@@ -31,22 +37,11 @@ static TRANSACTIONS_PROCESSED: Counter = Counter::new(
     "Transaction updates processed (sent) by Helius GTFA datasource",
 );
 
-fn init_helius_gtfa_histograms() {
-    FETCH_DURATION_MILLIS.get_or_init(|| {
-        Histogram::new(
-            "helius_gtfa_fetch_duration_milliseconds",
-            "Time to fetch a page from Helius GTFA API in milliseconds",
-            vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
-        )
-    });
-}
-
 fn register_helius_gtfa_metrics() {
-    init_helius_gtfa_histograms();
     let registry = MetricsRegistry::global();
     registry.register_counter(&PAGES_FETCHED);
     registry.register_counter(&TRANSACTIONS_PROCESSED);
-    registry.register_histogram(FETCH_DURATION_MILLIS.get().unwrap());
+    registry.register_histogram(&FETCH_DURATION_MILLIS);
 }
 const MAX_LIMIT: u32 = 100;
 
