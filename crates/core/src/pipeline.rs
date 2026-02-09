@@ -1,5 +1,5 @@
 use crate::block_details::{BlockDetailsPipe, BlockDetailsPipes};
-use crate::datasource::{BlockDetails, DatasourceId, UpdateType};
+use crate::datasource::{BlockDetails, DatasourceId};
 use crate::filter::{Filter, FilterContext, FilterResult};
 use {
     crate::{
@@ -317,7 +317,6 @@ impl Pipeline {
 
                 let context = FilterContext {
                     datasource_id: &datasource_id,
-                    update_type: UpdateType::AccountUpdate,
                 };
 
                 for pipe in self.account_pipes.iter_mut() {
@@ -353,7 +352,6 @@ impl Pipeline {
 
                 let context = FilterContext {
                     datasource_id: &datasource_id,
-                    update_type: UpdateType::Transaction,
                 };
 
                 for pipe in self.instruction_pipes.iter_mut() {
@@ -390,7 +388,6 @@ impl Pipeline {
             Update::AccountDeletion(account_deletion) => {
                 let context = FilterContext {
                     datasource_id: &datasource_id,
-                    update_type: UpdateType::AccountDeletion,
                 };
 
                 for pipe in self.account_deletion_pipes.iter_mut() {
@@ -409,7 +406,6 @@ impl Pipeline {
             Update::BlockDetails(block_details) => {
                 let context = FilterContext {
                     datasource_id: &datasource_id,
-                    update_type: UpdateType::BlockDetails,
                 };
 
                 for pipe in self.block_details_pipes.iter_mut() {

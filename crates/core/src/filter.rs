@@ -1,6 +1,6 @@
 use crate::{
     account::AccountMetadata,
-    datasource::{AccountDeletion, BlockDetails, DatasourceId, UpdateType},
+    datasource::{AccountDeletion, BlockDetails, DatasourceId},
     instruction::{NestedInstruction, NestedInstructions},
     transaction::TransactionMetadata,
 };
@@ -14,7 +14,6 @@ use std::time::{Duration, Instant};
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FilterContext<'a> {
     pub datasource_id: &'a DatasourceId,
-    pub update_type: UpdateType,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
