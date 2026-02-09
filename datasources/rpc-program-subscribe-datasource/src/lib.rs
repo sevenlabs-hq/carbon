@@ -11,7 +11,7 @@ use {
         nonblocking::pubsub_client::PubsubClient, rpc_config::RpcProgramAccountsConfig,
     },
     solana_pubkey::Pubkey,
-    std::{str::FromStr, sync::OnceLock, time::Duration},
+    std::{str::FromStr, sync::LazyLock, time::Duration},
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
@@ -19,35 +19,30 @@ use {
 const MAX_RECONNECTION_ATTEMPTS: u32 = 10;
 const RECONNECTION_DELAY_MS: u64 = 3000;
 
-static ACCOUNT_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
+static ACCOUNT_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "program_subscribe_account_process_time_nanoseconds",
+        "Time to process account in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
 static ACCOUNTS_PROCESSED: Counter = Counter::new(
     "program_subscribe_accounts_processed_total",
     "Accounts processed by program subscribe",
 );
 
-fn init_program_subscribe_histograms() {
-    ACCOUNT_PROCESS_TIME_NANOS.get_or_init(|| {
-        Histogram::new(
-            "program_subscribe_account_process_time_nanoseconds",
-            "Time to process account in nanoseconds",
-            vec![
-                1_000.0,
-                10_000.0,
-                100_000.0,
-                1_000_000.0,
-                10_000_000.0,
-                100_000_000.0,
-                1_000_000_000.0,
-            ],
-        )
-    });
-}
-
 fn register_program_subscribe_metrics() {
-    init_program_subscribe_histograms();
     let registry = MetricsRegistry::global();
     registry.register_counter(&ACCOUNTS_PROCESSED);
-    registry.register_histogram(ACCOUNT_PROCESS_TIME_NANOS.get().unwrap());
+    registry.register_histogram(&ACCOUNT_PROCESS_TIME_NANOS);
 }
 
 #[derive(Debug, Clone)]

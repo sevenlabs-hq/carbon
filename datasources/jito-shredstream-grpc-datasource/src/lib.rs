@@ -14,14 +14,28 @@ use {
     solana_entry::entry::Entry,
     solana_transaction_status::TransactionStatusMeta,
     std::{
-        sync::{Arc, OnceLock},
+        sync::{Arc, LazyLock},
         time::{Instant, SystemTime, UNIX_EPOCH},
     },
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
 
-static ENTRY_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
+static ENTRY_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "jito_shredstream_grpc_entry_process_time_nanoseconds",
+        "Time to process entry in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
 static ENTRY_UPDATES_RECEIVED: Counter = Counter::new(
     "jito_shredstream_grpc_entry_updates_received_total",
     "Entry updates received from Jito Shredstream gRPC",
@@ -31,30 +45,11 @@ static DUPLICATE_ENTRIES: Counter = Counter::new(
     "Duplicate entries skipped in Jito Shredstream gRPC",
 );
 
-fn init_jito_shredstream_histograms() {
-    ENTRY_PROCESS_TIME_NANOS.get_or_init(|| {
-        Histogram::new(
-            "jito_shredstream_grpc_entry_process_time_nanoseconds",
-            "Time to process entry in nanoseconds",
-            vec![
-                1_000.0,
-                10_000.0,
-                100_000.0,
-                1_000_000.0,
-                10_000_000.0,
-                100_000_000.0,
-                1_000_000_000.0,
-            ],
-        )
-    });
-}
-
 fn register_jito_shredstream_metrics() {
-    init_jito_shredstream_histograms();
     let registry = MetricsRegistry::global();
     registry.register_counter(&ENTRY_UPDATES_RECEIVED);
     registry.register_counter(&DUPLICATE_ENTRIES);
-    registry.register_histogram(ENTRY_PROCESS_TIME_NANOS.get().unwrap());
+    registry.register_histogram(&ENTRY_PROCESS_TIME_NANOS);
 }
 
 #[derive(Debug)]

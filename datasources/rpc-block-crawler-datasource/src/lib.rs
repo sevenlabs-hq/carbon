@@ -15,7 +15,7 @@ use {
     solana_commitment_config::CommitmentConfig,
     solana_transaction_status::UiConfirmedBlock,
     std::{
-        sync::{Arc, OnceLock},
+        sync::{Arc, LazyLock},
         time::{Duration, Instant},
     },
     tokio::{
@@ -29,7 +29,13 @@ const CHANNEL_BUFFER_SIZE: usize = 1000;
 const MAX_CONCURRENT_REQUESTS: usize = 10;
 const BLOCK_INTERVAL: Duration = Duration::from_millis(100);
 
-static BLOCKS_FETCH_TIMES_MILLIS: OnceLock<Histogram> = OnceLock::new();
+static BLOCKS_FETCH_TIMES_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "block_crawler_blocks_fetch_times_milliseconds",
+        "Time to fetch block in milliseconds",
+        vec![1.0, 10.0, 50.0, 100.0, 500.0, 1000.0, 5000.0],
+    )
+});
 static BLOCKS_FETCHED: Counter = Counter::new(
     "block_crawler_blocks_fetched_total",
     "Blocks fetched by block crawler",
@@ -42,62 +48,55 @@ static BLOCKS_RECEIVED: Counter = Counter::new(
     "block_crawler_blocks_received_total",
     "Blocks received by task processor",
 );
-static TRANSACTION_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
+static TRANSACTION_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "block_crawler_transaction_process_time_nanoseconds",
+        "Time to process transaction in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
 static TRANSACTIONS_PROCESSED: Counter = Counter::new(
     "block_crawler_transactions_processed_total",
     "Transactions processed by block crawler",
 );
-static BLOCK_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
+static BLOCK_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "block_crawler_block_process_time_nanoseconds",
+        "Time to process block in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
 static BLOCKS_PROCESSED: Counter = Counter::new(
     "block_crawler_blocks_processed_total",
     "Blocks processed by block crawler",
 );
 
-fn init_block_crawler_histograms() {
-    let ns_boundaries = vec![
-        1_000.0,
-        10_000.0,
-        100_000.0,
-        1_000_000.0,
-        10_000_000.0,
-        100_000_000.0,
-        1_000_000_000.0,
-    ];
-    let ms_boundaries = vec![1.0, 10.0, 50.0, 100.0, 500.0, 1000.0, 5000.0];
-    BLOCKS_FETCH_TIMES_MILLIS.get_or_init(|| {
-        Histogram::new(
-            "block_crawler_blocks_fetch_times_milliseconds",
-            "Time to fetch block in milliseconds",
-            ms_boundaries.clone(),
-        )
-    });
-    TRANSACTION_PROCESS_TIME_NANOS.get_or_init(|| {
-        Histogram::new(
-            "block_crawler_transaction_process_time_nanoseconds",
-            "Time to process transaction in nanoseconds",
-            ns_boundaries.clone(),
-        )
-    });
-    BLOCK_PROCESS_TIME_NANOS.get_or_init(|| {
-        Histogram::new(
-            "block_crawler_block_process_time_nanoseconds",
-            "Time to process block in nanoseconds",
-            ns_boundaries.clone(),
-        )
-    });
-}
-
 fn register_block_crawler_metrics() {
-    init_block_crawler_histograms();
     let registry = MetricsRegistry::global();
     registry.register_counter(&BLOCKS_FETCHED);
     registry.register_counter(&BLOCKS_SKIPPED);
     registry.register_counter(&BLOCKS_RECEIVED);
     registry.register_counter(&TRANSACTIONS_PROCESSED);
     registry.register_counter(&BLOCKS_PROCESSED);
-    registry.register_histogram(BLOCKS_FETCH_TIMES_MILLIS.get().unwrap());
-    registry.register_histogram(TRANSACTION_PROCESS_TIME_NANOS.get().unwrap());
-    registry.register_histogram(BLOCK_PROCESS_TIME_NANOS.get().unwrap());
+    registry.register_histogram(&BLOCKS_FETCH_TIMES_MILLIS);
+    registry.register_histogram(&TRANSACTION_PROCESS_TIME_NANOS);
+    registry.register_histogram(&BLOCK_PROCESS_TIME_NANOS);
 }
 
 /// RpcBlockCrawler is a datasource that crawls the Solana blockchain for blocks and sends them to the sender.

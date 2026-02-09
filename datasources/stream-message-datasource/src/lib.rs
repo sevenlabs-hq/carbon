@@ -12,7 +12,7 @@ use {
     solana_pubkey::Pubkey,
     std::{
         collections::HashSet,
-        sync::{Arc, OnceLock},
+        sync::{Arc, LazyLock},
     },
     tokio::{
         select,
@@ -24,50 +24,51 @@ use {
     tokio_util::sync::CancellationToken,
 };
 
-static ACCOUNT_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
+static ACCOUNT_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "agave_grpc_account_process_time_nanoseconds",
+        "Time to process account in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
 static ACCOUNT_UPDATES_RECEIVED: Counter = Counter::new(
     "agave_grpc_account_updates_received_total",
     "Account updates received from stream message",
 );
-static TRANSACTION_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
+static TRANSACTION_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "agave_grpc_transaction_process_time_nanoseconds",
+        "Time to process transaction in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
 static TRANSACTION_UPDATES_RECEIVED: Counter = Counter::new(
     "agave_grpc_transaction_updates_received_total",
     "Transaction updates received from stream message",
 );
 
-fn init_stream_message_histograms() {
-    let boundaries = vec![
-        1_000.0,
-        10_000.0,
-        100_000.0,
-        1_000_000.0,
-        10_000_000.0,
-        100_000_000.0,
-        1_000_000_000.0,
-    ];
-    ACCOUNT_PROCESS_TIME_NANOS.get_or_init(|| {
-        Histogram::new(
-            "agave_grpc_account_process_time_nanoseconds",
-            "Time to process account in nanoseconds",
-            boundaries.clone(),
-        )
-    });
-    TRANSACTION_PROCESS_TIME_NANOS.get_or_init(|| {
-        Histogram::new(
-            "agave_grpc_transaction_process_time_nanoseconds",
-            "Time to process transaction in nanoseconds",
-            boundaries.clone(),
-        )
-    });
-}
-
 fn register_stream_message_metrics() {
-    init_stream_message_histograms();
     let registry = MetricsRegistry::global();
     registry.register_counter(&ACCOUNT_UPDATES_RECEIVED);
     registry.register_counter(&TRANSACTION_UPDATES_RECEIVED);
-    registry.register_histogram(ACCOUNT_PROCESS_TIME_NANOS.get().unwrap());
-    registry.register_histogram(TRANSACTION_PROCESS_TIME_NANOS.get().unwrap());
+    registry.register_histogram(&ACCOUNT_PROCESS_TIME_NANOS);
+    registry.register_histogram(&TRANSACTION_PROCESS_TIME_NANOS);
 }
 
 pub enum UnifiedMessage {

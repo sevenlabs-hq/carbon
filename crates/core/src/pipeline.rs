@@ -24,7 +24,7 @@ use {
     serde::de::DeserializeOwned,
     std::{
         convert::TryInto,
-        sync::{Arc, OnceLock},
+        sync::{Arc, LazyLock},
         time::Instant,
     },
     tokio_util::sync::CancellationToken,
@@ -75,44 +75,38 @@ static BLOCK_DETAILS_PROCESSED: Counter = Counter::new(
     "Total block details processed",
 );
 
-static PROCESSING_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
-static PROCESSING_TIME_MILLIS: OnceLock<Histogram> = OnceLock::new();
-
-fn init_histograms() {
-    PROCESSING_TIME_NANOS.get_or_init(|| {
-        Histogram::new(
-            "carbon_updates_process_time_nanoseconds",
-            "Time taken to process updates in nanoseconds",
-            vec![
-                1_000.0,
-                10_000.0,
-                100_000.0,
-                1_000_000.0,
-                10_000_000.0,
-                100_000_000.0,
-                1_000_000_000.0,
-            ],
-        )
-    });
-    PROCESSING_TIME_MILLIS.get_or_init(|| {
-        Histogram::new(
-            "carbon_updates_process_time_milliseconds",
-            "Time taken to process updates in milliseconds",
-            vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
-        )
-    });
-}
+static PROCESSING_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "carbon_updates_process_time_nanoseconds",
+        "Time taken to process updates in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
+static PROCESSING_TIME_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "carbon_updates_process_time_milliseconds",
+        "Time taken to process updates in milliseconds",
+        vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
+    )
+});
 
 fn register_pipeline_metrics() {
-    init_histograms();
     let registry = MetricsRegistry::global();
     registry.register_counter(&UPDATES_RECEIVED);
     registry.register_counter(&UPDATES_PROCESSED);
     registry.register_counter(&UPDATES_SUCCESSFUL);
     registry.register_counter(&UPDATES_FAILED);
     registry.register_gauge(&UPDATES_QUEUED);
-    registry.register_histogram(PROCESSING_TIME_NANOS.get().unwrap());
-    registry.register_histogram(PROCESSING_TIME_MILLIS.get().unwrap());
+    registry.register_histogram(&PROCESSING_TIME_NANOS);
+    registry.register_histogram(&PROCESSING_TIME_MILLIS);
     registry.register_counter(&ACCOUNT_UPDATES_PROCESSED);
     registry.register_counter(&TRANSACTION_UPDATES_PROCESSED);
     registry.register_counter(&ACCOUNT_DELETIONS_PROCESSED);
@@ -261,12 +255,8 @@ impl Pipeline {
                             let time_taken_nanoseconds = start.elapsed().as_nanos();
                             let time_taken_milliseconds = time_taken_nanoseconds / 1_000_000;
 
-                            if let Some(h) = PROCESSING_TIME_NANOS.get() {
-                                h.record(time_taken_nanoseconds as f64);
-                            }
-                            if let Some(h) = PROCESSING_TIME_MILLIS.get() {
-                                h.record(time_taken_milliseconds as f64);
-                            }
+                            PROCESSING_TIME_NANOS.record(time_taken_nanoseconds as f64);
+                            PROCESSING_TIME_MILLIS.record(time_taken_milliseconds as f64);
 
                             match process_result {
                                 Ok(_) => {
