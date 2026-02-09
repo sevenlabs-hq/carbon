@@ -5,14 +5,12 @@ use {
     crate::{
         collection::InstructionDecoderCollection,
         error::CarbonResult,
-        instruction::{InstructionMetadata, NestedInstruction},
+        instruction::{InstructionMetadata, NestedInstruction, ParsedInstruction},
         processor::Processor,
-        schema::{ParsedInstruction, TransactionSchema},
         transformers,
     },
     async_trait::async_trait,
     core::convert::TryFrom,
-    serde::de::DeserializeOwned,
     solana_pubkey::Pubkey,
     solana_signature::Signature,
     std::sync::Arc,
@@ -52,17 +50,15 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
 }
 
 #[derive(Debug)]
-pub struct TransactionProcessorInputType<'a, T, U = ()> {
+pub struct TransactionProcessorInputType<'a, T> {
     pub metadata: &'a Arc<TransactionMetadata>,
     pub instructions: &'a Vec<(InstructionMetadata, T)>,
-    pub matched_data: &'a Option<U>,
 }
 
-pub struct TransactionPipe<T: InstructionDecoderCollection, U, P> {
-    schema: Option<TransactionSchema<T>>,
+pub struct TransactionPipe<T: InstructionDecoderCollection, P> {
     processor: P,
     filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
-    _phantom: std::marker::PhantomData<U>,
+    _phantom: std::marker::PhantomData<T>,
 }
 
 pub struct ParsedTransaction<I: InstructionDecoderCollection> {
@@ -70,32 +66,16 @@ pub struct ParsedTransaction<I: InstructionDecoderCollection> {
     pub instructions: Vec<ParsedInstruction<I>>,
 }
 
-impl<T: InstructionDecoderCollection, U, P> TransactionPipe<T, U, P> {
-    pub fn new(
-        schema: Option<TransactionSchema<T>>,
-        processor: P,
-        filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
-    ) -> Self {
+impl<T: InstructionDecoderCollection, P> TransactionPipe<T, P> {
+    pub fn new(processor: P, filters: Vec<Box<dyn Filter + Send + Sync + 'static>>) -> Self {
         log::trace!(
-            "TransactionPipe::new(schema: {:?}, processor: {:?})",
-            schema,
+            "TransactionPipe::new(processor: {:?})",
             stringify!(processor)
         );
         Self {
-            schema,
             processor,
             filters,
             _phantom: std::marker::PhantomData,
-        }
-    }
-
-    fn matches_schema(&self, instructions: &[ParsedInstruction<T>]) -> Option<U>
-    where
-        U: DeserializeOwned,
-    {
-        match self.schema {
-            Some(ref schema) => schema.match_schema(instructions),
-            None => None,
         }
     }
 }
@@ -110,6 +90,7 @@ pub fn parse_instructions<T: InstructionDecoderCollection>(
     for nested_ix in nested_ixs {
         if let Some(instruction) = T::parse_instruction(&nested_ix.instruction) {
             parsed_instructions.push(ParsedInstruction {
+                metadata: nested_ix.metadata.clone(),
                 instruction,
                 inner_instructions: parse_instructions(&nested_ix.inner_instructions),
             });
@@ -135,11 +116,10 @@ pub trait TransactionPipes<'a>: Send + Sync {
 }
 
 #[async_trait]
-impl<T, U, P> TransactionPipes<'_> for TransactionPipe<T, U, P>
+impl<T, P> TransactionPipes<'_> for TransactionPipe<T, P>
 where
     T: InstructionDecoderCollection + Sync + 'static,
-    U: DeserializeOwned + Send + Sync + 'static,
-    P: for<'a> Processor<TransactionProcessorInputType<'a, T, U>> + Send + Sync + 'static,
+    P: for<'a> Processor<TransactionProcessorInputType<'a, T>> + Send + Sync + 'static,
 {
     async fn run(
         &mut self,
@@ -150,18 +130,11 @@ where
 
         let parsed_instructions = parse_instructions(instructions);
 
-        let matched_data = self.matches_schema(&parsed_instructions);
-
-        let unnested_instructions = transformers::unnest_parsed_instructions(
-            transaction_metadata.clone(),
-            parsed_instructions,
-            0,
-        );
+        let unnested_instructions = transformers::unnest_parsed_instructions(parsed_instructions);
 
         let data = TransactionProcessorInputType {
             metadata: &transaction_metadata,
             instructions: &unnested_instructions,
-            matched_data: &matched_data,
         };
 
         self.processor.process(&data).await?;

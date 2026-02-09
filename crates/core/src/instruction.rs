@@ -10,6 +10,15 @@ use {
     },
 };
 
+use crate::collection::InstructionDecoderCollection;
+
+#[derive(Debug)]
+pub struct ParsedInstruction<T: InstructionDecoderCollection> {
+    pub metadata: InstructionMetadata,
+    pub instruction: T,
+    pub inner_instructions: Vec<ParsedInstruction<T>>,
+}
+
 #[derive(Debug, Clone)]
 pub struct InstructionMetadata {
     pub transaction_metadata: Arc<TransactionMetadata>,
