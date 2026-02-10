@@ -393,6 +393,7 @@ async fn send_subscribe_account_update_info(
                 transaction_signature: account_info
                     .txn_signature
                     .and_then(|sig| Signature::try_from(sig).ok()),
+                transaction_index: None,
             });
 
             if let Err(e) = sender.try_send((update, id)) {
