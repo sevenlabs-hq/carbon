@@ -15,7 +15,7 @@ use {
     solana_account::Account,
     solana_client::rpc_config::RpcProgramAccountsConfig,
     solana_pubkey::Pubkey,
-    std::sync::OnceLock,
+    std::sync::LazyLock,
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
@@ -24,7 +24,13 @@ use types::{FetchHeliusGpaV2AccountsPageResult, HeliusGpaV2Request, HeliusGpaV2R
 
 const DEFAULT_LIMIT: u32 = 1000;
 
-static FETCH_DURATION_MILLIS: OnceLock<Histogram> = OnceLock::new();
+static FETCH_DURATION_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "helius_gpa_v2_fetch_duration_milliseconds",
+        "Time to fetch a page from Helius gPA V2 API in milliseconds",
+        vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
+    )
+});
 static PAGES_FETCHED: Counter = Counter::new(
     "helius_gpa_v2_pages_fetched_total",
     "Pages fetched from Helius gPA V2 API",
@@ -34,22 +40,11 @@ static ACCOUNTS_PROCESSED: Counter = Counter::new(
     "Account updates processed (sent) by Helius gPA V2 datasource",
 );
 
-fn init_helius_gpa_v2_histograms() {
-    FETCH_DURATION_MILLIS.get_or_init(|| {
-        Histogram::new(
-            "helius_gpa_v2_fetch_duration_milliseconds",
-            "Time to fetch a page from Helius gPA V2 API in milliseconds",
-            vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
-        )
-    });
-}
-
 fn register_helius_gpa_v2_metrics() {
-    init_helius_gpa_v2_histograms();
     let registry = MetricsRegistry::global();
     registry.register_counter(&PAGES_FETCHED);
     registry.register_counter(&ACCOUNTS_PROCESSED);
-    registry.register_histogram(FETCH_DURATION_MILLIS.get().unwrap());
+    registry.register_histogram(&FETCH_DURATION_MILLIS);
 }
 const MAX_LIMIT: u32 = 10000;
 

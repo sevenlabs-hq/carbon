@@ -15,32 +15,27 @@ use {
     solana_commitment_config::CommitmentConfig,
     solana_pubkey::Pubkey,
     std::str::FromStr,
-    std::sync::OnceLock,
+    std::sync::LazyLock,
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
 
-static FETCH_DURATION_MILLIS: OnceLock<Histogram> = OnceLock::new();
+static FETCH_DURATION_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "rpc_gpa_fetch_duration_milliseconds",
+        "Time to fetch program accounts from RPC in milliseconds",
+        vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
+    )
+});
 static ACCOUNTS_PROCESSED: Counter = Counter::new(
     "rpc_gpa_accounts_processed_total",
     "Account updates processed (sent) by RPC gPA datasource",
 );
 
-fn init_rpc_gpa_histograms() {
-    FETCH_DURATION_MILLIS.get_or_init(|| {
-        Histogram::new(
-            "rpc_gpa_fetch_duration_milliseconds",
-            "Time to fetch program accounts from RPC in milliseconds",
-            vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
-        )
-    });
-}
-
 fn register_rpc_gpa_metrics() {
-    init_rpc_gpa_histograms();
     let registry = MetricsRegistry::global();
     registry.register_counter(&ACCOUNTS_PROCESSED);
-    registry.register_histogram(FETCH_DURATION_MILLIS.get().unwrap());
+    registry.register_histogram(&FETCH_DURATION_MILLIS);
 }
 
 pub struct GpaDatasource {

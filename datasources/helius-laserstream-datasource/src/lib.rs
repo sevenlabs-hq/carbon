@@ -15,7 +15,7 @@ use {
     std::{
         collections::{HashMap, HashSet},
         convert::TryFrom,
-        sync::{Arc, OnceLock},
+        sync::{Arc, LazyLock},
         time::Duration,
     },
     tokio::{
@@ -40,50 +40,51 @@ use {
 const MAX_RECONNECTION_ATTEMPTS: u32 = 10;
 const RECONNECTION_DELAY_MS: u64 = 3000;
 
-static ACCOUNT_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
+static ACCOUNT_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "laserstream_account_process_time_nanoseconds",
+        "Time to process account update in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
 static ACCOUNT_UPDATES_RECEIVED: Counter = Counter::new(
     "laserstream_account_updates_received_total",
     "Account updates received from Laserstream",
 );
-static TRANSACTION_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
+static TRANSACTION_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "laserstream_transaction_process_time_nanoseconds",
+        "Time to process transaction update in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
 static TRANSACTION_UPDATES_RECEIVED: Counter = Counter::new(
     "laserstream_transaction_updates_received_total",
     "Transaction updates received from Laserstream",
 );
 
-fn init_laserstream_histograms() {
-    let boundaries = vec![
-        1_000.0,
-        10_000.0,
-        100_000.0,
-        1_000_000.0,
-        10_000_000.0,
-        100_000_000.0,
-        1_000_000_000.0,
-    ];
-    ACCOUNT_PROCESS_TIME_NANOS.get_or_init(|| {
-        Histogram::new(
-            "laserstream_account_process_time_nanoseconds",
-            "Time to process account update in nanoseconds",
-            boundaries.clone(),
-        )
-    });
-    TRANSACTION_PROCESS_TIME_NANOS.get_or_init(|| {
-        Histogram::new(
-            "laserstream_transaction_process_time_nanoseconds",
-            "Time to process transaction update in nanoseconds",
-            boundaries.clone(),
-        )
-    });
-}
-
 fn register_laserstream_metrics() {
-    init_laserstream_histograms();
     let registry = MetricsRegistry::global();
     registry.register_counter(&ACCOUNT_UPDATES_RECEIVED);
     registry.register_counter(&TRANSACTION_UPDATES_RECEIVED);
-    registry.register_histogram(ACCOUNT_PROCESS_TIME_NANOS.get().unwrap());
-    registry.register_histogram(TRANSACTION_PROCESS_TIME_NANOS.get().unwrap());
+    registry.register_histogram(&ACCOUNT_PROCESS_TIME_NANOS);
+    registry.register_histogram(&TRANSACTION_PROCESS_TIME_NANOS);
 }
 
 #[derive(Debug)]
