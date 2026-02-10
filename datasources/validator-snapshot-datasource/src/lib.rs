@@ -320,6 +320,7 @@ impl Datasource for SnapshotDatasource {
                                 },
                                 slot: snapshot_slot,
                                 transaction_signature: None,
+                                transaction_index: None,
                             };
 
                             let update = Update::Account(account_update);

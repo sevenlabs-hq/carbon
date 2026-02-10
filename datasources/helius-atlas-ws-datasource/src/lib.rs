@@ -399,6 +399,7 @@ impl Datasource for HeliusWebsocket {
                                                         account: decoded_account,
                                                         slot: acc_event.context.slot,
                                                         transaction_signature: None,
+                                                        transaction_index: None,
                                                     });
 
                                                     if let Some(h) = ACCOUNT_PROCESS_TIME_NANOS.get() {
