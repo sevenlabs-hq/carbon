@@ -17,7 +17,7 @@ use {
         rpc_client::SerializableTransaction,
         rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
     },
-    std::sync::OnceLock,
+    std::sync::LazyLock,
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
@@ -25,50 +25,51 @@ use {
 const MAX_RECONNECTION_ATTEMPTS: u32 = 10;
 const RECONNECTION_DELAY_MS: u64 = 3000;
 
-static TRANSACTION_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
+static TRANSACTION_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "block_subscribe_transaction_process_time_nanoseconds",
+        "Time to process transaction in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
 static TRANSACTIONS_PROCESSED: Counter = Counter::new(
     "block_subscribe_transactions_processed_total",
     "Transactions processed by block subscribe",
 );
-static BLOCK_PROCESS_TIME_NANOS: OnceLock<Histogram> = OnceLock::new();
+static BLOCK_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "block_subscribe_block_process_time_nanoseconds",
+        "Time to process block in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
 static BLOCKS_RECEIVED: Counter = Counter::new(
     "block_subscribe_blocks_received_total",
     "Blocks received by block subscribe",
 );
 
-fn init_block_subscribe_histograms() {
-    let boundaries = vec![
-        1_000.0,
-        10_000.0,
-        100_000.0,
-        1_000_000.0,
-        10_000_000.0,
-        100_000_000.0,
-        1_000_000_000.0,
-    ];
-    TRANSACTION_PROCESS_TIME_NANOS.get_or_init(|| {
-        Histogram::new(
-            "block_subscribe_transaction_process_time_nanoseconds",
-            "Time to process transaction in nanoseconds",
-            boundaries.clone(),
-        )
-    });
-    BLOCK_PROCESS_TIME_NANOS.get_or_init(|| {
-        Histogram::new(
-            "block_subscribe_block_process_time_nanoseconds",
-            "Time to process block in nanoseconds",
-            boundaries.clone(),
-        )
-    });
-}
-
 fn register_block_subscribe_metrics() {
-    init_block_subscribe_histograms();
     let registry = MetricsRegistry::global();
     registry.register_counter(&TRANSACTIONS_PROCESSED);
     registry.register_counter(&BLOCKS_RECEIVED);
-    registry.register_histogram(TRANSACTION_PROCESS_TIME_NANOS.get().unwrap());
-    registry.register_histogram(BLOCK_PROCESS_TIME_NANOS.get().unwrap());
+    registry.register_histogram(&TRANSACTION_PROCESS_TIME_NANOS);
+    registry.register_histogram(&BLOCK_PROCESS_TIME_NANOS);
 }
 
 #[derive(Debug, Clone)]

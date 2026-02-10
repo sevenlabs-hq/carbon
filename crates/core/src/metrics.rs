@@ -2,7 +2,7 @@ use {
     crate::error::CarbonResult,
     std::sync::{
         atomic::{AtomicU64, Ordering},
-        OnceLock, RwLock,
+        LazyLock, RwLock,
     },
 };
 
@@ -192,15 +192,15 @@ pub struct MetricsRegistry {
     histograms: RwLock<Vec<&'static Histogram>>,
 }
 
-static REGISTRY: OnceLock<MetricsRegistry> = OnceLock::new();
+static REGISTRY: LazyLock<MetricsRegistry> = LazyLock::new(|| MetricsRegistry {
+    counters: RwLock::new(Vec::new()),
+    gauges: RwLock::new(Vec::new()),
+    histograms: RwLock::new(Vec::new()),
+});
 
 impl MetricsRegistry {
     pub fn global() -> &'static MetricsRegistry {
-        REGISTRY.get_or_init(|| MetricsRegistry {
-            counters: RwLock::new(Vec::new()),
-            gauges: RwLock::new(Vec::new()),
-            histograms: RwLock::new(Vec::new()),
-        })
+        &REGISTRY
     }
 
     pub fn register_counter(&self, counter: &'static Counter) {
@@ -255,5 +255,8 @@ pub trait MetricsExporter: Send + Sync {
 
     fn shutdown(&self) -> CarbonResult<()> {
         Ok(())
+    }
+    fn flush_interval_secs(&self) -> Option<u64> {
+        None
     }
 }
