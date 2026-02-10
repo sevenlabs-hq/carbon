@@ -6,6 +6,7 @@ export type DecoderCargoTomlOptions = {
     packageName?: string;
     programName: string;
     originalProgramName?: string; // Original program name from IDL (for token-2022 checks)
+    versionName?: string;
     withPostgres: boolean;
     withGraphQL: boolean;
     withSerde: boolean;
@@ -19,6 +20,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         packageName,
         programName,
         originalProgramName,
+        versionName,
         withPostgres,
         withGraphQL,
         withSerde,
@@ -27,12 +29,16 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         standalone = true,
     } = options;
 
-    const decoderPackageName =
+    let decoderPackageName =
         packageName && packageName.trim()
             ? `carbon-${kebabCase(packageName)}-decoder`
             : programName && programName.trim()
               ? `carbon-${kebabCase(programName)}-decoder`
               : 'carbon-decoder';
+
+    if (versionName && versionName.trim()) {
+        decoderPackageName = `${decoderPackageName}-${kebabCase(versionName)}`;
+    }
 
     const carbonCoreDep = getCrateDependencyString('carbon-core', VERSIONS['carbon-core'], ['macros']);
     const carbonTestUtilsDep = getCrateDependencyString('carbon-test-utils', VERSIONS['carbon-test-utils']);
