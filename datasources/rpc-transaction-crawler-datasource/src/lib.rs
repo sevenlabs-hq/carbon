@@ -20,7 +20,7 @@ use {
     std::{
         collections::HashSet,
         str::FromStr,
-        sync::{Arc, OnceLock},
+        sync::{Arc, LazyLock},
         time::Duration,
     },
     tokio::{
@@ -31,51 +31,43 @@ use {
     tokio_util::sync::CancellationToken,
 };
 
-static SIGNATURES_FETCH_TIMES_MILLIS: OnceLock<Histogram> = OnceLock::new();
+static SIGNATURES_FETCH_TIMES_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "transaction_crawler_signatures_fetch_times_milliseconds",
+        "Time to fetch signatures in milliseconds",
+        vec![1.0, 10.0, 50.0, 100.0, 500.0, 1000.0, 5000.0],
+    )
+});
 static SIGNATURES_FETCHED: Counter = Counter::new(
     "transaction_crawler_signatures_fetched_total",
     "Signatures fetched by transaction crawler",
 );
-static TRANSACTION_FETCH_TIMES_MILLIS: OnceLock<Histogram> = OnceLock::new();
+static TRANSACTION_FETCH_TIMES_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "transaction_crawler_transaction_fetch_times_milliseconds",
+        "Time to fetch transaction in milliseconds",
+        vec![1.0, 10.0, 50.0, 100.0, 500.0, 1000.0, 5000.0],
+    )
+});
 static TRANSACTIONS_FETCHED: Counter = Counter::new(
     "transaction_crawler_transactions_fetched_total",
     "Transactions fetched by transaction crawler",
 );
-static TRANSACTION_PROCESS_TIME_MILLIS: OnceLock<Histogram> = OnceLock::new();
-
-fn init_transaction_crawler_histograms() {
-    let ms_boundaries = vec![1.0, 10.0, 50.0, 100.0, 500.0, 1000.0, 5000.0];
-    SIGNATURES_FETCH_TIMES_MILLIS.get_or_init(|| {
-        Histogram::new(
-            "transaction_crawler_signatures_fetch_times_milliseconds",
-            "Time to fetch signatures in milliseconds",
-            ms_boundaries.clone(),
-        )
-    });
-    TRANSACTION_FETCH_TIMES_MILLIS.get_or_init(|| {
-        Histogram::new(
-            "transaction_crawler_transaction_fetch_times_milliseconds",
-            "Time to fetch transaction in milliseconds",
-            ms_boundaries.clone(),
-        )
-    });
-    TRANSACTION_PROCESS_TIME_MILLIS.get_or_init(|| {
-        Histogram::new(
-            "transaction_crawler_transaction_process_time_milliseconds",
-            "Time to process transaction in milliseconds",
-            ms_boundaries.clone(),
-        )
-    });
-}
+static TRANSACTION_PROCESS_TIME_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "transaction_crawler_transaction_process_time_milliseconds",
+        "Time to process transaction in milliseconds",
+        vec![1.0, 10.0, 50.0, 100.0, 500.0, 1000.0, 5000.0],
+    )
+});
 
 fn register_transaction_crawler_metrics() {
-    init_transaction_crawler_histograms();
     let registry = MetricsRegistry::global();
     registry.register_counter(&SIGNATURES_FETCHED);
     registry.register_counter(&TRANSACTIONS_FETCHED);
-    registry.register_histogram(SIGNATURES_FETCH_TIMES_MILLIS.get().unwrap());
-    registry.register_histogram(TRANSACTION_FETCH_TIMES_MILLIS.get().unwrap());
-    registry.register_histogram(TRANSACTION_PROCESS_TIME_MILLIS.get().unwrap());
+    registry.register_histogram(&SIGNATURES_FETCH_TIMES_MILLIS);
+    registry.register_histogram(&TRANSACTION_FETCH_TIMES_MILLIS);
+    registry.register_histogram(&TRANSACTION_PROCESS_TIME_MILLIS);
 }
 
 #[derive(Debug, Clone)]
