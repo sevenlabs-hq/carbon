@@ -9,7 +9,7 @@ use crate::{
     },
 };
 use solana_instruction::AccountMeta;
-use std::sync::OnceLock;
+use std::sync::LazyLock;
 
 static POSTGRES_ACCOUNTS_UPSERTED: Counter = Counter::new(
     "postgres.accounts.upsert.upserted",
@@ -21,7 +21,13 @@ static POSTGRES_ACCOUNTS_UPSERT_FAILED: Counter = Counter::new(
     "Total number of account upserts that failed",
 );
 
-static POSTGRES_ACCOUNTS_UPSERT_DURATION_MILLIS: OnceLock<Histogram> = OnceLock::new();
+static POSTGRES_ACCOUNTS_UPSERT_DURATION_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "postgres.accounts.upsert.duration_milliseconds",
+        "Duration of account upsert operations in milliseconds",
+        vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
+    )
+});
 
 static POSTGRES_INSTRUCTIONS_UPSERTED: Counter = Counter::new(
     "postgres.instructions.upsert.upserted",
@@ -33,34 +39,22 @@ static POSTGRES_INSTRUCTIONS_UPSERT_FAILED: Counter = Counter::new(
     "Total number of instruction upserts that failed",
 );
 
-static POSTGRES_INSTRUCTIONS_UPSERT_DURATION_MILLIS: OnceLock<Histogram> = OnceLock::new();
-
-fn init_postgres_histograms() {
-    POSTGRES_ACCOUNTS_UPSERT_DURATION_MILLIS.get_or_init(|| {
-        Histogram::new(
-            "postgres.accounts.upsert.duration_milliseconds",
-            "Duration of account upsert operations in milliseconds",
-            vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
-        )
-    });
-    POSTGRES_INSTRUCTIONS_UPSERT_DURATION_MILLIS.get_or_init(|| {
-        Histogram::new(
-            "postgres.instructions.upsert.duration_milliseconds",
-            "Duration of instruction upsert operations in milliseconds",
-            vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
-        )
-    });
-}
+static POSTGRES_INSTRUCTIONS_UPSERT_DURATION_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "postgres.instructions.upsert.duration_milliseconds",
+        "Duration of instruction upsert operations in milliseconds",
+        vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
+    )
+});
 
 pub fn register_postgres_metrics() {
-    init_postgres_histograms();
     let registry = MetricsRegistry::global();
     registry.register_counter(&POSTGRES_ACCOUNTS_UPSERTED);
     registry.register_counter(&POSTGRES_ACCOUNTS_UPSERT_FAILED);
-    registry.register_histogram(POSTGRES_ACCOUNTS_UPSERT_DURATION_MILLIS.get().unwrap());
+    registry.register_histogram(&POSTGRES_ACCOUNTS_UPSERT_DURATION_MILLIS);
     registry.register_counter(&POSTGRES_INSTRUCTIONS_UPSERTED);
     registry.register_counter(&POSTGRES_INSTRUCTIONS_UPSERT_FAILED);
-    registry.register_histogram(POSTGRES_INSTRUCTIONS_UPSERT_DURATION_MILLIS.get().unwrap());
+    registry.register_histogram(&POSTGRES_INSTRUCTIONS_UPSERT_DURATION_MILLIS);
 }
 
 pub struct PostgresAccountProcessor<T, W> {
@@ -91,10 +85,7 @@ where
         match wrapper.upsert(&self.pool).await {
             Ok(()) => {
                 POSTGRES_ACCOUNTS_UPSERTED.inc();
-                POSTGRES_ACCOUNTS_UPSERT_DURATION_MILLIS
-                    .get()
-                    .unwrap()
-                    .record(start.elapsed().as_millis() as f64);
+                POSTGRES_ACCOUNTS_UPSERT_DURATION_MILLIS.record(start.elapsed().as_millis() as f64);
                 Ok(())
             }
             Err(e) => {
@@ -133,10 +124,7 @@ where
         match account_row.upsert(&self.pool).await {
             Ok(()) => {
                 POSTGRES_ACCOUNTS_UPSERTED.inc();
-                POSTGRES_ACCOUNTS_UPSERT_DURATION_MILLIS
-                    .get()
-                    .unwrap()
-                    .record(start.elapsed().as_millis() as f64);
+                POSTGRES_ACCOUNTS_UPSERT_DURATION_MILLIS.record(start.elapsed().as_millis() as f64);
                 Ok(())
             }
             Err(e) => {
@@ -180,8 +168,6 @@ where
             Ok(()) => {
                 POSTGRES_INSTRUCTIONS_UPSERTED.inc();
                 POSTGRES_INSTRUCTIONS_UPSERT_DURATION_MILLIS
-                    .get()
-                    .unwrap()
                     .record(start.elapsed().as_millis() as f64);
                 Ok(())
             }
@@ -222,8 +208,6 @@ where
             Ok(()) => {
                 POSTGRES_INSTRUCTIONS_UPSERTED.inc();
                 POSTGRES_INSTRUCTIONS_UPSERT_DURATION_MILLIS
-                    .get()
-                    .unwrap()
                     .record(start.elapsed().as_millis() as f64);
                 Ok(())
             }

@@ -3,14 +3,20 @@ use carbon_core::{
     metrics::{MetricsExporter, MetricsRegistry, MetricsSnapshot},
 };
 
+#[cfg(feature = "http-server")]
 #[derive(Debug, Clone)]
-pub struct PrometheusConfig {
+pub struct PrometheusServerConfig {
     pub listen_addr: std::net::SocketAddr,
     pub enable_cors: bool,
     pub request_timeout_secs: u64,
 }
 
-impl PrometheusConfig {
+#[cfg(not(feature = "http-server"))]
+#[derive(Debug, Clone)]
+struct PrometheusServerConfig;
+
+#[cfg(feature = "http-server")]
+impl PrometheusServerConfig {
     pub fn new() -> Self {
         Self::default()
     }
@@ -31,7 +37,8 @@ impl PrometheusConfig {
     }
 }
 
-impl Default for PrometheusConfig {
+#[cfg(feature = "http-server")]
+impl Default for PrometheusServerConfig {
     fn default() -> Self {
         Self {
             listen_addr: "0.0.0.0:9464".parse().unwrap(),
@@ -41,37 +48,37 @@ impl Default for PrometheusConfig {
     }
 }
 
-pub struct PrometheusMetricsExporter {
-    #[cfg(feature = "http-server")]
-    config: Option<PrometheusConfig>,
+pub struct PrometheusMetrics {
+    config: Option<PrometheusServerConfig>,
+    auto_start_server: bool,
 }
 
-impl Default for PrometheusMetricsExporter {
+impl Default for PrometheusMetrics {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl PrometheusMetricsExporter {
+impl PrometheusMetrics {
     pub fn new() -> Self {
         Self {
-            #[cfg(feature = "http-server")]
             config: None,
+            auto_start_server: false,
         }
     }
 
     #[cfg(feature = "http-server")]
-    pub fn new_with_config(config: PrometheusConfig) -> Self {
+    pub fn with_server(config: PrometheusServerConfig) -> Self {
         Self {
             config: Some(config),
+            auto_start_server: true,
         }
     }
 
     #[cfg(feature = "http-server")]
     pub fn start_server(
-        &self,
+        config: PrometheusServerConfig,
     ) -> tokio::task::JoinHandle<Result<(), Box<dyn std::error::Error + Send + Sync>>> {
-        let config = self.config.clone().unwrap_or_default();
         tokio::spawn(async move { run_metrics_server_with_config(config).await })
     }
 
@@ -85,20 +92,21 @@ impl PrometheusMetricsExporter {
     }
 }
 
-impl MetricsExporter for PrometheusMetricsExporter {
+impl MetricsExporter for PrometheusMetrics {
     fn export(&self, _snapshot: &MetricsSnapshot) -> CarbonResult<()> {
         Ok(())
     }
 
     #[cfg(feature = "http-server")]
     fn initialize(&self) -> CarbonResult<()> {
-        if self.config.is_some() {
-            let config = self.config.clone().unwrap();
-            tokio::spawn(async move {
-                if let Err(e) = run_metrics_server_with_config(config).await {
-                    log::error!("Prometheus metrics server error: {e}");
-                }
-            });
+        if self.auto_start_server {
+            if let Some(config) = self.config.clone() {
+                tokio::spawn(async move {
+                    if let Err(e) = run_metrics_server_with_config(config).await {
+                        log::error!("Prometheus metrics server error: {e}");
+                    }
+                });
+            }
         }
         Ok(())
     }
@@ -162,7 +170,7 @@ fn sanitize_name(name: &str) -> String {
 pub async fn run_metrics_server(
     listen_addr: std::net::SocketAddr,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    run_metrics_server_with_config(PrometheusConfig {
+    run_metrics_server_with_config(PrometheusServerConfig {
         listen_addr,
         ..Default::default()
     })
@@ -171,12 +179,12 @@ pub async fn run_metrics_server(
 
 #[cfg(feature = "http-server")]
 pub async fn run_default_metrics_server() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    run_metrics_server_with_config(PrometheusConfig::default()).await
+    run_metrics_server_with_config(PrometheusServerConfig::default()).await
 }
 
 #[cfg(feature = "http-server")]
 pub async fn run_metrics_server_with_config(
-    config: PrometheusConfig,
+    config: PrometheusServerConfig,
 ) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     use axum::{
         body::Body,
@@ -189,7 +197,7 @@ pub async fn run_metrics_server_with_config(
     use tower_http::{cors::CorsLayer, timeout::TimeoutLayer};
 
     async fn metrics_handler() -> Result<Response<Body>, StatusCode> {
-        let text = PrometheusMetricsExporter::prometheus_text();
+        let text = PrometheusMetrics::prometheus_text();
 
         Response::builder()
             .status(StatusCode::OK)
