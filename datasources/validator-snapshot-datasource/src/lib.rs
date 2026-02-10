@@ -30,7 +30,7 @@ use {
     std::{
         collections::HashSet,
         path::PathBuf,
-        sync::{atomic::AtomicBool, Arc, OnceLock},
+        sync::{atomic::AtomicBool, Arc, LazyLock},
     },
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
@@ -38,39 +38,34 @@ use {
 
 const MAX_GENESIS_ARCHIVE_UNPACKED_SIZE: u64 = 10_485_760; // 10MB
 
-static LOAD_DURATION_MILLIS: OnceLock<Histogram> = OnceLock::new();
-static SCAN_DURATION_MILLIS: OnceLock<Histogram> = OnceLock::new();
+static LOAD_DURATION_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "validator_snapshot_load_duration_milliseconds",
+        "Time to load snapshot (from path or remote) in milliseconds",
+        vec![
+            1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0, 5000.0, 10_000.0,
+        ],
+    )
+});
+static SCAN_DURATION_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "validator_snapshot_scan_duration_milliseconds",
+        "Time to scan accounts after snapshot load in milliseconds",
+        vec![
+            1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0, 5000.0, 10_000.0,
+        ],
+    )
+});
 static ACCOUNTS_PROCESSED: Counter = Counter::new(
     "validator_snapshot_accounts_processed_total",
     "Account updates processed (sent) by validator-snapshot datasource",
 );
 
-fn init_validator_snapshot_histograms() {
-    let boundaries = vec![
-        1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0, 5000.0, 10_000.0,
-    ];
-    LOAD_DURATION_MILLIS.get_or_init(|| {
-        Histogram::new(
-            "validator_snapshot_load_duration_milliseconds",
-            "Time to load snapshot (from path or remote) in milliseconds",
-            boundaries.clone(),
-        )
-    });
-    SCAN_DURATION_MILLIS.get_or_init(|| {
-        Histogram::new(
-            "validator_snapshot_scan_duration_milliseconds",
-            "Time to scan accounts after snapshot load in milliseconds",
-            boundaries,
-        )
-    });
-}
-
 fn register_validator_snapshot_metrics() {
-    init_validator_snapshot_histograms();
     let registry = MetricsRegistry::global();
     registry.register_counter(&ACCOUNTS_PROCESSED);
-    registry.register_histogram(LOAD_DURATION_MILLIS.get().unwrap());
-    registry.register_histogram(SCAN_DURATION_MILLIS.get().unwrap());
+    registry.register_histogram(&LOAD_DURATION_MILLIS);
+    registry.register_histogram(&SCAN_DURATION_MILLIS);
 }
 
 #[derive(Debug, Clone)]
