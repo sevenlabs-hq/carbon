@@ -61,6 +61,7 @@ program
     .option('--with-graphql <boolean>', 'Include GraphQL wiring and deps (default: true)')
     .option('--with-serde <boolean>', 'Include serde feature for decoder (default: false)')
     .option('--with-base58 <boolean>', 'Include base58 feature for decoder (default: false)')
+    .option('--version-name <name>', 'Decoder version name (e.g., "v1", "v2")')
     .option('--no-clean', 'Do not delete output directory before rendering', false)
     .action(async opts => {
         showBanner();
@@ -102,6 +103,7 @@ program
                 withSerde,
                 withBase58,
                 standalone: true,
+                versionName: opts.versionName,
             });
 
             logger.succeedSpinner('Decoder generated');
@@ -146,6 +148,7 @@ program
     .option('--with-graphql <boolean>', 'Include GraphQL wiring and deps (default: true)')
     .option('--with-serde <boolean>', 'Include serde feature for decoder (default: false)')
     .option('--with-base58 <boolean>', 'Include base58 feature for decoder (default: false)')
+    .option('--version-name <name>', 'Decoder version name (e.g., "v1", "v2")')
     .option('--postgres-mode <generic|typed>', 'Postgres table storage mode', 'typed')
     .option('--force', 'Overwrite output directory if it exists', false)
     .action(async opts => {
@@ -246,6 +249,7 @@ program
                 withSerde,
                 withBase58,
                 standalone: false,
+                versionName: opts.versionName,
             });
 
             logger.succeedSpinner('Decoder generated successfully');

@@ -78,6 +78,7 @@ export type DecoderGenerationOptions = {
     withSerde?: boolean;
     withBase58?: boolean;
     standalone?: boolean;
+    versionName?: string;
 };
 
 export type IdlMetadata = {
@@ -287,6 +288,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
                 withSerde,
                 withBase58,
                 standalone,
+                versionName: options.versionName,
             }),
         );
         return;
@@ -351,6 +353,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
                 withSerde,
                 withBase58,
                 standalone,
+                versionName: options.versionName,
             }),
         );
     } else {
@@ -365,6 +368,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
                 withSerde,
                 withBase58,
                 standalone,
+                versionName: options.versionName,
             }),
         );
     }
