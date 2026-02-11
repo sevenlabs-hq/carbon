@@ -95,9 +95,7 @@ impl Datasource for GpaDatasource {
             ));
         };
         let fetch_elapsed = fetch_start.elapsed();
-        if let Some(h) = FETCH_DURATION_MILLIS.get() {
-            h.record(fetch_elapsed.as_millis() as f64);
-        }
+        FETCH_DURATION_MILLIS.record(fetch_elapsed.as_millis() as f64);
 
         log::info!(
             "Fetched {} accounts for program {} (slot: {})",

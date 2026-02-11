@@ -404,9 +404,7 @@ async fn send_subscribe_account_update_info(
             }
         }
 
-        if let Some(h) = ACCOUNT_PROCESS_TIME_NANOS.get() {
-            h.record(start_time.elapsed().as_nanos() as f64);
-        }
+        ACCOUNT_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
         ACCOUNT_UPDATES_RECEIVED.inc();
     } else {
         log::error!("No account info in UpdateOneof::Account at slot {slot}");
@@ -459,9 +457,7 @@ async fn send_subscribe_update_transaction_info(
             return;
         }
 
-        if let Some(h) = TRANSACTION_PROCESS_TIME_NANOS.get() {
-            h.record(start_time.elapsed().as_nanos() as f64);
-        }
+        TRANSACTION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
         TRANSACTION_UPDATES_RECEIVED.inc();
     } else {
         log::error!("No transaction info in `UpdateOneof::Transaction` at slot {slot}");
