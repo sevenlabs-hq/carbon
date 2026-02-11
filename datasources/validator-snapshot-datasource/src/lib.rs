@@ -241,9 +241,7 @@ impl Datasource for SnapshotDatasource {
         };
 
         let load_duration = load_start.elapsed();
-        if let Some(h) = LOAD_DURATION_MILLIS.get() {
-            h.record(load_duration.as_millis() as f64);
-        }
+        LOAD_DURATION_MILLIS.record(load_duration.as_millis() as f64);
 
         log::info!(
             "Snapshot loaded at slot {} in {:.2}s, starting account scan",
@@ -340,9 +338,7 @@ impl Datasource for SnapshotDatasource {
         .map_err(|e| Error::FailedToConsumeDatasource(format!("Scan task panicked: {e}")))??;
 
         let scan_duration = scan_start.elapsed();
-        if let Some(h) = SCAN_DURATION_MILLIS.get() {
-            h.record(scan_duration.as_millis() as f64);
-        }
+        SCAN_DURATION_MILLIS.record(scan_duration.as_millis() as f64);
 
         log::info!(
             "Snapshot processing completed in {:.2}s",
