@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 import { camelCase, kebabCase, pascalCase, snakeCase, titleCase } from '@codama/nodes';
 import nunjucks, { ConfigureOptions as NunJucksOptions } from 'nunjucks';
+import { RUST_KEYWORDS, escapeRustKeyword } from '../constants/rustKeywords';
 
 export function rustDocblock(docs: string[]): string {
     if (docs.length <= 0) return '';
@@ -81,12 +82,12 @@ export function formatDocComments(docs: string[], indent: string = ''): string {
 }
 
 export const render = (template: string, context?: object, options?: NunJucksOptions): string => {
-    // Get templates directory from the package directory
     const isESM = typeof import.meta !== 'undefined';
     const dirname = isESM ? pathDirname(fileURLToPath(import.meta.url)) : __dirname;
-    const templates = join(dirname, '..', 'templates'); // Path to templates from src/utils
+    const templates = join(dirname, '..', 'templates');
 
     const env = nunjucks.configure(templates, { autoescape: false, trimBlocks: true, ...options });
+    
     env.addFilter('pascalCase', pascalCase);
     env.addFilter('camelCase', camelCase);
     env.addFilter('snakeCase', snakeCase);
@@ -94,5 +95,9 @@ export const render = (template: string, context?: object, options?: NunJucksOpt
     env.addFilter('titleCase', titleCase);
     env.addFilter('rustDocblock', rustDocblock);
     env.addFilter('formatDocComments', (docs: string[], indent: string = '') => formatDocComments(docs, indent));
+    env.addFilter('escapeRustKeyword', escapeRustKeyword);
+    
+    env.addGlobal('RUST_KEYWORDS', RUST_KEYWORDS);
+    
     return env.render(template, context);
 };
