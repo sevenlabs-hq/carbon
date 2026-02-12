@@ -328,9 +328,10 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
     }
 
     if (isNode(typeNode, 'arrayTypeNode')) {
-        // Special case: Vec<u8> should be treated like bytes
+        // Special case: Vec<u8> arrays from Postgres
+        // Postgres has Vec<postgres::primitives::U8> where U8(i16), need to convert to Vec<graphql::primitives::U8> where U8(u8)
         if (isNode(typeNode.item, 'numberTypeNode') && typeNode.item.format === 'u8') {
-            return `${fieldAccess}.into_iter().map(|x| carbon_core::graphql::primitives::U8(x)).collect()`;
+            return `${fieldAccess}.into_iter().map(|x| carbon_core::graphql::primitives::U8((*x) as u8)).collect()`;
         }
 
         if (isNode(typeNode.item, 'arrayTypeNode')) {
