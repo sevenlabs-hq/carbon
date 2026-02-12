@@ -126,7 +126,7 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
     }
 
     if (isNode(typeNode, 'bytesTypeNode')) {
-        return `${fieldAccess}.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
+        return `${fieldAccess}.into_iter().map(|x| carbon_core::graphql::primitives::U8(x)).collect()`;
     }
 
     if (isNode(typeNode, 'amountTypeNode')) {
@@ -165,7 +165,7 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
 
     if (isNode(typeNode, 'arrayTypeNode')) {
         if (isNode(typeNode.item, 'numberTypeNode') && typeNode.item.format === 'u8') {
-            return `${fieldAccess}.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
+            return `${fieldAccess}.into_iter().map(|x| carbon_core::graphql::primitives::U8(x)).collect()`;
         }
 
         const innerExpr = buildConversionFromOriginal(typeNode.item, 'item');
@@ -181,7 +181,7 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
 
     if (isNode(typeNode, 'fixedSizeTypeNode')) {
         if (isNode(typeNode.type, 'bytesTypeNode')) {
-            return `${fieldAccess}.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
+            return `${fieldAccess}.into_iter().map(|x| carbon_core::graphql::primitives::U8(x)).collect()`;
         }
         const innerExpr = buildConversionFromOriginal(typeNode.type, 'item');
         const funcRef = extractFunctionReference(innerExpr, 'item');
@@ -226,7 +226,7 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
             return fieldAccess;
         }
         if (typeName.includes('decrypt') || typeName.includes('cipher') || typeName.includes('elgamal')) {
-            return `${fieldAccess}.0.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
+            return `${fieldAccess}.0.into_iter().map(|x| carbon_core::graphql::primitives::U8(x)).collect()`;
         }
         return `${fieldAccess}.into()`;
     }
@@ -244,7 +244,7 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
     }
 
     if (isNode(typeNode, 'bytesTypeNode')) {
-        return `${fieldAccess}.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
+        return `${fieldAccess}.into_iter().map(|x| carbon_core::graphql::primitives::U8(x)).collect()`;
     }
 
     if (isNode(typeNode, 'amountTypeNode')) {
@@ -330,7 +330,7 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
     if (isNode(typeNode, 'arrayTypeNode')) {
         // Special case: Vec<u8> should be treated like bytes
         if (isNode(typeNode.item, 'numberTypeNode') && typeNode.item.format === 'u8') {
-            return `${fieldAccess}.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
+            return `${fieldAccess}.into_iter().map(|x| carbon_core::graphql::primitives::U8(x)).collect()`;
         }
 
         if (isNode(typeNode.item, 'arrayTypeNode')) {
@@ -397,7 +397,7 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
 
     if (isNode(typeNode, 'fixedSizeTypeNode')) {
         if (isNode(typeNode.type, 'bytesTypeNode')) {
-            return `${fieldAccess}.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
+            return `${fieldAccess}.into_iter().map(|x| carbon_core::graphql::primitives::U8(x)).collect()`;
         }
         const innerExpr = buildConversionFromPostgresRow(typeNode.type, 'item');
         if ((innerExpr === 'item' || innerExpr === '*item') && !isNode(typeNode.type, 'publicKeyTypeNode')) {
@@ -408,7 +408,7 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
 
     if (isNode(typeNode, 'sizePrefixTypeNode')) {
         if (isNode(typeNode.type, 'bytesTypeNode')) {
-            return `${fieldAccess}.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
+            return `${fieldAccess}.into_iter().map(|x| carbon_core::graphql::primitives::U8(x)).collect()`;
         }
         return buildConversionFromPostgresRow(typeNode.type, fieldAccess);
     }
@@ -462,7 +462,7 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
     if (isNode(typeNode, 'definedTypeLinkNode')) {
         const typeName = typeNode.name.toLowerCase();
         if (typeName.includes('decrypt') || typeName.includes('cipher') || typeName.includes('elgamal')) {
-            return `${fieldAccess}.0.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
+            return `${fieldAccess}.0.into_iter().map(|x| carbon_core::graphql::primitives::U8(x)).collect()`;
         }
         if (isBooleanTypeAlias(typeName)) {
             return handleBooleanTypeConversion(fieldAccess, true, false);
