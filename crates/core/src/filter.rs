@@ -68,9 +68,12 @@ pub trait Filter: Send + Sync {
 
 const DEDUP_CLEANUP_INTERVAL_SECS: u64 = 60;
 
+type SeenInstructionsMap = HashMap<(Signature, Vec<u8>), Instant>;
+type SeenAccountsMap = HashMap<(Signature, Pubkey), Instant>;
+
 pub struct DeduplicationFilter {
-    seen_instructions: Arc<RwLock<HashMap<(Signature, Vec<u8>), Instant>>>,
-    seen_accounts: Arc<RwLock<HashMap<(Signature, Pubkey), Instant>>>,
+    seen_instructions: Arc<RwLock<SeenInstructionsMap>>,
+    seen_accounts: Arc<RwLock<SeenAccountsMap>>,
     ttl: Duration,
     creation: Instant,
     last_cleanup_secs: AtomicU64,
