@@ -37,6 +37,9 @@ function requiresClosureForPrimitive(funcRef: string, innerExpr: string, param: 
 }
 
 function shortenFunctionReference(funcRef: string): string {
+    if (funcRef.includes('carbon_core::graphql::primitives::')) {
+        return funcRef;
+    }
     const graphqlPrimitives = ['Pubkey', 'U8', 'U32', 'I64', 'U64', 'I128', 'U128'];
     for (const primitive of graphqlPrimitives) {
         if (funcRef.endsWith(`::${primitive}`) || funcRef === primitive) {
@@ -232,6 +235,12 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
         }
         if (typeName.includes('decrypt') || typeName.includes('cipher') || typeName.includes('elgamal')) {
             return `${fieldAccess}.0.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
+        }
+        if (typeName === 'epoch' || typeName === 'slot') {
+            return `carbon_core::graphql::primitives::U64(${fieldAccess})`;
+        }
+        if (typeName === 'unixtimestamp' || typeName === 'unixtimestampms') {
+            return `carbon_core::graphql::primitives::I64(${fieldAccess})`;
         }
         return `${fieldAccess}.into()`;
     }
