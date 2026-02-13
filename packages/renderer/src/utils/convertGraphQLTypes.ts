@@ -28,7 +28,8 @@ function handleBooleanTypeConversion(fieldAccess: string, isJson: boolean, isOpt
 }
 
 function isBooleanTypeAlias(typeName: string): boolean {
-    return typeName.toLowerCase().includes('bool');
+    const lowerName = typeName.toLowerCase();
+    return lowerName === 'bool' || lowerName === 'boolean';
 }
 
 function requiresClosureForPrimitive(funcRef: string, innerExpr: string, param: string): boolean {
@@ -51,6 +52,10 @@ function buildOptionMapExpression(fieldAccess: string, innerExpr: string, param:
     }
     if (innerExpr.includes(`*${param}`)) {
         return `${fieldAccess}.map(|${param}| ${innerExpr})`;
+    }
+
+    if (innerExpr === `${param}.into()`) {
+        return `${fieldAccess}.map(|${param}| ${param}.into())`;
     }
 
     const funcRef = extractFunctionReference(innerExpr, param);
