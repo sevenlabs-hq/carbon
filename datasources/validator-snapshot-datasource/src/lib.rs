@@ -228,8 +228,21 @@ impl Datasource for SnapshotDatasource {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
+        exporters: Vec<Arc<dyn carbon_core::metrics::MetricsExporter>>,
+        flush_interval_secs: Option<u64>,
     ) -> CarbonResult<()> {
         register_validator_snapshot_metrics();
+
+        let flush_handle =
+            if let (Some(interval), true) = (flush_interval_secs, !exporters.is_empty()) {
+                carbon_core::pipeline::spawn_metrics_flush_task(
+                    exporters,
+                    interval,
+                    cancellation_token.clone(),
+                )
+            } else {
+                None
+            };
 
         let load_start = std::time::Instant::now();
 
@@ -338,6 +351,10 @@ impl Datasource for SnapshotDatasource {
 
         let scan_duration = scan_start.elapsed();
         SCAN_DURATION_MILLIS.record(scan_duration.as_millis() as f64);
+
+        if let Some(h) = flush_handle {
+            h.abort();
+        }
 
         log::info!(
             "Snapshot processing completed in {:.2}s",

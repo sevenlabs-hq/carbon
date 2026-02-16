@@ -7,6 +7,7 @@ use {
         },
         error::CarbonResult,
         metrics::{Counter, Histogram, MetricsRegistry},
+        pipeline,
     },
     futures::{sink::SinkExt, StreamExt},
     solana_account::Account,
@@ -212,6 +213,8 @@ impl Datasource for LaserStreamGeyserClient {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
+        exporters: Vec<Arc<dyn carbon_core::metrics::MetricsExporter>>,
+        flush_interval_secs: Option<u64>,
     ) -> CarbonResult<()> {
         register_laserstream_metrics();
         let endpoint = self.endpoint.clone();
@@ -240,7 +243,18 @@ impl Datasource for LaserStreamGeyserClient {
             .await
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?;
 
+        let exporters_for_flush = exporters;
+        let flush_interval = flush_interval_secs;
+
         tokio::spawn(async move {
+            if let (Some(interval), true) = (flush_interval, !exporters_for_flush.is_empty()) {
+                pipeline::spawn_metrics_flush_task(
+                    exporters_for_flush.clone(),
+                    interval,
+                    cancellation_token.clone(),
+                );
+            }
+
             let mut reconnect_attempts = 0;
             let mut tracked_slot: u64 = 0;
 
