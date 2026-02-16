@@ -3,10 +3,8 @@ use solana_program::hash::Hash;
 
 use {
     crate::{
-        collection::InstructionDecoderCollection,
-        error::CarbonResult,
-        instruction::{InstructionMetadata, ParsedInstruction},
-        processor::Processor,
+        collection::InstructionDecoderCollection, error::CarbonResult,
+        instruction::InstructionMetadata, processor::Processor,
     },
     async_trait::async_trait,
     core::convert::TryFrom,
@@ -59,11 +57,6 @@ pub struct TransactionPipe<T: InstructionDecoderCollection, P> {
     processor: P,
     filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
     _phantom: std::marker::PhantomData<T>,
-}
-
-pub struct ParsedTransaction<I: InstructionDecoderCollection> {
-    pub metadata: TransactionMetadata,
-    pub instructions: Vec<ParsedInstruction<I>>,
 }
 
 impl<T: InstructionDecoderCollection, P> TransactionPipe<T, P> {
