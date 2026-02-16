@@ -111,7 +111,7 @@ fn register_pipeline_metrics() {
     registry.register_counter(&BLOCK_DETAILS_PROCESSED);
 }
 
-pub fn spawn_metrics_flush_task(
+pub fn spawn_metrics_flush(
     exporters: Vec<Arc<dyn MetricsExporter>>,
     flush_interval_secs: u64,
     cancellation_token: CancellationToken,
@@ -121,7 +121,6 @@ pub fn spawn_metrics_flush_task(
     }
     let handle = tokio::spawn(async move {
         let mut interval = tokio::time::interval(time::Duration::from_secs(flush_interval_secs));
-        interval.set_missed_tick_behavior(tokio::time::MissedTickBehavior::Skip);
         loop {
             tokio::select! {
                 _ = interval.tick() => {
@@ -137,6 +136,17 @@ pub fn spawn_metrics_flush_task(
         }
     });
     Some(handle)
+}
+
+pub fn spawn_metrics_flush_if_needed(
+    exporters: Vec<Arc<dyn MetricsExporter>>,
+    flush_interval_secs: Option<u64>,
+    cancellation_token: CancellationToken,
+) -> Option<tokio::task::JoinHandle<()>> {
+    match (flush_interval_secs, exporters.is_empty()) {
+        (Some(interval), false) => spawn_metrics_flush(exporters, interval, cancellation_token),
+        _ => None,
+    }
 }
 
 #[derive(Default, PartialEq, Debug)]

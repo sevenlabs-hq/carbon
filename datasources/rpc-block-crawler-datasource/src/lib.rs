@@ -168,13 +168,11 @@ impl Datasource for RpcBlockCrawler {
         let flush_interval = flush_interval_secs;
 
         tokio::spawn(async move {
-            if let (Some(interval), true) = (flush_interval, !exporters_for_flush.is_empty()) {
-                carbon_core::pipeline::spawn_metrics_flush_task(
-                    exporters_for_flush,
-                    interval,
-                    cancellation_token.clone(),
-                );
-            }
+            carbon_core::pipeline::spawn_metrics_flush_if_needed(
+                exporters_for_flush,
+                flush_interval,
+                cancellation_token.clone(),
+            );
             tokio::select! {
                 _ = block_fetcher => {},
                 _ = task_processor => {},

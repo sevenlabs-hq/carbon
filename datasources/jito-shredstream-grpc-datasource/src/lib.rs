@@ -81,13 +81,11 @@ impl Datasource for JitoShredstreamGrpcClient {
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?;
 
         tokio::spawn(async move {
-            if let (Some(interval), true) = (flush_interval, !exporters_for_flush.is_empty()) {
-                carbon_core::pipeline::spawn_metrics_flush_task(
-                    exporters_for_flush,
-                    interval,
-                    cancellation_token.clone(),
-                );
-            }
+            carbon_core::pipeline::spawn_metrics_flush_if_needed(
+                exporters_for_flush,
+                flush_interval,
+                cancellation_token.clone(),
+            );
 
             let result = tokio::select! {
                 _ = cancellation_token.cancelled() => {

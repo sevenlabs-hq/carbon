@@ -233,16 +233,11 @@ impl Datasource for SnapshotDatasource {
     ) -> CarbonResult<()> {
         register_validator_snapshot_metrics();
 
-        let flush_handle =
-            if let (Some(interval), true) = (flush_interval_secs, !exporters.is_empty()) {
-                carbon_core::pipeline::spawn_metrics_flush_task(
-                    exporters,
-                    interval,
-                    cancellation_token.clone(),
-                )
-            } else {
-                None
-            };
+        let flush_handle = carbon_core::pipeline::spawn_metrics_flush_if_needed(
+            exporters,
+            flush_interval_secs,
+            cancellation_token.clone(),
+        );
 
         let load_start = std::time::Instant::now();
 
