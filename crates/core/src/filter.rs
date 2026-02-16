@@ -243,32 +243,41 @@ impl Filter for DatasourceFilter {
 #[derive(Debug, Clone)]
 pub struct SlotRangeFilter {
     from_slot: Option<u64>,
+    from_transaction_index: Option<u64>,
     to_slot: Option<u64>,
-    transition_index: Option<u64>,
+    to_transaction_index: Option<u64>,
 }
 
 impl SlotRangeFilter {
     pub fn from(slot: u64, transaction_index: Option<u64>) -> Self {
         Self {
             from_slot: Some(slot),
+            from_transaction_index: transaction_index,
             to_slot: None,
-            transition_index: transaction_index,
+            to_transaction_index: None,
         }
     }
 
     pub fn to(slot: u64, transaction_index: Option<u64>) -> Self {
         Self {
             from_slot: None,
+            from_transaction_index: None,
             to_slot: Some(slot),
-            transition_index: transaction_index,
+            to_transaction_index: transaction_index,
         }
     }
 
-    pub fn between(from_slot: u64, to_slot: u64, transaction_index: Option<u64>) -> Self {
+    pub fn between(
+        from_slot: u64,
+        from_transaction_index: Option<u64>,
+        to_slot: u64,
+        to_transaction_index: Option<u64>,
+    ) -> Self {
         Self {
             from_slot: Some(from_slot),
+            from_transaction_index,
             to_slot: Some(to_slot),
-            transition_index: transaction_index,
+            to_transaction_index,
         }
     }
 
@@ -280,8 +289,8 @@ impl SlotRangeFilter {
             }
 
             if slot == from {
-                if let (Some(transition_idx), Some(tx_idx)) = (self.transition_index, index) {
-                    if tx_idx < transition_idx {
+                if let (Some(from_idx), Some(tx_idx)) = (self.from_transaction_index, index) {
+                    if tx_idx < from_idx {
                         return false;
                     }
                 }
@@ -294,8 +303,8 @@ impl SlotRangeFilter {
             }
 
             if slot == to {
-                if let (Some(transition_idx), Some(tx_idx)) = (self.transition_index, index) {
-                    if tx_idx >= transition_idx {
+                if let (Some(to_idx), Some(tx_idx)) = (self.to_transaction_index, index) {
+                    if tx_idx >= to_idx {
                         return false;
                     }
                 }
