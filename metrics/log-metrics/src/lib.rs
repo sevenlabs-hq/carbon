@@ -6,7 +6,6 @@ use {
 pub struct LogMetrics {
     start: Mutex<Instant>,
     last_flush: Mutex<Instant>,
-    flush_interval_secs: u64,
 }
 
 impl Default for LogMetrics {
@@ -15,7 +14,6 @@ impl Default for LogMetrics {
         Self {
             start: Mutex::new(now),
             last_flush: Mutex::new(now),
-            flush_interval_secs: 5,
         }
     }
 }
@@ -23,11 +21,6 @@ impl Default for LogMetrics {
 impl LogMetrics {
     pub fn new() -> Self {
         Self::default()
-    }
-
-    pub fn with_flush_interval(mut self, interval_secs: u64) -> Self {
-        self.flush_interval_secs = interval_secs;
-        self
     }
 }
 
@@ -119,9 +112,5 @@ impl MetricsExporter for LogMetrics {
 
     fn shutdown(&self) -> CarbonResult<()> {
         Ok(())
-    }
-
-    fn flush_interval_secs(&self) -> Option<u64> {
-        Some(self.flush_interval_secs)
     }
 }
