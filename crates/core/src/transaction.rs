@@ -5,12 +5,12 @@ use {
     crate::{
         collection::InstructionDecoderCollection,
         error::CarbonResult,
-        instruction::{InstructionMetadata, NestedInstruction, ParsedInstruction},
+        instruction::{InstructionMetadata, ParsedInstruction},
         processor::Processor,
-        transformers,
     },
     async_trait::async_trait,
     core::convert::TryFrom,
+    solana_instruction::Instruction,
     solana_pubkey::Pubkey,
     solana_signature::Signature,
     std::sync::Arc,
@@ -80,28 +80,20 @@ impl<T: InstructionDecoderCollection, P> TransactionPipe<T, P> {
     }
 }
 
-pub fn parse_instructions<T: InstructionDecoderCollection>(
-    nested_ixs: &[NestedInstruction],
-) -> Vec<ParsedInstruction<T>> {
-    log::trace!("parse_instructions(nested_ixs: {nested_ixs:?})");
+pub fn parse_instructions_flat<T: InstructionDecoderCollection>(
+    instructions: &[(InstructionMetadata, Instruction)],
+) -> Vec<(InstructionMetadata, T)> {
+    log::trace!(
+        "parse_instructions_flat(instructions: len={})",
+        instructions.len()
+    );
 
-    let mut parsed_instructions: Vec<ParsedInstruction<T>> = Vec::new();
-
-    for nested_ix in nested_ixs {
-        if let Some(instruction) = T::parse_instruction(&nested_ix.instruction) {
-            parsed_instructions.push(ParsedInstruction {
-                metadata: nested_ix.metadata.clone(),
-                instruction,
-                inner_instructions: parse_instructions(&nested_ix.inner_instructions),
-            });
-        } else {
-            for inner_ix in nested_ix.inner_instructions.iter() {
-                parsed_instructions.extend(parse_instructions(std::slice::from_ref(inner_ix)));
-            }
-        }
-    }
-
-    parsed_instructions
+    instructions
+        .iter()
+        .filter_map(|(metadata, instruction)| {
+            T::parse_instruction(instruction).map(|parsed| (metadata.clone(), parsed))
+        })
+        .collect()
 }
 
 #[async_trait]
@@ -109,7 +101,7 @@ pub trait TransactionPipes<'a>: Send + Sync {
     async fn run(
         &mut self,
         transaction_metadata: Arc<TransactionMetadata>,
-        instructions: &[NestedInstruction],
+        instructions: &[(InstructionMetadata, Instruction)],
     ) -> CarbonResult<()>;
 
     fn filters(&self) -> &Vec<Box<dyn Filter + Send + Sync + 'static>>;
@@ -124,17 +116,18 @@ where
     async fn run(
         &mut self,
         transaction_metadata: Arc<TransactionMetadata>,
-        instructions: &[NestedInstruction],
+        instructions: &[(InstructionMetadata, Instruction)],
     ) -> CarbonResult<()> {
-        log::trace!("TransactionPipe::run(instructions: {instructions:?})");
+        log::trace!(
+            "TransactionPipe::run(instructions: len={})",
+            instructions.len()
+        );
 
-        let parsed_instructions = parse_instructions(instructions);
-
-        let unnested_instructions = transformers::unnest_parsed_instructions(parsed_instructions);
+        let parsed_instructions = parse_instructions_flat::<T>(instructions);
 
         let data = TransactionProcessorInputType {
             metadata: &transaction_metadata,
-            instructions: &unnested_instructions,
+            instructions: &parsed_instructions,
         };
 
         self.processor.process(&data).await?;
@@ -144,5 +137,120 @@ where
 
     fn filters(&self) -> &Vec<Box<dyn Filter + Send + Sync + 'static>> {
         &self.filters
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::instruction::InstructionsWithMetadata;
+    use solana_instruction::{AccountMeta, Instruction};
+    use solana_pubkey::Pubkey;
+    use solana_transaction_status::TransactionStatusMeta;
+
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize)]
+    struct TestDecoder;
+    #[derive(Debug, Clone, PartialEq, Eq, Hash, serde::Serialize)]
+    enum TestInstructionType {
+        Parsed,
+    }
+
+    impl InstructionDecoderCollection for TestDecoder {
+        type InstructionType = TestInstructionType;
+
+        fn parse_instruction(instruction: &Instruction) -> Option<Self> {
+            if instruction.data.first() == Some(&1u8) {
+                Some(TestDecoder)
+            } else {
+                None
+            }
+        }
+
+        fn get_type(&self) -> Self::InstructionType {
+            TestInstructionType::Parsed
+        }
+    }
+
+    fn create_flat_instruction(
+        data_byte: u8,
+        stack_height: u32,
+        index: u32,
+    ) -> (InstructionMetadata, Instruction) {
+        let metadata = InstructionMetadata {
+            transaction_metadata: Arc::new(TransactionMetadata {
+                meta: TransactionStatusMeta::default(),
+                ..Default::default()
+            }),
+            stack_height,
+            index,
+            absolute_path: vec![index as u8],
+        };
+        let instruction = Instruction {
+            program_id: Pubkey::new_unique(),
+            accounts: vec![AccountMeta::new(Pubkey::new_unique(), false)],
+            data: vec![data_byte],
+        };
+        (metadata, instruction)
+    }
+
+    #[test]
+    fn test_parse_instructions_flat_empty() {
+        let instructions: InstructionsWithMetadata = vec![];
+        let parsed = parse_instructions_flat::<TestDecoder>(&instructions);
+        assert!(parsed.is_empty());
+    }
+
+    #[test]
+    fn test_parse_instructions_flat_all_match() {
+        let instructions: InstructionsWithMetadata = vec![
+            create_flat_instruction(1, 1, 0),
+            create_flat_instruction(1, 1, 1),
+            create_flat_instruction(1, 2, 2),
+        ];
+        let parsed = parse_instructions_flat::<TestDecoder>(&instructions);
+        assert_eq!(parsed.len(), 3);
+        assert_eq!(parsed[0].0.stack_height, 1);
+        assert_eq!(parsed[0].0.index, 0);
+        assert_eq!(parsed[1].0.stack_height, 1);
+        assert_eq!(parsed[1].0.index, 1);
+        assert_eq!(parsed[2].0.stack_height, 2);
+        assert_eq!(parsed[2].0.index, 2);
+    }
+
+    #[test]
+    fn test_parse_instructions_flat_none_match() {
+        let instructions: InstructionsWithMetadata = vec![
+            create_flat_instruction(0, 1, 0),
+            create_flat_instruction(2, 1, 1),
+        ];
+        let parsed = parse_instructions_flat::<TestDecoder>(&instructions);
+        assert!(parsed.is_empty());
+    }
+
+    #[test]
+    fn test_parse_instructions_flat_mixed() {
+        let instructions: InstructionsWithMetadata = vec![
+            create_flat_instruction(0, 1, 0),
+            create_flat_instruction(1, 1, 1),
+            create_flat_instruction(2, 2, 2),
+            create_flat_instruction(1, 2, 3),
+        ];
+        let parsed = parse_instructions_flat::<TestDecoder>(&instructions);
+        assert_eq!(parsed.len(), 2);
+        assert_eq!(parsed[0].0.index, 1);
+        assert_eq!(parsed[0].0.stack_height, 1);
+        assert_eq!(parsed[1].0.index, 3);
+        assert_eq!(parsed[1].0.stack_height, 2);
+    }
+
+    #[test]
+    fn test_parse_instructions_flat_preserves_metadata() {
+        let (metadata, instruction) = create_flat_instruction(1, 3, 42);
+        let instructions = vec![(metadata.clone(), instruction)];
+        let parsed = parse_instructions_flat::<TestDecoder>(&instructions);
+        assert_eq!(parsed.len(), 1);
+        assert_eq!(parsed[0].0.stack_height, metadata.stack_height);
+        assert_eq!(parsed[0].0.index, metadata.index);
+        assert_eq!(parsed[0].0.absolute_path, metadata.absolute_path);
     }
 }
