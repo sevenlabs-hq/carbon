@@ -337,7 +337,7 @@ impl Filter for SlotRangeFilter {
         metadata: &AccountMetadata,
         _account: &solana_account::Account,
     ) -> FilterResult {
-        if self.contains(metadata.slot, metadata.transaction_index) {
+        if self.contains(metadata.slot, None) {
             FilterResult::Accept
         } else {
             FilterResult::Reject
