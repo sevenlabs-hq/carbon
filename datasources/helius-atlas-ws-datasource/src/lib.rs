@@ -410,7 +410,6 @@ impl Datasource for HeliusWebsocket {
                                                         account: decoded_account,
                                                         slot: acc_event.context.slot,
                                                         transaction_signature: None,
-                                                        transaction_index: None,
                                                     });
 
                                                     ACCOUNT_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);

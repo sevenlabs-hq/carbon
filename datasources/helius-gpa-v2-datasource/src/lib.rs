@@ -275,7 +275,6 @@ impl Datasource for HeliusGpaV2Datasource {
                     account,
                     slot: result.slot,
                     transaction_signature: None,
-                    transaction_index: None,
                 });
 
                 if let Err(e) = sender.send((update, id_for_loop.clone())).await {
