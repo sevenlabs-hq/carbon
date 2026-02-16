@@ -1,10 +1,11 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, sync::Arc};
 
 use async_trait::async_trait;
 use carbon_core::{
     datasource::{BlockDetails, Datasource, DatasourceId, TransactionUpdate, Update, UpdateType},
     error::CarbonResult,
     metrics::{Counter, Gauge, MetricsRegistry},
+    pipeline,
 };
 use futures_util::FutureExt;
 use jetstreamer_firehose::firehose::{
@@ -103,9 +104,18 @@ impl Datasource for JetstreamerDatasource {
         &self,
         id: DatasourceId,
         sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
-        _cancellation_token: CancellationToken,
+        cancellation_token: CancellationToken,
+        exporters: Vec<Arc<dyn carbon_core::metrics::MetricsExporter>>,
+        flush_interval_secs: Option<u64>,
     ) -> CarbonResult<()> {
         register_jetstreamer_metrics();
+
+        let flush_handle =
+            if let (Some(interval), true) = (flush_interval_secs, !exporters.is_empty()) {
+                pipeline::spawn_metrics_flush_task(exporters, interval, cancellation_token.clone())
+            } else {
+                None
+            };
         let (start_slot, end_slot) = self.range.into_slots();
         let (include_transactions, include_blocks) =
             (self.filter.include_transactions, self.filter.include_blocks);
@@ -151,7 +161,7 @@ impl Datasource for JetstreamerDatasource {
                 tracking_interval_slots: interval_slots,
             });
 
-        jetstreamer_firehose::firehose::firehose(
+        let result = jetstreamer_firehose::firehose::firehose(
             self.threads,
             start_slot..end_slot,
             if include_blocks {
@@ -170,8 +180,13 @@ impl Datasource for JetstreamerDatasource {
             stats_tracking,
             None,
         )
-        .await
-        .map_err(|(error, _)| {
+        .await;
+
+        if let Some(h) = flush_handle {
+            h.abort();
+        }
+
+        result.map_err(|(error, _)| {
             carbon_core::error::Error::FailedToConsumeDatasource(error.to_string())
         })?;
 

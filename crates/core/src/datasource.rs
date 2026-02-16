@@ -7,6 +7,10 @@ use {
     solana_transaction_status::TransactionStatusMeta, tokio_util::sync::CancellationToken,
 };
 
+use std::sync::Arc;
+
+use crate::metrics::MetricsExporter;
+
 #[async_trait]
 pub trait Datasource: Send + Sync {
     async fn consume(
@@ -14,6 +18,8 @@ pub trait Datasource: Send + Sync {
         id: DatasourceId,
         sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
+        exporters: Vec<Arc<dyn MetricsExporter>>,
+        flush_interval_secs: Option<u64>,
     ) -> CarbonResult<()>;
 
     fn update_types(&self) -> Vec<UpdateType>;

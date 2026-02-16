@@ -68,15 +68,27 @@ impl Datasource for JitoShredstreamGrpcClient {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
+        exporters: Vec<Arc<dyn carbon_core::metrics::MetricsExporter>>,
+        flush_interval_secs: Option<u64>,
     ) -> CarbonResult<()> {
         register_jito_shredstream_metrics();
         let endpoint = self.0.clone();
+        let exporters_for_flush = exporters;
+        let flush_interval = flush_interval_secs;
 
         let mut client = ShredstreamProxyClient::connect(endpoint)
             .await
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?;
 
         tokio::spawn(async move {
+            if let (Some(interval), true) = (flush_interval, !exporters_for_flush.is_empty()) {
+                carbon_core::pipeline::spawn_metrics_flush_task(
+                    exporters_for_flush,
+                    interval,
+                    cancellation_token.clone(),
+                );
+            }
+
             let result = tokio::select! {
                 _ = cancellation_token.cancelled() => {
                     log::info!("Cancelling Jito Shreadstream gRPC subscription.");

@@ -14,7 +14,7 @@ use {
     solana_client::rpc_client::SerializableTransaction,
     solana_commitment_config::CommitmentConfig,
     solana_pubkey::Pubkey,
-    std::sync::LazyLock,
+    std::sync::{Arc, LazyLock},
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
@@ -298,8 +298,21 @@ impl Datasource for HeliusGtfaDatasource {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
+        exporters: Vec<Arc<dyn carbon_core::metrics::MetricsExporter>>,
+        flush_interval_secs: Option<u64>,
     ) -> CarbonResult<()> {
         register_helius_gtfa_metrics();
+
+        let _flush_handle =
+            if let (Some(interval), true) = (flush_interval_secs, !exporters.is_empty()) {
+                carbon_core::pipeline::spawn_metrics_flush_task(
+                    exporters,
+                    interval,
+                    cancellation_token.clone(),
+                )
+            } else {
+                None
+            };
         let client = reqwest::Client::new();
 
         log::info!(

@@ -17,7 +17,7 @@ use {
         rpc_client::SerializableTransaction,
         rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
     },
-    std::sync::LazyLock,
+    std::sync::{Arc, LazyLock},
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
@@ -111,8 +111,21 @@ impl Datasource for RpcBlockSubscribe {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
+        exporters: Vec<Arc<dyn carbon_core::metrics::MetricsExporter>>,
+        flush_interval_secs: Option<u64>,
     ) -> CarbonResult<()> {
         register_block_subscribe_metrics();
+
+        let _flush_handle =
+            if let (Some(interval), true) = (flush_interval_secs, !exporters.is_empty()) {
+                carbon_core::pipeline::spawn_metrics_flush_task(
+                    exporters,
+                    interval,
+                    cancellation_token.clone(),
+                )
+            } else {
+                None
+            };
         let mut reconnection_attempts = 0;
 
         loop {
