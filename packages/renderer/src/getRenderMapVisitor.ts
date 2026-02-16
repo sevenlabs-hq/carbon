@@ -1015,21 +1015,42 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             const sourceField = `source.${prefix.join('.')}`;
             const sourceColumn = `source.${column}`;
 
-            const expr = isJson
-                ? manifest.sqlxType.includes('Json<')
-                    ? needsConversion
-                        ? `${sourceField}.map(|value| value.into())`
-                        : sourceField
+            const needsSpecialHandling = isNode(itemType, 'arrayTypeNode') || isNode(itemType, 'tupleTypeNode');
+            
+            let expr: string;
+            if (needsSpecialHandling) {
+                const innerExpr = buildExpression(itemType, 'value');
+                expr = innerExpr === 'value' ? sourceField : `${sourceField}.map(|value| ${innerExpr})`;
+            } else {
+                expr = isJson
+                    ? manifest.sqlxType.includes('Json<')
+                        ? needsConversion
+                            ? `${sourceField}.map(|value| value.into())`
+                            : sourceField
+                        : needsConversion
+                          ? `${sourceField}.map(|value| sqlx::types::Json(value.into()))`
+                          : `${sourceField}.map(sqlx::types::Json)`
                     : needsConversion
-                      ? `${sourceField}.map(|value| sqlx::types::Json(value.into()))`
-                      : `${sourceField}.map(sqlx::types::Json)`
-                : needsConversion
-                  ? `${sourceField}.map(|value| value.into())`
-                  : sourceField;
+                      ? `${sourceField}.map(|value| value.into())`
+                      : sourceField;
+            }
 
-            const reverseExpr = isJson
-                ? `${sourceColumn}.map(|value| value.0)`
-                : buildReverseOptionType(typeNode, sourceColumn, manifest);
+            let reverseExpr: string;
+            if (needsSpecialHandling) {
+                const innerReverseExpr = buildReverse(itemType, 'value');
+                if (innerReverseExpr.includes('?')) {
+                    const exprWithoutQuestion = innerReverseExpr.replace(/\?$/, '');
+                    reverseExpr = `${sourceColumn}.map(|value| ${exprWithoutQuestion}).transpose()?`;
+                } else if (innerReverseExpr === 'value' || innerReverseExpr === 'value.0') {
+                    reverseExpr = isJson ? `${sourceColumn}.map(|value| value.0)` : sourceColumn;
+                } else {
+                    reverseExpr = `${sourceColumn}.map(|value| ${innerReverseExpr})`;
+                }
+            } else {
+                reverseExpr = isJson
+                    ? `${sourceColumn}.map(|value| value.0)`
+                    : buildReverseOptionType(typeNode, sourceColumn, manifest);
+            }
 
             return [
                 {
@@ -1210,7 +1231,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             if (typeNode.items.length === 1) {
                 return `${buildExpression(typeNode.items[0], `${prefix}`)}`;
             }
-            return `(${typeNode.items.map((item, i) => buildExpression(item, `${prefix}.${i}`)).join(', ')})`;
+            return `sqlx::types::Json(serde_json::to_value(${prefix}).unwrap())`;
         } else if (isNode(typeNode, 'publicKeyTypeNode')) {
             // Pubkey from Rust needs conversion to Postgres Pubkey (solana_pubkey::Pubkey)
             return `${prefix}.into()`;
@@ -1472,7 +1493,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             if (typeNode.items.length === 1) {
                 return `${buildReverse(typeNode.items[0], `${prefix}`)}`;
             }
-            return `(${typeNode.items.map((it, i) => buildReverse(it, `${prefix}.${i}`)).join(', ')})`;
+            return `serde_json::from_value(${prefix}.0).map_err(|_| carbon_core::error::Error::Custom("Failed to deserialize tuple from JSON".to_string()))?`;
         }
         if (
             isNode(typeNode, 'definedTypeLinkNode') ||
