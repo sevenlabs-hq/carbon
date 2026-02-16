@@ -110,12 +110,11 @@ impl Datasource for JetstreamerDatasource {
     ) -> CarbonResult<()> {
         register_jetstreamer_metrics();
 
-        let flush_handle =
-            if let (Some(interval), true) = (flush_interval_secs, !exporters.is_empty()) {
-                pipeline::spawn_metrics_flush_task(exporters, interval, cancellation_token.clone())
-            } else {
-                None
-            };
+        let flush_handle = pipeline::spawn_metrics_flush_if_needed(
+            exporters,
+            flush_interval_secs,
+            cancellation_token.clone(),
+        );
         let (start_slot, end_slot) = self.range.into_slots();
         let (include_transactions, include_blocks) =
             (self.filter.include_transactions, self.filter.include_blocks);

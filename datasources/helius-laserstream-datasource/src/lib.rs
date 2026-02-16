@@ -247,13 +247,11 @@ impl Datasource for LaserStreamGeyserClient {
         let flush_interval = flush_interval_secs;
 
         tokio::spawn(async move {
-            if let (Some(interval), true) = (flush_interval, !exporters_for_flush.is_empty()) {
-                pipeline::spawn_metrics_flush_task(
-                    exporters_for_flush.clone(),
-                    interval,
-                    cancellation_token.clone(),
-                );
-            }
+            pipeline::spawn_metrics_flush_if_needed(
+                exporters_for_flush,
+                flush_interval,
+                cancellation_token.clone(),
+            );
 
             let mut reconnect_attempts = 0;
             let mut tracked_slot: u64 = 0;
