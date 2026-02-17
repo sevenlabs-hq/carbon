@@ -1,0 +1,52 @@
+[package]
+name = "carbon-sharky-decoder"
+version = "0.12.0"
+edition = { workspace = true }
+description = "Sharky Decoder"
+license = { workspace = true }
+readme = "README.md"
+repository = { workspace = true }
+keywords = ["solana", "decoder", "sharky"]
+categories = ["encoding"]
+
+[lib]
+crate-type = ["rlib"]
+
+[features]
+default = []
+
+serde = ["dep:serde"]
+
+postgres = [
+    "carbon-core/postgres",
+    "dep:sqlx",
+    "dep:async-trait",
+    "dep:sqlx_migrator",
+    "serde",
+]
+
+graphql = [
+    "carbon-core/graphql",
+    "dep:juniper",
+    "serde",
+]
+
+[dependencies]
+carbon-core = { workspace = true, features = ["macros"] }
+borsh = { workspace = true, features = ["derive"] }
+solana-pubkey = { workspace = true, features = ["borsh"] }
+solana-account = { workspace = true }
+solana-instruction = { workspace = true }
+serde_json = { workspace = true }
+
+serde = { workspace = true, features = ["derive"], optional = true }
+
+sqlx = { workspace = true, features = ["postgres", "rust_decimal"], optional = true }
+async-trait = { workspace = true, optional = true }
+sqlx_migrator = { workspace = true, optional = true }
+
+juniper = { workspace = true, optional = true }
+
+
+[dev-dependencies]
+carbon-test-utils = { workspace = true }
