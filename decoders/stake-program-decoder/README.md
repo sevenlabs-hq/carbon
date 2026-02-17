@@ -1,1 +1,0 @@
-# Carbon Stake Program Decoder
