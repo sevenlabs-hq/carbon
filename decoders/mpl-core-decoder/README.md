@@ -1,1 +1,0 @@
-# Carbon MPL Core Decoder
