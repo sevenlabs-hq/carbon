@@ -2,7 +2,7 @@ use {
     crate::error::CarbonResult,
     std::sync::{
         atomic::{AtomicU64, Ordering},
-        LazyLock, RwLock,
+        Arc, LazyLock, RwLock,
     },
 };
 
@@ -247,7 +247,8 @@ impl MetricsRegistry {
 }
 
 pub trait MetricsExporter: Send + Sync {
-    fn initialize(&self) -> CarbonResult<()> {
+    fn initialize(self: Arc<Self>) -> CarbonResult<()> {
+        let _ = self;
         Ok(())
     }
 

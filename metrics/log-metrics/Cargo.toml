@@ -12,6 +12,8 @@ categories = ["encoding"]
 [dependencies]
 carbon-core = { workspace = true }
 log = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { workspace = true }
 
 [lib]
 crate-type = ["rlib"]

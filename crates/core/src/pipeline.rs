@@ -19,7 +19,6 @@ use {
         transaction::{TransactionPipe, TransactionPipes, TransactionProcessorInputType},
         transformers,
     },
-    core::time,
     std::{
         convert::TryInto,
         sync::{Arc, LazyLock},
@@ -111,44 +110,6 @@ fn register_pipeline_metrics() {
     registry.register_counter(&BLOCK_DETAILS_PROCESSED);
 }
 
-pub fn spawn_metrics_flush(
-    exporters: Vec<Arc<dyn MetricsExporter>>,
-    flush_interval_secs: u64,
-    cancellation_token: CancellationToken,
-) -> Option<tokio::task::JoinHandle<()>> {
-    if exporters.is_empty() {
-        return None;
-    }
-    let handle = tokio::spawn(async move {
-        let mut interval = tokio::time::interval(time::Duration::from_secs(flush_interval_secs));
-        loop {
-            tokio::select! {
-                _ = interval.tick() => {
-                    let snapshot = MetricsRegistry::global().snapshot();
-                    for exporter in &exporters {
-                        if let Err(e) = exporter.export(&snapshot) {
-                            log::error!("Error exporting metrics: {e:?}");
-                        }
-                    }
-                }
-                _ = cancellation_token.cancelled() => break,
-            }
-        }
-    });
-    Some(handle)
-}
-
-pub fn spawn_metrics_flush_if_needed(
-    exporters: Vec<Arc<dyn MetricsExporter>>,
-    flush_interval_secs: Option<u64>,
-    cancellation_token: CancellationToken,
-) -> Option<tokio::task::JoinHandle<()>> {
-    match (flush_interval_secs, exporters.is_empty()) {
-        (Some(interval), false) => spawn_metrics_flush(exporters, interval, cancellation_token),
-        _ => None,
-    }
-}
-
 #[derive(Default, PartialEq, Debug)]
 pub enum ShutdownStrategy {
     Immediate,
@@ -166,7 +127,6 @@ pub struct Pipeline {
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
     pub exporters: Vec<Arc<dyn MetricsExporter>>,
-    pub metrics_flush_interval: Option<u64>,
     pub datasource_cancellation_token: Option<CancellationToken>,
     pub shutdown_strategy: ShutdownStrategy,
     pub channel_buffer_size: usize,
@@ -208,7 +168,6 @@ impl Pipeline {
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
             exporters: Vec::new(),
-            metrics_flush_interval: None,
             datasource_cancellation_token: None,
             shutdown_strategy: ShutdownStrategy::default(),
             channel_buffer_size: DEFAULT_CHANNEL_BUFFER_SIZE,
@@ -228,7 +187,8 @@ impl Pipeline {
         log::trace!("run(self)");
 
         for exporter in &self.exporters {
-            exporter.initialize()?;
+            let exporter = Arc::clone(exporter);
+            MetricsExporter::initialize(exporter)?;
         }
         let (update_sender, mut update_receiver) =
             tokio::sync::mpsc::channel::<(Update, DatasourceId)>(self.channel_buffer_size);
@@ -238,15 +198,11 @@ impl Pipeline {
             .clone()
             .unwrap_or_default();
 
-        let exporters = self.exporters.clone();
-        let flush_interval_secs = self.metrics_flush_interval;
-
         for datasource in &self.datasources {
             let datasource_cancellation_token_clone = datasource_cancellation_token.clone();
             let sender_clone = update_sender.clone();
             let datasource_clone = Arc::clone(&datasource.1);
             let datasource_id = datasource.0.clone();
-            let exporters_clone = exporters.clone();
 
             tokio::spawn(async move {
                 if let Err(e) = datasource_clone
@@ -254,8 +210,6 @@ impl Pipeline {
                         datasource_id,
                         sender_clone,
                         datasource_cancellation_token_clone,
-                        exporters_clone,
-                        flush_interval_secs,
                     )
                     .await
                 {
@@ -462,7 +416,6 @@ pub struct PipelineBuilder {
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
     pub exporters: Vec<Arc<dyn MetricsExporter>>,
-    pub metrics_flush_interval: Option<u64>,
     pub datasource_cancellation_token: Option<CancellationToken>,
     pub shutdown_strategy: ShutdownStrategy,
     pub channel_buffer_size: usize,
@@ -696,13 +649,6 @@ impl PipelineBuilder {
         self
     }
 
-    /// Interval in seconds for datasource-level metrics flush when using LogMetrics.
-    /// Set when using log-based metrics and you want periodic export to logs.
-    pub fn metrics_flush_interval(mut self, secs: u64) -> Self {
-        self.metrics_flush_interval = Some(secs);
-        self
-    }
-
     pub fn datasource_cancellation_token(mut self, cancellation_token: CancellationToken) -> Self {
         log::trace!(
             "datasource_cancellation_token(self, cancellation_token: {cancellation_token:?})"
@@ -728,7 +674,6 @@ impl PipelineBuilder {
             instruction_pipes: self.instruction_pipes,
             transaction_pipes: self.transaction_pipes,
             exporters: self.exporters,
-            metrics_flush_interval: self.metrics_flush_interval,
             datasource_cancellation_token: self.datasource_cancellation_token,
             shutdown_strategy: self.shutdown_strategy,
             channel_buffer_size: self.channel_buffer_size,

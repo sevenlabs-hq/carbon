@@ -1,11 +1,18 @@
 use {
-    carbon_core::{error::CarbonResult, metrics::MetricsExporter, metrics::MetricsSnapshot},
+    carbon_core::{
+        error::CarbonResult,
+        metrics::{MetricsExporter, MetricsRegistry, MetricsSnapshot},
+    },
     std::{sync::Mutex, time::Instant},
+    tokio::time,
+    tokio_util::sync::CancellationToken,
 };
 
 pub struct LogMetrics {
     start: Mutex<Instant>,
     last_flush: Mutex<Instant>,
+    flush_interval_secs: u64,
+    cancellation_token: Mutex<Option<CancellationToken>>,
 }
 
 impl Default for LogMetrics {
@@ -14,6 +21,8 @@ impl Default for LogMetrics {
         Self {
             start: Mutex::new(now),
             last_flush: Mutex::new(now),
+            flush_interval_secs: 5,
+            cancellation_token: Mutex::new(None),
         }
     }
 }
@@ -22,13 +31,39 @@ impl LogMetrics {
     pub fn new() -> Self {
         Self::default()
     }
+
+    pub fn with_flush_interval(mut self, flush_interval_secs: u64) -> Self {
+        self.flush_interval_secs = flush_interval_secs;
+        self
+    }
 }
 
 impl MetricsExporter for LogMetrics {
-    fn initialize(&self) -> CarbonResult<()> {
+    fn initialize(self: std::sync::Arc<Self>) -> CarbonResult<()> {
         let now = Instant::now();
         *self.start.lock().unwrap() = now;
         *self.last_flush.lock().unwrap() = now;
+
+        let cancellation_token = CancellationToken::new();
+        let token_for_task = cancellation_token.clone();
+        let interval_secs = self.flush_interval_secs;
+        let this = std::sync::Arc::clone(&self);
+
+        tokio::spawn(async move {
+            let mut interval = time::interval(time::Duration::from_secs(interval_secs));
+            loop {
+                tokio::select! {
+                    _ = interval.tick() => {
+                        let snapshot = MetricsRegistry::global().snapshot();
+                        if let Err(e) = this.export(&snapshot) {
+                            log::error!("Error exporting log metrics: {e:?}");
+                        }
+                    }
+                    _ = token_for_task.cancelled() => break,
+                }
+            }
+        });
+        *self.cancellation_token.lock().unwrap() = Some(cancellation_token);
         Ok(())
     }
 
@@ -111,6 +146,9 @@ impl MetricsExporter for LogMetrics {
     }
 
     fn shutdown(&self) -> CarbonResult<()> {
+        if let Some(token) = self.cancellation_token.lock().unwrap().take() {
+            token.cancel();
+        }
         Ok(())
     }
 }

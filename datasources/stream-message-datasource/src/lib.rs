@@ -101,8 +101,6 @@ impl Datasource for StreamMessageClient {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        exporters: Vec<Arc<dyn carbon_core::metrics::MetricsExporter>>,
-        flush_interval_secs: Option<u64>,
     ) -> CarbonResult<()> {
         register_stream_message_metrics();
         let mut receiver_lock = self.receiver.lock().unwrap();
@@ -113,16 +111,9 @@ impl Datasource for StreamMessageClient {
         drop(receiver_lock);
 
         let account_deletions_tracked = Arc::clone(&self.account_deletions_tracked);
-        let exporters_for_flush = exporters;
-        let flush_interval = flush_interval_secs;
         let id = id.clone();
 
         tokio::spawn(async move {
-            carbon_core::pipeline::spawn_metrics_flush_if_needed(
-                exporters_for_flush,
-                flush_interval,
-                cancellation_token.clone(),
-            );
             handle_message_stream(
                 receiver,
                 cancellation_token,

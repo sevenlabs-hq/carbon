@@ -7,7 +7,6 @@ use {
         },
         error::CarbonResult,
         metrics::{Counter, Histogram, MetricsRegistry},
-        pipeline,
     },
     futures::{sink::SinkExt, StreamExt},
     solana_account::Account,
@@ -202,8 +201,6 @@ impl Datasource for YellowstoneGrpcGeyserClient {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        exporters: Vec<Arc<dyn carbon_core::metrics::MetricsExporter>>,
-        flush_interval_secs: Option<u64>,
     ) -> CarbonResult<()> {
         register_yellowstone_metrics();
         let endpoint = self.endpoint.clone();
@@ -231,16 +228,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
             .await
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?;
 
-        let exporters_for_flush = exporters;
-        let flush_interval = flush_interval_secs;
-
         tokio::spawn(async move {
-            pipeline::spawn_metrics_flush_if_needed(
-                exporters_for_flush,
-                flush_interval,
-                cancellation_token.clone(),
-            );
-
             let subscribe_request = SubscribeRequest {
                 slots: HashMap::new(),
                 accounts: account_filters,

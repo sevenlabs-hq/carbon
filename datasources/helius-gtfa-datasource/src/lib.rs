@@ -298,16 +298,9 @@ impl Datasource for HeliusGtfaDatasource {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        exporters: Vec<Arc<dyn carbon_core::metrics::MetricsExporter>>,
-        flush_interval_secs: Option<u64>,
     ) -> CarbonResult<()> {
         register_helius_gtfa_metrics();
 
-        let _flush_handle = carbon_core::pipeline::spawn_metrics_flush_if_needed(
-            exporters,
-            flush_interval_secs,
-            cancellation_token.clone(),
-        );
         let client = reqwest::Client::new();
 
         log::info!(
