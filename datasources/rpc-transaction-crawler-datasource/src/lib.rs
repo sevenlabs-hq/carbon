@@ -211,8 +211,6 @@ impl Datasource for RpcTransactionCrawler {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        exporters: Vec<Arc<dyn carbon_core::metrics::MetricsExporter>>,
-        flush_interval_secs: Option<u64>,
     ) -> CarbonResult<()> {
         register_transaction_crawler_metrics();
         let rpc_client = Arc::new(RpcClient::new_with_commitment(
@@ -263,15 +261,7 @@ impl Datasource for RpcTransactionCrawler {
             self.connection_config.clone(),
         );
 
-        let exporters_for_flush = exporters;
-        let flush_interval = flush_interval_secs;
-
         tokio::spawn(async move {
-            carbon_core::pipeline::spawn_metrics_flush_if_needed(
-                exporters_for_flush,
-                flush_interval,
-                cancellation_token.clone(),
-            );
             tokio::select! {
                 _ = signature_fetcher => {},
                 _ = transaction_fetcher => {},

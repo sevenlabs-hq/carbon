@@ -198,16 +198,9 @@ impl Datasource for HeliusWebsocket {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        exporters: Vec<Arc<dyn carbon_core::metrics::MetricsExporter>>,
-        flush_interval_secs: Option<u64>,
     ) -> CarbonResult<()> {
         register_helius_atlas_metrics();
 
-        let _flush_handle = carbon_core::pipeline::spawn_metrics_flush_if_needed(
-            exporters,
-            flush_interval_secs,
-            cancellation_token.clone(),
-        );
         if self.filters.accounts.is_empty() && self.filters.transactions.is_none() {
             return CarbonResult::Err(carbon_core::error::Error::Custom("Error creating Filters for the Helius WebSocket: accounts and transactions can't be both empty".to_string()));
         }
