@@ -25,7 +25,7 @@ import { partition, render } from './utils';
 import { isToken2022Program } from './utils/helpers';
 import { getPostgresTypeManifestVisitor, PostgresTypeManifest } from './getPostgresTypeManifestVisitor';
 import { FlattenedGraphQLField, flattenTypeForGraphQL } from './utils/flattenGraphqlFields';
-import { generateDecoderCargoToml } from './cargoTomlGenerator';
+import { generateDecoderCargoToml, getReadmeDisplayName, hasPackageMetadata, type PackageMetadata } from './cargoTomlGenerator';
 import { formatDocComments } from './utils/render';
 
 export type GetRenderMapOptions = {
@@ -41,6 +41,9 @@ export type GetRenderMapOptions = {
     withSerde?: boolean;
     withBase58?: boolean;
     standalone?: boolean;
+    workspaceDeps?: boolean;
+    packageMetadata?: PackageMetadata;
+    version?: string;
     versionName?: string;
 };
 
@@ -893,6 +896,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         packageName: options.packageName,
                         programName: programName,
                         originalProgramName: originalProgramName, // Pass original program name for token-2022 checks
+                        version: options.version,
                         versionName: options.versionName,
                         withPostgres: options.withPostgres !== false,
                         withGraphQL: options.withGraphql !== false,
@@ -900,8 +904,19 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         withBase58: options.withBase58 ?? false,
                         withSerdeBigArray: requiresSerdeBigArray,
                         standalone: options.standalone !== false,
+                        workspaceDeps: options.workspaceDeps,
+                        packageMetadata: options.packageMetadata,
                     });
                     map.add('Cargo.toml', cargoToml);
+
+                    if (hasPackageMetadata(options.packageMetadata)) {
+                        const readmeDisplayName = getReadmeDisplayName(
+                            options.packageName,
+                            programName,
+                            options.packageMetadata,
+                        );
+                        map.add('README.md', `# Carbon ${readmeDisplayName} Decoder\n`);
+                    }
 
                     return map.mergeWith(programRenderMap);
                 },
