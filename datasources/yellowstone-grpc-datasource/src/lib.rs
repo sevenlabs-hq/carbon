@@ -60,6 +60,7 @@ pub struct YellowstoneGrpcClientConfig {
     pub max_decoding_message_size: Option<usize>,
     pub tls_config: Option<ClientTlsConfig>,
     pub tcp_nodelay: Option<bool>,
+    pub http2_adaptive_window: Option<bool>,
 }
 
 impl Default for YellowstoneGrpcClientConfig {
@@ -71,6 +72,7 @@ impl Default for YellowstoneGrpcClientConfig {
             max_decoding_message_size: None,
             tls_config: None,
             tcp_nodelay: None,
+            http2_adaptive_window: None,
         }
     }
 }
@@ -129,6 +131,7 @@ impl YellowstoneGrpcClientConfig {
             max_decoding_message_size,
             tls_config,
             tcp_nodelay,
+            http2_adaptive_window: None,
         }
     }
 
@@ -153,9 +156,11 @@ impl YellowstoneGrpcClientConfig {
         if let Some(val) = self.max_decoding_message_size {
             builder = builder.max_decoding_message_size(val);
         }
-
         if let Some(val) = self.tcp_nodelay {
             builder = builder.tcp_nodelay(val);
+        }
+        if let Some(val) = self.http2_adaptive_window {
+            builder.endpoint = builder.endpoint.http2_adaptive_window(val);
         }
         Ok(builder)
     }
