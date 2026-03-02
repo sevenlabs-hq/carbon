@@ -187,6 +187,8 @@ impl Datasource for YellowstoneGrpcGeyserClient {
         } = self.block_filters.clone();
         let retain_block_failed_transactions = block_failed_transactions.unwrap_or(true);
 
+        let tag = extract_host(&endpoint);
+
         let builder = GeyserGrpcClient::build_from_shared(endpoint)
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?
             .x_token(x_token)
@@ -227,7 +229,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
             loop {
                 tokio::select! {
                     _ = cancellation_token.cancelled() => {
-                        log::info!("Cancelling Yellowstone gRPC subscription.");
+                        log::info!("[{tag}] Cancelling Yellowstone gRPC subscription.");
                         break;
                     }
                     result = geyser_client.subscribe_with_request(Some(subscribe_request.clone())) => {
@@ -248,20 +250,20 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                     let message = match message_result {
                                         Ok(Some(msg)) => msg,
                                         Ok(None) => {
-                                            log::warn!("Stream closed");
+                                            log::warn!("[{tag}] Stream closed");
                                             if last_disconnect_time.is_none() {
                                                 last_disconnect_time = Some(Utc::now());
                                                 last_slot_before_disconnect = Some(last_processed_slot);
-                                                log::warn!("Disconnected at slot {last_processed_slot}");
+                                                log::warn!("[{tag}] Disconnected at slot {last_processed_slot}");
                                             }
                                             break;
                                         }
                                         Err(_) => {
-                                            log::warn!("Stream timeout - no messages for {stream_timeout:?}");
+                                            log::warn!("[{tag}] Stream timeout - no messages for {stream_timeout:?}");
                                             if last_disconnect_time.is_none() {
                                                 last_disconnect_time = Some(Utc::now());
                                                 last_slot_before_disconnect = Some(last_processed_slot);
-                                                log::warn!("Disconnected at slot {last_processed_slot} (timeout)");
+                                                log::warn!("[{tag}] Disconnected at slot {last_processed_slot} (timeout)");
                                             }
                                             break;
                                         }
@@ -286,7 +288,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                         let missed = slot.saturating_sub(last_slot);
 
                                                         let disconnection = DatasourceDisconnection {
-                                                            source: "yellowstone-grpc".to_string(),
+                                                            source: tag.clone(),
                                                             disconnect_time,
                                                             last_slot_before_disconnect: last_slot,
                                                             first_slot_after_reconnect: slot,
@@ -297,7 +299,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                             let _ = tx.try_send(disconnection);
                                                         }
 
-                                                        log::info!("Reconnected. Slots: {last_slot} -> {slot} (missed: {missed})");
+                                                        log::info!("[{tag}] Reconnected. Slots: {last_slot} -> {slot} (missed: {missed})");
                                                     }
                                                 }
                                             }
@@ -352,7 +354,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                                     .await {
                                                         Ok(()) => (),
                                                         Err(error) => {
-                                                            log::error!("Failed to send ping error: {error:?}");
+                                                            log::error!("[{tag}] Failed to send ping: {error:?}");
                                                             break;
                                                         },
                                                     }
@@ -362,12 +364,12 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                         }
                                         }
                                         Err(error) => {
-                                            log::error!("Geyser stream error: {error:?}");
+                                            log::error!("[{tag}] Geyser stream error: {error:?}");
 
                                             if last_disconnect_time.is_none() {
                                                 last_disconnect_time = Some(Utc::now());
                                                 last_slot_before_disconnect = Some(last_processed_slot);
-                                                log::error!("Disconnected at slot {last_processed_slot}");
+                                                log::error!("[{tag}] Disconnected at slot {last_processed_slot}");
                                             }
 
                                             break;
@@ -376,7 +378,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                                 }
                             }
                             Err(e) => {
-                                log::error!("Failed to subscribe: {e:?}");
+                                log::error!("[{tag}] Failed to subscribe: {e:?}");
 
                                 if last_disconnect_time.is_none() {
                                     last_disconnect_time = Some(Utc::now());
@@ -544,4 +546,10 @@ async fn send_subscribe_update_transaction_info(
     } else {
         log::error!("No transaction info in `UpdateOneof::Transaction` at slot {slot}");
     }
+}
+
+fn extract_host(url: &str) -> String {
+    let after_protocol = url.split("://").nth(1).unwrap_or(url);
+    let host_port = after_protocol.split('/').next().unwrap_or(after_protocol);
+    host_port.split(':').next().unwrap_or(host_port).to_string()
 }
