@@ -61,6 +61,26 @@ pub trait Metrics: Send + Sync {
     /// - `value`: The value to add to the histogram, typically representing
     ///   time or size.
     async fn record_histogram(&self, name: &str, value: f64) -> CarbonResult<()>;
+
+    /// Tagged variants — default to delegating to the untagged versions.
+    /// Override these to receive the datasource_id tag from the pipeline loop.
+    async fn increment_counter_tagged(
+        &self,
+        name: &str,
+        value: u64,
+        _datasource_id: &str,
+    ) -> CarbonResult<()> {
+        self.increment_counter(name, value).await
+    }
+
+    async fn record_histogram_tagged(
+        &self,
+        name: &str,
+        value: f64,
+        _datasource_id: &str,
+    ) -> CarbonResult<()> {
+        self.record_histogram(name, value).await
+    }
 }
 
 #[derive(Default)]
@@ -111,6 +131,34 @@ impl MetricsCollection {
     pub async fn record_histogram(&self, name: &str, value: f64) -> CarbonResult<()> {
         for metric in &self.metrics {
             metric.record_histogram(name, value).await?;
+        }
+        Ok(())
+    }
+
+    pub async fn increment_counter_tagged(
+        &self,
+        name: &str,
+        value: u64,
+        datasource_id: &str,
+    ) -> CarbonResult<()> {
+        for metric in &self.metrics {
+            metric
+                .increment_counter_tagged(name, value, datasource_id)
+                .await?;
+        }
+        Ok(())
+    }
+
+    pub async fn record_histogram_tagged(
+        &self,
+        name: &str,
+        value: f64,
+        datasource_id: &str,
+    ) -> CarbonResult<()> {
+        for metric in &self.metrics {
+            metric
+                .record_histogram_tagged(name, value, datasource_id)
+                .await?;
         }
         Ok(())
     }
