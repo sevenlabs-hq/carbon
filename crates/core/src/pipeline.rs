@@ -355,6 +355,7 @@ impl Pipeline {
             let metrics_collection = self.metrics.clone();
 
             tokio::spawn(async move {
+                let datasource_tag = datasource_id.as_str().to_string();
                 if let Err(e) = datasource_clone
                     .consume(
                         datasource_id,
@@ -364,7 +365,7 @@ impl Pipeline {
                     )
                     .await
                 {
-                    log::error!("error consuming datasource: {e:?}");
+                    log::error!("[datasource:{datasource_tag}] error consuming datasource: {e:?}");
                 }
             });
         }
@@ -402,8 +403,10 @@ impl Pipeline {
                 update = update_receiver.recv() => {
                     match update {
                         Some((update, datasource_id)) => {
+                            let ds_tag = datasource_id.as_str();
+
                             self
-                                .metrics.increment_counter("updates_received", 1)
+                                .metrics.increment_counter_tagged("updates_received", 1, ds_tag)
                                 .await?;
 
                             let start = Instant::now();
@@ -413,30 +416,32 @@ impl Pipeline {
 
                             self
                                 .metrics
-                                .record_histogram("updates_process_time_nanoseconds", time_taken_nanoseconds as f64)
+                                .record_histogram_tagged("updates_process_time_nanoseconds", time_taken_nanoseconds as f64, ds_tag)
                                 .await?;
 
                             self
                                 .metrics
-                                .record_histogram("updates_process_time_milliseconds", time_taken_milliseconds as f64)
+                                .record_histogram_tagged("updates_process_time_milliseconds", time_taken_milliseconds as f64, ds_tag)
                                 .await?;
 
                             match process_result {
                                 Ok(_) => {
                                     self
-                                        .metrics.increment_counter("updates_successful", 1)
+                                        .metrics.increment_counter_tagged("updates_successful", 1, ds_tag)
                                         .await?;
 
-                                    log::trace!("processed update")
+                                    log::trace!("[datasource:{ds_tag}] processed update")
                                 }
                                 Err(error) => {
-                                    log::error!("error processing update ({update:?}): {error:?}");
-                                    self.metrics.increment_counter("updates_failed", 1).await?;
+                                    log::error!(
+                                        "[datasource:{ds_tag}] error processing update ({update:?}): {error:?}"
+                                    );
+                                    self.metrics.increment_counter_tagged("updates_failed", 1, ds_tag).await?;
                                 }
                             };
 
                             self
-                                .metrics.increment_counter("updates_processed", 1)
+                                .metrics.increment_counter_tagged("updates_processed", 1, ds_tag)
                                 .await?;
 
                             self
