@@ -107,7 +107,22 @@ pub fn extract_instructions_with_metadata(
                 &meta.inner_instructions,
                 transaction_metadata,
                 &mut instructions_with_metadata,
-                |key, _| meta.loaded_addresses.writable.contains(key),
+                |key, idx| {
+                    let num_static = v0.account_keys.len();
+                    if idx < num_static {
+                        let num_signers = v0.header.num_required_signatures as usize;
+                        let num_readonly_signed = v0.header.num_readonly_signed_accounts as usize;
+                        let num_readonly_unsigned =
+                            v0.header.num_readonly_unsigned_accounts as usize;
+                        if idx < num_signers {
+                            idx < num_signers - num_readonly_signed
+                        } else {
+                            idx < num_static - num_readonly_unsigned
+                        }
+                    } else {
+                        meta.loaded_addresses.writable.contains(key)
+                    }
+                },
                 |_, idx| idx < v0.header.num_required_signatures as usize,
             );
         }
