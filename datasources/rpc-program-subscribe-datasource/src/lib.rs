@@ -163,9 +163,7 @@ impl Datasource for RpcProgramSubscribe {
                                     transaction_signature: None,
                                 });
 
-                                if let Some(h) = ACCOUNT_PROCESS_TIME_NANOS.get() {
-                                    h.record(start_time.elapsed().as_nanos() as f64);
-                                }
+                                ACCOUNT_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
                                 ACCOUNTS_PROCESSED.inc();
 
                                 if let Err(err) = sender_clone.try_send((update, id_for_loop.clone())) {
