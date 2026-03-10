@@ -125,11 +125,7 @@ export function getPostgresTypeManifestVisitor() {
                     if (inners.length === 1) {
                         return inners[0];
                     }
-                    return {
-                        imports: new ImportMap().mergeWith(...inners.map(i => i.imports)),
-                        sqlxType: `(${inners.map(i => i.sqlxType).join(', ')})`,
-                        postgresColumnType: `(${inners.map(i => i.postgresColumnType).join(', ')})`,
-                    };
+                    return jsonb();
                 },
                 visitFixedSizeType(node, { self }) {
                     // Fixed-size bytes stored as Vec<u8> (BYTEA) in Postgres

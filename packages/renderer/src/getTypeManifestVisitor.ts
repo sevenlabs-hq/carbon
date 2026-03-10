@@ -12,6 +12,7 @@ import { extendVisitor, mergeVisitor, pipe, visit } from '@codama/visitors-core'
 import { ImportMap } from './ImportMap';
 import { getDiscriminatorBytes } from './utils';
 import { formatDocComments } from './utils/render';
+import { escapeRustKeyword } from './constants/rustKeywords';
 
 export type TypeManifest = {
     imports: ImportMap;
@@ -143,25 +144,18 @@ export function getTypeManifestVisitor(
 
                 visitEnumStructVariantType(node, { self }) {
                     const name = pascalCase(node.name);
-                    // Get the definedTypesMap and newtypeWrapperTypes from the original visitor (self)
-                    // This is a workaround since we can't pass it through visitor context
-                    const getDefinedTypesMap = (self as any).__definedTypesMap;
-                    const enumDefinedTypesMap =
-                        typeof getDefinedTypesMap === 'function' ? getDefinedTypesMap() : undefined;
                     const getNewtypeWrapperTypes = (self as any).__newtypeWrapperTypes;
                     const enumNewtypeWrapperTypes =
                         typeof getNewtypeWrapperTypes === 'function' ? getNewtypeWrapperTypes() : undefined;
-                    // Store reference to original self for accessing definedTypesMap
                     const originalSelf = self;
 
                     // Create a custom visitor for enum struct variant fields that doesn't add 'pub'
                     // but includes BigArray detection logic
-                    // Use originalSelf for visiting field types to ensure access to __definedTypesMap
                     const enumStructVisitor = extendVisitor(originalSelf, {
-                        visitStructFieldType(node, { self: fieldSelf }) {
+                        visitStructFieldType(node) {
                             // Visit the field type with originalSelf to get proper type resolution
                             const fieldManifest = visit(node.type, originalSelf);
-                            const fieldName = snakeCase(node.name);
+                            const fieldName = escapeRustKeyword(snakeCase(node.name));
 
                             // visitDefinedTypeLink already sets requiredBigArray appropriately (including undefined for newtype wrappers)
                             // Only need to override if it's a newtype wrapper to ensure it's undefined
@@ -338,8 +332,23 @@ export function getTypeManifestVisitor(
                 },
 
                 visitStructFieldType(node, { self }) {
+                    // Check if this is a nested inline struct - flatten it
+                    if (isNode(node.type, 'structTypeNode')) {
+                        // Flatten: visit all nested fields directly
+                        const nestedFields = node.type.fields.map(field => visit(field, self));
+                        const mergedImports = new ImportMap().mergeWith(...nestedFields.map(f => f.imports));
+                        const fieldTypes = nestedFields.map(f => f.type).join('\n');
+                        const fieldBorshTypes = nestedFields.map(f => f.borshType).join('\n');
+
+                        return {
+                            imports: mergedImports,
+                            type: fieldTypes, // No wrapper, just the fields
+                            borshType: fieldBorshTypes,
+                        };
+                    }
+
                     const fieldManifest = visit(node.type, self);
-                    const fieldName = snakeCase(node.name);
+                    const fieldName = escapeRustKeyword(snakeCase(node.name));
 
                     // visitDefinedTypeLink already sets requiredBigArray appropriately (including undefined for newtype wrappers)
                     // Only check direct array types and use manifest's requiredBigArray
@@ -432,7 +441,7 @@ export function getTypeManifestVisitor(
 
 export function getDiscriminatorManifest(
     discriminators: DiscriminatorNode[] | undefined,
-    programName?: string | null,
+    _programName?: string | null,
     discriminatorNames?: Map<number, string>,
 ): DiscriminatorManifest | null {
     if (!discriminators || discriminators.length === 0) return null;

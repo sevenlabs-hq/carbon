@@ -1,2 +1,3 @@
 msrv = "1.82"
 too-large-for-stack = 128
+enum-variant-size-threshold = 4096
