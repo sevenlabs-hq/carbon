@@ -241,3 +241,145 @@ impl Filter for DatasourceFilter {
         }
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct SlotRangeFilter {
+    from_slot: Option<u64>,
+    from_transaction_index: Option<u64>,
+    to_slot: Option<u64>,
+    to_transaction_index: Option<u64>,
+}
+
+impl SlotRangeFilter {
+    pub fn from(slot: u64, transaction_index: Option<u64>) -> Self {
+        Self {
+            from_slot: Some(slot),
+            from_transaction_index: transaction_index,
+            to_slot: None,
+            to_transaction_index: None,
+        }
+    }
+
+    pub fn to(slot: u64, transaction_index: Option<u64>) -> Self {
+        Self {
+            from_slot: None,
+            from_transaction_index: None,
+            to_slot: Some(slot),
+            to_transaction_index: transaction_index,
+        }
+    }
+
+    pub fn between(
+        from_slot: u64,
+        from_transaction_index: Option<u64>,
+        to_slot: u64,
+        to_transaction_index: Option<u64>,
+    ) -> Self {
+        Self {
+            from_slot: Some(from_slot),
+            from_transaction_index,
+            to_slot: Some(to_slot),
+            to_transaction_index,
+        }
+    }
+
+    #[inline(always)]
+    pub fn contains(&self, slot: u64, index: Option<u64>) -> bool {
+        if let Some(from) = self.from_slot {
+            if slot < from {
+                return false;
+            }
+
+            if slot == from {
+                if let (Some(from_idx), Some(tx_idx)) = (self.from_transaction_index, index) {
+                    if tx_idx < from_idx {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        if let Some(to) = self.to_slot {
+            if slot > to {
+                return false;
+            }
+
+            if slot == to {
+                if let (Some(to_idx), Some(tx_idx)) = (self.to_transaction_index, index) {
+                    if tx_idx >= to_idx {
+                        return false;
+                    }
+                }
+            }
+        }
+
+        true
+    }
+}
+
+impl Filter for SlotRangeFilter {
+    fn filter_instruction(
+        &self,
+        _context: &FilterContext,
+        instruction: &NestedInstruction,
+    ) -> FilterResult {
+        let slot = instruction.metadata.transaction_metadata.slot;
+        let index = instruction.metadata.transaction_metadata.index;
+
+        if self.contains(slot, index) {
+            FilterResult::Accept
+        } else {
+            FilterResult::Reject
+        }
+    }
+
+    fn filter_account(
+        &self,
+        _context: &FilterContext,
+        metadata: &AccountMetadata,
+        _account: &solana_account::Account,
+    ) -> FilterResult {
+        if self.contains(metadata.slot, None) {
+            FilterResult::Accept
+        } else {
+            FilterResult::Reject
+        }
+    }
+
+    fn filter_transaction(
+        &self,
+        _context: &FilterContext,
+        metadata: &TransactionMetadata,
+        _instructions: &NestedInstructions,
+    ) -> FilterResult {
+        if self.contains(metadata.slot, metadata.index) {
+            FilterResult::Accept
+        } else {
+            FilterResult::Reject
+        }
+    }
+
+    fn filter_account_deletion(
+        &self,
+        _context: &FilterContext,
+        deletion: &crate::datasource::AccountDeletion,
+    ) -> FilterResult {
+        if self.contains(deletion.slot, None) {
+            FilterResult::Accept
+        } else {
+            FilterResult::Reject
+        }
+    }
+
+    fn filter_block_details(
+        &self,
+        _context: &FilterContext,
+        details: &crate::datasource::BlockDetails,
+    ) -> FilterResult {
+        if self.contains(details.slot, None) {
+            FilterResult::Accept
+        } else {
+            FilterResult::Reject
+        }
+    }
+}

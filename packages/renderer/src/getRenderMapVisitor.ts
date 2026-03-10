@@ -41,6 +41,7 @@ export type GetRenderMapOptions = {
     withSerde?: boolean;
     withBase58?: boolean;
     standalone?: boolean;
+    versionName?: string;
 };
 
 type FlattenedField = {
@@ -892,6 +893,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         packageName: options.packageName,
                         programName: programName,
                         originalProgramName: originalProgramName, // Pass original program name for token-2022 checks
+                        versionName: options.versionName,
                         withPostgres: options.withPostgres !== false,
                         withGraphQL: options.withGraphql !== false,
                         withSerde: options.withSerde ?? false,
