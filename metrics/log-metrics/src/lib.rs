@@ -25,9 +25,11 @@ impl LogMetrics {
         Self::default()
     }
 
-    pub fn with_flush_interval(mut self, interval_secs: u64) -> Self {
-        self.flush_interval_secs = interval_secs;
-        self
+    pub fn new_with_flush_interval(interval_secs: u64) -> Self {
+        Self {
+            flush_interval_secs: interval_secs,
+            ..Self::default()
+        }
     }
 }
 

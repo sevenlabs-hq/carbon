@@ -226,9 +226,7 @@ impl Datasource for RpcBlockSubscribe {
                                                 block_hash,
                                             }));
 
-                                            if let Some(h) = TRANSACTION_PROCESS_TIME_NANOS.get() {
-                                                h.record(start_time.elapsed().as_nanos() as f64);
-                                            }
+                                            TRANSACTION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
                                             TRANSACTIONS_PROCESSED.inc();
 
                                             if let Err(err) = sender_clone.try_send((update, id_for_loop.clone())) {
@@ -238,9 +236,7 @@ impl Datasource for RpcBlockSubscribe {
                                         }
                                     }
 
-                                    if let Some(h) = BLOCK_PROCESS_TIME_NANOS.get() {
-                                        h.record(block_start_time.elapsed().as_nanos() as f64);
-                                    }
+                                    BLOCK_PROCESS_TIME_NANOS.record(block_start_time.elapsed().as_nanos() as f64);
                                     BLOCKS_RECEIVED.inc();
                                 }
                             }
