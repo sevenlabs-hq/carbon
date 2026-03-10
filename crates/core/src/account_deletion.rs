@@ -5,8 +5,8 @@ use {
     async_trait::async_trait,
 };
 
-pub struct AccountDeletionPipe {
-    pub processor: Box<dyn Processor<InputType = AccountDeletion> + Send + Sync>,
+pub struct AccountDeletionPipe<P> {
+    pub processor: P,
     pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
 }
 
@@ -18,11 +18,14 @@ pub trait AccountDeletionPipes: Send + Sync {
 }
 
 #[async_trait]
-impl AccountDeletionPipes for AccountDeletionPipe {
+impl<P> AccountDeletionPipes for AccountDeletionPipe<P>
+where
+    P: Processor<AccountDeletion> + Send + Sync,
+{
     async fn run(&mut self, account_deletion: AccountDeletion) -> CarbonResult<()> {
         log::trace!("AccountDeletionPipe::run(account_deletion: {account_deletion:?})");
 
-        self.processor.process(account_deletion).await?;
+        self.processor.process(&account_deletion).await?;
 
         Ok(())
     }

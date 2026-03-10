@@ -51,16 +51,18 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
     }
 }
 
-pub type TransactionProcessorInputType<T, U = ()> = (
-    Arc<TransactionMetadata>,
-    Vec<(InstructionMetadata, T)>,
-    Option<U>,
-);
+#[derive(Debug)]
+pub struct TransactionProcessorInputType<'a, T, U = ()> {
+    pub metadata: &'a Arc<TransactionMetadata>,
+    pub instructions: &'a Vec<(InstructionMetadata, T)>,
+    pub matched_data: &'a Option<U>,
+}
 
-pub struct TransactionPipe<T: InstructionDecoderCollection, U> {
+pub struct TransactionPipe<T: InstructionDecoderCollection, U, P> {
     schema: Option<TransactionSchema<T>>,
-    processor: Box<dyn Processor<InputType = TransactionProcessorInputType<T, U>> + Send + Sync>,
+    processor: P,
     filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
+    _phantom: std::marker::PhantomData<U>,
 }
 
 pub struct ParsedTransaction<I: InstructionDecoderCollection> {
@@ -68,13 +70,10 @@ pub struct ParsedTransaction<I: InstructionDecoderCollection> {
     pub instructions: Vec<ParsedInstruction<I>>,
 }
 
-impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
+impl<T: InstructionDecoderCollection, U, P> TransactionPipe<T, U, P> {
     pub fn new(
         schema: Option<TransactionSchema<T>>,
-        processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
-            + Send
-            + Sync
-            + 'static,
+        processor: P,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
     ) -> Self {
         log::trace!(
@@ -84,8 +83,9 @@ impl<T: InstructionDecoderCollection, U> TransactionPipe<T, U> {
         );
         Self {
             schema,
-            processor: Box::new(processor),
+            processor,
             filters,
+            _phantom: std::marker::PhantomData,
         }
     }
 
@@ -135,10 +135,11 @@ pub trait TransactionPipes<'a>: Send + Sync {
 }
 
 #[async_trait]
-impl<T, U> TransactionPipes<'_> for TransactionPipe<T, U>
+impl<T, U, P> TransactionPipes<'_> for TransactionPipe<T, U, P>
 where
     T: InstructionDecoderCollection + Sync + 'static,
     U: DeserializeOwned + Send + Sync + 'static,
+    P: for<'a> Processor<TransactionProcessorInputType<'a, T, U>> + Send + Sync + 'static,
 {
     async fn run(
         &mut self,
@@ -157,9 +158,13 @@ where
             0,
         );
 
-        self.processor
-            .process((transaction_metadata, unnested_instructions, matched_data))
-            .await?;
+        let data = TransactionProcessorInputType {
+            metadata: &transaction_metadata,
+            instructions: &unnested_instructions,
+            matched_data: &matched_data,
+        };
+
+        self.processor.process(&data).await?;
 
         Ok(())
     }
