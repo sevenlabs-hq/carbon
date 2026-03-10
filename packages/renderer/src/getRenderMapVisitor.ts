@@ -25,7 +25,12 @@ import { partition, render } from './utils';
 import { isToken2022Program } from './utils/helpers';
 import { getPostgresTypeManifestVisitor, PostgresTypeManifest } from './getPostgresTypeManifestVisitor';
 import { FlattenedGraphQLField, flattenTypeForGraphQL } from './utils/flattenGraphqlFields';
-import { generateDecoderCargoToml, getReadmeDisplayName, hasPackageMetadata, type PackageMetadata } from './cargoTomlGenerator';
+import {
+    generateDecoderCargoToml,
+    getReadmeDisplayName,
+    hasPackageMetadata,
+    type PackageMetadata,
+} from './cargoTomlGenerator';
 import { formatDocComments } from './utils/render';
 
 export type GetRenderMapOptions = {
