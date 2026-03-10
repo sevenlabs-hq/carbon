@@ -123,7 +123,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         features.push(serdeDeps);
     }
 
-    if (withPostgres) {
+    if (withPostgres || withGraphQL) {
         features.push('');
         features.push('postgres = [');
         features.push('    "carbon-core/postgres",');
@@ -165,7 +165,7 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         }
     }
 
-    if (withPostgres) {
+    if (withPostgres || withGraphQL) {
         dependencies.push('');
         dependencies.push(sqlxDep);
         dependencies.push(asyncTraitDep);
