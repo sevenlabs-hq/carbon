@@ -243,9 +243,7 @@ fn block_fetcher(
                         match rpc_client.get_block_with_config(slot, block_config).await {
                             Ok(block) => {
                                 let time_taken = start.elapsed().as_millis();
-                                if let Some(h) = BLOCKS_FETCH_TIMES_MILLIS.get() {
-                                    h.record(time_taken as f64);
-                                }
+                                BLOCKS_FETCH_TIMES_MILLIS.record(time_taken as f64);
                                 BLOCKS_FETCHED.inc();
                                 Some((slot, block))
                             }
@@ -347,9 +345,7 @@ fn task_processor(
                                     block_hash,
                                 }));
 
-                                if let Some(h) = TRANSACTION_PROCESS_TIME_NANOS.get() {
-                                    h.record(start_time.elapsed().as_nanos() as f64);
-                                }
+                                TRANSACTION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
                                 TRANSACTIONS_PROCESSED.inc();
 
                                 if let Err(err) = sender.try_send((update, id_for_loop.clone())) {
@@ -358,9 +354,7 @@ fn task_processor(
                                 }
                             }
                         }
-                        if let Some(h) = BLOCK_PROCESS_TIME_NANOS.get() {
-                            h.record(block_start_time.elapsed().as_nanos() as f64);
-                        }
+                        BLOCK_PROCESS_TIME_NANOS.record(block_start_time.elapsed().as_nanos() as f64);
                         BLOCKS_PROCESSED.inc();
                     }
                     None => {

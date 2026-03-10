@@ -367,9 +367,7 @@ fn signature_fetcher(
                                     .and_then(|s| Signature::from_str(&s.signature).ok());
 
                                 let time_taken = start.elapsed().as_millis();
-                                if let Some(h) = SIGNATURES_FETCH_TIMES_MILLIS.get() {
-                                    h.record(time_taken as f64);
-                                }
+                                SIGNATURES_FETCH_TIMES_MILLIS.record(time_taken as f64);
                                 SIGNATURES_FETCHED.inc_by(signatures.len() as u64);
 
                                 break;
@@ -443,9 +441,7 @@ fn transaction_fetcher(
                             ).await {
                                 Ok(tx) => {
                                     let time_taken = start.elapsed().as_millis();
-                                    if let Some(h) = TRANSACTION_FETCH_TIMES_MILLIS.get() {
-                                        h.record(time_taken as f64);
-                                    }
+                                    TRANSACTION_FETCH_TIMES_MILLIS.record(time_taken as f64);
                                     return Some((signature, tx));
                                 }
                                 Err(e) => {
@@ -590,9 +586,7 @@ fn task_processor(
                         block_hash: None,
                     }));
 
-                    if let Some(h) = TRANSACTION_PROCESS_TIME_MILLIS.get() {
-                        h.record(start.elapsed().as_millis() as f64);
-                    }
+                    TRANSACTION_PROCESS_TIME_MILLIS.record(start.elapsed().as_millis() as f64);
 
                     if connection_config.blocking_send {
                         if let Err(e) = sender.send((update.clone(), id_for_loop.clone())).await {

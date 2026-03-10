@@ -13,11 +13,11 @@ categories = ["encoding"]
 crate-type = ["rlib"]
 
 [dependencies]
-carbon-core = { workspace = true }
 async-trait = { workspace = true }
-tokio = { workspace = true }
-tokio-util = { workspace = true }
+carbon-core = { workspace = true }
 futures-util = { workspace = true }
+jetstreamer-firehose = "0.2.0"
 solana-pubkey = { workspace = true }
 solana-transaction-status-client-types = { workspace = true }
-jetstreamer-firehose = "0.2.0"
+tokio = { workspace = true }
+tokio-util = { workspace = true }

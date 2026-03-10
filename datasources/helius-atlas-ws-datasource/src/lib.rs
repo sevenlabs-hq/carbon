@@ -314,9 +314,7 @@ impl Datasource for HeliusWebsocket {
                                                 }
                                                 last_slot = current_slot;
 
-                                                if let Some(h) = CLOCK_PROCESS_TIME_NANOS.get() {
-                                                    h.record(last_clock_update.elapsed().as_nanos() as f64);
-                                                }
+                                                CLOCK_PROCESS_TIME_NANOS.record(last_clock_update.elapsed().as_nanos() as f64);
                                             }
                                         }
                                     }
@@ -395,9 +393,7 @@ impl Datasource for HeliusWebsocket {
                                                             transaction_signature: None,
                                                         };
 
-                                                        if let Some(h) = ACCOUNT_DELETION_PROCESS_TIME_NANOS.get() {
-                                                            h.record(start_time.elapsed().as_nanos() as f64);
-                                                        }
+                                                        ACCOUNT_DELETION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
                                                         ACCOUNT_DELETIONS_RECEIVED.inc();
 
                                                         if let Err(err) = sender_clone.try_send((
@@ -416,9 +412,7 @@ impl Datasource for HeliusWebsocket {
                                                         transaction_signature: None,
                                                     });
 
-                                                    if let Some(h) = ACCOUNT_PROCESS_TIME_NANOS.get() {
-                                                        h.record(start_time.elapsed().as_nanos() as f64);
-                                                    }
+                                                    ACCOUNT_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
                                                     ACCOUNT_UPDATES_RECEIVED.inc();
 
                                                     if let Err(err) = sender_clone.try_send((
@@ -687,9 +681,7 @@ impl Datasource for HeliusWebsocket {
                                                 block_hash: None,
                                             }));
 
-                                            if let Some(h) = TRANSACTION_PROCESS_TIME_NANOS.get() {
-                                                h.record(start_time.elapsed().as_nanos() as f64);
-                                            }
+                                            TRANSACTION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
                                             TRANSACTION_UPDATES_RECEIVED.inc();
 
                                             if let Err(err) = sender_clone.try_send((
