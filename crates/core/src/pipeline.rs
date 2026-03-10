@@ -337,7 +337,8 @@ impl Pipeline {
                         &transaction_update,
                     )?;
 
-                let nested_instructions: NestedInstructions = instructions_with_metadata.into();
+                let nested_instructions: NestedInstructions =
+                    instructions_with_metadata.clone().into();
                 let mut all_instructions = Vec::new();
                 flatten_nested_instructions(&nested_instructions, &mut all_instructions);
 
@@ -369,7 +370,7 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run(transaction_metadata.clone(), &nested_instructions)
+                        pipe.run(transaction_metadata.clone(), &instructions_with_metadata)
                             .await?;
                     }
                 }
