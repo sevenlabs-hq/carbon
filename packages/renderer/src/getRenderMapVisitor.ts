@@ -1017,7 +1017,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             const sourceColumn = `source.${column}`;
 
             const needsSpecialHandling = isNode(itemType, 'arrayTypeNode') || isNode(itemType, 'tupleTypeNode');
-            
+
             let expr: string;
             if (needsSpecialHandling) {
                 const innerExpr = buildExpression(itemType, 'value');
