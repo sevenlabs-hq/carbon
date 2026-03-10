@@ -86,6 +86,7 @@ impl Datasource for RpcProgramSubscribe {
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_program_subscribe_metrics();
+
         let mut reconnection_attempts = 0;
 
         loop {
@@ -161,7 +162,6 @@ impl Datasource for RpcProgramSubscribe {
                                     account: decoded_account,
                                     slot: acc_event.context.slot,
                                     transaction_signature: None,
-                                    transaction_index: None,
                                 });
 
                                 ACCOUNT_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);

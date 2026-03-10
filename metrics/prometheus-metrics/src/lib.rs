@@ -98,7 +98,7 @@ impl MetricsExporter for PrometheusMetrics {
     }
 
     #[cfg(feature = "http-server")]
-    fn initialize(&self) -> CarbonResult<()> {
+    fn initialize(self: std::sync::Arc<Self>) -> CarbonResult<()> {
         if self.auto_start_server {
             if let Some(config) = self.config.clone() {
                 tokio::spawn(async move {
@@ -112,7 +112,8 @@ impl MetricsExporter for PrometheusMetrics {
     }
 
     #[cfg(not(feature = "http-server"))]
-    fn initialize(&self) -> CarbonResult<()> {
+    fn initialize(self: std::sync::Arc<Self>) -> CarbonResult<()> {
+        let _ = self;
         Ok(())
     }
 }

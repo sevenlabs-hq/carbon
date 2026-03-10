@@ -19,7 +19,6 @@ use {
         transaction::{TransactionPipe, TransactionPipes, TransactionProcessorInputType},
         transformers,
     },
-    core::time,
     std::{
         convert::TryInto,
         sync::{Arc, LazyLock},
@@ -188,7 +187,8 @@ impl Pipeline {
         log::trace!("run(self)");
 
         for exporter in &self.exporters {
-            exporter.initialize()?;
+            let exporter = Arc::clone(exporter);
+            MetricsExporter::initialize(exporter)?;
         }
         let (update_sender, mut update_receiver) =
             tokio::sync::mpsc::channel::<(Update, DatasourceId)>(self.channel_buffer_size);
@@ -220,15 +220,6 @@ impl Pipeline {
 
         drop(update_sender);
 
-        let flush_interval_secs = self
-            .exporters
-            .iter()
-            .filter_map(|e| e.flush_interval_secs())
-            .min()
-            .unwrap_or(5);
-
-        let mut interval = tokio::time::interval(time::Duration::from_secs(flush_interval_secs));
-
         loop {
             tokio::select! {
                 _ = datasource_cancellation_token.cancelled() => {
@@ -249,9 +240,6 @@ impl Pipeline {
                     } else {
                         log::info!("shutting down the pipeline after processing pending updates.");
                     }
-                }
-                _ = interval.tick() => {
-                    self.export_metrics()?;
                 }
                 update = update_receiver.recv() => {
                     match update {
@@ -304,7 +292,6 @@ impl Pipeline {
                     slot: account_update.slot,
                     pubkey: account_update.pubkey,
                     transaction_signature: account_update.transaction_signature,
-                    transaction_index: account_update.transaction_index,
                 };
 
                 let context = FilterContext {
@@ -338,7 +325,8 @@ impl Pipeline {
                         &transaction_update,
                     )?;
 
-                let nested_instructions: NestedInstructions = instructions_with_metadata.into();
+                let nested_instructions: NestedInstructions =
+                    instructions_with_metadata.clone().into();
                 let mut all_instructions = Vec::new();
                 flatten_nested_instructions(&nested_instructions, &mut all_instructions);
 
@@ -370,7 +358,7 @@ impl Pipeline {
                             FilterResult::Accept
                         )
                     }) {
-                        pipe.run(transaction_metadata.clone(), &nested_instructions)
+                        pipe.run(transaction_metadata.clone(), &instructions_with_metadata)
                             .await?;
                     }
                 }

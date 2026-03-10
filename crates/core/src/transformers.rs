@@ -1,9 +1,8 @@
 use {
     crate::{
-        collection::InstructionDecoderCollection,
         datasource::TransactionUpdate,
         error::{CarbonResult, Error},
-        instruction::{InstructionMetadata, ParsedInstruction, MAX_INSTRUCTION_STACK_DEPTH},
+        instruction::{InstructionMetadata, MAX_INSTRUCTION_STACK_DEPTH},
         transaction::TransactionMetadata,
     },
     solana_instruction::AccountMeta,
@@ -193,23 +192,6 @@ pub fn extract_account_metas(
     }
 
     Ok(accounts)
-}
-
-pub fn unnest_parsed_instructions<T: InstructionDecoderCollection>(
-    instructions: Vec<ParsedInstruction<T>>,
-) -> Vec<(InstructionMetadata, T)> {
-    log::trace!("unnest_parsed_instructions(instructions: {instructions:?})");
-
-    let mut result = Vec::new();
-
-    for parsed_instruction in instructions {
-        result.push((parsed_instruction.metadata, parsed_instruction.instruction));
-        result.extend(unnest_parsed_instructions(
-            parsed_instruction.inner_instructions,
-        ));
-    }
-
-    result
 }
 
 pub fn transaction_metadata_from_original_meta(

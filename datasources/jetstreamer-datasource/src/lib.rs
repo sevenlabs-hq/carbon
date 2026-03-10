@@ -106,6 +106,7 @@ impl Datasource for JetstreamerDatasource {
         _cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_jetstreamer_metrics();
+
         let (start_slot, end_slot) = self.range.into_slots();
         let (include_transactions, include_blocks) =
             (self.filter.include_transactions, self.filter.include_blocks);
@@ -151,7 +152,7 @@ impl Datasource for JetstreamerDatasource {
                 tracking_interval_slots: interval_slots,
             });
 
-        jetstreamer_firehose::firehose::firehose(
+        let result = jetstreamer_firehose::firehose::firehose(
             self.threads,
             start_slot..end_slot,
             if include_blocks {
@@ -170,8 +171,9 @@ impl Datasource for JetstreamerDatasource {
             stats_tracking,
             None,
         )
-        .await
-        .map_err(|(error, _)| {
+        .await;
+
+        result.map_err(|(error, _)| {
             carbon_core::error::Error::FailedToConsumeDatasource(error.to_string())
         })?;
 
@@ -279,7 +281,7 @@ impl JetstreamerDatasource {
                     meta: transaction.transaction_status_meta,
                     is_vote: transaction.is_vote,
                     slot: transaction.slot,
-                    index: None,
+                    index: Some(transaction.transaction_slot_index as u64),
                     block_time: None,
                     block_hash: None,
                 })),
