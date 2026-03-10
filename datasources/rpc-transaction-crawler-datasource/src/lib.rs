@@ -3,7 +3,7 @@ use {
     carbon_core::{
         datasource::{Datasource, DatasourceId, TransactionUpdate, Update, UpdateType},
         error::CarbonResult,
-        metrics::MetricsCollection,
+        metrics::{Counter, Histogram, MetricsRegistry},
         transformers::transaction_metadata_from_original_meta,
     },
     futures::StreamExt,
@@ -17,7 +17,12 @@ use {
     solana_transaction_status::{
         EncodedConfirmedTransactionWithStatusMeta, UiLoadedAddresses, UiTransactionEncoding,
     },
-    std::{collections::HashSet, str::FromStr, sync::Arc, time::Duration},
+    std::{
+        collections::HashSet,
+        str::FromStr,
+        sync::{Arc, LazyLock},
+        time::Duration,
+    },
     tokio::{
         sync::mpsc::{self, Receiver, Sender},
         task::JoinHandle,
@@ -25,6 +30,45 @@ use {
     },
     tokio_util::sync::CancellationToken,
 };
+
+static SIGNATURES_FETCH_TIMES_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "transaction_crawler_signatures_fetch_times_milliseconds",
+        "Time to fetch signatures in milliseconds",
+        vec![1.0, 10.0, 50.0, 100.0, 500.0, 1000.0, 5000.0],
+    )
+});
+static SIGNATURES_FETCHED: Counter = Counter::new(
+    "transaction_crawler_signatures_fetched_total",
+    "Signatures fetched by transaction crawler",
+);
+static TRANSACTION_FETCH_TIMES_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "transaction_crawler_transaction_fetch_times_milliseconds",
+        "Time to fetch transaction in milliseconds",
+        vec![1.0, 10.0, 50.0, 100.0, 500.0, 1000.0, 5000.0],
+    )
+});
+static TRANSACTIONS_FETCHED: Counter = Counter::new(
+    "transaction_crawler_transactions_fetched_total",
+    "Transactions fetched by transaction crawler",
+);
+static TRANSACTION_PROCESS_TIME_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "transaction_crawler_transaction_process_time_milliseconds",
+        "Time to process transaction in milliseconds",
+        vec![1.0, 10.0, 50.0, 100.0, 500.0, 1000.0, 5000.0],
+    )
+});
+
+fn register_transaction_crawler_metrics() {
+    let registry = MetricsRegistry::global();
+    registry.register_counter(&SIGNATURES_FETCHED);
+    registry.register_counter(&TRANSACTIONS_FETCHED);
+    registry.register_histogram(&SIGNATURES_FETCH_TIMES_MILLIS);
+    registry.register_histogram(&TRANSACTION_FETCH_TIMES_MILLIS);
+    registry.register_histogram(&TRANSACTION_PROCESS_TIME_MILLIS);
+}
 
 #[derive(Debug, Clone)]
 pub struct Filters {
@@ -167,8 +211,8 @@ impl Datasource for RpcTransactionCrawler {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
+        register_transaction_crawler_metrics();
         let rpc_client = Arc::new(RpcClient::new_with_commitment(
             self.rpc_url.clone(),
             self.commitment.unwrap_or(CommitmentConfig::confirmed()),
@@ -197,7 +241,6 @@ impl Datasource for RpcTransactionCrawler {
             filters.clone(),
             commitment,
             cancellation_token.clone(),
-            metrics.clone(),
         );
 
         let transaction_fetcher = transaction_fetcher(
@@ -207,7 +250,6 @@ impl Datasource for RpcTransactionCrawler {
             self.connection_config.clone(),
             commitment,
             cancellation_token.clone(),
-            metrics.clone(),
         );
 
         let task_processor = task_processor(
@@ -216,7 +258,6 @@ impl Datasource for RpcTransactionCrawler {
             id,
             filters,
             cancellation_token.clone(),
-            metrics.clone(),
             self.connection_config.clone(),
         );
 
@@ -245,7 +286,6 @@ fn signature_fetcher(
     filters: Filters,
     commitment: Option<CommitmentConfig>,
     cancellation_token: CancellationToken,
-    metrics: Arc<MetricsCollection>,
 ) -> JoinHandle<()> {
     let rpc_client = Arc::clone(&rpc_client);
     let filters = filters.clone();
@@ -327,12 +367,8 @@ fn signature_fetcher(
                                     .and_then(|s| Signature::from_str(&s.signature).ok());
 
                                 let time_taken = start.elapsed().as_millis();
-
-                                metrics.record_histogram("transaction_crawler_signatures_fetch_times_milliseconds", time_taken as f64)
-                                    .await.unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
-
-                                metrics.increment_counter("transaction_crawler_signatures_fetched", signatures.len() as u64)
-                                    .await.unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
+                                SIGNATURES_FETCH_TIMES_MILLIS.record(time_taken as f64);
+                                SIGNATURES_FETCHED.inc_by(signatures.len() as u64);
 
                                 break;
                             }
@@ -370,7 +406,6 @@ fn transaction_fetcher(
     connection_config: ConnectionConfig,
     commitment: Option<CommitmentConfig>,
     cancellation_token: CancellationToken,
-    metrics: Arc<MetricsCollection>,
 ) -> JoinHandle<()> {
     let rpc_client = Arc::clone(&rpc_client);
     let transaction_sender = transaction_sender.clone();
@@ -386,7 +421,6 @@ fn transaction_fetcher(
 
             fetch_stream
                 .map(|signature| {
-                    let metrics = metrics.clone();
                     let connection_config = connection_config.clone();
                     let rpc_client = Arc::clone(&rpc_client);
                     async move {
@@ -407,15 +441,7 @@ fn transaction_fetcher(
                             ).await {
                                 Ok(tx) => {
                                     let time_taken = start.elapsed().as_millis();
-
-                                    metrics
-                                        .record_histogram(
-                                            "transaction_crawler_transaction_fetch_times_milliseconds",
-                                            time_taken as f64,
-                                        )
-                                        .await
-                                        .expect("Error recording metric");
-
+                                    TRANSACTION_FETCH_TIMES_MILLIS.record(time_taken as f64);
                                     return Some((signature, tx));
                                 }
                                 Err(e) => {
@@ -444,11 +470,7 @@ fn transaction_fetcher(
                 })
                 .buffer_unordered(connection_config.max_concurrent_requests)
                 .for_each(|result| async {
-                    metrics
-                        .increment_counter("transaction_crawler_transactions_fetched", 1)
-                        .await
-                        .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
-
+                    TRANSACTIONS_FETCHED.inc();
                     if let Some((signature, fetched_transaction)) = result {
                         if let Err(e) = transaction_sender
                             .send((signature, fetched_transaction))
@@ -476,7 +498,6 @@ fn task_processor(
     id: DatasourceId,
     filters: Filters,
     cancellation_token: CancellationToken,
-    metrics: Arc<MetricsCollection>,
     connection_config: ConnectionConfig,
 ) -> JoinHandle<()> {
     let mut transaction_receiver = transaction_receiver;
@@ -565,15 +586,7 @@ fn task_processor(
                         block_hash: None,
                     }));
 
-
-                    metrics
-                            .record_histogram(
-                                "transaction_crawler_transaction_process_time_milliseconds",
-                                start.elapsed().as_millis() as f64
-                            )
-                            .await
-                            .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
-
+                    TRANSACTION_PROCESS_TIME_MILLIS.record(start.elapsed().as_millis() as f64);
 
                     if connection_config.blocking_send {
                         if let Err(e) = sender.send((update.clone(), id_for_loop.clone())).await {

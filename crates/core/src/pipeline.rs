@@ -14,7 +14,7 @@ use {
             InstructionDecoder, InstructionPipe, InstructionPipes, InstructionProcessorInputType,
             InstructionsWithMetadata, NestedInstructions,
         },
-        metrics::{Metrics, MetricsCollection},
+        metrics::{Counter, Gauge, Histogram, MetricsExporter, MetricsRegistry},
         processor::Processor,
         schema::TransactionSchema,
         transaction::{TransactionPipe, TransactionPipes, TransactionProcessorInputType},
@@ -22,9 +22,96 @@ use {
     },
     core::time,
     serde::de::DeserializeOwned,
-    std::{convert::TryInto, sync::Arc, time::Instant},
+    std::{
+        convert::TryInto,
+        sync::{Arc, LazyLock},
+        time::Instant,
+    },
     tokio_util::sync::CancellationToken,
 };
+
+static UPDATES_RECEIVED: Counter = Counter::new(
+    "carbon_updates_received_total",
+    "Total updates pulled from datasources",
+);
+
+static UPDATES_PROCESSED: Counter = Counter::new(
+    "carbon_updates_processed_total",
+    "Total updates processed by the pipeline",
+);
+
+static UPDATES_SUCCESSFUL: Counter = Counter::new(
+    "carbon_updates_successful_total",
+    "Updates processed without error",
+);
+
+static UPDATES_FAILED: Counter = Counter::new(
+    "carbon_updates_failed_total",
+    "Updates that errored during processing",
+);
+
+static UPDATES_QUEUED: Gauge = Gauge::new(
+    "carbon_updates_queued",
+    "Current number of updates waiting in queue",
+);
+
+static ACCOUNT_UPDATES_PROCESSED: Counter = Counter::new(
+    "carbon_account_updates_processed_total",
+    "Total account updates processed",
+);
+
+static TRANSACTION_UPDATES_PROCESSED: Counter = Counter::new(
+    "carbon_transaction_updates_processed_total",
+    "Total transaction updates processed",
+);
+
+static ACCOUNT_DELETIONS_PROCESSED: Counter = Counter::new(
+    "carbon_account_deletions_processed_total",
+    "Total account deletions processed",
+);
+
+static BLOCK_DETAILS_PROCESSED: Counter = Counter::new(
+    "carbon_block_details_processed_total",
+    "Total block details processed",
+);
+
+static PROCESSING_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "carbon_updates_process_time_nanoseconds",
+        "Time taken to process updates in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
+static PROCESSING_TIME_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "carbon_updates_process_time_milliseconds",
+        "Time taken to process updates in milliseconds",
+        vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
+    )
+});
+
+fn register_pipeline_metrics() {
+    let registry = MetricsRegistry::global();
+    registry.register_counter(&UPDATES_RECEIVED);
+    registry.register_counter(&UPDATES_PROCESSED);
+    registry.register_counter(&UPDATES_SUCCESSFUL);
+    registry.register_counter(&UPDATES_FAILED);
+    registry.register_gauge(&UPDATES_QUEUED);
+    registry.register_histogram(&PROCESSING_TIME_NANOS);
+    registry.register_histogram(&PROCESSING_TIME_MILLIS);
+    registry.register_counter(&ACCOUNT_UPDATES_PROCESSED);
+    registry.register_counter(&TRANSACTION_UPDATES_PROCESSED);
+    registry.register_counter(&ACCOUNT_DELETIONS_PROCESSED);
+    registry.register_counter(&BLOCK_DETAILS_PROCESSED);
+}
 
 #[derive(Default, PartialEq, Debug)]
 pub enum ShutdownStrategy {
@@ -42,14 +129,28 @@ pub struct Pipeline {
     pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
-    pub metrics: Arc<MetricsCollection>,
-    pub metrics_flush_interval: Option<u64>,
+    pub exporters: Vec<Arc<dyn MetricsExporter>>,
     pub datasource_cancellation_token: Option<CancellationToken>,
     pub shutdown_strategy: ShutdownStrategy,
     pub channel_buffer_size: usize,
 }
 
 impl Pipeline {
+    fn export_metrics(&self) -> CarbonResult<()> {
+        let snapshot = MetricsRegistry::global().snapshot();
+        for exporter in &self.exporters {
+            exporter.export(&snapshot)?;
+        }
+        Ok(())
+    }
+
+    fn shutdown_exporters(&self) -> CarbonResult<()> {
+        for exporter in &self.exporters {
+            exporter.shutdown()?;
+        }
+        Ok(())
+    }
+
     pub fn builder() -> PipelineBuilder {
         log::trace!("Pipeline::builder()");
         PipelineBuilder {
@@ -59,8 +160,7 @@ impl Pipeline {
             block_details_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
-            metrics: MetricsCollection::default(),
-            metrics_flush_interval: None,
+            exporters: Vec::new(),
             datasource_cancellation_token: None,
             shutdown_strategy: ShutdownStrategy::default(),
             channel_buffer_size: DEFAULT_CHANNEL_BUFFER_SIZE,
@@ -68,9 +168,9 @@ impl Pipeline {
     }
 
     pub async fn run(&mut self) -> CarbonResult<()> {
-        log::info!("starting pipeline. num_datasources: {}, num_metrics: {}, num_account_pipes: {}, num_account_deletion_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}",
+        log::info!("starting pipeline. num_datasources: {}, num_exporters: {}, num_account_pipes: {}, num_account_deletion_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}",
             self.datasources.len(),
-            self.metrics.metrics.len(),
+            self.exporters.len(),
             self.account_pipes.len(),
             self.account_deletion_pipes.len(),
             self.instruction_pipes.len(),
@@ -79,7 +179,9 @@ impl Pipeline {
 
         log::trace!("run(self)");
 
-        self.metrics.initialize_metrics().await?;
+        for exporter in &self.exporters {
+            exporter.initialize()?;
+        }
         let (update_sender, mut update_receiver) =
             tokio::sync::mpsc::channel::<(Update, DatasourceId)>(self.channel_buffer_size);
 
@@ -93,7 +195,6 @@ impl Pipeline {
             let sender_clone = update_sender.clone();
             let datasource_clone = Arc::clone(&datasource.1);
             let datasource_id = datasource.0.clone();
-            let metrics_collection = self.metrics.clone();
 
             tokio::spawn(async move {
                 if let Err(e) = datasource_clone
@@ -101,7 +202,6 @@ impl Pipeline {
                         datasource_id,
                         sender_clone,
                         datasource_cancellation_token_clone,
-                        metrics_collection,
                     )
                     .await
                 {
@@ -112,16 +212,21 @@ impl Pipeline {
 
         drop(update_sender);
 
-        let mut interval = tokio::time::interval(time::Duration::from_secs(
-            self.metrics_flush_interval.unwrap_or(5),
-        ));
+        let flush_interval_secs = self
+            .exporters
+            .iter()
+            .filter_map(|e| e.flush_interval_secs())
+            .min()
+            .unwrap_or(5);
+
+        let mut interval = tokio::time::interval(time::Duration::from_secs(flush_interval_secs));
 
         loop {
             tokio::select! {
                 _ = datasource_cancellation_token.cancelled() => {
                     log::trace!("datasource cancellation token cancelled, shutting down.");
-                    self.metrics.flush_metrics().await?;
-                    self.metrics.shutdown_metrics().await?;
+                    self.export_metrics()?;
+                    self.shutdown_exporters()?;
                     break;
                 }
                 _ = tokio::signal::ctrl_c() => {
@@ -130,64 +235,47 @@ impl Pipeline {
 
                     if self.shutdown_strategy == ShutdownStrategy::Immediate {
                         log::info!("shutting down the pipeline immediately.");
-                        self.metrics.flush_metrics().await?;
-                        self.metrics.shutdown_metrics().await?;
+                        self.export_metrics()?;
+                        self.shutdown_exporters()?;
                         break;
                     } else {
                         log::info!("shutting down the pipeline after processing pending updates.");
                     }
                 }
                 _ = interval.tick() => {
-                    self.metrics.flush_metrics().await?;
+                    self.export_metrics()?;
                 }
                 update = update_receiver.recv() => {
                     match update {
                         Some((update, datasource_id)) => {
-                            self
-                                .metrics.increment_counter("updates_received", 1)
-                                .await?;
+                            UPDATES_RECEIVED.inc();
 
                             let start = Instant::now();
                             let process_result = self.process(update.clone(), datasource_id.clone()).await;
                             let time_taken_nanoseconds = start.elapsed().as_nanos();
                             let time_taken_milliseconds = time_taken_nanoseconds / 1_000_000;
 
-                            self
-                                .metrics
-                                .record_histogram("updates_process_time_nanoseconds", time_taken_nanoseconds as f64)
-                                .await?;
-
-                            self
-                                .metrics
-                                .record_histogram("updates_process_time_milliseconds", time_taken_milliseconds as f64)
-                                .await?;
+                            PROCESSING_TIME_NANOS.record(time_taken_nanoseconds as f64);
+                            PROCESSING_TIME_MILLIS.record(time_taken_milliseconds as f64);
 
                             match process_result {
                                 Ok(_) => {
-                                    self
-                                        .metrics.increment_counter("updates_successful", 1)
-                                        .await?;
-
+                                    UPDATES_SUCCESSFUL.inc();
                                     log::trace!("processed update")
                                 }
                                 Err(error) => {
                                     log::error!("error processing update ({update:?}): {error:?}");
-                                    self.metrics.increment_counter("updates_failed", 1).await?;
+                                    UPDATES_FAILED.inc();
                                 }
                             };
 
-                            self
-                                .metrics.increment_counter("updates_processed", 1)
-                                .await?;
-
-                            self
-                                .metrics.update_gauge("updates_queued", update_receiver.len() as f64)
-                                .await?;
+                            UPDATES_PROCESSED.inc();
+                            UPDATES_QUEUED.set(update_receiver.len() as f64);
                         }
                         None => {
                             log::info!("update_receiver closed, shutting down.");
-                            self.metrics.flush_metrics().await?;
-                            self.metrics.shutdown_metrics().await?;
+                            self.export_metrics()?;
+                            self.shutdown_exporters()?;
                             break;
                         }
                     }
@@ -218,17 +306,12 @@ impl Pipeline {
                             &account_update.account,
                         )
                     }) {
-                        pipe.run(
-                            (account_metadata.clone(), account_update.account.clone()),
-                            self.metrics.clone(),
-                        )
-                        .await?;
+                        pipe.run((account_metadata.clone(), account_update.account.clone()))
+                            .await?;
                     }
                 }
 
-                self.metrics
-                    .increment_counter("account_updates_processed", 1)
-                    .await?;
+                ACCOUNT_UPDATES_PROCESSED.inc();
             }
             Update::Transaction(transaction_update) => {
                 let transaction_metadata = Arc::new((*transaction_update).clone().try_into()?);
@@ -246,7 +329,7 @@ impl Pipeline {
                         if pipe.filters().iter().all(|filter| {
                             filter.filter_instruction(&datasource_id, nested_instruction)
                         }) {
-                            pipe.run(nested_instruction, self.metrics.clone()).await?;
+                            pipe.run(nested_instruction).await?;
                         }
                     }
                 }
@@ -259,32 +342,23 @@ impl Pipeline {
                             &nested_instructions,
                         )
                     }) {
-                        pipe.run(
-                            transaction_metadata.clone(),
-                            &nested_instructions,
-                            self.metrics.clone(),
-                        )
-                        .await?;
+                        pipe.run(transaction_metadata.clone(), &nested_instructions)
+                            .await?;
                     }
                 }
 
-                self.metrics
-                    .increment_counter("transaction_updates_processed", 1)
-                    .await?;
+                TRANSACTION_UPDATES_PROCESSED.inc();
             }
             Update::AccountDeletion(account_deletion) => {
                 for pipe in self.account_deletion_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
                         filter.filter_account_deletion(&datasource_id, &account_deletion)
                     }) {
-                        pipe.run(account_deletion.clone(), self.metrics.clone())
-                            .await?;
+                        pipe.run(account_deletion.clone()).await?;
                     }
                 }
 
-                self.metrics
-                    .increment_counter("account_deletions_processed", 1)
-                    .await?;
+                ACCOUNT_DELETIONS_PROCESSED.inc();
             }
             Update::BlockDetails(block_details) => {
                 for pipe in self.block_details_pipes.iter_mut() {
@@ -293,14 +367,11 @@ impl Pipeline {
                         .iter()
                         .all(|filter| filter.filter_block_details(&datasource_id, &block_details))
                     {
-                        pipe.run(block_details.clone(), self.metrics.clone())
-                            .await?;
+                        pipe.run(block_details.clone()).await?;
                     }
                 }
 
-                self.metrics
-                    .increment_counter("block_details_processed", 1)
-                    .await?;
+                BLOCK_DETAILS_PROCESSED.inc();
             }
         };
 
@@ -316,8 +387,7 @@ pub struct PipelineBuilder {
     pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
-    pub metrics: MetricsCollection,
-    pub metrics_flush_interval: Option<u64>,
+    pub exporters: Vec<Arc<dyn MetricsExporter>>,
     pub datasource_cancellation_token: Option<CancellationToken>,
     pub shutdown_strategy: ShutdownStrategy,
     pub channel_buffer_size: usize,
@@ -558,15 +628,9 @@ impl PipelineBuilder {
         self
     }
 
-    pub fn metrics(mut self, metrics: Arc<dyn Metrics>) -> Self {
-        log::trace!("metrics(self, metrics: {:?})", stringify!(metrics));
-        self.metrics.metrics.push(metrics);
-        self
-    }
-
-    pub fn metrics_flush_interval(mut self, interval: u64) -> Self {
-        log::trace!("metrics_flush_interval(self, interval: {interval:?})");
-        self.metrics_flush_interval = Some(interval);
+    pub fn metrics(mut self, exporter: Arc<dyn MetricsExporter>) -> Self {
+        log::trace!("metrics(self, exporter: {:?})", stringify!(exporter));
+        self.exporters.push(exporter);
         self
     }
 
@@ -586,6 +650,7 @@ impl PipelineBuilder {
 
     pub fn build(self) -> CarbonResult<Pipeline> {
         log::trace!("build(self)");
+        register_pipeline_metrics();
         Ok(Pipeline {
             datasources: self.datasources,
             account_pipes: self.account_pipes,
@@ -593,10 +658,9 @@ impl PipelineBuilder {
             block_details_pipes: self.block_details_pipes,
             instruction_pipes: self.instruction_pipes,
             transaction_pipes: self.transaction_pipes,
-            shutdown_strategy: self.shutdown_strategy,
-            metrics: Arc::new(self.metrics),
-            metrics_flush_interval: self.metrics_flush_interval,
+            exporters: self.exporters,
             datasource_cancellation_token: self.datasource_cancellation_token,
+            shutdown_strategy: self.shutdown_strategy,
             channel_buffer_size: self.channel_buffer_size,
         })
     }

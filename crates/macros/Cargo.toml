@@ -9,7 +9,7 @@ repository = { workspace = true }
 keywords = ["solana", "indexer", "macros"]
 categories = ["encoding"]
 
-[dependencies]
-
 [lib]
 crate-type = ["rlib"]
+
+[dependencies]

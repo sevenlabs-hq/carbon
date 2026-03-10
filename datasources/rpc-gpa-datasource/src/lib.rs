@@ -3,7 +3,7 @@ use {
     carbon_core::{
         datasource::{AccountUpdate, Datasource, DatasourceId, Update, UpdateType},
         error::CarbonResult,
-        metrics::MetricsCollection,
+        metrics::{Counter, Histogram, MetricsRegistry},
     },
     solana_account_decoder::UiAccountEncoding,
     solana_client::{
@@ -14,10 +14,29 @@ use {
     },
     solana_commitment_config::CommitmentConfig,
     solana_pubkey::Pubkey,
-    std::{str::FromStr, sync::Arc},
+    std::str::FromStr,
+    std::sync::LazyLock,
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
+
+static FETCH_DURATION_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "rpc_gpa_fetch_duration_milliseconds",
+        "Time to fetch program accounts from RPC in milliseconds",
+        vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
+    )
+});
+static ACCOUNTS_PROCESSED: Counter = Counter::new(
+    "rpc_gpa_accounts_processed_total",
+    "Account updates processed (sent) by RPC gPA datasource",
+);
+
+fn register_rpc_gpa_metrics() {
+    let registry = MetricsRegistry::global();
+    registry.register_counter(&ACCOUNTS_PROCESSED);
+    registry.register_histogram(&FETCH_DURATION_MILLIS);
+}
 
 pub struct GpaDatasource {
     pub rpc_url: String,
@@ -50,8 +69,9 @@ impl Datasource for GpaDatasource {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
+        register_rpc_gpa_metrics();
+
         let commitment = self
             .config
             .account_config
@@ -74,14 +94,8 @@ impl Datasource for GpaDatasource {
                 "Failed to fetch program accounts".to_string(),
             ));
         };
-        let fetch_duration = fetch_start.elapsed();
-
-        metrics
-            .record_histogram(
-                "gpa_datasource_fetch_duration_seconds",
-                fetch_duration.as_secs_f64(),
-            )
-            .await?;
+        let fetch_elapsed = fetch_start.elapsed();
+        FETCH_DURATION_MILLIS.record(fetch_elapsed.as_millis() as f64);
 
         log::info!(
             "Fetched {} accounts for program {} (slot: {})",
@@ -115,11 +129,9 @@ impl Datasource for GpaDatasource {
 
             if let Err(e) = sender.send((update, id_for_loop.clone())).await {
                 log::error!("Failed to send account update: {e:?}");
+            } else {
+                ACCOUNTS_PROCESSED.inc();
             }
-
-            metrics
-                .increment_counter("gpa_datasource_accounts_processed", 1)
-                .await?;
         }
 
         Ok(())

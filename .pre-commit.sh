@@ -24,6 +24,6 @@ cargo fmt --version &>/dev/null || rustup component add rustfmt
 # Checks
 cargo machete
 cargo fmt -- --check
-cargo sort -c
+cargo sort -c -g
 cargo test --all-targets --all-features
 cargo clippy --all-targets --all-features -- -D warnings

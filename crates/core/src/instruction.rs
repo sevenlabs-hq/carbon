@@ -1,7 +1,7 @@
 use {
     crate::{
-        deserialize::CarbonDeserialize, error::CarbonResult, filter::Filter,
-        metrics::MetricsCollection, processor::Processor, transaction::TransactionMetadata,
+        deserialize::CarbonDeserialize, error::CarbonResult, filter::Filter, processor::Processor,
+        transaction::TransactionMetadata,
     },
     async_trait::async_trait,
     std::{
@@ -182,11 +182,7 @@ pub struct InstructionPipe<T: Send, P> {
 
 #[async_trait]
 pub trait InstructionPipes<'a>: Send + Sync {
-    async fn run(
-        &mut self,
-        nested_instruction: &NestedInstruction,
-        metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()>;
+    async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()>;
     fn filters(&self) -> &Vec<Box<dyn Filter + Send + Sync + 'static>>;
 }
 
@@ -195,32 +191,25 @@ impl<T: Send + 'static, P> InstructionPipes<'_> for InstructionPipe<T, P>
 where
     P: Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static,
 {
-    async fn run(
-        &mut self,
-        nested_instruction: &NestedInstruction,
-        metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
-        log::trace!("InstructionPipe::run(nested_instruction: {nested_instruction:?}, metrics)",);
+    async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()> {
+        log::trace!("InstructionPipe::run(nested_instruction: {nested_instruction:?})");
 
         if let Some(decoded_instruction) = self
             .decoder
             .decode_instruction(&nested_instruction.instruction)
         {
             self.processor
-                .process(
-                    (
-                        nested_instruction.metadata.clone(),
-                        decoded_instruction,
-                        nested_instruction.inner_instructions.clone(),
-                        nested_instruction.instruction.clone(),
-                    ),
-                    metrics.clone(),
-                )
+                .process((
+                    nested_instruction.metadata.clone(),
+                    decoded_instruction,
+                    nested_instruction.inner_instructions.clone(),
+                    nested_instruction.instruction.clone(),
+                ))
                 .await?;
         }
 
         for nested_inner_instruction in nested_instruction.inner_instructions.iter() {
-            self.run(nested_inner_instruction, metrics.clone()).await?;
+            self.run(nested_inner_instruction).await?;
         }
 
         Ok(())

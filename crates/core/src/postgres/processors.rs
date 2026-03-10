@@ -1,16 +1,61 @@
-use solana_instruction::AccountMeta;
-use std::sync::Arc;
-
 use crate::{
     account::{AccountMetadata, AccountProcessorInputType},
     error::CarbonResult,
     instruction::{InstructionMetadata, InstructionProcessorInputType},
-    metrics::MetricsCollection,
+    metrics::{Counter, Histogram, MetricsRegistry},
     postgres::{
         operations::Upsert,
         rows::{AccountRow, InstructionRow},
     },
 };
+use solana_instruction::AccountMeta;
+use std::sync::LazyLock;
+
+static POSTGRES_ACCOUNTS_UPSERTED: Counter = Counter::new(
+    "postgres.accounts.upsert.upserted",
+    "Total number of account upserts successfully completed",
+);
+
+static POSTGRES_ACCOUNTS_UPSERT_FAILED: Counter = Counter::new(
+    "postgres.accounts.upsert.failed",
+    "Total number of account upserts that failed",
+);
+
+static POSTGRES_ACCOUNTS_UPSERT_DURATION_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "postgres.accounts.upsert.duration_milliseconds",
+        "Duration of account upsert operations in milliseconds",
+        vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
+    )
+});
+
+static POSTGRES_INSTRUCTIONS_UPSERTED: Counter = Counter::new(
+    "postgres.instructions.upsert.upserted",
+    "Total number of instruction upserts successfully completed",
+);
+
+static POSTGRES_INSTRUCTIONS_UPSERT_FAILED: Counter = Counter::new(
+    "postgres.instructions.upsert.failed",
+    "Total number of instruction upserts that failed",
+);
+
+static POSTGRES_INSTRUCTIONS_UPSERT_DURATION_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "postgres.instructions.upsert.duration_milliseconds",
+        "Duration of instruction upsert operations in milliseconds",
+        vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
+    )
+});
+
+pub fn register_postgres_metrics() {
+    let registry = MetricsRegistry::global();
+    registry.register_counter(&POSTGRES_ACCOUNTS_UPSERTED);
+    registry.register_counter(&POSTGRES_ACCOUNTS_UPSERT_FAILED);
+    registry.register_histogram(&POSTGRES_ACCOUNTS_UPSERT_DURATION_MILLIS);
+    registry.register_counter(&POSTGRES_INSTRUCTIONS_UPSERTED);
+    registry.register_counter(&POSTGRES_INSTRUCTIONS_UPSERT_FAILED);
+    registry.register_histogram(&POSTGRES_INSTRUCTIONS_UPSERT_DURATION_MILLIS);
+}
 
 pub struct PostgresAccountProcessor<T, W> {
     pool: sqlx::PgPool,
@@ -34,11 +79,7 @@ where
 {
     type InputType = AccountProcessorInputType<T>;
 
-    async fn process(
-        &mut self,
-        input: Self::InputType,
-        metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
+    async fn process(&mut self, input: Self::InputType) -> CarbonResult<()> {
         let (metadata, decoded_account, _raw) = input;
 
         let start = std::time::Instant::now();
@@ -47,21 +88,12 @@ where
 
         match wrapper.upsert(&self.pool).await {
             Ok(()) => {
-                metrics
-                    .increment_counter("postgres.accounts.upsert.upserted", 1)
-                    .await?;
-                metrics
-                    .record_histogram(
-                        "postgres.accounts.upsert.duration_milliseconds",
-                        start.elapsed().as_millis() as f64,
-                    )
-                    .await?;
+                POSTGRES_ACCOUNTS_UPSERTED.inc();
+                POSTGRES_ACCOUNTS_UPSERT_DURATION_MILLIS.record(start.elapsed().as_millis() as f64);
                 Ok(())
             }
             Err(e) => {
-                metrics
-                    .increment_counter("postgres.accounts.upsert.failed", 1)
-                    .await?;
+                POSTGRES_ACCOUNTS_UPSERT_FAILED.inc();
                 return Err(e);
             }
         }
@@ -89,11 +121,7 @@ where
 {
     type InputType = AccountProcessorInputType<T>;
 
-    async fn process(
-        &mut self,
-        input: Self::InputType,
-        metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
+    async fn process(&mut self, input: Self::InputType) -> CarbonResult<()> {
         let (metadata, decoded_account, _raw) = input;
 
         let account_row = AccountRow::from_parts(decoded_account.data, metadata);
@@ -102,21 +130,12 @@ where
 
         match account_row.upsert(&self.pool).await {
             Ok(()) => {
-                metrics
-                    .increment_counter("postgres.accounts.upsert.upserted", 1)
-                    .await?;
-                metrics
-                    .record_histogram(
-                        "postgres.accounts.upsert.duration_milliseconds",
-                        start.elapsed().as_millis() as f64,
-                    )
-                    .await?;
+                POSTGRES_ACCOUNTS_UPSERTED.inc();
+                POSTGRES_ACCOUNTS_UPSERT_DURATION_MILLIS.record(start.elapsed().as_millis() as f64);
                 Ok(())
             }
             Err(e) => {
-                metrics
-                    .increment_counter("postgres.accounts.upsert.failed", 1)
-                    .await?;
+                POSTGRES_ACCOUNTS_UPSERT_FAILED.inc();
                 return Err(e);
             }
         }
@@ -145,11 +164,7 @@ where
 {
     type InputType = InstructionProcessorInputType<T>;
 
-    async fn process(
-        &mut self,
-        input: Self::InputType,
-        metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
+    async fn process(&mut self, input: Self::InputType) -> CarbonResult<()> {
         let (metadata, decoded_instruction, _nested_instructions, raw) = input;
 
         let start = std::time::Instant::now();
@@ -158,21 +173,13 @@ where
 
         match wrapper.upsert(&self.pool).await {
             Ok(()) => {
-                metrics
-                    .increment_counter("postgres.instructions.upsert.upserted", 1)
-                    .await?;
-                metrics
-                    .record_histogram(
-                        "postgres.instructions.upsert.duration_milliseconds",
-                        start.elapsed().as_millis() as f64,
-                    )
-                    .await?;
+                POSTGRES_INSTRUCTIONS_UPSERTED.inc();
+                POSTGRES_INSTRUCTIONS_UPSERT_DURATION_MILLIS
+                    .record(start.elapsed().as_millis() as f64);
                 Ok(())
             }
             Err(e) => {
-                metrics
-                    .increment_counter("postgres.instructions.upsert.failed", 1)
-                    .await?;
+                POSTGRES_INSTRUCTIONS_UPSERT_FAILED.inc();
                 return Err(e);
             }
         }
@@ -200,11 +207,7 @@ where
 {
     type InputType = InstructionProcessorInputType<T>;
 
-    async fn process(
-        &mut self,
-        input: Self::InputType,
-        metrics: Arc<MetricsCollection>,
-    ) -> CarbonResult<()> {
+    async fn process(&mut self, input: Self::InputType) -> CarbonResult<()> {
         let (metadata, decoded_instruction, _nested_instructions, _raw) = input;
 
         let instruction_row = InstructionRow::from_parts(decoded_instruction, metadata);
@@ -213,21 +216,13 @@ where
 
         match instruction_row.upsert(&self.pool).await {
             Ok(()) => {
-                metrics
-                    .increment_counter("postgres.instructions.upsert.upserted", 1)
-                    .await?;
-                metrics
-                    .record_histogram(
-                        "postgres.instructions.upsert.duration_milliseconds",
-                        start.elapsed().as_millis() as f64,
-                    )
-                    .await?;
+                POSTGRES_INSTRUCTIONS_UPSERTED.inc();
+                POSTGRES_INSTRUCTIONS_UPSERT_DURATION_MILLIS
+                    .record(start.elapsed().as_millis() as f64);
                 Ok(())
             }
             Err(e) => {
-                metrics
-                    .increment_counter("postgres.instructions.upsert.failed", 1)
-                    .await?;
+                POSTGRES_INSTRUCTIONS_UPSERT_FAILED.inc();
                 return Err(e);
             }
         }

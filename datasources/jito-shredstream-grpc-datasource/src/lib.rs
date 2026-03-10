@@ -3,7 +3,7 @@ use {
     carbon_core::{
         datasource::{Datasource, DatasourceId, TransactionUpdate, Update, UpdateType},
         error::CarbonResult,
-        metrics::MetricsCollection,
+        metrics::{Counter, Histogram, MetricsRegistry},
     },
     carbon_jito_protos::shredstream::{
         shredstream_proxy_client::ShredstreamProxyClient, SubscribeEntriesRequest,
@@ -14,12 +14,43 @@ use {
     solana_entry::entry::Entry,
     solana_transaction_status::TransactionStatusMeta,
     std::{
-        sync::Arc,
-        time::{SystemTime, UNIX_EPOCH},
+        sync::{Arc, LazyLock},
+        time::{Instant, SystemTime, UNIX_EPOCH},
     },
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
+
+static ENTRY_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "jito_shredstream_grpc_entry_process_time_nanoseconds",
+        "Time to process entry in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
+static ENTRY_UPDATES_RECEIVED: Counter = Counter::new(
+    "jito_shredstream_grpc_entry_updates_received_total",
+    "Entry updates received from Jito Shredstream gRPC",
+);
+static DUPLICATE_ENTRIES: Counter = Counter::new(
+    "jito_shredstream_grpc_duplicate_entries_total",
+    "Duplicate entries skipped in Jito Shredstream gRPC",
+);
+
+fn register_jito_shredstream_metrics() {
+    let registry = MetricsRegistry::global();
+    registry.register_counter(&ENTRY_UPDATES_RECEIVED);
+    registry.register_counter(&DUPLICATE_ENTRIES);
+    registry.register_histogram(&ENTRY_PROCESS_TIME_NANOS);
+}
 
 #[derive(Debug)]
 pub struct JitoShredstreamGrpcClient(String);
@@ -37,8 +68,8 @@ impl Datasource for JitoShredstreamGrpcClient {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
+        register_jito_shredstream_metrics();
         let endpoint = self.0.clone();
 
         let mut client = ShredstreamProxyClient::connect(endpoint)
@@ -85,20 +116,20 @@ impl Datasource for JitoShredstreamGrpcClient {
 
             if let Err(e) = stream
                 .try_for_each_concurrent(None, |message| {
-                    let metrics = metrics.clone();
                     let sender = sender.clone();
                     let dedup_cache = dedup_cache.clone();
                     let id_for_closure = id.clone();
 
                     async move {
-                        let start_time = SystemTime::now();
+                        let start_time = Instant::now();
+                        let recv_time = SystemTime::now();
                         let block_time =
-                            Some(start_time.duration_since(UNIX_EPOCH).expect("Time").as_millis() as i64);
+                            Some(recv_time.duration_since(UNIX_EPOCH).expect("Time").as_millis() as i64);
 
                         let entries: Vec<Entry> = match bincode::deserialize(&message.entries) {
                             Ok(e) => e,
                             Err(e) => {
-                                log::error!("Failed to deserialize entries: {e:?}");
+                                log::error!("Failed to deserialize entries at slot {}: {e:?}", message.slot);
                                 return Ok(());
                             }
                         };
@@ -137,33 +168,9 @@ impl Datasource for JitoShredstreamGrpcClient {
                             }
                         }
 
-                        metrics
-                            .record_histogram(
-                                "jito_shredstream_grpc_entry_process_time_nanoseconds",
-                                start_time.elapsed().unwrap().as_nanos() as f64,
-                            )
-                            .await
-                            .unwrap();
-
-                        metrics
-                            .increment_counter(
-                                "jito_shredstream_grpc_entry_updates_received",
-                                total_entries as u64,
-                            )
-                            .await
-                            .unwrap_or_else(|value| {
-                                log::error!("Error recording metric: {value}")
-                            });
-
-                        metrics
-                            .increment_counter(
-                                "jito_shredstream_grpc_duplicate_entries",
-                                duplicate_entries,
-                            )
-                            .await
-                            .unwrap_or_else(|value| {
-                                log::error!("Error recording metric: {value}")
-                            });
+                        ENTRY_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
+                        ENTRY_UPDATES_RECEIVED.inc_by(total_entries as u64);
+                        DUPLICATE_ENTRIES.inc_by(duplicate_entries);
 
                         Ok(())
                     }
