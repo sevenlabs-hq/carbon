@@ -45,6 +45,18 @@ pub enum UpdateType {
     AccountUpdate,
     Transaction,
     AccountDeletion,
+    BlockDetails,
+}
+
+impl Update {
+    pub fn update_type(&self) -> UpdateType {
+        match self {
+            Update::Account(_) => UpdateType::AccountUpdate,
+            Update::Transaction(_) => UpdateType::Transaction,
+            Update::AccountDeletion(_) => UpdateType::AccountDeletion,
+            Update::BlockDetails(_) => UpdateType::BlockDetails,
+        }
+    }
 }
 
 #[derive(Debug, Clone)]

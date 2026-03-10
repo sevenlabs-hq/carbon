@@ -1,6 +1,6 @@
 use crate::block_details::{BlockDetailsPipe, BlockDetailsPipes};
 use crate::datasource::{BlockDetails, DatasourceId};
-use crate::filter::Filter;
+use crate::filter::{Filter, FilterContext, FilterResult};
 use {
     crate::{
         account::{
@@ -16,12 +16,10 @@ use {
         },
         metrics::{Counter, Gauge, Histogram, MetricsExporter, MetricsRegistry},
         processor::Processor,
-        schema::TransactionSchema,
         transaction::{TransactionPipe, TransactionPipes, TransactionProcessorInputType},
         transformers,
     },
     core::time,
-    serde::de::DeserializeOwned,
     std::{
         convert::TryInto,
         sync::{Arc, LazyLock},
@@ -133,6 +131,16 @@ pub struct Pipeline {
     pub datasource_cancellation_token: Option<CancellationToken>,
     pub shutdown_strategy: ShutdownStrategy,
     pub channel_buffer_size: usize,
+}
+
+fn flatten_nested_instructions<'a>(
+    nested_instructions: &'a NestedInstructions,
+    flat: &mut Vec<&'a crate::instruction::NestedInstruction>,
+) {
+    for nested_instruction in nested_instructions.iter() {
+        flat.push(nested_instruction);
+        flatten_nested_instructions(&nested_instruction.inner_instructions, flat);
+    }
 }
 
 impl Pipeline {
@@ -298,12 +306,19 @@ impl Pipeline {
                     transaction_signature: account_update.transaction_signature,
                 };
 
+                let context = FilterContext {
+                    datasource_id: &datasource_id,
+                };
+
                 for pipe in self.account_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
-                        filter.filter_account(
-                            &datasource_id,
-                            &account_metadata,
-                            &account_update.account,
+                        matches!(
+                            filter.filter_account(
+                                &context,
+                                &account_metadata,
+                                &account_update.account
+                            ),
+                            FilterResult::Accept
                         )
                     }) {
                         pipe.run((account_metadata.clone(), account_update.account.clone()))
@@ -323,11 +338,20 @@ impl Pipeline {
                     )?;
 
                 let nested_instructions: NestedInstructions = instructions_with_metadata.into();
+                let mut all_instructions = Vec::new();
+                flatten_nested_instructions(&nested_instructions, &mut all_instructions);
+
+                let context = FilterContext {
+                    datasource_id: &datasource_id,
+                };
 
                 for pipe in self.instruction_pipes.iter_mut() {
-                    for nested_instruction in nested_instructions.iter() {
+                    for &nested_instruction in &all_instructions {
                         if pipe.filters().iter().all(|filter| {
-                            filter.filter_instruction(&datasource_id, nested_instruction)
+                            matches!(
+                                filter.filter_instruction(&context, nested_instruction),
+                                FilterResult::Accept
+                            )
                         }) {
                             pipe.run(nested_instruction).await?;
                         }
@@ -336,10 +360,13 @@ impl Pipeline {
 
                 for pipe in self.transaction_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
-                        filter.filter_transaction(
-                            &datasource_id,
-                            &transaction_metadata,
-                            &nested_instructions,
+                        matches!(
+                            filter.filter_transaction(
+                                &context,
+                                &transaction_metadata,
+                                &nested_instructions
+                            ),
+                            FilterResult::Accept
                         )
                     }) {
                         pipe.run(transaction_metadata.clone(), &nested_instructions)
@@ -350,9 +377,16 @@ impl Pipeline {
                 TRANSACTION_UPDATES_PROCESSED.inc();
             }
             Update::AccountDeletion(account_deletion) => {
+                let context = FilterContext {
+                    datasource_id: &datasource_id,
+                };
+
                 for pipe in self.account_deletion_pipes.iter_mut() {
                     if pipe.filters().iter().all(|filter| {
-                        filter.filter_account_deletion(&datasource_id, &account_deletion)
+                        matches!(
+                            filter.filter_account_deletion(&context, &account_deletion),
+                            FilterResult::Accept
+                        )
                     }) {
                         pipe.run(account_deletion.clone()).await?;
                     }
@@ -361,12 +395,17 @@ impl Pipeline {
                 ACCOUNT_DELETIONS_PROCESSED.inc();
             }
             Update::BlockDetails(block_details) => {
+                let context = FilterContext {
+                    datasource_id: &datasource_id,
+                };
+
                 for pipe in self.block_details_pipes.iter_mut() {
-                    if pipe
-                        .filters()
-                        .iter()
-                        .all(|filter| filter.filter_block_details(&datasource_id, &block_details))
-                    {
+                    if pipe.filters().iter().all(|filter| {
+                        matches!(
+                            filter.filter_block_details(&context, &block_details),
+                            FilterResult::Accept
+                        )
+                    }) {
                         pipe.run(block_details.clone()).await?;
                     }
                 }
@@ -585,51 +624,33 @@ impl PipelineBuilder {
         self
     }
 
-    pub fn transaction<T, U, P>(
-        mut self,
-        processor: P,
-        schema: Option<TransactionSchema<T>>,
-    ) -> Self
+    pub fn transaction<T, P>(mut self, processor: P) -> Self
     where
         T: InstructionDecoderCollection + 'static,
-        U: DeserializeOwned + Send + Sync + 'static,
-        P: for<'a> Processor<TransactionProcessorInputType<'a, T, U>> + Send + Sync + 'static,
+        P: for<'a> Processor<TransactionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
-        log::trace!(
-            "transaction(self, schema: {:?}, processor: {:?})",
-            stringify!(schema),
-            stringify!(processor)
-        );
+        log::trace!("transaction(self, processor: {:?})", stringify!(processor));
         self.transaction_pipes
-            .push(Box::new(TransactionPipe::<T, U, P>::new(
-                schema,
-                processor,
-                vec![],
-            )));
+            .push(Box::new(TransactionPipe::<T, P>::new(processor, vec![])));
         self
     }
 
-    pub fn transaction_with_filters<T, U, P>(
+    pub fn transaction_with_filters<T, P>(
         mut self,
         processor: P,
-        schema: Option<TransactionSchema<T>>,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
     ) -> Self
     where
         T: InstructionDecoderCollection + 'static,
-        U: DeserializeOwned + Send + Sync + 'static,
-        P: for<'a> Processor<TransactionProcessorInputType<'a, T, U>> + Send + Sync + 'static,
+        P: for<'a> Processor<TransactionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
         log::trace!(
-            "transaction_with_filters(self, schema: {:?}, processor: {:?}, filters: {:?})",
-            stringify!(schema),
+            "transaction_with_filters(self, processor: {:?}, filters: {:?})",
             stringify!(processor),
             stringify!(filters)
         );
         self.transaction_pipes
-            .push(Box::new(TransactionPipe::<T, U, P>::new(
-                schema, processor, filters,
-            )));
+            .push(Box::new(TransactionPipe::<T, P>::new(processor, filters)));
         self
     }
 
