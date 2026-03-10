@@ -1,4 +1,4 @@
-use std::{collections::HashSet, sync::Arc};
+use std::collections::HashSet;
 
 use async_trait::async_trait;
 use carbon_core::{
@@ -103,7 +103,7 @@ impl Datasource for JetstreamerDatasource {
         &self,
         id: DatasourceId,
         sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
-        cancellation_token: CancellationToken,
+        _cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_jetstreamer_metrics();
 

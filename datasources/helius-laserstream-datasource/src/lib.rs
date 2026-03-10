@@ -7,7 +7,6 @@ use {
         },
         error::CarbonResult,
         metrics::{Counter, Histogram, MetricsRegistry},
-        pipeline,
     },
     futures::{sink::SinkExt, StreamExt},
     solana_account::Account,

@@ -13,7 +13,7 @@ use {
     solana_pubkey::Pubkey,
     std::{
         str::FromStr,
-        sync::{Arc, LazyLock},
+        sync::LazyLock,
         time::Duration,
     },
     tokio::sync::mpsc::Sender,

@@ -17,7 +17,7 @@ use {
         rpc_client::SerializableTransaction,
         rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
     },
-    std::sync::{Arc, LazyLock},
+    std::sync::LazyLock,
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
