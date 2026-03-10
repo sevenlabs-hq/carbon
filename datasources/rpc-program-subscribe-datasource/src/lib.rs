@@ -86,6 +86,7 @@ impl Datasource for RpcProgramSubscribe {
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_program_subscribe_metrics();
+
         let mut reconnection_attempts = 0;
 
         loop {

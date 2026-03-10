@@ -19,7 +19,6 @@ use {
         transaction::{TransactionPipe, TransactionPipes, TransactionProcessorInputType},
         transformers,
     },
-    core::time,
     std::{
         convert::TryInto,
         sync::{Arc, LazyLock},
@@ -188,7 +187,8 @@ impl Pipeline {
         log::trace!("run(self)");
 
         for exporter in &self.exporters {
-            exporter.initialize()?;
+            let exporter = Arc::clone(exporter);
+            MetricsExporter::initialize(exporter)?;
         }
         let (update_sender, mut update_receiver) =
             tokio::sync::mpsc::channel::<(Update, DatasourceId)>(self.channel_buffer_size);
@@ -220,15 +220,6 @@ impl Pipeline {
 
         drop(update_sender);
 
-        let flush_interval_secs = self
-            .exporters
-            .iter()
-            .filter_map(|e| e.flush_interval_secs())
-            .min()
-            .unwrap_or(5);
-
-        let mut interval = tokio::time::interval(time::Duration::from_secs(flush_interval_secs));
-
         loop {
             tokio::select! {
                 _ = datasource_cancellation_token.cancelled() => {
@@ -249,9 +240,6 @@ impl Pipeline {
                     } else {
                         log::info!("shutting down the pipeline after processing pending updates.");
                     }
-                }
-                _ = interval.tick() => {
-                    self.export_metrics()?;
                 }
                 update = update_receiver.recv() => {
                     match update {

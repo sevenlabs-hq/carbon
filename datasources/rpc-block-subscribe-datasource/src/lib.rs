@@ -113,6 +113,7 @@ impl Datasource for RpcBlockSubscribe {
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_block_subscribe_metrics();
+
         let mut reconnection_attempts = 0;
 
         loop {

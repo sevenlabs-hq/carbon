@@ -240,6 +240,7 @@ impl Datasource for HeliusGpaV2Datasource {
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_helius_gpa_v2_metrics();
+
         let client = reqwest::Client::new();
 
         log::info!(

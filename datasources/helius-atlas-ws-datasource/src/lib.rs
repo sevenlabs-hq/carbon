@@ -200,6 +200,7 @@ impl Datasource for HeliusWebsocket {
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_helius_atlas_metrics();
+
         if self.filters.accounts.is_empty() && self.filters.transactions.is_none() {
             return CarbonResult::Err(carbon_core::error::Error::Custom("Error creating Filters for the Helius WebSocket: accounts and transactions can't be both empty".to_string()));
         }
