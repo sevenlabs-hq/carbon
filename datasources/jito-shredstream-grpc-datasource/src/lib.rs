@@ -168,9 +168,7 @@ impl Datasource for JitoShredstreamGrpcClient {
                             }
                         }
 
-                        if let Some(h) = ENTRY_PROCESS_TIME_NANOS.get() {
-                            h.record(start_time.elapsed().as_nanos() as f64);
-                        }
+                        ENTRY_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
                         ENTRY_UPDATES_RECEIVED.inc_by(total_entries as u64);
                         DUPLICATE_ENTRIES.inc_by(duplicate_entries);
 
