@@ -101,18 +101,78 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
         decoderPackageName = `${decoderPackageName}-${kebabCase(versionName)}`;
     }
 
-    const carbonCoreDep = getCrateDependencyString('carbon-core', VERSIONS['carbon-core'], ['macros'], undefined, useWorkspace);
-    const carbonTestUtilsDep = getCrateDependencyString('carbon-test-utils', VERSIONS['carbon-test-utils'], undefined, undefined, useWorkspace);
+    const carbonCoreDep = getCrateDependencyString(
+        'carbon-core',
+        VERSIONS['carbon-core'],
+        ['macros'],
+        undefined,
+        useWorkspace,
+    );
+    const carbonTestUtilsDep = getCrateDependencyString(
+        'carbon-test-utils',
+        VERSIONS['carbon-test-utils'],
+        undefined,
+        undefined,
+        useWorkspace,
+    );
     const borshDep = getCrateDependencyString('borsh', VERSIONS['borsh'], ['derive'], undefined, useWorkspace);
-    const solanaPubkeyDep = getCrateDependencyString('solana-pubkey', VERSIONS['solana-pubkey'], undefined, undefined, useWorkspace);
-    const solanaAccountDep = getCrateDependencyString('solana-account', VERSIONS['solana-account'], undefined, undefined, useWorkspace);
-    const solanaInstructionDep = getCrateDependencyString('solana-instruction', VERSIONS['solana-instruction'], undefined, undefined, useWorkspace);
+    const solanaPubkeyDep = getCrateDependencyString(
+        'solana-pubkey',
+        VERSIONS['solana-pubkey'],
+        undefined,
+        undefined,
+        useWorkspace,
+    );
+    const solanaAccountDep = getCrateDependencyString(
+        'solana-account',
+        VERSIONS['solana-account'],
+        undefined,
+        undefined,
+        useWorkspace,
+    );
+    const solanaInstructionDep = getCrateDependencyString(
+        'solana-instruction',
+        VERSIONS['solana-instruction'],
+        undefined,
+        undefined,
+        useWorkspace,
+    );
     const serdeDep = getCrateDependencyString('serde', VERSIONS['serde'], undefined, true, useWorkspace);
-    const serdeJsonDep = getCrateDependencyString('serde_json', VERSIONS['serde_json'], undefined, undefined, useWorkspace);
-    const serdeBigArrayDep = getCrateDependencyString('serde-big-array', VERSIONS['serde-big-array'], undefined, true, useWorkspace);
-    const asyncTraitDep = getCrateDependencyString('async-trait', VERSIONS['async-trait'], undefined, true, useWorkspace);
-    const sqlxDep = getCrateDependencyString('sqlx', VERSIONS['sqlx'], ['postgres', 'rust_decimal'], true, useWorkspace);
-    const sqlxMigratorDep = getCrateDependencyString('sqlx_migrator', VERSIONS['sqlx_migrator'], undefined, true, useWorkspace);
+    const serdeJsonDep = getCrateDependencyString(
+        'serde_json',
+        VERSIONS['serde_json'],
+        undefined,
+        undefined,
+        useWorkspace,
+    );
+    const serdeBigArrayDep = getCrateDependencyString(
+        'serde-big-array',
+        VERSIONS['serde-big-array'],
+        undefined,
+        true,
+        useWorkspace,
+    );
+    const asyncTraitDep = getCrateDependencyString(
+        'async-trait',
+        VERSIONS['async-trait'],
+        undefined,
+        true,
+        useWorkspace,
+    );
+    const sqlxDep = getCrateDependencyString(
+        'sqlx',
+        VERSIONS['sqlx'],
+        ['postgres', 'rust_decimal'],
+        true,
+        useWorkspace,
+    );
+    const sqlxMigratorDep = getCrateDependencyString(
+        'sqlx_migrator',
+        VERSIONS['sqlx_migrator'],
+        undefined,
+        true,
+        useWorkspace,
+    );
     const juniperDep = getCrateDependencyString('juniper', VERSIONS['juniper'], undefined, true, useWorkspace);
 
     const features: string[] = ['default = []'];
@@ -181,14 +241,46 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
     // Check originalProgramName or packageName to handle PascalCase transformation
     if (isToken2022Program(undefined, originalProgramName, packageName)) {
         dependencies.push('');
-        dependencies.push(getCrateDependencyString('solana-program-pack', VERSIONS['solana-program-pack'], undefined, undefined, useWorkspace));
-        dependencies.push(getCrateDependencyString('spl-token-2022', VERSIONS['spl-token-2022'], undefined, undefined, useWorkspace));
+        dependencies.push(
+            getCrateDependencyString(
+                'solana-program-pack',
+                VERSIONS['solana-program-pack'],
+                undefined,
+                undefined,
+                useWorkspace,
+            ),
+        );
+        dependencies.push(
+            getCrateDependencyString('spl-token-2022', VERSIONS['spl-token-2022'], undefined, undefined, useWorkspace),
+        );
         dependencies.push(getCrateDependencyString('spl-pod', VERSIONS['spl-pod'], ['borsh'], undefined, useWorkspace));
         dependencies.push(
-            getCrateDependencyString('spl-token-metadata-interface', VERSIONS['spl-token-metadata-interface'], undefined, undefined, useWorkspace),
+            getCrateDependencyString(
+                'spl-token-metadata-interface',
+                VERSIONS['spl-token-metadata-interface'],
+                undefined,
+                undefined,
+                useWorkspace,
+            ),
         );
-        dependencies.push(getCrateDependencyString('spl-token-group-interface', VERSIONS['spl-token-group-interface'], undefined, undefined, useWorkspace));
-        dependencies.push(getCrateDependencyString('spl-type-length-value', VERSIONS['spl-type-length-value'], undefined, undefined, useWorkspace));
+        dependencies.push(
+            getCrateDependencyString(
+                'spl-token-group-interface',
+                VERSIONS['spl-token-group-interface'],
+                undefined,
+                undefined,
+                useWorkspace,
+            ),
+        );
+        dependencies.push(
+            getCrateDependencyString(
+                'spl-type-length-value',
+                VERSIONS['spl-type-length-value'],
+                undefined,
+                undefined,
+                useWorkspace,
+            ),
+        );
     }
 
     const packageLines: string[] = [
@@ -200,11 +292,19 @@ export function generateDecoderCargoToml(options: DecoderCargoTomlOptions): stri
     if (hasMeta) {
         packageLines.push(`description = "${description.replace(/"/g, '\\"')}"`);
         if (useWorkspace) {
-            packageLines.push('license = { workspace = true }', 'readme = "README.md"', 'repository = { workspace = true }');
+            packageLines.push(
+                'license = { workspace = true }',
+                'readme = "README.md"',
+                'repository = { workspace = true }',
+            );
         } else {
             packageLines.push('readme = "README.md"');
         }
-        packageLines.push(`keywords = [${keywords.map(k => `"${k}"`).join(', ')}]`, `categories = [${categories.map(c => `"${c}"`).join(', ')}]`, '');
+        packageLines.push(
+            `keywords = [${keywords.map(k => `"${k}"`).join(', ')}]`,
+            `categories = [${categories.map(c => `"${c}"`).join(', ')}]`,
+            '',
+        );
     }
 
     const toml = [

@@ -52,7 +52,10 @@ program
     .description('Parse an IDL and generate a decoder')
     .option('-i, --idl <fileOrAddress>', 'Path to an IDL json file or a Solana program address')
     .option('-o, --out-dir <dir>', 'Output directory for generated code')
-    .option('-n, --name <string>', 'Decoder name (e.g. pumpfun). Used for crate name carbon-<name>-decoder and struct <Name>Decoder. Default: from IDL')
+    .option(
+        '-n, --name <string>',
+        'Decoder name (e.g. pumpfun). Used for crate name carbon-<name>-decoder and struct <Name>Decoder. Default: from IDL',
+    )
     .option('-c, --as-crate', 'Generate as a Cargo crate layout', false)
     .option('-s, --standard <anchor|codama>', 'Specify the IDL standard to parse', 'anchor')
     .option('--event-hints <csv>', 'Comma-separated names of defined types to parse as CPI Events (Codama only)')
@@ -63,7 +66,11 @@ program
     .option('--with-graphql <boolean>', 'Include GraphQL wiring and deps (default: true)')
     .option('--with-serde <boolean>', 'Include serde feature for decoder (default: false)')
     .option('--with-base58 <boolean>', 'Include base58 feature for decoder (default: false)')
-    .option('--standalone <boolean>', 'Generate standalone decoder with [workspace] section (default: true). Set to false for workspace dependencies', 'true')
+    .option(
+        '--standalone <boolean>',
+        'Generate standalone decoder with [workspace] section (default: true). Set to false for workspace dependencies',
+        'true',
+    )
     .option('--description <string>', 'Package description (default: derived from decoder name)')
     .option('--keywords <csv>', 'Package keywords, comma-separated (default: solana, decoder, plus name parts)')
     .option('--categories <csv>', 'Package categories, comma-separated (default: encoding)')
@@ -92,10 +99,28 @@ program
         const standalone =
             opts.standalone !== undefined ? opts.standalone === 'true' || opts.standalone === true : true;
         const desc = opts.description != null && String(opts.description).trim();
-        const kws = opts.keywords != null ? String(opts.keywords).split(',').map(k => k.trim()).filter(Boolean) : [];
-        const cats = opts.categories != null ? String(opts.categories).split(',').map(c => c.trim()).filter(Boolean) : [];
+        const kws =
+            opts.keywords != null
+                ? String(opts.keywords)
+                      .split(',')
+                      .map(k => k.trim())
+                      .filter(Boolean)
+                : [];
+        const cats =
+            opts.categories != null
+                ? String(opts.categories)
+                      .split(',')
+                      .map(c => c.trim())
+                      .filter(Boolean)
+                : [];
         const packageMetadata: PackageMetadata | undefined =
-            desc || kws.length > 0 || cats.length > 0 ? { ...(desc && { description: desc }), ...(kws.length > 0 && { keywords: kws }), ...(cats.length > 0 && { categories: cats }) } : undefined;
+            desc || kws.length > 0 || cats.length > 0
+                ? {
+                      ...(desc && { description: desc }),
+                      ...(kws.length > 0 && { keywords: kws }),
+                      ...(cats.length > 0 && { categories: cats }),
+                  }
+                : undefined;
         const packageName =
             opts.name != null && String(opts.name).trim() !== ''
                 ? String(opts.name).trim().replace(/\s+/g, '-')
