@@ -67,7 +67,7 @@ jobs:
           toolchain: stable
 
       - name: Install cargo-sort
-        run: cargo install --locked cargo-sort
+        run: cargo install --locked cargo-sort@2.0.2
 
       - name: Check `Cargo.toml` sort
         run: cargo sort -c -g
