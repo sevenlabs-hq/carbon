@@ -607,7 +607,7 @@ impl PipelineBuilder {
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
     ) -> Self
     where
-        T: Send + Sync + crate::deserialize::ArrangeAccounts + 'static,
+        T: Send + Sync + 'static,
         P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
         log::trace!(
