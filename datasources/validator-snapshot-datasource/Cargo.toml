@@ -14,14 +14,13 @@ crate-type = ["rlib"]
 
 [dependencies]
 solana-account = { workspace = true }
-solana-accounts-db =  { workspace = true }
+solana-accounts-db = { workspace = true }
 solana-genesis-utils = { workspace = true }
 solana-ledger = { workspace = true }
 solana-pubkey = { workspace = true }
-solana-runtime =  { workspace = true }
+solana-runtime = { workspace = true }
 
 carbon-core = { workspace = true }
-
 
 agave-snapshots = { workspace = true }
 async-trait = { workspace = true }
