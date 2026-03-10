@@ -14,7 +14,7 @@ use {
     solana_client::rpc_client::SerializableTransaction,
     solana_commitment_config::CommitmentConfig,
     solana_pubkey::Pubkey,
-    std::sync::{Arc, LazyLock},
+    std::sync::LazyLock,
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };

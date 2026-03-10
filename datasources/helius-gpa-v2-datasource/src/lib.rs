@@ -15,7 +15,7 @@ use {
     solana_account::Account,
     solana_client::rpc_config::RpcProgramAccountsConfig,
     solana_pubkey::Pubkey,
-    std::sync::{Arc, LazyLock},
+    std::sync::LazyLock,
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
