@@ -426,11 +426,15 @@ impl PipelineBuilder {
         self
     }
 
-    pub fn account<T: Send + Sync + 'static>(
+    pub fn account<T, P>(
         mut self,
         decoder: impl for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
-        processor: impl Processor<InputType = AccountProcessorInputType<T>> + Send + Sync + 'static,
-    ) -> Self {
+        processor: P,
+    ) -> Self
+    where
+        T: Send + Sync + 'static,
+        P: for<'a> Processor<AccountProcessorInputType<'a, T>> + Send + Sync + 'static,
+    {
         log::trace!(
             "account(self, decoder: {:?}, processor: {:?})",
             stringify!(decoder),
@@ -438,18 +442,22 @@ impl PipelineBuilder {
         );
         self.account_pipes.push(Box::new(AccountPipe {
             decoder: Box::new(decoder),
-            processor: Box::new(processor),
+            processor,
             filters: vec![],
         }));
         self
     }
 
-    pub fn account_with_filters<T: Send + Sync + 'static>(
+    pub fn account_with_filters<T, P>(
         mut self,
         decoder: impl for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static,
-        processor: impl Processor<InputType = AccountProcessorInputType<T>> + Send + Sync + 'static,
+        processor: P,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
-    ) -> Self {
+    ) -> Self
+    where
+        T: Send + Sync + 'static,
+        P: for<'a> Processor<AccountProcessorInputType<'a, T>> + Send + Sync + 'static,
+    {
         log::trace!(
             "account_with_filters(self, decoder: {:?}, processor: {:?}, filters: {:?})",
             stringify!(decoder),
@@ -458,75 +466,76 @@ impl PipelineBuilder {
         );
         self.account_pipes.push(Box::new(AccountPipe {
             decoder: Box::new(decoder),
-            processor: Box::new(processor),
+            processor,
             filters,
         }));
         self
     }
 
-    pub fn account_deletions(
-        mut self,
-        processor: impl Processor<InputType = AccountDeletion> + Send + Sync + 'static,
-    ) -> Self {
+    pub fn account_deletions<P>(mut self, processor: P) -> Self
+    where
+        P: Processor<AccountDeletion> + Send + Sync + 'static,
+    {
         log::trace!(
             "account_deletions(self, processor: {:?})",
             stringify!(processor)
         );
         self.account_deletion_pipes
             .push(Box::new(AccountDeletionPipe {
-                processor: Box::new(processor),
+                processor,
                 filters: vec![],
             }));
         self
     }
 
-    pub fn account_deletions_with_filters(
+    pub fn account_deletions_with_filters<P>(
         mut self,
-        processor: impl Processor<InputType = AccountDeletion> + Send + Sync + 'static,
+        processor: P,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
-    ) -> Self {
+    ) -> Self
+    where
+        P: Processor<AccountDeletion> + Send + Sync + 'static,
+    {
         log::trace!(
             "account_deletions_with_filters(self, processor: {:?}, filters: {:?})",
             stringify!(processor),
             stringify!(filters)
         );
         self.account_deletion_pipes
-            .push(Box::new(AccountDeletionPipe {
-                processor: Box::new(processor),
-                filters,
-            }));
+            .push(Box::new(AccountDeletionPipe { processor, filters }));
         self
     }
 
-    pub fn block_details(
-        mut self,
-        processor: impl Processor<InputType = BlockDetails> + Send + Sync + 'static,
-    ) -> Self {
+    pub fn block_details<P>(mut self, processor: P) -> Self
+    where
+        P: Processor<BlockDetails> + Send + Sync + 'static,
+    {
         log::trace!(
             "block_details(self, processor: {:?})",
             stringify!(processor)
         );
         self.block_details_pipes.push(Box::new(BlockDetailsPipe {
-            processor: Box::new(processor),
+            processor,
             filters: vec![],
         }));
         self
     }
 
-    pub fn block_details_with_filters(
+    pub fn block_details_with_filters<P>(
         mut self,
-        processor: impl Processor<InputType = BlockDetails> + Send + Sync + 'static,
+        processor: P,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
-    ) -> Self {
+    ) -> Self
+    where
+        P: Processor<BlockDetails> + Send + Sync + 'static,
+    {
         log::trace!(
             "block_details_with_filters(self, processor: {:?}, filters: {:?})",
             stringify!(processor),
             stringify!(filters)
         );
-        self.block_details_pipes.push(Box::new(BlockDetailsPipe {
-            processor: Box::new(processor),
-            filters,
-        }));
+        self.block_details_pipes
+            .push(Box::new(BlockDetailsPipe { processor, filters }));
         self
     }
 
@@ -537,7 +546,7 @@ impl PipelineBuilder {
     ) -> Self
     where
         T: Send + Sync + 'static,
-        P: Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static,
+        P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
         log::trace!(
             "instruction(self, decoder: {:?}, processor: {:?})",
@@ -560,7 +569,7 @@ impl PipelineBuilder {
     ) -> Self
     where
         T: Send + Sync + crate::deserialize::ArrangeAccounts + 'static,
-        P: Processor<InputType = InstructionProcessorInputType<T>> + Send + Sync + 'static,
+        P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
         log::trace!(
             "instruction_with_filters(self, decoder: {:?}, processor: {:?}, filters: {:?})",
@@ -576,17 +585,15 @@ impl PipelineBuilder {
         self
     }
 
-    pub fn transaction<T, U>(
+    pub fn transaction<T, U, P>(
         mut self,
-        processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
-            + Send
-            + Sync
-            + 'static,
+        processor: P,
         schema: Option<TransactionSchema<T>>,
     ) -> Self
     where
         T: InstructionDecoderCollection + 'static,
         U: DeserializeOwned + Send + Sync + 'static,
+        P: for<'a> Processor<TransactionProcessorInputType<'a, T, U>> + Send + Sync + 'static,
     {
         log::trace!(
             "transaction(self, schema: {:?}, processor: {:?})",
@@ -594,7 +601,7 @@ impl PipelineBuilder {
             stringify!(processor)
         );
         self.transaction_pipes
-            .push(Box::new(TransactionPipe::<T, U>::new(
+            .push(Box::new(TransactionPipe::<T, U, P>::new(
                 schema,
                 processor,
                 vec![],
@@ -602,18 +609,16 @@ impl PipelineBuilder {
         self
     }
 
-    pub fn transaction_with_filters<T, U>(
+    pub fn transaction_with_filters<T, U, P>(
         mut self,
-        processor: impl Processor<InputType = TransactionProcessorInputType<T, U>>
-            + Send
-            + Sync
-            + 'static,
+        processor: P,
         schema: Option<TransactionSchema<T>>,
         filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
     ) -> Self
     where
         T: InstructionDecoderCollection + 'static,
         U: DeserializeOwned + Send + Sync + 'static,
+        P: for<'a> Processor<TransactionProcessorInputType<'a, T, U>> + Send + Sync + 'static,
     {
         log::trace!(
             "transaction_with_filters(self, schema: {:?}, processor: {:?}, filters: {:?})",
@@ -622,7 +627,7 @@ impl PipelineBuilder {
             stringify!(filters)
         );
         self.transaction_pipes
-            .push(Box::new(TransactionPipe::<T, U>::new(
+            .push(Box::new(TransactionPipe::<T, U, P>::new(
                 schema, processor, filters,
             )));
         self

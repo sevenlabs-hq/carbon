@@ -30,12 +30,16 @@ pub trait AccountDecoder<'a> {
     ) -> Option<DecodedAccount<Self::AccountType>>;
 }
 
-pub type AccountProcessorInputType<T> =
-    (AccountMetadata, DecodedAccount<T>, solana_account::Account);
+#[derive(Debug)]
+pub struct AccountProcessorInputType<'a, T> {
+    pub metadata: &'a AccountMetadata,
+    pub decoded_account: &'a DecodedAccount<T>,
+    pub raw_account: &'a solana_account::Account,
+}
 
-pub struct AccountPipe<T: Send> {
+pub struct AccountPipe<T, P> {
     pub decoder: Box<dyn for<'a> AccountDecoder<'a, AccountType = T> + Send + Sync + 'static>,
-    pub processor: Box<dyn Processor<InputType = AccountProcessorInputType<T>> + Send + Sync>,
+    pub processor: P,
     pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
 }
 
@@ -50,21 +54,27 @@ pub trait AccountPipes: Send + Sync {
 }
 
 #[async_trait]
-impl<T: Send> AccountPipes for AccountPipe<T> {
+impl<T, P> AccountPipes for AccountPipe<T, P>
+where
+    T: Send + Sync,
+    P: for<'a> Processor<AccountProcessorInputType<'a, T>> + Send + Sync,
+{
     async fn run(
         &mut self,
         account_with_metadata: (AccountMetadata, solana_account::Account),
     ) -> CarbonResult<()> {
         log::trace!("AccountPipe::run(account_with_metadata: {account_with_metadata:?})");
 
-        if let Some(decoded_account) = self.decoder.decode_account(&account_with_metadata.1) {
-            self.processor
-                .process((
-                    account_with_metadata.0.clone(),
-                    decoded_account,
-                    account_with_metadata.1,
-                ))
-                .await?;
+        let (account_metadata, account) = account_with_metadata;
+
+        if let Some(decoded_account) = self.decoder.decode_account(&account) {
+            let data = AccountProcessorInputType {
+                metadata: &account_metadata,
+                decoded_account: &decoded_account,
+                raw_account: &account,
+            };
+
+            self.processor.process(&data).await?;
         }
         Ok(())
     }

@@ -4,8 +4,8 @@ use crate::filter::Filter;
 use crate::processor::Processor;
 use async_trait::async_trait;
 
-pub struct BlockDetailsPipe {
-    pub processor: Box<dyn Processor<InputType = BlockDetails> + Send + Sync>,
+pub struct BlockDetailsPipe<P> {
+    pub processor: P,
     pub filters: Vec<Box<dyn Filter + Send + Sync + 'static>>,
 }
 
@@ -17,11 +17,14 @@ pub trait BlockDetailsPipes: Send + Sync {
 }
 
 #[async_trait]
-impl BlockDetailsPipes for BlockDetailsPipe {
+impl<P> BlockDetailsPipes for BlockDetailsPipe<P>
+where
+    P: Processor<BlockDetails> + Send + Sync,
+{
     async fn run(&mut self, block_details: BlockDetails) -> CarbonResult<()> {
         log::trace!("Block details::run(block_details: {block_details:?})");
 
-        self.processor.process(block_details).await?;
+        self.processor.process(&block_details).await?;
 
         Ok(())
     }
