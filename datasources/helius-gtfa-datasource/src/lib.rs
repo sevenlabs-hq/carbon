@@ -9,17 +9,40 @@ use {
     carbon_core::{
         datasource::{Datasource, DatasourceId, TransactionUpdate, Update, UpdateType},
         error::CarbonResult,
-        metrics::MetricsCollection,
+        metrics::{Counter, Histogram, MetricsRegistry},
     },
     solana_client::rpc_client::SerializableTransaction,
     solana_commitment_config::CommitmentConfig,
     solana_pubkey::Pubkey,
-    std::sync::Arc,
+    std::sync::LazyLock,
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
 
 const DEFAULT_LIMIT: u32 = 100;
+
+static FETCH_DURATION_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "helius_gtfa_fetch_duration_milliseconds",
+        "Time to fetch a page from Helius GTFA API in milliseconds",
+        vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
+    )
+});
+static PAGES_FETCHED: Counter = Counter::new(
+    "helius_gtfa_pages_fetched_total",
+    "Pages fetched from Helius GTFA API",
+);
+static TRANSACTIONS_PROCESSED: Counter = Counter::new(
+    "helius_gtfa_transactions_processed_total",
+    "Transaction updates processed (sent) by Helius GTFA datasource",
+);
+
+fn register_helius_gtfa_metrics() {
+    let registry = MetricsRegistry::global();
+    registry.register_counter(&PAGES_FETCHED);
+    registry.register_counter(&TRANSACTIONS_PROCESSED);
+    registry.register_histogram(&FETCH_DURATION_MILLIS);
+}
 const MAX_LIMIT: u32 = 100;
 
 #[derive(Debug, Clone, serde::Serialize)]
@@ -275,8 +298,8 @@ impl Datasource for HeliusGtfaDatasource {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
+        register_helius_gtfa_metrics();
         let client = reqwest::Client::new();
 
         log::info!(
@@ -298,17 +321,8 @@ impl Datasource for HeliusGtfaDatasource {
                 .fetch_transactions_page(&client, pagination_token.as_deref())
                 .await?;
             let fetch_elapsed = fetch_start.elapsed();
-
-            metrics
-                .record_histogram(
-                    "helius_gtfa_fetch_duration_seconds",
-                    fetch_elapsed.as_secs_f64(),
-                )
-                .await?;
-
-            metrics
-                .increment_counter("helius_gtfa_pages_fetched", 1)
-                .await?;
+            FETCH_DURATION_MILLIS.record(fetch_elapsed.as_millis() as f64);
+            PAGES_FETCHED.inc();
 
             let status_filter = self
                 .config
@@ -352,11 +366,9 @@ impl Datasource for HeliusGtfaDatasource {
 
                 if let Err(e) = sender.send((update, id_for_loop.clone())).await {
                     log::error!("Failed to send transaction update: {e:?}");
-                };
-
-                metrics
-                    .increment_counter("helius_gtfa_transactions_processed", 1)
-                    .await?;
+                } else {
+                    TRANSACTIONS_PROCESSED.inc();
+                }
             }
 
             pagination_token = result.pagination_token;

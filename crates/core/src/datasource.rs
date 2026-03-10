@@ -1,15 +1,10 @@
 use solana_program::hash::Hash;
 use solana_transaction_status::Rewards;
 use {
-    crate::{error::CarbonResult, metrics::MetricsCollection},
-    async_trait::async_trait,
-    solana_account::Account,
-    solana_pubkey::Pubkey,
-    solana_signature::Signature,
+    crate::error::CarbonResult, async_trait::async_trait, solana_account::Account,
+    solana_pubkey::Pubkey, solana_signature::Signature,
     solana_transaction::versioned::VersionedTransaction,
-    solana_transaction_status::TransactionStatusMeta,
-    std::sync::Arc,
-    tokio_util::sync::CancellationToken,
+    solana_transaction_status::TransactionStatusMeta, tokio_util::sync::CancellationToken,
 };
 
 #[async_trait]
@@ -19,7 +14,6 @@ pub trait Datasource: Send + Sync {
         id: DatasourceId,
         sender: tokio::sync::mpsc::Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
 
     fn update_types(&self) -> Vec<UpdateType>;

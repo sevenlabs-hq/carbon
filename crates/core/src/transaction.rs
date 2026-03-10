@@ -6,7 +6,6 @@ use {
         collection::InstructionDecoderCollection,
         error::CarbonResult,
         instruction::{InstructionMetadata, NestedInstruction},
-        metrics::MetricsCollection,
         processor::Processor,
         schema::{ParsedInstruction, TransactionSchema},
         transformers,
@@ -130,7 +129,6 @@ pub trait TransactionPipes<'a>: Send + Sync {
         &mut self,
         transaction_metadata: Arc<TransactionMetadata>,
         instructions: &[NestedInstruction],
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()>;
 
     fn filters(&self) -> &Vec<Box<dyn Filter + Send + Sync + 'static>>;
@@ -146,9 +144,8 @@ where
         &mut self,
         transaction_metadata: Arc<TransactionMetadata>,
         instructions: &[NestedInstruction],
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        log::trace!("TransactionPipe::run(instructions: {instructions:?}, metrics)",);
+        log::trace!("TransactionPipe::run(instructions: {instructions:?})");
 
         let parsed_instructions = parse_instructions(instructions);
 
@@ -161,10 +158,7 @@ where
         );
 
         self.processor
-            .process(
-                (transaction_metadata, unnested_instructions, matched_data),
-                metrics,
-            )
+            .process((transaction_metadata, unnested_instructions, matched_data))
             .await?;
 
         Ok(())

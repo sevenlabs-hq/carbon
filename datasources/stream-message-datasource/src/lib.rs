@@ -6,11 +6,14 @@ use {
             UpdateType,
         },
         error::CarbonResult,
-        metrics::MetricsCollection,
+        metrics::{Counter, Histogram, MetricsRegistry},
     },
     log::{error, warn},
     solana_pubkey::Pubkey,
-    std::{collections::HashSet, sync::Arc},
+    std::{
+        collections::HashSet,
+        sync::{Arc, LazyLock},
+    },
     tokio::{
         select,
         sync::{
@@ -20,6 +23,53 @@ use {
     },
     tokio_util::sync::CancellationToken,
 };
+
+static ACCOUNT_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "agave_grpc_account_process_time_nanoseconds",
+        "Time to process account in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
+static ACCOUNT_UPDATES_RECEIVED: Counter = Counter::new(
+    "agave_grpc_account_updates_received_total",
+    "Account updates received from stream message",
+);
+static TRANSACTION_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "agave_grpc_transaction_process_time_nanoseconds",
+        "Time to process transaction in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
+static TRANSACTION_UPDATES_RECEIVED: Counter = Counter::new(
+    "agave_grpc_transaction_updates_received_total",
+    "Transaction updates received from stream message",
+);
+
+fn register_stream_message_metrics() {
+    let registry = MetricsRegistry::global();
+    registry.register_counter(&ACCOUNT_UPDATES_RECEIVED);
+    registry.register_counter(&TRANSACTION_UPDATES_RECEIVED);
+    registry.register_histogram(&ACCOUNT_PROCESS_TIME_NANOS);
+    registry.register_histogram(&TRANSACTION_PROCESS_TIME_NANOS);
+}
 
 pub enum UnifiedMessage {
     Account(AccountUpdate),
@@ -51,8 +101,8 @@ impl Datasource for StreamMessageClient {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
+        register_stream_message_metrics();
         let mut receiver_lock = self.receiver.lock().unwrap();
         let Some(receiver) = receiver_lock.take() else {
             error!("StreamMessageClient.consume() called more than once; receiver already taken");
@@ -68,7 +118,6 @@ impl Datasource for StreamMessageClient {
             handle_message_stream(
                 receiver,
                 cancellation_token,
-                metrics,
                 sender,
                 &account_deletions_tracked,
                 id,
@@ -91,7 +140,6 @@ impl Datasource for StreamMessageClient {
 pub async fn handle_message_stream(
     mut receiver: Receiver<UnifiedMessage>,
     cancellation_token: CancellationToken,
-    metrics: Arc<MetricsCollection>,
     sender: Sender<(Update, DatasourceId)>,
     account_deletions_tracked: &RwLock<HashSet<Pubkey>>,
     id: DatasourceId,
@@ -109,7 +157,6 @@ pub async fn handle_message_stream(
                             UnifiedMessage::Account(account_info) => {
                                send_subscribe_account_update_info(
                                     account_info,
-                                    &metrics,
                                     &sender,
                                     account_deletions_tracked,
                                     id.clone()
@@ -119,7 +166,6 @@ pub async fn handle_message_stream(
                             UnifiedMessage::Transaction(transaction_update) => {
                                 send_subscribe_update_transaction_info(
                                     transaction_update,
-                                    &metrics,
                                     &sender,
                                     id.clone()
                                 ).await;
@@ -141,7 +187,6 @@ pub async fn handle_message_stream(
 
 async fn send_subscribe_account_update_info(
     account_update: AccountUpdate,
-    metrics: &MetricsCollection,
     sender: &Sender<(Update, DatasourceId)>,
     account_deletions_tracked: &RwLock<HashSet<Pubkey>>,
     id: DatasourceId,
@@ -187,23 +232,12 @@ async fn send_subscribe_account_update_info(
         );
     }
 
-    metrics
-        .record_histogram(
-            "agave_grpc_account_process_time_nanoseconds",
-            start_time.elapsed().as_nanos() as f64,
-        )
-        .await
-        .expect("Failed to record histogram");
-
-    metrics
-        .increment_counter("agave_grpc_account_updates_received", 1)
-        .await
-        .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
+    ACCOUNT_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
+    ACCOUNT_UPDATES_RECEIVED.inc();
 }
 
 async fn send_subscribe_update_transaction_info(
     transaction_info: Box<TransactionUpdate>,
-    metrics: &MetricsCollection,
     sender: &Sender<(Update, DatasourceId)>,
     id: DatasourceId,
 ) {
@@ -225,16 +259,6 @@ async fn send_subscribe_update_transaction_info(
         return;
     }
 
-    metrics
-        .record_histogram(
-            "agave_grpc_transaction_process_time_nanoseconds",
-            start_time.elapsed().as_nanos() as f64,
-        )
-        .await
-        .expect("Failed to record histogram");
-
-    metrics
-        .increment_counter("agave_grpc_transaction_updates_received", 1)
-        .await
-        .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
+    TRANSACTION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
+    TRANSACTION_UPDATES_RECEIVED.inc();
 }
