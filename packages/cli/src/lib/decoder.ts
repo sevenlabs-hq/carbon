@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { createFromJson, createFromRoot } from 'codama';
 import { rootNodeFromAnchorWithoutDefaultVisitor, rootNodeFromAnchor } from '@codama/nodes-from-anchor';
-import { renderVisitor } from '@sevenlabs-hq/carbon-codama-renderer';
+import { renderVisitor, type PackageMetadata } from '@sevenlabs-hq/carbon-codama-renderer';
 import {
     deduplicateIdenticalDefinedTypesVisitor,
     setFixedAccountSizesVisitor,
@@ -78,6 +78,9 @@ export type DecoderGenerationOptions = {
     withSerde?: boolean;
     withBase58?: boolean;
     standalone?: boolean;
+    workspaceDeps?: boolean;
+    packageMetadata?: PackageMetadata;
+    version?: string;
     versionName?: string;
 };
 
@@ -231,6 +234,10 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
         withSerde,
         withBase58,
         standalone,
+        workspaceDeps,
+        packageMetadata,
+        version,
+        versionName,
     } = options;
 
     const idlSource = parseIdlSource(idl);
@@ -288,6 +295,9 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
                 withSerde,
                 withBase58,
                 standalone,
+                workspaceDeps,
+                packageMetadata,
+                version: options.version,
                 versionName: options.versionName,
             }),
         );
@@ -353,6 +363,9 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
                 withSerde,
                 withBase58,
                 standalone,
+                workspaceDeps,
+                packageMetadata,
+                version: options.version,
                 versionName: options.versionName,
             }),
         );
@@ -368,6 +381,9 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
                 withSerde,
                 withBase58,
                 standalone,
+                workspaceDeps,
+                packageMetadata,
+                version: options.version,
                 versionName: options.versionName,
             }),
         );
