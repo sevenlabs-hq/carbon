@@ -9,9 +9,9 @@ repository = { workspace = true }
 keywords = ["solana", "log", "metrics"]
 categories = ["encoding"]
 
+[lib]
+crate-type = ["rlib"]
+
 [dependencies]
 carbon-core = { workspace = true }
 log = { workspace = true }
-
-[lib]
-crate-type = ["rlib"]

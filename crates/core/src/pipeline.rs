@@ -304,7 +304,6 @@ impl Pipeline {
                     slot: account_update.slot,
                     pubkey: account_update.pubkey,
                     transaction_signature: account_update.transaction_signature,
-                    transaction_index: account_update.transaction_index,
                 };
 
                 let context = FilterContext {
