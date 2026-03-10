@@ -11,11 +11,7 @@ use {
         nonblocking::pubsub_client::PubsubClient, rpc_config::RpcProgramAccountsConfig,
     },
     solana_pubkey::Pubkey,
-    std::{
-        str::FromStr,
-        sync::LazyLock,
-        time::Duration,
-    },
+    std::{str::FromStr, sync::LazyLock, time::Duration},
     tokio::sync::mpsc::Sender,
     tokio_util::sync::CancellationToken,
 };
