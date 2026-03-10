@@ -15,3 +15,5 @@ crate-type = ["rlib"]
 [dependencies]
 carbon-core = { workspace = true }
 log = { workspace = true }
+tokio = { workspace = true }
+tokio-util = { workspace = true }

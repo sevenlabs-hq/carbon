@@ -300,6 +300,7 @@ impl Datasource for HeliusGtfaDatasource {
         cancellation_token: CancellationToken,
     ) -> CarbonResult<()> {
         register_helius_gtfa_metrics();
+
         let client = reqwest::Client::new();
 
         log::info!(
