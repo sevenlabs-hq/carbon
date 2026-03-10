@@ -3,7 +3,6 @@ use {
     carbon_core::{
         account::{AccountDecoder, AccountProcessorInputType, DecodedAccount},
         error::CarbonResult,
-        metrics::MetricsCollection,
         pipeline::Pipeline,
         processor::Processor,
     },
@@ -41,7 +40,6 @@ impl Processor for SnapshotAccountProcessor {
     async fn process(
         &mut self,
         (metadata, decoded_account, raw_account): Self::InputType,
-        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let pubkey_str = format!(
             "{}...{}",
@@ -110,13 +108,7 @@ async fn main() -> CarbonResult<()> {
     Pipeline::builder()
         .datasource(datasource)
         .account(GenericAccountDecoder, SnapshotAccountProcessor)
-        .metrics(Arc::new(LogMetrics::new()))
-        .metrics_flush_interval(
-            env::var("METRICS_FLUSH_INTERVAL")
-                .ok()
-                .and_then(|v| v.parse().ok())
-                .unwrap_or(10),
-        )
+        .metrics(Arc::new(LogMetrics::new_with_flush_interval(env::var("METRICS_FLUSH_INTERVAL").ok().and_then(|v| v.parse().ok()).unwrap_or(10))))
         .build()?
         .run()
         .await?;

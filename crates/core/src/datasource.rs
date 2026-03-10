@@ -65,7 +65,6 @@ pub struct AccountUpdate {
     pub account: Account,
     pub slot: u64,
     pub transaction_signature: Option<Signature>,
-    pub transaction_index: Option<u64>,
 }
 
 #[derive(Debug, Clone)]
