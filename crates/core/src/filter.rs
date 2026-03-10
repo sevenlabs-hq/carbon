@@ -71,8 +71,6 @@ const DEDUP_CLEANUP_INTERVAL_SECS: u64 = 60;
 type SeenInstructionsMap = HashMap<(Signature, Vec<u8>), Instant>;
 type SeenAccountsMap = HashMap<(Signature, Pubkey), Instant>;
 
-type SeenInstructions = HashMap<(Signature, Vec<u8>), Instant>;
-
 pub struct DeduplicationFilter {
     seen_instructions: Arc<RwLock<SeenInstructionsMap>>,
     seen_accounts: Arc<RwLock<SeenAccountsMap>>,
