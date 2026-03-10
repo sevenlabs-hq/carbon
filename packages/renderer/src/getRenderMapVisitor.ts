@@ -239,7 +239,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         // GraphQLObject doesn't support empty structs
                         if (graphqlFields.length > 0) {
                             const schemaTemplate =
-                                options.postgresMode === 'generic'
+                                options.postgresMode === 'generic' || options.withPostgres === false
                                     ? 'graphqlSchemaPageGeneric.njk'
                                     : 'graphqlSchemaPage.njk';
                             renderMap.add(
@@ -617,7 +617,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         // Instructions without arguments will only have instruction_metadata field
                         instructionsWithGraphQLSchemas.add(node.name);
                         const schemaTemplate =
-                            options.postgresMode === 'generic'
+                            options.postgresMode === 'generic' || options.withPostgres === false
                                 ? 'graphqlSchemaPageGeneric.njk'
                                 : 'graphqlSchemaPage.njk';
                         renderMap.add(
@@ -745,7 +745,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     }
                     if (options.withGraphql !== false) {
                         const accountsGraphqlTemplate =
-                            options.postgresMode === 'generic'
+                            options.postgresMode === 'generic' || options.withPostgres === false
                                 ? 'accountsGraphqlModGeneric.njk'
                                 : 'accountsGraphqlMod.njk';
                         const accountsGraphqlImports = new ImportMap().add('juniper::GraphQLObject');
@@ -767,7 +767,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         }
                         if (options.withGraphql !== false) {
                             const instructionsGraphqlTemplate =
-                                options.postgresMode === 'generic'
+                                options.postgresMode === 'generic' || options.withPostgres === false
                                     ? 'instructionsGraphqlModGeneric.njk'
                                     : 'instructionsGraphqlMod.njk';
                             const instructionsGraphqlImports = new ImportMap().add('juniper::GraphQLObject');
@@ -809,7 +809,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         }
                         if (options.withGraphql !== false) {
                             const cpiEventSchemaTemplate =
-                                options.postgresMode === 'generic'
+                                options.postgresMode === 'generic' || options.withPostgres === false
                                     ? 'eventInstructionGraphqlSchemaPageGeneric.njk'
                                     : 'eventInstructionGraphqlSchemaPage.njk';
                             const cpiEventSchemaImports = new ImportMap()
@@ -839,7 +839,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                         // Check if there are actually any GraphQL fields to generate
                         const hasAccountsWithFields =
-                            options.postgresMode === 'generic'
+                            options.postgresMode === 'generic' || options.withPostgres === false
                                 ? accountsToExport.length > 0
                                 : accountsToExport.some(
                                       acc => acc.data.kind === 'structTypeNode' && acc.data.fields.length > 0,
@@ -852,8 +852,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                         // Only generate query.rs if there are GraphQL fields to expose
                         if (hasActualGraphQLFields) {
-                            // Use different query template based on postgres mode
-                            if (options.postgresMode === 'generic') {
+                            // Use generic query template when postgres mode is generic or when postgres is disabled
+                            // (typed template needs per-instruction/account postgres rows which are only generated with postgres)
+                            if (options.postgresMode === 'generic' || options.withPostgres === false) {
                                 const graphqlQueryGenericImports = new ImportMap().add(
                                     'juniper::{graphql_object, FieldResult}',
                                 );
@@ -1015,21 +1016,42 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             const sourceField = `source.${prefix.join('.')}`;
             const sourceColumn = `source.${column}`;
 
-            const expr = isJson
-                ? manifest.sqlxType.includes('Json<')
-                    ? needsConversion
-                        ? `${sourceField}.map(|value| value.into())`
-                        : sourceField
-                    : needsConversion
-                      ? `${sourceField}.map(|value| sqlx::types::Json(value.into()))`
-                      : `${sourceField}.map(sqlx::types::Json)`
-                : needsConversion
-                  ? `${sourceField}.map(|value| value.into())`
-                  : sourceField;
+            const needsSpecialHandling = isNode(itemType, 'arrayTypeNode') || isNode(itemType, 'tupleTypeNode');
 
-            const reverseExpr = isJson
-                ? `${sourceColumn}.map(|value| value.0)`
-                : buildReverseOptionType(typeNode, sourceColumn, manifest);
+            let expr: string;
+            if (needsSpecialHandling) {
+                const innerExpr = buildExpression(itemType, 'value');
+                expr = innerExpr === 'value' ? sourceField : `${sourceField}.map(|value| ${innerExpr})`;
+            } else {
+                expr = isJson
+                    ? manifest.sqlxType.includes('Json<')
+                        ? needsConversion
+                            ? `${sourceField}.map(|value| value.into())`
+                            : sourceField
+                        : needsConversion
+                          ? `${sourceField}.map(|value| sqlx::types::Json(value.into()))`
+                          : `${sourceField}.map(sqlx::types::Json)`
+                    : needsConversion
+                      ? `${sourceField}.map(|value| value.into())`
+                      : sourceField;
+            }
+
+            let reverseExpr: string;
+            if (needsSpecialHandling) {
+                const innerReverseExpr = buildReverse(itemType, 'value');
+                if (innerReverseExpr.includes('?')) {
+                    const exprWithoutQuestion = innerReverseExpr.replace(/\?$/, '');
+                    reverseExpr = `${sourceColumn}.map(|value| ${exprWithoutQuestion}).transpose()?`;
+                } else if (innerReverseExpr === 'value' || innerReverseExpr === 'value.0') {
+                    reverseExpr = isJson ? `${sourceColumn}.map(|value| value.0)` : sourceColumn;
+                } else {
+                    reverseExpr = `${sourceColumn}.map(|value| ${innerReverseExpr})`;
+                }
+            } else {
+                reverseExpr = isJson
+                    ? `${sourceColumn}.map(|value| value.0)`
+                    : buildReverseOptionType(typeNode, sourceColumn, manifest);
+            }
 
             return [
                 {
@@ -1210,7 +1232,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             if (typeNode.items.length === 1) {
                 return `${buildExpression(typeNode.items[0], `${prefix}`)}`;
             }
-            return `(${typeNode.items.map((item, i) => buildExpression(item, `${prefix}.${i}`)).join(', ')})`;
+            return `sqlx::types::Json(serde_json::to_value(${prefix}).unwrap())`;
         } else if (isNode(typeNode, 'publicKeyTypeNode')) {
             // Pubkey from Rust needs conversion to Postgres Pubkey (solana_pubkey::Pubkey)
             return `${prefix}.into()`;
@@ -1472,7 +1494,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             if (typeNode.items.length === 1) {
                 return `${buildReverse(typeNode.items[0], `${prefix}`)}`;
             }
-            return `(${typeNode.items.map((it, i) => buildReverse(it, `${prefix}.${i}`)).join(', ')})`;
+            return `serde_json::from_value(${prefix}.0).map_err(|_| carbon_core::error::Error::Custom("Failed to deserialize tuple from JSON".to_string()))?`;
         }
         if (
             isNode(typeNode, 'definedTypeLinkNode') ||
