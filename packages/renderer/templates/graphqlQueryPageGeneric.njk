@@ -142,7 +142,7 @@ impl QueryRoot {
         use carbon_core::postgres::rows::InstructionRow;
 
         let rows: Vec<InstructionRow<crate::instructions::{{ program.name | pascalCase }}Instruction>> = sqlx::query_as(
-            r#"SELECT * FROM instructions WHERE __signature = $1 AND __instruction_index = $2 AND data->>'type' = $3 ORDER BY __stack_height ASC"#
+            r#"SELECT * FROM instructions WHERE __signature = $1 AND __instruction_index = $2 AND decoded_instruction->>'type' = $3 ORDER BY __stack_height ASC"#
         )
         .bind(signature)
         .bind(instruction_index)
@@ -153,7 +153,7 @@ impl QueryRoot {
 
         Ok(rows.into_iter().filter_map(|r| {
 {% if instructionsToExport.length == 1 %}
-            let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} { data: decoded_instruction, .. } = r.data.0;
+            let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} { data: decoded_instruction, .. } = r.decoded_instruction.0;
             // Create metadata from database values
             let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
                 signature: r.metadata.signature.clone(),
@@ -167,15 +167,14 @@ impl QueryRoot {
                 let mut graphql: crate::instructions::graphql::{{ instruction.name | pascalCase }}GraphQL = graphql;
                 graphql.instruction_metadata = metadata;
                 graphql.accounts = carbon_core::graphql::primitives::Json(
-                    serde_json::to_value(&r.accounts.0)
-                        .unwrap_or(serde_json::Value::Array(vec![]))
+                    serde_json::Value::Array(vec![])
                 );
                 Some(graphql)
             } else {
                 None
             }
 {% else %}
-            if let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} { data: decoded_instruction, .. } = r.data.0 {
+            if let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} { data: decoded_instruction, .. } = r.decoded_instruction.0 {
                 // Create metadata from database values
                 let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
                     signature: r.metadata.signature.clone(),
@@ -189,8 +188,7 @@ impl QueryRoot {
                     let mut graphql: crate::instructions::graphql::{{ instruction.name | pascalCase }}GraphQL = graphql;
                     graphql.instruction_metadata = metadata;
                     graphql.accounts = carbon_core::graphql::primitives::Json(
-                        serde_json::to_value(&r.accounts.0)
-                            .unwrap_or(serde_json::Value::Array(vec![]))
+                        serde_json::Value::Array(vec![])
                     );
                     Some(graphql)
                 } else {
@@ -211,7 +209,7 @@ impl QueryRoot {
         use carbon_core::postgres::rows::InstructionRow;
 
         let rows: Vec<InstructionRow<crate::instructions::{{ program.name | pascalCase }}Instruction>> = sqlx::query_as(
-            r#"SELECT * FROM instructions WHERE data->>'type' = $1 ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $2 OFFSET $3"#
+            r#"SELECT * FROM instructions WHERE decoded_instruction->>'type' = $1 ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $2 OFFSET $3"#
         )
         .bind("{{ instruction.name | pascalCase }}")
         .bind(limit)
@@ -222,7 +220,7 @@ impl QueryRoot {
 
         Ok(rows.into_iter().filter_map(|r| {
 {% if instructionsToExport.length == 1 %}
-            let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} { data: decoded_instruction, .. } = r.data.0;
+            let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} { data: decoded_instruction, .. } = r.decoded_instruction.0;
             // Create metadata from database values
             let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
                 signature: r.metadata.signature.clone(),
@@ -236,15 +234,14 @@ impl QueryRoot {
                 let mut graphql: crate::instructions::graphql::{{ instruction.name | pascalCase }}GraphQL = graphql;
                 graphql.instruction_metadata = metadata;
                 graphql.accounts = carbon_core::graphql::primitives::Json(
-                    serde_json::to_value(&r.accounts.0)
-                        .unwrap_or(serde_json::Value::Array(vec![]))
+                    serde_json::Value::Array(vec![])
                 );
                 Some(graphql)
             } else {
                 None
             }
 {% else %}
-            if let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} { data: decoded_instruction, .. } = r.data.0 {
+            if let crate::instructions::{{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} { data: decoded_instruction, .. } = r.decoded_instruction.0 {
                 // Create metadata from database values
                 let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
                     signature: r.metadata.signature.clone(),
@@ -258,8 +255,7 @@ impl QueryRoot {
                     let mut graphql: crate::instructions::graphql::{{ instruction.name | pascalCase }}GraphQL = graphql;
                     graphql.instruction_metadata = metadata;
                     graphql.accounts = carbon_core::graphql::primitives::Json(
-                        serde_json::to_value(&r.accounts.0)
-                            .unwrap_or(serde_json::Value::Array(vec![]))
+                        serde_json::Value::Array(vec![])
                     );
                     Some(graphql)
                 } else {
@@ -286,7 +282,7 @@ impl QueryRoot {
         use carbon_core::postgres::rows::InstructionRow;
 
         let rows: Vec<InstructionRow<crate::instructions::{{ program.name | pascalCase }}Instruction>> = sqlx::query_as(
-            r#"SELECT * FROM instructions WHERE __signature = $1 AND __instruction_index = $2 AND data->>'type' = 'CpiEvent' ORDER BY __stack_height ASC"#
+            r#"SELECT * FROM instructions WHERE __signature = $1 AND __instruction_index = $2 AND decoded_instruction->>'type' = 'CpiEvent' ORDER BY __stack_height ASC"#
         )
         .bind(signature)
         .bind(instruction_index)
@@ -295,7 +291,7 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
 
         Ok(rows.into_iter().filter_map(|r| {
-            if let crate::instructions::{{ program.name | pascalCase }}Instruction::CpiEvent { data: decoded_instruction, .. } = r.data.0 {
+            if let crate::instructions::{{ program.name | pascalCase }}Instruction::CpiEvent { data: decoded_instruction, .. } = r.decoded_instruction.0 {
                 // Create metadata from database values
                 let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
                     signature: r.metadata.signature.clone(),
@@ -309,8 +305,7 @@ impl QueryRoot {
                     let mut graphql: crate::instructions::graphql::CpiEventGraphQL = graphql;
                     graphql.instruction_metadata = metadata;
                     graphql.accounts = carbon_core::graphql::primitives::Json(
-                        serde_json::to_value(&r.accounts.0)
-                            .unwrap_or(serde_json::Value::Array(vec![]))
+                        serde_json::Value::Array(vec![])
                     );
                     Some(graphql)
                 } else {
@@ -330,7 +325,7 @@ impl QueryRoot {
         use carbon_core::postgres::rows::InstructionRow;
 
         let rows: Vec<InstructionRow<crate::instructions::{{ program.name | pascalCase }}Instruction>> = sqlx::query_as(
-            r#"SELECT * FROM instructions WHERE data->>'type' = 'CpiEvent' ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#
+            r#"SELECT * FROM instructions WHERE decoded_instruction->>'type' = 'CpiEvent' ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#
         )
         .bind(limit)
         .bind(offset)
@@ -339,7 +334,7 @@ impl QueryRoot {
         .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
 
         Ok(rows.into_iter().filter_map(|r| {
-            if let crate::instructions::{{ program.name | pascalCase }}Instruction::CpiEvent { data: decoded_instruction, .. } = r.data.0 {
+            if let crate::instructions::{{ program.name | pascalCase }}Instruction::CpiEvent { data: decoded_instruction, .. } = r.decoded_instruction.0 {
                 // Create metadata from database values
                 let metadata = crate::instructions::graphql::InstructionMetadataGraphQL {
                     signature: r.metadata.signature.clone(),
@@ -353,8 +348,7 @@ impl QueryRoot {
                     let mut graphql: crate::instructions::graphql::CpiEventGraphQL = graphql;
                     graphql.instruction_metadata = metadata;
                     graphql.accounts = carbon_core::graphql::primitives::Json(
-                        serde_json::to_value(&r.accounts.0)
-                            .unwrap_or(serde_json::Value::Array(vec![]))
+                        serde_json::Value::Array(vec![])
                     );
                     Some(graphql)
                 } else {
