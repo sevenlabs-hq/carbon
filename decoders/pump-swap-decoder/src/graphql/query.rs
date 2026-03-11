@@ -399,6 +399,44 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn claim_cashback(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ClaimCashbackGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ClaimCashbackRow> = sqlx::query_as(
+            r#"SELECT * FROM claim_cashback_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_claim_cashback(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ClaimCashbackGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ClaimCashbackRow> = sqlx::query_as(
+            r#"SELECT * FROM claim_cashback_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn claim_token_incentives(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -919,6 +957,44 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::SyncUserVolumeAccumulatorGraphQL>> {
         let rows: Vec<crate::instructions::postgres::SyncUserVolumeAccumulatorRow> = sqlx::query_as(
             r#"SELECT * FROM sync_user_volume_accumulator_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn toggle_cashback_enabled(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ToggleCashbackEnabledGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ToggleCashbackEnabledRow> = sqlx::query_as(
+            r#"SELECT * FROM toggle_cashback_enabled_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_toggle_cashback_enabled(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ToggleCashbackEnabledGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ToggleCashbackEnabledRow> = sqlx::query_as(
+            r#"SELECT * FROM toggle_cashback_enabled_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

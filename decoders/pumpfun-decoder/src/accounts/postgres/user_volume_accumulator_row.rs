@@ -18,6 +18,8 @@ pub struct UserVolumeAccumulatorRow {
     pub current_sol_volume: U64,
     pub last_update_timestamp: i64,
     pub has_total_claimed_tokens: bool,
+    pub cashback_earned: U64,
+    pub total_cashback_claimed: U64,
 }
 
 impl UserVolumeAccumulatorRow {
@@ -34,6 +36,8 @@ impl UserVolumeAccumulatorRow {
             current_sol_volume: source.current_sol_volume.into(),
             last_update_timestamp: source.last_update_timestamp,
             has_total_claimed_tokens: source.has_total_claimed_tokens,
+            cashback_earned: source.cashback_earned.into(),
+            total_cashback_claimed: source.total_cashback_claimed.into(),
         }
     }
 }
@@ -51,6 +55,8 @@ impl TryFrom<UserVolumeAccumulatorRow>
             current_sol_volume: *source.current_sol_volume,
             last_update_timestamp: source.last_update_timestamp,
             has_total_claimed_tokens: source.has_total_claimed_tokens,
+            cashback_earned: *source.cashback_earned,
+            total_cashback_claimed: *source.total_cashback_claimed,
         })
     }
 }
@@ -73,6 +79,8 @@ impl carbon_core::postgres::operations::Table
             "current_sol_volume",
             "last_update_timestamp",
             "has_total_claimed_tokens",
+            "cashback_earned",
+            "total_cashback_claimed",
         ]
     }
 }
@@ -90,9 +98,11 @@ impl carbon_core::postgres::operations::Insert for UserVolumeAccumulatorRow {
                 "current_sol_volume",
                 "last_update_timestamp",
                 "has_total_claimed_tokens",
+                "cashback_earned",
+                "total_cashback_claimed",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
             )"#,
         )
         .bind(self.user)
@@ -102,6 +112,8 @@ impl carbon_core::postgres::operations::Insert for UserVolumeAccumulatorRow {
         .bind(&self.current_sol_volume)
         .bind(self.last_update_timestamp)
         .bind(self.has_total_claimed_tokens)
+        .bind(&self.cashback_earned)
+        .bind(&self.total_cashback_claimed)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool)
@@ -123,9 +135,11 @@ impl carbon_core::postgres::operations::Upsert for UserVolumeAccumulatorRow {
                 "current_sol_volume",
                 "last_update_timestamp",
                 "has_total_claimed_tokens",
+                "cashback_earned",
+                "total_cashback_claimed",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -136,6 +150,8 @@ impl carbon_core::postgres::operations::Upsert for UserVolumeAccumulatorRow {
                 "current_sol_volume" = EXCLUDED."current_sol_volume",
                 "last_update_timestamp" = EXCLUDED."last_update_timestamp",
                 "has_total_claimed_tokens" = EXCLUDED."has_total_claimed_tokens",
+                "cashback_earned" = EXCLUDED."cashback_earned",
+                "total_cashback_claimed" = EXCLUDED."total_cashback_claimed",
                 __slot = EXCLUDED.__slot
             "#,
         )
@@ -146,6 +162,8 @@ impl carbon_core::postgres::operations::Upsert for UserVolumeAccumulatorRow {
         .bind(&self.current_sol_volume)
         .bind(self.last_update_timestamp)
         .bind(self.has_total_claimed_tokens)
+        .bind(&self.cashback_earned)
+        .bind(&self.total_cashback_claimed)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool)
@@ -212,6 +230,8 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for UserVolumeAccumulatorMigration
                 "current_sol_volume" NUMERIC(20) NOT NULL,
                 "last_update_timestamp" INT8 NOT NULL,
                 "has_total_claimed_tokens" BOOLEAN NOT NULL,
+                "cashback_earned" NUMERIC(20) NOT NULL,
+                "total_cashback_claimed" NUMERIC(20) NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),

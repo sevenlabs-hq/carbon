@@ -4,6 +4,7 @@ pub mod admin_set_idl_authority_row;
 pub mod admin_update_token_incentives_row;
 pub mod buy_exact_sol_in_row;
 pub mod buy_row;
+pub mod claim_cashback_row;
 pub mod claim_token_incentives_row;
 pub mod close_user_volume_accumulator_row;
 pub mod collect_creator_fee_row;
@@ -24,20 +25,22 @@ pub mod set_metaplex_creator_row;
 pub mod set_params_row;
 pub mod set_reserved_fee_recipients_row;
 pub mod sync_user_volume_accumulator_row;
+pub mod toggle_cashback_enabled_row;
 pub mod toggle_create_v2_row;
 pub mod toggle_mayhem_mode_row;
 pub mod update_global_authority_row;
 
 pub use self::{
     admin_set_creator_row::*, admin_set_idl_authority_row::*, admin_update_token_incentives_row::*,
-    buy_exact_sol_in_row::*, buy_row::*, claim_token_incentives_row::*,
+    buy_exact_sol_in_row::*, buy_row::*, claim_cashback_row::*, claim_token_incentives_row::*,
     close_user_volume_accumulator_row::*, collect_creator_fee_row::*, cpi_event_row::*,
     create_row::*, create_v2_row::*, distribute_creator_fees_row::*, extend_account_row::*,
     get_minimum_distributable_fee_row::*, init_user_volume_accumulator_row::*, initialize_row::*,
     migrate_bonding_curve_creator_row::*, migrate_row::*, sell_row::*, set_creator_row::*,
     set_mayhem_virtual_params_row::*, set_metaplex_creator_row::*, set_params_row::*,
     set_reserved_fee_recipients_row::*, sync_user_volume_accumulator_row::*,
-    toggle_create_v2_row::*, toggle_mayhem_mode_row::*, update_global_authority_row::*,
+    toggle_cashback_enabled_row::*, toggle_create_v2_row::*, toggle_mayhem_mode_row::*,
+    update_global_authority_row::*,
 };
 use super::PumpfunInstruction;
 
@@ -59,6 +62,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for PumpfunInstructionsMigration {
             Box::new(AdminUpdateTokenIncentivesMigrationOperation),
             Box::new(BuyMigrationOperation),
             Box::new(BuyExactSolInMigrationOperation),
+            Box::new(ClaimCashbackMigrationOperation),
             Box::new(ClaimTokenIncentivesMigrationOperation),
             Box::new(CloseUserVolumeAccumulatorMigrationOperation),
             Box::new(CollectCreatorFeeMigrationOperation),
@@ -78,6 +82,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for PumpfunInstructionsMigration {
             Box::new(SetParamsMigrationOperation),
             Box::new(SetReservedFeeRecipientsMigrationOperation),
             Box::new(SyncUserVolumeAccumulatorMigrationOperation),
+            Box::new(ToggleCashbackEnabledMigrationOperation),
             Box::new(ToggleCreateV2MigrationOperation),
             Box::new(ToggleMayhemModeMigrationOperation),
             Box::new(UpdateGlobalAuthorityMigrationOperation),
@@ -158,6 +163,15 @@ impl carbon_core::postgres::operations::Insert for PumpfunInstructionWithMetadat
             }
             PumpfunInstruction::BuyExactSolIn { data, .. } => {
                 let row = buy_exact_sol_in_row::BuyExactSolInRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            PumpfunInstruction::ClaimCashback { data, .. } => {
+                let row = claim_cashback_row::ClaimCashbackRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -338,6 +352,15 @@ impl carbon_core::postgres::operations::Insert for PumpfunInstructionWithMetadat
                         metadata.clone(),
                         raw_accounts.clone(),
                     );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            PumpfunInstruction::ToggleCashbackEnabled { data, .. } => {
+                let row = toggle_cashback_enabled_row::ToggleCashbackEnabledRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -432,6 +455,15 @@ impl carbon_core::postgres::operations::Upsert for PumpfunInstructionWithMetadat
                 row.upsert(pool).await?;
                 Ok(())
             }
+            PumpfunInstruction::ClaimCashback { data, .. } => {
+                let row = claim_cashback_row::ClaimCashbackRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
             PumpfunInstruction::ClaimTokenIncentives { data, .. } => {
                 let row = claim_token_incentives_row::ClaimTokenIncentivesRow::from_parts(
                     data.clone(),
@@ -605,6 +637,15 @@ impl carbon_core::postgres::operations::Upsert for PumpfunInstructionWithMetadat
                         metadata.clone(),
                         raw_accounts.clone(),
                     );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            PumpfunInstruction::ToggleCashbackEnabled { data, .. } => {
+                let row = toggle_cashback_enabled_row::ToggleCashbackEnabledRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }

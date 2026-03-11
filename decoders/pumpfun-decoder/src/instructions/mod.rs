@@ -12,6 +12,7 @@ pub mod admin_set_idl_authority;
 pub mod admin_update_token_incentives;
 pub mod buy;
 pub mod buy_exact_sol_in;
+pub mod claim_cashback;
 pub mod claim_token_incentives;
 pub mod close_user_volume_accumulator;
 pub mod collect_creator_fee;
@@ -32,19 +33,20 @@ pub mod set_metaplex_creator;
 pub mod set_params;
 pub mod set_reserved_fee_recipients;
 pub mod sync_user_volume_accumulator;
+pub mod toggle_cashback_enabled;
 pub mod toggle_create_v2;
 pub mod toggle_mayhem_mode;
 pub mod update_global_authority;
 
 pub use self::{
     admin_set_creator::*, admin_set_idl_authority::*, admin_update_token_incentives::*, buy::*,
-    buy_exact_sol_in::*, claim_token_incentives::*, close_user_volume_accumulator::*,
-    collect_creator_fee::*, cpi_event::*, create::*, create_v2::*, distribute_creator_fees::*,
-    extend_account::*, get_minimum_distributable_fee::*, init_user_volume_accumulator::*,
-    initialize::*, migrate::*, migrate_bonding_curve_creator::*, sell::*, set_creator::*,
-    set_mayhem_virtual_params::*, set_metaplex_creator::*, set_params::*,
-    set_reserved_fee_recipients::*, sync_user_volume_accumulator::*, toggle_create_v2::*,
-    toggle_mayhem_mode::*, update_global_authority::*,
+    buy_exact_sol_in::*, claim_cashback::*, claim_token_incentives::*,
+    close_user_volume_accumulator::*, collect_creator_fee::*, cpi_event::*, create::*,
+    create_v2::*, distribute_creator_fees::*, extend_account::*, get_minimum_distributable_fee::*,
+    init_user_volume_accumulator::*, initialize::*, migrate::*, migrate_bonding_curve_creator::*,
+    sell::*, set_creator::*, set_mayhem_virtual_params::*, set_metaplex_creator::*, set_params::*,
+    set_reserved_fee_recipients::*, sync_user_volume_accumulator::*, toggle_cashback_enabled::*,
+    toggle_create_v2::*, toggle_mayhem_mode::*, update_global_authority::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -75,6 +77,11 @@ pub enum PumpfunInstruction {
         program_id: solana_pubkey::Pubkey,
         data: BuyExactSolIn,
         accounts: BuyExactSolInInstructionAccounts,
+    },
+    ClaimCashback {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimCashback,
+        accounts: ClaimCashbackInstructionAccounts,
     },
     ClaimTokenIncentives {
         program_id: solana_pubkey::Pubkey,
@@ -171,6 +178,11 @@ pub enum PumpfunInstruction {
         data: SyncUserVolumeAccumulator,
         accounts: SyncUserVolumeAccumulatorInstructionAccounts,
     },
+    ToggleCashbackEnabled {
+        program_id: solana_pubkey::Pubkey,
+        data: ToggleCashbackEnabled,
+        accounts: ToggleCashbackEnabledInstructionAccounts,
+    },
     ToggleCreateV2 {
         program_id: solana_pubkey::Pubkey,
         data: ToggleCreateV2,
@@ -213,6 +225,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpfunDecoder {
             PumpfunInstruction::AdminUpdateTokenIncentives => AdminUpdateTokenIncentives,
             PumpfunInstruction::Buy => Buy,
             PumpfunInstruction::BuyExactSolIn => BuyExactSolIn,
+            PumpfunInstruction::ClaimCashback => ClaimCashback,
             PumpfunInstruction::ClaimTokenIncentives => ClaimTokenIncentives,
             PumpfunInstruction::CloseUserVolumeAccumulator => CloseUserVolumeAccumulator,
             PumpfunInstruction::CollectCreatorFee => CollectCreatorFee,
@@ -232,6 +245,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpfunDecoder {
             PumpfunInstruction::SetParams => SetParams,
             PumpfunInstruction::SetReservedFeeRecipients => SetReservedFeeRecipients,
             PumpfunInstruction::SyncUserVolumeAccumulator => SyncUserVolumeAccumulator,
+            PumpfunInstruction::ToggleCashbackEnabled => ToggleCashbackEnabled,
             PumpfunInstruction::ToggleCreateV2 => ToggleCreateV2,
             PumpfunInstruction::ToggleMayhemMode => ToggleMayhemMode,
             PumpfunInstruction::UpdateGlobalAuthority => UpdateGlobalAuthority,

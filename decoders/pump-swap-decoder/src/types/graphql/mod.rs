@@ -2,6 +2,7 @@
 pub mod admin_set_coin_creator_event_schema;
 pub mod admin_update_token_incentives_event_schema;
 pub mod buy_event_schema;
+pub mod claim_cashback_event_schema;
 pub mod claim_token_incentives_event_schema;
 pub mod close_user_volume_accumulator_event_schema;
 pub mod collect_coin_creator_fee_event_schema;
@@ -28,7 +29,7 @@ pub mod withdraw_event_schema;
 
 pub use {
     admin_set_coin_creator_event_schema::*, admin_update_token_incentives_event_schema::*,
-    buy_event_schema::*, claim_token_incentives_event_schema::*,
+    buy_event_schema::*, claim_cashback_event_schema::*, claim_token_incentives_event_schema::*,
     close_user_volume_accumulator_event_schema::*, collect_coin_creator_fee_event_schema::*,
     config_status_schema::*, create_config_event_schema::*, create_pool_event_schema::*,
     deposit_event_schema::*, disable_event_schema::*, extend_account_event_schema::*,

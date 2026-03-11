@@ -9,9 +9,11 @@ pub mod graphql;
 
 pub mod bonding_curve;
 pub mod fee_config;
+pub mod fee_program_global;
 pub mod global;
 pub mod pool;
 pub mod sharing_config;
+pub mod social_fee_pda;
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -19,9 +21,11 @@ pub mod sharing_config;
 pub enum PumpFeesAccount {
     BondingCurve(Box<bonding_curve::BondingCurve>),
     FeeConfig(Box<fee_config::FeeConfig>),
+    FeeProgramGlobal(Box<fee_program_global::FeeProgramGlobal>),
     Global(Box<global::Global>),
     Pool(Box<pool::Pool>),
     SharingConfig(Box<sharing_config::SharingConfig>),
+    SocialFeePda(Box<social_fee_pda::SocialFeePda>),
 }
 
 impl<'a> carbon_core::account::AccountDecoder<'a> for PumpFeesDecoder {
@@ -60,6 +64,17 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for PumpFeesDecoder {
             }
         }
         {
+            if let Some(decoded) = fee_program_global::FeeProgramGlobal::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: PumpFeesAccount::FeeProgramGlobal(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
             if let Some(decoded) = global::Global::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
@@ -86,6 +101,17 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for PumpFeesDecoder {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: PumpFeesAccount::SharingConfig(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = social_fee_pda::SocialFeePda::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: PumpFeesAccount::SocialFeePda(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

@@ -4,9 +4,16 @@ pub mod create_fee_sharing_config_event_schema;
 pub mod fee_tier_schema;
 pub mod fees_schema;
 pub mod initialize_fee_config_event_schema;
+pub mod initialize_fee_program_global_event_schema;
 pub mod reset_fee_sharing_config_event_schema;
 pub mod revoke_fee_sharing_authority_event_schema;
+pub mod set_authority_event_schema;
+pub mod set_claim_rate_limit_event_schema;
+pub mod set_disable_flags_event_schema;
+pub mod set_social_claim_authority_event_schema;
 pub mod shareholder_schema;
+pub mod social_fee_pda_claimed_schema;
+pub mod social_fee_pda_created_schema;
 pub mod transfer_fee_sharing_authority_event_schema;
 pub mod update_admin_event_schema;
 pub mod update_fee_config_event_schema;
@@ -16,8 +23,12 @@ pub mod upsert_fee_tiers_event_schema;
 pub use {
     config_status_schema::*, create_fee_sharing_config_event_schema::*, fee_tier_schema::*,
     fees_schema::*, initialize_fee_config_event_schema::*,
-    reset_fee_sharing_config_event_schema::*, revoke_fee_sharing_authority_event_schema::*,
-    shareholder_schema::*, transfer_fee_sharing_authority_event_schema::*,
-    update_admin_event_schema::*, update_fee_config_event_schema::*,
-    update_fee_shares_event_schema::*, upsert_fee_tiers_event_schema::*,
+    initialize_fee_program_global_event_schema::*, reset_fee_sharing_config_event_schema::*,
+    revoke_fee_sharing_authority_event_schema::*, set_authority_event_schema::*,
+    set_claim_rate_limit_event_schema::*, set_disable_flags_event_schema::*,
+    set_social_claim_authority_event_schema::*, shareholder_schema::*,
+    social_fee_pda_claimed_schema::*, social_fee_pda_created_schema::*,
+    transfer_fee_sharing_authority_event_schema::*, update_admin_event_schema::*,
+    update_fee_config_event_schema::*, update_fee_shares_event_schema::*,
+    upsert_fee_tiers_event_schema::*,
 };

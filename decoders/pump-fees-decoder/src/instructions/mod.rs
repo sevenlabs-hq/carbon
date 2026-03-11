@@ -7,12 +7,19 @@ pub mod postgres;
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
+pub mod claim_social_fee_pda;
 pub mod cpi_event;
 pub mod create_fee_sharing_config;
+pub mod create_social_fee_pda;
 pub mod get_fees;
 pub mod initialize_fee_config;
+pub mod initialize_fee_program_global;
 pub mod reset_fee_sharing_config;
 pub mod revoke_fee_sharing_authority;
+pub mod set_authority;
+pub mod set_claim_rate_limit;
+pub mod set_disable_flags;
+pub mod set_social_claim_authority;
 pub mod transfer_fee_sharing_authority;
 pub mod update_admin;
 pub mod update_fee_config;
@@ -20,8 +27,10 @@ pub mod update_fee_shares;
 pub mod upsert_fee_tiers;
 
 pub use self::{
-    cpi_event::*, create_fee_sharing_config::*, get_fees::*, initialize_fee_config::*,
-    reset_fee_sharing_config::*, revoke_fee_sharing_authority::*,
+    claim_social_fee_pda::*, cpi_event::*, create_fee_sharing_config::*, create_social_fee_pda::*,
+    get_fees::*, initialize_fee_config::*, initialize_fee_program_global::*,
+    reset_fee_sharing_config::*, revoke_fee_sharing_authority::*, set_authority::*,
+    set_claim_rate_limit::*, set_disable_flags::*, set_social_claim_authority::*,
     transfer_fee_sharing_authority::*, update_admin::*, update_fee_config::*, update_fee_shares::*,
     upsert_fee_tiers::*,
 };
@@ -30,10 +39,20 @@ pub use self::{
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum PumpFeesInstruction {
+    ClaimSocialFeePda {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimSocialFeePda,
+        accounts: ClaimSocialFeePdaInstructionAccounts,
+    },
     CreateFeeSharingConfig {
         program_id: solana_pubkey::Pubkey,
         data: CreateFeeSharingConfig,
         accounts: CreateFeeSharingConfigInstructionAccounts,
+    },
+    CreateSocialFeePda {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateSocialFeePda,
+        accounts: CreateSocialFeePdaInstructionAccounts,
     },
     GetFees {
         program_id: solana_pubkey::Pubkey,
@@ -45,6 +64,11 @@ pub enum PumpFeesInstruction {
         data: InitializeFeeConfig,
         accounts: InitializeFeeConfigInstructionAccounts,
     },
+    InitializeFeeProgramGlobal {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeFeeProgramGlobal,
+        accounts: InitializeFeeProgramGlobalInstructionAccounts,
+    },
     ResetFeeSharingConfig {
         program_id: solana_pubkey::Pubkey,
         data: ResetFeeSharingConfig,
@@ -54,6 +78,26 @@ pub enum PumpFeesInstruction {
         program_id: solana_pubkey::Pubkey,
         data: RevokeFeeSharingAuthority,
         accounts: RevokeFeeSharingAuthorityInstructionAccounts,
+    },
+    SetAuthority {
+        program_id: solana_pubkey::Pubkey,
+        data: SetAuthority,
+        accounts: SetAuthorityInstructionAccounts,
+    },
+    SetClaimRateLimit {
+        program_id: solana_pubkey::Pubkey,
+        data: SetClaimRateLimit,
+        accounts: SetClaimRateLimitInstructionAccounts,
+    },
+    SetDisableFlags {
+        program_id: solana_pubkey::Pubkey,
+        data: SetDisableFlags,
+        accounts: SetDisableFlagsInstructionAccounts,
+    },
+    SetSocialClaimAuthority {
+        program_id: solana_pubkey::Pubkey,
+        data: SetSocialClaimAuthority,
+        accounts: SetSocialClaimAuthorityInstructionAccounts,
     },
     TransferFeeSharingAuthority {
         program_id: solana_pubkey::Pubkey,
@@ -102,11 +146,18 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpFeesDecoder {
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
+            PumpFeesInstruction::ClaimSocialFeePda => ClaimSocialFeePda,
             PumpFeesInstruction::CreateFeeSharingConfig => CreateFeeSharingConfig,
+            PumpFeesInstruction::CreateSocialFeePda => CreateSocialFeePda,
             PumpFeesInstruction::GetFees => GetFees,
             PumpFeesInstruction::InitializeFeeConfig => InitializeFeeConfig,
+            PumpFeesInstruction::InitializeFeeProgramGlobal => InitializeFeeProgramGlobal,
             PumpFeesInstruction::ResetFeeSharingConfig => ResetFeeSharingConfig,
             PumpFeesInstruction::RevokeFeeSharingAuthority => RevokeFeeSharingAuthority,
+            PumpFeesInstruction::SetAuthority => SetAuthority,
+            PumpFeesInstruction::SetClaimRateLimit => SetClaimRateLimit,
+            PumpFeesInstruction::SetDisableFlags => SetDisableFlags,
+            PumpFeesInstruction::SetSocialClaimAuthority => SetSocialClaimAuthority,
             PumpFeesInstruction::TransferFeeSharingAuthority => TransferFeeSharingAuthority,
             PumpFeesInstruction::UpdateAdmin => UpdateAdmin,
             PumpFeesInstruction::UpdateFeeConfig => UpdateFeeConfig,

@@ -19,6 +19,7 @@ pub struct BondingCurveRow {
     pub complete: bool,
     pub creator: Pubkey,
     pub is_mayhem_mode: bool,
+    pub is_cashback_coin: bool,
 }
 
 impl BondingCurveRow {
@@ -36,6 +37,7 @@ impl BondingCurveRow {
             complete: source.complete,
             creator: source.creator.into(),
             is_mayhem_mode: source.is_mayhem_mode,
+            is_cashback_coin: source.is_cashback_coin,
         }
     }
 }
@@ -52,6 +54,7 @@ impl TryFrom<BondingCurveRow> for crate::accounts::bonding_curve::BondingCurve {
             complete: source.complete,
             creator: *source.creator,
             is_mayhem_mode: source.is_mayhem_mode,
+            is_cashback_coin: source.is_cashback_coin,
         })
     }
 }
@@ -73,6 +76,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::bonding_curve
             "complete",
             "creator",
             "is_mayhem_mode",
+            "is_cashback_coin",
         ]
     }
 }
@@ -91,9 +95,10 @@ impl carbon_core::postgres::operations::Insert for BondingCurveRow {
                 "complete",
                 "creator",
                 "is_mayhem_mode",
+                "is_cashback_coin",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
             )"#,
         )
         .bind(&self.virtual_token_reserves)
@@ -104,6 +109,7 @@ impl carbon_core::postgres::operations::Insert for BondingCurveRow {
         .bind(self.complete)
         .bind(self.creator)
         .bind(self.is_mayhem_mode)
+        .bind(self.is_cashback_coin)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool)
@@ -126,9 +132,10 @@ impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
                 "complete",
                 "creator",
                 "is_mayhem_mode",
+                "is_cashback_coin",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -140,6 +147,7 @@ impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
                 "complete" = EXCLUDED."complete",
                 "creator" = EXCLUDED."creator",
                 "is_mayhem_mode" = EXCLUDED."is_mayhem_mode",
+                "is_cashback_coin" = EXCLUDED."is_cashback_coin",
                 __slot = EXCLUDED.__slot
             "#,
         )
@@ -151,6 +159,7 @@ impl carbon_core::postgres::operations::Upsert for BondingCurveRow {
         .bind(self.complete)
         .bind(self.creator)
         .bind(self.is_mayhem_mode)
+        .bind(self.is_cashback_coin)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool)
@@ -218,6 +227,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for BondingCurveMigrationOperation
                 "complete" BOOLEAN NOT NULL,
                 "creator" BYTEA NOT NULL,
                 "is_mayhem_mode" BOOLEAN NOT NULL,
+                "is_cashback_coin" BOOLEAN NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),

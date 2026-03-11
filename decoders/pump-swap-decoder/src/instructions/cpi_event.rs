@@ -17,6 +17,7 @@ pub enum CpiEvent {
         events::admin_update_token_incentives_event::AdminUpdateTokenIncentivesEventEvent,
     ),
     BuyEvent(events::buy_event::BuyEventEvent),
+    ClaimCashbackEvent(events::claim_cashback_event::ClaimCashbackEventEvent),
     ClaimTokenIncentivesEvent(events::claim_token_incentives_event::ClaimTokenIncentivesEventEvent),
     CloseUserVolumeAccumulatorEvent(
         events::close_user_volume_accumulator_event::CloseUserVolumeAccumulatorEventEvent,
@@ -83,6 +84,11 @@ impl CpiEvent {
         }
         if let Some(decoded) = events::buy_event::BuyEventEvent::decode(event_data) {
             return Some(CpiEvent::BuyEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::claim_cashback_event::ClaimCashbackEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::ClaimCashbackEvent(decoded));
         }
         if let Some(decoded) =
             events::claim_token_incentives_event::ClaimTokenIncentivesEventEvent::decode(event_data)

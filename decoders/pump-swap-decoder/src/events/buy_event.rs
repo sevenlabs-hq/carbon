@@ -34,6 +34,8 @@ pub struct BuyEventEvent {
     pub last_update_timestamp: i64,
     pub min_base_amount_out: u64,
     pub ix_name: String,
+    pub cashback_fee_basis_points: u64,
+    pub cashback: u64,
 }
 
 impl BuyEventEvent {

@@ -12,6 +12,9 @@ use {
 ///   rent.minimum_balance(TokenAccount::LEN)
 /// - coin_creator_vault_ata: rent.minimum_balance(TokenAccount::LEN)
 /// - user_volume_accumulator: rent.minimum_balance(UserVolumeAccumulator::LEN)
+///   For cashback coins, optionally pass user_volume_accumulator_wsol_ata as
+///   remaining_accounts[0]. If provided and valid, the ATA will be initialized
+///   if needed.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct BuyExactQuoteIn {

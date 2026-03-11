@@ -16,6 +16,7 @@ pub struct Pool {
     pub lp_supply: u64,
     pub coin_creator: Pubkey,
     pub is_mayhem_mode: bool,
+    pub is_cashback_coin: bool,
 }
 
 impl Pool {

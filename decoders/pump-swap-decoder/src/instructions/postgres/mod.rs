@@ -3,6 +3,7 @@ pub mod admin_set_coin_creator_row;
 pub mod admin_update_token_incentives_row;
 pub mod buy_exact_quote_in_row;
 pub mod buy_row;
+pub mod claim_cashback_row;
 pub mod claim_token_incentives_row;
 pub mod close_user_volume_accumulator_row;
 pub mod collect_coin_creator_fee_row;
@@ -18,6 +19,7 @@ pub mod sell_row;
 pub mod set_coin_creator_row;
 pub mod set_reserved_fee_recipients_row;
 pub mod sync_user_volume_accumulator_row;
+pub mod toggle_cashback_enabled_row;
 pub mod toggle_mayhem_mode_row;
 pub mod transfer_creator_fees_to_pump_row;
 pub mod update_admin_row;
@@ -26,13 +28,14 @@ pub mod withdraw_row;
 
 pub use self::{
     admin_set_coin_creator_row::*, admin_update_token_incentives_row::*, buy_exact_quote_in_row::*,
-    buy_row::*, claim_token_incentives_row::*, close_user_volume_accumulator_row::*,
-    collect_coin_creator_fee_row::*, cpi_event_row::*, create_config_row::*, create_pool_row::*,
-    deposit_row::*, disable_row::*, extend_account_row::*, init_user_volume_accumulator_row::*,
-    migrate_pool_coin_creator_row::*, sell_row::*, set_coin_creator_row::*,
-    set_reserved_fee_recipients_row::*, sync_user_volume_accumulator_row::*,
-    toggle_mayhem_mode_row::*, transfer_creator_fees_to_pump_row::*, update_admin_row::*,
-    update_fee_config_row::*, withdraw_row::*,
+    buy_row::*, claim_cashback_row::*, claim_token_incentives_row::*,
+    close_user_volume_accumulator_row::*, collect_coin_creator_fee_row::*, cpi_event_row::*,
+    create_config_row::*, create_pool_row::*, deposit_row::*, disable_row::*,
+    extend_account_row::*, init_user_volume_accumulator_row::*, migrate_pool_coin_creator_row::*,
+    sell_row::*, set_coin_creator_row::*, set_reserved_fee_recipients_row::*,
+    sync_user_volume_accumulator_row::*, toggle_cashback_enabled_row::*, toggle_mayhem_mode_row::*,
+    transfer_creator_fees_to_pump_row::*, update_admin_row::*, update_fee_config_row::*,
+    withdraw_row::*,
 };
 use super::PumpSwapInstruction;
 
@@ -53,6 +56,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for PumpSwapInstructionsMigration 
             Box::new(AdminUpdateTokenIncentivesMigrationOperation),
             Box::new(BuyMigrationOperation),
             Box::new(BuyExactQuoteInMigrationOperation),
+            Box::new(ClaimCashbackMigrationOperation),
             Box::new(ClaimTokenIncentivesMigrationOperation),
             Box::new(CloseUserVolumeAccumulatorMigrationOperation),
             Box::new(CollectCoinCreatorFeeMigrationOperation),
@@ -67,6 +71,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for PumpSwapInstructionsMigration 
             Box::new(SetCoinCreatorMigrationOperation),
             Box::new(SetReservedFeeRecipientsMigrationOperation),
             Box::new(SyncUserVolumeAccumulatorMigrationOperation),
+            Box::new(ToggleCashbackEnabledMigrationOperation),
             Box::new(ToggleMayhemModeMigrationOperation),
             Box::new(TransferCreatorFeesToPumpMigrationOperation),
             Box::new(UpdateAdminMigrationOperation),
@@ -140,6 +145,15 @@ impl carbon_core::postgres::operations::Insert for PumpSwapInstructionWithMetada
             }
             PumpSwapInstruction::BuyExactQuoteIn { data, .. } => {
                 let row = buy_exact_quote_in_row::BuyExactQuoteInRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            PumpSwapInstruction::ClaimCashback { data, .. } => {
+                let row = claim_cashback_row::ClaimCashbackRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -273,6 +287,15 @@ impl carbon_core::postgres::operations::Insert for PumpSwapInstructionWithMetada
                         metadata.clone(),
                         raw_accounts.clone(),
                     );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            PumpSwapInstruction::ToggleCashbackEnabled { data, .. } => {
+                let row = toggle_cashback_enabled_row::ToggleCashbackEnabledRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -377,6 +400,15 @@ impl carbon_core::postgres::operations::Upsert for PumpSwapInstructionWithMetada
                 row.upsert(pool).await?;
                 Ok(())
             }
+            PumpSwapInstruction::ClaimCashback { data, .. } => {
+                let row = claim_cashback_row::ClaimCashbackRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
             PumpSwapInstruction::ClaimTokenIncentives { data, .. } => {
                 let row = claim_token_incentives_row::ClaimTokenIncentivesRow::from_parts(
                     data.clone(),
@@ -503,6 +535,15 @@ impl carbon_core::postgres::operations::Upsert for PumpSwapInstructionWithMetada
                         metadata.clone(),
                         raw_accounts.clone(),
                     );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            PumpSwapInstruction::ToggleCashbackEnabled { data, .. } => {
+                let row = toggle_cashback_enabled_row::ToggleCashbackEnabledRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }

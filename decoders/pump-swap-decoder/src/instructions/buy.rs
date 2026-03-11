@@ -3,6 +3,9 @@ use {
     crate::types::OptionBool,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
+/// For cashback coins, optionally pass user_volume_accumulator_wsol_ata as
+/// remaining_accounts[0]. If provided and valid, the ATA will be initialized if
+/// needed.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct Buy {

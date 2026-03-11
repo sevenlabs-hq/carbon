@@ -3,6 +3,7 @@
 pub mod admin_set_coin_creator_event;
 pub mod admin_update_token_incentives_event;
 pub mod buy_event;
+pub mod claim_cashback_event;
 pub mod claim_token_incentives_event;
 pub mod close_user_volume_accumulator_event;
 pub mod collect_coin_creator_fee_event;

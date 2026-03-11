@@ -30,6 +30,8 @@ pub struct SellEventGraphQL {
     pub coin_creator: Pubkey,
     pub coin_creator_fee_basis_points: U64,
     pub coin_creator_fee: U64,
+    pub cashback_fee_basis_points: U64,
+    pub cashback: U64,
 }
 
 impl From<crate::types::SellEvent> for SellEventGraphQL {
@@ -86,6 +88,10 @@ impl From<crate::types::SellEvent> for SellEventGraphQL {
                 original.coin_creator_fee_basis_points,
             ),
             coin_creator_fee: carbon_core::graphql::primitives::U64(original.coin_creator_fee),
+            cashback_fee_basis_points: carbon_core::graphql::primitives::U64(
+                original.cashback_fee_basis_points,
+            ),
+            cashback: carbon_core::graphql::primitives::U64(original.cashback),
         }
     }
 }
