@@ -5,7 +5,7 @@ use {
         datasource::{AccountUpdate, Datasource, DatasourceId, Update, UpdateType},
         error::CarbonResult,
         filter::DatasourceFilter,
-        instruction::{InstructionProcessorInputType},
+        instruction::InstructionProcessorInputType,
         processor::Processor,
     },
     carbon_kamino_lending_decoder::{
@@ -125,7 +125,9 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct KaminoLendingInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<'_, KaminoLendingInstruction>> for KaminoLendingInstructionProcessor {
+impl Processor<InstructionProcessorInputType<'_, KaminoLendingInstruction>>
+    for KaminoLendingInstructionProcessor
+{
     async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, KaminoLendingInstruction>,
@@ -138,16 +140,16 @@ impl Processor<InstructionProcessorInputType<'_, KaminoLendingInstruction>> for 
             &signature.to_string()[signature.to_string().len() - 4..signature.to_string().len()]
         );
 
-        log::info!(
-            "instruction processed ({signature}) {input:?}"
-        );
+        log::info!("instruction processed ({signature}) {input:?}");
 
         Ok(())
     }
 }
 
 pub struct KaminoLendingRealtimeAccountProcessor;
-impl Processor<AccountProcessorInputType<'_, KaminoLendingAccount>> for KaminoLendingRealtimeAccountProcessor {
+impl Processor<AccountProcessorInputType<'_, KaminoLendingAccount>>
+    for KaminoLendingRealtimeAccountProcessor
+{
     async fn process(
         &mut self,
         input: &AccountProcessorInputType<'_, KaminoLendingAccount>,
@@ -184,8 +186,10 @@ impl Processor<AccountProcessorInputType<'_, KaminoLendingAccount>> for KaminoLe
                     KaminoLendingAccount::UserMetadata(user_metadata) =>
                         format!("{user_metadata:?}"),
                     KaminoLendingAccount::Reserve(reserve) => format!("{reserve:?}"),
-                    KaminoLendingAccount::GlobalConfig(global_config) => format!("{global_config:?}"),
-                    KaminoLendingAccount::WithdrawTicket(withdraw_ticket) => format!("{withdraw_ticket:?}"),
+                    KaminoLendingAccount::GlobalConfig(global_config) =>
+                        format!("{global_config:?}"),
+                    KaminoLendingAccount::WithdrawTicket(withdraw_ticket) =>
+                        format!("{withdraw_ticket:?}"),
                 },
                 100
             )
@@ -196,7 +200,9 @@ impl Processor<AccountProcessorInputType<'_, KaminoLendingAccount>> for KaminoLe
 }
 
 pub struct KaminoLendingStartupAccountProcessor;
-impl Processor<AccountProcessorInputType<'_, KaminoLendingAccount>> for KaminoLendingStartupAccountProcessor {
+impl Processor<AccountProcessorInputType<'_, KaminoLendingAccount>>
+    for KaminoLendingStartupAccountProcessor
+{
     async fn process(
         &mut self,
         input: &AccountProcessorInputType<'_, KaminoLendingAccount>,
@@ -233,8 +239,10 @@ impl Processor<AccountProcessorInputType<'_, KaminoLendingAccount>> for KaminoLe
                     KaminoLendingAccount::UserMetadata(user_metadata) =>
                         format!("{user_metadata:?}"),
                     KaminoLendingAccount::Reserve(reserve) => format!("{reserve:?}"),
-                    KaminoLendingAccount::GlobalConfig(global_config) => format!("{global_config:?}"),
-                    KaminoLendingAccount::WithdrawTicket(withdraw_ticket) => format!("{withdraw_ticket:?}"),
+                    KaminoLendingAccount::GlobalConfig(global_config) =>
+                        format!("{global_config:?}"),
+                    KaminoLendingAccount::WithdrawTicket(withdraw_ticket) =>
+                        format!("{withdraw_ticket:?}"),
                 },
                 100
             )

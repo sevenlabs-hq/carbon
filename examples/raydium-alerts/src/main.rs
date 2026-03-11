@@ -1,15 +1,12 @@
 use {
     carbon_core::{
-        error::CarbonResult,
-        instruction::InstructionProcessorInputType,
-        account::AccountProcessorInputType,
-        processor::Processor,
+        account::AccountProcessorInputType, error::CarbonResult,
+        instruction::InstructionProcessorInputType, processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
     carbon_raydium_amm_v4_decoder::{
-        accounts::RaydiumAmmV4Account,
-        instructions::RaydiumAmmV4Instruction,
-        RaydiumAmmV4Decoder, PROGRAM_ID as RAYDIUM_AMM_V4_PROGRAM_ID,
+        accounts::RaydiumAmmV4Account, instructions::RaydiumAmmV4Instruction, RaydiumAmmV4Decoder,
+        PROGRAM_ID as RAYDIUM_AMM_V4_PROGRAM_ID,
     },
     carbon_yellowstone_grpc_datasource::{
         YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient,
@@ -96,7 +93,9 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct RaydiumAmmV4InstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<'_, RaydiumAmmV4Instruction>> for RaydiumAmmV4InstructionProcessor {
+impl Processor<InstructionProcessorInputType<'_, RaydiumAmmV4Instruction>>
+    for RaydiumAmmV4InstructionProcessor
+{
     async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, RaydiumAmmV4Instruction>,
@@ -113,7 +112,9 @@ impl Processor<InstructionProcessorInputType<'_, RaydiumAmmV4Instruction>> for R
 
 pub struct RaydiumAmmV4AccountProcessor;
 
-impl Processor<AccountProcessorInputType<'_, RaydiumAmmV4Account>> for RaydiumAmmV4AccountProcessor {
+impl Processor<AccountProcessorInputType<'_, RaydiumAmmV4Account>>
+    for RaydiumAmmV4AccountProcessor
+{
     async fn process(
         &mut self,
         input: &AccountProcessorInputType<'_, RaydiumAmmV4Account>,

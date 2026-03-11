@@ -1,8 +1,8 @@
 use std::{collections::HashSet, sync::Arc};
 
 use carbon_core::{
-    error::CarbonResult, instruction::InstructionProcessorInputType, 
-    pipeline::Pipeline, processor::Processor,
+    error::CarbonResult, instruction::InstructionProcessorInputType, pipeline::Pipeline,
+    processor::Processor,
 };
 use carbon_jetstreamer_datasource::{
     filter::{JetstreamerFilter, TransactionFilter},
@@ -47,7 +47,9 @@ pub async fn main() -> CarbonResult<()> {
 
 struct Token2022InstructionLogger;
 
-impl Processor<InstructionProcessorInputType<'_, Token2022Instruction>> for Token2022InstructionLogger {
+impl Processor<InstructionProcessorInputType<'_, Token2022Instruction>>
+    for Token2022InstructionLogger
+{
     async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, Token2022Instruction>,

@@ -1,9 +1,7 @@
 use {
     carbon_core::{
-        account::AccountProcessorInputType,
-        error::CarbonResult,
-        instruction::InstructionProcessorInputType,
-        processor::Processor,
+        account::AccountProcessorInputType, error::CarbonResult,
+        instruction::InstructionProcessorInputType, processor::Processor,
     },
     carbon_kamino_lending_decoder::{
         accounts::KaminoLendingAccount, instructions::KaminoLendingInstruction,
@@ -93,7 +91,9 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct KaminoLendingInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<'_, KaminoLendingInstruction>> for KaminoLendingInstructionProcessor {
+impl Processor<InstructionProcessorInputType<'_, KaminoLendingInstruction>>
+    for KaminoLendingInstructionProcessor
+{
     async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, KaminoLendingInstruction>,
@@ -110,7 +110,9 @@ impl Processor<InstructionProcessorInputType<'_, KaminoLendingInstruction>> for 
 }
 
 pub struct KaminoLendingAccountProcessor;
-impl Processor<AccountProcessorInputType<'_, KaminoLendingAccount>> for KaminoLendingAccountProcessor {
+impl Processor<AccountProcessorInputType<'_, KaminoLendingAccount>>
+    for KaminoLendingAccountProcessor
+{
     async fn process(
         &mut self,
         input: &AccountProcessorInputType<'_, KaminoLendingAccount>,

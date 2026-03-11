@@ -45,10 +45,7 @@ pub async fn main() -> CarbonResult<()> {
 pub struct BlockProcessor;
 
 impl Processor<BlockDetails> for BlockProcessor {
-    async fn process(
-        &mut self,
-        block_details: &BlockDetails,
-    ) -> CarbonResult<()> {
+    async fn process(&mut self, block_details: &BlockDetails) -> CarbonResult<()> {
         log::info!("Final block: {block_details:?}");
 
         Ok(())

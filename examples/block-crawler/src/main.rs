@@ -4,8 +4,7 @@ use solana_transaction_status::UiTransactionEncoding;
 
 use {
     carbon_core::{
-        error::CarbonResult, instruction::InstructionProcessorInputType,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType, processor::Processor,
     },
     carbon_pumpfun_decoder::{
         instructions::{CpiEvent, PumpfunInstruction},
@@ -59,7 +58,9 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct PumpfunInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<'_, PumpfunInstruction>> for PumpfunInstructionProcessor {
+impl Processor<InstructionProcessorInputType<'_, PumpfunInstruction>>
+    for PumpfunInstructionProcessor
+{
     async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, PumpfunInstruction>,
