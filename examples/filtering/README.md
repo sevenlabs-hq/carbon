@@ -43,4 +43,4 @@ This will start the Geyser client and the pipeline will begin processing transac
 
 ## Metrics
 
-The example doesn't include a metrics implementation by default. However, you can easily integrate custom metrics or logging by passing your own metrics implementation to the pipeline.
+The example includes a basic metrics setup using `LogMetrics`. Pipeline metrics (e.g. updates processed, queue depth) are logged periodically. You can extend this by implementing the `MetricsExporter` trait to integrate custom metrics.

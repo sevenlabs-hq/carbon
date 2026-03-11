@@ -1,14 +1,14 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
         error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
+        instruction::InstructionProcessorInputType,
         processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
     carbon_raydium_cpmm_decoder::{
-        instructions::RaydiumCpmmInstruction, types::SwapEvent, RaydiumCpmmDecoder,
+        instructions::RaydiumCpmmInstruction,
+        types::SwapEvent,
+        RaydiumCpmmDecoder,
         PROGRAM_ID as RAYDIUM_CPMM_PROGRAM_ID,
     },
     carbon_yellowstone_grpc_datasource::{
@@ -74,7 +74,6 @@ pub async fn main() -> CarbonResult<()> {
     carbon_core::pipeline::Pipeline::builder()
         .datasource(yellowstone_grpc)
         .metrics(Arc::new(LogMetrics::new()))
-        .metrics_flush_interval(3)
         .instruction(RaydiumCpmmDecoder, RaydiumCpmmInstructionProcessor)
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
         .build()?
@@ -86,21 +85,12 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct RaydiumCpmmInstructionProcessor;
 
-#[async_trait]
-impl Processor for RaydiumCpmmInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<RaydiumCpmmInstruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
+impl Processor<InstructionProcessorInputType<'_, RaydiumCpmmInstruction>> for RaydiumCpmmInstructionProcessor {
     async fn process(
         &mut self,
-        (metadata, _, _, _): Self::InputType,
-        _metrics: Arc<MetricsCollection>,
+        input: &InstructionProcessorInputType<'_, RaydiumCpmmInstruction>,
     ) -> CarbonResult<()> {
-        let logs = metadata.decode_log_events::<SwapEvent>();
-
+        let logs = input.metadata.decode_log_events::<SwapEvent>();
         if !logs.is_empty() {
             println!("Swap Events: {logs:?}");
         }

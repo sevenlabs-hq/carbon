@@ -1,8 +1,7 @@
 use std::{collections::HashSet, sync::Arc};
 
-use async_trait::async_trait;
 use carbon_core::{
-    error::CarbonResult, instruction::InstructionProcessorInputType, metrics::MetricsCollection,
+    error::CarbonResult, instruction::InstructionProcessorInputType, 
     pipeline::Pipeline, processor::Processor,
 };
 use carbon_jetstreamer_datasource::{
@@ -39,7 +38,6 @@ pub async fn main() -> CarbonResult<()> {
         .datasource(jetstreamer)
         .instruction(Token2022Decoder, Token2022InstructionLogger)
         .metrics(Arc::new(LogMetrics::new()))
-        .metrics_flush_interval(10) // Display metrics in console every 10 seconds
         .build()?
         .run()
         .await?;
@@ -49,20 +47,16 @@ pub async fn main() -> CarbonResult<()> {
 
 struct Token2022InstructionLogger;
 
-#[async_trait]
-impl Processor for Token2022InstructionLogger {
-    type InputType = InstructionProcessorInputType<Token2022Instruction>;
-
+impl Processor<InstructionProcessorInputType<'_, Token2022Instruction>> for Token2022InstructionLogger {
     async fn process(
         &mut self,
-        (metadata, decoded_instruction, _nested_instructions, _raw_instruction): Self::InputType,
-        _metrics: Arc<MetricsCollection>,
+        input: &InstructionProcessorInputType<'_, Token2022Instruction>,
     ) -> CarbonResult<()> {
         log::info!(
             "Token2022InstructionLogger: signature: {:?}, absolute path: {:?}, decoded_instruction: {:?}",
-            metadata.transaction_metadata.signature,
-            metadata.absolute_path,
-            decoded_instruction.data
+            input.metadata.transaction_metadata.signature,
+            input.metadata.absolute_path,
+            input.decoded_instruction
         );
         Ok(())
     }
