@@ -19,6 +19,7 @@ pub struct PoolGraphQL {
     pub lp_supply: U64,
     pub coin_creator: Pubkey,
     pub is_mayhem_mode: bool,
+    pub is_cashback_coin: bool,
 }
 
 impl TryFrom<crate::accounts::postgres::PoolRow> for PoolGraphQL {
@@ -41,6 +42,7 @@ impl TryFrom<crate::accounts::postgres::PoolRow> for PoolGraphQL {
             lp_supply: carbon_core::graphql::primitives::U64(*row.lp_supply),
             coin_creator: carbon_core::graphql::primitives::Pubkey(row.coin_creator.0),
             is_mayhem_mode: row.is_mayhem_mode,
+            is_cashback_coin: row.is_cashback_coin,
         })
     }
 }

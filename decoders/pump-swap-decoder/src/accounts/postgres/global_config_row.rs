@@ -22,6 +22,7 @@ pub struct GlobalConfigRow {
     pub reserved_fee_recipient: Pubkey,
     pub mayhem_mode_enabled: bool,
     pub reserved_fee_recipients: Vec<Pubkey>,
+    pub is_cashback_enabled: bool,
 }
 
 impl GlobalConfigRow {
@@ -50,6 +51,7 @@ impl GlobalConfigRow {
                 .into_iter()
                 .map(|element| element.into())
                 .collect(),
+            is_cashback_enabled: source.is_cashback_enabled,
         }
     }
 }
@@ -103,6 +105,7 @@ impl TryFrom<GlobalConfigRow> for crate::accounts::global_config::GlobalConfig {
                         "Failed to convert array element to primitive".to_string(),
                     )
                 })?,
+            is_cashback_enabled: source.is_cashback_enabled,
         })
     }
 }
@@ -127,6 +130,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::global_config
             "reserved_fee_recipient",
             "mayhem_mode_enabled",
             "reserved_fee_recipients",
+            "is_cashback_enabled",
         ]
     }
 }
@@ -148,9 +152,10 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
                 "reserved_fee_recipient",
                 "mayhem_mode_enabled",
                 "reserved_fee_recipients",
+                "is_cashback_enabled",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
             )"#,
         )
         .bind(self.admin)
@@ -164,6 +169,7 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
         .bind(self.reserved_fee_recipient)
         .bind(self.mayhem_mode_enabled)
         .bind(&self.reserved_fee_recipients)
+        .bind(self.is_cashback_enabled)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool)
@@ -189,9 +195,10 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
                 "reserved_fee_recipient",
                 "mayhem_mode_enabled",
                 "reserved_fee_recipients",
+                "is_cashback_enabled",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -206,6 +213,7 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
                 "reserved_fee_recipient" = EXCLUDED."reserved_fee_recipient",
                 "mayhem_mode_enabled" = EXCLUDED."mayhem_mode_enabled",
                 "reserved_fee_recipients" = EXCLUDED."reserved_fee_recipients",
+                "is_cashback_enabled" = EXCLUDED."is_cashback_enabled",
                 __slot = EXCLUDED.__slot
             "#,
         )
@@ -220,6 +228,7 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
         .bind(self.reserved_fee_recipient)
         .bind(self.mayhem_mode_enabled)
         .bind(&self.reserved_fee_recipients)
+        .bind(self.is_cashback_enabled)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool)
@@ -290,6 +299,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalConfigMigrationOperation
                 "reserved_fee_recipient" BYTEA NOT NULL,
                 "mayhem_mode_enabled" BOOLEAN NOT NULL,
                 "reserved_fee_recipients" BYTEA[] NOT NULL,
+                "is_cashback_enabled" BOOLEAN NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),

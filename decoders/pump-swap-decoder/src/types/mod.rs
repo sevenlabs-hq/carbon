@@ -5,6 +5,7 @@ pub mod graphql;
 pub mod admin_set_coin_creator_event;
 pub mod admin_update_token_incentives_event;
 pub mod buy_event;
+pub mod claim_cashback_event;
 pub mod claim_token_incentives_event;
 pub mod close_user_volume_accumulator_event;
 pub mod collect_coin_creator_fee_event;
@@ -31,12 +32,12 @@ pub mod withdraw_event;
 
 pub use self::{
     admin_set_coin_creator_event::*, admin_update_token_incentives_event::*, buy_event::*,
-    claim_token_incentives_event::*, close_user_volume_accumulator_event::*,
-    collect_coin_creator_fee_event::*, config_status::*, create_config_event::*,
-    create_pool_event::*, deposit_event::*, disable_event::*, extend_account_event::*, fee_tier::*,
-    fees::*, init_user_volume_accumulator_event::*, migrate_pool_coin_creator_event::*,
-    option_bool::*, reserved_fee_recipients_event::*, sell_event::*,
-    set_bonding_curve_coin_creator_event::*, set_metaplex_coin_creator_event::*, shareholder::*,
-    sync_user_volume_accumulator_event::*, update_admin_event::*, update_fee_config_event::*,
-    withdraw_event::*,
+    claim_cashback_event::*, claim_token_incentives_event::*,
+    close_user_volume_accumulator_event::*, collect_coin_creator_fee_event::*, config_status::*,
+    create_config_event::*, create_pool_event::*, deposit_event::*, disable_event::*,
+    extend_account_event::*, fee_tier::*, fees::*, init_user_volume_accumulator_event::*,
+    migrate_pool_coin_creator_event::*, option_bool::*, reserved_fee_recipients_event::*,
+    sell_event::*, set_bonding_curve_coin_creator_event::*, set_metaplex_coin_creator_event::*,
+    shareholder::*, sync_user_volume_accumulator_event::*, update_admin_event::*,
+    update_fee_config_event::*, withdraw_event::*,
 };

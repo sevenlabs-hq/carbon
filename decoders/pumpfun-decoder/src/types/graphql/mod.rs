@@ -2,6 +2,7 @@
 pub mod admin_set_creator_event_schema;
 pub mod admin_set_idl_authority_event_schema;
 pub mod admin_update_token_incentives_event_schema;
+pub mod claim_cashback_event_schema;
 pub mod claim_token_incentives_event_schema;
 pub mod close_user_volume_accumulator_event_schema;
 pub mod collect_creator_fee_event_schema;
@@ -29,14 +30,14 @@ pub mod update_mayhem_virtual_params_event_schema;
 
 pub use {
     admin_set_creator_event_schema::*, admin_set_idl_authority_event_schema::*,
-    admin_update_token_incentives_event_schema::*, claim_token_incentives_event_schema::*,
-    close_user_volume_accumulator_event_schema::*, collect_creator_fee_event_schema::*,
-    complete_event_schema::*, complete_pump_amm_migration_event_schema::*, config_status_schema::*,
-    create_event_schema::*, distribute_creator_fees_event_schema::*,
-    extend_account_event_schema::*, fee_tier_schema::*, fees_schema::*,
-    init_user_volume_accumulator_event_schema::*, migrate_bonding_curve_creator_event_schema::*,
-    minimum_distributable_fee_event_schema::*, option_bool_schema::*,
-    reserved_fee_recipients_event_schema::*, set_creator_event_schema::*,
+    admin_update_token_incentives_event_schema::*, claim_cashback_event_schema::*,
+    claim_token_incentives_event_schema::*, close_user_volume_accumulator_event_schema::*,
+    collect_creator_fee_event_schema::*, complete_event_schema::*,
+    complete_pump_amm_migration_event_schema::*, config_status_schema::*, create_event_schema::*,
+    distribute_creator_fees_event_schema::*, extend_account_event_schema::*, fee_tier_schema::*,
+    fees_schema::*, init_user_volume_accumulator_event_schema::*,
+    migrate_bonding_curve_creator_event_schema::*, minimum_distributable_fee_event_schema::*,
+    option_bool_schema::*, reserved_fee_recipients_event_schema::*, set_creator_event_schema::*,
     set_metaplex_creator_event_schema::*, set_params_event_schema::*, shareholder_schema::*,
     sync_user_volume_accumulator_event_schema::*, trade_event_schema::*,
     update_global_authority_event_schema::*, update_mayhem_virtual_params_event_schema::*,

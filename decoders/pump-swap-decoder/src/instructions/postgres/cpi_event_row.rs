@@ -29,6 +29,7 @@ impl CpiEventRow {
                     "admin_update_token_incentives_event".to_string()
                 }
                 CpiEvent::BuyEvent(_) => "buy_event".to_string(),
+                CpiEvent::ClaimCashbackEvent(_) => "claim_cashback_event".to_string(),
                 CpiEvent::ClaimTokenIncentivesEvent(_) => {
                     "claim_token_incentives_event".to_string()
                 }

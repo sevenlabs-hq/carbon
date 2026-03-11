@@ -5,6 +5,7 @@ pub mod graphql;
 pub mod admin_set_creator_event;
 pub mod admin_set_idl_authority_event;
 pub mod admin_update_token_incentives_event;
+pub mod claim_cashback_event;
 pub mod claim_token_incentives_event;
 pub mod close_user_volume_accumulator_event;
 pub mod collect_creator_fee_event;
@@ -32,13 +33,13 @@ pub mod update_mayhem_virtual_params_event;
 
 pub use self::{
     admin_set_creator_event::*, admin_set_idl_authority_event::*,
-    admin_update_token_incentives_event::*, claim_token_incentives_event::*,
-    close_user_volume_accumulator_event::*, collect_creator_fee_event::*, complete_event::*,
-    complete_pump_amm_migration_event::*, config_status::*, create_event::*,
-    distribute_creator_fees_event::*, extend_account_event::*, fee_tier::*, fees::*,
-    init_user_volume_accumulator_event::*, migrate_bonding_curve_creator_event::*,
-    minimum_distributable_fee_event::*, option_bool::*, reserved_fee_recipients_event::*,
-    set_creator_event::*, set_metaplex_creator_event::*, set_params_event::*, shareholder::*,
-    sync_user_volume_accumulator_event::*, trade_event::*, update_global_authority_event::*,
-    update_mayhem_virtual_params_event::*,
+    admin_update_token_incentives_event::*, claim_cashback_event::*,
+    claim_token_incentives_event::*, close_user_volume_accumulator_event::*,
+    collect_creator_fee_event::*, complete_event::*, complete_pump_amm_migration_event::*,
+    config_status::*, create_event::*, distribute_creator_fees_event::*, extend_account_event::*,
+    fee_tier::*, fees::*, init_user_volume_accumulator_event::*,
+    migrate_bonding_curve_creator_event::*, minimum_distributable_fee_event::*, option_bool::*,
+    reserved_fee_recipients_event::*, set_creator_event::*, set_metaplex_creator_event::*,
+    set_params_event::*, shareholder::*, sync_user_volume_accumulator_event::*, trade_event::*,
+    update_global_authority_event::*, update_mayhem_virtual_params_event::*,
 };

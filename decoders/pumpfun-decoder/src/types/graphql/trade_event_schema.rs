@@ -30,6 +30,8 @@ pub struct TradeEventGraphQL {
     pub last_update_timestamp: I64,
     pub ix_name: String,
     pub mayhem_mode: bool,
+    pub cashback_fee_basis_points: U64,
+    pub cashback: U64,
 }
 
 impl From<crate::types::TradeEvent> for TradeEventGraphQL {
@@ -72,6 +74,10 @@ impl From<crate::types::TradeEvent> for TradeEventGraphQL {
             ),
             ix_name: original.ix_name,
             mayhem_mode: original.mayhem_mode,
+            cashback_fee_basis_points: carbon_core::graphql::primitives::U64(
+                original.cashback_fee_basis_points,
+            ),
+            cashback: carbon_core::graphql::primitives::U64(original.cashback),
         }
     }
 }

@@ -28,12 +28,23 @@ impl CpiEventRow {
                     "create_fee_sharing_config_event".to_string()
                 }
                 CpiEvent::InitializeFeeConfigEvent(_) => "initialize_fee_config_event".to_string(),
+                CpiEvent::InitializeFeeProgramGlobalEvent(_) => {
+                    "initialize_fee_program_global_event".to_string()
+                }
                 CpiEvent::ResetFeeSharingConfigEvent(_) => {
                     "reset_fee_sharing_config_event".to_string()
                 }
                 CpiEvent::RevokeFeeSharingAuthorityEvent(_) => {
                     "revoke_fee_sharing_authority_event".to_string()
                 }
+                CpiEvent::SetAuthorityEvent(_) => "set_authority_event".to_string(),
+                CpiEvent::SetClaimRateLimitEvent(_) => "set_claim_rate_limit_event".to_string(),
+                CpiEvent::SetDisableFlagsEvent(_) => "set_disable_flags_event".to_string(),
+                CpiEvent::SetSocialClaimAuthorityEvent(_) => {
+                    "set_social_claim_authority_event".to_string()
+                }
+                CpiEvent::SocialFeePdaClaimed(_) => "social_fee_pda_claimed".to_string(),
+                CpiEvent::SocialFeePdaCreated(_) => "social_fee_pda_created".to_string(),
                 CpiEvent::TransferFeeSharingAuthorityEvent(_) => {
                     "transfer_fee_sharing_authority_event".to_string()
                 }

@@ -12,6 +12,7 @@ pub struct BondingCurve {
     pub complete: bool,
     pub creator: Pubkey,
     pub is_mayhem_mode: bool,
+    pub is_cashback_coin: bool,
 }
 
 impl BondingCurve {

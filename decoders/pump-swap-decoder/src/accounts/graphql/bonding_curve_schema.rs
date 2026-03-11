@@ -16,6 +16,7 @@ pub struct BondingCurveGraphQL {
     pub complete: bool,
     pub creator: Pubkey,
     pub is_mayhem_mode: bool,
+    pub is_cashback_coin: bool,
 }
 
 impl TryFrom<crate::accounts::postgres::BondingCurveRow> for BondingCurveGraphQL {
@@ -33,6 +34,7 @@ impl TryFrom<crate::accounts::postgres::BondingCurveRow> for BondingCurveGraphQL
             complete: row.complete,
             creator: carbon_core::graphql::primitives::Pubkey(row.creator.0),
             is_mayhem_mode: row.is_mayhem_mode,
+            is_cashback_coin: row.is_cashback_coin,
         })
     }
 }

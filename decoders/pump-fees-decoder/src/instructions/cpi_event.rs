@@ -16,12 +16,23 @@ pub enum CpiEvent {
         events::create_fee_sharing_config_event::CreateFeeSharingConfigEventEvent,
     ),
     InitializeFeeConfigEvent(events::initialize_fee_config_event::InitializeFeeConfigEventEvent),
+    InitializeFeeProgramGlobalEvent(
+        events::initialize_fee_program_global_event::InitializeFeeProgramGlobalEventEvent,
+    ),
     ResetFeeSharingConfigEvent(
         events::reset_fee_sharing_config_event::ResetFeeSharingConfigEventEvent,
     ),
     RevokeFeeSharingAuthorityEvent(
         events::revoke_fee_sharing_authority_event::RevokeFeeSharingAuthorityEventEvent,
     ),
+    SetAuthorityEvent(events::set_authority_event::SetAuthorityEventEvent),
+    SetClaimRateLimitEvent(events::set_claim_rate_limit_event::SetClaimRateLimitEventEvent),
+    SetDisableFlagsEvent(events::set_disable_flags_event::SetDisableFlagsEventEvent),
+    SetSocialClaimAuthorityEvent(
+        events::set_social_claim_authority_event::SetSocialClaimAuthorityEventEvent,
+    ),
+    SocialFeePdaClaimed(events::social_fee_pda_claimed::SocialFeePdaClaimedEvent),
+    SocialFeePdaCreated(events::social_fee_pda_created::SocialFeePdaCreatedEvent),
     TransferFeeSharingAuthorityEvent(
         events::transfer_fee_sharing_authority_event::TransferFeeSharingAuthorityEventEvent,
     ),
@@ -63,6 +74,9 @@ impl CpiEvent {
         {
             return Some(CpiEvent::InitializeFeeConfigEvent(decoded));
         }
+        if let Some(decoded) = events::initialize_fee_program_global_event::InitializeFeeProgramGlobalEventEvent::decode(event_data) {
+            return Some(CpiEvent::InitializeFeeProgramGlobalEvent(decoded));
+        }
         if let Some(decoded) =
             events::reset_fee_sharing_config_event::ResetFeeSharingConfigEventEvent::decode(
                 event_data,
@@ -76,6 +90,38 @@ impl CpiEvent {
             )
         {
             return Some(CpiEvent::RevokeFeeSharingAuthorityEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::set_authority_event::SetAuthorityEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::SetAuthorityEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::set_claim_rate_limit_event::SetClaimRateLimitEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::SetClaimRateLimitEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::set_disable_flags_event::SetDisableFlagsEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::SetDisableFlagsEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::set_social_claim_authority_event::SetSocialClaimAuthorityEventEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::SetSocialClaimAuthorityEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::social_fee_pda_claimed::SocialFeePdaClaimedEvent::decode(event_data)
+        {
+            return Some(CpiEvent::SocialFeePdaClaimed(decoded));
+        }
+        if let Some(decoded) =
+            events::social_fee_pda_created::SocialFeePdaCreatedEvent::decode(event_data)
+        {
+            return Some(CpiEvent::SocialFeePdaCreated(decoded));
         }
         if let Some(decoded) = events::transfer_fee_sharing_authority_event::TransferFeeSharingAuthorityEventEvent::decode(event_data) {
             return Some(CpiEvent::TransferFeeSharingAuthorityEvent(decoded));
