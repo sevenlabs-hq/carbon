@@ -5810,7 +5810,6 @@ checksum = "5e5032e24019045c762d3c0f28f5b6b8bbf38563a65908389bf7978758920897"
 name = "log-events-example"
 version = "0.12.0"
 dependencies = [
- "async-trait",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-raydium-cpmm-decoder",
@@ -5819,7 +5818,6 @@ dependencies = [
  "env_logger",
  "log",
  "rustls 0.23.35",
- "solana-instruction",
  "tokio",
  "yellowstone-grpc-proto",
 ]

@@ -5,7 +5,6 @@ edition = { workspace = true }
 
 [dependencies]
 
-async-trait = { workspace = true }
 carbon-core = { workspace = true }
 carbon-log-metrics = { workspace = true }
 carbon-raydium-cpmm-decoder = { workspace = true }
@@ -13,7 +12,6 @@ carbon-yellowstone-grpc-datasource = { workspace = true }
 dotenv = { workspace = true }
 env_logger = { workspace = true }
 log = { workspace = true }
-solana-instruction = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
 yellowstone-grpc-proto = { workspace = true }
 

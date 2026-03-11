@@ -1,14 +1,11 @@
 use {
     carbon_core::{
-        error::CarbonResult,
-        instruction::InstructionProcessorInputType,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType, processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
     carbon_raydium_cpmm_decoder::{
         instructions::{CpiEvent, RaydiumCpmmInstruction},
-        RaydiumCpmmDecoder,
-        PROGRAM_ID as RAYDIUM_CPMM_PROGRAM_ID,
+        RaydiumCpmmDecoder, PROGRAM_ID as RAYDIUM_CPMM_PROGRAM_ID,
     },
     carbon_yellowstone_grpc_datasource::{
         YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient,
@@ -85,7 +82,9 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct RaydiumCpmmInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<'_, RaydiumCpmmInstruction>> for RaydiumCpmmInstructionProcessor {
+impl Processor<InstructionProcessorInputType<'_, RaydiumCpmmInstruction>>
+    for RaydiumCpmmInstructionProcessor
+{
     async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, RaydiumCpmmInstruction>,
