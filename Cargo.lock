@@ -5817,6 +5817,7 @@ dependencies = [
  "carbon-yellowstone-grpc-datasource",
  "dotenv",
  "env_logger",
+ "log",
  "rustls 0.23.35",
  "solana-instruction",
  "tokio",

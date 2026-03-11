@@ -6,14 +6,14 @@ use {
     },
     carbon_log_metrics::LogMetrics,
     carbon_raydium_cpmm_decoder::{
-        instructions::RaydiumCpmmInstruction,
-        types::SwapEvent,
+        instructions::{CpiEvent, RaydiumCpmmInstruction},
         RaydiumCpmmDecoder,
         PROGRAM_ID as RAYDIUM_CPMM_PROGRAM_ID,
     },
     carbon_yellowstone_grpc_datasource::{
         YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient,
     },
+    log,
     std::{
         collections::{HashMap, HashSet},
         env,
@@ -90,9 +90,39 @@ impl Processor<InstructionProcessorInputType<'_, RaydiumCpmmInstruction>> for Ra
         &mut self,
         input: &InstructionProcessorInputType<'_, RaydiumCpmmInstruction>,
     ) -> CarbonResult<()> {
-        let logs = input.metadata.decode_log_events::<SwapEvent>();
-        if !logs.is_empty() {
-            println!("Swap Events: {logs:?}");
+        match input.decoded_instruction {
+            RaydiumCpmmInstruction::SwapBaseInput { data, accounts, .. } => {
+                log::info!(
+                    "SwapBaseInput: amount_in={}, minimum_amount_out={}, input_mint={}, output_mint={}, slot={}",
+                    data.amount_in,
+                    data.minimum_amount_out,
+                    accounts.input_token_mint,
+                    accounts.output_token_mint,
+                    input.metadata.transaction_metadata.slot
+                );
+            }
+            RaydiumCpmmInstruction::SwapBaseOutput { data, accounts, .. } => {
+                log::info!(
+                    "SwapBaseOutput: amount_out={}, max_amount_in={}, input_mint={}, output_mint={}, slot={}",
+                    data.amount_out,
+                    data.max_amount_in,
+                    accounts.input_token_mint,
+                    accounts.output_token_mint,
+                    input.metadata.transaction_metadata.slot
+                );
+            }
+            RaydiumCpmmInstruction::CpiEvent { data, .. } => {
+                if let CpiEvent::SwapEvent(swap_event) = data {
+                    log::info!(
+                        "SwapEvent: {:?} on slot {}",
+                        swap_event,
+                        input.metadata.transaction_metadata.slot
+                    );
+                }
+            }
+            _ => {
+                log::info!("Unknown instruction: {:?}", input.decoded_instruction);
+            }
         }
 
         Ok(())
