@@ -241,4 +241,12 @@ pub enum Swap {
         seed: u64,
     },
     XOrca,
+    Quantum {
+        side: Side,
+    },
+    WhaleStreetV2 {
+        side: Side,
+        auth_amount_in: u64,
+        auth: u64,
+    },
 }

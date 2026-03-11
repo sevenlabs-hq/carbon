@@ -45,6 +45,10 @@ pub struct LendingMarketGraphQL {
     pub borrow_order_execution_enabled: U8,
     pub proposer_authority: Pubkey,
     pub min_borrow_order_fill_value: U64,
+    pub withdraw_ticket_issuance_enabled: U8,
+    pub withdraw_ticket_redemption_enabled: U8,
+    pub padding2: Vec<U8>,
+    pub min_withdraw_queued_liquidity_value: U64,
     pub padding1: Vec<U64>,
 }
 
@@ -158,6 +162,20 @@ impl TryFrom<crate::accounts::postgres::LendingMarketRow> for LendingMarketGraph
             proposer_authority: carbon_core::graphql::primitives::Pubkey(row.proposer_authority.0),
             min_borrow_order_fill_value: carbon_core::graphql::primitives::U64(
                 *row.min_borrow_order_fill_value,
+            ),
+            withdraw_ticket_issuance_enabled: carbon_core::graphql::primitives::U8(
+                (*row.withdraw_ticket_issuance_enabled) as u8,
+            ),
+            withdraw_ticket_redemption_enabled: carbon_core::graphql::primitives::U8(
+                (*row.withdraw_ticket_redemption_enabled) as u8,
+            ),
+            padding2: row
+                .padding2
+                .into_iter()
+                .map(carbon_core::graphql::primitives::U8)
+                .collect(),
+            min_withdraw_queued_liquidity_value: carbon_core::graphql::primitives::U64(
+                *row.min_withdraw_queued_liquidity_value,
             ),
             padding1: row
                 .padding1

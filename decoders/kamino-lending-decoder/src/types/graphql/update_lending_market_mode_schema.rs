@@ -36,6 +36,9 @@ pub enum UpdateLendingMarketModeGraphQL {
     UpdateBorrowOrderCreationEnabled,
     UpdateBorrowOrderExecutionEnabled,
     UpdateMinBorrowOrderFillValue,
+    UpdateWithdrawTicketIssuanceEnabled,
+    UpdateWithdrawTicketRedemptionEnabled,
+    UpdateMinWithdrawQueuedLiquidityValue,
 }
 
 impl From<crate::types::UpdateLendingMarketMode> for UpdateLendingMarketModeGraphQL {
@@ -73,6 +76,9 @@ impl From<crate::types::UpdateLendingMarketMode> for UpdateLendingMarketModeGrap
             crate::types::UpdateLendingMarketMode::UpdateBorrowOrderCreationEnabled => Self::UpdateBorrowOrderCreationEnabled,
             crate::types::UpdateLendingMarketMode::UpdateBorrowOrderExecutionEnabled => Self::UpdateBorrowOrderExecutionEnabled,
             crate::types::UpdateLendingMarketMode::UpdateMinBorrowOrderFillValue => Self::UpdateMinBorrowOrderFillValue,
+            crate::types::UpdateLendingMarketMode::UpdateWithdrawTicketIssuanceEnabled => Self::UpdateWithdrawTicketIssuanceEnabled,
+            crate::types::UpdateLendingMarketMode::UpdateWithdrawTicketRedemptionEnabled => Self::UpdateWithdrawTicketRedemptionEnabled,
+            crate::types::UpdateLendingMarketMode::UpdateMinWithdrawQueuedLiquidityValue => Self::UpdateMinWithdrawQueuedLiquidityValue,
         }
     }
 }

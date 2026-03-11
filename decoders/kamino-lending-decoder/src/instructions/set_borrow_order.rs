@@ -16,6 +16,7 @@ pub struct SetBorrowOrderInstructionAccounts {
     pub owner: solana_pubkey::Pubkey,
     pub obligation: solana_pubkey::Pubkey,
     pub lending_market: solana_pubkey::Pubkey,
+    pub reserve: solana_pubkey::Pubkey,
     pub filled_debt_destination: solana_pubkey::Pubkey,
     pub debt_liquidity_mint: solana_pubkey::Pubkey,
     pub instruction_sysvar_account: solana_pubkey::Pubkey,
@@ -53,6 +54,7 @@ impl ArrangeAccounts for SetBorrowOrder {
         let owner = next_account(&mut iter)?;
         let obligation = next_account(&mut iter)?;
         let lending_market = next_account(&mut iter)?;
+        let reserve = next_account(&mut iter)?;
         let filled_debt_destination = next_account(&mut iter)?;
         let debt_liquidity_mint = next_account(&mut iter)?;
         let instruction_sysvar_account = next_account(&mut iter)?;
@@ -65,6 +67,7 @@ impl ArrangeAccounts for SetBorrowOrder {
             owner,
             obligation,
             lending_market,
+            reserve,
             filled_debt_destination,
             debt_liquidity_mint,
             instruction_sysvar_account,

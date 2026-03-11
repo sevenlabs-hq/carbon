@@ -9,6 +9,7 @@ pub mod deposit_obligation_collateral_v2_schema;
 pub mod deposit_reserve_liquidity_and_obligation_collateral_schema;
 pub mod deposit_reserve_liquidity_and_obligation_collateral_v2_schema;
 pub mod deposit_reserve_liquidity_schema;
+pub mod enqueue_to_withdraw_schema;
 pub mod fill_borrow_order_schema;
 pub mod flash_borrow_reserve_liquidity_schema;
 pub mod flash_repay_reserve_liquidity_schema;
@@ -25,6 +26,7 @@ pub mod init_user_metadata_schema;
 pub mod liquidate_obligation_and_redeem_reserve_collateral_schema;
 pub mod liquidate_obligation_and_redeem_reserve_collateral_v2_schema;
 pub mod mark_obligation_for_deleveraging_schema;
+pub mod recover_invalid_ticket_collateral_schema;
 pub mod redeem_fees_schema;
 pub mod redeem_reserve_collateral_schema;
 pub mod refresh_obligation_farms_for_reserve_schema;
@@ -50,6 +52,7 @@ pub mod withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_schema;
 pub mod withdraw_obligation_collateral_schema;
 pub mod withdraw_obligation_collateral_v2_schema;
 pub mod withdraw_protocol_fee_schema;
+pub mod withdraw_queued_liquidity_schema;
 pub mod withdraw_referrer_fees_schema;
 
 use juniper::GraphQLObject;
@@ -60,17 +63,19 @@ pub use {
     deposit_obligation_collateral_v2_schema::*,
     deposit_reserve_liquidity_and_obligation_collateral_schema::*,
     deposit_reserve_liquidity_and_obligation_collateral_v2_schema::*,
-    deposit_reserve_liquidity_schema::*, fill_borrow_order_schema::*,
-    flash_borrow_reserve_liquidity_schema::*, flash_repay_reserve_liquidity_schema::*,
-    idl_missing_types_schema::*, init_farms_for_reserve_schema::*, init_global_config_schema::*,
-    init_lending_market_schema::*, init_obligation_farms_for_reserve_schema::*,
-    init_obligation_schema::*, init_referrer_state_and_short_url_schema::*,
-    init_referrer_token_state_schema::*, init_reserve_schema::*, init_user_metadata_schema::*,
+    deposit_reserve_liquidity_schema::*, enqueue_to_withdraw_schema::*,
+    fill_borrow_order_schema::*, flash_borrow_reserve_liquidity_schema::*,
+    flash_repay_reserve_liquidity_schema::*, idl_missing_types_schema::*,
+    init_farms_for_reserve_schema::*, init_global_config_schema::*, init_lending_market_schema::*,
+    init_obligation_farms_for_reserve_schema::*, init_obligation_schema::*,
+    init_referrer_state_and_short_url_schema::*, init_referrer_token_state_schema::*,
+    init_reserve_schema::*, init_user_metadata_schema::*,
     liquidate_obligation_and_redeem_reserve_collateral_schema::*,
     liquidate_obligation_and_redeem_reserve_collateral_v2_schema::*,
-    mark_obligation_for_deleveraging_schema::*, redeem_fees_schema::*,
-    redeem_reserve_collateral_schema::*, refresh_obligation_farms_for_reserve_schema::*,
-    refresh_obligation_schema::*, refresh_reserve_schema::*, refresh_reserves_batch_schema::*,
+    mark_obligation_for_deleveraging_schema::*, recover_invalid_ticket_collateral_schema::*,
+    redeem_fees_schema::*, redeem_reserve_collateral_schema::*,
+    refresh_obligation_farms_for_reserve_schema::*, refresh_obligation_schema::*,
+    refresh_reserve_schema::*, refresh_reserves_batch_schema::*,
     repay_and_withdraw_and_redeem_schema::*, repay_obligation_liquidity_schema::*,
     repay_obligation_liquidity_v2_schema::*, request_elevation_group_schema::*,
     seed_deposit_on_init_reserve_schema::*, set_borrow_order_schema::*,
@@ -81,7 +86,8 @@ pub use {
     withdraw_obligation_collateral_and_redeem_reserve_collateral_schema::*,
     withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_schema::*,
     withdraw_obligation_collateral_schema::*, withdraw_obligation_collateral_v2_schema::*,
-    withdraw_protocol_fee_schema::*, withdraw_referrer_fees_schema::*,
+    withdraw_protocol_fee_schema::*, withdraw_queued_liquidity_schema::*,
+    withdraw_referrer_fees_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

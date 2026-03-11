@@ -89,6 +89,7 @@ pub mod place_and_take_perp_order_row;
 pub mod place_and_take_spot_order_row;
 pub mod place_orders_row;
 pub mod place_perp_order_row;
+pub mod place_scale_orders_row;
 pub mod place_signed_msg_taker_order_row;
 pub mod place_spot_order_row;
 pub mod post_multi_pyth_pull_oracle_updates_atomic_row;
@@ -285,10 +286,10 @@ pub use self::{
     phoenix_fulfillment_config_status_row::*, place_and_make_perp_order_row::*,
     place_and_make_signed_msg_perp_order_row::*, place_and_make_spot_order_row::*,
     place_and_take_perp_order_row::*, place_and_take_spot_order_row::*, place_orders_row::*,
-    place_perp_order_row::*, place_signed_msg_taker_order_row::*, place_spot_order_row::*,
-    post_multi_pyth_pull_oracle_updates_atomic_row::*, post_pyth_lazer_oracle_update_row::*,
-    post_pyth_pull_oracle_update_atomic_row::*, recenter_perp_market_amm_crank_row::*,
-    recenter_perp_market_amm_row::*, reclaim_rent_row::*,
+    place_perp_order_row::*, place_scale_orders_row::*, place_signed_msg_taker_order_row::*,
+    place_spot_order_row::*, post_multi_pyth_pull_oracle_updates_atomic_row::*,
+    post_pyth_lazer_oracle_update_row::*, post_pyth_pull_oracle_update_atomic_row::*,
+    recenter_perp_market_amm_crank_row::*, recenter_perp_market_amm_row::*, reclaim_rent_row::*,
     remove_amm_constituent_mapping_data_row::*, remove_insurance_fund_stake_row::*,
     repeg_amm_curve_row::*, request_remove_insurance_fund_stake_row::*, reset_fuel_season_row::*,
     reset_perp_market_amm_oracle_twap_row::*, resize_revenue_share_escrow_orders_row::*,
@@ -468,6 +469,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for DriftV2InstructionsMigration {
             Box::new(PlaceAndTakeSpotOrderMigrationOperation),
             Box::new(PlaceOrdersMigrationOperation),
             Box::new(PlacePerpOrderMigrationOperation),
+            Box::new(PlaceScaleOrdersMigrationOperation),
             Box::new(PlaceSignedMsgTakerOrderMigrationOperation),
             Box::new(PlaceSpotOrderMigrationOperation),
             Box::new(PostMultiPythPullOracleUpdatesAtomicMigrationOperation),
@@ -926,6 +928,15 @@ impl carbon_core::postgres::operations::Insert for DriftV2InstructionWithMetadat
             }
             DriftV2Instruction::PlaceOrders { data, .. } => {
                 let row = place_orders_row::PlaceOrdersRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            DriftV2Instruction::PlaceScaleOrders { data, .. } => {
+                let row = place_scale_orders_row::PlaceScaleOrdersRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -2786,6 +2797,15 @@ impl carbon_core::postgres::operations::Upsert for DriftV2InstructionWithMetadat
             }
             DriftV2Instruction::PlaceOrders { data, .. } => {
                 let row = place_orders_row::PlaceOrdersRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            DriftV2Instruction::PlaceScaleOrders { data, .. } => {
+                let row = place_scale_orders_row::PlaceScaleOrdersRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),

@@ -34,4 +34,7 @@ pub enum UpdateLendingMarketMode {
     UpdateBorrowOrderCreationEnabled,
     UpdateBorrowOrderExecutionEnabled,
     UpdateMinBorrowOrderFillValue,
+    UpdateWithdrawTicketIssuanceEnabled,
+    UpdateWithdrawTicketRedemptionEnabled,
+    UpdateMinWithdrawQueuedLiquidityValue,
 }

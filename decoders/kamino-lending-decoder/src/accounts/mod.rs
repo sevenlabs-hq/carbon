@@ -16,6 +16,7 @@ pub mod reserve;
 pub mod short_url;
 pub mod user_metadata;
 pub mod user_state;
+pub mod withdraw_ticket;
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -30,6 +31,7 @@ pub enum KaminoLendingAccount {
     ShortUrl(Box<short_url::ShortUrl>),
     UserMetadata(Box<user_metadata::UserMetadata>),
     UserState(Box<user_state::UserState>),
+    WithdrawTicket(Box<withdraw_ticket::WithdrawTicket>),
 }
 
 impl<'a> carbon_core::account::AccountDecoder<'a> for KaminoLendingDecoder {
@@ -138,6 +140,17 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for KaminoLendingDecoder {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: KaminoLendingAccount::Reserve(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = withdraw_ticket::WithdrawTicket::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: KaminoLendingAccount::WithdrawTicket(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

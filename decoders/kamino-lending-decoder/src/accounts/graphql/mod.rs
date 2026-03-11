@@ -8,12 +8,13 @@ pub mod reserve_schema;
 pub mod short_url_schema;
 pub mod user_metadata_schema;
 pub mod user_state_schema;
+pub mod withdraw_ticket_schema;
 
 use juniper::GraphQLObject;
 pub use {
     global_config_schema::*, lending_market_schema::*, obligation_schema::*,
     referrer_state_schema::*, referrer_token_state_schema::*, reserve_schema::*,
-    short_url_schema::*, user_metadata_schema::*, user_state_schema::*,
+    short_url_schema::*, user_metadata_schema::*, user_state_schema::*, withdraw_ticket_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

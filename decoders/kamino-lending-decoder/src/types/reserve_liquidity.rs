@@ -10,8 +10,12 @@ pub struct ReserveLiquidity {
     pub supply_vault: Pubkey,
     /// Reserve liquidity fee collection address
     pub fee_vault: Pubkey,
-    /// Reserve liquidity available
-    pub available_amount: u64,
+    /// Total reserve liquidity available.
+    /// Note: not all of this liquidity can be freely used for any purpose.
+    /// Production code should use the specialized getters - see e.g.
+    /// [Reserve::total_available_liquidity_amount()],
+    /// [Reserve::freely_available_liquidity_amount()].
+    pub total_available_amount: u64,
     /// Reserve liquidity borrowed (scaled fraction)
     pub borrowed_amount_sf: u128,
     /// Reserve liquidity market price in quote currency (scaled fraction)

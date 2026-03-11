@@ -2,6 +2,7 @@
 use {
     crate::types::graphql::{
         LastUpdateGraphQL, ReserveCollateralGraphQL, ReserveConfigGraphQL, ReserveLiquidityGraphQL,
+        WithdrawQueueGraphQL,
     },
     carbon_core::graphql::primitives::{Pubkey, U64},
     juniper::GraphQLObject,
@@ -24,6 +25,7 @@ pub struct ReserveGraphQL {
     pub config_padding: Vec<U64>,
     pub borrowed_amount_outside_elevation_group: U64,
     pub borrowed_amounts_against_this_reserve_in_elevation_groups: Vec<U64>,
+    pub withdraw_queue: WithdrawQueueGraphQL,
     pub padding: Vec<U64>,
 }
 
@@ -63,6 +65,7 @@ impl TryFrom<crate::accounts::postgres::ReserveRow> for ReserveGraphQL {
                 .into_iter()
                 .map(|item| carbon_core::graphql::primitives::U64(*item))
                 .collect(),
+            withdraw_queue: row.withdraw_queue.0.into(),
             padding: row
                 .padding
                 .into_iter()

@@ -315,6 +315,40 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn withdraw_ticket(
+        context: &crate::graphql::context::GraphQLContext,
+        pubkey: String,
+    ) -> FieldResult<Option<crate::accounts::graphql::WithdrawTicketGraphQL>> {
+        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        let pk = PgPubkey(
+            solana_pubkey::Pubkey::from_str(&pubkey)
+                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
+        );
+        let row = crate::accounts::postgres::WithdrawTicketRow::lookup(pk, &context.pool)
+            .await
+            .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(row.and_then(|row| row.try_into().ok()))
+    }
+
+    async fn list_withdraw_ticket(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::accounts::graphql::WithdrawTicketGraphQL>> {
+        let rows: Vec<crate::accounts::postgres::WithdrawTicketRow> = sqlx::query_as(
+            r#"SELECT * FROM withdraw_ticket_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     // Instructions (per-instruction list and lookup by signature+index)
     async fn init_lending_market(
         context: &crate::graphql::context::GraphQLContext,
@@ -2108,6 +2142,120 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::FillBorrowOrderGraphQL>> {
         let rows: Vec<crate::instructions::postgres::FillBorrowOrderRow> = sqlx::query_as(
             r#"SELECT * FROM fill_borrow_order_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn enqueue_to_withdraw(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::EnqueueToWithdrawGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::EnqueueToWithdrawRow> = sqlx::query_as(
+            r#"SELECT * FROM enqueue_to_withdraw_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_enqueue_to_withdraw(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::EnqueueToWithdrawGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::EnqueueToWithdrawRow> = sqlx::query_as(
+            r#"SELECT * FROM enqueue_to_withdraw_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn withdraw_queued_liquidity(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawQueuedLiquidityGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::WithdrawQueuedLiquidityRow> = sqlx::query_as(
+            r#"SELECT * FROM withdraw_queued_liquidity_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_withdraw_queued_liquidity(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawQueuedLiquidityGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::WithdrawQueuedLiquidityRow> = sqlx::query_as(
+            r#"SELECT * FROM withdraw_queued_liquidity_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn recover_invalid_ticket_collateral(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::RecoverInvalidTicketCollateralGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::RecoverInvalidTicketCollateralRow> = sqlx::query_as(
+            r#"SELECT * FROM recover_invalid_ticket_collateral_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_recover_invalid_ticket_collateral(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::RecoverInvalidTicketCollateralGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::RecoverInvalidTicketCollateralRow> = sqlx::query_as(
+            r#"SELECT * FROM recover_invalid_ticket_collateral_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

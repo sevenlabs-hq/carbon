@@ -15,7 +15,7 @@ crate-type = ["rlib"]
 [features]
 default = []
 
-serde = ["dep:serde"]
+serde = ["dep:serde", "dep:serde-big-array"]
 
 postgres = [
     "carbon-core/postgres",
@@ -40,6 +40,7 @@ solana-instruction = { workspace = true }
 serde_json = { workspace = true }
 
 serde = { workspace = true, features = ["derive"], optional = true }
+serde-big-array = { workspace = true, optional = true }
 
 sqlx = { workspace = true, features = ["postgres", "rust_decimal"], optional = true }
 async-trait = { workspace = true, optional = true }

@@ -17,6 +17,7 @@ pub mod deposit_obligation_collateral_v2;
 pub mod deposit_reserve_liquidity;
 pub mod deposit_reserve_liquidity_and_obligation_collateral;
 pub mod deposit_reserve_liquidity_and_obligation_collateral_v2;
+pub mod enqueue_to_withdraw;
 pub mod fill_borrow_order;
 pub mod flash_borrow_reserve_liquidity;
 pub mod flash_repay_reserve_liquidity;
@@ -33,6 +34,7 @@ pub mod init_user_metadata;
 pub mod liquidate_obligation_and_redeem_reserve_collateral;
 pub mod liquidate_obligation_and_redeem_reserve_collateral_v2;
 pub mod mark_obligation_for_deleveraging;
+pub mod recover_invalid_ticket_collateral;
 pub mod redeem_fees;
 pub mod redeem_reserve_collateral;
 pub mod refresh_obligation;
@@ -58,6 +60,7 @@ pub mod withdraw_obligation_collateral_and_redeem_reserve_collateral;
 pub mod withdraw_obligation_collateral_and_redeem_reserve_collateral_v2;
 pub mod withdraw_obligation_collateral_v2;
 pub mod withdraw_protocol_fee;
+pub mod withdraw_queued_liquidity;
 pub mod withdraw_referrer_fees;
 
 pub use self::{
@@ -65,23 +68,24 @@ pub use self::{
     delete_referrer_state_and_short_url::*, deposit_and_withdraw::*,
     deposit_obligation_collateral::*, deposit_obligation_collateral_v2::*,
     deposit_reserve_liquidity::*, deposit_reserve_liquidity_and_obligation_collateral::*,
-    deposit_reserve_liquidity_and_obligation_collateral_v2::*, fill_borrow_order::*,
-    flash_borrow_reserve_liquidity::*, flash_repay_reserve_liquidity::*, idl_missing_types::*,
-    init_farms_for_reserve::*, init_global_config::*, init_lending_market::*, init_obligation::*,
-    init_obligation_farms_for_reserve::*, init_referrer_state_and_short_url::*,
+    deposit_reserve_liquidity_and_obligation_collateral_v2::*, enqueue_to_withdraw::*,
+    fill_borrow_order::*, flash_borrow_reserve_liquidity::*, flash_repay_reserve_liquidity::*,
+    idl_missing_types::*, init_farms_for_reserve::*, init_global_config::*, init_lending_market::*,
+    init_obligation::*, init_obligation_farms_for_reserve::*, init_referrer_state_and_short_url::*,
     init_referrer_token_state::*, init_reserve::*, init_user_metadata::*,
     liquidate_obligation_and_redeem_reserve_collateral::*,
     liquidate_obligation_and_redeem_reserve_collateral_v2::*, mark_obligation_for_deleveraging::*,
-    redeem_fees::*, redeem_reserve_collateral::*, refresh_obligation::*,
-    refresh_obligation_farms_for_reserve::*, refresh_reserve::*, refresh_reserves_batch::*,
-    repay_and_withdraw_and_redeem::*, repay_obligation_liquidity::*,
+    recover_invalid_ticket_collateral::*, redeem_fees::*, redeem_reserve_collateral::*,
+    refresh_obligation::*, refresh_obligation_farms_for_reserve::*, refresh_reserve::*,
+    refresh_reserves_batch::*, repay_and_withdraw_and_redeem::*, repay_obligation_liquidity::*,
     repay_obligation_liquidity_v2::*, request_elevation_group::*, seed_deposit_on_init_reserve::*,
     set_borrow_order::*, set_obligation_order::*, socialize_loss::*, socialize_loss_v2::*,
     update_global_config::*, update_global_config_admin::*, update_lending_market::*,
     update_lending_market_owner::*, update_reserve_config::*, withdraw_obligation_collateral::*,
     withdraw_obligation_collateral_and_redeem_reserve_collateral::*,
     withdraw_obligation_collateral_and_redeem_reserve_collateral_v2::*,
-    withdraw_obligation_collateral_v2::*, withdraw_protocol_fee::*, withdraw_referrer_fees::*,
+    withdraw_obligation_collateral_v2::*, withdraw_protocol_fee::*, withdraw_queued_liquidity::*,
+    withdraw_referrer_fees::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -132,6 +136,11 @@ pub enum KaminoLendingInstruction {
         program_id: solana_pubkey::Pubkey,
         data: DepositReserveLiquidityAndObligationCollateralV2,
         accounts: DepositReserveLiquidityAndObligationCollateralV2InstructionAccounts,
+    },
+    EnqueueToWithdraw {
+        program_id: solana_pubkey::Pubkey,
+        data: EnqueueToWithdraw,
+        accounts: EnqueueToWithdrawInstructionAccounts,
     },
     FillBorrowOrder {
         program_id: solana_pubkey::Pubkey,
@@ -212,6 +221,11 @@ pub enum KaminoLendingInstruction {
         program_id: solana_pubkey::Pubkey,
         data: MarkObligationForDeleveraging,
         accounts: MarkObligationForDeleveragingInstructionAccounts,
+    },
+    RecoverInvalidTicketCollateral {
+        program_id: solana_pubkey::Pubkey,
+        data: RecoverInvalidTicketCollateral,
+        accounts: RecoverInvalidTicketCollateralInstructionAccounts,
     },
     RedeemFees {
         program_id: solana_pubkey::Pubkey,
@@ -338,6 +352,11 @@ pub enum KaminoLendingInstruction {
         data: WithdrawProtocolFee,
         accounts: WithdrawProtocolFeeInstructionAccounts,
     },
+    WithdrawQueuedLiquidity {
+        program_id: solana_pubkey::Pubkey,
+        data: WithdrawQueuedLiquidity,
+        accounts: WithdrawQueuedLiquidityInstructionAccounts,
+    },
     WithdrawReferrerFees {
         program_id: solana_pubkey::Pubkey,
         data: WithdrawReferrerFees,
@@ -374,6 +393,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for KaminoLendingDecoder {
             KaminoLendingInstruction::DepositReserveLiquidity => DepositReserveLiquidity,
             KaminoLendingInstruction::DepositReserveLiquidityAndObligationCollateral => DepositReserveLiquidityAndObligationCollateral,
             KaminoLendingInstruction::DepositReserveLiquidityAndObligationCollateralV2 => DepositReserveLiquidityAndObligationCollateralV2,
+            KaminoLendingInstruction::EnqueueToWithdraw => EnqueueToWithdraw,
             KaminoLendingInstruction::FillBorrowOrder => FillBorrowOrder,
             KaminoLendingInstruction::FlashBorrowReserveLiquidity => FlashBorrowReserveLiquidity,
             KaminoLendingInstruction::FlashRepayReserveLiquidity => FlashRepayReserveLiquidity,
@@ -390,6 +410,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for KaminoLendingDecoder {
             KaminoLendingInstruction::LiquidateObligationAndRedeemReserveCollateral => LiquidateObligationAndRedeemReserveCollateral,
             KaminoLendingInstruction::LiquidateObligationAndRedeemReserveCollateralV2 => LiquidateObligationAndRedeemReserveCollateralV2,
             KaminoLendingInstruction::MarkObligationForDeleveraging => MarkObligationForDeleveraging,
+            KaminoLendingInstruction::RecoverInvalidTicketCollateral => RecoverInvalidTicketCollateral,
             KaminoLendingInstruction::RedeemFees => RedeemFees,
             KaminoLendingInstruction::RedeemReserveCollateral => RedeemReserveCollateral,
             KaminoLendingInstruction::RefreshObligation => RefreshObligation,
@@ -415,6 +436,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for KaminoLendingDecoder {
             KaminoLendingInstruction::WithdrawObligationCollateralAndRedeemReserveCollateralV2 => WithdrawObligationCollateralAndRedeemReserveCollateralV2,
             KaminoLendingInstruction::WithdrawObligationCollateralV2 => WithdrawObligationCollateralV2,
             KaminoLendingInstruction::WithdrawProtocolFee => WithdrawProtocolFee,
+            KaminoLendingInstruction::WithdrawQueuedLiquidity => WithdrawQueuedLiquidity,
             KaminoLendingInstruction::WithdrawReferrerFees => WithdrawReferrerFees,
             KaminoLendingInstruction::CpiEvent => CpiEvent,
         )

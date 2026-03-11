@@ -46,6 +46,82 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn claim_cashback_pumpfun(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ClaimCashbackPumpfunGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ClaimCashbackPumpfunRow> = sqlx::query_as(
+            r#"SELECT * FROM claim_cashback_pumpfun_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_claim_cashback_pumpfun(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ClaimCashbackPumpfunGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ClaimCashbackPumpfunRow> = sqlx::query_as(
+            r#"SELECT * FROM claim_cashback_pumpfun_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn claim_cashback_pumpswap(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ClaimCashbackPumpswapGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ClaimCashbackPumpswapRow> = sqlx::query_as(
+            r#"SELECT * FROM claim_cashback_pumpswap_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_claim_cashback_pumpswap(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ClaimCashbackPumpswapGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ClaimCashbackPumpswapRow> = sqlx::query_as(
+            r#"SELECT * FROM claim_cashback_pumpswap_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn create_token_account(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
