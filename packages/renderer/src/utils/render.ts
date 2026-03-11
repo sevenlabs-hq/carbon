@@ -87,7 +87,7 @@ export const render = (template: string, context?: object, options?: NunJucksOpt
     const templates = join(dirname, '..', 'templates');
 
     const env = nunjucks.configure(templates, { autoescape: false, trimBlocks: true, ...options });
-    
+
     env.addFilter('pascalCase', pascalCase);
     env.addFilter('camelCase', camelCase);
     env.addFilter('snakeCase', snakeCase);
@@ -96,8 +96,8 @@ export const render = (template: string, context?: object, options?: NunJucksOpt
     env.addFilter('rustDocblock', rustDocblock);
     env.addFilter('formatDocComments', (docs: string[], indent: string = '') => formatDocComments(docs, indent));
     env.addFilter('escapeRustKeyword', escapeRustKeyword);
-    
+
     env.addGlobal('RUST_KEYWORDS', RUST_KEYWORDS);
-    
+
     return env.render(template, context);
 };

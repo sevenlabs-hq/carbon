@@ -366,7 +366,7 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
             // Check if this is stored as JSONB (Json<Vec<Vec<u8>>>)
             const postgresManifest = visit(typeNode, getPostgresTypeManifestVisitor()) as PostgresTypeManifest;
             const isJson = (postgresManifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
-            
+
             if (isJson) {
                 // Json<Vec<Vec<u8>>> → Vec<Vec<U8>>
                 return `${fieldAccess}.0.into_iter().map(|item| item.into_iter().map(carbon_core::graphql::primitives::U8).collect()).collect()`;
@@ -378,11 +378,11 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
         if (isNode(actualItem, 'arrayTypeNode')) {
             const innerItemType = actualItem.item;
             let innerItemExpr: string;
-            
+
             // Check if this is stored as JSONB (Json<Vec<Vec<...>>>)
             const postgresManifest = visit(typeNode, getPostgresTypeManifestVisitor()) as PostgresTypeManifest;
             const isJson = (postgresManifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
-            
+
             // Special case for Vec<Vec<u8>> - need to convert u8 to U8
             if (isNode(innerItemType, 'numberTypeNode') && innerItemType.format === 'u8') {
                 innerItemExpr = `carbon_core::graphql::primitives::U8(item)`;
@@ -422,7 +422,7 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
                     innerItemExpr = tempExpr;
                 }
             }
-            
+
             // If stored as JSONB, unwrap .0 first
             if (isJson) {
                 return `${fieldAccess}.0.into_iter().map(|item| item.into_iter().map(|item| ${innerItemExpr}).collect()).collect()`;

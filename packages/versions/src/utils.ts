@@ -20,7 +20,10 @@ export function getCrateDependencyString(
     if (workspaceDeps) {
         const parts: string[] = ['workspace = true'];
 
-        const allFeatures = [...(typeof dependency === 'object' ? dependency.features || [] : []), ...(additionalFeatures || [])];
+        const allFeatures = [
+            ...(typeof dependency === 'object' ? dependency.features || [] : []),
+            ...(additionalFeatures || []),
+        ];
         if (allFeatures.length > 0) {
             const featuresStr = allFeatures.map(f => `"${f}"`).join(', ');
             parts.push(`features = [${featuresStr}]`);

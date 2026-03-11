@@ -111,7 +111,6 @@ impl Datasource for StreamMessageClient {
         drop(receiver_lock);
 
         let account_deletions_tracked = Arc::clone(&self.account_deletions_tracked);
-
         let id = id.clone();
 
         tokio::spawn(async move {
