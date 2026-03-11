@@ -1,13 +1,11 @@
 use {
     carbon_core::{
-        error::CarbonResult,
-        instruction::InstructionProcessorInputType,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType, processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
     carbon_raydium_clmm_decoder::{
-        instructions::RaydiumClmmInstruction,
-        RaydiumClmmDecoder, PROGRAM_ID as RAYDIUM_CLMM_PROGRAM_ID,
+        instructions::RaydiumClmmInstruction, RaydiumClmmDecoder,
+        PROGRAM_ID as RAYDIUM_CLMM_PROGRAM_ID,
     },
     carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
     solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
@@ -47,7 +45,9 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct RaydiumClmmInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<'_, RaydiumClmmInstruction>> for RaydiumClmmInstructionProcessor {
+impl Processor<InstructionProcessorInputType<'_, RaydiumClmmInstruction>>
+    for RaydiumClmmInstructionProcessor
+{
     async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, RaydiumClmmInstruction>,

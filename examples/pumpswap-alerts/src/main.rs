@@ -1,8 +1,6 @@
 use {
     carbon_core::{
-        error::CarbonResult,
-        instruction::InstructionProcessorInputType,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType, processor::Processor,
     },
     carbon_helius_laserstream_datasource::{LaserStreamClientConfig, LaserStreamGeyserClient},
     carbon_log_metrics::LogMetrics,
@@ -96,7 +94,9 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct PumpSwapInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<'_, PumpSwapInstruction>> for PumpSwapInstructionProcessor {
+impl Processor<InstructionProcessorInputType<'_, PumpSwapInstruction>>
+    for PumpSwapInstructionProcessor
+{
     async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, PumpSwapInstruction>,
@@ -129,14 +129,11 @@ impl Processor<InstructionProcessorInputType<'_, PumpSwapInstruction>> for PumpS
                 log::info!("UpdateAdmin: signature: {signature}, update_admin: {data:?}");
             }
             PumpSwapInstruction::CollectCoinCreatorFee { data, .. } => {
-                log::info!(
-                    "CollectCoinCreatorFee: signature: {signature}, collect_fee: {data:?}"
-                );
+                log::info!("CollectCoinCreatorFee: signature: {signature}, collect_fee: {data:?}");
             }
             PumpSwapInstruction::CpiEvent { data, .. } => match data {
                 CpiEvent::BuyEvent(buy_event) => {
-                    let sol_amount =
-                        buy_event.quote_amount_in as f64 / LAMPORTS_PER_SOL as f64;
+                    let sol_amount = buy_event.quote_amount_in as f64 / LAMPORTS_PER_SOL as f64;
                     log::info!(
                         "BuyEvent: signature: {signature}, SOL: {sol_amount:.4}, pool: {}, user: {}",
                         buy_event.pool,
@@ -144,8 +141,7 @@ impl Processor<InstructionProcessorInputType<'_, PumpSwapInstruction>> for PumpS
                     );
                 }
                 CpiEvent::SellEvent(sell_event) => {
-                    let sol_amount =
-                        sell_event.quote_amount_out as f64 / LAMPORTS_PER_SOL as f64;
+                    let sol_amount = sell_event.quote_amount_out as f64 / LAMPORTS_PER_SOL as f64;
                     log::info!(
                         "SellEvent: signature: {signature}, SOL: {sol_amount:.4}, pool: {}, user: {}",
                         sell_event.pool,
@@ -153,7 +149,9 @@ impl Processor<InstructionProcessorInputType<'_, PumpSwapInstruction>> for PumpS
                     );
                 }
                 CpiEvent::CreatePoolEvent(pool_event) => {
-                    log::info!("CreatePoolEvent: signature: {signature}, pool_event: {pool_event:?}");
+                    log::info!(
+                        "CreatePoolEvent: signature: {signature}, pool_event: {pool_event:?}"
+                    );
                 }
                 CpiEvent::DepositEvent(deposit_event) => {
                     log::info!(
@@ -181,8 +179,7 @@ impl Processor<InstructionProcessorInputType<'_, PumpSwapInstruction>> for PumpS
                     );
                 }
                 CpiEvent::CollectCoinCreatorFeeEvent(fee_event) => {
-                    let fee_amount =
-                        fee_event.coin_creator_fee as f64 / LAMPORTS_PER_SOL as f64;
+                    let fee_amount = fee_event.coin_creator_fee as f64 / LAMPORTS_PER_SOL as f64;
                     log::info!(
                         "CollectCoinCreatorFeeEvent: signature: {signature}, fee: {fee_amount:.6} SOL, creator: {}",
                         fee_event.coin_creator
@@ -199,9 +196,7 @@ impl Processor<InstructionProcessorInputType<'_, PumpSwapInstruction>> for PumpS
                     );
                 }
                 _ => {
-                    log::debug!(
-                        "Other PumpSwap CpiEvent: signature: {signature}, data: {data:?}"
-                    );
+                    log::debug!("Other PumpSwap CpiEvent: signature: {signature}, data: {data:?}");
                 }
             },
             _ => {

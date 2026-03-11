@@ -1,8 +1,6 @@
 use {
     carbon_core::{
-        error::CarbonResult,
-        instruction::InstructionProcessorInputType,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType, processor::Processor,
     },
     carbon_jupiter_swap_decoder::{
         instructions::{CpiEvent, JupiterSwapInstruction},
@@ -83,7 +81,9 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct JupiterSwapInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<'_, JupiterSwapInstruction>> for JupiterSwapInstructionProcessor {
+impl Processor<InstructionProcessorInputType<'_, JupiterSwapInstruction>>
+    for JupiterSwapInstructionProcessor
+{
     async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, JupiterSwapInstruction>,
@@ -98,12 +98,12 @@ impl Processor<InstructionProcessorInputType<'_, JupiterSwapInstruction>> for Ju
                 log::info!("claim_token: signature: {signature}, claim_token: {data:?}");
             }
             JupiterSwapInstruction::CreateTokenLedger { data, .. } => {
-                log::info!("create_token_ledger: signature: {signature}, create_token_ledger: {data:?}");
+                log::info!(
+                    "create_token_ledger: signature: {signature}, create_token_ledger: {data:?}"
+                );
             }
             JupiterSwapInstruction::ExactOutRoute { data, .. } => {
-                log::info!(
-                    "exact_out_route: signature: {signature}, exact_out_route: {data:?}"
-                );
+                log::info!("exact_out_route: signature: {signature}, exact_out_route: {data:?}");
             }
             JupiterSwapInstruction::Route { data, .. } => {
                 log::info!("route: signature: {signature}, route: {data:?}");
@@ -118,7 +118,9 @@ impl Processor<InstructionProcessorInputType<'_, JupiterSwapInstruction>> for Ju
                 log::info!("shared_accounts_exact_out_route: signature: {signature}, shared_accounts_exact_out_route: {data:?}");
             }
             JupiterSwapInstruction::ExactOutRouteV2 { data, .. } => {
-                log::info!("exact_out_route_v2: signature: {signature}, exact_out_route_v2: {data:?}");
+                log::info!(
+                    "exact_out_route_v2: signature: {signature}, exact_out_route_v2: {data:?}"
+                );
             }
             JupiterSwapInstruction::RouteV2 { data, .. } => {
                 log::info!("route_v2: signature: {signature}, route_v2: {data:?}");
@@ -139,7 +141,9 @@ impl Processor<InstructionProcessorInputType<'_, JupiterSwapInstruction>> for Ju
                 log::info!("close_token: signature: {signature}, close_token: {data:?}");
             }
             JupiterSwapInstruction::CreateTokenAccount { data, .. } => {
-                log::info!("create_token_account: signature: {signature}, create_token_account: {data:?}");
+                log::info!(
+                    "create_token_account: signature: {signature}, create_token_account: {data:?}"
+                );
             }
             JupiterSwapInstruction::CpiEvent { data, .. } => match data {
                 CpiEvent::FeeEvent(fee_event) => {

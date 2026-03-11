@@ -1,7 +1,6 @@
 use {
     carbon_core::{
-        error::CarbonResult, instruction::InstructionProcessorInputType,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType, processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
     carbon_pumpfun_decoder::{
@@ -77,7 +76,9 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct PumpfunInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<'_, PumpfunInstruction>> for PumpfunInstructionProcessor {
+impl Processor<InstructionProcessorInputType<'_, PumpfunInstruction>>
+    for PumpfunInstructionProcessor
+{
     async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, PumpfunInstruction>,

@@ -1,13 +1,10 @@
 use {
     carbon_core::{
-        error::CarbonResult,
-        instruction::InstructionProcessorInputType,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType, processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
     carbon_moonshot_decoder::{
-        instructions::MoonshotInstruction,
-        MoonshotDecoder, PROGRAM_ID as MOONSHOT_PROGRAM_ID,
+        instructions::MoonshotInstruction, MoonshotDecoder, PROGRAM_ID as MOONSHOT_PROGRAM_ID,
     },
     carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
     solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
@@ -47,7 +44,9 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct MoonshotInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<'_, MoonshotInstruction>> for MoonshotInstructionProcessor {
+impl Processor<InstructionProcessorInputType<'_, MoonshotInstruction>>
+    for MoonshotInstructionProcessor
+{
     async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, MoonshotInstruction>,

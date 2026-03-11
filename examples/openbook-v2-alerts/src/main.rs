@@ -1,8 +1,6 @@
 use {
     carbon_core::{
-        error::CarbonResult,
-        instruction::InstructionProcessorInputType,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType, processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
     carbon_openbook_v2_decoder::{
@@ -47,7 +45,9 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct OpenbookV2InstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<'_, OpenbookV2Instruction>> for OpenbookV2InstructionProcessor {
+impl Processor<InstructionProcessorInputType<'_, OpenbookV2Instruction>>
+    for OpenbookV2InstructionProcessor
+{
     async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, OpenbookV2Instruction>,

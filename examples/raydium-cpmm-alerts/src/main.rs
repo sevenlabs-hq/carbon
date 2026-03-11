@@ -1,8 +1,6 @@
 use {
     carbon_core::{
-        error::CarbonResult,
-        instruction::InstructionProcessorInputType,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType, processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
     carbon_raydium_cpmm_decoder::{
@@ -47,7 +45,9 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct RaydiumCpmmInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<'_, RaydiumCpmmInstruction>> for RaydiumCpmmInstructionProcessor {
+impl Processor<InstructionProcessorInputType<'_, RaydiumCpmmInstruction>>
+    for RaydiumCpmmInstructionProcessor
+{
     async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, RaydiumCpmmInstruction>,

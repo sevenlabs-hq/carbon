@@ -109,7 +109,9 @@ async fn main() -> CarbonResult<()> {
     Pipeline::builder()
         .datasource(datasource)
         .account(GenericAccountDecoder, SnapshotAccountProcessor)
-        .metrics(Arc::new(LogMetrics::new_with_flush_interval(metrics_flush_interval)))
+        .metrics(Arc::new(LogMetrics::new_with_flush_interval(
+            metrics_flush_interval,
+        )))
         .build()?
         .run()
         .await?;

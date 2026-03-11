@@ -1,8 +1,6 @@
 use {
     carbon_core::{
-        error::CarbonResult,
-        instruction::InstructionProcessorInputType,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType, processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
     carbon_meteora_dlmm_decoder::{
@@ -52,7 +50,9 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct MeteoraInstructionProcessor;
 
-impl Processor<InstructionProcessorInputType<'_, MeteoraDlmmInstruction>> for MeteoraInstructionProcessor {
+impl Processor<InstructionProcessorInputType<'_, MeteoraDlmmInstruction>>
+    for MeteoraInstructionProcessor
+{
     async fn process(
         &mut self,
         input: &InstructionProcessorInputType<'_, MeteoraDlmmInstruction>,
