@@ -1,6 +1,6 @@
 [workspace]
-members = ["crates/*", "datasources/*", "metrics/*"]
-# members = ["decoders/*", "examples/*"]  # temporarily disabled, requires decoder regeneration
+members = ["crates/*", "datasources/*", "decoders/*", "metrics/*"]
+# members = ["examples/*"]  # temporarily disabled
 resolver = "2"
 
 [workspace.package]
