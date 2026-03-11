@@ -19,14 +19,13 @@ use {
 ///      fees - spendable_sol_in)
 ///   4. tokens_out = floor((net_sol - 1) * virtual_token_reserves /
 ///      (virtual_sol_reserves + net_sol - 1))
-///   Reverse quote (tokens → SOL)
+///   # Reverse quote (tokens → SOL)
 ///   To calculate spendable_sol_in for a desired number of tokens:
 ///   1. net_sol = ceil(tokens * virtual_sol_reserves / (virtual_token_reserves
 ///      - tokens)) + 1
 ///   2. spendable_sol_in = ceil(net_sol * (10_000 + total_fee_bps) / 10_000)
-///   Rent
-///   Separately make sure the instruction's payer has enough SOL to cover rent
-/// for:
+///   # Rent
+///   Make sure the payer has enough SOL for rent for:
 /// - creator_vault: rent.minimum_balance(0)
 /// - user_volume_accumulator: rent.minimum_balance(UserVolumeAccumulator::LEN)
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

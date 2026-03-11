@@ -50,16 +50,7 @@ impl TryFrom<ConstituentCorrelationsRow>
                         .to_string(),
                 )
             })?,
-            correlations: source
-                .correlations
-                .into_iter()
-                .map(|element| element.try_into())
-                .collect::<Result<_, _>>()
-                .map_err(|_| {
-                    carbon_core::error::Error::Custom(
-                        "Failed to convert array element to primitive".to_string(),
-                    )
-                })?,
+            correlations: source.correlations.to_vec(),
         })
     }
 }

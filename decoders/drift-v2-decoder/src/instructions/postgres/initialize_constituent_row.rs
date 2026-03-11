@@ -103,16 +103,7 @@ impl TryFrom<InitializeConstituentRow>
                     "Failed to convert value from postgres primitive".to_string(),
                 )
             })?,
-            new_constituent_correlations: source
-                .new_constituent_correlations
-                .into_iter()
-                .map(|element| element.try_into())
-                .collect::<Result<_, _>>()
-                .map_err(|_| {
-                    carbon_core::error::Error::Custom(
-                        "Failed to convert array element to primitive".to_string(),
-                    )
-                })?,
+            new_constituent_correlations: source.new_constituent_correlations.to_vec(),
         })
     }
 }
