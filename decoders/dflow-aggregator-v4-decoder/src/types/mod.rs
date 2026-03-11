@@ -4,9 +4,11 @@ pub mod graphql;
 
 pub mod action;
 pub mod alpha_q_swap_options;
+pub mod bison_fi_dynamic_route_v1_options;
 pub mod bison_fi_swap_options;
 pub mod clearpools_swap_options;
 pub mod d_flow_dynamic_route_v1_options;
+pub mod deriverse_swap_options;
 pub mod dynamic_route_v1_candidate_action;
 pub mod fee_event;
 pub mod fill_order_params;
@@ -14,6 +16,7 @@ pub mod gamma_swap_options;
 pub mod heaven_swap_options;
 pub mod humidi_fi_dynamic_route_v1_options;
 pub mod humidi_fi_swap_options;
+pub mod k_d_e_x_swap_options;
 pub mod leg_price;
 pub mod lifinity_v2_swap_options;
 pub mod manifest_swap_options;
@@ -68,23 +71,26 @@ pub mod transfer_fee_options;
 pub mod vertigo_swap_options;
 pub mod whirlpools_swap_options;
 pub mod whirlpools_swap_v2_options;
+pub mod wrap_sol_options;
 pub mod zero_fi_swap_options;
 
 pub use self::{
-    action::*, alpha_q_swap_options::*, bison_fi_swap_options::*, clearpools_swap_options::*,
-    d_flow_dynamic_route_v1_options::*, dynamic_route_v1_candidate_action::*, fee_event::*,
+    action::*, alpha_q_swap_options::*, bison_fi_dynamic_route_v1_options::*,
+    bison_fi_swap_options::*, clearpools_swap_options::*, d_flow_dynamic_route_v1_options::*,
+    deriverse_swap_options::*, dynamic_route_v1_candidate_action::*, fee_event::*,
     fill_order_params::*, gamma_swap_options::*, heaven_swap_options::*,
-    humidi_fi_dynamic_route_v1_options::*, humidi_fi_swap_options::*, leg_price::*,
-    lifinity_v2_swap_options::*, manifest_swap_options::*, meteora_damm_v1_swap_options::*,
-    meteora_damm_v2_swap_options::*, meteora_dbc_swap_options::*, meteora_dlmm_swap_options::*,
-    meteora_dlmm_swap_v2_options::*, mozart_dynamic_route_v1_options::*, mozart_swap_options::*,
-    nexus_dynamic_route_v1_options::*, nexus_swap_options::*, obric_v2_dynamic_route_v1_options::*,
-    obric_v2_swap_options::*, open_order_params::*, open_predictions_order_options::*,
-    orchestrator_flags::*, phoenix_swap_options::*, pump_fun_amm_buy_options::*,
-    pump_fun_amm_sell_options::*, pump_fun_buy_options::*, pump_fun_sell_options::*,
-    raydium_amm_swap_options::*, raydium_clmm_swap_options::*, raydium_clmm_swap_v2_options::*,
-    raydium_cp_swap_options::*, raydium_launchlab_swap_options::*, record_id2_options::*,
-    record_id_options::*, rubicon_dynamic_route_v1_options::*, rubicon_swap_options::*,
+    humidi_fi_dynamic_route_v1_options::*, humidi_fi_swap_options::*, k_d_e_x_swap_options::*,
+    leg_price::*, lifinity_v2_swap_options::*, manifest_swap_options::*,
+    meteora_damm_v1_swap_options::*, meteora_damm_v2_swap_options::*, meteora_dbc_swap_options::*,
+    meteora_dlmm_swap_options::*, meteora_dlmm_swap_v2_options::*,
+    mozart_dynamic_route_v1_options::*, mozart_swap_options::*, nexus_dynamic_route_v1_options::*,
+    nexus_swap_options::*, obric_v2_dynamic_route_v1_options::*, obric_v2_swap_options::*,
+    open_order_params::*, open_predictions_order_options::*, orchestrator_flags::*,
+    phoenix_swap_options::*, pump_fun_amm_buy_options::*, pump_fun_amm_sell_options::*,
+    pump_fun_buy_options::*, pump_fun_sell_options::*, raydium_amm_swap_options::*,
+    raydium_clmm_swap_options::*, raydium_clmm_swap_v2_options::*, raydium_cp_swap_options::*,
+    raydium_launchlab_swap_options::*, record_id2_options::*, record_id_options::*,
+    rubicon_dynamic_route_v1_options::*, rubicon_swap_options::*,
     sanctum_infinity_liquidity_options::*, sanctum_infinity_swap_options::*,
     saros_dlmm_swap_options::*, scorch_swap_options::*, set_minimum_leg_outputs_options::*,
     set_minimum_leg_prices_options::*, side::*, sol_fi_dynamic_route_v1_options::*,
@@ -93,5 +99,5 @@ pub use self::{
     swap_event::*, swap_params::*, tessera_v_dynamic_route_v1_options::*,
     tessera_v_swap_options::*, token_swap_options::*, transfer_fee_options::*,
     vertigo_swap_options::*, whirlpools_swap_options::*, whirlpools_swap_v2_options::*,
-    zero_fi_swap_options::*,
+    wrap_sol_options::*, zero_fi_swap_options::*,
 };

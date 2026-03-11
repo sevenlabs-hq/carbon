@@ -89,6 +89,7 @@ pub mod place_and_take_perp_order_schema;
 pub mod place_and_take_spot_order_schema;
 pub mod place_orders_schema;
 pub mod place_perp_order_schema;
+pub mod place_scale_orders_schema;
 pub mod place_signed_msg_taker_order_schema;
 pub mod place_spot_order_schema;
 pub mod post_multi_pyth_pull_oracle_updates_atomic_schema;
@@ -290,16 +291,16 @@ pub use {
     place_and_make_perp_order_schema::*, place_and_make_signed_msg_perp_order_schema::*,
     place_and_make_spot_order_schema::*, place_and_take_perp_order_schema::*,
     place_and_take_spot_order_schema::*, place_orders_schema::*, place_perp_order_schema::*,
-    place_signed_msg_taker_order_schema::*, place_spot_order_schema::*,
-    post_multi_pyth_pull_oracle_updates_atomic_schema::*, post_pyth_lazer_oracle_update_schema::*,
-    post_pyth_pull_oracle_update_atomic_schema::*, recenter_perp_market_amm_crank_schema::*,
-    recenter_perp_market_amm_schema::*, reclaim_rent_schema::*,
-    remove_amm_constituent_mapping_data_schema::*, remove_insurance_fund_stake_schema::*,
-    repeg_amm_curve_schema::*, request_remove_insurance_fund_stake_schema::*,
-    reset_fuel_season_schema::*, reset_perp_market_amm_oracle_twap_schema::*,
-    resize_revenue_share_escrow_orders_schema::*, resize_signed_msg_user_orders_schema::*,
-    resolve_perp_bankruptcy_schema::*, resolve_perp_pnl_deficit_schema::*,
-    resolve_spot_bankruptcy_schema::*, revert_fill_schema::*,
+    place_scale_orders_schema::*, place_signed_msg_taker_order_schema::*,
+    place_spot_order_schema::*, post_multi_pyth_pull_oracle_updates_atomic_schema::*,
+    post_pyth_lazer_oracle_update_schema::*, post_pyth_pull_oracle_update_atomic_schema::*,
+    recenter_perp_market_amm_crank_schema::*, recenter_perp_market_amm_schema::*,
+    reclaim_rent_schema::*, remove_amm_constituent_mapping_data_schema::*,
+    remove_insurance_fund_stake_schema::*, repeg_amm_curve_schema::*,
+    request_remove_insurance_fund_stake_schema::*, reset_fuel_season_schema::*,
+    reset_perp_market_amm_oracle_twap_schema::*, resize_revenue_share_escrow_orders_schema::*,
+    resize_signed_msg_user_orders_schema::*, resolve_perp_bankruptcy_schema::*,
+    resolve_perp_pnl_deficit_schema::*, resolve_spot_bankruptcy_schema::*, revert_fill_schema::*,
     set_user_status_to_being_liquidated_schema::*,
     settle_expired_market_pools_to_revenue_pool_schema::*, settle_expired_market_schema::*,
     settle_funding_payment_schema::*, settle_multiple_pnls_schema::*,

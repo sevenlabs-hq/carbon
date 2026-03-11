@@ -97,6 +97,7 @@ pub mod place_and_take_perp_order;
 pub mod place_and_take_spot_order;
 pub mod place_orders;
 pub mod place_perp_order;
+pub mod place_scale_orders;
 pub mod place_signed_msg_taker_order;
 pub mod place_spot_order;
 pub mod post_multi_pyth_pull_oracle_updates_atomic;
@@ -289,17 +290,17 @@ pub use self::{
     phoenix_fulfillment_config_status::*, place_and_make_perp_order::*,
     place_and_make_signed_msg_perp_order::*, place_and_make_spot_order::*,
     place_and_take_perp_order::*, place_and_take_spot_order::*, place_orders::*,
-    place_perp_order::*, place_signed_msg_taker_order::*, place_spot_order::*,
-    post_multi_pyth_pull_oracle_updates_atomic::*, post_pyth_lazer_oracle_update::*,
-    post_pyth_pull_oracle_update_atomic::*, recenter_perp_market_amm::*,
-    recenter_perp_market_amm_crank::*, reclaim_rent::*, remove_amm_constituent_mapping_data::*,
-    remove_insurance_fund_stake::*, repeg_amm_curve::*, request_remove_insurance_fund_stake::*,
-    reset_fuel_season::*, reset_perp_market_amm_oracle_twap::*,
-    resize_revenue_share_escrow_orders::*, resize_signed_msg_user_orders::*,
-    resolve_perp_bankruptcy::*, resolve_perp_pnl_deficit::*, resolve_spot_bankruptcy::*,
-    revert_fill::*, set_user_status_to_being_liquidated::*, settle_expired_market::*,
-    settle_expired_market_pools_to_revenue_pool::*, settle_funding_payment::*,
-    settle_multiple_pnls::*, settle_perp_to_lp_pool::*, settle_pnl::*,
+    place_perp_order::*, place_scale_orders::*, place_signed_msg_taker_order::*,
+    place_spot_order::*, post_multi_pyth_pull_oracle_updates_atomic::*,
+    post_pyth_lazer_oracle_update::*, post_pyth_pull_oracle_update_atomic::*,
+    recenter_perp_market_amm::*, recenter_perp_market_amm_crank::*, reclaim_rent::*,
+    remove_amm_constituent_mapping_data::*, remove_insurance_fund_stake::*, repeg_amm_curve::*,
+    request_remove_insurance_fund_stake::*, reset_fuel_season::*,
+    reset_perp_market_amm_oracle_twap::*, resize_revenue_share_escrow_orders::*,
+    resize_signed_msg_user_orders::*, resolve_perp_bankruptcy::*, resolve_perp_pnl_deficit::*,
+    resolve_spot_bankruptcy::*, revert_fill::*, set_user_status_to_being_liquidated::*,
+    settle_expired_market::*, settle_expired_market_pools_to_revenue_pool::*,
+    settle_funding_payment::*, settle_multiple_pnls::*, settle_perp_to_lp_pool::*, settle_pnl::*,
     settle_revenue_to_insurance_fund::*, sweep_fuel::*, transfer_deposit::*,
     transfer_isolated_perp_position_deposit::*, transfer_perp_position::*, transfer_pools::*,
     transfer_protocol_if_shares_to_revenue_pool::*, trigger_order::*, update_admin::*,
@@ -810,6 +811,11 @@ pub enum DriftV2Instruction {
         program_id: solana_pubkey::Pubkey,
         data: PlacePerpOrder,
         accounts: PlacePerpOrderInstructionAccounts,
+    },
+    PlaceScaleOrders {
+        program_id: solana_pubkey::Pubkey,
+        data: PlaceScaleOrders,
+        accounts: PlaceScaleOrdersInstructionAccounts,
     },
     PlaceSignedMsgTakerOrder {
         program_id: solana_pubkey::Pubkey,
@@ -1707,6 +1713,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for DriftV2Decoder {
             DriftV2Instruction::PlaceAndTakeSpotOrder => PlaceAndTakeSpotOrder,
             DriftV2Instruction::PlaceOrders => PlaceOrders,
             DriftV2Instruction::PlacePerpOrder => PlacePerpOrder,
+            DriftV2Instruction::PlaceScaleOrders => PlaceScaleOrders,
             DriftV2Instruction::PlaceSignedMsgTakerOrder => PlaceSignedMsgTakerOrder,
             DriftV2Instruction::PlaceSpotOrder => PlaceSpotOrder,
             DriftV2Instruction::PostMultiPythPullOracleUpdatesAtomic => PostMultiPythPullOracleUpdatesAtomic,

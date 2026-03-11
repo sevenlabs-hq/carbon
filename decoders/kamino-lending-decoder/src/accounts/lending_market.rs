@@ -41,7 +41,8 @@ pub struct LendingMarket {
     /// becomes 100%
     pub insolvency_risk_unhealthy_ltv_pct: u8,
     /// Minimum liquidation value threshold triggering full liquidation for an
-    /// obligation
+    /// obligation, in full units of the quote currency (e.g. `2` means
+    /// "$2", not "2 lamports of USDC").
     pub min_full_liquidation_value_threshold: u64,
     /// Max allowed liquidation value in one ix call
     pub max_liquidatable_debt_market_value_at_once: u64,
@@ -112,8 +113,20 @@ pub struct LendingMarket {
     /// in full units of the quote currency (e.g. `2` means "$2", not "2
     /// lamports of USDC").
     pub min_borrow_order_fill_value: u64,
+    /// Whether any new withdraw tickets can be issued (i.e. whether new
+    /// requests can enter the withdraw queue).
+    pub withdraw_ticket_issuance_enabled: u8,
+    /// Whether the existing withdraw tickets can be redeemed (i.e. whether the
+    /// tickets can be used to transfer accumulated pending liquidity to
+    /// destination accounts).
+    pub withdraw_ticket_redemption_enabled: u8,
+    pub padding2: [u8; 6],
+    /// Minimum value that can be withdrawn in a single
+    /// `withdraw_queued_liquidity()` call, in full units of the quote
+    /// currency (e.g. `2` means "$2", not "2 lamports of USDC").
+    pub min_withdraw_queued_liquidity_value: u64,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
-    pub padding1: [u64; 164],
+    pub padding1: [u64; 162],
 }
 
 impl LendingMarket {

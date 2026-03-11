@@ -9,6 +9,7 @@ pub mod deposit_obligation_collateral_v2_row;
 pub mod deposit_reserve_liquidity_and_obligation_collateral_row;
 pub mod deposit_reserve_liquidity_and_obligation_collateral_v2_row;
 pub mod deposit_reserve_liquidity_row;
+pub mod enqueue_to_withdraw_row;
 pub mod fill_borrow_order_row;
 pub mod flash_borrow_reserve_liquidity_row;
 pub mod flash_repay_reserve_liquidity_row;
@@ -25,6 +26,7 @@ pub mod init_user_metadata_row;
 pub mod liquidate_obligation_and_redeem_reserve_collateral_row;
 pub mod liquidate_obligation_and_redeem_reserve_collateral_v2_row;
 pub mod mark_obligation_for_deleveraging_row;
+pub mod recover_invalid_ticket_collateral_row;
 pub mod redeem_fees_row;
 pub mod redeem_reserve_collateral_row;
 pub mod refresh_obligation_farms_for_reserve_row;
@@ -50,6 +52,7 @@ pub mod withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_row;
 pub mod withdraw_obligation_collateral_row;
 pub mod withdraw_obligation_collateral_v2_row;
 pub mod withdraw_protocol_fee_row;
+pub mod withdraw_queued_liquidity_row;
 pub mod withdraw_referrer_fees_row;
 
 pub use self::{
@@ -58,7 +61,7 @@ pub use self::{
     deposit_obligation_collateral_row::*, deposit_obligation_collateral_v2_row::*,
     deposit_reserve_liquidity_and_obligation_collateral_row::*,
     deposit_reserve_liquidity_and_obligation_collateral_v2_row::*,
-    deposit_reserve_liquidity_row::*, fill_borrow_order_row::*,
+    deposit_reserve_liquidity_row::*, enqueue_to_withdraw_row::*, fill_borrow_order_row::*,
     flash_borrow_reserve_liquidity_row::*, flash_repay_reserve_liquidity_row::*,
     idl_missing_types_row::*, init_farms_for_reserve_row::*, init_global_config_row::*,
     init_lending_market_row::*, init_obligation_farms_for_reserve_row::*, init_obligation_row::*,
@@ -66,7 +69,8 @@ pub use self::{
     init_reserve_row::*, init_user_metadata_row::*,
     liquidate_obligation_and_redeem_reserve_collateral_row::*,
     liquidate_obligation_and_redeem_reserve_collateral_v2_row::*,
-    mark_obligation_for_deleveraging_row::*, redeem_fees_row::*, redeem_reserve_collateral_row::*,
+    mark_obligation_for_deleveraging_row::*, recover_invalid_ticket_collateral_row::*,
+    redeem_fees_row::*, redeem_reserve_collateral_row::*,
     refresh_obligation_farms_for_reserve_row::*, refresh_obligation_row::*, refresh_reserve_row::*,
     refresh_reserves_batch_row::*, repay_and_withdraw_and_redeem_row::*,
     repay_obligation_liquidity_row::*, repay_obligation_liquidity_v2_row::*,
@@ -77,7 +81,7 @@ pub use self::{
     withdraw_obligation_collateral_and_redeem_reserve_collateral_row::*,
     withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_row::*,
     withdraw_obligation_collateral_row::*, withdraw_obligation_collateral_v2_row::*,
-    withdraw_protocol_fee_row::*, withdraw_referrer_fees_row::*,
+    withdraw_protocol_fee_row::*, withdraw_queued_liquidity_row::*, withdraw_referrer_fees_row::*,
 };
 use super::KaminoLendingInstruction;
 
@@ -103,6 +107,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for KaminoLendingInstructionsMigra
             Box::new(DepositReserveLiquidityMigrationOperation),
             Box::new(DepositReserveLiquidityAndObligationCollateralMigrationOperation),
             Box::new(DepositReserveLiquidityAndObligationCollateralV2MigrationOperation),
+            Box::new(EnqueueToWithdrawMigrationOperation),
             Box::new(FillBorrowOrderMigrationOperation),
             Box::new(FlashBorrowReserveLiquidityMigrationOperation),
             Box::new(FlashRepayReserveLiquidityMigrationOperation),
@@ -119,6 +124,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for KaminoLendingInstructionsMigra
             Box::new(LiquidateObligationAndRedeemReserveCollateralMigrationOperation),
             Box::new(LiquidateObligationAndRedeemReserveCollateralV2MigrationOperation),
             Box::new(MarkObligationForDeleveragingMigrationOperation),
+            Box::new(RecoverInvalidTicketCollateralMigrationOperation),
             Box::new(RedeemFeesMigrationOperation),
             Box::new(RedeemReserveCollateralMigrationOperation),
             Box::new(RefreshObligationMigrationOperation),
@@ -144,6 +150,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for KaminoLendingInstructionsMigra
             Box::new(WithdrawObligationCollateralAndRedeemReserveCollateralV2MigrationOperation),
             Box::new(WithdrawObligationCollateralV2MigrationOperation),
             Box::new(WithdrawProtocolFeeMigrationOperation),
+            Box::new(WithdrawQueuedLiquidityMigrationOperation),
             Box::new(WithdrawReferrerFeesMigrationOperation),
             Box::new(CpiEventMigrationOperation),
         ]
@@ -419,6 +426,21 @@ impl carbon_core::postgres::operations::Insert for KaminoLendingInstructionWithM
                 row.insert(pool).await?;
                 Ok(())
             }
+            KaminoLendingInstruction::EnqueueToWithdraw { data, .. } => {
+                let row = enqueue_to_withdraw_row::EnqueueToWithdrawRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            KaminoLendingInstruction::WithdrawQueuedLiquidity { data, .. } => {
+                let row = withdraw_queued_liquidity_row::WithdrawQueuedLiquidityRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            KaminoLendingInstruction::RecoverInvalidTicketCollateral { data, .. } => {
+                let row = recover_invalid_ticket_collateral_row::RecoverInvalidTicketCollateralRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
             KaminoLendingInstruction::InitGlobalConfig { data, .. } => {
                 let row = init_global_config_row::InitGlobalConfigRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
@@ -686,6 +708,21 @@ impl carbon_core::postgres::operations::Upsert for KaminoLendingInstructionWithM
             }
             KaminoLendingInstruction::FillBorrowOrder { data, .. } => {
                 let row = fill_borrow_order_row::FillBorrowOrderRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            KaminoLendingInstruction::EnqueueToWithdraw { data, .. } => {
+                let row = enqueue_to_withdraw_row::EnqueueToWithdrawRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            KaminoLendingInstruction::WithdrawQueuedLiquidity { data, .. } => {
+                let row = withdraw_queued_liquidity_row::WithdrawQueuedLiquidityRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            KaminoLendingInstruction::RecoverInvalidTicketCollateral { data, .. } => {
+                let row = recover_invalid_ticket_collateral_row::RecoverInvalidTicketCollateralRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }

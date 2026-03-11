@@ -106,6 +106,7 @@ pub mod revenue_share_escrow_fixed;
 pub mod revenue_share_order;
 pub mod revenue_share_order_bit_flag;
 pub mod revenue_share_settle_record;
+pub mod scale_order_params;
 pub mod settle_pnl_explanation;
 pub mod settle_pnl_mode;
 pub mod settle_pnl_record;
@@ -117,6 +118,7 @@ pub mod signed_msg_order_params_message;
 pub mod signed_msg_order_record;
 pub mod signed_msg_trigger_order_params;
 pub mod signed_msg_user_orders_fixed;
+pub mod size_distribution;
 pub mod spot_balance_type;
 pub mod spot_bankruptcy_record;
 pub mod spot_fulfillment_config_status;
@@ -170,15 +172,16 @@ pub use self::{
     position_flag::*, position_update_type::*, post_only_param::*, prelaunch_oracle_params::*,
     price_divergence_guard_rails::*, referrer_status::*, revenue_share_escrow_fixed::*,
     revenue_share_order::*, revenue_share_order_bit_flag::*, revenue_share_settle_record::*,
-    settle_pnl_explanation::*, settle_pnl_mode::*, settle_pnl_record::*, settlement_direction::*,
-    signature_verification_error::*, signed_msg_order_id::*,
+    scale_order_params::*, settle_pnl_explanation::*, settle_pnl_mode::*, settle_pnl_record::*,
+    settlement_direction::*, signature_verification_error::*, signed_msg_order_id::*,
     signed_msg_order_params_delegate_message::*, signed_msg_order_params_message::*,
     signed_msg_order_record::*, signed_msg_trigger_order_params::*,
-    signed_msg_user_orders_fixed::*, spot_balance_type::*, spot_bankruptcy_record::*,
-    spot_fulfillment_config_status::*, spot_fulfillment_method::*, spot_fulfillment_type::*,
-    spot_interest_record::*, spot_market_vault_deposit_record::*, spot_operation::*,
-    spot_position::*, stake_action::*, swap_direction::*, swap_record::*, swap_reduce_only::*,
-    targets_datum::*, token_program_flag::*, transfer_protocol_if_shares_to_revenue_pool_record::*,
-    twap_period::*, update_perp_market_summary_stats_params::*, user_fees::*,
-    user_stats_paused_operations::*, user_status::*, validity_guard_rails::*,
+    signed_msg_user_orders_fixed::*, size_distribution::*, spot_balance_type::*,
+    spot_bankruptcy_record::*, spot_fulfillment_config_status::*, spot_fulfillment_method::*,
+    spot_fulfillment_type::*, spot_interest_record::*, spot_market_vault_deposit_record::*,
+    spot_operation::*, spot_position::*, stake_action::*, swap_direction::*, swap_record::*,
+    swap_reduce_only::*, targets_datum::*, token_program_flag::*,
+    transfer_protocol_if_shares_to_revenue_pool_record::*, twap_period::*,
+    update_perp_market_summary_stats_params::*, user_fees::*, user_stats_paused_operations::*,
+    user_status::*, validity_guard_rails::*,
 };

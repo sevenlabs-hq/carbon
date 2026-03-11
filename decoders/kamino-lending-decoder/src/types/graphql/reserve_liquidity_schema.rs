@@ -11,7 +11,7 @@ pub struct ReserveLiquidityGraphQL {
     pub mint_pubkey: Pubkey,
     pub supply_vault: Pubkey,
     pub fee_vault: Pubkey,
-    pub available_amount: U64,
+    pub total_available_amount: U64,
     pub borrowed_amount_sf: U128,
     pub market_price_sf: U128,
     pub market_price_last_updated_ts: U64,
@@ -34,7 +34,9 @@ impl From<crate::types::ReserveLiquidity> for ReserveLiquidityGraphQL {
             mint_pubkey: carbon_core::graphql::primitives::Pubkey(original.mint_pubkey),
             supply_vault: carbon_core::graphql::primitives::Pubkey(original.supply_vault),
             fee_vault: carbon_core::graphql::primitives::Pubkey(original.fee_vault),
-            available_amount: carbon_core::graphql::primitives::U64(original.available_amount),
+            total_available_amount: carbon_core::graphql::primitives::U64(
+                original.total_available_amount,
+            ),
             borrowed_amount_sf: carbon_core::graphql::primitives::U128(original.borrowed_amount_sf),
             market_price_sf: carbon_core::graphql::primitives::U128(original.market_price_sf),
             market_price_last_updated_ts: carbon_core::graphql::primitives::U64(

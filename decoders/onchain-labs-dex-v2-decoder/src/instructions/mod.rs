@@ -8,6 +8,8 @@ pub mod postgres;
 pub mod graphql;
 
 pub mod claim;
+pub mod claim_cashback_pumpfun;
+pub mod claim_cashback_pumpswap;
 pub mod cpi_event;
 pub mod create_token_account;
 pub mod create_token_account_with_seed;
@@ -27,11 +29,12 @@ pub mod wrap_unwrap;
 pub mod wrap_unwrap_with_receiver;
 
 pub use self::{
-    claim::*, cpi_event::*, create_token_account::*, create_token_account_with_seed::*,
-    init_token_ledger::*, proxy_swap::*, set_token_ledger::*, swap::*, swap_tob::*,
-    swap_tob_enhanced::*, swap_tob_v2::*, swap_tob_with_receiver::*,
-    swap_tob_with_receiver_token_ledger::*, swap_tob_with_token_ledger::*, swap_toc::*,
-    swap_toc_v2::*, wrap_unwrap::*, wrap_unwrap_with_receiver::*,
+    claim::*, claim_cashback_pumpfun::*, claim_cashback_pumpswap::*, cpi_event::*,
+    create_token_account::*, create_token_account_with_seed::*, init_token_ledger::*,
+    proxy_swap::*, set_token_ledger::*, swap::*, swap_tob::*, swap_tob_enhanced::*, swap_tob_v2::*,
+    swap_tob_with_receiver::*, swap_tob_with_receiver_token_ledger::*,
+    swap_tob_with_token_ledger::*, swap_toc::*, swap_toc_v2::*, wrap_unwrap::*,
+    wrap_unwrap_with_receiver::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -42,6 +45,16 @@ pub enum OnchainLabsDexV2Instruction {
         program_id: solana_pubkey::Pubkey,
         data: Claim,
         accounts: ClaimInstructionAccounts,
+    },
+    ClaimCashbackPumpfun {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimCashbackPumpfun,
+        accounts: ClaimCashbackPumpfunInstructionAccounts,
+    },
+    ClaimCashbackPumpswap {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimCashbackPumpswap,
+        accounts: ClaimCashbackPumpswapInstructionAccounts,
     },
     CreateTokenAccount {
         program_id: solana_pubkey::Pubkey,
@@ -146,6 +159,8 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OnchainLabsDexV2Decode
             instruction,
             PROGRAM_ID,
             OnchainLabsDexV2Instruction::Claim => Claim,
+            OnchainLabsDexV2Instruction::ClaimCashbackPumpfun => ClaimCashbackPumpfun,
+            OnchainLabsDexV2Instruction::ClaimCashbackPumpswap => ClaimCashbackPumpswap,
             OnchainLabsDexV2Instruction::CreateTokenAccount => CreateTokenAccount,
             OnchainLabsDexV2Instruction::CreateTokenAccountWithSeed => CreateTokenAccountWithSeed,
             OnchainLabsDexV2Instruction::InitTokenLedger => InitTokenLedger,

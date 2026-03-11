@@ -50,6 +50,10 @@ pub struct LendingMarketRow {
     pub borrow_order_execution_enabled: U8,
     pub proposer_authority: Pubkey,
     pub min_borrow_order_fill_value: U64,
+    pub withdraw_ticket_issuance_enabled: U8,
+    pub withdraw_ticket_redemption_enabled: U8,
+    pub padding2: Vec<u8>,
+    pub min_withdraw_queued_liquidity_value: U64,
     pub padding1: Vec<U64>,
 }
 
@@ -120,6 +124,10 @@ impl LendingMarketRow {
             borrow_order_execution_enabled: source.borrow_order_execution_enabled.into(),
             proposer_authority: source.proposer_authority.into(),
             min_borrow_order_fill_value: source.min_borrow_order_fill_value.into(),
+            withdraw_ticket_issuance_enabled: source.withdraw_ticket_issuance_enabled.into(),
+            withdraw_ticket_redemption_enabled: source.withdraw_ticket_redemption_enabled.into(),
+            padding2: source.padding2.to_vec(),
+            min_withdraw_queued_liquidity_value: source.min_withdraw_queued_liquidity_value.into(),
             padding1: source
                 .padding1
                 .into_iter()
@@ -306,6 +314,29 @@ impl TryFrom<LendingMarketRow> for crate::accounts::lending_market::LendingMarke
                 })?,
             proposer_authority: *source.proposer_authority,
             min_borrow_order_fill_value: *source.min_borrow_order_fill_value,
+            withdraw_ticket_issuance_enabled: source
+                .withdraw_ticket_issuance_enabled
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert value from postgres primitive".to_string(),
+                    )
+                })?,
+            withdraw_ticket_redemption_enabled: source
+                .withdraw_ticket_redemption_enabled
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert value from postgres primitive".to_string(),
+                    )
+                })?,
+            padding2: source.padding2.as_slice().try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert padding from postgres primitive: expected 6 bytes"
+                        .to_string(),
+                )
+            })?,
+            min_withdraw_queued_liquidity_value: *source.min_withdraw_queued_liquidity_value,
             padding1: source
                 .padding1
                 .into_iter()
@@ -371,6 +402,10 @@ impl carbon_core::postgres::operations::Table for crate::accounts::lending_marke
             "borrow_order_execution_enabled",
             "proposer_authority",
             "min_borrow_order_fill_value",
+            "withdraw_ticket_issuance_enabled",
+            "withdraw_ticket_redemption_enabled",
+            "padding2",
+            "min_withdraw_queued_liquidity_value",
             "padding1",
         ]
     }
@@ -417,10 +452,14 @@ impl carbon_core::postgres::operations::Insert for LendingMarketRow {
                 "borrow_order_execution_enabled",
                 "proposer_authority",
                 "min_borrow_order_fill_value",
+                "withdraw_ticket_issuance_enabled",
+                "withdraw_ticket_redemption_enabled",
+                "padding2",
+                "min_withdraw_queued_liquidity_value",
                 "padding1",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43
             )"#)
         .bind(&self.version)
         .bind(&self.bump_seed)
@@ -458,6 +497,10 @@ impl carbon_core::postgres::operations::Insert for LendingMarketRow {
         .bind(self.borrow_order_execution_enabled)
         .bind(self.proposer_authority)
         .bind(&self.min_borrow_order_fill_value)
+        .bind(self.withdraw_ticket_issuance_enabled)
+        .bind(self.withdraw_ticket_redemption_enabled)
+        .bind(&self.padding2)
+        .bind(&self.min_withdraw_queued_liquidity_value)
         .bind(&self.padding1)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -507,10 +550,14 @@ impl carbon_core::postgres::operations::Upsert for LendingMarketRow {
                 "borrow_order_execution_enabled",
                 "proposer_authority",
                 "min_borrow_order_fill_value",
+                "withdraw_ticket_issuance_enabled",
+                "withdraw_ticket_redemption_enabled",
+                "padding2",
+                "min_withdraw_queued_liquidity_value",
                 "padding1",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -550,6 +597,10 @@ impl carbon_core::postgres::operations::Upsert for LendingMarketRow {
                 "borrow_order_execution_enabled" = EXCLUDED."borrow_order_execution_enabled",
                 "proposer_authority" = EXCLUDED."proposer_authority",
                 "min_borrow_order_fill_value" = EXCLUDED."min_borrow_order_fill_value",
+                "withdraw_ticket_issuance_enabled" = EXCLUDED."withdraw_ticket_issuance_enabled",
+                "withdraw_ticket_redemption_enabled" = EXCLUDED."withdraw_ticket_redemption_enabled",
+                "padding2" = EXCLUDED."padding2",
+                "min_withdraw_queued_liquidity_value" = EXCLUDED."min_withdraw_queued_liquidity_value",
                 "padding1" = EXCLUDED."padding1",
                 __slot = EXCLUDED.__slot
             "#)
@@ -589,6 +640,10 @@ impl carbon_core::postgres::operations::Upsert for LendingMarketRow {
         .bind(self.borrow_order_execution_enabled)
         .bind(self.proposer_authority)
         .bind(&self.min_borrow_order_fill_value)
+        .bind(self.withdraw_ticket_issuance_enabled)
+        .bind(self.withdraw_ticket_redemption_enabled)
+        .bind(&self.padding2)
+        .bind(&self.min_withdraw_queued_liquidity_value)
         .bind(&self.padding1)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -684,6 +739,10 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LendingMarketMigrationOperatio
                 "borrow_order_execution_enabled" INT2 NOT NULL,
                 "proposer_authority" BYTEA NOT NULL,
                 "min_borrow_order_fill_value" NUMERIC(20) NOT NULL,
+                "withdraw_ticket_issuance_enabled" INT2 NOT NULL,
+                "withdraw_ticket_redemption_enabled" INT2 NOT NULL,
+                "padding2" BYTEA NOT NULL,
+                "min_withdraw_queued_liquidity_value" NUMERIC(20) NOT NULL,
                 "padding1" NUMERIC(20)[] NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

@@ -2192,6 +2192,44 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn place_scale_orders(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::PlaceScaleOrdersGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::PlaceScaleOrdersRow> = sqlx::query_as(
+            r#"SELECT * FROM place_scale_orders_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_place_scale_orders(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::PlaceScaleOrdersGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::PlaceScaleOrdersRow> = sqlx::query_as(
+            r#"SELECT * FROM place_scale_orders_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn begin_swap(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,

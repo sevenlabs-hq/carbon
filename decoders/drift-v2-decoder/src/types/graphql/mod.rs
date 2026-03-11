@@ -103,6 +103,7 @@ pub mod revenue_share_escrow_fixed_schema;
 pub mod revenue_share_order_bit_flag_schema;
 pub mod revenue_share_order_schema;
 pub mod revenue_share_settle_record_schema;
+pub mod scale_order_params_schema;
 pub mod settle_pnl_explanation_schema;
 pub mod settle_pnl_mode_schema;
 pub mod settle_pnl_record_schema;
@@ -114,6 +115,7 @@ pub mod signed_msg_order_params_message_schema;
 pub mod signed_msg_order_record_schema;
 pub mod signed_msg_trigger_order_params_schema;
 pub mod signed_msg_user_orders_fixed_schema;
+pub mod size_distribution_schema;
 pub mod spot_balance_type_schema;
 pub mod spot_bankruptcy_record_schema;
 pub mod spot_fulfillment_config_status_schema;
@@ -178,11 +180,12 @@ pub use {
     price_divergence_guard_rails_schema::*, referrer_status_schema::*,
     revenue_share_escrow_fixed_schema::*, revenue_share_order_bit_flag_schema::*,
     revenue_share_order_schema::*, revenue_share_settle_record_schema::*,
-    settle_pnl_explanation_schema::*, settle_pnl_mode_schema::*, settle_pnl_record_schema::*,
-    settlement_direction_schema::*, signature_verification_error_schema::*,
-    signed_msg_order_id_schema::*, signed_msg_order_params_delegate_message_schema::*,
-    signed_msg_order_params_message_schema::*, signed_msg_order_record_schema::*,
-    signed_msg_trigger_order_params_schema::*, signed_msg_user_orders_fixed_schema::*,
+    scale_order_params_schema::*, settle_pnl_explanation_schema::*, settle_pnl_mode_schema::*,
+    settle_pnl_record_schema::*, settlement_direction_schema::*,
+    signature_verification_error_schema::*, signed_msg_order_id_schema::*,
+    signed_msg_order_params_delegate_message_schema::*, signed_msg_order_params_message_schema::*,
+    signed_msg_order_record_schema::*, signed_msg_trigger_order_params_schema::*,
+    signed_msg_user_orders_fixed_schema::*, size_distribution_schema::*,
     spot_balance_type_schema::*, spot_bankruptcy_record_schema::*,
     spot_fulfillment_config_status_schema::*, spot_fulfillment_method_schema::*,
     spot_fulfillment_type_schema::*, spot_interest_record_schema::*,

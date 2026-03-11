@@ -31,6 +31,7 @@ pub mod update_config_mode_schema;
 pub mod update_global_config_mode_schema;
 pub mod update_lending_market_config_value_schema;
 pub mod update_lending_market_mode_schema;
+pub mod withdraw_queue_schema;
 pub mod withdrawal_caps_schema;
 
 pub use {
@@ -46,5 +47,5 @@ pub use {
     reserve_status_schema::*, scope_configuration_schema::*, switchboard_configuration_schema::*,
     token_info_schema::*, update_config_mode_schema::*, update_global_config_mode_schema::*,
     update_lending_market_config_value_schema::*, update_lending_market_mode_schema::*,
-    withdrawal_caps_schema::*,
+    withdraw_queue_schema::*, withdrawal_caps_schema::*,
 };

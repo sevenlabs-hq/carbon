@@ -8,6 +8,8 @@ pub mod postgres;
 pub mod graphql;
 
 pub mod claim;
+pub mod claim_cashback_pumpfun;
+pub mod claim_cashback_pumpswap;
 pub mod cpi_event;
 pub mod create_token_account;
 pub mod create_token_account_with_seed;
@@ -22,9 +24,10 @@ pub mod wrap_unwrap_v3;
 pub mod wrap_unwrap_v3_with_receiver;
 
 pub use self::{
-    claim::*, cpi_event::*, create_token_account::*, create_token_account_with_seed::*,
-    proxy_swap::*, swap::*, swap_tob_v3::*, swap_tob_v3_enhanced::*, swap_tob_v3_with_receiver::*,
-    swap_v3::*, swap_v3_with_cpi_event::*, wrap_unwrap_v3::*, wrap_unwrap_v3_with_receiver::*,
+    claim::*, claim_cashback_pumpfun::*, claim_cashback_pumpswap::*, cpi_event::*,
+    create_token_account::*, create_token_account_with_seed::*, proxy_swap::*, swap::*,
+    swap_tob_v3::*, swap_tob_v3_enhanced::*, swap_tob_v3_with_receiver::*, swap_v3::*,
+    swap_v3_with_cpi_event::*, wrap_unwrap_v3::*, wrap_unwrap_v3_with_receiver::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -35,6 +38,16 @@ pub enum OkxDexInstruction {
         program_id: solana_pubkey::Pubkey,
         data: Claim,
         accounts: ClaimInstructionAccounts,
+    },
+    ClaimCashbackPumpfun {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimCashbackPumpfun,
+        accounts: ClaimCashbackPumpfunInstructionAccounts,
+    },
+    ClaimCashbackPumpswap {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimCashbackPumpswap,
+        accounts: ClaimCashbackPumpswapInstructionAccounts,
     },
     CreateTokenAccount {
         program_id: solana_pubkey::Pubkey,
@@ -114,6 +127,8 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OkxDexDecoder {
             instruction,
             PROGRAM_ID,
             OkxDexInstruction::Claim => Claim,
+            OkxDexInstruction::ClaimCashbackPumpfun => ClaimCashbackPumpfun,
+            OkxDexInstruction::ClaimCashbackPumpswap => ClaimCashbackPumpswap,
             OkxDexInstruction::CreateTokenAccount => CreateTokenAccount,
             OkxDexInstruction::CreateTokenAccountWithSeed => CreateTokenAccountWithSeed,
             OkxDexInstruction::ProxySwap => ProxySwap,

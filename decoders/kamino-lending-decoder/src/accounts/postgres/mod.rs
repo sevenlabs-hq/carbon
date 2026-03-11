@@ -8,11 +8,12 @@ pub mod reserve_row;
 pub mod short_url_row;
 pub mod user_metadata_row;
 pub mod user_state_row;
+pub mod withdraw_ticket_row;
 
 pub use self::{
     global_config_row::*, lending_market_row::*, obligation_row::*, referrer_state_row::*,
     referrer_token_state_row::*, reserve_row::*, short_url_row::*, user_metadata_row::*,
-    user_state_row::*,
+    user_state_row::*, withdraw_ticket_row::*,
 };
 use super::KaminoLendingAccount;
 
@@ -38,6 +39,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for KaminoLendingAccountsMigration
             Box::new(ShortUrlMigrationOperation),
             Box::new(UserMetadataMigrationOperation),
             Box::new(UserStateMigrationOperation),
+            Box::new(WithdrawTicketMigrationOperation),
         ]
     }
 
@@ -128,6 +130,14 @@ impl carbon_core::postgres::operations::Insert for KaminoLendingAccountWithMetad
                 row.insert(pool).await?;
                 Ok(())
             }
+            KaminoLendingAccount::WithdrawTicket(account) => {
+                let row = withdraw_ticket_row::WithdrawTicketRow::from_parts(
+                    *account.clone(),
+                    metadata.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
         }
     }
 }
@@ -197,6 +207,14 @@ impl carbon_core::postgres::operations::Upsert for KaminoLendingAccountWithMetad
             }
             KaminoLendingAccount::Reserve(account) => {
                 let row = reserve_row::ReserveRow::from_parts(*account.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            KaminoLendingAccount::WithdrawTicket(account) => {
+                let row = withdraw_ticket_row::WithdrawTicketRow::from_parts(
+                    *account.clone(),
+                    metadata.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }

@@ -34,6 +34,7 @@ pub mod update_config_mode;
 pub mod update_global_config_mode;
 pub mod update_lending_market_config_value;
 pub mod update_lending_market_mode;
+pub mod withdraw_queue;
 pub mod withdrawal_caps;
 
 pub use self::{
@@ -46,5 +47,5 @@ pub use self::{
     reserve_config::*, reserve_farm_kind::*, reserve_fees::*, reserve_liquidity::*,
     reserve_status::*, scope_configuration::*, switchboard_configuration::*, token_info::*,
     update_config_mode::*, update_global_config_mode::*, update_lending_market_config_value::*,
-    update_lending_market_mode::*, withdrawal_caps::*,
+    update_lending_market_mode::*, withdraw_queue::*, withdrawal_caps::*,
 };
