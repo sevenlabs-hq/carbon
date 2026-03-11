@@ -101,8 +101,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
         }
         if (isNode(typeNode, 'enumTypeNode')) {
             return typeNode.variants.some(variant => {
-                if (variant.kind === 'enumStructVariantTypeNode' && 'fields' in variant) {
-                    return (variant as any).fields.some((field: any) => checkRequiresBigArray(field.type));
+                const v = variant as any;
+                if (v.kind === 'enumStructVariantTypeNode') {
+                    const fields = v.fields ?? v.struct?.fields;
+                    return Array.isArray(fields) && fields.some((field: any) => checkRequiresBigArray(field.type));
+                }
+                if (v.kind === 'enumTupleVariantTypeNode' && v.tuple?.items) {
+                    return v.tuple.items.some((item: any) => checkRequiresBigArray(item));
                 }
                 return false;
             });
