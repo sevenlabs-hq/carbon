@@ -74,7 +74,7 @@ program
     .option('--description <string>', 'Package description (default: derived from decoder name)')
     .option('--keywords <csv>', 'Package keywords, comma-separated (default: solana, decoder, plus name parts)')
     .option('--categories <csv>', 'Package categories, comma-separated (default: encoding)')
-    .option('--version <string>', 'Package version in Cargo.toml (default: 0.1.0)')
+    .option('--package-version <string>', 'Package version in Cargo.toml (default: 0.1.0)')
     .option('--version-name <name>', 'Decoder version name (e.g., "v1", "v2")')
     .option('--no-clean', 'Do not delete output directory before rendering', false)
     .action(async opts => {
@@ -148,7 +148,7 @@ program
                 withBase58,
                 standalone,
                 packageMetadata,
-                version: opts.version,
+                version: opts.packageVersion,
                 versionName: opts.versionName,
             });
 
@@ -194,6 +194,7 @@ program
     .option('--with-graphql <boolean>', 'Include GraphQL wiring and deps (default: true)')
     .option('--with-serde <boolean>', 'Include serde feature for decoder (default: false)')
     .option('--with-base58 <boolean>', 'Include base58 feature for decoder (default: false)')
+    .option('--package-version <string>', 'Package version in Cargo.toml (default: 0.1.0)')
     .option('--version-name <name>', 'Decoder version name (e.g., "v1", "v2")')
     .option('--postgres-mode <generic|typed>', 'Postgres table storage mode', 'typed')
     .option('--force', 'Overwrite output directory if it exists', false)
@@ -296,7 +297,7 @@ program
                 withBase58,
                 standalone: false,
                 workspaceDeps: false,
-                version: opts.version,
+                version: opts.packageVersion,
                 versionName: opts.versionName,
             });
 
