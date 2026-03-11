@@ -3,14 +3,12 @@ use solana_program::hash::Hash;
 
 use {
     crate::{
-        collection::InstructionDecoderCollection,
-        error::CarbonResult,
-        instruction::{InstructionMetadata, NestedInstruction, ParsedInstruction},
-        processor::Processor,
-        transformers,
+        collection::InstructionDecoderCollection, error::CarbonResult,
+        instruction::InstructionMetadata, processor::Processor,
     },
     async_trait::async_trait,
     core::convert::TryFrom,
+    solana_instruction::Instruction,
     solana_pubkey::Pubkey,
     solana_signature::Signature,
     std::sync::Arc,
@@ -61,11 +59,6 @@ pub struct TransactionPipe<T: InstructionDecoderCollection, P> {
     _phantom: std::marker::PhantomData<T>,
 }
 
-pub struct ParsedTransaction<I: InstructionDecoderCollection> {
-    pub metadata: TransactionMetadata,
-    pub instructions: Vec<ParsedInstruction<I>>,
-}
-
 impl<T: InstructionDecoderCollection, P> TransactionPipe<T, P> {
     pub fn new(processor: P, filters: Vec<Box<dyn Filter + Send + Sync + 'static>>) -> Self {
         log::trace!(
@@ -80,28 +73,20 @@ impl<T: InstructionDecoderCollection, P> TransactionPipe<T, P> {
     }
 }
 
-pub fn parse_instructions<T: InstructionDecoderCollection>(
-    nested_ixs: &[NestedInstruction],
-) -> Vec<ParsedInstruction<T>> {
-    log::trace!("parse_instructions(nested_ixs: {nested_ixs:?})");
+pub fn parse_instructions_flat<T: InstructionDecoderCollection>(
+    instructions: &[(InstructionMetadata, Instruction)],
+) -> Vec<(InstructionMetadata, T)> {
+    log::trace!(
+        "parse_instructions_flat(instructions: len={})",
+        instructions.len()
+    );
 
-    let mut parsed_instructions: Vec<ParsedInstruction<T>> = Vec::new();
-
-    for nested_ix in nested_ixs {
-        if let Some(instruction) = T::parse_instruction(&nested_ix.instruction) {
-            parsed_instructions.push(ParsedInstruction {
-                metadata: nested_ix.metadata.clone(),
-                instruction,
-                inner_instructions: parse_instructions(&nested_ix.inner_instructions),
-            });
-        } else {
-            for inner_ix in nested_ix.inner_instructions.iter() {
-                parsed_instructions.extend(parse_instructions(std::slice::from_ref(inner_ix)));
-            }
-        }
-    }
-
-    parsed_instructions
+    instructions
+        .iter()
+        .filter_map(|(metadata, instruction)| {
+            T::parse_instruction(instruction).map(|parsed| (metadata.clone(), parsed))
+        })
+        .collect()
 }
 
 #[async_trait]
@@ -109,7 +94,7 @@ pub trait TransactionPipes<'a>: Send + Sync {
     async fn run(
         &mut self,
         transaction_metadata: Arc<TransactionMetadata>,
-        instructions: &[NestedInstruction],
+        instructions: &[(InstructionMetadata, Instruction)],
     ) -> CarbonResult<()>;
 
     fn filters(&self) -> &Vec<Box<dyn Filter + Send + Sync + 'static>>;
@@ -124,17 +109,18 @@ where
     async fn run(
         &mut self,
         transaction_metadata: Arc<TransactionMetadata>,
-        instructions: &[NestedInstruction],
+        instructions: &[(InstructionMetadata, Instruction)],
     ) -> CarbonResult<()> {
-        log::trace!("TransactionPipe::run(instructions: {instructions:?})");
+        log::trace!(
+            "TransactionPipe::run(instructions: len={})",
+            instructions.len()
+        );
 
-        let parsed_instructions = parse_instructions(instructions);
-
-        let unnested_instructions = transformers::unnest_parsed_instructions(parsed_instructions);
+        let parsed_instructions = parse_instructions_flat::<T>(instructions);
 
         let data = TransactionProcessorInputType {
             metadata: &transaction_metadata,
-            instructions: &unnested_instructions,
+            instructions: &parsed_instructions,
         };
 
         self.processor.process(&data).await?;

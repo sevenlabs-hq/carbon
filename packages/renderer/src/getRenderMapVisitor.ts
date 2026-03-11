@@ -25,7 +25,12 @@ import { partition, render } from './utils';
 import { isToken2022Program } from './utils/helpers';
 import { getPostgresTypeManifestVisitor, PostgresTypeManifest } from './getPostgresTypeManifestVisitor';
 import { FlattenedGraphQLField, flattenTypeForGraphQL } from './utils/flattenGraphqlFields';
-import { generateDecoderCargoToml, getReadmeDisplayName, hasPackageMetadata, type PackageMetadata } from './cargoTomlGenerator';
+import {
+    generateDecoderCargoToml,
+    getReadmeDisplayName,
+    hasPackageMetadata,
+    type PackageMetadata,
+} from './cargoTomlGenerator';
 import { formatDocComments } from './utils/render';
 
 export type GetRenderMapOptions = {
@@ -242,7 +247,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         // GraphQLObject doesn't support empty structs
                         if (graphqlFields.length > 0) {
                             const schemaTemplate =
-                                options.postgresMode === 'generic'
+                                options.postgresMode === 'generic' || options.withPostgres === false
                                     ? 'graphqlSchemaPageGeneric.njk'
                                     : 'graphqlSchemaPage.njk';
                             renderMap.add(
@@ -620,7 +625,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         // Instructions without arguments will only have instruction_metadata field
                         instructionsWithGraphQLSchemas.add(node.name);
                         const schemaTemplate =
-                            options.postgresMode === 'generic'
+                            options.postgresMode === 'generic' || options.withPostgres === false
                                 ? 'graphqlSchemaPageGeneric.njk'
                                 : 'graphqlSchemaPage.njk';
                         renderMap.add(
@@ -748,7 +753,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     }
                     if (options.withGraphql !== false) {
                         const accountsGraphqlTemplate =
-                            options.postgresMode === 'generic'
+                            options.postgresMode === 'generic' || options.withPostgres === false
                                 ? 'accountsGraphqlModGeneric.njk'
                                 : 'accountsGraphqlMod.njk';
                         const accountsGraphqlImports = new ImportMap().add('juniper::GraphQLObject');
@@ -770,7 +775,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         }
                         if (options.withGraphql !== false) {
                             const instructionsGraphqlTemplate =
-                                options.postgresMode === 'generic'
+                                options.postgresMode === 'generic' || options.withPostgres === false
                                     ? 'instructionsGraphqlModGeneric.njk'
                                     : 'instructionsGraphqlMod.njk';
                             const instructionsGraphqlImports = new ImportMap().add('juniper::GraphQLObject');
@@ -812,7 +817,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         }
                         if (options.withGraphql !== false) {
                             const cpiEventSchemaTemplate =
-                                options.postgresMode === 'generic'
+                                options.postgresMode === 'generic' || options.withPostgres === false
                                     ? 'eventInstructionGraphqlSchemaPageGeneric.njk'
                                     : 'eventInstructionGraphqlSchemaPage.njk';
                             const cpiEventSchemaImports = new ImportMap()
@@ -842,7 +847,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                         // Check if there are actually any GraphQL fields to generate
                         const hasAccountsWithFields =
-                            options.postgresMode === 'generic'
+                            options.postgresMode === 'generic' || options.withPostgres === false
                                 ? accountsToExport.length > 0
                                 : accountsToExport.some(
                                       acc => acc.data.kind === 'structTypeNode' && acc.data.fields.length > 0,
@@ -855,8 +860,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                         // Only generate query.rs if there are GraphQL fields to expose
                         if (hasActualGraphQLFields) {
-                            // Use different query template based on postgres mode
-                            if (options.postgresMode === 'generic') {
+                            // Use generic query template when postgres mode is generic or when postgres is disabled
+                            // (typed template needs per-instruction/account postgres rows which are only generated with postgres)
+                            if (options.postgresMode === 'generic' || options.withPostgres === false) {
                                 const graphqlQueryGenericImports = new ImportMap().add(
                                     'juniper::{graphql_object, FieldResult}',
                                 );
@@ -1031,7 +1037,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             const sourceColumn = `source.${column}`;
 
             const needsSpecialHandling = isNode(itemType, 'arrayTypeNode') || isNode(itemType, 'tupleTypeNode');
-            
+
             let expr: string;
             if (needsSpecialHandling) {
                 const innerExpr = buildExpression(itemType, 'value');
