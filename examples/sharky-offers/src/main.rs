@@ -4,9 +4,6 @@ use {
         account::AccountProcessorInputType,
         datasource::{AccountUpdate, Datasource, DatasourceId, Update, UpdateType},
         error::CarbonResult,
-        instruction::InstructionDecoder,
-        instruction_decoder_collection_fast,
-        metrics::MetricsCollection,
         pipeline::{Pipeline, ShutdownStrategy},
         processor::Processor,
     },
@@ -14,7 +11,6 @@ use {
     carbon_rpc_program_subscribe_datasource::{Filters, RpcProgramSubscribe},
     carbon_sharky_decoder::{
         accounts::SharkyAccount,
-        instructions::{SharkyInstruction, SharkyInstructionType},
         SharkyDecoder, PROGRAM_ID as SHARKY_PROGRAM_ID,
     },
     solana_account::Account,
@@ -56,7 +52,6 @@ impl Datasource for GpaBackfillDatasource {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         _cancellation_token: CancellationToken,
-        _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let rpc_client = RpcClient::new(self.rpc_url.clone());
 
@@ -116,35 +111,20 @@ impl Datasource for GpaBackfillDatasource {
 
 pub struct SharkyAccountProcessor;
 
-#[async_trait]
-impl Processor for SharkyAccountProcessor {
-    type InputType = AccountProcessorInputType<SharkyAccount>;
-
+impl Processor<AccountProcessorInputType<'_, SharkyAccount>> for SharkyAccountProcessor {
     async fn process(
         &mut self,
-        update: Self::InputType,
-        _metrics: Arc<MetricsCollection>,
+        input: &AccountProcessorInputType<'_, SharkyAccount>,
     ) -> CarbonResult<()> {
-        let (_metadata, account, _raw_account) = update;
-
-        match account.data {
-            SharkyAccount::OrderBook(order_book) => {
-                log::info!("Orderbook: {:?}", &order_book);
-            }
-            SharkyAccount::Loan(loan) => {
-                log::info!("Loan: {:?}", &loan);
-            }
-            _ => {}
-        }
+        log::info!(
+            "Sharky account: {:?} on slot {}",
+            input.decoded_account,
+            input.metadata.slot
+        );
 
         Ok(())
     }
 }
-
-instruction_decoder_collection_fast!(
-    AllInstructions, AllInstructionsType, AllPrograms,
-    Sharky => carbon_sharky_decoder::PROGRAM_ID => SharkyDecoder => SharkyInstruction
-);
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

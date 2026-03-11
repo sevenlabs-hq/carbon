@@ -1,12 +1,11 @@
-use std::{env, sync::Arc};
+use std::env;
 
 use solana_transaction_status::UiTransactionEncoding;
 
 use {
-    async_trait::async_trait,
     carbon_core::{
         error::CarbonResult, instruction::InstructionProcessorInputType,
-        metrics::MetricsCollection, processor::Processor,
+        processor::Processor,
     },
     carbon_pumpfun_decoder::{
         instructions::{CpiEvent, PumpfunInstruction},
@@ -60,31 +59,25 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct PumpfunInstructionProcessor;
 
-#[async_trait]
-impl Processor for PumpfunInstructionProcessor {
-    type InputType = InstructionProcessorInputType<PumpfunInstruction>;
-
+impl Processor<InstructionProcessorInputType<'_, PumpfunInstruction>> for PumpfunInstructionProcessor {
     async fn process(
         &mut self,
-        data: Self::InputType,
-        _metrics: Arc<MetricsCollection>,
+        input: &InstructionProcessorInputType<'_, PumpfunInstruction>,
     ) -> CarbonResult<()> {
-        let (metadata, pumpfun_instruction, _nested_instructions, _) = data;
-
-        if let PumpfunInstruction::CpiEvent(cpi_event) = pumpfun_instruction.data {
-            match *cpi_event {
+        if let PumpfunInstruction::CpiEvent { data, .. } = input.decoded_instruction {
+            match data {
                 CpiEvent::CreateEvent(create_event) => {
                     log::info!(
                         "New token created: {:#?} on slot {}",
                         create_event,
-                        metadata.transaction_metadata.slot
+                        input.metadata.transaction_metadata.slot
                     );
                 }
                 CpiEvent::TradeEvent(trade_event) => {
                     log::info!(
-                        "New trade occured: {:#?} on slot {:#?}",
+                        "New trade occurred: {:#?} on slot {:?}",
                         trade_event,
-                        metadata.transaction_metadata.slot
+                        input.metadata.transaction_metadata.slot
                     );
                 }
                 _ => {}

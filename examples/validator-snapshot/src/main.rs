@@ -1,5 +1,4 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
         account::{AccountDecoder, AccountProcessorInputType, DecodedAccount},
         error::CarbonResult,
@@ -33,29 +32,26 @@ impl<'a> AccountDecoder<'a> for GenericAccountDecoder {
 /// Account processor that logs each account
 pub struct SnapshotAccountProcessor;
 
-#[async_trait]
-impl Processor for SnapshotAccountProcessor {
-    type InputType = AccountProcessorInputType<Account>;
-
+impl Processor<AccountProcessorInputType<'_, Account>> for SnapshotAccountProcessor {
     async fn process(
         &mut self,
-        (metadata, decoded_account, raw_account): Self::InputType,
+        input: &AccountProcessorInputType<'_, Account>,
     ) -> CarbonResult<()> {
         let pubkey_str = format!(
             "{}...{}",
-            &metadata.pubkey.to_string()[..4],
-            &metadata.pubkey.to_string()[metadata.pubkey.to_string().len() - 4..]
+            &input.metadata.pubkey.to_string()[..4],
+            &input.metadata.pubkey.to_string()[input.metadata.pubkey.to_string().len() - 4..]
         );
 
         log::info!(
             "Account: pubkey={} slot={} lamports={} data_size={} owner={} executable={} rent_epoch={}",
             pubkey_str,
-            metadata.slot,
-            decoded_account.lamports,
-            raw_account.data.len(),
-            decoded_account.owner,
-            decoded_account.executable,
-            decoded_account.rent_epoch
+            input.metadata.slot,
+            input.decoded_account.lamports,
+            input.raw_account.data.len(),
+            input.decoded_account.owner,
+            input.decoded_account.executable,
+            input.decoded_account.rent_epoch
         );
 
         Ok(())
@@ -105,10 +101,15 @@ async fn main() -> CarbonResult<()> {
         panic!("Either VALIDATOR_URL or SNAPSHOT_PATH must be set");
     };
 
+    let metrics_flush_interval = env::var("METRICS_FLUSH_INTERVAL")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(10);
+
     Pipeline::builder()
         .datasource(datasource)
         .account(GenericAccountDecoder, SnapshotAccountProcessor)
-        .metrics(Arc::new(LogMetrics::new_with_flush_interval(env::var("METRICS_FLUSH_INTERVAL").ok().and_then(|v| v.parse().ok()).unwrap_or(10))))
+        .metrics(Arc::new(LogMetrics::new_with_flush_interval(metrics_flush_interval)))
         .build()?
         .run()
         .await?;

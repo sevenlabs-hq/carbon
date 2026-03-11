@@ -6,6 +6,7 @@ edition = { workspace = true }
 [dependencies]
 carbon-core = { workspace = true }
 carbon-helius-atlas-ws-datasource = { workspace = true }
+carbon-log-metrics = { workspace = true }
 carbon-pumpfun-decoder = { workspace = true }
 solana-native-token = { workspace = true }
 

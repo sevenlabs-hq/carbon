@@ -1,9 +1,7 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
         error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
+        instruction::InstructionProcessorInputType,
         processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
@@ -44,7 +42,6 @@ pub async fn main() -> CarbonResult<()> {
     carbon_core::pipeline::Pipeline::builder()
         .datasource(transaction_crawler)
         .metrics(Arc::new(LogMetrics::new()))
-        .metrics_flush_interval(3)
         .instruction(MeteoraDlmmDecoder, MeteoraInstructionProcessor)
         .build()?
         .run()
@@ -55,48 +52,12 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct MeteoraInstructionProcessor;
 
-#[async_trait]
-impl Processor for MeteoraInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<MeteoraDlmmInstruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
-
+impl Processor<InstructionProcessorInputType<'_, MeteoraDlmmInstruction>> for MeteoraInstructionProcessor {
     async fn process(
         &mut self,
-        data: Self::InputType,
-        _metrics: Arc<MetricsCollection>,
+        input: &InstructionProcessorInputType<'_, MeteoraDlmmInstruction>,
     ) -> CarbonResult<()> {
-        let (_instruction_metadata, decoded_instruction, _nested_instructions, _) = data;
-
-        // Process all Meteora Events and add each to DB
-        match decoded_instruction.data {
-            MeteoraDlmmInstruction::AddLiquidity(_add_liquidity) => {}
-            MeteoraDlmmInstruction::RemoveLiquidity(_remove_liquidity) => {}
-            MeteoraDlmmInstruction::Swap(_swap) => {}
-            MeteoraDlmmInstruction::ClaimReward(_claim_reward) => {}
-            MeteoraDlmmInstruction::FundReward(_fund_reward) => {}
-            MeteoraDlmmInstruction::InitializeReward(_initialize_reward) => {}
-            MeteoraDlmmInstruction::UpdateRewardFunder(_update_reward_funder) => {}
-            MeteoraDlmmInstruction::UpdateRewardDuration(_update_reward_duration) => {}
-            MeteoraDlmmInstruction::ClaimFee(_claim_fee) => {}
-            MeteoraDlmmInstruction::ClosePosition(_position_close) => {}
-            MeteoraDlmmInstruction::LbPairCreateEvent(_lb_pair_create) => {}
-            MeteoraDlmmInstruction::PositionCreateEvent(_position_create) => {}
-            MeteoraDlmmInstruction::FeeParameterUpdateEvent(_fee_parameter_update) => {}
-            MeteoraDlmmInstruction::IncreaseObservationEvent(_increase_observation) => {}
-            MeteoraDlmmInstruction::WithdrawIneligibleReward(_withdraw_ineligible_reward) => {}
-            MeteoraDlmmInstruction::UpdatePositionOperator(_update_position_operator) => {}
-            MeteoraDlmmInstruction::UpdatePositionLockReleasePointEvent(
-                _update_position_lock_release_point,
-            ) => {}
-            MeteoraDlmmInstruction::InitializeLbPair(_initialize_lb_pair) => {}
-            MeteoraDlmmInstruction::GoToABin(_go_to_abin) => {}
-            _ => {}
-        };
-
+        println!("Meteora DLMM instruction: {:?}", input.decoded_instruction);
         Ok(())
     }
 }
