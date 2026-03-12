@@ -9,7 +9,8 @@ use {
     carbon_helius_laserstream_datasource::{LaserStreamClientConfig, LaserStreamGeyserClient},
     carbon_log_metrics::LogMetrics,
     carbon_pump_swap_decoder::{
-        instructions::PumpSwapInstruction, PumpSwapDecoder, PROGRAM_ID as PUMPSWAP_PROGRAM_ID,
+        instructions::{CpiEvent, PumpSwapInstruction},
+        PumpSwapDecoder, PROGRAM_ID as PUMPSWAP_PROGRAM_ID,
     },
     solana_native_token::LAMPORTS_PER_SOL,
     std::{
@@ -138,7 +139,9 @@ impl Processor for PumpSwapInstructionProcessor {
                 );
             }
             PumpSwapInstruction::UpdateFeeConfig(update_fee_config) => {
-                log::info!("UpdateFeeConfig: signature: {signature}, update_fee_config: {update_fee_config:?}");
+                log::info!(
+                    "UpdateFeeConfig: signature: {signature}, update_fee_config: {update_fee_config:?}"
+                );
             }
             PumpSwapInstruction::UpdateAdmin(update_admin) => {
                 log::info!("UpdateAdmin: signature: {signature}, update_admin: {update_admin:?}");
@@ -148,66 +151,83 @@ impl Processor for PumpSwapInstructionProcessor {
                     "CollectCoinCreatorFee: signature: {signature}, collect_fee: {collect_fee:?}"
                 );
             }
-            PumpSwapInstruction::BuyEvent(buy_event) => {
-                let sol_amount = buy_event.quote_amount_in as f64 / LAMPORTS_PER_SOL as f64;
-                log::info!(
-                    "BuyEvent: signature: {signature}, SOL: {:.4}, pool: {}, user: {}",
-                    sol_amount,
-                    buy_event.pool,
-                    buy_event.user,
-                );
-            }
-            PumpSwapInstruction::SellEvent(sell_event) => {
-                let sol_amount = sell_event.quote_amount_out as f64 / LAMPORTS_PER_SOL as f64;
-                log::info!(
-                    "SellEvent: signature: {signature}, SOL: {:.4}, pool: {}, user: {}",
-                    sol_amount,
-                    sell_event.pool,
-                    sell_event.user
-                );
-            }
-            PumpSwapInstruction::CreatePoolEvent(pool_event) => {
-                log::info!("CreatePoolEvent: signature: {signature}, pool_event: {pool_event:?}");
-            }
-            PumpSwapInstruction::DepositEvent(deposit_event) => {
-                log::info!(
-                    "DepositEvent: signature: {signature}, deposit_event: {deposit_event:?}"
-                );
-            }
-            PumpSwapInstruction::WithdrawEvent(withdraw_event) => {
-                log::info!(
-                    "WithdrawEvent: signature: {signature}, withdraw_event: {withdraw_event:?}"
-                );
-            }
-            PumpSwapInstruction::CreateConfigEvent(config_event) => {
-                log::info!(
-                    "CreateConfigEvent: signature: {signature}, config_event: {config_event:?}"
-                );
-            }
-            PumpSwapInstruction::UpdateFeeConfigEvent(fee_config_event) => {
-                log::info!("UpdateFeeConfigEvent: signature: {signature}, fee_config_event: {fee_config_event:?}");
-            }
-            PumpSwapInstruction::UpdateAdminEvent(admin_event) => {
-                log::info!(
-                    "UpdateAdminEvent: signature: {signature}, admin_event: {admin_event:?}"
-                );
-            }
-            PumpSwapInstruction::CollectCoinCreatorFeeEvent(fee_event) => {
-                let fee_amount = fee_event.coin_creator_fee as f64 / LAMPORTS_PER_SOL as f64;
-                log::info!(
-                    "CollectCoinCreatorFeeEvent: signature: {signature}, fee: {:.6} SOL, creator: {}",
-                    fee_amount,
-                    fee_event.coin_creator
-                );
-            }
-            PumpSwapInstruction::ClaimTokenIncentivesEvent(incentive_event) => {
-                log::info!("ClaimTokenIncentivesEvent: signature: {signature}, incentive_event: {incentive_event:?}");
-            }
-            PumpSwapInstruction::InitUserVolumeAccumulatorEvent(volume_event) => {
-                log::info!("InitUserVolumeAccumulatorEvent: signature: {signature}, volume_event: {volume_event:?}");
-            }
+            PumpSwapInstruction::CpiEvent(cpi_event) => match *cpi_event {
+                CpiEvent::BuyEvent(buy_event) => {
+                    let sol_amount = buy_event.quote_amount_in as f64 / LAMPORTS_PER_SOL as f64;
+                    log::info!(
+                        "BuyEvent: signature: {signature}, SOL: {:.4}, pool: {}, user: {}",
+                        sol_amount,
+                        buy_event.pool,
+                        buy_event.user,
+                    );
+                }
+                CpiEvent::SellEvent(sell_event) => {
+                    let sol_amount = sell_event.quote_amount_out as f64 / LAMPORTS_PER_SOL as f64;
+                    log::info!(
+                        "SellEvent: signature: {signature}, SOL: {:.4}, pool: {}, user: {}",
+                        sol_amount,
+                        sell_event.pool,
+                        sell_event.user
+                    );
+                }
+                CpiEvent::CreatePoolEvent(pool_event) => {
+                    log::info!(
+                        "CreatePoolEvent: signature: {signature}, pool_event: {pool_event:?}"
+                    );
+                }
+                CpiEvent::DepositEvent(deposit_event) => {
+                    log::info!(
+                        "DepositEvent: signature: {signature}, deposit_event: {deposit_event:?}"
+                    );
+                }
+                CpiEvent::WithdrawEvent(withdraw_event) => {
+                    log::info!(
+                        "WithdrawEvent: signature: {signature}, withdraw_event: {withdraw_event:?}"
+                    );
+                }
+                CpiEvent::CreateConfigEvent(config_event) => {
+                    log::info!(
+                        "CreateConfigEvent: signature: {signature}, config_event: {config_event:?}"
+                    );
+                }
+                CpiEvent::UpdateFeeConfigEvent(fee_config_event) => {
+                    log::info!(
+                        "UpdateFeeConfigEvent: signature: {signature}, fee_config_event: {fee_config_event:?}"
+                    );
+                }
+                CpiEvent::UpdateAdminEvent(admin_event) => {
+                    log::info!(
+                        "UpdateAdminEvent: signature: {signature}, admin_event: {admin_event:?}"
+                    );
+                }
+                CpiEvent::CollectCoinCreatorFeeEvent(fee_event) => {
+                    let fee_amount = fee_event.coin_creator_fee as f64 / LAMPORTS_PER_SOL as f64;
+                    log::info!(
+                        "CollectCoinCreatorFeeEvent: signature: {signature}, fee: {:.6} SOL, creator: {}",
+                        fee_amount,
+                        fee_event.coin_creator
+                    );
+                }
+                CpiEvent::ClaimTokenIncentivesEvent(incentive_event) => {
+                    log::info!(
+                        "ClaimTokenIncentivesEvent: signature: {signature}, incentive_event: {incentive_event:?}"
+                    );
+                }
+                CpiEvent::InitUserVolumeAccumulatorEvent(volume_event) => {
+                    log::info!(
+                        "InitUserVolumeAccumulatorEvent: signature: {signature}, volume_event: {volume_event:?}"
+                    );
+                }
+                _ => {
+                    log::debug!(
+                        "Other PumpSwap CPI event: signature: {signature}, event: {cpi_event:?}"
+                    );
+                }
+            },
             _ => {
-                log::debug!("Other PumpSwap instruction: signature: {signature}, data: {pumpswap_instruction:?}");
+                log::debug!(
+                    "Other PumpSwap instruction: signature: {signature}, data: {pumpswap_instruction:?}"
+                );
             }
         }
 
