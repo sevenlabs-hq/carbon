@@ -11,6 +11,7 @@ pub mod bonding_curve;
 pub mod fee_config;
 pub mod global;
 pub mod global_volume_accumulator;
+pub mod sharing_config;
 pub mod user_volume_accumulator;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -21,6 +22,7 @@ pub enum PumpfunAccount {
     FeeConfig(Box<fee_config::FeeConfig>),
     Global(Box<global::Global>),
     GlobalVolumeAccumulator(Box<global_volume_accumulator::GlobalVolumeAccumulator>),
+    SharingConfig(Box<sharing_config::SharingConfig>),
     UserVolumeAccumulator(Box<user_volume_accumulator::UserVolumeAccumulator>),
 }
 
@@ -76,6 +78,17 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for PumpfunDecoder {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: PumpfunAccount::GlobalVolumeAccumulator(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = sharing_config::SharingConfig::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: PumpfunAccount::SharingConfig(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

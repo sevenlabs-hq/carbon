@@ -32,6 +32,7 @@ pub mod evt_lock_position;
 pub mod evt_permanent_lock_position;
 pub mod evt_set_pool_status;
 pub mod evt_split_position2;
+pub mod evt_split_position3;
 pub mod evt_swap2;
 pub mod evt_update_pool_fees;
 pub mod evt_update_reward_duration;
@@ -39,6 +40,7 @@ pub mod evt_update_reward_funder;
 pub mod evt_withdraw_ineligible_reward;
 pub mod initialize_customizable_pool_parameters;
 pub mod initialize_pool_parameters;
+pub mod inner_vesting;
 pub mod pool_fee_parameters;
 pub mod pool_fees_config;
 pub mod pool_fees_struct;
@@ -47,9 +49,12 @@ pub mod position_metrics;
 pub mod remove_liquidity_parameters;
 pub mod reward_info;
 pub mod split_amount_info;
+pub mod split_amount_info2;
 pub mod split_position_info;
+pub mod split_position_info2;
 pub mod split_position_parameters;
 pub mod split_position_parameters2;
+pub mod split_position_parameters3;
 pub mod static_config_parameters;
 pub mod swap_parameters;
 pub mod swap_parameters2;
@@ -67,13 +72,14 @@ pub use self::{
     evt_close_position::*, evt_create_config::*, evt_create_dynamic_config::*,
     evt_create_position::*, evt_create_token_badge::*, evt_fund_reward::*, evt_initialize_pool::*,
     evt_initialize_reward::*, evt_liquidity_change::*, evt_lock_position::*,
-    evt_permanent_lock_position::*, evt_set_pool_status::*, evt_split_position2::*, evt_swap2::*,
-    evt_update_pool_fees::*, evt_update_reward_duration::*, evt_update_reward_funder::*,
-    evt_withdraw_ineligible_reward::*, initialize_customizable_pool_parameters::*,
-    initialize_pool_parameters::*, pool_fee_parameters::*, pool_fees_config::*,
-    pool_fees_struct::*, pool_metrics::*, position_metrics::*, remove_liquidity_parameters::*,
-    reward_info::*, split_amount_info::*, split_position_info::*, split_position_parameters::*,
-    split_position_parameters2::*, static_config_parameters::*, swap_parameters::*,
-    swap_parameters2::*, swap_result2::*, update_pool_fees_parameters::*, user_reward_info::*,
-    vesting_parameters::*,
+    evt_permanent_lock_position::*, evt_set_pool_status::*, evt_split_position2::*,
+    evt_split_position3::*, evt_swap2::*, evt_update_pool_fees::*, evt_update_reward_duration::*,
+    evt_update_reward_funder::*, evt_withdraw_ineligible_reward::*,
+    initialize_customizable_pool_parameters::*, initialize_pool_parameters::*, inner_vesting::*,
+    pool_fee_parameters::*, pool_fees_config::*, pool_fees_struct::*, pool_metrics::*,
+    position_metrics::*, remove_liquidity_parameters::*, reward_info::*, split_amount_info::*,
+    split_amount_info2::*, split_position_info::*, split_position_info2::*,
+    split_position_parameters::*, split_position_parameters2::*, split_position_parameters3::*,
+    static_config_parameters::*, swap_parameters::*, swap_parameters2::*, swap_result2::*,
+    update_pool_fees_parameters::*, user_reward_info::*, vesting_parameters::*,
 };

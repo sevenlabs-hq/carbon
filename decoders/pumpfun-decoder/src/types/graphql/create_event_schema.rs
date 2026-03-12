@@ -21,6 +21,7 @@ pub struct CreateEventGraphQL {
     pub token_total_supply: U64,
     pub token_program: Pubkey,
     pub is_mayhem_mode: bool,
+    pub is_cashback_enabled: bool,
 }
 
 impl From<crate::types::CreateEvent> for CreateEventGraphQL {
@@ -46,6 +47,7 @@ impl From<crate::types::CreateEvent> for CreateEventGraphQL {
             token_total_supply: carbon_core::graphql::primitives::U64(original.token_total_supply),
             token_program: carbon_core::graphql::primitives::Pubkey(original.token_program),
             is_mayhem_mode: original.is_mayhem_mode,
+            is_cashback_enabled: original.is_cashback_enabled,
         }
     }
 }

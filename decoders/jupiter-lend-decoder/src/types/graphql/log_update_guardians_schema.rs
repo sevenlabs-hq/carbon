@@ -13,7 +13,7 @@ impl From<crate::types::LogUpdateGuardians> for LogUpdateGuardiansGraphQL {
             guardian_status: original
                 .guardian_status
                 .into_iter()
-                .map(AddressBoolGraphQL::from)
+                .map(|item| item.into())
                 .collect(),
         }
     }

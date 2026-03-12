@@ -18,6 +18,7 @@ pub mod evt_lock_position;
 pub mod evt_permanent_lock_position;
 pub mod evt_set_pool_status;
 pub mod evt_split_position2;
+pub mod evt_split_position3;
 pub mod evt_swap2;
 pub mod evt_update_pool_fees;
 pub mod evt_update_reward_duration;

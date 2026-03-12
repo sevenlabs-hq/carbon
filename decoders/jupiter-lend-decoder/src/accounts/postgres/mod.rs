@@ -11,17 +11,17 @@ pub use self::{
     authorization_list_row::*, liquidity_row::*, rate_model_row::*, token_reserve_row::*,
     user_borrow_position_row::*, user_claim_row::*, user_supply_position_row::*,
 };
-use super::LiquidityAccount;
+use super::JupiterLendAccount;
 
-pub struct LiquidityAccountsMigration;
+pub struct JupiterLendAccountsMigration;
 
-impl sqlx_migrator::Migration<sqlx::Postgres> for LiquidityAccountsMigration {
+impl sqlx_migrator::Migration<sqlx::Postgres> for JupiterLendAccountsMigration {
     fn app(&self) -> &str {
-        "liquidity"
+        "jupiter-lend"
     }
 
     fn name(&self) -> &str {
-        "liquidity_accounts"
+        "jupiter_lend_accounts"
     }
 
     fn operations(&self) -> Vec<Box<dyn sqlx_migrator::Operation<sqlx::Postgres>>> {
@@ -41,26 +41,26 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for LiquidityAccountsMigration {
     }
 }
 
-pub struct LiquidityAccountWithMetadata(
-    pub LiquidityAccount,
+pub struct JupiterLendAccountWithMetadata(
+    pub JupiterLendAccount,
     pub carbon_core::account::AccountMetadata,
 );
 
-impl From<(LiquidityAccount, carbon_core::account::AccountMetadata)>
-    for LiquidityAccountWithMetadata
+impl From<(JupiterLendAccount, carbon_core::account::AccountMetadata)>
+    for JupiterLendAccountWithMetadata
 {
-    fn from(value: (LiquidityAccount, carbon_core::account::AccountMetadata)) -> Self {
-        LiquidityAccountWithMetadata(value.0, value.1)
+    fn from(value: (JupiterLendAccount, carbon_core::account::AccountMetadata)) -> Self {
+        JupiterLendAccountWithMetadata(value.0, value.1)
     }
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Insert for LiquidityAccountWithMetadata {
+impl carbon_core::postgres::operations::Insert for JupiterLendAccountWithMetadata {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let LiquidityAccountWithMetadata(account, metadata) = self;
+        let JupiterLendAccountWithMetadata(account, metadata) = self;
 
         match account {
-            LiquidityAccount::AuthorizationList(account) => {
+            JupiterLendAccount::AuthorizationList(account) => {
                 let row = authorization_list_row::AuthorizationListRow::from_parts(
                     *account.clone(),
                     metadata.clone(),
@@ -68,19 +68,19 @@ impl carbon_core::postgres::operations::Insert for LiquidityAccountWithMetadata 
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityAccount::Liquidity(account) => {
+            JupiterLendAccount::Liquidity(account) => {
                 let row =
                     liquidity_row::LiquidityRow::from_parts(*account.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityAccount::RateModel(account) => {
+            JupiterLendAccount::RateModel(account) => {
                 let row =
                     rate_model_row::RateModelRow::from_parts(*account.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityAccount::TokenReserve(account) => {
+            JupiterLendAccount::TokenReserve(account) => {
                 let row = token_reserve_row::TokenReserveRow::from_parts(
                     *account.clone(),
                     metadata.clone(),
@@ -88,7 +88,7 @@ impl carbon_core::postgres::operations::Insert for LiquidityAccountWithMetadata 
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityAccount::UserBorrowPosition(account) => {
+            JupiterLendAccount::UserBorrowPosition(account) => {
                 let row = user_borrow_position_row::UserBorrowPositionRow::from_parts(
                     *account.clone(),
                     metadata.clone(),
@@ -96,13 +96,13 @@ impl carbon_core::postgres::operations::Insert for LiquidityAccountWithMetadata 
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityAccount::UserClaim(account) => {
+            JupiterLendAccount::UserClaim(account) => {
                 let row =
                     user_claim_row::UserClaimRow::from_parts(*account.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            LiquidityAccount::UserSupplyPosition(account) => {
+            JupiterLendAccount::UserSupplyPosition(account) => {
                 let row = user_supply_position_row::UserSupplyPositionRow::from_parts(
                     *account.clone(),
                     metadata.clone(),
@@ -115,11 +115,11 @@ impl carbon_core::postgres::operations::Insert for LiquidityAccountWithMetadata 
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Upsert for LiquidityAccountWithMetadata {
+impl carbon_core::postgres::operations::Upsert for JupiterLendAccountWithMetadata {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let LiquidityAccountWithMetadata(account, metadata) = self;
+        let JupiterLendAccountWithMetadata(account, metadata) = self;
         match account {
-            LiquidityAccount::AuthorizationList(account) => {
+            JupiterLendAccount::AuthorizationList(account) => {
                 let row = authorization_list_row::AuthorizationListRow::from_parts(
                     *account.clone(),
                     metadata.clone(),
@@ -127,19 +127,19 @@ impl carbon_core::postgres::operations::Upsert for LiquidityAccountWithMetadata 
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityAccount::Liquidity(account) => {
+            JupiterLendAccount::Liquidity(account) => {
                 let row =
                     liquidity_row::LiquidityRow::from_parts(*account.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityAccount::RateModel(account) => {
+            JupiterLendAccount::RateModel(account) => {
                 let row =
                     rate_model_row::RateModelRow::from_parts(*account.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityAccount::TokenReserve(account) => {
+            JupiterLendAccount::TokenReserve(account) => {
                 let row = token_reserve_row::TokenReserveRow::from_parts(
                     *account.clone(),
                     metadata.clone(),
@@ -147,7 +147,7 @@ impl carbon_core::postgres::operations::Upsert for LiquidityAccountWithMetadata 
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityAccount::UserBorrowPosition(account) => {
+            JupiterLendAccount::UserBorrowPosition(account) => {
                 let row = user_borrow_position_row::UserBorrowPositionRow::from_parts(
                     *account.clone(),
                     metadata.clone(),
@@ -155,13 +155,13 @@ impl carbon_core::postgres::operations::Upsert for LiquidityAccountWithMetadata 
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityAccount::UserClaim(account) => {
+            JupiterLendAccount::UserClaim(account) => {
                 let row =
                     user_claim_row::UserClaimRow::from_parts(*account.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            LiquidityAccount::UserSupplyPosition(account) => {
+            JupiterLendAccount::UserSupplyPosition(account) => {
                 let row = user_supply_position_row::UserSupplyPositionRow::from_parts(
                     *account.clone(),
                     metadata.clone(),

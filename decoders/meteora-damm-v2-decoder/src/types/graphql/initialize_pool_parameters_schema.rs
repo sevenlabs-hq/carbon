@@ -17,7 +17,9 @@ impl From<crate::types::InitializePoolParameters> for InitializePoolParametersGr
         Self {
             liquidity: carbon_core::graphql::primitives::U128(original.liquidity),
             sqrt_price: carbon_core::graphql::primitives::U128(original.sqrt_price),
-            activation_point: original.activation_point.map(U64),
+            activation_point: original
+                .activation_point
+                .map(carbon_core::graphql::primitives::U64),
         }
     }
 }

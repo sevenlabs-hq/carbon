@@ -19,6 +19,7 @@ pub enum CpiEvent {
     AdminUpdateTokenIncentivesEvent(
         events::admin_update_token_incentives_event::AdminUpdateTokenIncentivesEventEvent,
     ),
+    ClaimCashbackEvent(events::claim_cashback_event::ClaimCashbackEventEvent),
     ClaimTokenIncentivesEvent(events::claim_token_incentives_event::ClaimTokenIncentivesEventEvent),
     CloseUserVolumeAccumulatorEvent(
         events::close_user_volume_accumulator_event::CloseUserVolumeAccumulatorEventEvent,
@@ -29,9 +30,18 @@ pub enum CpiEvent {
         events::complete_pump_amm_migration_event::CompletePumpAmmMigrationEventEvent,
     ),
     CreateEvent(events::create_event::CreateEventEvent),
+    DistributeCreatorFeesEvent(
+        events::distribute_creator_fees_event::DistributeCreatorFeesEventEvent,
+    ),
     ExtendAccountEvent(events::extend_account_event::ExtendAccountEventEvent),
     InitUserVolumeAccumulatorEvent(
         events::init_user_volume_accumulator_event::InitUserVolumeAccumulatorEventEvent,
+    ),
+    MigrateBondingCurveCreatorEvent(
+        events::migrate_bonding_curve_creator_event::MigrateBondingCurveCreatorEventEvent,
+    ),
+    MinimumDistributableFeeEvent(
+        events::minimum_distributable_fee_event::MinimumDistributableFeeEventEvent,
     ),
     ReservedFeeRecipientsEvent(
         events::reserved_fee_recipients_event::ReservedFeeRecipientsEventEvent,
@@ -87,6 +97,11 @@ impl CpiEvent {
             return Some(CpiEvent::AdminUpdateTokenIncentivesEvent(decoded));
         }
         if let Some(decoded) =
+            events::claim_cashback_event::ClaimCashbackEventEvent::decode(event_data)
+        {
+            return Some(CpiEvent::ClaimCashbackEvent(decoded));
+        }
+        if let Some(decoded) =
             events::claim_token_incentives_event::ClaimTokenIncentivesEventEvent::decode(event_data)
         {
             return Some(CpiEvent::ClaimTokenIncentivesEvent(decoded));
@@ -113,6 +128,13 @@ impl CpiEvent {
             return Some(CpiEvent::CreateEvent(decoded));
         }
         if let Some(decoded) =
+            events::distribute_creator_fees_event::DistributeCreatorFeesEventEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::DistributeCreatorFeesEvent(decoded));
+        }
+        if let Some(decoded) =
             events::extend_account_event::ExtendAccountEventEvent::decode(event_data)
         {
             return Some(CpiEvent::ExtendAccountEvent(decoded));
@@ -123,6 +145,16 @@ impl CpiEvent {
             )
         {
             return Some(CpiEvent::InitUserVolumeAccumulatorEvent(decoded));
+        }
+        if let Some(decoded) = events::migrate_bonding_curve_creator_event::MigrateBondingCurveCreatorEventEvent::decode(event_data) {
+            return Some(CpiEvent::MigrateBondingCurveCreatorEvent(decoded));
+        }
+        if let Some(decoded) =
+            events::minimum_distributable_fee_event::MinimumDistributableFeeEventEvent::decode(
+                event_data,
+            )
+        {
+            return Some(CpiEvent::MinimumDistributableFeeEvent(decoded));
         }
         if let Some(decoded) =
             events::reserved_fee_recipients_event::ReservedFeeRecipientsEventEvent::decode(

@@ -1,1 +1,1 @@
-# Carbon SPL Associated Token Account Program Decoder
+# Carbon Associated Token Account program Decoder

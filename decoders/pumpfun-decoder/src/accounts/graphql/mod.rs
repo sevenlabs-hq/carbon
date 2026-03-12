@@ -3,12 +3,14 @@ pub mod bonding_curve_schema;
 pub mod fee_config_schema;
 pub mod global_schema;
 pub mod global_volume_accumulator_schema;
+pub mod sharing_config_schema;
 pub mod user_volume_accumulator_schema;
 
 use juniper::GraphQLObject;
 pub use {
     bonding_curve_schema::*, fee_config_schema::*, global_schema::*,
-    global_volume_accumulator_schema::*, user_volume_accumulator_schema::*,
+    global_volume_accumulator_schema::*, sharing_config_schema::*,
+    user_volume_accumulator_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

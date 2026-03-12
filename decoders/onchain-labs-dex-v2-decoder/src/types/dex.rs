@@ -101,4 +101,43 @@ pub enum Dex {
     HumidifiSwap2 {
         swap_id: u64,
     },
+    Scorch {
+        id: u128,
+    },
+    JupiterLendDeposit,
+    JupiterLendRedeem,
+    TaurusFi,
+    BisonFi,
+    GoonfiV2,
+    Quantum,
+    BoopfunBuy2,
+    BoopfunSell2,
+    ByrealClmm2,
+    Dooar2,
+    HeavenBuy2,
+    HeavenSell2,
+    MoonitBuy2,
+    MoonitSell2,
+    SaberDecimalWrapperDeposit2,
+    SaberDecimalWrapperWithdraw2,
+    ByrealPropAmm,
+    SanctumPrefundSwapViaStake {
+        swap_id: u64,
+    },
+    AbyssAmm,
+    Aquifer,
+    WhalestreetV2 {
+        auth_amount_in: u64,
+        auth: u64,
+    },
+    SolfiV2WithSig {
+        unix_timestamp: u64,
+        msg_amount_in: u64,
+        expect_amount_out: u64,
+        slippage: u16,
+        user_request_slot: u64,
+        #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
+        signature: [u8; 64],
+        recovery_id: u8,
+    },
 }

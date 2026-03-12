@@ -10,7 +10,7 @@ pub struct CreateTokenBadgeInstructionAccounts {
     pub token_badge: solana_pubkey::Pubkey,
     pub token_mint: solana_pubkey::Pubkey,
     pub operator: solana_pubkey::Pubkey,
-    pub whitelisted_address: solana_pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
     pub payer: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
     pub event_authority: solana_pubkey::Pubkey,
@@ -47,7 +47,7 @@ impl ArrangeAccounts for CreateTokenBadge {
         let token_badge = next_account(&mut iter)?;
         let token_mint = next_account(&mut iter)?;
         let operator = next_account(&mut iter)?;
-        let whitelisted_address = next_account(&mut iter)?;
+        let signer = next_account(&mut iter)?;
         let payer = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
         let event_authority = next_account(&mut iter)?;
@@ -59,7 +59,7 @@ impl ArrangeAccounts for CreateTokenBadge {
             token_badge,
             token_mint,
             operator,
-            whitelisted_address,
+            signer,
             payer,
             system_program,
             event_authority,

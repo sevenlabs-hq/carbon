@@ -16,7 +16,7 @@ pub struct CreateConfig {
 pub struct CreateConfigInstructionAccounts {
     pub config: solana_pubkey::Pubkey,
     pub operator: solana_pubkey::Pubkey,
-    pub whitelisted_address: solana_pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
     pub payer: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
     pub event_authority: solana_pubkey::Pubkey,
@@ -52,7 +52,7 @@ impl ArrangeAccounts for CreateConfig {
 
         let config = next_account(&mut iter)?;
         let operator = next_account(&mut iter)?;
-        let whitelisted_address = next_account(&mut iter)?;
+        let signer = next_account(&mut iter)?;
         let payer = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
         let event_authority = next_account(&mut iter)?;
@@ -63,7 +63,7 @@ impl ArrangeAccounts for CreateConfig {
         Some(CreateConfigInstructionAccounts {
             config,
             operator,
-            whitelisted_address,
+            signer,
             payer,
             system_program,
             event_authority,

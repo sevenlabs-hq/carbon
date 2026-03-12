@@ -30,6 +30,7 @@ pub enum CpiEvent {
     EvtPermanentLockPosition(events::evt_permanent_lock_position::EvtPermanentLockPositionEvent),
     EvtSetPoolStatus(events::evt_set_pool_status::EvtSetPoolStatusEvent),
     EvtSplitPosition2(events::evt_split_position2::EvtSplitPosition2Event),
+    EvtSplitPosition3(events::evt_split_position3::EvtSplitPosition3Event),
     EvtSwap2(events::evt_swap2::EvtSwap2Event),
     EvtUpdatePoolFees(events::evt_update_pool_fees::EvtUpdatePoolFeesEvent),
     EvtUpdateRewardDuration(events::evt_update_reward_duration::EvtUpdateRewardDurationEvent),
@@ -137,6 +138,11 @@ impl CpiEvent {
             events::evt_split_position2::EvtSplitPosition2Event::decode(event_data)
         {
             return Some(CpiEvent::EvtSplitPosition2(decoded));
+        }
+        if let Some(decoded) =
+            events::evt_split_position3::EvtSplitPosition3Event::decode(event_data)
+        {
+            return Some(CpiEvent::EvtSplitPosition3(decoded));
         }
         if let Some(decoded) = events::evt_swap2::EvtSwap2Event::decode(event_data) {
             return Some(CpiEvent::EvtSwap2(decoded));
