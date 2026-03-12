@@ -17,4 +17,5 @@ pub struct CreateEvent {
     pub token_total_supply: u64,
     pub token_program: Pubkey,
     pub is_mayhem_mode: bool,
+    pub is_cashback_enabled: bool,
 }
