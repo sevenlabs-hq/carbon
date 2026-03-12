@@ -16,7 +16,9 @@ pub struct MinimalReserve {
     /// * 0 = false, 1 = true
     pub stale: u8,
     /// Each bit represents a passed check in price status.
-    /// * 63 = all checks passed Otherwise:
+    /// * 63 = all checks passed
+    ///
+    /// Otherwise:
     /// * PRICE_LOADED =        0b_0000_0001; // 1
     /// * PRICE_AGE_CHECKED =   0b_0000_0010; // 2
     /// * TWAP_CHECKED =        0b_0000_0100; // 4

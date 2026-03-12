@@ -4,8 +4,10 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// # Arguments
 /// * `ctx`- The context of accounts
 /// * `sqrt_price_x64` - the initial sqrt price (amount_token_1 /
-///   amount_token_0) of the pool as a Q64.64 Note: The open_time must be
-///   smaller than the current block_timestamp on chain.
+///   amount_token_0) of the pool as a Q64.64
+///
+/// Note: The open_time must be smaller than the current block_timestamp on
+/// chain.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct CreatePool {

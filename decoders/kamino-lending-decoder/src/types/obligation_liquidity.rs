@@ -13,9 +13,10 @@ pub struct ObligationLiquidity {
     /// happened. This means that:
     /// - adding debt of the same reserve does *not* change this timestamp,
     /// - repaying the entire debt of this reserve *does* reset this timestamp.
-    ///   Note: this field is *not* only metadata: it is used in the logic, e.g.
-    ///   for enforcing the fixed-term borrows (i.e. those induced by
-    ///   [ReserveConfig::debt_term_seconds]).
+    ///
+    /// Note: this field is *not* only metadata: it is used in the logic, e.g.
+    /// for enforcing the fixed-term borrows (i.e. those induced by
+    /// [ReserveConfig::debt_term_seconds]).
     pub first_borrowed_at_timestamp: u64,
     /// Amount of liquidity borrowed plus interest (scaled fraction)
     pub borrowed_amount_sf: u128,

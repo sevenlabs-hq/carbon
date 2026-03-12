@@ -44,9 +44,11 @@ pub struct Bank {
     /// Sum of all asset shares held by all depositors in this bank.
     /// * Uses `mint_decimals`
     /// * For Kamino banks, this is the quantity of collateral tokens (NOT
-    ///   liquidity tokens) in the bank, and also uses `mint_decimals`, though
-    ///   the mint itself will always show (6) decimals exactly (i.e Kamino
-    ///   ignores this and treats it as if it was using `mint_decimals`)
+    ///   liquidity tokens) in the
+    ///
+    /// bank, and also uses `mint_decimals`, though the mint itself will always
+    /// show (6) decimals exactly (i.e Kamino ignores this and treats it as
+    /// if it was using `mint_decimals`)
     pub total_asset_shares: WrappedI80F48,
     pub last_update: i64,
     pub config: BankConfig,
@@ -79,17 +81,23 @@ pub struct Bank {
     pub cache: BankCache,
     /// Number of user lending positions currently open in this bank
     /// * For banks created prior to 0.1.4, this is the number of positions
-    ///   opened/closed after 0.1.4 goes live, and may be negative.
+    ///   opened/closed after
+    ///
+    /// 0.1.4 goes live, and may be negative.
     /// * For banks created in 0.1.4 or later, this is the number of positions
-    ///   open in total, and the bank may safely be closed if this is zero. Will
-    ///   never go negative.
+    ///   open in total, and
+    ///
+    /// the bank may safely be closed if this is zero. Will never go negative.
     pub lending_position_count: i32,
     /// Number of user borrowing positions currently open in this bank
     /// * For banks created prior to 0.1.4, this is the number of positions
-    ///   opened/closed after 0.1.4 goes live, and may be negative.
+    ///   opened/closed after
+    ///
+    /// 0.1.4 goes live, and may be negative.
     /// * For banks created in 0.1.4 or later, this is the number of positions
-    ///   open in total, and the bank may safely be closed if this is zero. Will
-    ///   never go negative.
+    ///   open in total, and
+    ///
+    /// the bank may safely be closed if this is zero. Will never go negative.
     pub borrowing_position_count: i32,
     pub padding0: [u8; 16],
     /// Integration account slot 1 (default Pubkey for non-integrations).

@@ -2,8 +2,10 @@
 use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// (permissionless) Initialize a Kamino obligation for a marginfi bank
 /// * amount - In token, in native decimals. Must be >10 (i.e. 10 lamports, not
-///   10 tokens). Lost forever. Generally, try to make this the equivalent of
-///   around $1, in case Kamino ever rounds small balances down to zero.
+///   10 tokens). Lost
+///
+/// forever. Generally, try to make this the equivalent of around $1, in case
+/// Kamino ever rounds small balances down to zero.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct KaminoInitObligation {

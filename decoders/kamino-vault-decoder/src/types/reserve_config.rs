@@ -69,8 +69,9 @@ pub struct ReserveConfig {
     /// deposit or borrow limit is crossed.
     /// Besides this flag, the lending market's flag also needs to be enabled
     /// (logical `AND`). **NOTE:** the manual "target LTV" deleveraging
-    /// (enabled by the risk council for individual   obligations) is NOT
-    /// affected by this flag.
+    /// (enabled by the risk council for individual
+    ///
+    /// obligations) is NOT affected by this flag.
     pub autodeleverage_enabled: u8,
     pub reserved1: [u8; 1],
     /// Maximum amount liquidity of this reserve borrowed outside all elevation

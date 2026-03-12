@@ -7,8 +7,10 @@ pub struct EmodeEntry {
     /// preferentially.
     pub collateral_bank_emode_tag: u16,
     /// * APPLIES_TO_ISOLATED (1) - (NOT YET IMPLEMENTED) if set, isolated banks
-    ///   with this tag also benefit. If not set, isolated banks continue to
-    ///   offer zero collateral, even if they use this tag.
+    ///   with this tag
+    ///
+    /// also benefit. If not set, isolated banks continue to offer zero
+    /// collateral, even if they use this tag.
     /// * 2, 4, 8, 16, 32, etc - reserved for future use
     pub flags: u8,
     pub pad0: [u8; 5],

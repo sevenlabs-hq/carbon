@@ -5,7 +5,9 @@ use {
 };
 /// Create platform config account
 /// # Arguments
-/// * `ctx` - The context of accounts # Fields
+/// * `ctx` - The context of accounts
+///
+/// # Fields
 /// * `fee_rate` - Fee rate of the platform
 /// * `name` - Name of the platform
 /// * `web` - Website of the platform

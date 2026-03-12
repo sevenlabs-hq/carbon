@@ -9,9 +9,11 @@
 /// - If `Full`, we have verified the signatures for two thirds of the current
 ///   guardians.
 /// - If `Partial`, only `num_signatures` guardian signatures have been checked.
-///   # Warning Using partially verified price updates is dangerous, as it
-///   lowers the threshold of guardians that need to collude to produce a
-///   malicious price update.
+///
+/// # Warning
+/// Using partially verified price updates is dangerous, as it lowers the
+/// threshold of guardians that need to collude to produce a malicious price
+/// update.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub enum VerificationLevel {

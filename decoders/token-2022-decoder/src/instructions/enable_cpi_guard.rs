@@ -5,8 +5,9 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// * Transfer and Burn must go through a delegate.
 /// * CloseAccount can only return lamports to owner.
 /// * SetAuthority can only be used to remove an existing close authority.
-/// * Approve is disallowed entirely. In addition, CPI Guard cannot be enabled
-///   or disabled via CPI.
+/// * Approve is disallowed entirely.
+///
+/// In addition, CPI Guard cannot be enabled or disabled via CPI.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct EnableCpiGuard {}
