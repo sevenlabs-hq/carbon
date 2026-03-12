@@ -10,8 +10,6 @@ carbon-rpc-program-subscribe-datasource = { workspace = true }
 carbon-pumpfun-decoder = { workspace = true }
 solana-account-decoder = { workspace = true }
 solana-client = { workspace = true }
-solana-pubkey = { workspace = true }
-solana-native-token = { workspace = true }
 
 anyhow = { workspace = true }
 dotenv = { workspace = true }

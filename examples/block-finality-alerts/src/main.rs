@@ -1,7 +1,5 @@
 use {
-    carbon_core::{
-        datasource::BlockDetails, error::CarbonResult, processor::Processor,
-    },
+    carbon_core::{datasource::BlockDetails, error::CarbonResult, processor::Processor},
     carbon_log_metrics::LogMetrics,
     carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
     solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
