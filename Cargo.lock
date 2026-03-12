@@ -7089,8 +7089,6 @@ dependencies = [
  "log",
  "solana-account-decoder",
  "solana-client",
- "solana-native-token",
- "solana-pubkey 3.0.0",
  "tokio",
 ]
 
@@ -7363,8 +7361,6 @@ dependencies = [
  "env_logger",
  "log",
  "rustls 0.23.35",
- "solana-account",
- "solana-instruction",
  "tokio",
  "yellowstone-grpc-proto",
 ]
