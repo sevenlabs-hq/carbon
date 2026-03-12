@@ -6,10 +6,7 @@ use {
     carbon_core::{
         error::CarbonResult, instruction::InstructionProcessorInputType, processor::Processor,
     },
-    carbon_pumpfun_decoder::{
-        instructions::{CpiEvent, PumpfunInstruction},
-        PumpfunDecoder,
-    },
+    carbon_pumpfun_decoder::{instructions::PumpfunInstruction, PumpfunDecoder},
     carbon_rpc_block_crawler_datasource::{RpcBlockConfig, RpcBlockCrawler},
     clap::Parser,
 };
@@ -53,6 +50,7 @@ pub async fn main() -> CarbonResult<()> {
         .run()
         .await?;
 
+    log::info!("Pipeline completed successfully");
     Ok(())
 }
 
@@ -65,23 +63,34 @@ impl Processor<InstructionProcessorInputType<'_, PumpfunInstruction>>
         &mut self,
         input: &InstructionProcessorInputType<'_, PumpfunInstruction>,
     ) -> CarbonResult<()> {
-        if let PumpfunInstruction::CpiEvent { data, .. } = input.decoded_instruction {
-            match data {
-                CpiEvent::CreateEvent(create_event) => {
-                    log::info!(
-                        "New token created: {:#?} on slot {}",
-                        create_event,
-                        input.metadata.transaction_metadata.slot
-                    );
-                }
-                CpiEvent::TradeEvent(trade_event) => {
-                    log::info!(
-                        "New trade occurred: {:#?} on slot {:?}",
-                        trade_event,
-                        input.metadata.transaction_metadata.slot
-                    );
-                }
-                _ => {}
+        match input.decoded_instruction {
+            PumpfunInstruction::Create { data, .. } => {
+                log::info!(
+                    "Token created: {:?} on slot {}",
+                    data,
+                    input.metadata.transaction_metadata.slot
+                );
+            }
+            PumpfunInstruction::Buy { data, .. } => {
+                log::info!(
+                    "Buy transaction: {:?} on slot {}",
+                    data,
+                    input.metadata.transaction_metadata.slot
+                );
+            }
+            PumpfunInstruction::Sell { data, .. } => {
+                log::info!(
+                    "Sell transaction: {:?} on slot {}",
+                    data,
+                    input.metadata.transaction_metadata.slot
+                );
+            }
+            _ => {
+                log::info!(
+                    "Other Pumpfun instruction on slot {}: {:?}",
+                    input.metadata.transaction_metadata.slot,
+                    input.decoded_instruction
+                );
             }
         }
 
