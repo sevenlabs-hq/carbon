@@ -7,14 +7,10 @@ pub mod pool_row;
 pub mod sharing_config_row;
 pub mod social_fee_pda_row;
 
-pub use self::bonding_curve_row::*;
-pub use self::fee_config_row::*;
-pub use self::fee_program_global_row::*;
-pub use self::global_row::*;
-pub use self::pool_row::*;
-pub use self::sharing_config_row::*;
-pub use self::social_fee_pda_row::*;
-
+pub use self::{
+    bonding_curve_row::*, fee_config_row::*, fee_program_global_row::*, global_row::*, pool_row::*,
+    sharing_config_row::*, social_fee_pda_row::*,
+};
 use super::PumpFeesAccount;
 
 pub struct PumpFeesAccountsMigration;

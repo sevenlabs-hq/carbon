@@ -14,7 +14,9 @@ pub struct UpdatePoolFeesParametersGraphQL {
 impl From<crate::types::UpdatePoolFeesParameters> for UpdatePoolFeesParametersGraphQL {
     fn from(original: crate::types::UpdatePoolFeesParameters) -> Self {
         Self {
-            cliff_fee_numerator: original.cliff_fee_numerator.map(U64),
+            cliff_fee_numerator: original
+                .cliff_fee_numerator
+                .map(carbon_core::graphql::primitives::U64),
             dynamic_fee: original.dynamic_fee.map(|v| v.into()),
         }
     }

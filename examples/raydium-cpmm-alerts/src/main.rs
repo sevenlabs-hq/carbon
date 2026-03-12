@@ -1,10 +1,6 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
-        error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType, processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
     carbon_raydium_cpmm_decoder::{
@@ -38,7 +34,6 @@ pub async fn main() -> CarbonResult<()> {
     carbon_core::pipeline::Pipeline::builder()
         .datasource(block_subscribe)
         .metrics(Arc::new(LogMetrics::new()))
-        .metrics_flush_interval(3)
         .instruction(RaydiumCpmmDecoder, RaydiumCpmmInstructionProcessor)
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
         .build()?
@@ -50,76 +45,54 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct RaydiumCpmmInstructionProcessor;
 
-#[async_trait]
-impl Processor for RaydiumCpmmInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<RaydiumCpmmInstruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
-
+impl Processor<InstructionProcessorInputType<'_, RaydiumCpmmInstruction>>
+    for RaydiumCpmmInstructionProcessor
+{
     async fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions, _): Self::InputType,
-        _metrics: Arc<MetricsCollection>,
+        input: &InstructionProcessorInputType<'_, RaydiumCpmmInstruction>,
     ) -> CarbonResult<()> {
-        let signature = metadata.transaction_metadata.signature;
+        let signature = input.metadata.transaction_metadata.signature;
 
-        match instruction.data {
-            RaydiumCpmmInstruction::CreateAmmConfig(create_amm_config) => {
-                log::info!("CreateAmmConfig: signature: {signature}, create_amm_config: {create_amm_config:?}");
+        match input.decoded_instruction {
+            RaydiumCpmmInstruction::CollectFundFee { data, .. } => {
+                log::info!("CollectFundFee: signature: {signature}, collect_fund_fee: {data:?}");
             }
-            RaydiumCpmmInstruction::UpdateAmmConfig(update_amm_config) => {
-                log::info!("UpdateAmmConfig: signature: {signature}, update_amm_config: {update_amm_config:?}");
-            }
-            RaydiumCpmmInstruction::UpdatePoolStatus(update_pool_status) => {
-                log::info!("UpdatePoolStatus: signature: {signature}, update_pool_status: {update_pool_status:?}");
-            }
-            RaydiumCpmmInstruction::CollectProtocolFee(collect_protocol_fee) => {
-                log::info!("CollectProtocolFee: signature: {signature}, collect_protocol_fee: {collect_protocol_fee:?}");
-            }
-            RaydiumCpmmInstruction::CollectFundFee(collect_fund_fee) => {
-                log::info!("CollectFundFee: signature: {signature}, collect_fund_fee: {collect_fund_fee:?}");
-            }
-            RaydiumCpmmInstruction::Initialize(initialize) => {
-                log::info!("Initialize: signature: {signature}, initialize: {initialize:?}");
-            }
-            RaydiumCpmmInstruction::Deposit(deposit) => {
-                log::info!("Deposit: signature: {signature}, deposit: {deposit:?}");
-            }
-            RaydiumCpmmInstruction::Withdraw(withdraw) => {
-                log::info!("Withdraw: signature: {signature}, withdraw: {withdraw:?}");
-            }
-            RaydiumCpmmInstruction::SwapBaseInput(swap_base_input) => {
+            RaydiumCpmmInstruction::CollectProtocolFee { data, .. } => {
                 log::info!(
-                    "SwapBaseInput: signature: {signature}, swap_base_input: {swap_base_input:?}"
+                    "CollectProtocolFee: signature: {signature}, collect_protocol_fee: {data:?}"
                 );
             }
-            RaydiumCpmmInstruction::SwapBaseOutput(swap_base_output) => {
-                log::info!("SwapBaseOutput: signature: {signature}, swap_base_output: {swap_base_output:?}");
+            RaydiumCpmmInstruction::CreateAmmConfig { data, .. } => {
+                log::info!("CreateAmmConfig: signature: {signature}, create_amm_config: {data:?}");
             }
-            RaydiumCpmmInstruction::LpChangeEvent(lp_change_event) => {
+            RaydiumCpmmInstruction::Deposit { data, .. } => {
+                log::info!("Deposit: signature: {signature}, deposit: {data:?}");
+            }
+            RaydiumCpmmInstruction::Initialize { data, .. } => {
+                log::info!("Initialize: signature: {signature}, initialize: {data:?}");
+            }
+            RaydiumCpmmInstruction::SwapBaseInput { data, .. } => {
+                log::info!("SwapBaseInput: signature: {signature}, swap_base_input: {data:?}");
+            }
+            RaydiumCpmmInstruction::SwapBaseOutput { data, .. } => {
+                log::info!("SwapBaseOutput: signature: {signature}, swap_base_output: {data:?}");
+            }
+            RaydiumCpmmInstruction::UpdateAmmConfig { data, .. } => {
+                log::info!("UpdateAmmConfig: signature: {signature}, update_amm_config: {data:?}");
+            }
+            RaydiumCpmmInstruction::UpdatePoolStatus { data, .. } => {
                 log::info!(
-                    "LpChangeEvent: signature: {signature}, lp_change_event: {lp_change_event:?}"
+                    "UpdatePoolStatus: signature: {signature}, update_pool_status: {data:?}"
                 );
             }
-            RaydiumCpmmInstruction::SwapEvent(swap_event) => {
-                log::info!("SwapEvent: signature: {signature}, swap_event: {swap_event:?}");
+            RaydiumCpmmInstruction::Withdraw { data, .. } => {
+                log::info!("Withdraw: signature: {signature}, withdraw: {data:?}");
             }
-            RaydiumCpmmInstruction::ClosePermissionPda(close_permission_pda) => {
-                log::info!("ClosePermissionPda: signature: {signature}, close_permission_pda: {close_permission_pda:?}");
+            RaydiumCpmmInstruction::CpiEvent { data, .. } => {
+                log::info!("CpiEvent: signature: {signature}, cpi_event: {data:?}");
             }
-            RaydiumCpmmInstruction::CollectCreatorFee(collect_creator_fee) => {
-                log::info!("CollectCreatorFee: signature: {signature}, collect_creator_fee: {collect_creator_fee:?}");
-            }
-            RaydiumCpmmInstruction::CreatePermissionPda(create_permission_pda) => {
-                log::info!("CreatePermissionPda: signature: {signature}, create_permission_pda: {create_permission_pda:?}");
-            }
-            RaydiumCpmmInstruction::InitializeWithPermission(initialize_with_permission) => {
-                log::info!("InitializeWithPermission: signature: {signature}, initialize_with_permission: {initialize_with_permission:?}");
-            }
-        };
+        }
 
         Ok(())
     }

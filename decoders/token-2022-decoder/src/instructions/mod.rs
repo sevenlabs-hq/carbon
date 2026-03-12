@@ -56,6 +56,7 @@ pub mod initialize_multisig2;
 pub mod initialize_non_transferable_mint;
 pub mod initialize_pausable_config;
 pub mod initialize_permanent_delegate;
+pub mod initialize_permissioned_burn;
 pub mod initialize_scaled_ui_amount_mint;
 pub mod initialize_token_group;
 pub mod initialize_token_group_member;
@@ -65,6 +66,8 @@ pub mod initialize_transfer_hook;
 pub mod mint_to;
 pub mod mint_to_checked;
 pub mod pause;
+pub mod permissioned_burn;
+pub mod permissioned_burn_checked;
 pub mod reallocate;
 pub mod remove_token_metadata_key;
 pub mod resume;
@@ -77,6 +80,7 @@ pub mod transfer;
 pub mod transfer_checked;
 pub mod transfer_checked_with_fee;
 pub mod ui_amount_to_amount;
+pub mod unwrap_lamports;
 pub mod update_confidential_transfer_mint;
 pub mod update_default_account_state;
 pub mod update_group_member_pointer;
@@ -112,18 +116,21 @@ pub use self::{
     initialize_interest_bearing_mint::*, initialize_metadata_pointer::*, initialize_mint::*,
     initialize_mint2::*, initialize_mint_close_authority::*, initialize_multisig::*,
     initialize_multisig2::*, initialize_non_transferable_mint::*, initialize_pausable_config::*,
-    initialize_permanent_delegate::*, initialize_scaled_ui_amount_mint::*,
-    initialize_token_group::*, initialize_token_group_member::*, initialize_token_metadata::*,
+    initialize_permanent_delegate::*, initialize_permissioned_burn::*,
+    initialize_scaled_ui_amount_mint::*, initialize_token_group::*,
+    initialize_token_group_member::*, initialize_token_metadata::*,
     initialize_transfer_fee_config::*, initialize_transfer_hook::*, mint_to::*, mint_to_checked::*,
-    pause::*, reallocate::*, remove_token_metadata_key::*, resume::*, revoke::*, set_authority::*,
-    set_transfer_fee::*, sync_native::*, thaw_account::*, transfer::*, transfer_checked::*,
-    transfer_checked_with_fee::*, ui_amount_to_amount::*, update_confidential_transfer_mint::*,
-    update_default_account_state::*, update_group_member_pointer::*, update_group_pointer::*,
-    update_metadata_pointer::*, update_multiplier_scaled_ui_mint::*,
-    update_rate_interest_bearing_mint::*, update_token_group_max_size::*,
-    update_token_group_update_authority::*, update_token_metadata_field::*,
-    update_token_metadata_update_authority::*, update_transfer_hook::*,
-    withdraw_excess_lamports::*, withdraw_withheld_tokens_from_accounts::*,
+    pause::*, permissioned_burn::*, permissioned_burn_checked::*, reallocate::*,
+    remove_token_metadata_key::*, resume::*, revoke::*, set_authority::*, set_transfer_fee::*,
+    sync_native::*, thaw_account::*, transfer::*, transfer_checked::*,
+    transfer_checked_with_fee::*, ui_amount_to_amount::*, unwrap_lamports::*,
+    update_confidential_transfer_mint::*, update_default_account_state::*,
+    update_group_member_pointer::*, update_group_pointer::*, update_metadata_pointer::*,
+    update_multiplier_scaled_ui_mint::*, update_rate_interest_bearing_mint::*,
+    update_token_group_max_size::*, update_token_group_update_authority::*,
+    update_token_metadata_field::*, update_token_metadata_update_authority::*,
+    update_transfer_hook::*, withdraw_excess_lamports::*,
+    withdraw_withheld_tokens_from_accounts::*,
     withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee::*,
     withdraw_withheld_tokens_from_mint::*,
     withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee::*,
@@ -133,99 +140,461 @@ pub use self::{
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum Token2022Instruction {
-    AmountToUiAmount(AmountToUiAmount),
-    ApplyConfidentialPendingBalance(ApplyConfidentialPendingBalance),
-    Approve(Approve),
-    ApproveChecked(ApproveChecked),
-    ApproveConfidentialTransferAccount(ApproveConfidentialTransferAccount),
-    Burn(Burn),
-    BurnChecked(BurnChecked),
-    CloseAccount(CloseAccount),
-    ConfidentialDeposit(ConfidentialDeposit),
-    ConfidentialTransfer(ConfidentialTransfer),
-    ConfidentialTransferWithFee(ConfidentialTransferWithFee),
-    ConfidentialWithdraw(ConfidentialWithdraw),
-    ConfigureConfidentialTransferAccount(ConfigureConfidentialTransferAccount),
-    CreateNativeMint(CreateNativeMint),
-    DisableConfidentialCredits(DisableConfidentialCredits),
-    DisableCpiGuard(DisableCpiGuard),
-    DisableHarvestToMint(DisableHarvestToMint),
-    DisableMemoTransfers(DisableMemoTransfers),
-    DisableNonConfidentialCredits(DisableNonConfidentialCredits),
-    EmitTokenMetadata(EmitTokenMetadata),
-    EmptyConfidentialTransferAccount(EmptyConfidentialTransferAccount),
-    EnableConfidentialCredits(EnableConfidentialCredits),
-    EnableCpiGuard(EnableCpiGuard),
-    EnableHarvestToMint(EnableHarvestToMint),
-    EnableMemoTransfers(EnableMemoTransfers),
-    EnableNonConfidentialCredits(EnableNonConfidentialCredits),
-    FreezeAccount(FreezeAccount),
-    GetAccountDataSize(GetAccountDataSize),
-    HarvestWithheldTokensToMint(HarvestWithheldTokensToMint),
-    HarvestWithheldTokensToMintForConfidentialTransferFee(
-        HarvestWithheldTokensToMintForConfidentialTransferFee,
-    ),
-    InitializeAccount(InitializeAccount),
-    InitializeAccount2(InitializeAccount2),
-    InitializeAccount3(InitializeAccount3),
-    InitializeConfidentialTransferFee(InitializeConfidentialTransferFee),
-    InitializeConfidentialTransferMint(InitializeConfidentialTransferMint),
-    InitializeDefaultAccountState(InitializeDefaultAccountState),
-    InitializeGroupMemberPointer(InitializeGroupMemberPointer),
-    InitializeGroupPointer(InitializeGroupPointer),
-    InitializeImmutableOwner(InitializeImmutableOwner),
-    InitializeInterestBearingMint(InitializeInterestBearingMint),
-    InitializeMetadataPointer(InitializeMetadataPointer),
-    InitializeMint(InitializeMint),
-    InitializeMint2(InitializeMint2),
-    InitializeMintCloseAuthority(InitializeMintCloseAuthority),
-    InitializeMultisig(InitializeMultisig),
-    InitializeMultisig2(InitializeMultisig2),
-    InitializeNonTransferableMint(InitializeNonTransferableMint),
-    InitializePausableConfig(InitializePausableConfig),
-    InitializePermanentDelegate(InitializePermanentDelegate),
-    InitializeScaledUiAmountMint(InitializeScaledUiAmountMint),
-    InitializeTokenGroup(InitializeTokenGroup),
-    InitializeTokenGroupMember(InitializeTokenGroupMember),
-    InitializeTokenMetadata(InitializeTokenMetadata),
-    InitializeTransferFeeConfig(InitializeTransferFeeConfig),
-    InitializeTransferHook(InitializeTransferHook),
-    MintTo(MintTo),
-    MintToChecked(MintToChecked),
-    Pause(Pause),
-    Reallocate(Reallocate),
-    RemoveTokenMetadataKey(RemoveTokenMetadataKey),
-    Resume(Resume),
-    Revoke(Revoke),
-    SetAuthority(SetAuthority),
-    SetTransferFee(SetTransferFee),
-    SyncNative(SyncNative),
-    ThawAccount(ThawAccount),
-    Transfer(Transfer),
-    TransferChecked(TransferChecked),
-    TransferCheckedWithFee(TransferCheckedWithFee),
-    UiAmountToAmount(UiAmountToAmount),
-    UpdateConfidentialTransferMint(UpdateConfidentialTransferMint),
-    UpdateDefaultAccountState(UpdateDefaultAccountState),
-    UpdateGroupMemberPointer(UpdateGroupMemberPointer),
-    UpdateGroupPointer(UpdateGroupPointer),
-    UpdateMetadataPointer(UpdateMetadataPointer),
-    UpdateMultiplierScaledUiMint(UpdateMultiplierScaledUiMint),
-    UpdateRateInterestBearingMint(UpdateRateInterestBearingMint),
-    UpdateTokenGroupMaxSize(UpdateTokenGroupMaxSize),
-    UpdateTokenGroupUpdateAuthority(UpdateTokenGroupUpdateAuthority),
-    UpdateTokenMetadataField(UpdateTokenMetadataField),
-    UpdateTokenMetadataUpdateAuthority(UpdateTokenMetadataUpdateAuthority),
-    UpdateTransferHook(UpdateTransferHook),
-    WithdrawExcessLamports(WithdrawExcessLamports),
-    WithdrawWithheldTokensFromAccounts(WithdrawWithheldTokensFromAccounts),
-    WithdrawWithheldTokensFromAccountsForConfidentialTransferFee(
-        WithdrawWithheldTokensFromAccountsForConfidentialTransferFee,
-    ),
-    WithdrawWithheldTokensFromMint(WithdrawWithheldTokensFromMint),
-    WithdrawWithheldTokensFromMintForConfidentialTransferFee(
-        WithdrawWithheldTokensFromMintForConfidentialTransferFee,
-    ),
+    AmountToUiAmount {
+        program_id: solana_pubkey::Pubkey,
+        data: AmountToUiAmount,
+        accounts: AmountToUiAmountInstructionAccounts,
+    },
+    ApplyConfidentialPendingBalance {
+        program_id: solana_pubkey::Pubkey,
+        data: ApplyConfidentialPendingBalance,
+        accounts: ApplyConfidentialPendingBalanceInstructionAccounts,
+    },
+    Approve {
+        program_id: solana_pubkey::Pubkey,
+        data: Approve,
+        accounts: ApproveInstructionAccounts,
+    },
+    ApproveChecked {
+        program_id: solana_pubkey::Pubkey,
+        data: ApproveChecked,
+        accounts: ApproveCheckedInstructionAccounts,
+    },
+    ApproveConfidentialTransferAccount {
+        program_id: solana_pubkey::Pubkey,
+        data: ApproveConfidentialTransferAccount,
+        accounts: ApproveConfidentialTransferAccountInstructionAccounts,
+    },
+    Burn {
+        program_id: solana_pubkey::Pubkey,
+        data: Burn,
+        accounts: BurnInstructionAccounts,
+    },
+    BurnChecked {
+        program_id: solana_pubkey::Pubkey,
+        data: BurnChecked,
+        accounts: BurnCheckedInstructionAccounts,
+    },
+    CloseAccount {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseAccount,
+        accounts: CloseAccountInstructionAccounts,
+    },
+    ConfidentialDeposit {
+        program_id: solana_pubkey::Pubkey,
+        data: ConfidentialDeposit,
+        accounts: ConfidentialDepositInstructionAccounts,
+    },
+    ConfidentialTransfer {
+        program_id: solana_pubkey::Pubkey,
+        data: ConfidentialTransfer,
+        accounts: ConfidentialTransferInstructionAccounts,
+    },
+    ConfidentialTransferWithFee {
+        program_id: solana_pubkey::Pubkey,
+        data: ConfidentialTransferWithFee,
+        accounts: ConfidentialTransferWithFeeInstructionAccounts,
+    },
+    ConfidentialWithdraw {
+        program_id: solana_pubkey::Pubkey,
+        data: ConfidentialWithdraw,
+        accounts: ConfidentialWithdrawInstructionAccounts,
+    },
+    ConfigureConfidentialTransferAccount {
+        program_id: solana_pubkey::Pubkey,
+        data: ConfigureConfidentialTransferAccount,
+        accounts: ConfigureConfidentialTransferAccountInstructionAccounts,
+    },
+    CreateNativeMint {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateNativeMint,
+        accounts: CreateNativeMintInstructionAccounts,
+    },
+    DisableConfidentialCredits {
+        program_id: solana_pubkey::Pubkey,
+        data: DisableConfidentialCredits,
+        accounts: DisableConfidentialCreditsInstructionAccounts,
+    },
+    DisableCpiGuard {
+        program_id: solana_pubkey::Pubkey,
+        data: DisableCpiGuard,
+        accounts: DisableCpiGuardInstructionAccounts,
+    },
+    DisableHarvestToMint {
+        program_id: solana_pubkey::Pubkey,
+        data: DisableHarvestToMint,
+        accounts: DisableHarvestToMintInstructionAccounts,
+    },
+    DisableMemoTransfers {
+        program_id: solana_pubkey::Pubkey,
+        data: DisableMemoTransfers,
+        accounts: DisableMemoTransfersInstructionAccounts,
+    },
+    DisableNonConfidentialCredits {
+        program_id: solana_pubkey::Pubkey,
+        data: DisableNonConfidentialCredits,
+        accounts: DisableNonConfidentialCreditsInstructionAccounts,
+    },
+    EmitTokenMetadata {
+        program_id: solana_pubkey::Pubkey,
+        data: EmitTokenMetadata,
+        accounts: EmitTokenMetadataInstructionAccounts,
+    },
+    EmptyConfidentialTransferAccount {
+        program_id: solana_pubkey::Pubkey,
+        data: EmptyConfidentialTransferAccount,
+        accounts: EmptyConfidentialTransferAccountInstructionAccounts,
+    },
+    EnableConfidentialCredits {
+        program_id: solana_pubkey::Pubkey,
+        data: EnableConfidentialCredits,
+        accounts: EnableConfidentialCreditsInstructionAccounts,
+    },
+    EnableCpiGuard {
+        program_id: solana_pubkey::Pubkey,
+        data: EnableCpiGuard,
+        accounts: EnableCpiGuardInstructionAccounts,
+    },
+    EnableHarvestToMint {
+        program_id: solana_pubkey::Pubkey,
+        data: EnableHarvestToMint,
+        accounts: EnableHarvestToMintInstructionAccounts,
+    },
+    EnableMemoTransfers {
+        program_id: solana_pubkey::Pubkey,
+        data: EnableMemoTransfers,
+        accounts: EnableMemoTransfersInstructionAccounts,
+    },
+    EnableNonConfidentialCredits {
+        program_id: solana_pubkey::Pubkey,
+        data: EnableNonConfidentialCredits,
+        accounts: EnableNonConfidentialCreditsInstructionAccounts,
+    },
+    FreezeAccount {
+        program_id: solana_pubkey::Pubkey,
+        data: FreezeAccount,
+        accounts: FreezeAccountInstructionAccounts,
+    },
+    GetAccountDataSize {
+        program_id: solana_pubkey::Pubkey,
+        data: GetAccountDataSize,
+        accounts: GetAccountDataSizeInstructionAccounts,
+    },
+    HarvestWithheldTokensToMint {
+        program_id: solana_pubkey::Pubkey,
+        data: HarvestWithheldTokensToMint,
+        accounts: HarvestWithheldTokensToMintInstructionAccounts,
+    },
+    HarvestWithheldTokensToMintForConfidentialTransferFee {
+        program_id: solana_pubkey::Pubkey,
+        data: HarvestWithheldTokensToMintForConfidentialTransferFee,
+        accounts: HarvestWithheldTokensToMintForConfidentialTransferFeeInstructionAccounts,
+    },
+    InitializeAccount {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeAccount,
+        accounts: InitializeAccountInstructionAccounts,
+    },
+    InitializeAccount2 {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeAccount2,
+        accounts: InitializeAccount2InstructionAccounts,
+    },
+    InitializeAccount3 {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeAccount3,
+        accounts: InitializeAccount3InstructionAccounts,
+    },
+    InitializeConfidentialTransferFee {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeConfidentialTransferFee,
+        accounts: InitializeConfidentialTransferFeeInstructionAccounts,
+    },
+    InitializeConfidentialTransferMint {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeConfidentialTransferMint,
+        accounts: InitializeConfidentialTransferMintInstructionAccounts,
+    },
+    InitializeDefaultAccountState {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeDefaultAccountState,
+        accounts: InitializeDefaultAccountStateInstructionAccounts,
+    },
+    InitializeGroupMemberPointer {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeGroupMemberPointer,
+        accounts: InitializeGroupMemberPointerInstructionAccounts,
+    },
+    InitializeGroupPointer {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeGroupPointer,
+        accounts: InitializeGroupPointerInstructionAccounts,
+    },
+    InitializeImmutableOwner {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeImmutableOwner,
+        accounts: InitializeImmutableOwnerInstructionAccounts,
+    },
+    InitializeInterestBearingMint {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeInterestBearingMint,
+        accounts: InitializeInterestBearingMintInstructionAccounts,
+    },
+    InitializeMetadataPointer {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeMetadataPointer,
+        accounts: InitializeMetadataPointerInstructionAccounts,
+    },
+    InitializeMint {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeMint,
+        accounts: InitializeMintInstructionAccounts,
+    },
+    InitializeMint2 {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeMint2,
+        accounts: InitializeMint2InstructionAccounts,
+    },
+    InitializeMintCloseAuthority {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeMintCloseAuthority,
+        accounts: InitializeMintCloseAuthorityInstructionAccounts,
+    },
+    InitializeMultisig {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeMultisig,
+        accounts: InitializeMultisigInstructionAccounts,
+    },
+    InitializeMultisig2 {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeMultisig2,
+        accounts: InitializeMultisig2InstructionAccounts,
+    },
+    InitializeNonTransferableMint {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeNonTransferableMint,
+        accounts: InitializeNonTransferableMintInstructionAccounts,
+    },
+    InitializePausableConfig {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializePausableConfig,
+        accounts: InitializePausableConfigInstructionAccounts,
+    },
+    InitializePermanentDelegate {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializePermanentDelegate,
+        accounts: InitializePermanentDelegateInstructionAccounts,
+    },
+    InitializePermissionedBurn {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializePermissionedBurn,
+        accounts: InitializePermissionedBurnInstructionAccounts,
+    },
+    InitializeScaledUiAmountMint {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeScaledUiAmountMint,
+        accounts: InitializeScaledUiAmountMintInstructionAccounts,
+    },
+    InitializeTokenGroup {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeTokenGroup,
+        accounts: InitializeTokenGroupInstructionAccounts,
+    },
+    InitializeTokenGroupMember {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeTokenGroupMember,
+        accounts: InitializeTokenGroupMemberInstructionAccounts,
+    },
+    InitializeTokenMetadata {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeTokenMetadata,
+        accounts: InitializeTokenMetadataInstructionAccounts,
+    },
+    InitializeTransferFeeConfig {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeTransferFeeConfig,
+        accounts: InitializeTransferFeeConfigInstructionAccounts,
+    },
+    InitializeTransferHook {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeTransferHook,
+        accounts: InitializeTransferHookInstructionAccounts,
+    },
+    MintTo {
+        program_id: solana_pubkey::Pubkey,
+        data: MintTo,
+        accounts: MintToInstructionAccounts,
+    },
+    MintToChecked {
+        program_id: solana_pubkey::Pubkey,
+        data: MintToChecked,
+        accounts: MintToCheckedInstructionAccounts,
+    },
+    Pause {
+        program_id: solana_pubkey::Pubkey,
+        data: Pause,
+        accounts: PauseInstructionAccounts,
+    },
+    PermissionedBurn {
+        program_id: solana_pubkey::Pubkey,
+        data: PermissionedBurn,
+        accounts: PermissionedBurnInstructionAccounts,
+    },
+    PermissionedBurnChecked {
+        program_id: solana_pubkey::Pubkey,
+        data: PermissionedBurnChecked,
+        accounts: PermissionedBurnCheckedInstructionAccounts,
+    },
+    Reallocate {
+        program_id: solana_pubkey::Pubkey,
+        data: Reallocate,
+        accounts: ReallocateInstructionAccounts,
+    },
+    RemoveTokenMetadataKey {
+        program_id: solana_pubkey::Pubkey,
+        data: RemoveTokenMetadataKey,
+        accounts: RemoveTokenMetadataKeyInstructionAccounts,
+    },
+    Resume {
+        program_id: solana_pubkey::Pubkey,
+        data: Resume,
+        accounts: ResumeInstructionAccounts,
+    },
+    Revoke {
+        program_id: solana_pubkey::Pubkey,
+        data: Revoke,
+        accounts: RevokeInstructionAccounts,
+    },
+    SetAuthority {
+        program_id: solana_pubkey::Pubkey,
+        data: SetAuthority,
+        accounts: SetAuthorityInstructionAccounts,
+    },
+    SetTransferFee {
+        program_id: solana_pubkey::Pubkey,
+        data: SetTransferFee,
+        accounts: SetTransferFeeInstructionAccounts,
+    },
+    SyncNative {
+        program_id: solana_pubkey::Pubkey,
+        data: SyncNative,
+        accounts: SyncNativeInstructionAccounts,
+    },
+    ThawAccount {
+        program_id: solana_pubkey::Pubkey,
+        data: ThawAccount,
+        accounts: ThawAccountInstructionAccounts,
+    },
+    Transfer {
+        program_id: solana_pubkey::Pubkey,
+        data: Transfer,
+        accounts: TransferInstructionAccounts,
+    },
+    TransferChecked {
+        program_id: solana_pubkey::Pubkey,
+        data: TransferChecked,
+        accounts: TransferCheckedInstructionAccounts,
+    },
+    TransferCheckedWithFee {
+        program_id: solana_pubkey::Pubkey,
+        data: TransferCheckedWithFee,
+        accounts: TransferCheckedWithFeeInstructionAccounts,
+    },
+    UiAmountToAmount {
+        program_id: solana_pubkey::Pubkey,
+        data: UiAmountToAmount,
+        accounts: UiAmountToAmountInstructionAccounts,
+    },
+    UnwrapLamports {
+        program_id: solana_pubkey::Pubkey,
+        data: UnwrapLamports,
+        accounts: UnwrapLamportsInstructionAccounts,
+    },
+    UpdateConfidentialTransferMint {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateConfidentialTransferMint,
+        accounts: UpdateConfidentialTransferMintInstructionAccounts,
+    },
+    UpdateDefaultAccountState {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateDefaultAccountState,
+        accounts: UpdateDefaultAccountStateInstructionAccounts,
+    },
+    UpdateGroupMemberPointer {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateGroupMemberPointer,
+        accounts: UpdateGroupMemberPointerInstructionAccounts,
+    },
+    UpdateGroupPointer {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateGroupPointer,
+        accounts: UpdateGroupPointerInstructionAccounts,
+    },
+    UpdateMetadataPointer {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateMetadataPointer,
+        accounts: UpdateMetadataPointerInstructionAccounts,
+    },
+    UpdateMultiplierScaledUiMint {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateMultiplierScaledUiMint,
+        accounts: UpdateMultiplierScaledUiMintInstructionAccounts,
+    },
+    UpdateRateInterestBearingMint {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateRateInterestBearingMint,
+        accounts: UpdateRateInterestBearingMintInstructionAccounts,
+    },
+    UpdateTokenGroupMaxSize {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateTokenGroupMaxSize,
+        accounts: UpdateTokenGroupMaxSizeInstructionAccounts,
+    },
+    UpdateTokenGroupUpdateAuthority {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateTokenGroupUpdateAuthority,
+        accounts: UpdateTokenGroupUpdateAuthorityInstructionAccounts,
+    },
+    UpdateTokenMetadataField {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateTokenMetadataField,
+        accounts: UpdateTokenMetadataFieldInstructionAccounts,
+    },
+    UpdateTokenMetadataUpdateAuthority {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateTokenMetadataUpdateAuthority,
+        accounts: UpdateTokenMetadataUpdateAuthorityInstructionAccounts,
+    },
+    UpdateTransferHook {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateTransferHook,
+        accounts: UpdateTransferHookInstructionAccounts,
+    },
+    WithdrawExcessLamports {
+        program_id: solana_pubkey::Pubkey,
+        data: WithdrawExcessLamports,
+        accounts: WithdrawExcessLamportsInstructionAccounts,
+    },
+    WithdrawWithheldTokensFromAccounts {
+        program_id: solana_pubkey::Pubkey,
+        data: WithdrawWithheldTokensFromAccounts,
+        accounts: WithdrawWithheldTokensFromAccountsInstructionAccounts,
+    },
+    WithdrawWithheldTokensFromAccountsForConfidentialTransferFee {
+        program_id: solana_pubkey::Pubkey,
+        data: WithdrawWithheldTokensFromAccountsForConfidentialTransferFee,
+        accounts: WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeInstructionAccounts,
+    },
+    WithdrawWithheldTokensFromMint {
+        program_id: solana_pubkey::Pubkey,
+        data: WithdrawWithheldTokensFromMint,
+        accounts: WithdrawWithheldTokensFromMintInstructionAccounts,
+    },
+    WithdrawWithheldTokensFromMintForConfidentialTransferFee {
+        program_id: solana_pubkey::Pubkey,
+        data: WithdrawWithheldTokensFromMintForConfidentialTransferFee,
+        accounts: WithdrawWithheldTokensFromMintForConfidentialTransferFeeInstructionAccounts,
+    },
 }
 
 impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
@@ -234,876 +603,105 @@ impl carbon_core::instruction::InstructionDecoder<'_> for Token2022Decoder {
     fn decode_instruction(
         &self,
         instruction: &solana_instruction::Instruction,
-    ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+    ) -> Option<Self::InstructionType> {
         if instruction.program_id != PROGRAM_ID {
             return None;
         }
 
-        let data = instruction.data.as_slice();
-
-        {
-            if let Some(decoded) = initialize_mint::InitializeMint::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeMint(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = initialize_account::InitializeAccount::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeAccount(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = initialize_multisig::InitializeMultisig::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeMultisig(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = transfer::Transfer::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::Transfer(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = approve::Approve::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::Approve(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = revoke::Revoke::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::Revoke(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = set_authority::SetAuthority::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::SetAuthority(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = mint_to::MintTo::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::MintTo(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = burn::Burn::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::Burn(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = close_account::CloseAccount::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::CloseAccount(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = freeze_account::FreezeAccount::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::FreezeAccount(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = thaw_account::ThawAccount::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::ThawAccount(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = transfer_checked::TransferChecked::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::TransferChecked(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = approve_checked::ApproveChecked::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::ApproveChecked(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = mint_to_checked::MintToChecked::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::MintToChecked(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = burn_checked::BurnChecked::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::BurnChecked(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = initialize_account2::InitializeAccount2::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeAccount2(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = sync_native::SyncNative::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::SyncNative(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = initialize_account3::InitializeAccount3::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeAccount3(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = initialize_multisig2::InitializeMultisig2::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeMultisig2(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = initialize_mint2::InitializeMint2::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeMint2(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = get_account_data_size::GetAccountDataSize::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::GetAccountDataSize(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                initialize_immutable_owner::InitializeImmutableOwner::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeImmutableOwner(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = amount_to_ui_amount::AmountToUiAmount::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::AmountToUiAmount(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = ui_amount_to_amount::UiAmountToAmount::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::UiAmountToAmount(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                initialize_mint_close_authority::InitializeMintCloseAuthority::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeMintCloseAuthority(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                initialize_transfer_fee_config::InitializeTransferFeeConfig::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeTransferFeeConfig(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = transfer_checked_with_fee::TransferCheckedWithFee::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::TransferCheckedWithFee(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                withdraw_withheld_tokens_from_mint::WithdrawWithheldTokensFromMint::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::WithdrawWithheldTokensFromMint(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                withdraw_withheld_tokens_from_accounts::WithdrawWithheldTokensFromAccounts::decode(
-                    data,
-                )
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::WithdrawWithheldTokensFromAccounts(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                harvest_withheld_tokens_to_mint::HarvestWithheldTokensToMint::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::HarvestWithheldTokensToMint(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = set_transfer_fee::SetTransferFee::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::SetTransferFee(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                initialize_confidential_transfer_mint::InitializeConfidentialTransferMint::decode(
-                    data,
-                )
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeConfidentialTransferMint(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                update_confidential_transfer_mint::UpdateConfidentialTransferMint::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::UpdateConfidentialTransferMint(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = configure_confidential_transfer_account::ConfigureConfidentialTransferAccount::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::ConfigureConfidentialTransferAccount(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                approve_confidential_transfer_account::ApproveConfidentialTransferAccount::decode(
-                    data,
-                )
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::ApproveConfidentialTransferAccount(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                empty_confidential_transfer_account::EmptyConfidentialTransferAccount::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::EmptyConfidentialTransferAccount(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = confidential_deposit::ConfidentialDeposit::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::ConfidentialDeposit(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = confidential_withdraw::ConfidentialWithdraw::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::ConfidentialWithdraw(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = confidential_transfer::ConfidentialTransfer::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::ConfidentialTransfer(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                apply_confidential_pending_balance::ApplyConfidentialPendingBalance::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::ApplyConfidentialPendingBalance(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                enable_confidential_credits::EnableConfidentialCredits::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::EnableConfidentialCredits(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                disable_confidential_credits::DisableConfidentialCredits::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::DisableConfidentialCredits(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                enable_non_confidential_credits::EnableNonConfidentialCredits::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::EnableNonConfidentialCredits(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                disable_non_confidential_credits::DisableNonConfidentialCredits::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::DisableNonConfidentialCredits(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                confidential_transfer_with_fee::ConfidentialTransferWithFee::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::ConfidentialTransferWithFee(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                initialize_default_account_state::InitializeDefaultAccountState::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeDefaultAccountState(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                update_default_account_state::UpdateDefaultAccountState::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::UpdateDefaultAccountState(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = reallocate::Reallocate::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::Reallocate(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = enable_memo_transfers::EnableMemoTransfers::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::EnableMemoTransfers(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = disable_memo_transfers::DisableMemoTransfers::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::DisableMemoTransfers(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = create_native_mint::CreateNativeMint::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::CreateNativeMint(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                initialize_non_transferable_mint::InitializeNonTransferableMint::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeNonTransferableMint(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                initialize_interest_bearing_mint::InitializeInterestBearingMint::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeInterestBearingMint(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                update_rate_interest_bearing_mint::UpdateRateInterestBearingMint::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::UpdateRateInterestBearingMint(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = enable_cpi_guard::EnableCpiGuard::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::EnableCpiGuard(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = disable_cpi_guard::DisableCpiGuard::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::DisableCpiGuard(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                initialize_permanent_delegate::InitializePermanentDelegate::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializePermanentDelegate(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = initialize_transfer_hook::InitializeTransferHook::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeTransferHook(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = update_transfer_hook::UpdateTransferHook::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::UpdateTransferHook(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                initialize_confidential_transfer_fee::InitializeConfidentialTransferFee::decode(
-                    data,
-                )
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeConfidentialTransferFee(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee::WithdrawWithheldTokensFromMintForConfidentialTransferFee::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::WithdrawWithheldTokensFromMintForConfidentialTransferFee(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee::WithdrawWithheldTokensFromAccountsForConfidentialTransferFee::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::WithdrawWithheldTokensFromAccountsForConfidentialTransferFee(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = harvest_withheld_tokens_to_mint_for_confidential_transfer_fee::HarvestWithheldTokensToMintForConfidentialTransferFee::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::HarvestWithheldTokensToMintForConfidentialTransferFee(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = enable_harvest_to_mint::EnableHarvestToMint::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::EnableHarvestToMint(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = disable_harvest_to_mint::DisableHarvestToMint::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::DisableHarvestToMint(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = withdraw_excess_lamports::WithdrawExcessLamports::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::WithdrawExcessLamports(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                initialize_metadata_pointer::InitializeMetadataPointer::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeMetadataPointer(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = update_metadata_pointer::UpdateMetadataPointer::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::UpdateMetadataPointer(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = initialize_group_pointer::InitializeGroupPointer::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeGroupPointer(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = update_group_pointer::UpdateGroupPointer::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::UpdateGroupPointer(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                initialize_group_member_pointer::InitializeGroupMemberPointer::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeGroupMemberPointer(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                update_group_member_pointer::UpdateGroupMemberPointer::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::UpdateGroupMemberPointer(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                initialize_scaled_ui_amount_mint::InitializeScaledUiAmountMint::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeScaledUiAmountMint(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                update_multiplier_scaled_ui_mint::UpdateMultiplierScaledUiMint::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::UpdateMultiplierScaledUiMint(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                initialize_pausable_config::InitializePausableConfig::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializePausableConfig(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = pause::Pause::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::Pause(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = resume::Resume::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::Resume(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = initialize_token_metadata::InitializeTokenMetadata::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeTokenMetadata(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                update_token_metadata_field::UpdateTokenMetadataField::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::UpdateTokenMetadataField(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = remove_token_metadata_key::RemoveTokenMetadataKey::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::RemoveTokenMetadataKey(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                update_token_metadata_update_authority::UpdateTokenMetadataUpdateAuthority::decode(
-                    data,
-                )
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::UpdateTokenMetadataUpdateAuthority(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = emit_token_metadata::EmitTokenMetadata::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::EmitTokenMetadata(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = initialize_token_group::InitializeTokenGroup::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeTokenGroup(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                update_token_group_max_size::UpdateTokenGroupMaxSize::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::UpdateTokenGroupMaxSize(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                update_token_group_update_authority::UpdateTokenGroupUpdateAuthority::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::UpdateTokenGroupUpdateAuthority(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                initialize_token_group_member::InitializeTokenGroupMember::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: Token2022Instruction::InitializeTokenGroupMember(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            Token2022Instruction::AmountToUiAmount => AmountToUiAmount,
+            Token2022Instruction::ApplyConfidentialPendingBalance => ApplyConfidentialPendingBalance,
+            Token2022Instruction::Approve => Approve,
+            Token2022Instruction::ApproveChecked => ApproveChecked,
+            Token2022Instruction::ApproveConfidentialTransferAccount => ApproveConfidentialTransferAccount,
+            Token2022Instruction::Burn => Burn,
+            Token2022Instruction::BurnChecked => BurnChecked,
+            Token2022Instruction::CloseAccount => CloseAccount,
+            Token2022Instruction::ConfidentialDeposit => ConfidentialDeposit,
+            Token2022Instruction::ConfidentialTransfer => ConfidentialTransfer,
+            Token2022Instruction::ConfidentialTransferWithFee => ConfidentialTransferWithFee,
+            Token2022Instruction::ConfidentialWithdraw => ConfidentialWithdraw,
+            Token2022Instruction::ConfigureConfidentialTransferAccount => ConfigureConfidentialTransferAccount,
+            Token2022Instruction::CreateNativeMint => CreateNativeMint,
+            Token2022Instruction::DisableConfidentialCredits => DisableConfidentialCredits,
+            Token2022Instruction::DisableCpiGuard => DisableCpiGuard,
+            Token2022Instruction::DisableHarvestToMint => DisableHarvestToMint,
+            Token2022Instruction::DisableMemoTransfers => DisableMemoTransfers,
+            Token2022Instruction::DisableNonConfidentialCredits => DisableNonConfidentialCredits,
+            Token2022Instruction::EmitTokenMetadata => EmitTokenMetadata,
+            Token2022Instruction::EmptyConfidentialTransferAccount => EmptyConfidentialTransferAccount,
+            Token2022Instruction::EnableConfidentialCredits => EnableConfidentialCredits,
+            Token2022Instruction::EnableCpiGuard => EnableCpiGuard,
+            Token2022Instruction::EnableHarvestToMint => EnableHarvestToMint,
+            Token2022Instruction::EnableMemoTransfers => EnableMemoTransfers,
+            Token2022Instruction::EnableNonConfidentialCredits => EnableNonConfidentialCredits,
+            Token2022Instruction::FreezeAccount => FreezeAccount,
+            Token2022Instruction::GetAccountDataSize => GetAccountDataSize,
+            Token2022Instruction::HarvestWithheldTokensToMint => HarvestWithheldTokensToMint,
+            Token2022Instruction::HarvestWithheldTokensToMintForConfidentialTransferFee => HarvestWithheldTokensToMintForConfidentialTransferFee,
+            Token2022Instruction::InitializeAccount => InitializeAccount,
+            Token2022Instruction::InitializeAccount2 => InitializeAccount2,
+            Token2022Instruction::InitializeAccount3 => InitializeAccount3,
+            Token2022Instruction::InitializeConfidentialTransferFee => InitializeConfidentialTransferFee,
+            Token2022Instruction::InitializeConfidentialTransferMint => InitializeConfidentialTransferMint,
+            Token2022Instruction::InitializeDefaultAccountState => InitializeDefaultAccountState,
+            Token2022Instruction::InitializeGroupMemberPointer => InitializeGroupMemberPointer,
+            Token2022Instruction::InitializeGroupPointer => InitializeGroupPointer,
+            Token2022Instruction::InitializeImmutableOwner => InitializeImmutableOwner,
+            Token2022Instruction::InitializeInterestBearingMint => InitializeInterestBearingMint,
+            Token2022Instruction::InitializeMetadataPointer => InitializeMetadataPointer,
+            Token2022Instruction::InitializeMint => InitializeMint,
+            Token2022Instruction::InitializeMint2 => InitializeMint2,
+            Token2022Instruction::InitializeMintCloseAuthority => InitializeMintCloseAuthority,
+            Token2022Instruction::InitializeMultisig => InitializeMultisig,
+            Token2022Instruction::InitializeMultisig2 => InitializeMultisig2,
+            Token2022Instruction::InitializeNonTransferableMint => InitializeNonTransferableMint,
+            Token2022Instruction::InitializePausableConfig => InitializePausableConfig,
+            Token2022Instruction::InitializePermanentDelegate => InitializePermanentDelegate,
+            Token2022Instruction::InitializePermissionedBurn => InitializePermissionedBurn,
+            Token2022Instruction::InitializeScaledUiAmountMint => InitializeScaledUiAmountMint,
+            Token2022Instruction::InitializeTokenGroup => InitializeTokenGroup,
+            Token2022Instruction::InitializeTokenGroupMember => InitializeTokenGroupMember,
+            Token2022Instruction::InitializeTokenMetadata => InitializeTokenMetadata,
+            Token2022Instruction::InitializeTransferFeeConfig => InitializeTransferFeeConfig,
+            Token2022Instruction::InitializeTransferHook => InitializeTransferHook,
+            Token2022Instruction::MintTo => MintTo,
+            Token2022Instruction::MintToChecked => MintToChecked,
+            Token2022Instruction::Pause => Pause,
+            Token2022Instruction::PermissionedBurn => PermissionedBurn,
+            Token2022Instruction::PermissionedBurnChecked => PermissionedBurnChecked,
+            Token2022Instruction::Reallocate => Reallocate,
+            Token2022Instruction::RemoveTokenMetadataKey => RemoveTokenMetadataKey,
+            Token2022Instruction::Resume => Resume,
+            Token2022Instruction::Revoke => Revoke,
+            Token2022Instruction::SetAuthority => SetAuthority,
+            Token2022Instruction::SetTransferFee => SetTransferFee,
+            Token2022Instruction::SyncNative => SyncNative,
+            Token2022Instruction::ThawAccount => ThawAccount,
+            Token2022Instruction::Transfer => Transfer,
+            Token2022Instruction::TransferChecked => TransferChecked,
+            Token2022Instruction::TransferCheckedWithFee => TransferCheckedWithFee,
+            Token2022Instruction::UiAmountToAmount => UiAmountToAmount,
+            Token2022Instruction::UnwrapLamports => UnwrapLamports,
+            Token2022Instruction::UpdateConfidentialTransferMint => UpdateConfidentialTransferMint,
+            Token2022Instruction::UpdateDefaultAccountState => UpdateDefaultAccountState,
+            Token2022Instruction::UpdateGroupMemberPointer => UpdateGroupMemberPointer,
+            Token2022Instruction::UpdateGroupPointer => UpdateGroupPointer,
+            Token2022Instruction::UpdateMetadataPointer => UpdateMetadataPointer,
+            Token2022Instruction::UpdateMultiplierScaledUiMint => UpdateMultiplierScaledUiMint,
+            Token2022Instruction::UpdateRateInterestBearingMint => UpdateRateInterestBearingMint,
+            Token2022Instruction::UpdateTokenGroupMaxSize => UpdateTokenGroupMaxSize,
+            Token2022Instruction::UpdateTokenGroupUpdateAuthority => UpdateTokenGroupUpdateAuthority,
+            Token2022Instruction::UpdateTokenMetadataField => UpdateTokenMetadataField,
+            Token2022Instruction::UpdateTokenMetadataUpdateAuthority => UpdateTokenMetadataUpdateAuthority,
+            Token2022Instruction::UpdateTransferHook => UpdateTransferHook,
+            Token2022Instruction::WithdrawExcessLamports => WithdrawExcessLamports,
+            Token2022Instruction::WithdrawWithheldTokensFromAccounts => WithdrawWithheldTokensFromAccounts,
+            Token2022Instruction::WithdrawWithheldTokensFromAccountsForConfidentialTransferFee => WithdrawWithheldTokensFromAccountsForConfidentialTransferFee,
+            Token2022Instruction::WithdrawWithheldTokensFromMint => WithdrawWithheldTokensFromMint,
+            Token2022Instruction::WithdrawWithheldTokensFromMintForConfidentialTransferFee => WithdrawWithheldTokensFromMintForConfidentialTransferFee,
+        )
     }
 }

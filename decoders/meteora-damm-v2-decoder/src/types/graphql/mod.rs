@@ -29,6 +29,7 @@ pub mod evt_lock_position_schema;
 pub mod evt_permanent_lock_position_schema;
 pub mod evt_set_pool_status_schema;
 pub mod evt_split_position2_schema;
+pub mod evt_split_position3_schema;
 pub mod evt_swap2_schema;
 pub mod evt_update_pool_fees_schema;
 pub mod evt_update_reward_duration_schema;
@@ -36,6 +37,7 @@ pub mod evt_update_reward_funder_schema;
 pub mod evt_withdraw_ineligible_reward_schema;
 pub mod initialize_customizable_pool_parameters_schema;
 pub mod initialize_pool_parameters_schema;
+pub mod inner_vesting_schema;
 pub mod pool_fee_parameters_schema;
 pub mod pool_fees_config_schema;
 pub mod pool_fees_struct_schema;
@@ -43,9 +45,12 @@ pub mod pool_metrics_schema;
 pub mod position_metrics_schema;
 pub mod remove_liquidity_parameters_schema;
 pub mod reward_info_schema;
+pub mod split_amount_info2_schema;
 pub mod split_amount_info_schema;
+pub mod split_position_info2_schema;
 pub mod split_position_info_schema;
 pub mod split_position_parameters2_schema;
+pub mod split_position_parameters3_schema;
 pub mod split_position_parameters_schema;
 pub mod static_config_parameters_schema;
 pub mod swap_parameters2_schema;
@@ -67,15 +72,17 @@ pub use {
     evt_create_position_schema::*, evt_create_token_badge_schema::*, evt_fund_reward_schema::*,
     evt_initialize_pool_schema::*, evt_initialize_reward_schema::*, evt_liquidity_change_schema::*,
     evt_lock_position_schema::*, evt_permanent_lock_position_schema::*,
-    evt_set_pool_status_schema::*, evt_split_position2_schema::*, evt_swap2_schema::*,
-    evt_update_pool_fees_schema::*, evt_update_reward_duration_schema::*,
+    evt_set_pool_status_schema::*, evt_split_position2_schema::*, evt_split_position3_schema::*,
+    evt_swap2_schema::*, evt_update_pool_fees_schema::*, evt_update_reward_duration_schema::*,
     evt_update_reward_funder_schema::*, evt_withdraw_ineligible_reward_schema::*,
     initialize_customizable_pool_parameters_schema::*, initialize_pool_parameters_schema::*,
-    pool_fee_parameters_schema::*, pool_fees_config_schema::*, pool_fees_struct_schema::*,
-    pool_metrics_schema::*, position_metrics_schema::*, remove_liquidity_parameters_schema::*,
-    reward_info_schema::*, split_amount_info_schema::*, split_position_info_schema::*,
-    split_position_parameters2_schema::*, split_position_parameters_schema::*,
-    static_config_parameters_schema::*, swap_parameters2_schema::*, swap_parameters_schema::*,
-    swap_result2_schema::*, update_pool_fees_parameters_schema::*, user_reward_info_schema::*,
+    inner_vesting_schema::*, pool_fee_parameters_schema::*, pool_fees_config_schema::*,
+    pool_fees_struct_schema::*, pool_metrics_schema::*, position_metrics_schema::*,
+    remove_liquidity_parameters_schema::*, reward_info_schema::*, split_amount_info2_schema::*,
+    split_amount_info_schema::*, split_position_info2_schema::*, split_position_info_schema::*,
+    split_position_parameters2_schema::*, split_position_parameters3_schema::*,
+    split_position_parameters_schema::*, static_config_parameters_schema::*,
+    swap_parameters2_schema::*, swap_parameters_schema::*, swap_result2_schema::*,
+    update_pool_fees_parameters_schema::*, user_reward_info_schema::*,
     vesting_parameters_schema::*,
 };

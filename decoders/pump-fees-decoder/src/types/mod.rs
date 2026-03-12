@@ -23,23 +23,12 @@ pub mod update_fee_config_event;
 pub mod update_fee_shares_event;
 pub mod upsert_fee_tiers_event;
 
-pub use self::config_status::*;
-pub use self::create_fee_sharing_config_event::*;
-pub use self::fee_tier::*;
-pub use self::fees::*;
-pub use self::initialize_fee_config_event::*;
-pub use self::initialize_fee_program_global_event::*;
-pub use self::reset_fee_sharing_config_event::*;
-pub use self::revoke_fee_sharing_authority_event::*;
-pub use self::set_authority_event::*;
-pub use self::set_claim_rate_limit_event::*;
-pub use self::set_disable_flags_event::*;
-pub use self::set_social_claim_authority_event::*;
-pub use self::shareholder::*;
-pub use self::social_fee_pda_claimed::*;
-pub use self::social_fee_pda_created::*;
-pub use self::transfer_fee_sharing_authority_event::*;
-pub use self::update_admin_event::*;
-pub use self::update_fee_config_event::*;
-pub use self::update_fee_shares_event::*;
-pub use self::upsert_fee_tiers_event::*;
+pub use self::{
+    config_status::*, create_fee_sharing_config_event::*, fee_tier::*, fees::*,
+    initialize_fee_config_event::*, initialize_fee_program_global_event::*,
+    reset_fee_sharing_config_event::*, revoke_fee_sharing_authority_event::*,
+    set_authority_event::*, set_claim_rate_limit_event::*, set_disable_flags_event::*,
+    set_social_claim_authority_event::*, shareholder::*, social_fee_pda_claimed::*,
+    social_fee_pda_created::*, transfer_fee_sharing_authority_event::*, update_admin_event::*,
+    update_fee_config_event::*, update_fee_shares_event::*, upsert_fee_tiers_event::*,
+};

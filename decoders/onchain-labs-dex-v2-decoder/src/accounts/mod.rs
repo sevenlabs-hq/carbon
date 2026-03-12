@@ -7,10 +7,14 @@ pub mod postgres;
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
+pub mod token_ledger;
+
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
-pub enum OnchainLabsDexV2Account {}
+pub enum OnchainLabsDexV2Account {
+    TokenLedger(Box<token_ledger::TokenLedger>),
+}
 
 impl<'a> carbon_core::account::AccountDecoder<'a> for OnchainLabsDexV2Decoder {
     type AccountType = OnchainLabsDexV2Account;
@@ -23,7 +27,19 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for OnchainLabsDexV2Decoder {
             return None;
         }
 
-        let _data = account.data.as_slice();
+        let data = account.data.as_slice();
+
+        {
+            if let Some(decoded) = token_ledger::TokenLedger::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: OnchainLabsDexV2Account::TokenLedger(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
 
         None
     }

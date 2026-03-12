@@ -7,7 +7,7 @@ use {
     carbon_core::{
         datasource::{Datasource, TransactionUpdate, Update, UpdateType},
         error::CarbonResult,
-        metrics::MetricsCollection,
+        metrics::{Counter, Histogram, MetricsRegistry},
         transformers::transaction_metadata_from_original_meta,
     },
     futures::StreamExt,
@@ -15,7 +15,7 @@ use {
     solana_commitment_config::CommitmentConfig,
     solana_transaction_status::UiConfirmedBlock,
     std::{
-        sync::Arc,
+        sync::{Arc, LazyLock},
         time::{Duration, Instant},
     },
     tokio::{
@@ -28,6 +28,76 @@ use {
 const CHANNEL_BUFFER_SIZE: usize = 1000;
 const MAX_CONCURRENT_REQUESTS: usize = 10;
 const BLOCK_INTERVAL: Duration = Duration::from_millis(100);
+
+static BLOCKS_FETCH_TIMES_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "block_crawler_blocks_fetch_times_milliseconds",
+        "Time to fetch block in milliseconds",
+        vec![1.0, 10.0, 50.0, 100.0, 500.0, 1000.0, 5000.0],
+    )
+});
+static BLOCKS_FETCHED: Counter = Counter::new(
+    "block_crawler_blocks_fetched_total",
+    "Blocks fetched by block crawler",
+);
+static BLOCKS_SKIPPED: Counter = Counter::new(
+    "block_crawler_blocks_skipped_total",
+    "Blocks skipped by block crawler",
+);
+static BLOCKS_RECEIVED: Counter = Counter::new(
+    "block_crawler_blocks_received_total",
+    "Blocks received by task processor",
+);
+static TRANSACTION_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "block_crawler_transaction_process_time_nanoseconds",
+        "Time to process transaction in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
+static TRANSACTIONS_PROCESSED: Counter = Counter::new(
+    "block_crawler_transactions_processed_total",
+    "Transactions processed by block crawler",
+);
+static BLOCK_PROCESS_TIME_NANOS: LazyLock<Histogram> = LazyLock::new(|| {
+    Histogram::new(
+        "block_crawler_block_process_time_nanoseconds",
+        "Time to process block in nanoseconds",
+        vec![
+            1_000.0,
+            10_000.0,
+            100_000.0,
+            1_000_000.0,
+            10_000_000.0,
+            100_000_000.0,
+            1_000_000_000.0,
+        ],
+    )
+});
+static BLOCKS_PROCESSED: Counter = Counter::new(
+    "block_crawler_blocks_processed_total",
+    "Blocks processed by block crawler",
+);
+
+fn register_block_crawler_metrics() {
+    let registry = MetricsRegistry::global();
+    registry.register_counter(&BLOCKS_FETCHED);
+    registry.register_counter(&BLOCKS_SKIPPED);
+    registry.register_counter(&BLOCKS_RECEIVED);
+    registry.register_counter(&TRANSACTIONS_PROCESSED);
+    registry.register_counter(&BLOCKS_PROCESSED);
+    registry.register_histogram(&BLOCKS_FETCH_TIMES_MILLIS);
+    registry.register_histogram(&TRANSACTION_PROCESS_TIME_NANOS);
+    registry.register_histogram(&BLOCK_PROCESS_TIME_NANOS);
+}
 
 /// RpcBlockCrawler is a datasource that crawls the Solana blockchain for blocks and sends them to the sender.
 /// It uses a channel to send blocks to the task processor.
@@ -70,8 +140,8 @@ impl Datasource for RpcBlockCrawler {
         id: DatasourceId,
         sender: Sender<(Update, DatasourceId)>,
         cancellation_token: CancellationToken,
-        metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
+        register_block_crawler_metrics();
         let rpc_client = Arc::new(RpcClient::new_with_commitment(
             self.rpc_url.clone(),
             self.block_config
@@ -89,16 +159,9 @@ impl Datasource for RpcBlockCrawler {
             block_sender,
             self.max_concurrent_requests,
             cancellation_token.clone(),
-            metrics.clone(),
         );
 
-        let task_processor = task_processor(
-            block_receiver,
-            sender,
-            id,
-            cancellation_token.clone(),
-            metrics.clone(),
-        );
+        let task_processor = task_processor(block_receiver, sender, id, cancellation_token.clone());
 
         tokio::spawn(async move {
             tokio::select! {
@@ -125,7 +188,6 @@ fn block_fetcher(
     block_sender: Sender<(u64, UiConfirmedBlock)>,
     max_concurrent_requests: usize,
     cancellation_token: CancellationToken,
-    metrics: Arc<MetricsCollection>,
 ) -> JoinHandle<()> {
     let rpc_client_clone = rpc_client.clone();
     tokio::spawn(async move {
@@ -175,30 +237,14 @@ fn block_fetcher(
             fetch_stream
                 .map(|slot| {
                     let rpc_client = Arc::clone(&rpc_client);
-                    let metrics = metrics.clone();
 
                     async move {
                         let start = Instant::now();
                         match rpc_client.get_block_with_config(slot, block_config).await {
                             Ok(block) => {
                                 let time_taken = start.elapsed().as_millis();
-                                metrics
-                                    .record_histogram(
-                                        "block_crawler_blocks_fetch_times_milliseconds",
-                                        time_taken as f64,
-                                    )
-                                    .await
-                                    .unwrap_or_else(|value| {
-                                        log::error!("Error recording metric: {value}")
-                                    });
-
-                                metrics
-                                    .increment_counter("block_crawler_blocks_fetched", 1)
-                                    .await
-                                    .unwrap_or_else(|value| {
-                                        log::error!("Error recording metric: {value}")
-                                    });
-
+                                BLOCKS_FETCH_TIMES_MILLIS.record(time_taken as f64);
+                                BLOCKS_FETCHED.inc();
                                 Some((slot, block))
                             }
                             Err(e) => {
@@ -211,12 +257,7 @@ fn block_fetcher(
                                     || e.to_string().contains("-32004")
                                     || e.to_string().contains("-32007")
                                 {
-                                    metrics
-                                        .increment_counter("block_crawler_blocks_skipped", 1)
-                                        .await
-                                        .unwrap_or_else(|value| {
-                                            log::error!("Error recording metric: {value}")
-                                        });
+                                    BLOCKS_SKIPPED.inc();
                                 } else {
                                     log::error!("Error fetching block at slot {slot}: {e:?}");
                                 }
@@ -251,7 +292,6 @@ fn task_processor(
     sender: Sender<(Update, DatasourceId)>,
     id: DatasourceId,
     cancellation_token: CancellationToken,
-    metrics: Arc<MetricsCollection>,
 ) -> JoinHandle<()> {
     let mut block_receiver = block_receiver;
     let sender = sender.clone();
@@ -267,13 +307,7 @@ fn task_processor(
             maybe_block = block_receiver.recv() => {
                 match maybe_block {
                     Some((slot, block)) => {
-
-                        metrics
-                            .increment_counter("block_crawler_blocks_received", 1)
-                            .await
-                            .unwrap_or_else(|value| {
-                                log::error!("Error recording metric: {value}")
-                            });
+                        BLOCKS_RECEIVED.inc();
                         let block_start_time = Instant::now();
                         let block_hash = Hash::from_str(&block.blockhash).ok();
                         if let Some(transactions) = block.transactions {
@@ -311,17 +345,8 @@ fn task_processor(
                                     block_hash,
                                 }));
 
-                                metrics
-                                    .record_histogram(
-                                        "block_crawler_transaction_process_time_nanoseconds",
-                                        start_time.elapsed().as_nanos() as f64
-                                    )
-                                    .await
-                                    .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
-
-                                metrics.increment_counter("block_crawler_transactions_processed", 1)
-                                    .await
-                                    .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
+                                TRANSACTION_PROCESS_TIME_NANOS.record(start_time.elapsed().as_nanos() as f64);
+                                TRANSACTIONS_PROCESSED.inc();
 
                                 if let Err(err) = sender.try_send((update, id_for_loop.clone())) {
                                     log::error!("Error sending transaction update: {err:?}");
@@ -329,17 +354,8 @@ fn task_processor(
                                 }
                             }
                         }
-                        metrics
-                            .record_histogram(
-                                "block_crawler_block_process_time_nanoseconds",
-                                block_start_time.elapsed().as_nanos() as f64
-                            ).await
-                            .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
-
-                        metrics
-                            .increment_counter("block_crawler_blocks_processed", 1)
-                            .await
-                            .unwrap_or_else(|value| log::error!("Error recording metric: {value}"));
+                        BLOCK_PROCESS_TIME_NANOS.record(block_start_time.elapsed().as_nanos() as f64);
+                        BLOCKS_PROCESSED.inc();
                     }
                     None => {
                         break;
@@ -379,7 +395,6 @@ mod tests {
             block_sender,
             1,
             cancellation_token.clone(),
-            Arc::new(MetricsCollection::new(vec![])),
         );
 
         // Create a task to receive blocks
@@ -460,7 +475,6 @@ mod tests {
             block_sender,
             2,
             cancellation_token.clone(),
-            Arc::new(MetricsCollection::new(vec![])),
         );
 
         // Create a task to receive blocks

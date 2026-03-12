@@ -17,7 +17,9 @@ pub struct VestingParametersGraphQL {
 impl From<crate::types::VestingParameters> for VestingParametersGraphQL {
     fn from(original: crate::types::VestingParameters) -> Self {
         Self {
-            cliff_point: original.cliff_point.map(U64),
+            cliff_point: original
+                .cliff_point
+                .map(carbon_core::graphql::primitives::U64),
             period_frequency: carbon_core::graphql::primitives::U64(original.period_frequency),
             cliff_unlock_liquidity: carbon_core::graphql::primitives::U128(
                 original.cliff_unlock_liquidity,

@@ -10,6 +10,7 @@ export type RenderOptions = GetRenderMapOptions & {
         discriminator: number[];
     }[];
     postgresMode?: 'generic' | 'typed';
+    versionName?: string;
 };
 
 export function renderVisitor(path: string, options: RenderOptions = {}) {

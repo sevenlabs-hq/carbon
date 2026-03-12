@@ -6,14 +6,12 @@ pub mod global_volume_accumulator_schema;
 pub mod sharing_config_schema;
 pub mod user_volume_accumulator_schema;
 
-pub use bonding_curve_schema::*;
-pub use fee_config_schema::*;
-pub use global_schema::*;
-pub use global_volume_accumulator_schema::*;
-pub use sharing_config_schema::*;
-pub use user_volume_accumulator_schema::*;
-
 use juniper::GraphQLObject;
+pub use {
+    bonding_curve_schema::*, fee_config_schema::*, global_schema::*,
+    global_volume_accumulator_schema::*, sharing_config_schema::*,
+    user_volume_accumulator_schema::*,
+};
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "AccountMetadata")]

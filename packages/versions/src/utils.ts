@@ -7,14 +7,35 @@ import type { CrateDependency } from './index';
  * @param dependency - The dependency definition (string or object)
  * @param additionalFeatures - Optional features to add/override
  * @param optional - Whether the dependency should be marked as optional
- * @returns TOML-formatted string like: `crate = { git = "...", rev = "..." }`
+ * @param workspaceDeps - Whether to use workspace = true instead of version strings
+ * @returns TOML-formatted string like: `crate = { git = "...", rev = "..." }` or `crate = { workspace = true }`
  */
 export function getCrateDependencyString(
     crateName: string,
     dependency: CrateDependency,
     additionalFeatures?: string[],
     optional?: boolean,
+    workspaceDeps?: boolean,
 ): string {
+    if (workspaceDeps) {
+        const parts: string[] = ['workspace = true'];
+
+        const allFeatures = [
+            ...(typeof dependency === 'object' ? dependency.features || [] : []),
+            ...(additionalFeatures || []),
+        ];
+        if (allFeatures.length > 0) {
+            const featuresStr = allFeatures.map(f => `"${f}"`).join(', ');
+            parts.push(`features = [${featuresStr}]`);
+        }
+
+        if (optional) {
+            parts.push('optional = true');
+        }
+
+        return `${crateName} = { ${parts.join(', ')} }`;
+    }
+
     if (typeof dependency === 'string') {
         if (optional || (additionalFeatures && additionalFeatures.length > 0)) {
             const parts: string[] = [`version = "${dependency}"`];

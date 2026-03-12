@@ -9,7 +9,6 @@ carbon-validator-snapshot-datasource = { workspace = true }
 carbon-log-metrics = { workspace = true }
 solana-account = { workspace = true }
 solana-pubkey = { workspace = true }
-async-trait = { workspace = true }
 dotenv = { workspace = true }
 env_logger = { workspace = true }
 log = { workspace = true }

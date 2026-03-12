@@ -13,7 +13,7 @@ impl From<crate::types::LogUpdateAuths> for LogUpdateAuthsGraphQL {
             auth_status: original
                 .auth_status
                 .into_iter()
-                .map(AddressBoolGraphQL::from)
+                .map(|item| item.into())
                 .collect(),
         }
     }

@@ -9,15 +9,18 @@ use {
 /// instructions:
 /// - `VerifyCiphertextCommitmentEquality`
 /// - `VerifyBatchedGroupedCiphertext3HandlesValidity` (transfer amount
-///   ciphertext)
+///
+/// ciphertext)
 /// - `VerifyPercentageWithFee`
 /// - `VerifyBatchedGroupedCiphertext2HandlesValidity` (fee ciphertext)
-/// - `VerifyBatchedRangeProofU256` These instructions can be accompanied in the
-///   same transaction or can be pre-verified into a context state account, in
-///   which case, only their context state account addresses need to be
-///   provided. The same restrictions for the `Transfer` applies to
-///   `TransferWithFee`. Namely, the instruction fails if the associated mint is
-///   extended as `NonTransferable`.
+/// - `VerifyBatchedRangeProofU256`
+///
+/// These instructions can be accompanied in the same transaction or can be
+/// pre-verified into a context state account, in which case, only their
+/// context state account addresses need to be provided.
+/// The same restrictions for the `Transfer` applies to
+/// `TransferWithFee`. Namely, the instruction fails if the
+/// associated mint is extended as `NonTransferable`.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct ConfidentialTransferWithFee {

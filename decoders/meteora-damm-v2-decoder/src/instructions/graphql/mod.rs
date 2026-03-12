@@ -15,11 +15,14 @@ pub mod create_operator_account_schema;
 pub mod create_position_schema;
 pub mod create_token_badge_schema;
 pub mod dummy_ix_schema;
+pub mod fix_config_fee_params_schema;
+pub mod fix_pool_fee_params_schema;
 pub mod fund_reward_schema;
 pub mod initialize_customizable_pool_schema;
 pub mod initialize_pool_schema;
 pub mod initialize_pool_with_dynamic_config_schema;
 pub mod initialize_reward_schema;
+pub mod lock_inner_position_schema;
 pub mod lock_position_schema;
 pub mod permanent_lock_position_schema;
 pub mod refresh_vesting_schema;
@@ -34,6 +37,7 @@ pub mod update_pool_fees_schema;
 pub mod update_reward_duration_schema;
 pub mod update_reward_funder_schema;
 pub mod withdraw_ineligible_reward_schema;
+pub mod zap_protocol_fee_schema;
 
 use juniper::GraphQLObject;
 pub use {
@@ -42,13 +46,15 @@ pub use {
     close_operator_account_schema::*, close_position_schema::*, close_token_badge_schema::*,
     cpi_event_schema::*, create_config_schema::*, create_dynamic_config_schema::*,
     create_operator_account_schema::*, create_position_schema::*, create_token_badge_schema::*,
-    dummy_ix_schema::*, fund_reward_schema::*, initialize_customizable_pool_schema::*,
-    initialize_pool_schema::*, initialize_pool_with_dynamic_config_schema::*,
-    initialize_reward_schema::*, lock_position_schema::*, permanent_lock_position_schema::*,
+    dummy_ix_schema::*, fix_config_fee_params_schema::*, fix_pool_fee_params_schema::*,
+    fund_reward_schema::*, initialize_customizable_pool_schema::*, initialize_pool_schema::*,
+    initialize_pool_with_dynamic_config_schema::*, initialize_reward_schema::*,
+    lock_inner_position_schema::*, lock_position_schema::*, permanent_lock_position_schema::*,
     refresh_vesting_schema::*, remove_all_liquidity_schema::*, remove_liquidity_schema::*,
     set_pool_status_schema::*, split_position2_schema::*, split_position_schema::*,
     swap2_schema::*, swap_schema::*, update_pool_fees_schema::*, update_reward_duration_schema::*,
     update_reward_funder_schema::*, withdraw_ineligible_reward_schema::*,
+    zap_protocol_fee_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

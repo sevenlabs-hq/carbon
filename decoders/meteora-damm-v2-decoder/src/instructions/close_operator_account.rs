@@ -8,7 +8,7 @@ pub struct CloseOperatorAccount {}
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct CloseOperatorAccountInstructionAccounts {
     pub operator: solana_pubkey::Pubkey,
-    pub admin: solana_pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
     pub rent_receiver: solana_pubkey::Pubkey,
     pub event_authority: solana_pubkey::Pubkey,
     pub program: solana_pubkey::Pubkey,
@@ -42,7 +42,7 @@ impl ArrangeAccounts for CloseOperatorAccount {
         let mut iter = accounts.iter();
 
         let operator = next_account(&mut iter)?;
-        let admin = next_account(&mut iter)?;
+        let signer = next_account(&mut iter)?;
         let rent_receiver = next_account(&mut iter)?;
         let event_authority = next_account(&mut iter)?;
         let program = next_account(&mut iter)?;
@@ -51,7 +51,7 @@ impl ArrangeAccounts for CloseOperatorAccount {
 
         Some(CloseOperatorAccountInstructionAccounts {
             operator,
-            admin,
+            signer,
             rent_receiver,
             event_authority,
             program,

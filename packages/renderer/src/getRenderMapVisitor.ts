@@ -25,7 +25,12 @@ import { partition, render } from './utils';
 import { isToken2022Program } from './utils/helpers';
 import { getPostgresTypeManifestVisitor, PostgresTypeManifest } from './getPostgresTypeManifestVisitor';
 import { FlattenedGraphQLField, flattenTypeForGraphQL } from './utils/flattenGraphqlFields';
-import { generateDecoderCargoToml } from './cargoTomlGenerator';
+import {
+    generateDecoderCargoToml,
+    getReadmeDisplayName,
+    hasPackageMetadata,
+    type PackageMetadata,
+} from './cargoTomlGenerator';
 import { formatDocComments } from './utils/render';
 
 export type GetRenderMapOptions = {
@@ -41,6 +46,10 @@ export type GetRenderMapOptions = {
     withSerde?: boolean;
     withBase58?: boolean;
     standalone?: boolean;
+    workspaceDeps?: boolean;
+    packageMetadata?: PackageMetadata;
+    version?: string;
+    versionName?: string;
 };
 
 type FlattenedField = {
@@ -92,8 +101,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
         }
         if (isNode(typeNode, 'enumTypeNode')) {
             return typeNode.variants.some(variant => {
-                if (variant.kind === 'enumStructVariantTypeNode' && 'fields' in variant) {
-                    return (variant as any).fields.some((field: any) => checkRequiresBigArray(field.type));
+                const v = variant as any;
+                if (v.kind === 'enumStructVariantTypeNode') {
+                    const fields = v.fields ?? v.struct?.fields;
+                    return Array.isArray(fields) && fields.some((field: any) => checkRequiresBigArray(field.type));
+                }
+                if (v.kind === 'enumTupleVariantTypeNode' && v.tuple?.items) {
+                    return v.tuple.items.some((item: any) => checkRequiresBigArray(item));
                 }
                 return false;
             });
@@ -238,7 +252,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         // GraphQLObject doesn't support empty structs
                         if (graphqlFields.length > 0) {
                             const schemaTemplate =
-                                options.postgresMode === 'generic'
+                                options.postgresMode === 'generic' || options.withPostgres === false
                                     ? 'graphqlSchemaPageGeneric.njk'
                                     : 'graphqlSchemaPage.njk';
                             renderMap.add(
@@ -616,7 +630,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         // Instructions without arguments will only have instruction_metadata field
                         instructionsWithGraphQLSchemas.add(node.name);
                         const schemaTemplate =
-                            options.postgresMode === 'generic'
+                            options.postgresMode === 'generic' || options.withPostgres === false
                                 ? 'graphqlSchemaPageGeneric.njk'
                                 : 'graphqlSchemaPage.njk';
                         renderMap.add(
@@ -744,7 +758,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                     }
                     if (options.withGraphql !== false) {
                         const accountsGraphqlTemplate =
-                            options.postgresMode === 'generic'
+                            options.postgresMode === 'generic' || options.withPostgres === false
                                 ? 'accountsGraphqlModGeneric.njk'
                                 : 'accountsGraphqlMod.njk';
                         const accountsGraphqlImports = new ImportMap().add('juniper::GraphQLObject');
@@ -766,7 +780,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         }
                         if (options.withGraphql !== false) {
                             const instructionsGraphqlTemplate =
-                                options.postgresMode === 'generic'
+                                options.postgresMode === 'generic' || options.withPostgres === false
                                     ? 'instructionsGraphqlModGeneric.njk'
                                     : 'instructionsGraphqlMod.njk';
                             const instructionsGraphqlImports = new ImportMap().add('juniper::GraphQLObject');
@@ -808,7 +822,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         }
                         if (options.withGraphql !== false) {
                             const cpiEventSchemaTemplate =
-                                options.postgresMode === 'generic'
+                                options.postgresMode === 'generic' || options.withPostgres === false
                                     ? 'eventInstructionGraphqlSchemaPageGeneric.njk'
                                     : 'eventInstructionGraphqlSchemaPage.njk';
                             const cpiEventSchemaImports = new ImportMap()
@@ -838,7 +852,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                         // Check if there are actually any GraphQL fields to generate
                         const hasAccountsWithFields =
-                            options.postgresMode === 'generic'
+                            options.postgresMode === 'generic' || options.withPostgres === false
                                 ? accountsToExport.length > 0
                                 : accountsToExport.some(
                                       acc => acc.data.kind === 'structTypeNode' && acc.data.fields.length > 0,
@@ -851,8 +865,9 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
 
                         // Only generate query.rs if there are GraphQL fields to expose
                         if (hasActualGraphQLFields) {
-                            // Use different query template based on postgres mode
-                            if (options.postgresMode === 'generic') {
+                            // Use generic query template when postgres mode is generic or when postgres is disabled
+                            // (typed template needs per-instruction/account postgres rows which are only generated with postgres)
+                            if (options.postgresMode === 'generic' || options.withPostgres === false) {
                                 const graphqlQueryGenericImports = new ImportMap().add(
                                     'juniper::{graphql_object, FieldResult}',
                                 );
@@ -892,14 +907,27 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         packageName: options.packageName,
                         programName: programName,
                         originalProgramName: originalProgramName, // Pass original program name for token-2022 checks
+                        version: options.version,
+                        versionName: options.versionName,
                         withPostgres: options.withPostgres !== false,
                         withGraphQL: options.withGraphql !== false,
                         withSerde: options.withSerde ?? false,
                         withBase58: options.withBase58 ?? false,
                         withSerdeBigArray: requiresSerdeBigArray,
                         standalone: options.standalone !== false,
+                        workspaceDeps: options.workspaceDeps,
+                        packageMetadata: options.packageMetadata,
                     });
                     map.add('Cargo.toml', cargoToml);
+
+                    if (hasPackageMetadata(options.packageMetadata)) {
+                        const readmeDisplayName = getReadmeDisplayName(
+                            options.packageName,
+                            programName,
+                            options.packageMetadata,
+                        );
+                        map.add('README.md', `# Carbon ${readmeDisplayName} Decoder\n`);
+                    }
 
                     return map.mergeWith(programRenderMap);
                 },
@@ -1013,21 +1041,42 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             const sourceField = `source.${prefix.join('.')}`;
             const sourceColumn = `source.${column}`;
 
-            const expr = isJson
-                ? manifest.sqlxType.includes('Json<')
-                    ? needsConversion
-                        ? `${sourceField}.map(|value| value.into())`
-                        : sourceField
-                    : needsConversion
-                      ? `${sourceField}.map(|value| sqlx::types::Json(value.into()))`
-                      : `${sourceField}.map(sqlx::types::Json)`
-                : needsConversion
-                  ? `${sourceField}.map(|value| value.into())`
-                  : sourceField;
+            const needsSpecialHandling = isNode(itemType, 'arrayTypeNode') || isNode(itemType, 'tupleTypeNode');
 
-            const reverseExpr = isJson
-                ? `${sourceColumn}.map(|value| value.0)`
-                : buildReverseOptionType(typeNode, sourceColumn, manifest);
+            let expr: string;
+            if (needsSpecialHandling) {
+                const innerExpr = buildExpression(itemType, 'value');
+                expr = innerExpr === 'value' ? sourceField : `${sourceField}.map(|value| ${innerExpr})`;
+            } else {
+                expr = isJson
+                    ? manifest.sqlxType.includes('Json<')
+                        ? needsConversion
+                            ? `${sourceField}.map(|value| value.into())`
+                            : sourceField
+                        : needsConversion
+                          ? `${sourceField}.map(|value| sqlx::types::Json(value.into()))`
+                          : `${sourceField}.map(sqlx::types::Json)`
+                    : needsConversion
+                      ? `${sourceField}.map(|value| value.into())`
+                      : sourceField;
+            }
+
+            let reverseExpr: string;
+            if (needsSpecialHandling) {
+                const innerReverseExpr = buildReverse(itemType, 'value');
+                if (innerReverseExpr.includes('?')) {
+                    const exprWithoutQuestion = innerReverseExpr.replace(/\?$/, '');
+                    reverseExpr = `${sourceColumn}.map(|value| ${exprWithoutQuestion}).transpose()?`;
+                } else if (innerReverseExpr === 'value' || innerReverseExpr === 'value.0') {
+                    reverseExpr = isJson ? `${sourceColumn}.map(|value| value.0)` : sourceColumn;
+                } else {
+                    reverseExpr = `${sourceColumn}.map(|value| ${innerReverseExpr})`;
+                }
+            } else {
+                reverseExpr = isJson
+                    ? `${sourceColumn}.map(|value| value.0)`
+                    : buildReverseOptionType(typeNode, sourceColumn, manifest);
+            }
 
             return [
                 {
@@ -1208,7 +1257,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             if (typeNode.items.length === 1) {
                 return `${buildExpression(typeNode.items[0], `${prefix}`)}`;
             }
-            return `(${typeNode.items.map((item, i) => buildExpression(item, `${prefix}.${i}`)).join(', ')})`;
+            return `sqlx::types::Json(serde_json::to_value(${prefix}).unwrap())`;
         } else if (isNode(typeNode, 'publicKeyTypeNode')) {
             // Pubkey from Rust needs conversion to Postgres Pubkey (solana_pubkey::Pubkey)
             return `${prefix}.into()`;
@@ -1402,6 +1451,19 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             // Use * to dereference since carbon_core::postgres::primitives::Pubkey implements Deref to solana_pubkey::Pubkey
                             return `${prefix}.into_iter().map(|element| *element).collect()`;
                         }
+
+                        // Only apply fallible conversion when Postgres and Rust element types differ.
+                        // Matching types (e.g. Vec<i64> ↔ Vec<i64>) avoid `.try_into()` to prevent clippy::useless_conversion.
+                        const postgresManifest = visit(
+                            typeNode.item,
+                            postgresTypeManifestVisitor,
+                        ) as PostgresTypeManifest;
+                        const rustManifest = visit(typeNode.item, typeManifestVisitor);
+
+                        if (typesMatch(postgresManifest.sqlxType, rustManifest.type)) {
+                            return `${prefix}.to_vec()`;
+                        }
+
                         return `${prefix}.into_iter().map(|element| element.try_into()).collect::<Result<_, _>>().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
                     }
                     break;
@@ -1470,7 +1532,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
             if (typeNode.items.length === 1) {
                 return `${buildReverse(typeNode.items[0], `${prefix}`)}`;
             }
-            return `(${typeNode.items.map((it, i) => buildReverse(it, `${prefix}.${i}`)).join(', ')})`;
+            return `serde_json::from_value(${prefix}.0).map_err(|_| carbon_core::error::Error::Custom("Failed to deserialize tuple from JSON".to_string()))?`;
         }
         if (
             isNode(typeNode, 'definedTypeLinkNode') ||

@@ -18,26 +18,17 @@ pub mod update_fee_config_schema;
 pub mod update_fee_shares_schema;
 pub mod upsert_fee_tiers_schema;
 
-pub use claim_social_fee_pda_schema::*;
-pub use cpi_event_schema::*;
-pub use create_fee_sharing_config_schema::*;
-pub use create_social_fee_pda_schema::*;
-pub use get_fees_schema::*;
-pub use initialize_fee_config_schema::*;
-pub use initialize_fee_program_global_schema::*;
-pub use reset_fee_sharing_config_schema::*;
-pub use revoke_fee_sharing_authority_schema::*;
-pub use set_authority_schema::*;
-pub use set_claim_rate_limit_schema::*;
-pub use set_disable_flags_schema::*;
-pub use set_social_claim_authority_schema::*;
-pub use transfer_fee_sharing_authority_schema::*;
-pub use update_admin_schema::*;
-pub use update_fee_config_schema::*;
-pub use update_fee_shares_schema::*;
-pub use upsert_fee_tiers_schema::*;
-
 use juniper::GraphQLObject;
+pub use {
+    claim_social_fee_pda_schema::*, cpi_event_schema::*, create_fee_sharing_config_schema::*,
+    create_social_fee_pda_schema::*, get_fees_schema::*, initialize_fee_config_schema::*,
+    initialize_fee_program_global_schema::*, reset_fee_sharing_config_schema::*,
+    revoke_fee_sharing_authority_schema::*, set_authority_schema::*,
+    set_claim_rate_limit_schema::*, set_disable_flags_schema::*,
+    set_social_claim_authority_schema::*, transfer_fee_sharing_authority_schema::*,
+    update_admin_schema::*, update_fee_config_schema::*, update_fee_shares_schema::*,
+    upsert_fee_tiers_schema::*,
+};
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "InstructionMetadata")]

@@ -7,15 +7,11 @@ pub mod pool_schema;
 pub mod sharing_config_schema;
 pub mod social_fee_pda_schema;
 
-pub use bonding_curve_schema::*;
-pub use fee_config_schema::*;
-pub use fee_program_global_schema::*;
-pub use global_schema::*;
-pub use pool_schema::*;
-pub use sharing_config_schema::*;
-pub use social_fee_pda_schema::*;
-
 use juniper::GraphQLObject;
+pub use {
+    bonding_curve_schema::*, fee_config_schema::*, fee_program_global_schema::*, global_schema::*,
+    pool_schema::*, sharing_config_schema::*, social_fee_pda_schema::*,
+};
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "AccountMetadata")]

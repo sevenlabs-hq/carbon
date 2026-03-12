@@ -1,0 +1,18 @@
+[package]
+name = "pumpfun-program-subscriber-carbon-example"
+version = "0.2.1"
+edition = { workspace = true }
+
+[dependencies]
+carbon-core = { workspace = true }
+carbon-log-metrics = { workspace = true }
+carbon-rpc-program-subscribe-datasource = { workspace = true }
+carbon-pumpfun-decoder = { workspace = true }
+solana-account-decoder = { workspace = true }
+solana-client = { workspace = true }
+
+anyhow = { workspace = true }
+dotenv = { workspace = true }
+env_logger = { workspace = true }
+log = { workspace = true }
+tokio = { workspace = true, features = ["full"] }

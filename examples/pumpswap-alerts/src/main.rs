@@ -1,10 +1,6 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
-        error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType, processor::Processor,
     },
     carbon_helius_laserstream_datasource::{LaserStreamClientConfig, LaserStreamGeyserClient},
     carbon_log_metrics::LogMetrics,
@@ -87,7 +83,6 @@ pub async fn main() -> CarbonResult<()> {
     carbon_core::pipeline::Pipeline::builder()
         .datasource(laserstream_datasource)
         .metrics(Arc::new(LogMetrics::new()))
-        .metrics_flush_interval(3)
         .instruction(PumpSwapDecoder, PumpSwapInstructionProcessor)
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
         .build()?
@@ -99,64 +94,48 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct PumpSwapInstructionProcessor;
 
-#[async_trait]
-impl Processor for PumpSwapInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<PumpSwapInstruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
-
+impl Processor<InstructionProcessorInputType<'_, PumpSwapInstruction>>
+    for PumpSwapInstructionProcessor
+{
     async fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions, _): Self::InputType,
-        _metrics: Arc<MetricsCollection>,
+        input: &InstructionProcessorInputType<'_, PumpSwapInstruction>,
     ) -> CarbonResult<()> {
-        let signature = metadata.transaction_metadata.signature;
-        let _accounts = instruction.accounts;
-        let pumpswap_instruction = instruction.data;
+        let signature = input.metadata.transaction_metadata.signature;
 
-        match pumpswap_instruction {
-            PumpSwapInstruction::Buy(buy) => {
-                log::info!("Buy: signature: {signature}, buy: {buy:?}");
+        match input.decoded_instruction {
+            PumpSwapInstruction::Buy { data, .. } => {
+                log::info!("Buy: signature: {signature}, buy: {data:?}");
             }
-            PumpSwapInstruction::Sell(sell) => {
-                log::info!("Sell: signature: {signature}, sell: {sell:?}");
+            PumpSwapInstruction::Sell { data, .. } => {
+                log::info!("Sell: signature: {signature}, sell: {data:?}");
             }
-            PumpSwapInstruction::CreatePool(create_pool) => {
-                log::info!("CreatePool: signature: {signature}, create_pool: {create_pool:?}");
+            PumpSwapInstruction::CreatePool { data, .. } => {
+                log::info!("CreatePool: signature: {signature}, create_pool: {data:?}");
             }
-            PumpSwapInstruction::Deposit(deposit) => {
-                log::info!("Deposit: signature: {signature}, deposit: {deposit:?}");
+            PumpSwapInstruction::Deposit { data, .. } => {
+                log::info!("Deposit: signature: {signature}, deposit: {data:?}");
             }
-            PumpSwapInstruction::Withdraw(withdraw) => {
-                log::info!("Withdraw: signature: {signature}, withdraw: {withdraw:?}");
+            PumpSwapInstruction::Withdraw { data, .. } => {
+                log::info!("Withdraw: signature: {signature}, withdraw: {data:?}");
             }
-            PumpSwapInstruction::CreateConfig(create_config) => {
-                log::info!(
-                    "CreateConfig: signature: {signature}, create_config: {create_config:?}"
-                );
+            PumpSwapInstruction::CreateConfig { data, .. } => {
+                log::info!("CreateConfig: signature: {signature}, create_config: {data:?}");
             }
-            PumpSwapInstruction::UpdateFeeConfig(update_fee_config) => {
-                log::info!(
-                    "UpdateFeeConfig: signature: {signature}, update_fee_config: {update_fee_config:?}"
-                );
+            PumpSwapInstruction::UpdateFeeConfig { data, .. } => {
+                log::info!("UpdateFeeConfig: signature: {signature}, update_fee_config: {data:?}");
             }
-            PumpSwapInstruction::UpdateAdmin(update_admin) => {
-                log::info!("UpdateAdmin: signature: {signature}, update_admin: {update_admin:?}");
+            PumpSwapInstruction::UpdateAdmin { data, .. } => {
+                log::info!("UpdateAdmin: signature: {signature}, update_admin: {data:?}");
             }
-            PumpSwapInstruction::CollectCoinCreatorFee(collect_fee) => {
-                log::info!(
-                    "CollectCoinCreatorFee: signature: {signature}, collect_fee: {collect_fee:?}"
-                );
+            PumpSwapInstruction::CollectCoinCreatorFee { data, .. } => {
+                log::info!("CollectCoinCreatorFee: signature: {signature}, collect_fee: {data:?}");
             }
-            PumpSwapInstruction::CpiEvent(cpi_event) => match *cpi_event {
+            PumpSwapInstruction::CpiEvent { data, .. } => match data {
                 CpiEvent::BuyEvent(buy_event) => {
                     let sol_amount = buy_event.quote_amount_in as f64 / LAMPORTS_PER_SOL as f64;
                     log::info!(
-                        "BuyEvent: signature: {signature}, SOL: {:.4}, pool: {}, user: {}",
-                        sol_amount,
+                        "BuyEvent: signature: {signature}, SOL: {sol_amount:.4}, pool: {}, user: {}",
                         buy_event.pool,
                         buy_event.user,
                     );
@@ -164,10 +143,9 @@ impl Processor for PumpSwapInstructionProcessor {
                 CpiEvent::SellEvent(sell_event) => {
                     let sol_amount = sell_event.quote_amount_out as f64 / LAMPORTS_PER_SOL as f64;
                     log::info!(
-                        "SellEvent: signature: {signature}, SOL: {:.4}, pool: {}, user: {}",
-                        sol_amount,
+                        "SellEvent: signature: {signature}, SOL: {sol_amount:.4}, pool: {}, user: {}",
                         sell_event.pool,
-                        sell_event.user
+                        sell_event.user,
                     );
                 }
                 CpiEvent::CreatePoolEvent(pool_event) => {
@@ -203,8 +181,7 @@ impl Processor for PumpSwapInstructionProcessor {
                 CpiEvent::CollectCoinCreatorFeeEvent(fee_event) => {
                     let fee_amount = fee_event.coin_creator_fee as f64 / LAMPORTS_PER_SOL as f64;
                     log::info!(
-                        "CollectCoinCreatorFeeEvent: signature: {signature}, fee: {:.6} SOL, creator: {}",
-                        fee_amount,
+                        "CollectCoinCreatorFeeEvent: signature: {signature}, fee: {fee_amount:.6} SOL, creator: {}",
                         fee_event.coin_creator
                     );
                 }
@@ -219,14 +196,13 @@ impl Processor for PumpSwapInstructionProcessor {
                     );
                 }
                 _ => {
-                    log::debug!(
-                        "Other PumpSwap CPI event: signature: {signature}, event: {cpi_event:?}"
-                    );
+                    log::debug!("Other PumpSwap CpiEvent: signature: {signature}, data: {data:?}");
                 }
             },
             _ => {
                 log::debug!(
-                    "Other PumpSwap instruction: signature: {signature}, data: {pumpswap_instruction:?}"
+                    "Other PumpSwap instruction: signature: {signature}, data: {:?}",
+                    input.decoded_instruction
                 );
             }
         }

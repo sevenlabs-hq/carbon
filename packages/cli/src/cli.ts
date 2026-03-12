@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import { resolve, join } from 'path';
 import { promptForParse, promptForScaffold } from './lib/prompts';
 import { generateDecoder, parseIdlSource, getIdlMetadata } from './lib/decoder';
+import type { PackageMetadata } from '@sevenlabs-hq/carbon-codama-renderer';
 import { validateDataSource, validateMetrics } from './lib/validation';
 import { resolveRpcUrl, runCargoFmt } from './lib/utils';
 import { logger, showBanner } from './lib/logger';
@@ -51,6 +52,10 @@ program
     .description('Parse an IDL and generate a decoder')
     .option('-i, --idl <fileOrAddress>', 'Path to an IDL json file or a Solana program address')
     .option('-o, --out-dir <dir>', 'Output directory for generated code')
+    .option(
+        '-n, --name <string>',
+        'Decoder name (e.g. pumpfun). Used for crate name carbon-<name>-decoder and struct <Name>Decoder. Default: from IDL',
+    )
     .option('-c, --as-crate', 'Generate as a Cargo crate layout', false)
     .option('-s, --standard <anchor|codama>', 'Specify the IDL standard to parse', 'anchor')
     .option('--event-hints <csv>', 'Comma-separated names of defined types to parse as CPI Events (Codama only)')
@@ -61,6 +66,16 @@ program
     .option('--with-graphql <boolean>', 'Include GraphQL wiring and deps (default: true)')
     .option('--with-serde <boolean>', 'Include serde feature for decoder (default: false)')
     .option('--with-base58 <boolean>', 'Include base58 feature for decoder (default: false)')
+    .option(
+        '--standalone <boolean>',
+        'Generate standalone decoder with [workspace] section (default: true). Set to false for workspace dependencies',
+        'true',
+    )
+    .option('--description <string>', 'Package description (default: derived from decoder name)')
+    .option('--keywords <csv>', 'Package keywords, comma-separated (default: solana, decoder, plus name parts)')
+    .option('--categories <csv>', 'Package categories, comma-separated (default: encoding)')
+    .option('--package-version <string>', 'Package version in Cargo.toml (default: 0.1.0)')
+    .option('--version-name <name>', 'Decoder version name (e.g., "v1", "v2")')
     .option('--no-clean', 'Do not delete output directory before rendering', false)
     .action(async opts => {
         showBanner();
@@ -81,6 +96,35 @@ program
             opts.withSerde !== undefined ? opts.withSerde === 'true' || opts.withSerde === true : withSerdeDefault;
         const withBase58 =
             opts.withBase58 !== undefined ? opts.withBase58 === 'true' || opts.withBase58 === true : false;
+        const standalone =
+            opts.standalone !== undefined ? opts.standalone === 'true' || opts.standalone === true : true;
+        const desc = opts.description != null && String(opts.description).trim();
+        const kws =
+            opts.keywords != null
+                ? String(opts.keywords)
+                      .split(',')
+                      .map(k => k.trim())
+                      .filter(Boolean)
+                : [];
+        const cats =
+            opts.categories != null
+                ? String(opts.categories)
+                      .split(',')
+                      .map(c => c.trim())
+                      .filter(Boolean)
+                : [];
+        const packageMetadata: PackageMetadata | undefined =
+            desc || kws.length > 0 || cats.length > 0
+                ? {
+                      ...(desc && { description: desc }),
+                      ...(kws.length > 0 && { keywords: kws }),
+                      ...(cats.length > 0 && { categories: cats }),
+                  }
+                : undefined;
+        const packageName =
+            opts.name != null && String(opts.name).trim() !== ''
+                ? String(opts.name).trim().replace(/\s+/g, '-')
+                : undefined;
 
         const outDir = resolve(process.cwd(), opts.outDir);
 
@@ -96,12 +140,16 @@ program
                 eventHints: opts.eventHints,
                 deleteFolderBeforeRendering: Boolean(opts.clean),
                 programId: opts.programId,
+                packageName,
                 postgresMode: opts.postgresMode,
                 withPostgres,
                 withGraphql,
                 withSerde,
                 withBase58,
-                standalone: true,
+                standalone,
+                packageMetadata,
+                version: opts.packageVersion,
+                versionName: opts.versionName,
             });
 
             logger.succeedSpinner('Decoder generated');
@@ -146,6 +194,8 @@ program
     .option('--with-graphql <boolean>', 'Include GraphQL wiring and deps (default: true)')
     .option('--with-serde <boolean>', 'Include serde feature for decoder (default: false)')
     .option('--with-base58 <boolean>', 'Include base58 feature for decoder (default: false)')
+    .option('--package-version <string>', 'Package version in Cargo.toml (default: 0.1.0)')
+    .option('--version-name <name>', 'Decoder version name (e.g., "v1", "v2")')
     .option('--postgres-mode <generic|typed>', 'Postgres table storage mode', 'typed')
     .option('--force', 'Overwrite output directory if it exists', false)
     .action(async opts => {
@@ -246,6 +296,9 @@ program
                 withSerde,
                 withBase58,
                 standalone: false,
+                workspaceDeps: false,
+                version: opts.packageVersion,
+                versionName: opts.versionName,
             });
 
             logger.succeedSpinner('Decoder generated successfully');

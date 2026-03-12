@@ -3,14 +3,17 @@ pub mod dex_schema;
 pub mod platform_fee_wrap_unwrap_args_schema;
 pub mod route_schema;
 pub mod swap_args_schema;
-pub mod swap_cpi_event_schema;
+pub mod swap_args_token_ledger_schema;
+pub mod swap_cpi_event2_schema;
 pub mod swap_event_schema;
-pub mod swap_to_c_with_fees_cpi_event_v2_schema;
-pub mod swap_with_fees_cpi_event_enhanced_schema;
-pub mod swap_with_fees_cpi_event_schema;
+pub mod swap_tob_v2_cpi_event2_schema;
+pub mod swap_toc_v2_cpi_event2_schema;
+pub mod swap_with_fees_cpi_event2_schema;
+pub mod swap_with_fees_cpi_event_enhanced2_schema;
 
 pub use {
     dex_schema::*, platform_fee_wrap_unwrap_args_schema::*, route_schema::*, swap_args_schema::*,
-    swap_cpi_event_schema::*, swap_event_schema::*, swap_to_c_with_fees_cpi_event_v2_schema::*,
-    swap_with_fees_cpi_event_enhanced_schema::*, swap_with_fees_cpi_event_schema::*,
+    swap_args_token_ledger_schema::*, swap_cpi_event2_schema::*, swap_event_schema::*,
+    swap_tob_v2_cpi_event2_schema::*, swap_toc_v2_cpi_event2_schema::*,
+    swap_with_fees_cpi_event2_schema::*, swap_with_fees_cpi_event_enhanced2_schema::*,
 };

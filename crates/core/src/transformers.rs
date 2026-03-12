@@ -1,32 +1,8 @@
-//! Provides utility functions to transform transaction data into various
-//! representations within the `carbon-core` framework.
-//!
-//! This module includes functions for extracting transaction metadata, parsing
-//! instructions, and nesting instructions based on stack depth. It also offers
-//! transformations for Solana transaction components into suitable formats for
-//! the framework, enabling flexible processing of transaction data.
-//!
-//! ## Key Components
-//!
-//! - **Metadata Extraction**: Extracts essential transaction metadata for
-//!   processing.
-//! - **Instruction Parsing**: Parses both top-level and nested instructions
-//!   from transactions.
-//! - **Account Metadata**: Converts account data into a standardized format for
-//!   transactions.
-//!
-//! ## Notes
-//!
-//! - The module supports both legacy and v0 transactions, including handling of
-//!   loaded addresses and inner instructions.
-
 use {
     crate::{
-        collection::InstructionDecoderCollection,
         datasource::TransactionUpdate,
         error::{CarbonResult, Error},
-        instruction::{DecodedInstruction, InstructionMetadata, MAX_INSTRUCTION_STACK_DEPTH},
-        schema::ParsedInstruction,
+        instruction::{InstructionMetadata, MAX_INSTRUCTION_STACK_DEPTH},
         transaction::TransactionMetadata,
     },
     solana_instruction::AccountMeta,
@@ -43,29 +19,6 @@ use {
     std::{collections::HashSet, str::FromStr, sync::Arc},
 };
 
-/// Extracts instructions with metadata from a transaction update.
-///
-/// This function parses both top-level and inner instructions, associating them
-/// with metadata such as stack height and account information. It provides a
-/// detailed breakdown of each instruction, useful for further processing.
-///
-/// # Parameters
-///
-/// - `transaction_metadata`: Metadata about the transaction from which
-///   instructions are extracted.
-/// - `transaction_update`: The `TransactionUpdate` containing the transaction's
-///   data and message.
-///
-/// # Returns
-///
-/// A `CarbonResult<Vec<(InstructionMetadata,
-/// solana_instruction::Instruction)>>` containing instructions along with
-/// their associated metadata.
-///
-/// # Errors
-///
-/// Returns an error if any account metadata required for instruction processing
-/// is missing.
 pub fn extract_instructions_with_metadata(
     transaction_metadata: &Arc<TransactionMetadata>,
     transaction_update: &TransactionUpdate,
@@ -174,7 +127,7 @@ fn process_instructions<F1, F2>(
                                 transaction_metadata: transaction_metadata.clone(),
                                 stack_height: stack_height as u32,
                                 index: inner_tx.index as u32,
-                                absolute_path: path_stack[..stack_height].into(),
+                                absolute_path: path_stack[..stack_height].to_vec(),
                             },
                             build_instruction(
                                 account_keys,
@@ -206,19 +159,16 @@ where
         .get(instruction.program_id_index as usize)
         .unwrap_or(&Pubkey::default());
 
-    let accounts = instruction
-        .accounts
-        .iter()
-        .filter_map(|account_idx| {
-            account_keys
-                .get(*account_idx as usize)
-                .map(|key| AccountMeta {
-                    pubkey: *key,
-                    is_writable: is_writable(key, *account_idx as usize),
-                    is_signer: is_signer(key, *account_idx as usize),
-                })
-        })
-        .collect();
+    let mut accounts = Vec::with_capacity(instruction.accounts.len());
+    for account_idx in &instruction.accounts {
+        if let Some(key) = account_keys.get(*account_idx as usize) {
+            accounts.push(AccountMeta {
+                pubkey: *key,
+                is_writable: is_writable(key, *account_idx as usize),
+                is_signer: is_signer(key, *account_idx as usize),
+            });
+        }
+    }
 
     solana_instruction::Instruction {
         program_id,
@@ -227,27 +177,6 @@ where
     }
 }
 
-/// Extracts account metadata from a compiled instruction and transaction
-/// message.
-///
-/// This function converts each account index within the instruction into an
-/// `AccountMeta` struct, providing details on account keys, signer status, and
-/// write permissions.
-///
-/// # Parameters
-///
-/// - `compiled_instruction`: The compiled instruction to extract accounts from.
-/// - `message`: The transaction message containing the account keys.
-///
-/// # Returns
-///
-/// A `CarbonResult<&[AccountMeta]>` containing
-/// metadata for each account involved in the instruction.
-///
-/// # Errors
-///
-/// Returns an error if any referenced account key is missing from the
-/// transaction.
 pub fn extract_account_metas(
     compiled_instruction: &CompiledInstruction,
     message: &VersionedMessage,
@@ -280,74 +209,6 @@ pub fn extract_account_metas(
     Ok(accounts)
 }
 
-/// Unnests parsed instructions, producing an array of `(InstructionMetadata,
-/// DecodedInstruction<T>)` tuple
-///
-/// This function takes a vector of `ParsedInstruction` and unnests them into a
-/// vector of `(InstructionMetadata, DecodedInstruction<T>)` tuples.
-/// It recursively processes nested instructions, increasing the stack height
-/// for each level of nesting.
-///
-/// # Parameters
-///
-/// - `transaction_metadata`: The metadata of the transaction containing the
-///   instructions.
-/// - `instructions`: The vector of `ParsedInstruction` to be unnested.
-/// - `stack_height`: The current stack height.
-///
-/// # Returns
-///
-/// A vector of `(InstructionMetadata, DecodedInstruction<T>)` tuples
-/// representing the unnested instructions.
-pub fn unnest_parsed_instructions<T: InstructionDecoderCollection>(
-    transaction_metadata: Arc<TransactionMetadata>,
-    instructions: Vec<ParsedInstruction<T>>,
-    stack_height: u32,
-) -> Vec<(InstructionMetadata, DecodedInstruction<T>)> {
-    log::trace!("unnest_parsed_instructions(instructions: {instructions:?})");
-
-    let mut result = Vec::new();
-
-    for (ix_idx, parsed_instruction) in instructions.into_iter().enumerate() {
-        result.push((
-            InstructionMetadata {
-                transaction_metadata: transaction_metadata.clone(),
-                stack_height,
-                index: ix_idx as u32 + 1,
-                absolute_path: vec![],
-            },
-            parsed_instruction.instruction,
-        ));
-        result.extend(unnest_parsed_instructions(
-            transaction_metadata.clone(),
-            parsed_instruction.inner_instructions,
-            stack_height + 1,
-        ));
-    }
-
-    result
-}
-
-/// Converts UI transaction metadata into `TransactionStatusMeta`.
-///
-/// This function transforms the user interface format of transaction metadata
-/// into a more comprehensive `TransactionStatusMeta` structure suitable for
-/// backend processing.
-///
-/// # Parameters
-///
-/// - `meta_original`: The original UI format of transaction status metadata.
-///
-/// # Returns
-///
-/// A `CarbonResult<TransactionStatusMeta>` representing the full transaction
-/// status with nested instructions, token balances, and rewards.
-///
-/// # Notes
-///
-/// This function handles various metadata fields, including inner instructions,
-/// token balances, and rewards, providing a complete view of the transaction's
-/// effects.
 pub fn transaction_metadata_from_original_meta(
     meta_original: UiTransactionStatusMeta,
 ) -> CarbonResult<TransactionStatusMeta> {
