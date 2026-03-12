@@ -140,7 +140,10 @@ impl Processor<InstructionProcessorInputType<'_, KaminoLendingInstruction>>
             &signature.to_string()[signature.to_string().len() - 4..signature.to_string().len()]
         );
 
-        log::info!("instruction processed ({signature}) {:?}", input.decoded_instruction);
+        log::info!(
+            "instruction processed ({signature}) {:?}",
+            input.decoded_instruction
+        );
 
         Ok(())
     }

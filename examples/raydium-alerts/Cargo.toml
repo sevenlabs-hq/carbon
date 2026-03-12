@@ -10,8 +10,6 @@ carbon-raydium-amm-v4-decoder = { workspace = true }
 carbon-yellowstone-grpc-datasource = { workspace = true }
 
 dotenv = { workspace = true }
-solana-account = { workspace = true }
-solana-instruction = { workspace = true, default-features = false }
 env_logger = { workspace = true }
 log = { workspace = true }
 tokio = { workspace = true, features = ["full"] }

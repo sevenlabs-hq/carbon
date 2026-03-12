@@ -1,13 +1,8 @@
 use {
-    carbon_core::{
-        account::AccountProcessorInputType,
-        error::CarbonResult, 
-        processor::Processor,
-    },
+    carbon_core::{account::AccountProcessorInputType, error::CarbonResult, processor::Processor},
     carbon_log_metrics::LogMetrics,
     carbon_pumpfun_decoder::{
-        accounts::PumpfunAccount,
-        PumpfunDecoder, PROGRAM_ID as PUMPFUN_PROGRAM_ID,
+        accounts::PumpfunAccount, PumpfunDecoder, PROGRAM_ID as PUMPFUN_PROGRAM_ID,
     },
     carbon_rpc_program_subscribe_datasource::{Filters, RpcProgramSubscribe},
     solana_account_decoder::UiAccountEncoding,
@@ -17,9 +12,7 @@ use {
 
 pub struct PumpfunAccountProcessor;
 
-impl Processor<AccountProcessorInputType<'_, PumpfunAccount>>
-    for PumpfunAccountProcessor
-{
+impl Processor<AccountProcessorInputType<'_, PumpfunAccount>> for PumpfunAccountProcessor {
     async fn process(
         &mut self,
         input: &AccountProcessorInputType<'_, PumpfunAccount>,

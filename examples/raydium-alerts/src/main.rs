@@ -1,9 +1,7 @@
 use {
     carbon_core::{
-        account::AccountProcessorInputType,
-        error::CarbonResult,
-        instruction::InstructionProcessorInputType,
-        processor::Processor,
+        account::AccountProcessorInputType, error::CarbonResult,
+        instruction::InstructionProcessorInputType, processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
     carbon_raydium_amm_v4_decoder::{

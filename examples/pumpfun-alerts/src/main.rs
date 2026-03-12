@@ -134,22 +134,20 @@ impl Processor<InstructionProcessorInputType<'_, PumpfunInstruction>>
                     input.metadata.transaction_metadata.slot
                 );
             }
-            PumpfunInstruction::CpiEvent { data, .. } => {
-                match data {
-                    CpiEvent::CreateEvent(create_event) => {
-                        log::info!("Create event: {create_event:#?}");
-                    }
-                    CpiEvent::TradeEvent(trade_event) => {
-                        if trade_event.sol_amount > 10 * LAMPORTS_PER_SOL {
-                            log::info!("Big trade event: {trade_event:#?}");
-                        }
-                    }
-                    CpiEvent::CompleteEvent(complete_event) => {
-                        log::info!("Complete event: {complete_event:#?}");
-                    }
-                    _ => {}
+            PumpfunInstruction::CpiEvent { data, .. } => match data {
+                CpiEvent::CreateEvent(create_event) => {
+                    log::info!("Create event: {create_event:#?}");
                 }
-            }
+                CpiEvent::TradeEvent(trade_event) => {
+                    if trade_event.sol_amount > 10 * LAMPORTS_PER_SOL {
+                        log::info!("Big trade event: {trade_event:#?}");
+                    }
+                }
+                CpiEvent::CompleteEvent(complete_event) => {
+                    log::info!("Complete event: {complete_event:#?}");
+                }
+                _ => {}
+            },
             _ => {
                 log::debug!(
                     "Other instruction: {:?} on slot {}",
