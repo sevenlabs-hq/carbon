@@ -1,17 +1,12 @@
-use std::{env, sync::Arc};
+use std::env;
 
 use solana_transaction_status::UiTransactionEncoding;
 
 use {
-    async_trait::async_trait,
     carbon_core::{
-        error::CarbonResult, instruction::InstructionProcessorInputType,
-        metrics::MetricsCollection, processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType, processor::Processor,
     },
-    carbon_pumpfun_decoder::{
-        instructions::{CpiEvent, PumpfunInstruction},
-        PumpfunDecoder,
-    },
+    carbon_pumpfun_decoder::{instructions::PumpfunInstruction, PumpfunDecoder},
     carbon_rpc_block_crawler_datasource::{RpcBlockConfig, RpcBlockCrawler},
     clap::Parser,
 };
@@ -55,39 +50,47 @@ pub async fn main() -> CarbonResult<()> {
         .run()
         .await?;
 
+    log::info!("Pipeline completed successfully");
     Ok(())
 }
 
 pub struct PumpfunInstructionProcessor;
 
-#[async_trait]
-impl Processor for PumpfunInstructionProcessor {
-    type InputType = InstructionProcessorInputType<PumpfunInstruction>;
-
+impl Processor<InstructionProcessorInputType<'_, PumpfunInstruction>>
+    for PumpfunInstructionProcessor
+{
     async fn process(
         &mut self,
-        data: Self::InputType,
-        _metrics: Arc<MetricsCollection>,
+        input: &InstructionProcessorInputType<'_, PumpfunInstruction>,
     ) -> CarbonResult<()> {
-        let (metadata, pumpfun_instruction, _nested_instructions, _) = data;
-
-        if let PumpfunInstruction::CpiEvent(cpi_event) = pumpfun_instruction.data {
-            match *cpi_event {
-                CpiEvent::CreateEvent(create_event) => {
-                    log::info!(
-                        "New token created: {:#?} on slot {}",
-                        create_event,
-                        metadata.transaction_metadata.slot
-                    );
-                }
-                CpiEvent::TradeEvent(trade_event) => {
-                    log::info!(
-                        "New trade occured: {:#?} on slot {:#?}",
-                        trade_event,
-                        metadata.transaction_metadata.slot
-                    );
-                }
-                _ => {}
+        match input.decoded_instruction {
+            PumpfunInstruction::Create { data, .. } => {
+                log::info!(
+                    "Token created: {:?} on slot {}",
+                    data,
+                    input.metadata.transaction_metadata.slot
+                );
+            }
+            PumpfunInstruction::Buy { data, .. } => {
+                log::info!(
+                    "Buy transaction: {:?} on slot {}",
+                    data,
+                    input.metadata.transaction_metadata.slot
+                );
+            }
+            PumpfunInstruction::Sell { data, .. } => {
+                log::info!(
+                    "Sell transaction: {:?} on slot {}",
+                    data,
+                    input.metadata.transaction_metadata.slot
+                );
+            }
+            _ => {
+                log::info!(
+                    "Other Pumpfun instruction on slot {}: {:?}",
+                    input.metadata.transaction_metadata.slot,
+                    input.decoded_instruction
+                );
             }
         }
 
