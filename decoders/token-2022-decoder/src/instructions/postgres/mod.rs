@@ -48,6 +48,7 @@ pub mod initialize_multisig_row;
 pub mod initialize_non_transferable_mint_row;
 pub mod initialize_pausable_config_row;
 pub mod initialize_permanent_delegate_row;
+pub mod initialize_permissioned_burn_row;
 pub mod initialize_scaled_ui_amount_mint_row;
 pub mod initialize_token_group_member_row;
 pub mod initialize_token_group_row;
@@ -57,6 +58,8 @@ pub mod initialize_transfer_hook_row;
 pub mod mint_to_checked_row;
 pub mod mint_to_row;
 pub mod pause_row;
+pub mod permissioned_burn_checked_row;
+pub mod permissioned_burn_row;
 pub mod reallocate_row;
 pub mod remove_token_metadata_key_row;
 pub mod resume_row;
@@ -69,6 +72,7 @@ pub mod transfer_checked_row;
 pub mod transfer_checked_with_fee_row;
 pub mod transfer_row;
 pub mod ui_amount_to_amount_row;
+pub mod unwrap_lamports_row;
 pub mod update_confidential_transfer_mint_row;
 pub mod update_default_account_state_row;
 pub mod update_group_member_pointer_row;
@@ -109,20 +113,21 @@ pub use self::{
     initialize_mint_close_authority_row::*, initialize_mint_row::*, initialize_multisig2_row::*,
     initialize_multisig_row::*, initialize_non_transferable_mint_row::*,
     initialize_pausable_config_row::*, initialize_permanent_delegate_row::*,
-    initialize_scaled_ui_amount_mint_row::*, initialize_token_group_member_row::*,
-    initialize_token_group_row::*, initialize_token_metadata_row::*,
-    initialize_transfer_fee_config_row::*, initialize_transfer_hook_row::*, mint_to_checked_row::*,
-    mint_to_row::*, pause_row::*, reallocate_row::*, remove_token_metadata_key_row::*,
-    resume_row::*, revoke_row::*, set_authority_row::*, set_transfer_fee_row::*,
-    sync_native_row::*, thaw_account_row::*, transfer_checked_row::*,
+    initialize_permissioned_burn_row::*, initialize_scaled_ui_amount_mint_row::*,
+    initialize_token_group_member_row::*, initialize_token_group_row::*,
+    initialize_token_metadata_row::*, initialize_transfer_fee_config_row::*,
+    initialize_transfer_hook_row::*, mint_to_checked_row::*, mint_to_row::*, pause_row::*,
+    permissioned_burn_checked_row::*, permissioned_burn_row::*, reallocate_row::*,
+    remove_token_metadata_key_row::*, resume_row::*, revoke_row::*, set_authority_row::*,
+    set_transfer_fee_row::*, sync_native_row::*, thaw_account_row::*, transfer_checked_row::*,
     transfer_checked_with_fee_row::*, transfer_row::*, ui_amount_to_amount_row::*,
-    update_confidential_transfer_mint_row::*, update_default_account_state_row::*,
-    update_group_member_pointer_row::*, update_group_pointer_row::*,
-    update_metadata_pointer_row::*, update_multiplier_scaled_ui_mint_row::*,
-    update_rate_interest_bearing_mint_row::*, update_token_group_max_size_row::*,
-    update_token_group_update_authority_row::*, update_token_metadata_field_row::*,
-    update_token_metadata_update_authority_row::*, update_transfer_hook_row::*,
-    withdraw_excess_lamports_row::*,
+    unwrap_lamports_row::*, update_confidential_transfer_mint_row::*,
+    update_default_account_state_row::*, update_group_member_pointer_row::*,
+    update_group_pointer_row::*, update_metadata_pointer_row::*,
+    update_multiplier_scaled_ui_mint_row::*, update_rate_interest_bearing_mint_row::*,
+    update_token_group_max_size_row::*, update_token_group_update_authority_row::*,
+    update_token_metadata_field_row::*, update_token_metadata_update_authority_row::*,
+    update_transfer_hook_row::*, withdraw_excess_lamports_row::*,
     withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee_row::*,
     withdraw_withheld_tokens_from_accounts_row::*,
     withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_row::*,
@@ -192,6 +197,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for Token2022InstructionsMigration
             Box::new(InitializeNonTransferableMintMigrationOperation),
             Box::new(InitializePausableConfigMigrationOperation),
             Box::new(InitializePermanentDelegateMigrationOperation),
+            Box::new(InitializePermissionedBurnMigrationOperation),
             Box::new(InitializeScaledUiAmountMintMigrationOperation),
             Box::new(InitializeTokenGroupMigrationOperation),
             Box::new(InitializeTokenGroupMemberMigrationOperation),
@@ -201,6 +207,8 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for Token2022InstructionsMigration
             Box::new(MintToMigrationOperation),
             Box::new(MintToCheckedMigrationOperation),
             Box::new(PauseMigrationOperation),
+            Box::new(PermissionedBurnMigrationOperation),
+            Box::new(PermissionedBurnCheckedMigrationOperation),
             Box::new(ReallocateMigrationOperation),
             Box::new(RemoveTokenMetadataKeyMigrationOperation),
             Box::new(ResumeMigrationOperation),
@@ -213,6 +221,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for Token2022InstructionsMigration
             Box::new(TransferCheckedMigrationOperation),
             Box::new(TransferCheckedWithFeeMigrationOperation),
             Box::new(UiAmountToAmountMigrationOperation),
+            Box::new(UnwrapLamportsMigrationOperation),
             Box::new(UpdateConfidentialTransferMintMigrationOperation),
             Box::new(UpdateDefaultAccountStateMigrationOperation),
             Box::new(UpdateGroupMemberPointerMigrationOperation),
@@ -267,705 +276,460 @@ impl
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for Token2022InstructionWithMetadata {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let Token2022InstructionWithMetadata(instruction, metadata, accounts) = self;
-        match instruction {
-            Token2022Instruction::InitializeMint(instruction) => {
-                let row = initialize_mint_row::InitializeMintRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+        let Token2022InstructionWithMetadata(decoded_instruction, metadata, raw_accounts) = self;
+        match decoded_instruction {
+            Token2022Instruction::InitializeMint { data, .. } => {
+                let row = initialize_mint_row::InitializeMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeAccount(instruction) => {
-                let row = initialize_account_row::InitializeAccountRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeAccount { data, .. } => {
+                let row = initialize_account_row::InitializeAccountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeMultisig(instruction) => {
-                let row = initialize_multisig_row::InitializeMultisigRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeMultisig { data, .. } => {
+                let row = initialize_multisig_row::InitializeMultisigRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::Transfer(instruction) => {
-                let row = transfer_row::TransferRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::Transfer { data, .. } => {
+                let row = transfer_row::TransferRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::Approve(instruction) => {
-                let row = approve_row::ApproveRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::Approve { data, .. } => {
+                let row = approve_row::ApproveRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::Revoke(instruction) => {
-                let row = revoke_row::RevokeRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::Revoke { data, .. } => {
+                let row = revoke_row::RevokeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::SetAuthority(instruction) => {
-                let row = set_authority_row::SetAuthorityRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::SetAuthority { data, .. } => {
+                let row = set_authority_row::SetAuthorityRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::MintTo(instruction) => {
-                let row = mint_to_row::MintToRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::MintTo { data, .. } => {
+                let row = mint_to_row::MintToRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::Burn(instruction) => {
-                let row = burn_row::BurnRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::Burn { data, .. } => {
+                let row = burn_row::BurnRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::CloseAccount(instruction) => {
-                let row = close_account_row::CloseAccountRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::CloseAccount { data, .. } => {
+                let row = close_account_row::CloseAccountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::FreezeAccount(instruction) => {
-                let row = freeze_account_row::FreezeAccountRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::FreezeAccount { data, .. } => {
+                let row = freeze_account_row::FreezeAccountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::ThawAccount(instruction) => {
-                let row = thaw_account_row::ThawAccountRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::ThawAccount { data, .. } => {
+                let row = thaw_account_row::ThawAccountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::TransferChecked(instruction) => {
-                let row = transfer_checked_row::TransferCheckedRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::TransferChecked { data, .. } => {
+                let row = transfer_checked_row::TransferCheckedRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::ApproveChecked(instruction) => {
-                let row = approve_checked_row::ApproveCheckedRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::ApproveChecked { data, .. } => {
+                let row = approve_checked_row::ApproveCheckedRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::MintToChecked(instruction) => {
-                let row = mint_to_checked_row::MintToCheckedRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::MintToChecked { data, .. } => {
+                let row = mint_to_checked_row::MintToCheckedRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::BurnChecked(instruction) => {
-                let row = burn_checked_row::BurnCheckedRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::BurnChecked { data, .. } => {
+                let row = burn_checked_row::BurnCheckedRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeAccount2(instruction) => {
-                let row = initialize_account2_row::InitializeAccount2Row::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeAccount2 { data, .. } => {
+                let row = initialize_account2_row::InitializeAccount2Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::SyncNative(instruction) => {
-                let row = sync_native_row::SyncNativeRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::SyncNative { data, .. } => {
+                let row = sync_native_row::SyncNativeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeAccount3(instruction) => {
-                let row = initialize_account3_row::InitializeAccount3Row::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeAccount3 { data, .. } => {
+                let row = initialize_account3_row::InitializeAccount3Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeMultisig2(instruction) => {
-                let row = initialize_multisig2_row::InitializeMultisig2Row::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeMultisig2 { data, .. } => {
+                let row = initialize_multisig2_row::InitializeMultisig2Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeMint2(instruction) => {
-                let row = initialize_mint2_row::InitializeMint2Row::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeMint2 { data, .. } => {
+                let row = initialize_mint2_row::InitializeMint2Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::GetAccountDataSize(instruction) => {
-                let row = get_account_data_size_row::GetAccountDataSizeRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::GetAccountDataSize { data, .. } => {
+                let row = get_account_data_size_row::GetAccountDataSizeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeImmutableOwner(instruction) => {
-                let row = initialize_immutable_owner_row::InitializeImmutableOwnerRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeImmutableOwner { data, .. } => {
+                let row = initialize_immutable_owner_row::InitializeImmutableOwnerRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::AmountToUiAmount(instruction) => {
-                let row = amount_to_ui_amount_row::AmountToUiAmountRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::AmountToUiAmount { data, .. } => {
+                let row = amount_to_ui_amount_row::AmountToUiAmountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UiAmountToAmount(instruction) => {
-                let row = ui_amount_to_amount_row::UiAmountToAmountRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::UiAmountToAmount { data, .. } => {
+                let row = ui_amount_to_amount_row::UiAmountToAmountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeMintCloseAuthority(instruction) => {
-                let row = initialize_mint_close_authority_row::InitializeMintCloseAuthorityRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::InitializeMintCloseAuthority { data, .. } => {
+                let row = initialize_mint_close_authority_row::InitializeMintCloseAuthorityRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeTransferFeeConfig(instruction) => {
-                let row =
-                    initialize_transfer_fee_config_row::InitializeTransferFeeConfigRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    );
+            Token2022Instruction::InitializeTransferFeeConfig { data, .. } => {
+                let row = initialize_transfer_fee_config_row::InitializeTransferFeeConfigRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::TransferCheckedWithFee(instruction) => {
-                let row = transfer_checked_with_fee_row::TransferCheckedWithFeeRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::TransferCheckedWithFee { data, .. } => {
+                let row = transfer_checked_with_fee_row::TransferCheckedWithFeeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::WithdrawWithheldTokensFromMint(instruction) => {
-                let row = withdraw_withheld_tokens_from_mint_row::WithdrawWithheldTokensFromMintRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::WithdrawWithheldTokensFromMint { data, .. } => {
+                let row = withdraw_withheld_tokens_from_mint_row::WithdrawWithheldTokensFromMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::WithdrawWithheldTokensFromAccounts(instruction) => {
-                let row = withdraw_withheld_tokens_from_accounts_row::WithdrawWithheldTokensFromAccountsRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::WithdrawWithheldTokensFromAccounts { data, .. } => {
+                let row = withdraw_withheld_tokens_from_accounts_row::WithdrawWithheldTokensFromAccountsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::HarvestWithheldTokensToMint(instruction) => {
-                let row =
-                    harvest_withheld_tokens_to_mint_row::HarvestWithheldTokensToMintRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    );
+            Token2022Instruction::HarvestWithheldTokensToMint { data, .. } => {
+                let row = harvest_withheld_tokens_to_mint_row::HarvestWithheldTokensToMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::SetTransferFee(instruction) => {
-                let row = set_transfer_fee_row::SetTransferFeeRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::SetTransferFee { data, .. } => {
+                let row = set_transfer_fee_row::SetTransferFeeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeConfidentialTransferMint(instruction) => {
-                let row = initialize_confidential_transfer_mint_row::InitializeConfidentialTransferMintRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::InitializeConfidentialTransferMint { data, .. } => {
+                let row = initialize_confidential_transfer_mint_row::InitializeConfidentialTransferMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateConfidentialTransferMint(instruction) => {
-                let row = update_confidential_transfer_mint_row::UpdateConfidentialTransferMintRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::UpdateConfidentialTransferMint { data, .. } => {
+                let row = update_confidential_transfer_mint_row::UpdateConfidentialTransferMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::ConfigureConfidentialTransferAccount(instruction) => {
-                let row = configure_confidential_transfer_account_row::ConfigureConfidentialTransferAccountRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::ConfigureConfidentialTransferAccount { data, .. } => {
+                let row = configure_confidential_transfer_account_row::ConfigureConfidentialTransferAccountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::ApproveConfidentialTransferAccount(instruction) => {
-                let row = approve_confidential_transfer_account_row::ApproveConfidentialTransferAccountRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::ApproveConfidentialTransferAccount { data, .. } => {
+                let row = approve_confidential_transfer_account_row::ApproveConfidentialTransferAccountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::EmptyConfidentialTransferAccount(instruction) => {
-                let row = empty_confidential_transfer_account_row::EmptyConfidentialTransferAccountRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::EmptyConfidentialTransferAccount { data, .. } => {
+                let row = empty_confidential_transfer_account_row::EmptyConfidentialTransferAccountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::ConfidentialDeposit(instruction) => {
-                let row = confidential_deposit_row::ConfidentialDepositRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::ConfidentialDeposit { data, .. } => {
+                let row = confidential_deposit_row::ConfidentialDepositRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::ConfidentialWithdraw(instruction) => {
-                let row = confidential_withdraw_row::ConfidentialWithdrawRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::ConfidentialWithdraw { data, .. } => {
+                let row = confidential_withdraw_row::ConfidentialWithdrawRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::ConfidentialTransfer(instruction) => {
-                let row = confidential_transfer_row::ConfidentialTransferRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::ConfidentialTransfer { data, .. } => {
+                let row = confidential_transfer_row::ConfidentialTransferRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::ApplyConfidentialPendingBalance(instruction) => {
-                let row = apply_confidential_pending_balance_row::ApplyConfidentialPendingBalanceRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::ApplyConfidentialPendingBalance { data, .. } => {
+                let row = apply_confidential_pending_balance_row::ApplyConfidentialPendingBalanceRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::EnableConfidentialCredits(instruction) => {
-                let row = enable_confidential_credits_row::EnableConfidentialCreditsRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::EnableConfidentialCredits { data, .. } => {
+                let row = enable_confidential_credits_row::EnableConfidentialCreditsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::DisableConfidentialCredits(instruction) => {
-                let row =
-                    disable_confidential_credits_row::DisableConfidentialCreditsRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    );
+            Token2022Instruction::DisableConfidentialCredits { data, .. } => {
+                let row = disable_confidential_credits_row::DisableConfidentialCreditsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::EnableNonConfidentialCredits(instruction) => {
-                let row = enable_non_confidential_credits_row::EnableNonConfidentialCreditsRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::EnableNonConfidentialCredits { data, .. } => {
+                let row = enable_non_confidential_credits_row::EnableNonConfidentialCreditsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::DisableNonConfidentialCredits(instruction) => {
-                let row = disable_non_confidential_credits_row::DisableNonConfidentialCreditsRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::DisableNonConfidentialCredits { data, .. } => {
+                let row = disable_non_confidential_credits_row::DisableNonConfidentialCreditsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::ConfidentialTransferWithFee(instruction) => {
-                let row =
-                    confidential_transfer_with_fee_row::ConfidentialTransferWithFeeRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    );
+            Token2022Instruction::ConfidentialTransferWithFee { data, .. } => {
+                let row = confidential_transfer_with_fee_row::ConfidentialTransferWithFeeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeDefaultAccountState(instruction) => {
-                let row = initialize_default_account_state_row::InitializeDefaultAccountStateRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::InitializeDefaultAccountState { data, .. } => {
+                let row = initialize_default_account_state_row::InitializeDefaultAccountStateRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateDefaultAccountState(instruction) => {
-                let row =
-                    update_default_account_state_row::UpdateDefaultAccountStateRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    );
+            Token2022Instruction::UpdateDefaultAccountState { data, .. } => {
+                let row = update_default_account_state_row::UpdateDefaultAccountStateRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::Reallocate(instruction) => {
-                let row = reallocate_row::ReallocateRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::Reallocate { data, .. } => {
+                let row = reallocate_row::ReallocateRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::EnableMemoTransfers(instruction) => {
-                let row = enable_memo_transfers_row::EnableMemoTransfersRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::EnableMemoTransfers { data, .. } => {
+                let row = enable_memo_transfers_row::EnableMemoTransfersRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::DisableMemoTransfers(instruction) => {
-                let row = disable_memo_transfers_row::DisableMemoTransfersRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::DisableMemoTransfers { data, .. } => {
+                let row = disable_memo_transfers_row::DisableMemoTransfersRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::CreateNativeMint(instruction) => {
-                let row = create_native_mint_row::CreateNativeMintRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::CreateNativeMint { data, .. } => {
+                let row = create_native_mint_row::CreateNativeMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeNonTransferableMint(instruction) => {
-                let row = initialize_non_transferable_mint_row::InitializeNonTransferableMintRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::InitializeNonTransferableMint { data, .. } => {
+                let row = initialize_non_transferable_mint_row::InitializeNonTransferableMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeInterestBearingMint(instruction) => {
-                let row = initialize_interest_bearing_mint_row::InitializeInterestBearingMintRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::InitializeInterestBearingMint { data, .. } => {
+                let row = initialize_interest_bearing_mint_row::InitializeInterestBearingMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateRateInterestBearingMint(instruction) => {
-                let row = update_rate_interest_bearing_mint_row::UpdateRateInterestBearingMintRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::UpdateRateInterestBearingMint { data, .. } => {
+                let row = update_rate_interest_bearing_mint_row::UpdateRateInterestBearingMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::EnableCpiGuard(instruction) => {
-                let row = enable_cpi_guard_row::EnableCpiGuardRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::EnableCpiGuard { data, .. } => {
+                let row = enable_cpi_guard_row::EnableCpiGuardRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::DisableCpiGuard(instruction) => {
-                let row = disable_cpi_guard_row::DisableCpiGuardRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::DisableCpiGuard { data, .. } => {
+                let row = disable_cpi_guard_row::DisableCpiGuardRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializePermanentDelegate(instruction) => {
-                let row =
-                    initialize_permanent_delegate_row::InitializePermanentDelegateRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    );
+            Token2022Instruction::InitializePermanentDelegate { data, .. } => {
+                let row = initialize_permanent_delegate_row::InitializePermanentDelegateRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeTransferHook(instruction) => {
-                let row = initialize_transfer_hook_row::InitializeTransferHookRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeTransferHook { data, .. } => {
+                let row = initialize_transfer_hook_row::InitializeTransferHookRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateTransferHook(instruction) => {
-                let row = update_transfer_hook_row::UpdateTransferHookRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::UpdateTransferHook { data, .. } => {
+                let row = update_transfer_hook_row::UpdateTransferHookRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeConfidentialTransferFee(instruction) => {
-                let row = initialize_confidential_transfer_fee_row::InitializeConfidentialTransferFeeRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::InitializeConfidentialTransferFee { data, .. } => {
+                let row = initialize_confidential_transfer_fee_row::InitializeConfidentialTransferFeeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::WithdrawWithheldTokensFromMintForConfidentialTransferFee(
-                instruction,
-            ) => {
-                let row = withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_row::WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::WithdrawWithheldTokensFromMintForConfidentialTransferFee { data, .. } => {
+                let row = withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_row::WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::WithdrawWithheldTokensFromAccountsForConfidentialTransferFee(
-                instruction,
-            ) => {
-                let row = withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee_row::WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::WithdrawWithheldTokensFromAccountsForConfidentialTransferFee { data, .. } => {
+                let row = withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee_row::WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::HarvestWithheldTokensToMintForConfidentialTransferFee(
-                instruction,
-            ) => {
-                let row = harvest_withheld_tokens_to_mint_for_confidential_transfer_fee_row::HarvestWithheldTokensToMintForConfidentialTransferFeeRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::HarvestWithheldTokensToMintForConfidentialTransferFee { data, .. } => {
+                let row = harvest_withheld_tokens_to_mint_for_confidential_transfer_fee_row::HarvestWithheldTokensToMintForConfidentialTransferFeeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::EnableHarvestToMint(instruction) => {
-                let row = enable_harvest_to_mint_row::EnableHarvestToMintRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::EnableHarvestToMint { data, .. } => {
+                let row = enable_harvest_to_mint_row::EnableHarvestToMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::DisableHarvestToMint(instruction) => {
-                let row = disable_harvest_to_mint_row::DisableHarvestToMintRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::DisableHarvestToMint { data, .. } => {
+                let row = disable_harvest_to_mint_row::DisableHarvestToMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::WithdrawExcessLamports(instruction) => {
-                let row = withdraw_excess_lamports_row::WithdrawExcessLamportsRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::WithdrawExcessLamports { data, .. } => {
+                let row = withdraw_excess_lamports_row::WithdrawExcessLamportsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeMetadataPointer(instruction) => {
-                let row = initialize_metadata_pointer_row::InitializeMetadataPointerRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeMetadataPointer { data, .. } => {
+                let row = initialize_metadata_pointer_row::InitializeMetadataPointerRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateMetadataPointer(instruction) => {
-                let row = update_metadata_pointer_row::UpdateMetadataPointerRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::UpdateMetadataPointer { data, .. } => {
+                let row = update_metadata_pointer_row::UpdateMetadataPointerRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeGroupPointer(instruction) => {
-                let row = initialize_group_pointer_row::InitializeGroupPointerRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeGroupPointer { data, .. } => {
+                let row = initialize_group_pointer_row::InitializeGroupPointerRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateGroupPointer(instruction) => {
-                let row = update_group_pointer_row::UpdateGroupPointerRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::UpdateGroupPointer { data, .. } => {
+                let row = update_group_pointer_row::UpdateGroupPointerRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeGroupMemberPointer(instruction) => {
-                let row = initialize_group_member_pointer_row::InitializeGroupMemberPointerRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::InitializeGroupMemberPointer { data, .. } => {
+                let row = initialize_group_member_pointer_row::InitializeGroupMemberPointerRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateGroupMemberPointer(instruction) => {
-                let row = update_group_member_pointer_row::UpdateGroupMemberPointerRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::UpdateGroupMemberPointer { data, .. } => {
+                let row = update_group_member_pointer_row::UpdateGroupMemberPointerRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeScaledUiAmountMint(instruction) => {
-                let row = initialize_scaled_ui_amount_mint_row::InitializeScaledUiAmountMintRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::InitializeScaledUiAmountMint { data, .. } => {
+                let row = initialize_scaled_ui_amount_mint_row::InitializeScaledUiAmountMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateMultiplierScaledUiMint(instruction) => {
-                let row = update_multiplier_scaled_ui_mint_row::UpdateMultiplierScaledUiMintRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::UpdateMultiplierScaledUiMint { data, .. } => {
+                let row = update_multiplier_scaled_ui_mint_row::UpdateMultiplierScaledUiMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializePausableConfig(instruction) => {
-                let row = initialize_pausable_config_row::InitializePausableConfigRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializePausableConfig { data, .. } => {
+                let row = initialize_pausable_config_row::InitializePausableConfigRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::Pause(instruction) => {
-                let row = pause_row::PauseRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::Pause { data, .. } => {
+                let row = pause_row::PauseRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::Resume(instruction) => {
-                let row = resume_row::ResumeRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::Resume { data, .. } => {
+                let row = resume_row::ResumeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeTokenMetadata(instruction) => {
-                let row = initialize_token_metadata_row::InitializeTokenMetadataRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeTokenMetadata { data, .. } => {
+                let row = initialize_token_metadata_row::InitializeTokenMetadataRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateTokenMetadataField(instruction) => {
-                let row = update_token_metadata_field_row::UpdateTokenMetadataFieldRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::UpdateTokenMetadataField { data, .. } => {
+                let row = update_token_metadata_field_row::UpdateTokenMetadataFieldRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::RemoveTokenMetadataKey(instruction) => {
-                let row = remove_token_metadata_key_row::RemoveTokenMetadataKeyRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::RemoveTokenMetadataKey { data, .. } => {
+                let row = remove_token_metadata_key_row::RemoveTokenMetadataKeyRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateTokenMetadataUpdateAuthority(instruction) => {
-                let row = update_token_metadata_update_authority_row::UpdateTokenMetadataUpdateAuthorityRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::UpdateTokenMetadataUpdateAuthority { data, .. } => {
+                let row = update_token_metadata_update_authority_row::UpdateTokenMetadataUpdateAuthorityRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::EmitTokenMetadata(instruction) => {
-                let row = emit_token_metadata_row::EmitTokenMetadataRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::EmitTokenMetadata { data, .. } => {
+                let row = emit_token_metadata_row::EmitTokenMetadataRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeTokenGroup(instruction) => {
-                let row = initialize_token_group_row::InitializeTokenGroupRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeTokenGroup { data, .. } => {
+                let row = initialize_token_group_row::InitializeTokenGroupRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateTokenGroupMaxSize(instruction) => {
-                let row = update_token_group_max_size_row::UpdateTokenGroupMaxSizeRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::UpdateTokenGroupMaxSize { data, .. } => {
+                let row = update_token_group_max_size_row::UpdateTokenGroupMaxSizeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateTokenGroupUpdateAuthority(instruction) => {
-                let row = update_token_group_update_authority_row::UpdateTokenGroupUpdateAuthorityRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::UpdateTokenGroupUpdateAuthority { data, .. } => {
+                let row = update_token_group_update_authority_row::UpdateTokenGroupUpdateAuthorityRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeTokenGroupMember(instruction) => {
-                let row =
-                    initialize_token_group_member_row::InitializeTokenGroupMemberRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    );
+            Token2022Instruction::InitializeTokenGroupMember { data, .. } => {
+                let row = initialize_token_group_member_row::InitializeTokenGroupMemberRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            Token2022Instruction::UnwrapLamports { data, .. } => {
+                let row = unwrap_lamports_row::UnwrapLamportsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            Token2022Instruction::InitializePermissionedBurn { data, .. } => {
+                let row = initialize_permissioned_burn_row::InitializePermissionedBurnRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            Token2022Instruction::PermissionedBurn { data, .. } => {
+                let row = permissioned_burn_row::PermissionedBurnRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            Token2022Instruction::PermissionedBurnChecked { data, .. } => {
+                let row = permissioned_burn_checked_row::PermissionedBurnCheckedRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -976,705 +740,460 @@ impl carbon_core::postgres::operations::Insert for Token2022InstructionWithMetad
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for Token2022InstructionWithMetadata {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let Token2022InstructionWithMetadata(instruction, metadata, accounts) = self;
-        match instruction {
-            Token2022Instruction::InitializeMint(instruction) => {
-                let row = initialize_mint_row::InitializeMintRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+        let Token2022InstructionWithMetadata(decoded_instruction, metadata, raw_accounts) = self;
+        match decoded_instruction {
+            Token2022Instruction::InitializeMint { data, .. } => {
+                let row = initialize_mint_row::InitializeMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeAccount(instruction) => {
-                let row = initialize_account_row::InitializeAccountRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeAccount { data, .. } => {
+                let row = initialize_account_row::InitializeAccountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeMultisig(instruction) => {
-                let row = initialize_multisig_row::InitializeMultisigRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeMultisig { data, .. } => {
+                let row = initialize_multisig_row::InitializeMultisigRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::Transfer(instruction) => {
-                let row = transfer_row::TransferRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::Transfer { data, .. } => {
+                let row = transfer_row::TransferRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::Approve(instruction) => {
-                let row = approve_row::ApproveRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::Approve { data, .. } => {
+                let row = approve_row::ApproveRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::Revoke(instruction) => {
-                let row = revoke_row::RevokeRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::Revoke { data, .. } => {
+                let row = revoke_row::RevokeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::SetAuthority(instruction) => {
-                let row = set_authority_row::SetAuthorityRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::SetAuthority { data, .. } => {
+                let row = set_authority_row::SetAuthorityRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::MintTo(instruction) => {
-                let row = mint_to_row::MintToRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::MintTo { data, .. } => {
+                let row = mint_to_row::MintToRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::Burn(instruction) => {
-                let row = burn_row::BurnRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::Burn { data, .. } => {
+                let row = burn_row::BurnRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::CloseAccount(instruction) => {
-                let row = close_account_row::CloseAccountRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::CloseAccount { data, .. } => {
+                let row = close_account_row::CloseAccountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::FreezeAccount(instruction) => {
-                let row = freeze_account_row::FreezeAccountRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::FreezeAccount { data, .. } => {
+                let row = freeze_account_row::FreezeAccountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::ThawAccount(instruction) => {
-                let row = thaw_account_row::ThawAccountRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::ThawAccount { data, .. } => {
+                let row = thaw_account_row::ThawAccountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::TransferChecked(instruction) => {
-                let row = transfer_checked_row::TransferCheckedRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::TransferChecked { data, .. } => {
+                let row = transfer_checked_row::TransferCheckedRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::ApproveChecked(instruction) => {
-                let row = approve_checked_row::ApproveCheckedRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::ApproveChecked { data, .. } => {
+                let row = approve_checked_row::ApproveCheckedRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::MintToChecked(instruction) => {
-                let row = mint_to_checked_row::MintToCheckedRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::MintToChecked { data, .. } => {
+                let row = mint_to_checked_row::MintToCheckedRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::BurnChecked(instruction) => {
-                let row = burn_checked_row::BurnCheckedRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::BurnChecked { data, .. } => {
+                let row = burn_checked_row::BurnCheckedRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeAccount2(instruction) => {
-                let row = initialize_account2_row::InitializeAccount2Row::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeAccount2 { data, .. } => {
+                let row = initialize_account2_row::InitializeAccount2Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::SyncNative(instruction) => {
-                let row = sync_native_row::SyncNativeRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::SyncNative { data, .. } => {
+                let row = sync_native_row::SyncNativeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeAccount3(instruction) => {
-                let row = initialize_account3_row::InitializeAccount3Row::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeAccount3 { data, .. } => {
+                let row = initialize_account3_row::InitializeAccount3Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeMultisig2(instruction) => {
-                let row = initialize_multisig2_row::InitializeMultisig2Row::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeMultisig2 { data, .. } => {
+                let row = initialize_multisig2_row::InitializeMultisig2Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeMint2(instruction) => {
-                let row = initialize_mint2_row::InitializeMint2Row::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeMint2 { data, .. } => {
+                let row = initialize_mint2_row::InitializeMint2Row::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::GetAccountDataSize(instruction) => {
-                let row = get_account_data_size_row::GetAccountDataSizeRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::GetAccountDataSize { data, .. } => {
+                let row = get_account_data_size_row::GetAccountDataSizeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeImmutableOwner(instruction) => {
-                let row = initialize_immutable_owner_row::InitializeImmutableOwnerRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeImmutableOwner { data, .. } => {
+                let row = initialize_immutable_owner_row::InitializeImmutableOwnerRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::AmountToUiAmount(instruction) => {
-                let row = amount_to_ui_amount_row::AmountToUiAmountRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::AmountToUiAmount { data, .. } => {
+                let row = amount_to_ui_amount_row::AmountToUiAmountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UiAmountToAmount(instruction) => {
-                let row = ui_amount_to_amount_row::UiAmountToAmountRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::UiAmountToAmount { data, .. } => {
+                let row = ui_amount_to_amount_row::UiAmountToAmountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeMintCloseAuthority(instruction) => {
-                let row = initialize_mint_close_authority_row::InitializeMintCloseAuthorityRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::InitializeMintCloseAuthority { data, .. } => {
+                let row = initialize_mint_close_authority_row::InitializeMintCloseAuthorityRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeTransferFeeConfig(instruction) => {
-                let row =
-                    initialize_transfer_fee_config_row::InitializeTransferFeeConfigRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    );
+            Token2022Instruction::InitializeTransferFeeConfig { data, .. } => {
+                let row = initialize_transfer_fee_config_row::InitializeTransferFeeConfigRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::TransferCheckedWithFee(instruction) => {
-                let row = transfer_checked_with_fee_row::TransferCheckedWithFeeRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::TransferCheckedWithFee { data, .. } => {
+                let row = transfer_checked_with_fee_row::TransferCheckedWithFeeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::WithdrawWithheldTokensFromMint(instruction) => {
-                let row = withdraw_withheld_tokens_from_mint_row::WithdrawWithheldTokensFromMintRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::WithdrawWithheldTokensFromMint { data, .. } => {
+                let row = withdraw_withheld_tokens_from_mint_row::WithdrawWithheldTokensFromMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::WithdrawWithheldTokensFromAccounts(instruction) => {
-                let row = withdraw_withheld_tokens_from_accounts_row::WithdrawWithheldTokensFromAccountsRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::WithdrawWithheldTokensFromAccounts { data, .. } => {
+                let row = withdraw_withheld_tokens_from_accounts_row::WithdrawWithheldTokensFromAccountsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::HarvestWithheldTokensToMint(instruction) => {
-                let row =
-                    harvest_withheld_tokens_to_mint_row::HarvestWithheldTokensToMintRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    );
+            Token2022Instruction::HarvestWithheldTokensToMint { data, .. } => {
+                let row = harvest_withheld_tokens_to_mint_row::HarvestWithheldTokensToMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::SetTransferFee(instruction) => {
-                let row = set_transfer_fee_row::SetTransferFeeRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::SetTransferFee { data, .. } => {
+                let row = set_transfer_fee_row::SetTransferFeeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeConfidentialTransferMint(instruction) => {
-                let row = initialize_confidential_transfer_mint_row::InitializeConfidentialTransferMintRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::InitializeConfidentialTransferMint { data, .. } => {
+                let row = initialize_confidential_transfer_mint_row::InitializeConfidentialTransferMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateConfidentialTransferMint(instruction) => {
-                let row = update_confidential_transfer_mint_row::UpdateConfidentialTransferMintRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::UpdateConfidentialTransferMint { data, .. } => {
+                let row = update_confidential_transfer_mint_row::UpdateConfidentialTransferMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::ConfigureConfidentialTransferAccount(instruction) => {
-                let row = configure_confidential_transfer_account_row::ConfigureConfidentialTransferAccountRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::ConfigureConfidentialTransferAccount { data, .. } => {
+                let row = configure_confidential_transfer_account_row::ConfigureConfidentialTransferAccountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::ApproveConfidentialTransferAccount(instruction) => {
-                let row = approve_confidential_transfer_account_row::ApproveConfidentialTransferAccountRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::ApproveConfidentialTransferAccount { data, .. } => {
+                let row = approve_confidential_transfer_account_row::ApproveConfidentialTransferAccountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::EmptyConfidentialTransferAccount(instruction) => {
-                let row = empty_confidential_transfer_account_row::EmptyConfidentialTransferAccountRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::EmptyConfidentialTransferAccount { data, .. } => {
+                let row = empty_confidential_transfer_account_row::EmptyConfidentialTransferAccountRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::ConfidentialDeposit(instruction) => {
-                let row = confidential_deposit_row::ConfidentialDepositRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::ConfidentialDeposit { data, .. } => {
+                let row = confidential_deposit_row::ConfidentialDepositRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::ConfidentialWithdraw(instruction) => {
-                let row = confidential_withdraw_row::ConfidentialWithdrawRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::ConfidentialWithdraw { data, .. } => {
+                let row = confidential_withdraw_row::ConfidentialWithdrawRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::ConfidentialTransfer(instruction) => {
-                let row = confidential_transfer_row::ConfidentialTransferRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::ConfidentialTransfer { data, .. } => {
+                let row = confidential_transfer_row::ConfidentialTransferRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::ApplyConfidentialPendingBalance(instruction) => {
-                let row = apply_confidential_pending_balance_row::ApplyConfidentialPendingBalanceRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::ApplyConfidentialPendingBalance { data, .. } => {
+                let row = apply_confidential_pending_balance_row::ApplyConfidentialPendingBalanceRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::EnableConfidentialCredits(instruction) => {
-                let row = enable_confidential_credits_row::EnableConfidentialCreditsRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::EnableConfidentialCredits { data, .. } => {
+                let row = enable_confidential_credits_row::EnableConfidentialCreditsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::DisableConfidentialCredits(instruction) => {
-                let row =
-                    disable_confidential_credits_row::DisableConfidentialCreditsRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    );
+            Token2022Instruction::DisableConfidentialCredits { data, .. } => {
+                let row = disable_confidential_credits_row::DisableConfidentialCreditsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::EnableNonConfidentialCredits(instruction) => {
-                let row = enable_non_confidential_credits_row::EnableNonConfidentialCreditsRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::EnableNonConfidentialCredits { data, .. } => {
+                let row = enable_non_confidential_credits_row::EnableNonConfidentialCreditsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::DisableNonConfidentialCredits(instruction) => {
-                let row = disable_non_confidential_credits_row::DisableNonConfidentialCreditsRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::DisableNonConfidentialCredits { data, .. } => {
+                let row = disable_non_confidential_credits_row::DisableNonConfidentialCreditsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::ConfidentialTransferWithFee(instruction) => {
-                let row =
-                    confidential_transfer_with_fee_row::ConfidentialTransferWithFeeRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    );
+            Token2022Instruction::ConfidentialTransferWithFee { data, .. } => {
+                let row = confidential_transfer_with_fee_row::ConfidentialTransferWithFeeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeDefaultAccountState(instruction) => {
-                let row = initialize_default_account_state_row::InitializeDefaultAccountStateRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::InitializeDefaultAccountState { data, .. } => {
+                let row = initialize_default_account_state_row::InitializeDefaultAccountStateRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateDefaultAccountState(instruction) => {
-                let row =
-                    update_default_account_state_row::UpdateDefaultAccountStateRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    );
+            Token2022Instruction::UpdateDefaultAccountState { data, .. } => {
+                let row = update_default_account_state_row::UpdateDefaultAccountStateRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::Reallocate(instruction) => {
-                let row = reallocate_row::ReallocateRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::Reallocate { data, .. } => {
+                let row = reallocate_row::ReallocateRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::EnableMemoTransfers(instruction) => {
-                let row = enable_memo_transfers_row::EnableMemoTransfersRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::EnableMemoTransfers { data, .. } => {
+                let row = enable_memo_transfers_row::EnableMemoTransfersRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::DisableMemoTransfers(instruction) => {
-                let row = disable_memo_transfers_row::DisableMemoTransfersRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::DisableMemoTransfers { data, .. } => {
+                let row = disable_memo_transfers_row::DisableMemoTransfersRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::CreateNativeMint(instruction) => {
-                let row = create_native_mint_row::CreateNativeMintRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::CreateNativeMint { data, .. } => {
+                let row = create_native_mint_row::CreateNativeMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeNonTransferableMint(instruction) => {
-                let row = initialize_non_transferable_mint_row::InitializeNonTransferableMintRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::InitializeNonTransferableMint { data, .. } => {
+                let row = initialize_non_transferable_mint_row::InitializeNonTransferableMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeInterestBearingMint(instruction) => {
-                let row = initialize_interest_bearing_mint_row::InitializeInterestBearingMintRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::InitializeInterestBearingMint { data, .. } => {
+                let row = initialize_interest_bearing_mint_row::InitializeInterestBearingMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateRateInterestBearingMint(instruction) => {
-                let row = update_rate_interest_bearing_mint_row::UpdateRateInterestBearingMintRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::UpdateRateInterestBearingMint { data, .. } => {
+                let row = update_rate_interest_bearing_mint_row::UpdateRateInterestBearingMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::EnableCpiGuard(instruction) => {
-                let row = enable_cpi_guard_row::EnableCpiGuardRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::EnableCpiGuard { data, .. } => {
+                let row = enable_cpi_guard_row::EnableCpiGuardRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::DisableCpiGuard(instruction) => {
-                let row = disable_cpi_guard_row::DisableCpiGuardRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::DisableCpiGuard { data, .. } => {
+                let row = disable_cpi_guard_row::DisableCpiGuardRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializePermanentDelegate(instruction) => {
-                let row =
-                    initialize_permanent_delegate_row::InitializePermanentDelegateRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    );
+            Token2022Instruction::InitializePermanentDelegate { data, .. } => {
+                let row = initialize_permanent_delegate_row::InitializePermanentDelegateRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeTransferHook(instruction) => {
-                let row = initialize_transfer_hook_row::InitializeTransferHookRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeTransferHook { data, .. } => {
+                let row = initialize_transfer_hook_row::InitializeTransferHookRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateTransferHook(instruction) => {
-                let row = update_transfer_hook_row::UpdateTransferHookRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::UpdateTransferHook { data, .. } => {
+                let row = update_transfer_hook_row::UpdateTransferHookRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeConfidentialTransferFee(instruction) => {
-                let row = initialize_confidential_transfer_fee_row::InitializeConfidentialTransferFeeRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::InitializeConfidentialTransferFee { data, .. } => {
+                let row = initialize_confidential_transfer_fee_row::InitializeConfidentialTransferFeeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::WithdrawWithheldTokensFromMintForConfidentialTransferFee(
-                instruction,
-            ) => {
-                let row = withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_row::WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::WithdrawWithheldTokensFromMintForConfidentialTransferFee { data, .. } => {
+                let row = withdraw_withheld_tokens_from_mint_for_confidential_transfer_fee_row::WithdrawWithheldTokensFromMintForConfidentialTransferFeeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::WithdrawWithheldTokensFromAccountsForConfidentialTransferFee(
-                instruction,
-            ) => {
-                let row = withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee_row::WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::WithdrawWithheldTokensFromAccountsForConfidentialTransferFee { data, .. } => {
+                let row = withdraw_withheld_tokens_from_accounts_for_confidential_transfer_fee_row::WithdrawWithheldTokensFromAccountsForConfidentialTransferFeeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::HarvestWithheldTokensToMintForConfidentialTransferFee(
-                instruction,
-            ) => {
-                let row = harvest_withheld_tokens_to_mint_for_confidential_transfer_fee_row::HarvestWithheldTokensToMintForConfidentialTransferFeeRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::HarvestWithheldTokensToMintForConfidentialTransferFee { data, .. } => {
+                let row = harvest_withheld_tokens_to_mint_for_confidential_transfer_fee_row::HarvestWithheldTokensToMintForConfidentialTransferFeeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::EnableHarvestToMint(instruction) => {
-                let row = enable_harvest_to_mint_row::EnableHarvestToMintRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::EnableHarvestToMint { data, .. } => {
+                let row = enable_harvest_to_mint_row::EnableHarvestToMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::DisableHarvestToMint(instruction) => {
-                let row = disable_harvest_to_mint_row::DisableHarvestToMintRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::DisableHarvestToMint { data, .. } => {
+                let row = disable_harvest_to_mint_row::DisableHarvestToMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::WithdrawExcessLamports(instruction) => {
-                let row = withdraw_excess_lamports_row::WithdrawExcessLamportsRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::WithdrawExcessLamports { data, .. } => {
+                let row = withdraw_excess_lamports_row::WithdrawExcessLamportsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeMetadataPointer(instruction) => {
-                let row = initialize_metadata_pointer_row::InitializeMetadataPointerRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeMetadataPointer { data, .. } => {
+                let row = initialize_metadata_pointer_row::InitializeMetadataPointerRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateMetadataPointer(instruction) => {
-                let row = update_metadata_pointer_row::UpdateMetadataPointerRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::UpdateMetadataPointer { data, .. } => {
+                let row = update_metadata_pointer_row::UpdateMetadataPointerRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeGroupPointer(instruction) => {
-                let row = initialize_group_pointer_row::InitializeGroupPointerRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeGroupPointer { data, .. } => {
+                let row = initialize_group_pointer_row::InitializeGroupPointerRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateGroupPointer(instruction) => {
-                let row = update_group_pointer_row::UpdateGroupPointerRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::UpdateGroupPointer { data, .. } => {
+                let row = update_group_pointer_row::UpdateGroupPointerRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeGroupMemberPointer(instruction) => {
-                let row = initialize_group_member_pointer_row::InitializeGroupMemberPointerRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::InitializeGroupMemberPointer { data, .. } => {
+                let row = initialize_group_member_pointer_row::InitializeGroupMemberPointerRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateGroupMemberPointer(instruction) => {
-                let row = update_group_member_pointer_row::UpdateGroupMemberPointerRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::UpdateGroupMemberPointer { data, .. } => {
+                let row = update_group_member_pointer_row::UpdateGroupMemberPointerRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeScaledUiAmountMint(instruction) => {
-                let row = initialize_scaled_ui_amount_mint_row::InitializeScaledUiAmountMintRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::InitializeScaledUiAmountMint { data, .. } => {
+                let row = initialize_scaled_ui_amount_mint_row::InitializeScaledUiAmountMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateMultiplierScaledUiMint(instruction) => {
-                let row = update_multiplier_scaled_ui_mint_row::UpdateMultiplierScaledUiMintRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::UpdateMultiplierScaledUiMint { data, .. } => {
+                let row = update_multiplier_scaled_ui_mint_row::UpdateMultiplierScaledUiMintRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializePausableConfig(instruction) => {
-                let row = initialize_pausable_config_row::InitializePausableConfigRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializePausableConfig { data, .. } => {
+                let row = initialize_pausable_config_row::InitializePausableConfigRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::Pause(instruction) => {
-                let row = pause_row::PauseRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::Pause { data, .. } => {
+                let row = pause_row::PauseRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::Resume(instruction) => {
-                let row = resume_row::ResumeRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::Resume { data, .. } => {
+                let row = resume_row::ResumeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeTokenMetadata(instruction) => {
-                let row = initialize_token_metadata_row::InitializeTokenMetadataRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeTokenMetadata { data, .. } => {
+                let row = initialize_token_metadata_row::InitializeTokenMetadataRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateTokenMetadataField(instruction) => {
-                let row = update_token_metadata_field_row::UpdateTokenMetadataFieldRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::UpdateTokenMetadataField { data, .. } => {
+                let row = update_token_metadata_field_row::UpdateTokenMetadataFieldRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::RemoveTokenMetadataKey(instruction) => {
-                let row = remove_token_metadata_key_row::RemoveTokenMetadataKeyRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::RemoveTokenMetadataKey { data, .. } => {
+                let row = remove_token_metadata_key_row::RemoveTokenMetadataKeyRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateTokenMetadataUpdateAuthority(instruction) => {
-                let row = update_token_metadata_update_authority_row::UpdateTokenMetadataUpdateAuthorityRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::UpdateTokenMetadataUpdateAuthority { data, .. } => {
+                let row = update_token_metadata_update_authority_row::UpdateTokenMetadataUpdateAuthorityRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::EmitTokenMetadata(instruction) => {
-                let row = emit_token_metadata_row::EmitTokenMetadataRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::EmitTokenMetadata { data, .. } => {
+                let row = emit_token_metadata_row::EmitTokenMetadataRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeTokenGroup(instruction) => {
-                let row = initialize_token_group_row::InitializeTokenGroupRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::InitializeTokenGroup { data, .. } => {
+                let row = initialize_token_group_row::InitializeTokenGroupRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateTokenGroupMaxSize(instruction) => {
-                let row = update_token_group_max_size_row::UpdateTokenGroupMaxSizeRow::from_parts(
-                    instruction.clone(),
-                    metadata.clone(),
-                    accounts.clone(),
-                );
+            Token2022Instruction::UpdateTokenGroupMaxSize { data, .. } => {
+                let row = update_token_group_max_size_row::UpdateTokenGroupMaxSizeRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::UpdateTokenGroupUpdateAuthority(instruction) => {
-                let row = update_token_group_update_authority_row::UpdateTokenGroupUpdateAuthorityRow::from_parts(instruction.clone(), metadata.clone(), accounts.clone());
+            Token2022Instruction::UpdateTokenGroupUpdateAuthority { data, .. } => {
+                let row = update_token_group_update_authority_row::UpdateTokenGroupUpdateAuthorityRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }
-            Token2022Instruction::InitializeTokenGroupMember(instruction) => {
-                let row =
-                    initialize_token_group_member_row::InitializeTokenGroupMemberRow::from_parts(
-                        instruction.clone(),
-                        metadata.clone(),
-                        accounts.clone(),
-                    );
+            Token2022Instruction::InitializeTokenGroupMember { data, .. } => {
+                let row = initialize_token_group_member_row::InitializeTokenGroupMemberRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            Token2022Instruction::UnwrapLamports { data, .. } => {
+                let row = unwrap_lamports_row::UnwrapLamportsRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            Token2022Instruction::InitializePermissionedBurn { data, .. } => {
+                let row = initialize_permissioned_burn_row::InitializePermissionedBurnRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            Token2022Instruction::PermissionedBurn { data, .. } => {
+                let row = permissioned_burn_row::PermissionedBurnRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            Token2022Instruction::PermissionedBurnChecked { data, .. } => {
+                let row = permissioned_burn_checked_row::PermissionedBurnCheckedRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }

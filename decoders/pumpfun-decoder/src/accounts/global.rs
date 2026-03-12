@@ -26,6 +26,7 @@ pub struct Global {
     pub reserved_fee_recipient: Pubkey,
     pub mayhem_mode_enabled: bool,
     pub reserved_fee_recipients: [Pubkey; 7],
+    pub is_cashback_enabled: bool,
 }
 
 impl Global {

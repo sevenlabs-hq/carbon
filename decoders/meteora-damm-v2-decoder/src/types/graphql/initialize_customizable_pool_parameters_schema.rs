@@ -32,7 +32,9 @@ impl From<crate::types::InitializeCustomizablePoolParameters>
             sqrt_price: carbon_core::graphql::primitives::U128(original.sqrt_price),
             activation_type: carbon_core::graphql::primitives::U8(original.activation_type),
             collect_fee_mode: carbon_core::graphql::primitives::U8(original.collect_fee_mode),
-            activation_point: original.activation_point.map(U64),
+            activation_point: original
+                .activation_point
+                .map(carbon_core::graphql::primitives::U64),
         }
     }
 }

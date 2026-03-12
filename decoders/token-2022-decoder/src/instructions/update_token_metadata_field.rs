@@ -8,10 +8,13 @@ use {
 /// totally new field denoted by a "key" string.
 /// By the end of the instruction, the metadata account must be properly
 /// resized based on the new size of the TLV entry.
-/// * If the new size is larger, the program must first reallocate to avoid
-///   overwriting other TLV entries.
-/// * If the new size is smaller, the program must reallocate at the end so that
-///   it's possible to iterate over TLV entries
+/// * If the new size is larger, the program must first reallocate to
+///
+/// avoid
+/// overwriting other TLV entries.
+/// * If the new size is smaller, the program must reallocate at the end
+///
+/// so that it's possible to iterate over TLV entries
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct UpdateTokenMetadataField {

@@ -14,6 +14,8 @@ pub struct SplitPositionParameters {
     pub reward0_percentage: u8,
     /// Percentage of reward 1 pending to split to the second position
     pub reward1_percentage: u8,
+    /// Percentage of inner vesting liquidity
+    pub inner_vesting_liquidity_percentage: u8,
     /// padding for future
-    pub padding: [u8; 16],
+    pub padding: [u8; 15],
 }

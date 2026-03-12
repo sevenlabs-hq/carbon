@@ -101,8 +101,13 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
         }
         if (isNode(typeNode, 'enumTypeNode')) {
             return typeNode.variants.some(variant => {
-                if (variant.kind === 'enumStructVariantTypeNode' && 'fields' in variant) {
-                    return (variant as any).fields.some((field: any) => checkRequiresBigArray(field.type));
+                const v = variant as any;
+                if (v.kind === 'enumStructVariantTypeNode') {
+                    const fields = v.fields ?? v.struct?.fields;
+                    return Array.isArray(fields) && fields.some((field: any) => checkRequiresBigArray(field.type));
+                }
+                if (v.kind === 'enumTupleVariantTypeNode' && v.tuple?.items) {
+                    return v.tuple.items.some((item: any) => checkRequiresBigArray(item));
                 }
                 return false;
             });
@@ -1446,6 +1451,19 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                             // Use * to dereference since carbon_core::postgres::primitives::Pubkey implements Deref to solana_pubkey::Pubkey
                             return `${prefix}.into_iter().map(|element| *element).collect()`;
                         }
+
+                        // Only apply fallible conversion when Postgres and Rust element types differ.
+                        // Matching types (e.g. Vec<i64> ↔ Vec<i64>) avoid `.try_into()` to prevent clippy::useless_conversion.
+                        const postgresManifest = visit(
+                            typeNode.item,
+                            postgresTypeManifestVisitor,
+                        ) as PostgresTypeManifest;
+                        const rustManifest = visit(typeNode.item, typeManifestVisitor);
+
+                        if (typesMatch(postgresManifest.sqlxType, rustManifest.type)) {
+                            return `${prefix}.to_vec()`;
+                        }
+
                         return `${prefix}.into_iter().map(|element| element.try_into()).collect::<Result<_, _>>().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?`;
                     }
                     break;

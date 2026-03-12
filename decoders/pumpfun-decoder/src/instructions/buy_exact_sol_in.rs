@@ -3,13 +3,39 @@ use {
     crate::types::OptionBool,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
-/// Given a budget of spendable SOL, buy at least min_tokens_out
-/// Account creation and fees will be deducted from the spendable SOL
-/// f(sol) = tokens, where tokens >= min_tokens_out and sol > rent + fees
-/// max_slippage = min_tokens_out = 1
-/// Make sure the sol budget is enough to cover creation of the following
-/// accounts (unless already created):
-/// - creator_vault: rent.minimum_balance(SystemAccount::LEN)
+/// Given a budget of spendable SOL, buy at least min_tokens_out tokens.
+/// Fees are deducted from spendable_sol_in.
+/// # Quote formulas
+/// Where:
+/// - total_fee_bps = protocol_fee_bps + creator_fee_bps (creator_fee_bps is 0
+///   if no creator)
+/// - floor(a/b) = a / b (integer division)
+/// - ceil(a/b) = (a + b - 1) / b
+///
+/// SOL → tokens quote
+/// To calculate tokens_out for a given spendable_sol_in:
+/// 1. net_sol = floor(spendable_sol_in * 10_000 / (10_000 + total_fee_bps))
+///
+/// 2. fees = ceil(net_sol * protocol_fee_bps / 10_000) + ceil(net_sol *
+///    creator_fee_bps / 10_000) (creator_fee_bps is 0 if no creator)
+///
+/// 3. if net_sol + fees > spendable_sol_in: net_sol = net_sol - (net_sol + fees
+///    - spendable_sol_in)
+///
+/// 4. tokens_out = floor((net_sol - 1) * virtual_token_reserves /
+///    (virtual_sol_reserves + net_sol - 1))
+///
+/// Reverse quote (tokens → SOL)
+/// To calculate spendable_sol_in for a desired number of tokens:
+/// 1. net_sol = ceil(tokens * virtual_sol_reserves / (virtual_token_reserves -
+///    tokens)) + 1
+///
+/// 2. spendable_sol_in = ceil(net_sol * (10_000 + total_fee_bps) / 10_000)
+///
+/// Rent
+/// Separately make sure the instruction's payer has enough SOL to cover rent
+/// for:
+/// - creator_vault: rent.minimum_balance(0)
 /// - user_volume_accumulator: rent.minimum_balance(UserVolumeAccumulator::LEN)
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]

@@ -7,6 +7,7 @@ use {
 /// include the `TransferHook` extension.
 /// Accounts expected by this instruction:
 /// 0. `[writable]` The mint.
+///
 /// 1. `[signer]` The transfer hook authority.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]

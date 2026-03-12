@@ -42,6 +42,7 @@ impl CpiEventRow {
                 CpiEvent::EvtPermanentLockPosition(_) => "evt_permanent_lock_position".to_string(),
                 CpiEvent::EvtSetPoolStatus(_) => "evt_set_pool_status".to_string(),
                 CpiEvent::EvtSplitPosition2(_) => "evt_split_position2".to_string(),
+                CpiEvent::EvtSplitPosition3(_) => "evt_split_position3".to_string(),
                 CpiEvent::EvtSwap2(_) => "evt_swap2".to_string(),
                 CpiEvent::EvtUpdatePoolFees(_) => "evt_update_pool_fees".to_string(),
                 CpiEvent::EvtUpdateRewardDuration(_) => "evt_update_reward_duration".to_string(),

@@ -33,8 +33,6 @@ impl From<(SwigAccount, carbon_core::account::AccountMetadata)> for SwigAccountW
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for SwigAccountWithMetadata {
     async fn insert(&self, _pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let SwigAccountWithMetadata(_account, _metadata) = self;
-
         unreachable!("No accounts to decode")
     }
 }
@@ -42,7 +40,6 @@ impl carbon_core::postgres::operations::Insert for SwigAccountWithMetadata {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for SwigAccountWithMetadata {
     async fn upsert(&self, _pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let SwigAccountWithMetadata(_account, _metadata) = self;
         unreachable!("No accounts to decode")
     }
 }

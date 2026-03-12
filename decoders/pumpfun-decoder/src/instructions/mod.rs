@@ -12,16 +12,20 @@ pub mod admin_set_idl_authority;
 pub mod admin_update_token_incentives;
 pub mod buy;
 pub mod buy_exact_sol_in;
+pub mod claim_cashback;
 pub mod claim_token_incentives;
 pub mod close_user_volume_accumulator;
 pub mod collect_creator_fee;
 pub mod cpi_event;
 pub mod create;
 pub mod create_v2;
+pub mod distribute_creator_fees;
 pub mod extend_account;
+pub mod get_minimum_distributable_fee;
 pub mod init_user_volume_accumulator;
 pub mod initialize;
 pub mod migrate;
+pub mod migrate_bonding_curve_creator;
 pub mod sell;
 pub mod set_creator;
 pub mod set_mayhem_virtual_params;
@@ -29,50 +33,177 @@ pub mod set_metaplex_creator;
 pub mod set_params;
 pub mod set_reserved_fee_recipients;
 pub mod sync_user_volume_accumulator;
+pub mod toggle_cashback_enabled;
 pub mod toggle_create_v2;
 pub mod toggle_mayhem_mode;
 pub mod update_global_authority;
 
 pub use self::{
     admin_set_creator::*, admin_set_idl_authority::*, admin_update_token_incentives::*, buy::*,
-    buy_exact_sol_in::*, claim_token_incentives::*, close_user_volume_accumulator::*,
-    collect_creator_fee::*, cpi_event::*, create::*, create_v2::*, extend_account::*,
-    init_user_volume_accumulator::*, initialize::*, migrate::*, sell::*, set_creator::*,
-    set_mayhem_virtual_params::*, set_metaplex_creator::*, set_params::*,
-    set_reserved_fee_recipients::*, sync_user_volume_accumulator::*, toggle_create_v2::*,
-    toggle_mayhem_mode::*, update_global_authority::*,
+    buy_exact_sol_in::*, claim_cashback::*, claim_token_incentives::*,
+    close_user_volume_accumulator::*, collect_creator_fee::*, cpi_event::*, create::*,
+    create_v2::*, distribute_creator_fees::*, extend_account::*, get_minimum_distributable_fee::*,
+    init_user_volume_accumulator::*, initialize::*, migrate::*, migrate_bonding_curve_creator::*,
+    sell::*, set_creator::*, set_mayhem_virtual_params::*, set_metaplex_creator::*, set_params::*,
+    set_reserved_fee_recipients::*, sync_user_volume_accumulator::*, toggle_cashback_enabled::*,
+    toggle_create_v2::*, toggle_mayhem_mode::*, update_global_authority::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum PumpfunInstruction {
-    AdminSetCreator(AdminSetCreator),
-    AdminSetIdlAuthority(AdminSetIdlAuthority),
-    AdminUpdateTokenIncentives(AdminUpdateTokenIncentives),
-    Buy(Buy),
-    BuyExactSolIn(BuyExactSolIn),
-    ClaimTokenIncentives(ClaimTokenIncentives),
-    CloseUserVolumeAccumulator(CloseUserVolumeAccumulator),
-    CollectCreatorFee(CollectCreatorFee),
-    Create(Create),
-    CreateV2(CreateV2),
-    ExtendAccount(ExtendAccount),
-    Initialize(Initialize),
-    InitUserVolumeAccumulator(InitUserVolumeAccumulator),
-    Migrate(Migrate),
-    Sell(Sell),
-    SetCreator(SetCreator),
-    SetMayhemVirtualParams(SetMayhemVirtualParams),
-    SetMetaplexCreator(SetMetaplexCreator),
-    SetParams(SetParams),
-    SetReservedFeeRecipients(SetReservedFeeRecipients),
-    SyncUserVolumeAccumulator(SyncUserVolumeAccumulator),
-    ToggleCreateV2(ToggleCreateV2),
-    ToggleMayhemMode(ToggleMayhemMode),
-    UpdateGlobalAuthority(UpdateGlobalAuthority),
+    AdminSetCreator {
+        program_id: solana_pubkey::Pubkey,
+        data: AdminSetCreator,
+        accounts: AdminSetCreatorInstructionAccounts,
+    },
+    AdminSetIdlAuthority {
+        program_id: solana_pubkey::Pubkey,
+        data: AdminSetIdlAuthority,
+        accounts: AdminSetIdlAuthorityInstructionAccounts,
+    },
+    AdminUpdateTokenIncentives {
+        program_id: solana_pubkey::Pubkey,
+        data: AdminUpdateTokenIncentives,
+        accounts: AdminUpdateTokenIncentivesInstructionAccounts,
+    },
+    Buy {
+        program_id: solana_pubkey::Pubkey,
+        data: Buy,
+        accounts: BuyInstructionAccounts,
+    },
+    BuyExactSolIn {
+        program_id: solana_pubkey::Pubkey,
+        data: BuyExactSolIn,
+        accounts: BuyExactSolInInstructionAccounts,
+    },
+    ClaimCashback {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimCashback,
+        accounts: ClaimCashbackInstructionAccounts,
+    },
+    ClaimTokenIncentives {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimTokenIncentives,
+        accounts: ClaimTokenIncentivesInstructionAccounts,
+    },
+    CloseUserVolumeAccumulator {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseUserVolumeAccumulator,
+        accounts: CloseUserVolumeAccumulatorInstructionAccounts,
+    },
+    CollectCreatorFee {
+        program_id: solana_pubkey::Pubkey,
+        data: CollectCreatorFee,
+        accounts: CollectCreatorFeeInstructionAccounts,
+    },
+    Create {
+        program_id: solana_pubkey::Pubkey,
+        data: Create,
+        accounts: CreateInstructionAccounts,
+    },
+    CreateV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateV2,
+        accounts: CreateV2InstructionAccounts,
+    },
+    DistributeCreatorFees {
+        program_id: solana_pubkey::Pubkey,
+        data: DistributeCreatorFees,
+        accounts: DistributeCreatorFeesInstructionAccounts,
+    },
+    ExtendAccount {
+        program_id: solana_pubkey::Pubkey,
+        data: ExtendAccount,
+        accounts: ExtendAccountInstructionAccounts,
+    },
+    GetMinimumDistributableFee {
+        program_id: solana_pubkey::Pubkey,
+        data: GetMinimumDistributableFee,
+        accounts: GetMinimumDistributableFeeInstructionAccounts,
+    },
+    Initialize {
+        program_id: solana_pubkey::Pubkey,
+        data: Initialize,
+        accounts: InitializeInstructionAccounts,
+    },
+    InitUserVolumeAccumulator {
+        program_id: solana_pubkey::Pubkey,
+        data: InitUserVolumeAccumulator,
+        accounts: InitUserVolumeAccumulatorInstructionAccounts,
+    },
+    Migrate {
+        program_id: solana_pubkey::Pubkey,
+        data: Migrate,
+        accounts: MigrateInstructionAccounts,
+    },
+    MigrateBondingCurveCreator {
+        program_id: solana_pubkey::Pubkey,
+        data: MigrateBondingCurveCreator,
+        accounts: MigrateBondingCurveCreatorInstructionAccounts,
+    },
+    Sell {
+        program_id: solana_pubkey::Pubkey,
+        data: Sell,
+        accounts: SellInstructionAccounts,
+    },
+    SetCreator {
+        program_id: solana_pubkey::Pubkey,
+        data: SetCreator,
+        accounts: SetCreatorInstructionAccounts,
+    },
+    SetMayhemVirtualParams {
+        program_id: solana_pubkey::Pubkey,
+        data: SetMayhemVirtualParams,
+        accounts: SetMayhemVirtualParamsInstructionAccounts,
+    },
+    SetMetaplexCreator {
+        program_id: solana_pubkey::Pubkey,
+        data: SetMetaplexCreator,
+        accounts: SetMetaplexCreatorInstructionAccounts,
+    },
+    SetParams {
+        program_id: solana_pubkey::Pubkey,
+        data: SetParams,
+        accounts: SetParamsInstructionAccounts,
+    },
+    SetReservedFeeRecipients {
+        program_id: solana_pubkey::Pubkey,
+        data: SetReservedFeeRecipients,
+        accounts: SetReservedFeeRecipientsInstructionAccounts,
+    },
+    SyncUserVolumeAccumulator {
+        program_id: solana_pubkey::Pubkey,
+        data: SyncUserVolumeAccumulator,
+        accounts: SyncUserVolumeAccumulatorInstructionAccounts,
+    },
+    ToggleCashbackEnabled {
+        program_id: solana_pubkey::Pubkey,
+        data: ToggleCashbackEnabled,
+        accounts: ToggleCashbackEnabledInstructionAccounts,
+    },
+    ToggleCreateV2 {
+        program_id: solana_pubkey::Pubkey,
+        data: ToggleCreateV2,
+        accounts: ToggleCreateV2InstructionAccounts,
+    },
+    ToggleMayhemMode {
+        program_id: solana_pubkey::Pubkey,
+        data: ToggleMayhemMode,
+        accounts: ToggleMayhemModeInstructionAccounts,
+    },
+    UpdateGlobalAuthority {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateGlobalAuthority,
+        accounts: UpdateGlobalAuthorityInstructionAccounts,
+    },
     // Anchor CPI Event Instruction
-    CpiEvent(Box<CpiEvent>),
+    CpiEvent {
+        program_id: solana_pubkey::Pubkey,
+        data: CpiEvent,
+        accounts: CpiEventInstructionAccounts,
+    },
 }
 
 impl carbon_core::instruction::InstructionDecoder<'_> for PumpfunDecoder {
@@ -81,249 +212,44 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpfunDecoder {
     fn decode_instruction(
         &self,
         instruction: &solana_instruction::Instruction,
-    ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+    ) -> Option<Self::InstructionType> {
         if instruction.program_id != PROGRAM_ID {
             return None;
         }
 
-        let data = instruction.data.as_slice();
-
-        {
-            if let Some(decoded) = admin_set_creator::AdminSetCreator::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::AdminSetCreator(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = admin_set_idl_authority::AdminSetIdlAuthority::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::AdminSetIdlAuthority(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                admin_update_token_incentives::AdminUpdateTokenIncentives::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::AdminUpdateTokenIncentives(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = buy::Buy::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::Buy(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = buy_exact_sol_in::BuyExactSolIn::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::BuyExactSolIn(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = claim_token_incentives::ClaimTokenIncentives::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::ClaimTokenIncentives(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                close_user_volume_accumulator::CloseUserVolumeAccumulator::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::CloseUserVolumeAccumulator(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = collect_creator_fee::CollectCreatorFee::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::CollectCreatorFee(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = create::Create::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::Create(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = create_v2::CreateV2::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::CreateV2(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = extend_account::ExtendAccount::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::ExtendAccount(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                init_user_volume_accumulator::InitUserVolumeAccumulator::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::InitUserVolumeAccumulator(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = initialize::Initialize::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::Initialize(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = migrate::Migrate::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::Migrate(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = sell::Sell::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::Sell(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = set_creator::SetCreator::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::SetCreator(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = set_mayhem_virtual_params::SetMayhemVirtualParams::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::SetMayhemVirtualParams(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = set_metaplex_creator::SetMetaplexCreator::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::SetMetaplexCreator(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = set_params::SetParams::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::SetParams(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                set_reserved_fee_recipients::SetReservedFeeRecipients::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::SetReservedFeeRecipients(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                sync_user_volume_accumulator::SyncUserVolumeAccumulator::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::SyncUserVolumeAccumulator(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = toggle_create_v2::ToggleCreateV2::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::ToggleCreateV2(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = toggle_mayhem_mode::ToggleMayhemMode::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::ToggleMayhemMode(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = update_global_authority::UpdateGlobalAuthority::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::UpdateGlobalAuthority(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = cpi_event::CpiEvent::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: PumpfunInstruction::CpiEvent(Box::new(decoded)),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            PumpfunInstruction::AdminSetCreator => AdminSetCreator,
+            PumpfunInstruction::AdminSetIdlAuthority => AdminSetIdlAuthority,
+            PumpfunInstruction::AdminUpdateTokenIncentives => AdminUpdateTokenIncentives,
+            PumpfunInstruction::Buy => Buy,
+            PumpfunInstruction::BuyExactSolIn => BuyExactSolIn,
+            PumpfunInstruction::ClaimCashback => ClaimCashback,
+            PumpfunInstruction::ClaimTokenIncentives => ClaimTokenIncentives,
+            PumpfunInstruction::CloseUserVolumeAccumulator => CloseUserVolumeAccumulator,
+            PumpfunInstruction::CollectCreatorFee => CollectCreatorFee,
+            PumpfunInstruction::Create => Create,
+            PumpfunInstruction::CreateV2 => CreateV2,
+            PumpfunInstruction::DistributeCreatorFees => DistributeCreatorFees,
+            PumpfunInstruction::ExtendAccount => ExtendAccount,
+            PumpfunInstruction::GetMinimumDistributableFee => GetMinimumDistributableFee,
+            PumpfunInstruction::Initialize => Initialize,
+            PumpfunInstruction::InitUserVolumeAccumulator => InitUserVolumeAccumulator,
+            PumpfunInstruction::Migrate => Migrate,
+            PumpfunInstruction::MigrateBondingCurveCreator => MigrateBondingCurveCreator,
+            PumpfunInstruction::Sell => Sell,
+            PumpfunInstruction::SetCreator => SetCreator,
+            PumpfunInstruction::SetMayhemVirtualParams => SetMayhemVirtualParams,
+            PumpfunInstruction::SetMetaplexCreator => SetMetaplexCreator,
+            PumpfunInstruction::SetParams => SetParams,
+            PumpfunInstruction::SetReservedFeeRecipients => SetReservedFeeRecipients,
+            PumpfunInstruction::SyncUserVolumeAccumulator => SyncUserVolumeAccumulator,
+            PumpfunInstruction::ToggleCashbackEnabled => ToggleCashbackEnabled,
+            PumpfunInstruction::ToggleCreateV2 => ToggleCreateV2,
+            PumpfunInstruction::ToggleMayhemMode => ToggleMayhemMode,
+            PumpfunInstruction::UpdateGlobalAuthority => UpdateGlobalAuthority,
+            PumpfunInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

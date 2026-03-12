@@ -23,11 +23,14 @@ pub mod create_operator_account;
 pub mod create_position;
 pub mod create_token_badge;
 pub mod dummy_ix;
+pub mod fix_config_fee_params;
+pub mod fix_pool_fee_params;
 pub mod fund_reward;
 pub mod initialize_customizable_pool;
 pub mod initialize_pool;
 pub mod initialize_pool_with_dynamic_config;
 pub mod initialize_reward;
+pub mod lock_inner_position;
 pub mod lock_position;
 pub mod permanent_lock_position;
 pub mod refresh_vesting;
@@ -42,60 +45,222 @@ pub mod update_pool_fees;
 pub mod update_reward_duration;
 pub mod update_reward_funder;
 pub mod withdraw_ineligible_reward;
+pub mod zap_protocol_fee;
 
 pub use self::{
     add_liquidity::*, claim_partner_fee::*, claim_position_fee::*, claim_protocol_fee::*,
     claim_reward::*, close_config::*, close_operator_account::*, close_position::*,
     close_token_badge::*, cpi_event::*, create_config::*, create_dynamic_config::*,
     create_operator_account::*, create_position::*, create_token_badge::*, dummy_ix::*,
-    fund_reward::*, initialize_customizable_pool::*, initialize_pool::*,
-    initialize_pool_with_dynamic_config::*, initialize_reward::*, lock_position::*,
-    permanent_lock_position::*, refresh_vesting::*, remove_all_liquidity::*, remove_liquidity::*,
-    set_pool_status::*, split_position::*, split_position2::*, swap::*, swap2::*,
-    update_pool_fees::*, update_reward_duration::*, update_reward_funder::*,
-    withdraw_ineligible_reward::*,
+    fix_config_fee_params::*, fix_pool_fee_params::*, fund_reward::*,
+    initialize_customizable_pool::*, initialize_pool::*, initialize_pool_with_dynamic_config::*,
+    initialize_reward::*, lock_inner_position::*, lock_position::*, permanent_lock_position::*,
+    refresh_vesting::*, remove_all_liquidity::*, remove_liquidity::*, set_pool_status::*,
+    split_position::*, split_position2::*, swap::*, swap2::*, update_pool_fees::*,
+    update_reward_duration::*, update_reward_funder::*, withdraw_ineligible_reward::*,
+    zap_protocol_fee::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum MeteoraDammV2Instruction {
-    AddLiquidity(AddLiquidity),
-    ClaimPartnerFee(ClaimPartnerFee),
-    ClaimPositionFee(ClaimPositionFee),
-    ClaimProtocolFee(ClaimProtocolFee),
-    ClaimReward(ClaimReward),
-    CloseConfig(CloseConfig),
-    CloseOperatorAccount(CloseOperatorAccount),
-    ClosePosition(ClosePosition),
-    CloseTokenBadge(CloseTokenBadge),
-    CreateConfig(CreateConfig),
-    CreateDynamicConfig(CreateDynamicConfig),
-    CreateOperatorAccount(CreateOperatorAccount),
-    CreatePosition(CreatePosition),
-    CreateTokenBadge(CreateTokenBadge),
-    DummyIx(DummyIx),
-    FundReward(FundReward),
-    InitializeCustomizablePool(InitializeCustomizablePool),
-    InitializePool(InitializePool),
-    InitializePoolWithDynamicConfig(InitializePoolWithDynamicConfig),
-    InitializeReward(InitializeReward),
-    LockPosition(LockPosition),
-    PermanentLockPosition(PermanentLockPosition),
-    RefreshVesting(RefreshVesting),
-    RemoveAllLiquidity(RemoveAllLiquidity),
-    RemoveLiquidity(RemoveLiquidity),
-    SetPoolStatus(SetPoolStatus),
-    SplitPosition(SplitPosition),
-    SplitPosition2(SplitPosition2),
-    Swap(Swap),
-    Swap2(Swap2),
-    UpdatePoolFees(UpdatePoolFees),
-    UpdateRewardDuration(UpdateRewardDuration),
-    UpdateRewardFunder(UpdateRewardFunder),
-    WithdrawIneligibleReward(WithdrawIneligibleReward),
+    AddLiquidity {
+        program_id: solana_pubkey::Pubkey,
+        data: AddLiquidity,
+        accounts: AddLiquidityInstructionAccounts,
+    },
+    ClaimPartnerFee {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimPartnerFee,
+        accounts: ClaimPartnerFeeInstructionAccounts,
+    },
+    ClaimPositionFee {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimPositionFee,
+        accounts: ClaimPositionFeeInstructionAccounts,
+    },
+    ClaimProtocolFee {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimProtocolFee,
+        accounts: ClaimProtocolFeeInstructionAccounts,
+    },
+    ClaimReward {
+        program_id: solana_pubkey::Pubkey,
+        data: ClaimReward,
+        accounts: ClaimRewardInstructionAccounts,
+    },
+    CloseConfig {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseConfig,
+        accounts: CloseConfigInstructionAccounts,
+    },
+    CloseOperatorAccount {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseOperatorAccount,
+        accounts: CloseOperatorAccountInstructionAccounts,
+    },
+    ClosePosition {
+        program_id: solana_pubkey::Pubkey,
+        data: ClosePosition,
+        accounts: ClosePositionInstructionAccounts,
+    },
+    CloseTokenBadge {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseTokenBadge,
+        accounts: CloseTokenBadgeInstructionAccounts,
+    },
+    CreateConfig {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateConfig,
+        accounts: CreateConfigInstructionAccounts,
+    },
+    CreateDynamicConfig {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateDynamicConfig,
+        accounts: CreateDynamicConfigInstructionAccounts,
+    },
+    CreateOperatorAccount {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateOperatorAccount,
+        accounts: CreateOperatorAccountInstructionAccounts,
+    },
+    CreatePosition {
+        program_id: solana_pubkey::Pubkey,
+        data: CreatePosition,
+        accounts: CreatePositionInstructionAccounts,
+    },
+    CreateTokenBadge {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateTokenBadge,
+        accounts: CreateTokenBadgeInstructionAccounts,
+    },
+    DummyIx {
+        program_id: solana_pubkey::Pubkey,
+        data: DummyIx,
+        accounts: DummyIxInstructionAccounts,
+    },
+    FixConfigFeeParams {
+        program_id: solana_pubkey::Pubkey,
+        data: FixConfigFeeParams,
+        accounts: FixConfigFeeParamsInstructionAccounts,
+    },
+    FixPoolFeeParams {
+        program_id: solana_pubkey::Pubkey,
+        data: FixPoolFeeParams,
+        accounts: FixPoolFeeParamsInstructionAccounts,
+    },
+    FundReward {
+        program_id: solana_pubkey::Pubkey,
+        data: FundReward,
+        accounts: FundRewardInstructionAccounts,
+    },
+    InitializeCustomizablePool {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeCustomizablePool,
+        accounts: InitializeCustomizablePoolInstructionAccounts,
+    },
+    InitializePool {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializePool,
+        accounts: InitializePoolInstructionAccounts,
+    },
+    InitializePoolWithDynamicConfig {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializePoolWithDynamicConfig,
+        accounts: InitializePoolWithDynamicConfigInstructionAccounts,
+    },
+    InitializeReward {
+        program_id: solana_pubkey::Pubkey,
+        data: InitializeReward,
+        accounts: InitializeRewardInstructionAccounts,
+    },
+    LockInnerPosition {
+        program_id: solana_pubkey::Pubkey,
+        data: LockInnerPosition,
+        accounts: LockInnerPositionInstructionAccounts,
+    },
+    LockPosition {
+        program_id: solana_pubkey::Pubkey,
+        data: LockPosition,
+        accounts: LockPositionInstructionAccounts,
+    },
+    PermanentLockPosition {
+        program_id: solana_pubkey::Pubkey,
+        data: PermanentLockPosition,
+        accounts: PermanentLockPositionInstructionAccounts,
+    },
+    RefreshVesting {
+        program_id: solana_pubkey::Pubkey,
+        data: RefreshVesting,
+        accounts: RefreshVestingInstructionAccounts,
+    },
+    RemoveAllLiquidity {
+        program_id: solana_pubkey::Pubkey,
+        data: RemoveAllLiquidity,
+        accounts: RemoveAllLiquidityInstructionAccounts,
+    },
+    RemoveLiquidity {
+        program_id: solana_pubkey::Pubkey,
+        data: RemoveLiquidity,
+        accounts: RemoveLiquidityInstructionAccounts,
+    },
+    SetPoolStatus {
+        program_id: solana_pubkey::Pubkey,
+        data: SetPoolStatus,
+        accounts: SetPoolStatusInstructionAccounts,
+    },
+    SplitPosition {
+        program_id: solana_pubkey::Pubkey,
+        data: SplitPosition,
+        accounts: SplitPositionInstructionAccounts,
+    },
+    SplitPosition2 {
+        program_id: solana_pubkey::Pubkey,
+        data: SplitPosition2,
+        accounts: SplitPosition2InstructionAccounts,
+    },
+    Swap {
+        program_id: solana_pubkey::Pubkey,
+        data: Swap,
+        accounts: SwapInstructionAccounts,
+    },
+    Swap2 {
+        program_id: solana_pubkey::Pubkey,
+        data: Swap2,
+        accounts: Swap2InstructionAccounts,
+    },
+    UpdatePoolFees {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdatePoolFees,
+        accounts: UpdatePoolFeesInstructionAccounts,
+    },
+    UpdateRewardDuration {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateRewardDuration,
+        accounts: UpdateRewardDurationInstructionAccounts,
+    },
+    UpdateRewardFunder {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateRewardFunder,
+        accounts: UpdateRewardFunderInstructionAccounts,
+    },
+    WithdrawIneligibleReward {
+        program_id: solana_pubkey::Pubkey,
+        data: WithdrawIneligibleReward,
+        accounts: WithdrawIneligibleRewardInstructionAccounts,
+    },
+    ZapProtocolFee {
+        program_id: solana_pubkey::Pubkey,
+        data: ZapProtocolFee,
+        accounts: ZapProtocolFeeInstructionAccounts,
+    },
     // Anchor CPI Event Instruction
-    CpiEvent(Box<CpiEvent>),
+    CpiEvent {
+        program_id: solana_pubkey::Pubkey,
+        data: CpiEvent,
+        accounts: CpiEventInstructionAccounts,
+    },
 }
 
 impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDammV2Decoder {
@@ -104,335 +269,53 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDammV2Decoder {
     fn decode_instruction(
         &self,
         instruction: &solana_instruction::Instruction,
-    ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+    ) -> Option<Self::InstructionType> {
         if instruction.program_id != PROGRAM_ID {
             return None;
         }
 
-        let data = instruction.data.as_slice();
-
-        {
-            if let Some(decoded) = add_liquidity::AddLiquidity::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::AddLiquidity(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = claim_partner_fee::ClaimPartnerFee::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::ClaimPartnerFee(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = claim_position_fee::ClaimPositionFee::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::ClaimPositionFee(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = claim_protocol_fee::ClaimProtocolFee::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::ClaimProtocolFee(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = claim_reward::ClaimReward::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::ClaimReward(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = close_config::CloseConfig::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::CloseConfig(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = close_operator_account::CloseOperatorAccount::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::CloseOperatorAccount(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = close_position::ClosePosition::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::ClosePosition(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = close_token_badge::CloseTokenBadge::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::CloseTokenBadge(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = create_config::CreateConfig::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::CreateConfig(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = create_dynamic_config::CreateDynamicConfig::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::CreateDynamicConfig(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = create_operator_account::CreateOperatorAccount::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::CreateOperatorAccount(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = create_position::CreatePosition::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::CreatePosition(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = create_token_badge::CreateTokenBadge::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::CreateTokenBadge(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = dummy_ix::DummyIx::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::DummyIx(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = fund_reward::FundReward::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::FundReward(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                initialize_customizable_pool::InitializeCustomizablePool::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::InitializeCustomizablePool(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = initialize_pool::InitializePool::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::InitializePool(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                initialize_pool_with_dynamic_config::InitializePoolWithDynamicConfig::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::InitializePoolWithDynamicConfig(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = initialize_reward::InitializeReward::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::InitializeReward(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = lock_position::LockPosition::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::LockPosition(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = permanent_lock_position::PermanentLockPosition::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::PermanentLockPosition(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = refresh_vesting::RefreshVesting::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::RefreshVesting(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = remove_all_liquidity::RemoveAllLiquidity::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::RemoveAllLiquidity(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = remove_liquidity::RemoveLiquidity::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::RemoveLiquidity(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = set_pool_status::SetPoolStatus::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::SetPoolStatus(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = split_position::SplitPosition::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::SplitPosition(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = split_position2::SplitPosition2::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::SplitPosition2(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = swap::Swap::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::Swap(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = swap2::Swap2::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::Swap2(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = update_pool_fees::UpdatePoolFees::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::UpdatePoolFees(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = update_reward_duration::UpdateRewardDuration::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::UpdateRewardDuration(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = update_reward_funder::UpdateRewardFunder::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::UpdateRewardFunder(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) =
-                withdraw_ineligible_reward::WithdrawIneligibleReward::decode(data)
-            {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::WithdrawIneligibleReward(decoded),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-        {
-            if let Some(decoded) = cpi_event::CpiEvent::decode(data) {
-                return Some(carbon_core::instruction::DecodedInstruction {
-                    program_id: instruction.program_id,
-                    data: MeteoraDammV2Instruction::CpiEvent(Box::new(decoded)),
-                    accounts: instruction.accounts.clone(),
-                });
-            }
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            MeteoraDammV2Instruction::AddLiquidity => AddLiquidity,
+            MeteoraDammV2Instruction::ClaimPartnerFee => ClaimPartnerFee,
+            MeteoraDammV2Instruction::ClaimPositionFee => ClaimPositionFee,
+            MeteoraDammV2Instruction::ClaimProtocolFee => ClaimProtocolFee,
+            MeteoraDammV2Instruction::ClaimReward => ClaimReward,
+            MeteoraDammV2Instruction::CloseConfig => CloseConfig,
+            MeteoraDammV2Instruction::CloseOperatorAccount => CloseOperatorAccount,
+            MeteoraDammV2Instruction::ClosePosition => ClosePosition,
+            MeteoraDammV2Instruction::CloseTokenBadge => CloseTokenBadge,
+            MeteoraDammV2Instruction::CreateConfig => CreateConfig,
+            MeteoraDammV2Instruction::CreateDynamicConfig => CreateDynamicConfig,
+            MeteoraDammV2Instruction::CreateOperatorAccount => CreateOperatorAccount,
+            MeteoraDammV2Instruction::CreatePosition => CreatePosition,
+            MeteoraDammV2Instruction::CreateTokenBadge => CreateTokenBadge,
+            MeteoraDammV2Instruction::DummyIx => DummyIx,
+            MeteoraDammV2Instruction::FixConfigFeeParams => FixConfigFeeParams,
+            MeteoraDammV2Instruction::FixPoolFeeParams => FixPoolFeeParams,
+            MeteoraDammV2Instruction::FundReward => FundReward,
+            MeteoraDammV2Instruction::InitializeCustomizablePool => InitializeCustomizablePool,
+            MeteoraDammV2Instruction::InitializePool => InitializePool,
+            MeteoraDammV2Instruction::InitializePoolWithDynamicConfig => InitializePoolWithDynamicConfig,
+            MeteoraDammV2Instruction::InitializeReward => InitializeReward,
+            MeteoraDammV2Instruction::LockInnerPosition => LockInnerPosition,
+            MeteoraDammV2Instruction::LockPosition => LockPosition,
+            MeteoraDammV2Instruction::PermanentLockPosition => PermanentLockPosition,
+            MeteoraDammV2Instruction::RefreshVesting => RefreshVesting,
+            MeteoraDammV2Instruction::RemoveAllLiquidity => RemoveAllLiquidity,
+            MeteoraDammV2Instruction::RemoveLiquidity => RemoveLiquidity,
+            MeteoraDammV2Instruction::SetPoolStatus => SetPoolStatus,
+            MeteoraDammV2Instruction::SplitPosition => SplitPosition,
+            MeteoraDammV2Instruction::SplitPosition2 => SplitPosition2,
+            MeteoraDammV2Instruction::Swap => Swap,
+            MeteoraDammV2Instruction::Swap2 => Swap2,
+            MeteoraDammV2Instruction::UpdatePoolFees => UpdatePoolFees,
+            MeteoraDammV2Instruction::UpdateRewardDuration => UpdateRewardDuration,
+            MeteoraDammV2Instruction::UpdateRewardFunder => UpdateRewardFunder,
+            MeteoraDammV2Instruction::WithdrawIneligibleReward => WithdrawIneligibleReward,
+            MeteoraDammV2Instruction::ZapProtocolFee => ZapProtocolFee,
+            MeteoraDammV2Instruction::CpiEvent => CpiEvent,
+        )
     }
 }

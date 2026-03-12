@@ -10,6 +10,7 @@ pub struct SplitPositionParametersGraphQL {
     pub fee_b_percentage: U8,
     pub reward0_percentage: U8,
     pub reward1_percentage: U8,
+    pub inner_vesting_liquidity_percentage: U8,
     pub padding: Vec<U8>,
 }
 
@@ -26,6 +27,9 @@ impl From<crate::types::SplitPositionParameters> for SplitPositionParametersGrap
             fee_b_percentage: carbon_core::graphql::primitives::U8(original.fee_b_percentage),
             reward0_percentage: carbon_core::graphql::primitives::U8(original.reward0_percentage),
             reward1_percentage: carbon_core::graphql::primitives::U8(original.reward1_percentage),
+            inner_vesting_liquidity_percentage: carbon_core::graphql::primitives::U8(
+                original.inner_vesting_liquidity_percentage,
+            ),
             padding: original
                 .padding
                 .into_iter()

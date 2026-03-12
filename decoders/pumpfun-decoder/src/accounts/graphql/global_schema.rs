@@ -28,6 +28,7 @@ pub struct GlobalGraphQL {
     pub reserved_fee_recipient: Pubkey,
     pub mayhem_mode_enabled: bool,
     pub reserved_fee_recipients: Vec<Pubkey>,
+    pub is_cashback_enabled: bool,
 }
 
 impl TryFrom<crate::accounts::postgres::GlobalRow> for GlobalGraphQL {
@@ -77,6 +78,7 @@ impl TryFrom<crate::accounts::postgres::GlobalRow> for GlobalGraphQL {
                 .into_iter()
                 .map(|item| carbon_core::graphql::primitives::Pubkey(item.0))
                 .collect(),
+            is_cashback_enabled: row.is_cashback_enabled,
         })
     }
 }

@@ -11,7 +11,7 @@ pub struct SetPoolStatus {
 pub struct SetPoolStatusInstructionAccounts {
     pub pool: solana_pubkey::Pubkey,
     pub operator: solana_pubkey::Pubkey,
-    pub whitelisted_address: solana_pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
     pub event_authority: solana_pubkey::Pubkey,
     pub program: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
@@ -45,7 +45,7 @@ impl ArrangeAccounts for SetPoolStatus {
 
         let pool = next_account(&mut iter)?;
         let operator = next_account(&mut iter)?;
-        let whitelisted_address = next_account(&mut iter)?;
+        let signer = next_account(&mut iter)?;
         let event_authority = next_account(&mut iter)?;
         let program = next_account(&mut iter)?;
 
@@ -54,7 +54,7 @@ impl ArrangeAccounts for SetPoolStatus {
         Some(SetPoolStatusInstructionAccounts {
             pool,
             operator,
-            whitelisted_address,
+            signer,
             event_authority,
             program,
             remaining: remaining.to_vec(),

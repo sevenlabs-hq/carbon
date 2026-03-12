@@ -12,14 +12,13 @@ use carbon_core::{borsh, deserialize::ArrangeAccounts};
     PartialEq,
 )]
 pub enum CpiEvent {
-    SwapCpiEvent(events::swap_cpi_event::SwapCpiEventEvent),
+    SwapCpiEvent2(events::swap_cpi_event2::SwapCpiEvent2Event),
     SwapEvent(events::swap_event::SwapEventEvent),
-    SwapToCWithFeesCpiEventV2(
-        events::swap_to_c_with_fees_cpi_event_v2::SwapToCWithFeesCpiEventV2Event,
-    ),
-    SwapWithFeesCpiEvent(events::swap_with_fees_cpi_event::SwapWithFeesCpiEventEvent),
-    SwapWithFeesCpiEventEnhanced(
-        events::swap_with_fees_cpi_event_enhanced::SwapWithFeesCpiEventEnhancedEvent,
+    SwapTobV2CpiEvent2(events::swap_tob_v2_cpi_event2::SwapTobV2CpiEvent2Event),
+    SwapTocV2CpiEvent2(events::swap_toc_v2_cpi_event2::SwapTocV2CpiEvent2Event),
+    SwapWithFeesCpiEvent2(events::swap_with_fees_cpi_event2::SwapWithFeesCpiEvent2Event),
+    SwapWithFeesCpiEventEnhanced2(
+        events::swap_with_fees_cpi_event_enhanced2::SwapWithFeesCpiEventEnhanced2Event,
     ),
 }
 
@@ -43,30 +42,33 @@ impl CpiEvent {
 
         let event_data = &data[8..];
 
-        if let Some(decoded) = events::swap_cpi_event::SwapCpiEventEvent::decode(event_data) {
-            return Some(CpiEvent::SwapCpiEvent(decoded));
+        if let Some(decoded) = events::swap_cpi_event2::SwapCpiEvent2Event::decode(event_data) {
+            return Some(CpiEvent::SwapCpiEvent2(decoded));
         }
         if let Some(decoded) = events::swap_event::SwapEventEvent::decode(event_data) {
             return Some(CpiEvent::SwapEvent(decoded));
         }
         if let Some(decoded) =
-            events::swap_to_c_with_fees_cpi_event_v2::SwapToCWithFeesCpiEventV2Event::decode(
+            events::swap_tob_v2_cpi_event2::SwapTobV2CpiEvent2Event::decode(event_data)
+        {
+            return Some(CpiEvent::SwapTobV2CpiEvent2(decoded));
+        }
+        if let Some(decoded) =
+            events::swap_toc_v2_cpi_event2::SwapTocV2CpiEvent2Event::decode(event_data)
+        {
+            return Some(CpiEvent::SwapTocV2CpiEvent2(decoded));
+        }
+        if let Some(decoded) =
+            events::swap_with_fees_cpi_event2::SwapWithFeesCpiEvent2Event::decode(event_data)
+        {
+            return Some(CpiEvent::SwapWithFeesCpiEvent2(decoded));
+        }
+        if let Some(decoded) =
+            events::swap_with_fees_cpi_event_enhanced2::SwapWithFeesCpiEventEnhanced2Event::decode(
                 event_data,
             )
         {
-            return Some(CpiEvent::SwapToCWithFeesCpiEventV2(decoded));
-        }
-        if let Some(decoded) =
-            events::swap_with_fees_cpi_event::SwapWithFeesCpiEventEvent::decode(event_data)
-        {
-            return Some(CpiEvent::SwapWithFeesCpiEvent(decoded));
-        }
-        if let Some(decoded) =
-            events::swap_with_fees_cpi_event_enhanced::SwapWithFeesCpiEventEnhancedEvent::decode(
-                event_data,
-            )
-        {
-            return Some(CpiEvent::SwapWithFeesCpiEventEnhanced(decoded));
+            return Some(CpiEvent::SwapWithFeesCpiEventEnhanced2(decoded));
         }
         None
     }

@@ -9,10 +9,12 @@ use {
 /// instructions:
 /// - `VerifyCiphertextCommitmentEquality`
 /// - `VerifyBatchedGroupedCiphertext3HandlesValidity`
-/// - `VerifyBatchedRangeProofU128` These instructions can be accompanied in the
-///   same transaction or can be pre-verified into a context state account, in
-///   which case, only their context state account addresses need to be
-///   provided. Fails if the associated mint is extended as `NonTransferable`.
+/// - `VerifyBatchedRangeProofU128`
+///
+/// These instructions can be accompanied in the same transaction or can be
+/// pre-verified into a context state account, in which case, only their
+/// context state account addresses need to be provided.
+/// Fails if the associated mint is extended as `NonTransferable`.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct ConfidentialTransfer {
