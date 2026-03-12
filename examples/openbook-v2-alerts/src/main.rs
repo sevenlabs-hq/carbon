@@ -55,18 +55,121 @@ impl Processor<InstructionProcessorInputType<'_, OpenbookV2Instruction>>
         input: &InstructionProcessorInputType<'_, OpenbookV2Instruction>,
     ) -> CarbonResult<()> {
         let signature = input.metadata.transaction_metadata.signature;
-        let signature_str = format!(
-            "{}...{}",
-            &signature.to_string()[..4],
-            &signature.to_string()[signature.to_string().len() - 4..]
-        );
 
-        log::info!(
-            "OpenBook V2 instruction ({}) {:?} on slot {}",
-            signature_str,
-            input.decoded_instruction,
-            input.metadata.transaction_metadata.slot
-        );
+        match input.decoded_instruction {
+            OpenbookV2Instruction::CreateMarket { data, .. } => {
+                log::info!("CreateMarket: signature: {signature}, create_market: {data:?}");
+            }
+            OpenbookV2Instruction::CloseMarket { data, .. } => {
+                log::info!("CloseMarket: signature: {signature}, close_market: {data:?}");
+            }
+            OpenbookV2Instruction::CreateOpenOrdersIndexer { data, .. } => {
+                log::info!(
+                    "CreateOpenOrdersIndexer: signature: {signature}, create_open_orders_indexer: {data:?}"
+                );
+            }
+            OpenbookV2Instruction::CloseOpenOrdersIndexer { data, .. } => {
+                log::info!(
+                    "CloseOpenOrdersIndexer: signature: {signature}, close_open_orders_indexer: {data:?}"
+                );
+            }
+            OpenbookV2Instruction::CreateOpenOrdersAccount { data, .. } => {
+                log::info!(
+                    "CreateOpenOrdersAccount: signature: {signature}, create_open_orders_account: {data:?}"
+                );
+            }
+            OpenbookV2Instruction::CloseOpenOrdersAccount { data, .. } => {
+                log::info!(
+                    "CloseOpenOrdersAccount: signature: {signature}, close_open_orders_account: {data:?}"
+                );
+            }
+            OpenbookV2Instruction::PlaceOrder { data, .. } => {
+                log::info!("PlaceOrder: signature: {signature}, place_order: {data:?}");
+            }
+            OpenbookV2Instruction::EditOrder { data, .. } => {
+                log::info!("EditOrder: signature: {signature}, edit_order: {data:?}");
+            }
+            OpenbookV2Instruction::EditOrderPegged { data, .. } => {
+                log::info!("EditOrderPegged: signature: {signature}, edit_order_pegged: {data:?}");
+            }
+            OpenbookV2Instruction::PlaceOrders { data, .. } => {
+                log::info!("PlaceOrders: signature: {signature}, place_orders: {data:?}");
+            }
+            OpenbookV2Instruction::CancelAllAndPlaceOrders { data, .. } => {
+                log::info!(
+                    "CancelAllAndPlaceOrders: signature: {signature}, cancel_all_and_place_orders: {data:?}"
+                );
+            }
+            OpenbookV2Instruction::PlaceOrderPegged { data, .. } => {
+                log::info!(
+                    "PlaceOrderPegged: signature: {signature}, place_order_pegged: {data:?}"
+                );
+            }
+            OpenbookV2Instruction::PlaceTakeOrder { data, .. } => {
+                log::info!("PlaceTakeOrder: signature: {signature}, place_take_order: {data:?}");
+            }
+            OpenbookV2Instruction::ConsumeEvents { data, .. } => {
+                log::info!("ConsumeEvents: signature: {signature}, consume_events: {data:?}");
+            }
+            OpenbookV2Instruction::ConsumeGivenEvents { data, .. } => {
+                log::info!(
+                    "ConsumeGivenEvents: signature: {signature}, consume_given_events: {data:?}"
+                );
+            }
+            OpenbookV2Instruction::CancelOrder { data, .. } => {
+                log::info!("CancelOrder: signature: {signature}, cancel_order: {data:?}");
+            }
+            OpenbookV2Instruction::CancelOrderByClientOrderId { data, .. } => {
+                log::info!(
+                    "CancelOrderByClientOrderId: signature: {signature}, cancel_order_by_client_order_id: {data:?}"
+                );
+            }
+            OpenbookV2Instruction::CancelAllOrders { data, .. } => {
+                log::info!("CancelAllOrders: signature: {signature}, cancel_all_orders: {data:?}");
+            }
+            OpenbookV2Instruction::Deposit { data, .. } => {
+                log::info!("Deposit: signature: {signature}, deposit: {data:?}");
+            }
+            OpenbookV2Instruction::Refill { data, .. } => {
+                log::info!("Refill: signature: {signature}, refill: {data:?}");
+            }
+            OpenbookV2Instruction::SettleFunds { data, .. } => {
+                log::info!("SettleFunds: signature: {signature}, settle_funds: {data:?}");
+            }
+            OpenbookV2Instruction::SettleFundsExpired { data, .. } => {
+                log::info!(
+                    "SettleFundsExpired: signature: {signature}, settle_funds_expired: {data:?}"
+                );
+            }
+            OpenbookV2Instruction::SweepFees { data, .. } => {
+                log::info!("SweepFees: signature: {signature}, sweep_fees: {data:?}");
+            }
+            OpenbookV2Instruction::SetDelegate { data, .. } => {
+                log::info!("SetDelegate: signature: {signature}, set_delegate: {data:?}");
+            }
+            OpenbookV2Instruction::SetMarketExpired { data, .. } => {
+                log::info!(
+                    "SetMarketExpired: signature: {signature}, set_market_expired: {data:?}"
+                );
+            }
+            OpenbookV2Instruction::PruneOrders { data, .. } => {
+                log::info!("PruneOrders: signature: {signature}, prune_orders: {data:?}");
+            }
+            OpenbookV2Instruction::StubOracleCreate { data, .. } => {
+                log::info!(
+                    "StubOracleCreate: signature: {signature}, stub_oracle_create: {data:?}"
+                );
+            }
+            OpenbookV2Instruction::StubOracleClose { data, .. } => {
+                log::info!("StubOracleClose: signature: {signature}, stub_oracle_close: {data:?}");
+            }
+            OpenbookV2Instruction::StubOracleSet { data, .. } => {
+                log::info!("StubOracleSet: signature: {signature}, stub_oracle_set: {data:?}");
+            }
+            OpenbookV2Instruction::CpiEvent { data, .. } => {
+                log::info!("CpiEvent: signature: {signature}, cpi_event: {data:?}");
+            }
+        }
 
         Ok(())
     }

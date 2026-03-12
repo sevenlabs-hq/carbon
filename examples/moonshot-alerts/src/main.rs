@@ -51,11 +51,32 @@ impl Processor<InstructionProcessorInputType<'_, MoonshotInstruction>>
         &mut self,
         input: &InstructionProcessorInputType<'_, MoonshotInstruction>,
     ) -> CarbonResult<()> {
-        log::info!(
-            "Moonshot instruction: {:?} on slot {}",
-            input.decoded_instruction,
-            input.metadata.transaction_metadata.slot
-        );
+        let signature = input.metadata.transaction_metadata.signature;
+
+        match input.decoded_instruction {
+            MoonshotInstruction::Buy { data, .. } => {
+                log::info!("Buy: signature: {signature}, buy: {data:?}");
+            }
+            MoonshotInstruction::ConfigInit { data, .. } => {
+                log::info!("ConfigInit: signature: {signature}, config_init: {data:?}");
+            }
+            MoonshotInstruction::ConfigUpdate { data, .. } => {
+                log::info!("ConfigUpdate: signature: {signature}, config_update: {data:?}");
+            }
+            MoonshotInstruction::MigrateFunds { data, .. } => {
+                log::info!("MigrateFunds: signature: {signature}, migrate_funds: {data:?}");
+            }
+            MoonshotInstruction::Sell { data, .. } => {
+                log::info!("Sell: signature: {signature}, sell: {data:?}");
+            }
+            MoonshotInstruction::TokenMint { data, .. } => {
+                log::info!("TokenMint: signature: {signature}, token_mint: {data:?}");
+            }
+            MoonshotInstruction::CpiEvent { data, .. } => {
+                log::info!("CpiEvent: signature: {signature}, cpi_event: {data:?}");
+            }
+        }
+
         Ok(())
     }
 }

@@ -52,11 +52,47 @@ impl Processor<InstructionProcessorInputType<'_, RaydiumCpmmInstruction>>
         &mut self,
         input: &InstructionProcessorInputType<'_, RaydiumCpmmInstruction>,
     ) -> CarbonResult<()> {
-        log::info!(
-            "Raydium CPMM instruction: {:?} on slot {}",
-            input.decoded_instruction,
-            input.metadata.transaction_metadata.slot
-        );
+        let signature = input.metadata.transaction_metadata.signature;
+
+        match input.decoded_instruction {
+            RaydiumCpmmInstruction::CollectFundFee { data, .. } => {
+                log::info!("CollectFundFee: signature: {signature}, collect_fund_fee: {data:?}");
+            }
+            RaydiumCpmmInstruction::CollectProtocolFee { data, .. } => {
+                log::info!(
+                    "CollectProtocolFee: signature: {signature}, collect_protocol_fee: {data:?}"
+                );
+            }
+            RaydiumCpmmInstruction::CreateAmmConfig { data, .. } => {
+                log::info!("CreateAmmConfig: signature: {signature}, create_amm_config: {data:?}");
+            }
+            RaydiumCpmmInstruction::Deposit { data, .. } => {
+                log::info!("Deposit: signature: {signature}, deposit: {data:?}");
+            }
+            RaydiumCpmmInstruction::Initialize { data, .. } => {
+                log::info!("Initialize: signature: {signature}, initialize: {data:?}");
+            }
+            RaydiumCpmmInstruction::SwapBaseInput { data, .. } => {
+                log::info!("SwapBaseInput: signature: {signature}, swap_base_input: {data:?}");
+            }
+            RaydiumCpmmInstruction::SwapBaseOutput { data, .. } => {
+                log::info!("SwapBaseOutput: signature: {signature}, swap_base_output: {data:?}");
+            }
+            RaydiumCpmmInstruction::UpdateAmmConfig { data, .. } => {
+                log::info!("UpdateAmmConfig: signature: {signature}, update_amm_config: {data:?}");
+            }
+            RaydiumCpmmInstruction::UpdatePoolStatus { data, .. } => {
+                log::info!(
+                    "UpdatePoolStatus: signature: {signature}, update_pool_status: {data:?}"
+                );
+            }
+            RaydiumCpmmInstruction::Withdraw { data, .. } => {
+                log::info!("Withdraw: signature: {signature}, withdraw: {data:?}");
+            }
+            RaydiumCpmmInstruction::CpiEvent { data, .. } => {
+                log::info!("CpiEvent: signature: {signature}, cpi_event: {data:?}");
+            }
+        }
 
         Ok(())
     }
