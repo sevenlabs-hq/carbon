@@ -48,7 +48,9 @@ pub enum Extension {
         /// * If `true`, no approval is required and new accounts may be used
         ///   immediately.
         /// * If `false`, the authority must approve newly configured accounts
-        ///   (see `ConfidentialTransferInstruction::ConfigureAccount`).
+        ///   (see
+        ///
+        /// `ConfidentialTransferInstruction::ConfigureAccount`).
         auto_approve_new_accounts: bool,
         /// Authority to decode any transfer amount in a confidential transfer.
         auditor_elgamal_pubkey: Option<Pubkey>,

@@ -7,8 +7,10 @@ use crate::types::MigrateNftInfo;
 /// * `fee_rate` - Fee rate of the platform
 /// * `name` - Name of the platform
 /// * `web` - Website of the platform
-/// * `img` - Image link of the platform /// * `creator_fee_rate` - The fee rate
-///   charged by the creator for each transaction.
+/// * `img` - Image link of the platform
+///
+/// /// * `creator_fee_rate` - The fee rate charged by the creator for each
+/// transaction.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct PlatformParams {

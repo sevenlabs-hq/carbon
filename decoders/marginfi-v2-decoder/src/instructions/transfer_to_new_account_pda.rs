@@ -6,8 +6,10 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// - authority: The account authority (owner)
 /// - account_index: A u32 value to allow multiple accounts per authority
 /// - third_party_id: Optional u32 for third-party tagging. Seeds <
-///   PDA_FREE_THRESHOLD can be used freely. For a dedicated seed used by just
-///   your program (via CPI), contact us.
+///   PDA_FREE_THRESHOLD can be
+///
+/// used freely. For a dedicated seed used by just your program (via CPI),
+/// contact us.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct TransferToNewAccountPda {

@@ -2,7 +2,9 @@
 use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// (user) Deposit into a Kamino pool through a marginfi account
 /// * amount - in the liquidity token (e.g. if there is a Kamino USDC bank, pass
-///   the amount of USDC desired), in native decimals.
+///   the amount of
+///
+/// USDC desired), in native decimals.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct KaminoDeposit {

@@ -5,8 +5,9 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// a user account. This cache is read-only and serves no purpose except being
 /// populated by this ix.
 /// * remaining accounts expected in the same order as borrow, etc. I.e., for
-///   each balance the user has, pass bank and oracle: <bank1, oracle1, bank2,
-///   oracle2>
+///   each balance the
+///
+/// user has, pass bank and oracle: <bank1, oracle1, bank2, oracle2>
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct LendingAccountPulseHealth {}

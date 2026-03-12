@@ -2,11 +2,13 @@
 use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// (user) Withdraw from a Kamino pool through a marginfi account
 /// * amount - in the collateral token (NOT liquidity token), in native
-///   decimals. Must convert from collateral to liquidity token amounts using
-///   the current exchange rate.
+///   decimals. Must convert
+///
+/// from collateral to liquidity token amounts using the current exchange rate.
 /// * withdraw_all - if true, withdraw the entire mrgn balance (Note: due to
-///   rounding down, a deposit and withdraw back to back may result in several
-///   lamports less)
+///   rounding down, a
+///
+/// deposit and withdraw back to back may result in several lamports less)
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct KaminoWithdraw {

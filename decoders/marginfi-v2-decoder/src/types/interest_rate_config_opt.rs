@@ -17,7 +17,9 @@ pub struct InterestRateConfigOpt {
     /// The base rate at various points between 0 and 100%, exclusive.
     /// Essentially a piece-wise linear curve.
     /// * always in ascending order, e.g. points[0] = first kink point,
-    ///   points[1] = second kink point, and so forth.
+    ///   points[1] = second kink
+    ///
+    /// point, and so forth.
     /// * points where util = 0 are unused
     pub points: Option<[RatePoint; 5]>,
 }

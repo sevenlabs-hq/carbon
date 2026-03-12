@@ -7,26 +7,31 @@ pub struct ObligationOrder {
     /// A threshold value used by the condition (scaled [Fraction]).
     /// The exact meaning depends on the specific [Self::condition_type].
     /// Examples:
-    /// - when `condition_type == 2 (UserLtvBelow)`: then a value of `0.455`
-    ///   here means that the order is active only when the obligation's user
-    ///   LTV is less than `0.455` (i.e. < 45.5%).
-    /// - when `condition_type == 3 (DebtCollPriceRatioAbove)`: assuming the
-    ///   obligation uses BTC collateral for SOL debt, then a value of `491.3`
-    ///   here means that the order is active only when the BTC-SOL price is
-    ///   greater than `491.3` (i.e.
-    ///   > 491.3 SOL per BTC).
+    /// - when `condition_type == 2 (UserLtvBelow)`:
+    ///
+    /// then a value of `0.455` here means that the order is active only when
+    /// the obligation's user LTV is less than `0.455` (i.e. < 45.5%).
+    /// - when `condition_type == 3 (DebtCollPriceRatioAbove)`:
+    ///
+    /// assuming the obligation uses BTC collateral for SOL debt, then a value
+    /// of `491.3` here means that the order is active only when the BTC-SOL
+    /// price is greater than `491.3` (i.e.
+    /// > 491.3 SOL per BTC).
     pub condition_threshold_sf: u128,
     /// A configuration parameter used by the opportunity (scaled [Fraction]).
     /// The exact meaning depends on the specific [Self::opportunity_type].
     /// Examples:
-    /// - when `opportunity_type == 0 (DeleverageSingleDebtAmount)`: Assuming
-    ///   the obligation uses BTC collateral for SOL debt, then a value of
-    ///   `1_234_000_000` here means that a liquidator may repay up to
-    ///   1234000000 lamports (i.e. 1.234 SOL) on this obligation. Note: the
-    ///   special value of [Fraction::MAX] is *not* allowed in this case.
-    /// - when `opportunity_type == 1 (DeleverageAllDebtAmount)`: The only
-    ///   allowed value in this case is [Fraction::MAX] (to emphasize that *all*
-    ///   debt should be repaid).
+    /// - when `opportunity_type == 0 (DeleverageSingleDebtAmount)`:
+    ///
+    /// Assuming the obligation uses BTC collateral for SOL debt, then a value
+    /// of `1_234_000_000` here means that a liquidator may repay up to
+    /// 1234000000 lamports (i.e. 1.234 SOL) on this obligation.
+    /// Note: the special value of [Fraction::MAX] is *not* allowed in this
+    /// case.
+    /// - when `opportunity_type == 1 (DeleverageAllDebtAmount)`:
+    ///
+    /// The only allowed value in this case is [Fraction::MAX] (to emphasize
+    /// that *all* debt should be repaid).
     pub opportunity_parameter_sf: u128,
     /// A *minimum* additional fraction of collateral transferred to the
     /// liquidator, in bps. The minimum bonus is applied exactly when the
@@ -41,12 +46,14 @@ pub struct ObligationOrder {
     /// - for a stop-loss condition, it is a point at which the obligation
     ///   becomes liquidatable;
     /// - for a take-profit condition, it is a point at which obligation has 0%
-    ///   LTV. In non-extreme states, the actual bonus value is interpolated
-    ///   linearly, starting from [Self::min_execution_bonus_bps] (at the point
-    ///   specified by the order's condition). Example: a value of `300` here
-    ///   means 300bps == 3.0% bonus for a "debt/coll price > 140" order, when
-    ///   executed at a higher price = 200, at which the obligation's LTV
-    ///   happens to be equal to its liquidation LTV.
+    ///   LTV.
+    ///
+    /// In non-extreme states, the actual bonus value is interpolated linearly,
+    /// starting from [Self::min_execution_bonus_bps] (at the point
+    /// specified by the order's condition). Example: a value of `300` here
+    /// means 300bps == 3.0% bonus for a "debt/coll price > 140" order, when
+    /// executed at a higher price = 200, at which the obligation's LTV happens
+    /// to be equal to its liquidation LTV.
     pub max_execution_bonus_bps: u16,
     /// Serialized [ConditionType].
     /// The entire order is void when this is zeroed (i.e. representing

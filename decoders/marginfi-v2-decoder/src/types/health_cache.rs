@@ -49,19 +49,25 @@ pub struct HealthCache {
     /// The flags that indicate the state of the health cache. This is a u64
     /// bitfield, where each bit represents a flag.
     /// * HEALTHY = 1 - If set, the account cannot be liquidated. If 0, the
-    ///   account is unhealthy and can be liquidated.
+    ///   account is unhealthy and
+    ///
+    /// can be liquidated.
     /// * ENGINE STATUS = 2 - If set, the engine did not error during the last
-    ///   health pulse. If 0, the engine would have errored and this cache is
-    ///   likely invalid. `RiskEngineInitRejected` is ignored and will allow the
-    ///   flag to be set anyways.
+    ///   health pulse. If 0,
+    ///
+    /// the engine would have errored and this cache is likely invalid.
+    /// `RiskEngineInitRejected` is ignored and will allow the flag to be
+    /// set anyways.
     /// * ORACLE OK = 4 - If set, the engine did not error due to an oracle
-    ///   issue. If 0, engine was passed a bad bank or oracle account, or an
-    ///   oracle was stale. Check the order in which accounts were passed and
-    ///   ensure each balance has the correct banks/oracles, and that oracle
-    ///   cranks ran recently enough. Check `internal_err` and `err_index` for
-    ///   more details in some circumstances. Invalid if generated after
-    ///   borrow/withdraw (these instructions will ignore oracle issues if
-    ///   health is still satisfactory with some balance zeroed out).
+    ///   issue. If 0, engine was
+    ///
+    /// passed a bad bank or oracle account, or an oracle was stale. Check the
+    /// order in which accounts were passed and ensure each balance has the
+    /// correct banks/oracles, and that oracle cranks ran recently enough.
+    /// Check `internal_err` and `err_index` for more details
+    /// in some circumstances. Invalid if generated after borrow/withdraw (these
+    /// instructions will ignore oracle issues if health is still
+    /// satisfactory with some balance zeroed out).
     /// * 8, 16, 32, 64, 128, etc - reserved for future use
     pub flags: u32,
     /// If the engine errored, look here for the error code. If the engine

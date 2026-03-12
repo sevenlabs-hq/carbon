@@ -91,8 +91,9 @@ pub struct LendingMarket {
     /// should be disabled. This includes regular liquidation (i.e. LTV
     /// exceeding the unhealthy threshold) and some obligation orders'
     /// execution. *Caution:* this flag is *disabling* the liquidations when
-    /// `1` - contrary to all the other   liquidation-driving flags (see
-    /// e.g. [Self::autodeleverage_enabled]).
+    /// `1` - contrary to all the other
+    ///
+    /// liquidation-driving flags (see e.g. [Self::autodeleverage_enabled]).
     pub price_triggered_liquidation_disabled: u8,
     /// Whether the debts that reached their reserve's
     /// [ReserveConfig::debt_maturity_timestamp] can be liquidated.

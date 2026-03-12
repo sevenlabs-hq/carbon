@@ -23,22 +23,29 @@ pub struct BankConfig {
     /// Determines what kinds of assets users of this bank can interact with.
     /// Options:
     /// * `ASSET_TAG_DEFAULT` (0) - A regular asset that can be comingled with
-    ///   any other regular asset or with `ASSET_TAG_SOL`
+    ///   any other regular
+    ///
+    /// asset or with `ASSET_TAG_SOL`
     /// * `ASSET_TAG_SOL` (1) - Accounts with a SOL position can comingle with
-    ///   **either** `ASSET_TAG_DEFAULT` or `ASSET_TAG_STAKED` positions, but
-    ///   not both
+    ///   **either**
+    ///
+    /// `ASSET_TAG_DEFAULT` or `ASSET_TAG_STAKED` positions, but not both
     /// * `ASSET_TAG_STAKED` (2) - Staked SOL assets. Accounts with a STAKED
-    ///   position can only deposit other STAKED assets or SOL (`ASSET_TAG_SOL`)
-    ///   and can only borrow SOL
+    ///   position can only
+    ///
+    /// deposit other STAKED assets or SOL (`ASSET_TAG_SOL`) and can only borrow
+    /// SOL
     /// * `ASSET_TAG_KAMINO` (3) - Treated the same as `ASSET_TAG_DEFAULT`
     /// * `ASSET_TAG_DRIFT` (4) - Treated the same as `ASSET_TAG_DEFAULT`
     /// * `ASSET_TAG_SOLEND` (5) - Treated the same as `ASSET_TAG_DEFAULT`
     pub asset_tag: u8,
     /// Flags for various config options
     /// * 1 - Always set if bank created in 0.1.4 or later, or if migrated to
-    ///   the new pyth oracle setup from a prior version. Not set in 0.1.3 or
-    ///   earlier banks using pyth that have not yet migrated. Does nothing for
-    ///   banks that use switchboard.
+    ///   the new pyth oracle
+    ///
+    /// setup from a prior version. Not set in 0.1.3 or earlier banks using pyth
+    /// that have not yet migrated. Does nothing for banks that use
+    /// switchboard.
     /// * 2, 4, 8, 16, etc - reserved for future use.
     pub config_flags: u8,
     pub pad1: [u8; 5],

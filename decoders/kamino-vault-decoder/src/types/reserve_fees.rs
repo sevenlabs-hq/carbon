@@ -11,6 +11,7 @@ pub struct ReserveFees {
     /// 1`.  A few examples for clarity:
     /// 1% = (1 << 60) / 100 = 11529215046068470
     /// 0.01% (1 basis point) = 115292150460685
+    ///
     /// 0.00001% (Aave borrow fee) = 115292150461
     pub borrow_fee_sf: u64,
     /// Fee for flash loan, expressed as scaled fraction.

@@ -20,14 +20,17 @@ pub struct BankCache {
     /// `interest_accumulated_for` seconds * shares), i.e. the delta in
     /// `asset_share_value`, in token.
     /// * Note: if the tx that triggered this cache update increased or
-    ///   decreased the net shares, this value still reports using the
-    ///   PRE-CHANGE share amount, since interest is always earned on that
-    ///   amount.
+    ///   decreased the net shares,
+    ///
+    /// this value still reports using the PRE-CHANGE share amount, since
+    /// interest is always earned on that amount.
     /// * in token, in native decimals, as I80F48
     pub accumulated_since_last_update: WrappedI80F48,
     /// Oracle price used in the last instruction that consumed an oracle price
     /// * Only updated when instruction uses an oracle price, not updated for
-    ///   operations that don't require prices (e.g., deposit, repay)
+    ///   operations that don't
+    ///
+    /// require prices (e.g., deposit, repay)
     /// * Price in USD, with no price bias
     /// * Zero if never updated
     pub last_oracle_price: WrappedI80F48,

@@ -24,7 +24,9 @@ pub struct InterestRateConfig {
     /// The base rate at various points between 0 and 100%, exclusive.
     /// Essentially a piece-wise linear curve.
     /// * always in ascending order, e.g. points[0] = first kink point,
-    ///   points[1] = second kink point, and so forth.
+    ///   points[1] = second kink
+    ///
+    /// point, and so forth.
     /// * points where util = 0 are unused
     pub points: [RatePoint; 5],
     /// Determines which interest rate curve implementation is active. 0

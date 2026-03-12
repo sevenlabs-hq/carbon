@@ -3,23 +3,33 @@ use solana_pubkey::Pubkey;
 
 /// A finite-lifecycle account representing a specific depositor's place in the
 /// withdraw queue of a specific reserve.
-/// # The lifecycle:
+/// The lifecycle:
 /// 1. The depositor holding ctokens wants to withdraw funds from the reserve,
-///    and finds out that the required amount is not available (due to high
-///    utilization).
+///    and finds out that
+///
+/// the required amount is not available (due to high utilization).
 /// 2. The depositor calls the `enqueue_to_withdraw` handler.
+///
 /// 3. The handler transfers the depositor's ctokens to the reserve's internal
 ///    "pending" vault.
+///
 /// 4. The handler initializes a new [WithdrawTicket] account, with the next
-///    available sequence number.
+///    available sequence
+///
+/// number.
 /// 5. The depositor waits until his ticket is the next expected one for actual
-///    withdraw, and until the reserve has enough liquidity.
+///    withdraw, and until
+///
+/// the reserve has enough liquidity.
 /// 6. Anyone (the depositor or a bot) calls the permissionless
-///    `withdraw_queued_liquidity` handler. If the ticket became invalid (e.g.
-///    destination account no longer exists), then the depositor can call the
-///    `recover_invalid_ticket_collateral` handler instead.
+///    `withdraw_queued_liquidity`
+///
+/// handler. If the ticket became invalid (e.g. destination account no longer
+/// exists), then the depositor can call the `recover_invalid_ticket_collateral`
+/// handler instead.
 /// 7. The handler transfers the liquidity amount according to the current
 ///    exchange rate.
+///
 /// 8. The handler closes the ticket account.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
