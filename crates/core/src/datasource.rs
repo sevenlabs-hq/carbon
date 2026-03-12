@@ -1,11 +1,27 @@
+use solana_clock::Slot;
 use solana_program::hash::Hash;
 use solana_transaction_status::Rewards;
 use {
-    crate::error::CarbonResult, async_trait::async_trait, solana_account::Account,
-    solana_pubkey::Pubkey, solana_signature::Signature,
+    crate::error::CarbonResult,
+    async_trait::async_trait,
+    chrono::{DateTime, Utc},
+    solana_account::Account,
+    solana_pubkey::Pubkey,
+    solana_signature::Signature,
     solana_transaction::versioned::VersionedTransaction,
-    solana_transaction_status::TransactionStatusMeta, tokio_util::sync::CancellationToken,
+    solana_transaction_status::TransactionStatusMeta,
+    tokio_util::sync::CancellationToken,
 };
+
+#[derive(Debug, Clone)]
+pub struct DatasourceDisconnection {
+    pub source: String,
+    pub disconnect_time: DateTime<Utc>,
+    pub last_slot_before_disconnect: Slot,
+    pub first_slot_after_reconnect: Slot,
+    /// Number of slots missed during disconnection
+    pub missed_slots: u64,
+}
 
 #[async_trait]
 pub trait Datasource: Send + Sync {
