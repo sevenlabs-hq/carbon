@@ -1,9 +1,8 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
-        error::CarbonResult, instruction::InstructionProcessorInputType,
-        metrics::MetricsCollection, processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType, processor::Processor,
     },
+    carbon_log_metrics::LogMetrics,
     carbon_pumpfun_decoder::{
         instructions::{CpiEvent, PumpfunInstruction},
         PumpfunDecoder, PROGRAM_ID as PUMPFUN_PROGRAM_ID,
@@ -66,6 +65,7 @@ pub async fn main() -> CarbonResult<()> {
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(helius_websocket)
+        .metrics(Arc::new(LogMetrics::new()))
         .instruction(PumpfunDecoder, PumpfunInstructionProcessor)
         .build()?
         .run()
@@ -76,31 +76,84 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct PumpfunInstructionProcessor;
 
-#[async_trait]
-impl Processor for PumpfunInstructionProcessor {
-    type InputType = InstructionProcessorInputType<PumpfunInstruction>;
-
+impl Processor<InstructionProcessorInputType<'_, PumpfunInstruction>>
+    for PumpfunInstructionProcessor
+{
     async fn process(
         &mut self,
-        data: Self::InputType,
-        _metrics: Arc<MetricsCollection>,
+        input: &InstructionProcessorInputType<'_, PumpfunInstruction>,
     ) -> CarbonResult<()> {
-        let pumpfun_instruction: PumpfunInstruction = data.1.data;
-
-        if let PumpfunInstruction::CpiEvent(cpi_event) = pumpfun_instruction {
-            match *cpi_event {
+        match input.decoded_instruction {
+            PumpfunInstruction::Create { data, accounts, .. } => {
+                log::info!(
+                    "New token created: name={}, symbol={}, uri={}, mint={}, slot={}",
+                    data.name,
+                    data.symbol,
+                    data.uri,
+                    accounts.mint,
+                    input.metadata.transaction_metadata.slot
+                );
+            }
+            PumpfunInstruction::CreateV2 { data, accounts, .. } => {
+                log::info!(
+                    "New token created (v2): name={}, symbol={}, uri={}, mint={}, slot={}",
+                    data.name,
+                    data.symbol,
+                    data.uri,
+                    accounts.mint,
+                    input.metadata.transaction_metadata.slot
+                );
+            }
+            PumpfunInstruction::Buy { data, accounts, .. } => {
+                log::info!(
+                    "Buy: amount={}, max_sol_cost={}, mint={}, user={}, slot={}",
+                    data.amount,
+                    data.max_sol_cost,
+                    accounts.mint,
+                    accounts.user,
+                    input.metadata.transaction_metadata.slot
+                );
+            }
+            PumpfunInstruction::BuyExactSolIn { data, accounts, .. } => {
+                log::info!(
+                    "Buy (exact SOL): spendable_sol_in={}, min_tokens_out={}, mint={}, user={}, slot={}",
+                    data.spendable_sol_in,
+                    data.min_tokens_out,
+                    accounts.mint,
+                    accounts.user,
+                    input.metadata.transaction_metadata.slot
+                );
+            }
+            PumpfunInstruction::Sell { data, accounts, .. } => {
+                log::info!(
+                    "Sell: amount={}, min_sol_output={}, mint={}, user={}, slot={}",
+                    data.amount,
+                    data.min_sol_output,
+                    accounts.mint,
+                    accounts.user,
+                    input.metadata.transaction_metadata.slot
+                );
+            }
+            PumpfunInstruction::CpiEvent { data, .. } => match data {
                 CpiEvent::CreateEvent(create_event) => {
-                    log::info!("New token created: {create_event:#?}");
+                    log::info!("Create event: {create_event:#?}");
                 }
                 CpiEvent::TradeEvent(trade_event) => {
                     if trade_event.sol_amount > 10 * LAMPORTS_PER_SOL {
-                        log::info!("Big trade occured: {trade_event:#?}");
+                        log::info!("Big trade event: {trade_event:#?}");
                     }
                 }
                 CpiEvent::CompleteEvent(complete_event) => {
-                    log::info!("Bonded: {complete_event:#?}");
+                    log::info!("Complete event: {complete_event:#?}");
                 }
                 _ => {}
+            },
+            _ => {
+                log::debug!(
+                    "Other instruction: {:?} on slot {}",
+                    input.decoded_instruction,
+                    input.metadata.transaction_metadata.slot
+                );
             }
         }
 

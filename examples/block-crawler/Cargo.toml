@@ -9,7 +9,6 @@ carbon-pumpfun-decoder = { workspace = true }
 carbon-rpc-block-crawler-datasource = { workspace = true }
 solana-transaction-status = { workspace = true }
 
-async-trait = { workspace = true }
 clap = { workspace = true }
 dotenv = { workspace = true }
 env_logger = { workspace = true }

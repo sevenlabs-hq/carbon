@@ -1,11 +1,7 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
-        account::{AccountMetadata, DecodedAccount},
-        error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
-        processor::Processor,
+        account::AccountProcessorInputType, error::CarbonResult,
+        instruction::InstructionProcessorInputType, processor::Processor,
     },
     carbon_kamino_lending_decoder::{
         accounts::KaminoLendingAccount, instructions::KaminoLendingInstruction,
@@ -30,6 +26,11 @@ use {
 pub async fn main() -> CarbonResult<()> {
     dotenv::dotenv().ok();
     env_logger::init();
+
+    // NOTE: Workaround, that solving issue https://github.com/rustls/rustls/issues/1877
+    rustls::crypto::aws_lc_rs::default_provider()
+        .install_default()
+        .expect("Can't set crypto provider to aws_lc_rs");
 
     let mut account_filters: HashMap<String, SubscribeRequestFilterAccounts> = HashMap::new();
     account_filters.insert(
@@ -90,32 +91,18 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct KaminoLendingInstructionProcessor;
 
-#[async_trait]
-impl Processor for KaminoLendingInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<KaminoLendingInstruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
-
+impl Processor<InstructionProcessorInputType<'_, KaminoLendingInstruction>>
+    for KaminoLendingInstructionProcessor
+{
     async fn process(
         &mut self,
-        (metadata, instruction, _nested_instructions, _): Self::InputType,
-        _metrics: Arc<MetricsCollection>,
+        input: &InstructionProcessorInputType<'_, KaminoLendingInstruction>,
     ) -> CarbonResult<()> {
-        let signature = metadata.transaction_metadata.signature;
-
-        let signature = format!(
-            "{}...{}",
-            &signature.to_string()[..4],
-            &signature.to_string()[signature.to_string().len() - 4..signature.to_string().len()]
-        );
+        let signature = input.metadata.transaction_metadata.signature;
 
         log::info!(
-            "instruction processed ({}) {:?}",
-            signature,
-            instruction.data
+            "instruction processed ({signature}) {:?}",
+            input.decoded_instruction
         );
 
         Ok(())
@@ -123,56 +110,17 @@ impl Processor for KaminoLendingInstructionProcessor {
 }
 
 pub struct KaminoLendingAccountProcessor;
-#[async_trait]
-impl Processor for KaminoLendingAccountProcessor {
-    type InputType = (
-        AccountMetadata,
-        DecodedAccount<KaminoLendingAccount>,
-        solana_account::Account,
-    );
-
+impl Processor<AccountProcessorInputType<'_, KaminoLendingAccount>>
+    for KaminoLendingAccountProcessor
+{
     async fn process(
         &mut self,
-        data: Self::InputType,
-        _metrics: Arc<MetricsCollection>,
+        input: &AccountProcessorInputType<'_, KaminoLendingAccount>,
     ) -> CarbonResult<()> {
-        let account = data.1;
-
-        let pubkey_str = format!(
-            "{}...{}",
-            &data.0.pubkey.to_string()[..4],
-            &data.0.pubkey.to_string()[4..]
-        );
-
-        fn max_total_chars(s: &str, max: usize) -> String {
-            if s.len() > max {
-                format!("{}...", &s[..max])
-            } else {
-                s.to_string()
-            }
-        }
-
         log::info!(
             "account updated ({}) {:?}",
-            pubkey_str,
-            max_total_chars(
-                &match account.data {
-                    KaminoLendingAccount::UserState(user_state) => format!("{user_state:?}"),
-                    KaminoLendingAccount::LendingMarket(lending_market) =>
-                        format!("{lending_market:?}"),
-                    KaminoLendingAccount::Obligation(obligation) => format!("{obligation:?}"),
-                    KaminoLendingAccount::ReferrerState(referrer_state) =>
-                        format!("{referrer_state:?}"),
-                    KaminoLendingAccount::ReferrerTokenState(referrer_token_state) => {
-                        format!("{referrer_token_state:?}")
-                    }
-                    KaminoLendingAccount::ShortUrl(short_url) => format!("{short_url:?}"),
-                    KaminoLendingAccount::UserMetadata(user_metadata) =>
-                        format!("{user_metadata:?}"),
-                    KaminoLendingAccount::Reserve(reserve) => format!("{reserve:?}"),
-                },
-                100
-            )
+            input.metadata.pubkey,
+            &input.decoded_account.data
         );
 
         Ok(())

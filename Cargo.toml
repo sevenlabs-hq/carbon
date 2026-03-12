@@ -1,6 +1,5 @@
 [workspace]
-members = ["crates/*", "datasources/*", "decoders/*", "metrics/*"]
-# members = ["examples/*"]  # temporarily disabled
+members = ["crates/*", "datasources/*", "decoders/*", "examples/*", "metrics/*"]
 resolver = "2"
 
 [workspace.package]
@@ -186,6 +185,7 @@ quote = "1.0"
 reqwest = { version = "0.12.24", default-features = false, features = ["json", "rustls-tls"] }
 retry = "2.1.0"
 rust_decimal = { version = "1.39.0", features = ["db-postgres"] }
+rustls = { version = "0.23", features = ["aws-lc-rs"] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde-big-array = "0.5.1"
 serde_json = "1.0.145"
