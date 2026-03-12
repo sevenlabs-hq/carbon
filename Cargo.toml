@@ -191,13 +191,13 @@ serde-big-array = "0.5.1"
 serde_json = "1.0.145"
 sha2 = "0.10.9"
 sqlx = { version = "0.8.6", features = [
-  "macros",
-  "runtime-tokio-rustls",
-  "postgres",
-  "uuid",
-  "chrono",
-  "rust_decimal",
-  "bigdecimal",
+    "macros",
+    "runtime-tokio-rustls",
+    "postgres",
+    "uuid",
+    "chrono",
+    "rust_decimal",
+    "bigdecimal",
 ] }
 sqlx_migrator = { version = "0.17.0", features = ["postgres"] }
 syn = { version = "1.0", features = ["full"] }

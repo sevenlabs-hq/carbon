@@ -1496,6 +1496,7 @@ dependencies = [
  "carbon-macros",
  "carbon-proc-macros",
  "carbon-test-utils",
+ "chrono",
  "juniper",
  "juniper_axum",
  "log",
@@ -1504,6 +1505,7 @@ dependencies = [
  "serde_json",
  "solana-account",
  "solana-account-decoder-client-types",
+ "solana-clock",
  "solana-hash 3.1.0",
  "solana-instruction",
  "solana-message",
@@ -2515,6 +2517,7 @@ version = "0.12.0"
 dependencies = [
  "async-trait",
  "carbon-core",
+ "chrono",
  "futures 0.3.31",
  "log",
  "solana-client",
@@ -2865,6 +2868,7 @@ version = "0.12.0"
 dependencies = [
  "async-trait",
  "carbon-core",
+ "chrono",
  "futures 0.3.31",
  "log",
  "solana-account",
