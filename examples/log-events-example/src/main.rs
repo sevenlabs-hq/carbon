@@ -10,7 +10,6 @@ use {
     carbon_yellowstone_grpc_datasource::{
         YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient,
     },
-    log,
     std::{
         collections::{HashMap, HashSet},
         env,

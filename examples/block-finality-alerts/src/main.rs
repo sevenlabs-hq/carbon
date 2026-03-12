@@ -1,11 +1,12 @@
-use carbon_core::datasource::BlockDetails;
-use solana_commitment_config::CommitmentConfig;
-use solana_transaction_status::TransactionDetails;
 use {
-    carbon_core::{error::CarbonResult, processor::Processor},
+    carbon_core::{
+        datasource::BlockDetails, error::CarbonResult, processor::Processor,
+    },
     carbon_log_metrics::LogMetrics,
     carbon_rpc_block_subscribe_datasource::{Filters, RpcBlockSubscribe},
     solana_client::rpc_config::{RpcBlockSubscribeConfig, RpcBlockSubscribeFilter},
+    solana_commitment_config::CommitmentConfig,
+    solana_transaction_status::TransactionDetails,
     std::{env, sync::Arc},
 };
 
@@ -32,7 +33,7 @@ pub async fn main() -> CarbonResult<()> {
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(block_subscribe)
-        .metrics(Arc::new(LogMetrics::new_with_flush_interval(3)))
+        .metrics(Arc::new(LogMetrics::new()))
         .block_details(BlockProcessor)
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
         .build()?
