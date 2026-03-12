@@ -1,7 +1,9 @@
 use {
     carbon_core::{
-        account::AccountProcessorInputType, error::CarbonResult,
-        instruction::InstructionProcessorInputType, processor::Processor,
+        account::AccountProcessorInputType,
+        error::CarbonResult,
+        instruction::InstructionProcessorInputType,
+        processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
     carbon_raydium_amm_v4_decoder::{
@@ -100,10 +102,11 @@ impl Processor<InstructionProcessorInputType<'_, RaydiumAmmV4Instruction>>
         &mut self,
         input: &InstructionProcessorInputType<'_, RaydiumAmmV4Instruction>,
     ) -> CarbonResult<()> {
+        let signature = input.metadata.transaction_metadata.signature;
+
         log::info!(
-            "Raydium AMM V4 instruction: {:?} on slot {}",
-            input.decoded_instruction,
-            input.metadata.transaction_metadata.slot
+            "instruction processed ({signature}) {:?}",
+            input.decoded_instruction
         );
 
         Ok(())
@@ -120,9 +123,9 @@ impl Processor<AccountProcessorInputType<'_, RaydiumAmmV4Account>>
         input: &AccountProcessorInputType<'_, RaydiumAmmV4Account>,
     ) -> CarbonResult<()> {
         log::info!(
-            "Raydium AMM V4 account: {:?} on slot {}",
-            input.decoded_account,
-            input.metadata.slot
+            "account updated ({}) {:?}",
+            input.metadata.pubkey,
+            &input.decoded_account.data
         );
 
         Ok(())

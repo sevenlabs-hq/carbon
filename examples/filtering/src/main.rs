@@ -140,7 +140,7 @@ impl Processor<InstructionProcessorInputType<'_, KaminoLendingInstruction>>
             &signature.to_string()[signature.to_string().len() - 4..signature.to_string().len()]
         );
 
-        log::info!("instruction processed ({signature}) {input:?}");
+        log::info!("instruction processed ({signature}) {:?}", input.decoded_instruction);
 
         Ok(())
     }
@@ -154,45 +154,10 @@ impl Processor<AccountProcessorInputType<'_, KaminoLendingAccount>>
         &mut self,
         input: &AccountProcessorInputType<'_, KaminoLendingAccount>,
     ) -> CarbonResult<()> {
-        let pubkey_str = format!(
-            "{}...{}",
-            &input.metadata.pubkey.to_string()[..4],
-            &input.metadata.pubkey.to_string()[4..]
-        );
-
-        fn max_total_chars(s: &str, max: usize) -> String {
-            if s.len() > max {
-                format!("{}...", &s[..max])
-            } else {
-                s.to_string()
-            }
-        }
-
         log::info!(
             "account updated ({}) {:?}",
-            pubkey_str,
-            max_total_chars(
-                &match &input.decoded_account.data {
-                    KaminoLendingAccount::UserState(user_state) => format!("{user_state:?}"),
-                    KaminoLendingAccount::LendingMarket(lending_market) =>
-                        format!("{lending_market:?}"),
-                    KaminoLendingAccount::Obligation(obligation) => format!("{obligation:?}"),
-                    KaminoLendingAccount::ReferrerState(referrer_state) =>
-                        format!("{referrer_state:?}"),
-                    KaminoLendingAccount::ReferrerTokenState(referrer_token_state) => {
-                        format!("{referrer_token_state:?}")
-                    }
-                    KaminoLendingAccount::ShortUrl(short_url) => format!("{short_url:?}"),
-                    KaminoLendingAccount::UserMetadata(user_metadata) =>
-                        format!("{user_metadata:?}"),
-                    KaminoLendingAccount::Reserve(reserve) => format!("{reserve:?}"),
-                    KaminoLendingAccount::GlobalConfig(global_config) =>
-                        format!("{global_config:?}"),
-                    KaminoLendingAccount::WithdrawTicket(withdraw_ticket) =>
-                        format!("{withdraw_ticket:?}"),
-                },
-                100
-            )
+            input.metadata.pubkey,
+            input.decoded_account.data
         );
 
         Ok(())
@@ -207,45 +172,10 @@ impl Processor<AccountProcessorInputType<'_, KaminoLendingAccount>>
         &mut self,
         input: &AccountProcessorInputType<'_, KaminoLendingAccount>,
     ) -> CarbonResult<()> {
-        let pubkey_str = format!(
-            "{}...{}",
-            &input.metadata.pubkey.to_string()[..4],
-            &input.metadata.pubkey.to_string()[4..]
-        );
-
-        fn max_total_chars(s: &str, max: usize) -> String {
-            if s.len() > max {
-                format!("{}...", &s[..max])
-            } else {
-                s.to_string()
-            }
-        }
-
         log::info!(
             "gpa account received ({}) {:?}",
-            pubkey_str,
-            max_total_chars(
-                &match &input.decoded_account.data {
-                    KaminoLendingAccount::UserState(user_state) => format!("{user_state:?}"),
-                    KaminoLendingAccount::LendingMarket(lending_market) =>
-                        format!("{lending_market:?}"),
-                    KaminoLendingAccount::Obligation(obligation) => format!("{obligation:?}"),
-                    KaminoLendingAccount::ReferrerState(referrer_state) =>
-                        format!("{referrer_state:?}"),
-                    KaminoLendingAccount::ReferrerTokenState(referrer_token_state) => {
-                        format!("{referrer_token_state:?}")
-                    }
-                    KaminoLendingAccount::ShortUrl(short_url) => format!("{short_url:?}"),
-                    KaminoLendingAccount::UserMetadata(user_metadata) =>
-                        format!("{user_metadata:?}"),
-                    KaminoLendingAccount::Reserve(reserve) => format!("{reserve:?}"),
-                    KaminoLendingAccount::GlobalConfig(global_config) =>
-                        format!("{global_config:?}"),
-                    KaminoLendingAccount::WithdrawTicket(withdraw_ticket) =>
-                        format!("{withdraw_ticket:?}"),
-                },
-                100
-            )
+            input.metadata.pubkey,
+            input.decoded_account.data
         );
 
         Ok(())

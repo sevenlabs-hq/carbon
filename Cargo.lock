@@ -7076,6 +7076,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "pumpfun-program-subscriber-carbon-example"
+version = "0.2.1"
+dependencies = [
+ "anyhow",
+ "carbon-core",
+ "carbon-log-metrics",
+ "carbon-pumpfun-decoder",
+ "carbon-rpc-program-subscribe-datasource",
+ "dotenv",
+ "env_logger",
+ "log",
+ "solana-account-decoder",
+ "solana-client",
+ "solana-native-token",
+ "solana-pubkey 3.0.0",
+ "tokio",
+]
+
+[[package]]
 name = "pumpswap-alerts-carbon-example"
 version = "0.2.1"
 dependencies = [
@@ -7344,6 +7363,8 @@ dependencies = [
  "env_logger",
  "log",
  "rustls 0.23.35",
+ "solana-account",
+ "solana-instruction",
  "tokio",
  "yellowstone-grpc-proto",
 ]
@@ -8274,29 +8295,6 @@ checksum = "75872d278a8f37ef87fa0ddbda7802605cb18344497949862c0d4dcb291eba60"
 dependencies = [
  "digest 0.10.7",
  "keccak",
-]
-
-[[package]]
-name = "sharky-offers-carbon-example"
-version = "0.2.1"
-dependencies = [
- "anyhow",
- "async-trait",
- "carbon-core",
- "carbon-log-metrics",
- "carbon-rpc-program-subscribe-datasource",
- "carbon-sharky-decoder",
- "dotenv",
- "env_logger",
- "log",
- "serde",
- "solana-account",
- "solana-account-decoder",
- "solana-client",
- "solana-instruction",
- "solana-pubkey 3.0.0",
- "tokio",
- "tokio-util 0.7.17",
 ]
 
 [[package]]

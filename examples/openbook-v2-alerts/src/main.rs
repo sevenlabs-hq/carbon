@@ -43,6 +43,8 @@ pub async fn main() -> CarbonResult<()> {
     Ok(())
 }
 
+pub struct OpenbookV2TransactionProcessor;
+
 pub struct OpenbookV2InstructionProcessor;
 
 impl Processor<InstructionProcessorInputType<'_, OpenbookV2Instruction>>
@@ -52,8 +54,16 @@ impl Processor<InstructionProcessorInputType<'_, OpenbookV2Instruction>>
         &mut self,
         input: &InstructionProcessorInputType<'_, OpenbookV2Instruction>,
     ) -> CarbonResult<()> {
+        let signature = input.metadata.transaction_metadata.signature;
+        let signature_str = format!(
+            "{}...{}",
+            &signature.to_string()[..4],
+            &signature.to_string()[signature.to_string().len() - 4..]
+        );
+
         log::info!(
-            "OpenBook V2 instruction: {:?} on slot {}",
+            "OpenBook V2 instruction ({}) {:?} on slot {}",
+            signature_str,
             input.decoded_instruction,
             input.metadata.transaction_metadata.slot
         );
