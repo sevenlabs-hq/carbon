@@ -3,7 +3,7 @@ use carbon_core::{borsh, CarbonDeserialize};
 #[derive(
     CarbonDeserialize, Debug, serde::Serialize, serde::Deserialize, PartialEq, Eq, Clone, Hash,
 )]
-#[carbon(discriminator = "0xe445a52e51cb9a1d1e0790b566fe9ba1")]
+#[carbon(discriminator = "0x1e0790b566fe9ba1")]
 pub struct LiquidityIncreasedEvent {
     pub whirlpool: solana_pubkey::Pubkey,
     pub position: solana_pubkey::Pubkey,
