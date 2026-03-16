@@ -78,6 +78,30 @@ use {
     tokio_util::sync::CancellationToken,
 };
 
+/// Action returned by pipeline preprocessing for a given update.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PreprocessAction {
+    /// Continue processing the update through the pipeline.
+    Continue,
+    /// Stop processing this update without treating it as a failure.
+    Skip,
+}
+
+/// Async hook that runs before a transaction is dispatched to instruction/transaction pipes.
+///
+/// Runs inside the `Update::Transaction` branch of the pipeline loop, before
+/// instruction extraction. Implementations can inspect / gate / enrich
+/// transactions (e.g. dedup, relayer detection) and return [`PreprocessAction::Skip`]
+/// to drop the transaction before any decoding work happens.
+#[async_trait::async_trait]
+pub trait TransactionPreprocessor: Send + Sync {
+    async fn on_transaction(
+        &self,
+        transaction_update: &crate::datasource::TransactionUpdate,
+        datasource_id: &DatasourceId,
+    ) -> CarbonResult<PreprocessAction>;
+}
+
 /// Defines the shutdown behavior for the pipeline.
 ///
 /// `ShutdownStrategy` determines how the pipeline will behave when it receives
@@ -215,6 +239,7 @@ pub struct Pipeline {
     pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
+    pub transaction_preprocessors: Vec<Box<dyn TransactionPreprocessor>>,
     pub metrics: Arc<MetricsCollection>,
     pub metrics_flush_interval: Option<u64>,
     pub datasource_cancellation_token: Option<CancellationToken>,
@@ -261,6 +286,7 @@ impl Pipeline {
             block_details_pipes: Vec::new(),
             instruction_pipes: Vec::new(),
             transaction_pipes: Vec::new(),
+            transaction_preprocessors: Vec::new(),
             metrics: MetricsCollection::default(),
             metrics_flush_interval: None,
             datasource_cancellation_token: None,
@@ -327,9 +353,10 @@ impl Pipeline {
     /// - The `run` method operates in an infinite loop, handling updates until
     ///   a termination condition occurs.
     pub async fn run(&mut self) -> CarbonResult<()> {
-        log::info!("starting pipeline. num_datasources: {}, num_metrics: {}, num_account_pipes: {}, num_account_deletion_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}",
+        log::info!("starting pipeline. num_datasources: {}, num_metrics: {}, num_tx_preprocessors: {}, num_account_pipes: {}, num_account_deletion_pipes: {}, num_instruction_pipes: {}, num_transaction_pipes: {}",
             self.datasources.len(),
             self.metrics.metrics.len(),
+            self.transaction_preprocessors.len(),
             self.account_pipes.len(),
             self.account_deletion_pipes.len(),
             self.instruction_pipes.len(),
@@ -520,6 +547,7 @@ impl Pipeline {
     /// errors gracefully to ensure continuous pipeline operation.
     async fn process(&mut self, update: Update, datasource_id: DatasourceId) -> CarbonResult<()> {
         log::trace!("process(self, update: {update:?}, datasource_id: {datasource_id:?})");
+
         match update {
             Update::Account(account_update) => {
                 let account_metadata = AccountMetadata {
@@ -549,6 +577,13 @@ impl Pipeline {
                     .await?;
             }
             Update::Transaction(transaction_update) => {
+                for preprocessor in &self.transaction_preprocessors {
+                    match preprocessor.on_transaction(&transaction_update, &datasource_id).await? {
+                        PreprocessAction::Continue => {}
+                        PreprocessAction::Skip => return Ok(()),
+                    }
+                }
+
                 let transaction_metadata = Arc::new((*transaction_update).clone().try_into()?);
 
                 let instructions_with_metadata: InstructionsWithMetadata =
@@ -711,6 +746,7 @@ pub struct PipelineBuilder {
     pub block_details_pipes: Vec<Box<dyn BlockDetailsPipes>>,
     pub instruction_pipes: Vec<Box<dyn for<'a> InstructionPipes<'a>>>,
     pub transaction_pipes: Vec<Box<dyn for<'a> TransactionPipes<'a>>>,
+    pub transaction_preprocessors: Vec<Box<dyn TransactionPreprocessor>>,
     pub metrics: MetricsCollection,
     pub metrics_flush_interval: Option<u64>,
     pub datasource_cancellation_token: Option<CancellationToken>,
@@ -827,6 +863,15 @@ impl PipelineBuilder {
     pub fn shutdown_strategy(mut self, shutdown_strategy: ShutdownStrategy) -> Self {
         log::trace!("shutdown_strategy(self, shutdown_strategy: {shutdown_strategy:?})");
         self.shutdown_strategy = shutdown_strategy;
+        self
+    }
+
+    /// Adds a transaction preprocessing hook that runs before instruction extraction.
+    pub fn transaction_preprocessor(
+        mut self,
+        preprocessor: impl TransactionPreprocessor + 'static,
+    ) -> Self {
+        self.transaction_preprocessors.push(Box::new(preprocessor));
         self
     }
 
@@ -1409,6 +1454,7 @@ impl PipelineBuilder {
             block_details_pipes: self.block_details_pipes,
             instruction_pipes: self.instruction_pipes,
             transaction_pipes: self.transaction_pipes,
+            transaction_preprocessors: self.transaction_preprocessors,
             shutdown_strategy: self.shutdown_strategy,
             metrics: Arc::new(self.metrics),
             metrics_flush_interval: self.metrics_flush_interval,
