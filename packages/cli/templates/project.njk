@@ -46,7 +46,7 @@ pub async fn main() -> CarbonResult<()> {
 
     let mut pipeline = carbon_core::pipeline::Pipeline::builder()
         .datasource(datasource)
-        .metrics(Arc::new({{ metrics.name }}Metrics::new(){% if metrics.name == "Log" %}.with_flush_interval(5){% endif %}))
+        .metrics(Arc::new({% if metrics.name == "Log" %}{{ metrics.name }}Metrics::new_with_flush_interval(5){% else %}{{ metrics.name }}Metrics::new(){% endif %}))
         {%- if withPostgres %}
         {%- if useGenericPostgres %}
         {%- for decoder in decoders %}
