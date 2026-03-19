@@ -191,13 +191,13 @@ spl-token-interface = "2.0.0"
 spl-token-metadata-interface = "0.8.0"
 spl-type-length-value = "0.9.0"
 sqlx = { version = "0.8.6", features = [
-  "macros",
-  "runtime-tokio-rustls",
-  "postgres",
-  "uuid",
-  "chrono",
-  "rust_decimal",
-  "bigdecimal",
+    "macros",
+    "runtime-tokio-rustls",
+    "postgres",
+    "uuid",
+    "chrono",
+    "rust_decimal",
+    "bigdecimal",
 ] }
 sqlx_migrator = { version = "0.17.0", features = ["postgres"] }
 syn = { version = "1.0", features = ["full"] }

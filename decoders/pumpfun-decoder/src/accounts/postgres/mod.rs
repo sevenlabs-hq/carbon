@@ -3,12 +3,16 @@ pub mod bonding_curve_row;
 pub mod fee_config_row;
 pub mod global_row;
 pub mod global_volume_accumulator_row;
+pub mod sharing_config_row;
 pub mod user_volume_accumulator_row;
 
-pub use self::{
-    bonding_curve_row::*, fee_config_row::*, global_row::*, global_volume_accumulator_row::*,
-    user_volume_accumulator_row::*,
-};
+pub use self::bonding_curve_row::*;
+pub use self::fee_config_row::*;
+pub use self::global_row::*;
+pub use self::global_volume_accumulator_row::*;
+pub use self::sharing_config_row::*;
+pub use self::user_volume_accumulator_row::*;
+
 use super::PumpfunAccount;
 
 pub struct PumpfunAccountsMigration;
@@ -28,6 +32,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for PumpfunAccountsMigration {
             Box::new(FeeConfigMigrationOperation),
             Box::new(GlobalMigrationOperation),
             Box::new(GlobalVolumeAccumulatorMigrationOperation),
+            Box::new(SharingConfigMigrationOperation),
             Box::new(UserVolumeAccumulatorMigrationOperation),
         ]
     }
@@ -81,6 +86,14 @@ impl carbon_core::postgres::operations::Insert for PumpfunAccountWithMetadata {
                 row.insert(pool).await?;
                 Ok(())
             }
+            PumpfunAccount::SharingConfig(account) => {
+                let row = sharing_config_row::SharingConfigRow::from_parts(
+                    *account.clone(),
+                    metadata.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
             PumpfunAccount::UserVolumeAccumulator(account) => {
                 let row = user_volume_accumulator_row::UserVolumeAccumulatorRow::from_parts(
                     *account.clone(),
@@ -119,6 +132,14 @@ impl carbon_core::postgres::operations::Upsert for PumpfunAccountWithMetadata {
             }
             PumpfunAccount::GlobalVolumeAccumulator(account) => {
                 let row = global_volume_accumulator_row::GlobalVolumeAccumulatorRow::from_parts(
+                    *account.clone(),
+                    metadata.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            PumpfunAccount::SharingConfig(account) => {
+                let row = sharing_config_row::SharingConfigRow::from_parts(
                     *account.clone(),
                     metadata.clone(),
                 );
