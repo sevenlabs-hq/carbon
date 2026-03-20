@@ -29,7 +29,6 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
     type Error = crate::error::Error;
 
     fn try_from(value: crate::datasource::TransactionUpdate) -> Result<Self, Self::Error> {
-        log::trace!("try_from(transaction_update: {value:?})");
         let accounts = value.transaction.message.static_account_keys();
 
         Ok(TransactionMetadata {
@@ -61,10 +60,6 @@ pub struct TransactionPipe<T: InstructionDecoderCollection, P> {
 
 impl<T: InstructionDecoderCollection, P> TransactionPipe<T, P> {
     pub fn new(processor: P, filters: Vec<Box<dyn Filter + Send + Sync + 'static>>) -> Self {
-        log::trace!(
-            "TransactionPipe::new(processor: {:?})",
-            stringify!(processor)
-        );
         Self {
             processor,
             filters,
@@ -76,11 +71,6 @@ impl<T: InstructionDecoderCollection, P> TransactionPipe<T, P> {
 pub fn parse_instructions_flat<T: InstructionDecoderCollection>(
     instructions: &[(InstructionMetadata, Instruction)],
 ) -> Vec<(InstructionMetadata, T)> {
-    log::trace!(
-        "parse_instructions_flat(instructions: len={})",
-        instructions.len()
-    );
-
     instructions
         .iter()
         .filter_map(|(metadata, instruction)| {
@@ -111,11 +101,6 @@ where
         transaction_metadata: Arc<TransactionMetadata>,
         instructions: &[(InstructionMetadata, Instruction)],
     ) -> CarbonResult<()> {
-        log::trace!(
-            "TransactionPipe::run(instructions: len={})",
-            instructions.len()
-        );
-
         let parsed_instructions = parse_instructions_flat::<T>(instructions);
 
         let data = TransactionProcessorInputType {

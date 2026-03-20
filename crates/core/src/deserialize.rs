@@ -12,8 +12,6 @@ where
 }
 
 pub fn extract_discriminator(length: usize, data: &[u8]) -> Option<(&[u8], &[u8])> {
-    log::trace!("extract_discriminator(length: {length:?}, data: {data:?})");
-
     if data.len() < length {
         return None;
     }
