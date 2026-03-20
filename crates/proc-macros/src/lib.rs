@@ -1,117 +1,12 @@
 use {
-    borsh_derive_internal_satellite::*,
     proc_macro::TokenStream,
-    proc_macro2::{Span, TokenStream as TokenStream2},
     quote::{format_ident, quote},
     syn::{
         parse::{Parse, ParseStream},
-        parse_macro_input, DeriveInput, Ident, Item, ItemEnum, Lit, Meta, NestedMeta, Token,
+        parse_macro_input, Ident, ItemEnum, Token,
         TypePath,
     },
 };
-
-#[proc_macro_derive(CarbonDeserialize, attributes(carbon))]
-pub fn carbon_deserialize_derive(input_token_stream: TokenStream) -> TokenStream {
-    let derive_input = input_token_stream.clone();
-    let input = parse_macro_input!(derive_input as DeriveInput);
-    let name = &input.ident;
-
-    let discriminator = get_discriminator(&input.attrs).unwrap_or(quote! { &[] });
-    let deser = gen_borsh_deserialize(input_token_stream);
-
-    let expanded = quote! {
-        #deser
-
-        #[automatically_derived]
-        impl carbon_core::deserialize::CarbonDeserialize for #name {
-            const DISCRIMINATOR: &'static [u8] = #discriminator;
-
-            fn deserialize(data: &[u8]) -> Option<Self> {
-                if data.len() < Self::DISCRIMINATOR.len() {
-                    return None;
-                }
-
-
-                let (disc, mut rest) = data.split_at(Self::DISCRIMINATOR.len());
-                if disc != Self::DISCRIMINATOR {
-                    return None;
-                }
-
-                 match carbon_core::borsh::BorshDeserialize::deserialize(&mut rest) {
-                    Ok(res) => {
-                        if !rest.is_empty() {
-                            carbon_core::log::debug!(
-                                "Not all bytes were read when deserializing {}: {} bytes remaining",
-                                stringify!(#name),
-                                rest.len(),
-                            );
-                        }
-                        Some(res)
-                    }
-                    Err(_) => None,
-                }
-            }
-        }
-
-        #[automatically_derived]
-        impl #name {
-            /// Decode method that calls deserialize for compatibility with try_decode_instructions! macro
-            pub fn decode(data: &[u8]) -> Option<Self> {
-                <Self as carbon_core::deserialize::CarbonDeserialize>::deserialize(data)
-            }
-        }
-    };
-
-    TokenStream::from(expanded)
-}
-
-fn gen_borsh_deserialize(input: TokenStream) -> TokenStream2 {
-    let cratename = Ident::new("borsh", Span::call_site());
-
-    let item: Item = syn::parse(input).expect("Failed to parse input");
-    let res = match item {
-        Item::Struct(item) => struct_de(&item, cratename),
-        Item::Enum(item) => enum_de(&item, cratename),
-        Item::Union(item) => union_de(&item, cratename),
-        // Derive macros can only be defined on structs, enums, and unions.
-        _ => unreachable!(),
-    };
-
-    match res {
-        Ok(res) => res,
-        Err(err) => err.to_compile_error(),
-    }
-}
-
-fn get_discriminator(attrs: &[syn::Attribute]) -> Option<quote::__private::TokenStream> {
-    attrs.iter().find_map(|attr| {
-        if attr.path.is_ident("carbon") {
-            attr.parse_meta().ok().and_then(|meta| {
-                if let Meta::List(list) = meta {
-                    list.nested.iter().find_map(|nested| {
-                        if let NestedMeta::Meta(Meta::NameValue(nv)) = nested {
-                            if nv.path.is_ident("discriminator") {
-                                if let Lit::Str(lit_str) = &nv.lit {
-                                    let disc_str = lit_str.value();
-                                    let disc_bytes = hex::decode(disc_str.trim_start_matches("0x"))
-                                        .expect("Invalid hex string");
-                                    let disc_array = disc_bytes.as_slice();
-                                    return Some(quote! { &[#(#disc_array),*] });
-                                }
-                            }
-                        }
-                        None
-                    })
-                } else {
-                    None
-                }
-            })
-        } else {
-            None
-        }
-    })
-}
-
 struct InstructionMacroInput {
     instructions_enum_name: Ident,
     instruction_types_enum_name: Ident,
@@ -206,99 +101,8 @@ impl Parse for InstructionMacroInput {
     }
 }
 
-#[deprecated(
-    note = "Use `instruction_decoder_collection_fast!` for faster dispatch by program_id."
-)]
 #[proc_macro]
 pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as InstructionMacroInput);
-
-    let instructions_enum_name = input.instructions_enum_name;
-    let instruction_types_enum_name = input.instruction_types_enum_name;
-    let programs_enum_name = input.programs_enum_name;
-    let entries = input.entries;
-
-    let mut instruction_variants = Vec::new();
-    let mut instruction_type_variants = Vec::new();
-    let mut program_variants = Vec::new();
-    let mut parse_instruction_arms = Vec::new();
-    let mut get_type_arms = Vec::new();
-
-    for entry in entries {
-        let program_variant = entry.program_variant;
-        let decoder_expr = entry.decoder_expr;
-        let instruction_type = entry.instruction_type;
-
-        let instruction_enum_ident = &instruction_type
-            .path
-            .segments
-            .last()
-            .expect("segment")
-            .ident;
-        let instruction_type_ident = format_ident!("{}Type", instruction_enum_ident);
-
-        instruction_variants.push(quote! {
-            #program_variant(#instruction_enum_ident)
-        });
-        instruction_type_variants.push(quote! {
-            #program_variant(#instruction_type_ident)
-        });
-        program_variants.push(quote! {
-            #program_variant
-        });
-
-        parse_instruction_arms.push(quote! {
-            if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
-                return Some(#instructions_enum_name::#program_variant(decoded_instruction));
-            }
-        });
-
-        get_type_arms.push(quote! {
-            #instructions_enum_name::#program_variant(decoded_instruction) => {
-                #instruction_types_enum_name::#program_variant(decoded_instruction.get_instruction_type())
-            }
-        });
-    }
-
-    let expanded = quote! {
-        #[derive(Debug, Clone, std::hash::Hash, serde::Serialize, serde::Deserialize, PartialEq, Eq)]
-        pub enum #instructions_enum_name {
-            #(#instruction_variants),*
-        }
-
-        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
-        pub enum #instruction_types_enum_name {
-            #(#instruction_type_variants),*
-        }
-
-        #[derive(Debug, Clone, PartialEq, Eq, serde::Serialize)]
-        pub enum #programs_enum_name {
-            #(#program_variants),*
-        }
-
-        impl carbon_core::collection::InstructionDecoderCollection for #instructions_enum_name {
-            type InstructionType = #instruction_types_enum_name;
-
-            fn parse_instruction(
-                instruction: &solana_instruction::Instruction
-            ) -> Option<Self> {
-                #(#parse_instruction_arms)*
-                None
-            }
-
-            fn get_type(&self) -> Self::InstructionType {
-                match self {
-                    #(#get_type_arms),*
-                }
-            }
-        }
-    };
-
-    TokenStream::from(expanded)
-}
-
-#[proc_macro]
-pub fn instruction_decoder_collection_fast(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as InstructionMacroInput);
 
     let instructions_enum_name = input.instructions_enum_name;
