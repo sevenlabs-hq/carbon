@@ -7,17 +7,17 @@ pub mod datasource;
 pub mod deserialize;
 pub mod error;
 pub mod filter;
-#[cfg(feature = "graphql")]
-pub mod graphql;
 pub mod instruction;
 pub mod metrics;
 pub mod pipeline;
-#[cfg(feature = "postgres")]
-pub mod postgres;
 pub mod processor;
-
 pub mod transaction;
 pub mod transformers;
+
+#[cfg(feature = "postgres")]
+pub mod postgres;
+#[cfg(feature = "graphql")]
+pub mod graphql;
 
 pub use borsh;
 #[cfg(feature = "macros")]
