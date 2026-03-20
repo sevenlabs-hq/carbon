@@ -159,19 +159,7 @@ impl Pipeline {
     }
 
     pub fn builder() -> PipelineBuilder {
-        log::trace!("Pipeline::builder()");
-        PipelineBuilder {
-            datasources: Vec::new(),
-            account_pipes: Vec::new(),
-            account_deletion_pipes: Vec::new(),
-            block_details_pipes: Vec::new(),
-            instruction_pipes: Vec::new(),
-            transaction_pipes: Vec::new(),
-            exporters: Vec::new(),
-            datasource_cancellation_token: None,
-            shutdown_strategy: ShutdownStrategy::default(),
-            channel_buffer_size: DEFAULT_CHANNEL_BUFFER_SIZE,
-        }
+        PipelineBuilder::default()
     }
 
     pub async fn run(&mut self) -> CarbonResult<()> {
@@ -401,7 +389,6 @@ impl Pipeline {
     }
 }
 
-#[derive(Default)]
 pub struct PipelineBuilder {
     pub datasources: Vec<(DatasourceId, Arc<dyn Datasource + Send + Sync>)>,
     pub account_pipes: Vec<Box<dyn AccountPipes>>,
@@ -413,6 +400,23 @@ pub struct PipelineBuilder {
     pub datasource_cancellation_token: Option<CancellationToken>,
     pub shutdown_strategy: ShutdownStrategy,
     pub channel_buffer_size: usize,
+}
+
+impl Default for PipelineBuilder {
+    fn default() -> Self {
+        PipelineBuilder {
+            datasources: Vec::new(),
+            account_pipes: Vec::new(),
+            account_deletion_pipes: Vec::new(),
+            block_details_pipes: Vec::new(),
+            instruction_pipes: Vec::new(),
+            transaction_pipes: Vec::new(),
+            exporters: Vec::new(),
+            datasource_cancellation_token: None,
+            shutdown_strategy: ShutdownStrategy::default(),
+            channel_buffer_size: DEFAULT_CHANNEL_BUFFER_SIZE,
+        }    
+    }
 }
 
 impl PipelineBuilder {
