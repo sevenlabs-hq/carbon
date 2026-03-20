@@ -23,10 +23,6 @@ pub fn extract_instructions_with_metadata(
     transaction_metadata: &Arc<TransactionMetadata>,
     transaction_update: &TransactionUpdate,
 ) -> CarbonResult<Vec<(InstructionMetadata, solana_instruction::Instruction)>> {
-    log::trace!(
-        "extract_instructions_with_metadata(transaction_metadata: {transaction_metadata:?}, transaction_update: {transaction_update:?})"
-    );
-
     let message = &transaction_update.transaction.message;
     let meta = &transaction_update.meta;
     let mut instructions_with_metadata = Vec::with_capacity(32);
@@ -181,9 +177,6 @@ pub fn extract_account_metas(
     compiled_instruction: &CompiledInstruction,
     message: &VersionedMessage,
 ) -> CarbonResult<Vec<AccountMeta>> {
-    log::trace!(
-        "extract_account_metas(compiled_instruction: {compiled_instruction:?}, message: {message:?})"
-    );
     let mut accounts = Vec::<AccountMeta>::with_capacity(compiled_instruction.accounts.len());
 
     for account_index in compiled_instruction.accounts.iter() {
@@ -212,7 +205,6 @@ pub fn extract_account_metas(
 pub fn transaction_metadata_from_original_meta(
     meta_original: UiTransactionStatusMeta,
 ) -> CarbonResult<TransactionStatusMeta> {
-    log::trace!("transaction_metadata_from_original_meta(meta_original: {meta_original:?})");
     Ok(TransactionStatusMeta {
         status: meta_original.status.map_err(Into::into),
         fee: meta_original.fee,

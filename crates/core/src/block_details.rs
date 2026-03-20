@@ -22,8 +22,6 @@ where
     P: Processor<BlockDetails> + Send + Sync,
 {
     async fn run(&mut self, block_details: BlockDetails) -> CarbonResult<()> {
-        log::trace!("Block details::run(block_details: {block_details:?})");
-
         self.processor.process(&block_details).await?;
 
         Ok(())

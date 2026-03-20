@@ -63,8 +63,6 @@ where
         &mut self,
         account_with_metadata: (AccountMetadata, solana_account::Account),
     ) -> CarbonResult<()> {
-        log::trace!("AccountPipe::run(account_with_metadata: {account_with_metadata:?})");
-
         let (account_metadata, account) = account_with_metadata;
 
         if let Some(decoded_account) = self.decoder.decode_account(&account) {

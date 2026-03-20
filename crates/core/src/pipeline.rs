@@ -184,8 +184,6 @@ impl Pipeline {
             self.transaction_pipes.len(),
         );
 
-        log::trace!("run(self)");
-
         for exporter in &self.exporters {
             let exporter = Arc::clone(exporter);
             MetricsExporter::initialize(exporter)?;
@@ -223,13 +221,11 @@ impl Pipeline {
         loop {
             tokio::select! {
                 _ = datasource_cancellation_token.cancelled() => {
-                    log::trace!("datasource cancellation token cancelled, shutting down.");
                     self.export_metrics()?;
                     self.shutdown_exporters()?;
                     break;
                 }
                 _ = tokio::signal::ctrl_c() => {
-                    log::trace!("received SIGINT, shutting down.");
                     datasource_cancellation_token.cancel();
 
                     if self.shutdown_strategy == ShutdownStrategy::Immediate {
@@ -257,7 +253,6 @@ impl Pipeline {
                             match process_result {
                                 Ok(_) => {
                                     UPDATES_SUCCESSFUL.inc();
-                                    log::trace!("processed update")
                                 }
                                 Err(error) => {
                                     log::error!("error processing update ({update:?}): {error:?}");
@@ -285,7 +280,6 @@ impl Pipeline {
     }
 
     async fn process(&mut self, update: Update, datasource_id: DatasourceId) -> CarbonResult<()> {
-        log::trace!("process(self, update: {update:?}, datasource_id: {datasource_id:?})");
         match update {
             Update::Account(account_update) => {
                 let account_metadata = AccountMetadata {
@@ -423,12 +417,10 @@ pub struct PipelineBuilder {
 
 impl PipelineBuilder {
     pub fn new() -> Self {
-        log::trace!("PipelineBuilder::new()");
         Self::default()
     }
 
     pub fn datasource(mut self, datasource: impl Datasource + 'static) -> Self {
-        log::trace!("datasource(self, datasource: {:?})", stringify!(datasource));
         self.datasources
             .push((DatasourceId::new_unique(), Arc::new(datasource)));
         self
@@ -439,17 +431,11 @@ impl PipelineBuilder {
         datasource: impl Datasource + 'static,
         id: DatasourceId,
     ) -> Self {
-        log::trace!(
-            "datasource_with_id(self, id: {:?}, datasource: {:?})",
-            id,
-            stringify!(datasource)
-        );
         self.datasources.push((id, Arc::new(datasource)));
         self
     }
 
     pub fn shutdown_strategy(mut self, shutdown_strategy: ShutdownStrategy) -> Self {
-        log::trace!("shutdown_strategy(self, shutdown_strategy: {shutdown_strategy:?})");
         self.shutdown_strategy = shutdown_strategy;
         self
     }
@@ -463,11 +449,6 @@ impl PipelineBuilder {
         T: Send + Sync + 'static,
         P: for<'a> Processor<AccountProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
-        log::trace!(
-            "account(self, decoder: {:?}, processor: {:?})",
-            stringify!(decoder),
-            stringify!(processor)
-        );
         self.account_pipes.push(Box::new(AccountPipe {
             decoder: Box::new(decoder),
             processor,
@@ -486,12 +467,6 @@ impl PipelineBuilder {
         T: Send + Sync + 'static,
         P: for<'a> Processor<AccountProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
-        log::trace!(
-            "account_with_filters(self, decoder: {:?}, processor: {:?}, filters: {:?})",
-            stringify!(decoder),
-            stringify!(processor),
-            stringify!(filters)
-        );
         self.account_pipes.push(Box::new(AccountPipe {
             decoder: Box::new(decoder),
             processor,
@@ -504,10 +479,6 @@ impl PipelineBuilder {
     where
         P: Processor<AccountDeletion> + Send + Sync + 'static,
     {
-        log::trace!(
-            "account_deletions(self, processor: {:?})",
-            stringify!(processor)
-        );
         self.account_deletion_pipes
             .push(Box::new(AccountDeletionPipe {
                 processor,
@@ -524,11 +495,6 @@ impl PipelineBuilder {
     where
         P: Processor<AccountDeletion> + Send + Sync + 'static,
     {
-        log::trace!(
-            "account_deletions_with_filters(self, processor: {:?}, filters: {:?})",
-            stringify!(processor),
-            stringify!(filters)
-        );
         self.account_deletion_pipes
             .push(Box::new(AccountDeletionPipe { processor, filters }));
         self
@@ -538,10 +504,6 @@ impl PipelineBuilder {
     where
         P: Processor<BlockDetails> + Send + Sync + 'static,
     {
-        log::trace!(
-            "block_details(self, processor: {:?})",
-            stringify!(processor)
-        );
         self.block_details_pipes.push(Box::new(BlockDetailsPipe {
             processor,
             filters: vec![],
@@ -557,11 +519,6 @@ impl PipelineBuilder {
     where
         P: Processor<BlockDetails> + Send + Sync + 'static,
     {
-        log::trace!(
-            "block_details_with_filters(self, processor: {:?}, filters: {:?})",
-            stringify!(processor),
-            stringify!(filters)
-        );
         self.block_details_pipes
             .push(Box::new(BlockDetailsPipe { processor, filters }));
         self
@@ -576,11 +533,6 @@ impl PipelineBuilder {
         T: Send + Sync + 'static,
         P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
-        log::trace!(
-            "instruction(self, decoder: {:?}, processor: {:?})",
-            stringify!(decoder),
-            stringify!(processor)
-        );
         self.instruction_pipes.push(Box::new(InstructionPipe {
             decoder: Box::new(decoder),
             processor,
@@ -599,12 +551,6 @@ impl PipelineBuilder {
         T: Send + Sync + 'static,
         P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
-        log::trace!(
-            "instruction_with_filters(self, decoder: {:?}, processor: {:?}, filters: {:?})",
-            stringify!(decoder),
-            stringify!(processor),
-            stringify!(filters)
-        );
         self.instruction_pipes.push(Box::new(InstructionPipe {
             decoder: Box::new(decoder),
             processor,
@@ -618,7 +564,6 @@ impl PipelineBuilder {
         T: InstructionDecoderCollection + 'static,
         P: for<'a> Processor<TransactionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
-        log::trace!("transaction(self, processor: {:?})", stringify!(processor));
         self.transaction_pipes
             .push(Box::new(TransactionPipe::<T, P>::new(processor, vec![])));
         self
@@ -633,38 +578,27 @@ impl PipelineBuilder {
         T: InstructionDecoderCollection + 'static,
         P: for<'a> Processor<TransactionProcessorInputType<'a, T>> + Send + Sync + 'static,
     {
-        log::trace!(
-            "transaction_with_filters(self, processor: {:?}, filters: {:?})",
-            stringify!(processor),
-            stringify!(filters)
-        );
         self.transaction_pipes
             .push(Box::new(TransactionPipe::<T, P>::new(processor, filters)));
         self
     }
 
     pub fn metrics(mut self, exporter: Arc<dyn MetricsExporter>) -> Self {
-        log::trace!("metrics(self, exporter: {:?})", stringify!(exporter));
         self.exporters.push(exporter);
         self
     }
 
     pub fn datasource_cancellation_token(mut self, cancellation_token: CancellationToken) -> Self {
-        log::trace!(
-            "datasource_cancellation_token(self, cancellation_token: {cancellation_token:?})"
-        );
         self.datasource_cancellation_token = Some(cancellation_token);
         self
     }
 
     pub fn channel_buffer_size(mut self, size: usize) -> Self {
-        log::trace!("channel_buffer_size(self, size: {size:?})");
         self.channel_buffer_size = size;
         self
     }
 
     pub fn build(self) -> CarbonResult<Pipeline> {
-        log::trace!("build(self)");
         register_pipeline_metrics();
         Ok(Pipeline {
             datasources: self.datasources,

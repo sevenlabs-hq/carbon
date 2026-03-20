@@ -23,8 +23,6 @@ where
     P: Processor<AccountDeletion> + Send + Sync,
 {
     async fn run(&mut self, account_deletion: AccountDeletion) -> CarbonResult<()> {
-        log::trace!("AccountDeletionPipe::run(account_deletion: {account_deletion:?})");
-
         self.processor.process(&account_deletion).await?;
 
         Ok(())

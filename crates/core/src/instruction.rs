@@ -194,8 +194,6 @@ where
     P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
 {
     async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()> {
-        log::trace!("InstructionPipe::run(nested_instruction: {nested_instruction:?})");
-
         if let Some(decoded_instruction) = self
             .decoder
             .decode_instruction(&nested_instruction.instruction)
@@ -273,8 +271,6 @@ impl IntoIterator for NestedInstructions {
 
 impl From<InstructionsWithMetadata> for NestedInstructions {
     fn from(instructions: InstructionsWithMetadata) -> Self {
-        log::trace!("from(instructions: {instructions:?})");
-
         // To avoid reallocations that result in dangling pointers.
         // Therefore the number of "push"s must be calculated to set the capacity
         let estimated_capacity = instructions
