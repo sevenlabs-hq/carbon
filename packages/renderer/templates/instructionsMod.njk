@@ -51,8 +51,52 @@ impl carbon_core::instruction::InstructionDecoder<'_> for {{ program.name | pasc
 
     fn decode_instruction(
         &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
         instruction: &solana_instruction::Instruction,
     ) -> Option<Self::InstructionType> {
+{% if hasAnchorEvents %}
+        self.decode_instructions(metadata, instruction).into_iter().next()
+    }
+
+    fn decode_instructions(
+        &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
+        instruction: &solana_instruction::Instruction,
+    ) -> Vec<Self::InstructionType> {
+        if instruction.program_id != PROGRAM_ID {
+            return Vec::new();
+        }
+
+        let decoded_instruction = (|| {
+            carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+{% for instruction in instructionsToExport | sort(false, false, 'name') %}
+            {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} => {{ instruction.name | pascalCase }},
+{% endfor %}
+            {{ program.name | pascalCase }}Instruction::CpiEvent => CpiEvent,
+        )
+        })();
+
+        let mut decoded_instructions = Vec::new();
+        if let Some(decoded_instruction) = decoded_instruction {
+            decoded_instructions.push(decoded_instruction);
+        }
+
+        for data in metadata.decode_program_data_log_events(CpiEvent::decode) {
+            decoded_instructions.push({{ program.name | pascalCase }}Instruction::CpiEvent {
+                program_id: PROGRAM_ID,
+                data,
+                accounts: CpiEventInstructionAccounts {
+                    program: PROGRAM_ID,
+                    event_authority: solana_pubkey::Pubkey::default(),
+                    remaining: vec![],
+                },
+            });
+        }
+
+        decoded_instructions
+{% else %}
         if instruction.program_id != PROGRAM_ID {
             return None;
         }
@@ -63,10 +107,8 @@ impl carbon_core::instruction::InstructionDecoder<'_> for {{ program.name | pasc
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
             {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} => {{ instruction.name | pascalCase }},
 {% endfor %}
-{% if hasAnchorEvents %}
-            {{ program.name | pascalCase }}Instruction::CpiEvent => CpiEvent,
-{% endif %}
         )
+{% endif %}
     }
 }
 {% endblock %}

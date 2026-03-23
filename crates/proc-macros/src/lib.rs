@@ -149,18 +149,23 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
         if let Some(program_id_path) = explicit_program_id_path {
             parse_instruction_match_arms.push(quote! {
                 #program_id_path => {
-                    if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
-                        Some(#instructions_enum_name::#program_variant(decoded_instruction))
-                    } else {
-                        None
-                    }
+                    #decoder_expr
+                        .decode_instructions(metadata, &instruction)
+                        .into_iter()
+                        .map(#instructions_enum_name::#program_variant)
+                        .collect()
                 }
             });
         } else {
             // No program id path: include in slow-path fallback.
             fallback_decode_blocks.push(quote! {
-                if let Some(decoded_instruction) = #decoder_expr.decode_instruction(&instruction) {
-                    return Some(#instructions_enum_name::#program_variant(decoded_instruction));
+                let decoded_instructions = #decoder_expr
+                    .decode_instructions(metadata, &instruction)
+                    .into_iter()
+                    .map(#instructions_enum_name::#program_variant)
+                    .collect::<Vec<_>>();
+                if !decoded_instructions.is_empty() {
+                    return decoded_instructions;
                 }
             });
         }
@@ -192,13 +197,14 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
             type InstructionType = #instruction_types_enum_name;
 
             fn parse_instruction(
+                metadata: &carbon_core::instruction::InstructionMetadata,
                 instruction: &solana_instruction::Instruction
-            ) -> Option<Self> {
+            ) -> Vec<Self> {
                 match instruction.program_id {
                     #(#parse_instruction_match_arms),*
                     _ => {
                         #(#fallback_decode_blocks)*
-                        None
+                        Vec::new()
                     }
                 }
             }
