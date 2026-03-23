@@ -73,8 +73,10 @@ pub fn parse_instructions_flat<T: InstructionDecoderCollection>(
 ) -> Vec<(InstructionMetadata, T)> {
     instructions
         .iter()
-        .filter_map(|(metadata, instruction)| {
-            T::parse_instruction(instruction).map(|parsed| (metadata.clone(), parsed))
+        .flat_map(|(metadata, instruction)| {
+            T::parse_instruction(metadata, instruction)
+                .into_iter()
+                .map(|parsed| (metadata.clone(), parsed))
         })
         .collect()
 }
