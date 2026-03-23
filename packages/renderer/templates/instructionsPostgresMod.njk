@@ -67,8 +67,13 @@ impl carbon_core::postgres::operations::Insert for {{ program.name | pascalCase 
             }
 {% endfor %}
 {% if hasAnchorEvents %}
-            {{ program.name | pascalCase }}Instruction::CpiEvent { data, .. } => {
-                let row = cpi_event_row::CpiEventRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+            {{ program.name | pascalCase }}Instruction::CpiEvent { data, accounts, .. } => {
+                let event_accounts = if accounts.event_authority == solana_pubkey::Pubkey::default() && accounts.remaining.is_empty() {
+                    Vec::new()
+                } else {
+                    raw_accounts.clone()
+                };
+                let row = cpi_event_row::CpiEventRow::from_parts(data.clone(), metadata.clone(), event_accounts);
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -90,8 +95,13 @@ impl carbon_core::postgres::operations::Upsert for {{ program.name | pascalCase 
             }
 {% endfor %}
 {% if hasAnchorEvents %}
-            {{ program.name | pascalCase }}Instruction::CpiEvent { data, .. } => {
-                let row = cpi_event_row::CpiEventRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+            {{ program.name | pascalCase }}Instruction::CpiEvent { data, accounts, .. } => {
+                let event_accounts = if accounts.event_authority == solana_pubkey::Pubkey::default() && accounts.remaining.is_empty() {
+                    Vec::new()
+                } else {
+                    raw_accounts.clone()
+                };
+                let row = cpi_event_row::CpiEventRow::from_parts(data.clone(), metadata.clone(), event_accounts);
                 row.upsert(pool).await?;
                 Ok(())
             }
