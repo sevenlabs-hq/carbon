@@ -75,6 +75,8 @@ pub struct YellowstoneGrpcClientConfig {
     pub tls_config: Option<ClientTlsConfig>,
     pub tcp_nodelay: Option<bool>,
     pub http2_adaptive_window: Option<bool>,
+    pub http2_keep_alive_interval: Option<Duration>,
+    pub keep_alive_while_idle: Option<bool>,
 }
 
 impl Default for YellowstoneGrpcClientConfig {
@@ -87,6 +89,8 @@ impl Default for YellowstoneGrpcClientConfig {
             tls_config: None,
             tcp_nodelay: None,
             http2_adaptive_window: None,
+            http2_keep_alive_interval: None,
+            keep_alive_while_idle: None,
         }
     }
 }
@@ -182,6 +186,8 @@ impl YellowstoneGrpcClientConfig {
             tls_config,
             tcp_nodelay,
             http2_adaptive_window: None,
+            http2_keep_alive_interval: None,
+            keep_alive_while_idle: None,
         }
     }
 
@@ -211,6 +217,12 @@ impl YellowstoneGrpcClientConfig {
         }
         if let Some(val) = self.http2_adaptive_window {
             builder.endpoint = builder.endpoint.http2_adaptive_window(val);
+        }
+        if let Some(val) = self.http2_keep_alive_interval {
+            builder.endpoint = builder.endpoint.http2_keep_alive_interval(val);
+        }
+        if let Some(val) = self.keep_alive_while_idle {
+            builder.endpoint = builder.endpoint.keep_alive_while_idle(val);
         }
         Ok(builder)
     }
@@ -251,7 +263,12 @@ impl Datasource for YellowstoneGrpcGeyserClient {
             .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?
             .connect()
             .await
-            .map_err(|err| carbon_core::error::Error::FailedToConsumeDatasource(err.to_string()))?;
+            .map_err(|err| {
+                log::error!("[{tag}] gRPC connect() failed: {err}");
+                carbon_core::error::Error::FailedToConsumeDatasource(err.to_string())
+            })?;
+
+        log::info!("[{tag}] gRPC channel connected");
 
         let disconnect_tx_clone = self.disconnect_notifier.clone();
         let stream_timeout = self.stream_timeout;
@@ -286,9 +303,26 @@ impl Datasource for YellowstoneGrpcGeyserClient {
                         log::info!("[{tag}] Cancelling Yellowstone gRPC subscription.");
                         break;
                     }
-                    result = geyser_client.subscribe_with_request(Some(subscribe_request.clone())) => {
+                    result = async {
+                        let subscribe_deadline = Duration::from_secs(15);
+                        match tokio::time::timeout(
+                            subscribe_deadline,
+                            geyser_client.subscribe_with_request(Some(subscribe_request.clone())),
+                        ).await {
+                            Ok(inner) => inner,
+                            Err(_) => {
+                                log::error!("[{tag}] subscribe_with_request hung for {subscribe_deadline:?} — retrying");
+                                Err(yellowstone_grpc_client::GeyserGrpcClientError::TonicStatus(
+                                    yellowstone_grpc_proto::tonic::Status::deadline_exceeded(
+                                        format!("subscribe_with_request timed out after {subscribe_deadline:?}"),
+                                    ),
+                                ))
+                            }
+                        }
+                    } => {
                         match result {
                             Ok((mut subscribe_tx, mut stream)) => {
+                                log::info!("[{tag}] Subscribe established");
                                 let mut first_message_after_reconnect = last_disconnect_time.is_some();
 
                                 loop {
