@@ -1769,6 +1769,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "carbon-jupiter-swap-postgres-example"
+version = "0.2.1"
+dependencies = [
+ "carbon-core",
+ "carbon-jupiter-swap-decoder",
+ "carbon-rpc-block-crawler-datasource",
+ "clap 4.5.53",
+ "dotenv",
+ "env_logger",
+ "log",
+ "solana-transaction-status",
+ "sqlx",
+ "sqlx_migrator",
+ "tokio",
+]
+
+[[package]]
 name = "carbon-kamino-farms-decoder"
 version = "0.12.0"
 dependencies = [
