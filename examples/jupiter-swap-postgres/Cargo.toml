@@ -1,0 +1,18 @@
+[package]
+name = "carbon-jupiter-swap-postgres-example"
+version = "0.2.1"
+edition = { workspace = true }
+
+[dependencies]
+carbon-core = { workspace = true, features = ["postgres"] }
+carbon-jupiter-swap-decoder = { workspace = true, features = ["postgres"] }
+carbon-rpc-block-crawler-datasource = { workspace = true }
+solana-transaction-status = { workspace = true }
+
+clap = { workspace = true }
+dotenv = { workspace = true }
+env_logger = { workspace = true }
+log = { workspace = true }
+sqlx = { workspace = true }
+sqlx_migrator = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
