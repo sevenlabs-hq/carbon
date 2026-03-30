@@ -15,7 +15,7 @@ crate-type = ["rlib"]
 [features]
 default = []
 
-serde = ["dep:serde"]
+serde = ["dep:serde", "carbon-borsh-types/serde"]
 
 postgres = [
     "carbon-core/postgres",
@@ -33,6 +33,7 @@ graphql = [
 
 [dependencies]
 carbon-core = { workspace = true }
+carbon-borsh-types = { path = "../../crates/borsh-types" }
 borsh = { workspace = true, features = ["derive"] }
 solana-pubkey = { workspace = true, features = ["borsh"] }
 solana-account = { workspace = true }
