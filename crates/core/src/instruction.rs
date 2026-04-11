@@ -41,14 +41,8 @@ impl InstructionMetadata {
             .collect()
     }
 
-    pub fn decode_program_data_log_events<T, F>(&self, mut decode: F) -> Vec<T>
-    where
-        F: FnMut(&[u8]) -> Option<T>,
-    {
+    pub fn program_data_log_payloads(&self) -> Vec<Vec<u8>> {
         self.extract_event_log_data()
-            .into_iter()
-            .filter_map(|payload| decode(payload.as_slice()))
-            .collect()
     }
 
     fn extract_event_log_data(&self) -> Vec<Vec<u8>> {
@@ -181,7 +175,9 @@ pub trait InstructionDecoder<'a> {
         metadata: &'a InstructionMetadata,
         instruction: &'a solana_instruction::Instruction,
     ) -> Vec<Self::InstructionType> {
-        self.decode_instruction(metadata, instruction).into_iter().collect()
+        self.decode_instruction(metadata, instruction)
+            .into_iter()
+            .collect()
     }
 }
 
