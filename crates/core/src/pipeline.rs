@@ -415,7 +415,7 @@ impl Default for PipelineBuilder {
             datasource_cancellation_token: None,
             shutdown_strategy: ShutdownStrategy::default(),
             channel_buffer_size: DEFAULT_CHANNEL_BUFFER_SIZE,
-        }    
+        }
     }
 }
 
