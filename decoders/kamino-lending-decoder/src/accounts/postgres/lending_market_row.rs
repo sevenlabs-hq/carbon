@@ -52,8 +52,14 @@ pub struct LendingMarketRow {
     pub min_borrow_order_fill_value: U64,
     pub withdraw_ticket_issuance_enabled: U8,
     pub withdraw_ticket_redemption_enabled: U8,
+    pub obligation_borrow_rollover_configuration_enabled: U8,
+    pub obligation_borrow_migration_to_fixed_execution_enabled: U8,
     pub padding2: Vec<u8>,
     pub min_withdraw_queued_liquidity_value: U64,
+    pub fixed_term_rollover_window_duration_seconds: U64,
+    pub open_term_rollover_window_duration_seconds: U64,
+    pub min_partial_rollover_value: U64,
+    pub term_based_full_liquidation_duration_secs: U64,
     pub padding1: Vec<U64>,
 }
 
@@ -126,8 +132,24 @@ impl LendingMarketRow {
             min_borrow_order_fill_value: source.min_borrow_order_fill_value.into(),
             withdraw_ticket_issuance_enabled: source.withdraw_ticket_issuance_enabled.into(),
             withdraw_ticket_redemption_enabled: source.withdraw_ticket_redemption_enabled.into(),
+            obligation_borrow_rollover_configuration_enabled: source
+                .obligation_borrow_rollover_configuration_enabled
+                .into(),
+            obligation_borrow_migration_to_fixed_execution_enabled: source
+                .obligation_borrow_migration_to_fixed_execution_enabled
+                .into(),
             padding2: source.padding2.to_vec(),
             min_withdraw_queued_liquidity_value: source.min_withdraw_queued_liquidity_value.into(),
+            fixed_term_rollover_window_duration_seconds: source
+                .fixed_term_rollover_window_duration_seconds
+                .into(),
+            open_term_rollover_window_duration_seconds: source
+                .open_term_rollover_window_duration_seconds
+                .into(),
+            min_partial_rollover_value: source.min_partial_rollover_value.into(),
+            term_based_full_liquidation_duration_secs: source
+                .term_based_full_liquidation_duration_secs
+                .into(),
             padding1: source
                 .padding1
                 .into_iter()
@@ -330,13 +352,36 @@ impl TryFrom<LendingMarketRow> for crate::accounts::lending_market::LendingMarke
                         "Failed to convert value from postgres primitive".to_string(),
                     )
                 })?,
+            obligation_borrow_rollover_configuration_enabled: source
+                .obligation_borrow_rollover_configuration_enabled
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert value from postgres primitive".to_string(),
+                    )
+                })?,
+            obligation_borrow_migration_to_fixed_execution_enabled: source
+                .obligation_borrow_migration_to_fixed_execution_enabled
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert value from postgres primitive".to_string(),
+                    )
+                })?,
             padding2: source.padding2.as_slice().try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
-                    "Failed to convert padding from postgres primitive: expected 6 bytes"
+                    "Failed to convert padding from postgres primitive: expected 4 bytes"
                         .to_string(),
                 )
             })?,
             min_withdraw_queued_liquidity_value: *source.min_withdraw_queued_liquidity_value,
+            fixed_term_rollover_window_duration_seconds: *source
+                .fixed_term_rollover_window_duration_seconds,
+            open_term_rollover_window_duration_seconds: *source
+                .open_term_rollover_window_duration_seconds,
+            min_partial_rollover_value: *source.min_partial_rollover_value,
+            term_based_full_liquidation_duration_secs: *source
+                .term_based_full_liquidation_duration_secs,
             padding1: source
                 .padding1
                 .into_iter()
@@ -404,8 +449,14 @@ impl carbon_core::postgres::operations::Table for crate::accounts::lending_marke
             "min_borrow_order_fill_value",
             "withdraw_ticket_issuance_enabled",
             "withdraw_ticket_redemption_enabled",
+            "obligation_borrow_rollover_configuration_enabled",
+            "obligation_borrow_migration_to_fixed_execution_enabled",
             "padding2",
             "min_withdraw_queued_liquidity_value",
+            "fixed_term_rollover_window_duration_seconds",
+            "open_term_rollover_window_duration_seconds",
+            "min_partial_rollover_value",
+            "term_based_full_liquidation_duration_secs",
             "padding1",
         ]
     }
@@ -454,12 +505,18 @@ impl carbon_core::postgres::operations::Insert for LendingMarketRow {
                 "min_borrow_order_fill_value",
                 "withdraw_ticket_issuance_enabled",
                 "withdraw_ticket_redemption_enabled",
+                "obligation_borrow_rollover_configuration_enabled",
+                "obligation_borrow_migration_to_fixed_execution_enabled",
                 "padding2",
                 "min_withdraw_queued_liquidity_value",
+                "fixed_term_rollover_window_duration_seconds",
+                "open_term_rollover_window_duration_seconds",
+                "min_partial_rollover_value",
+                "term_based_full_liquidation_duration_secs",
                 "padding1",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49
             )"#)
         .bind(&self.version)
         .bind(&self.bump_seed)
@@ -499,8 +556,14 @@ impl carbon_core::postgres::operations::Insert for LendingMarketRow {
         .bind(&self.min_borrow_order_fill_value)
         .bind(self.withdraw_ticket_issuance_enabled)
         .bind(self.withdraw_ticket_redemption_enabled)
+        .bind(self.obligation_borrow_rollover_configuration_enabled)
+        .bind(self.obligation_borrow_migration_to_fixed_execution_enabled)
         .bind(&self.padding2)
         .bind(&self.min_withdraw_queued_liquidity_value)
+        .bind(&self.fixed_term_rollover_window_duration_seconds)
+        .bind(&self.open_term_rollover_window_duration_seconds)
+        .bind(&self.min_partial_rollover_value)
+        .bind(&self.term_based_full_liquidation_duration_secs)
         .bind(&self.padding1)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -552,12 +615,18 @@ impl carbon_core::postgres::operations::Upsert for LendingMarketRow {
                 "min_borrow_order_fill_value",
                 "withdraw_ticket_issuance_enabled",
                 "withdraw_ticket_redemption_enabled",
+                "obligation_borrow_rollover_configuration_enabled",
+                "obligation_borrow_migration_to_fixed_execution_enabled",
                 "padding2",
                 "min_withdraw_queued_liquidity_value",
+                "fixed_term_rollover_window_duration_seconds",
+                "open_term_rollover_window_duration_seconds",
+                "min_partial_rollover_value",
+                "term_based_full_liquidation_duration_secs",
                 "padding1",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37, $38, $39, $40, $41, $42, $43, $44, $45, $46, $47, $48, $49
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -599,8 +668,14 @@ impl carbon_core::postgres::operations::Upsert for LendingMarketRow {
                 "min_borrow_order_fill_value" = EXCLUDED."min_borrow_order_fill_value",
                 "withdraw_ticket_issuance_enabled" = EXCLUDED."withdraw_ticket_issuance_enabled",
                 "withdraw_ticket_redemption_enabled" = EXCLUDED."withdraw_ticket_redemption_enabled",
+                "obligation_borrow_rollover_configuration_enabled" = EXCLUDED."obligation_borrow_rollover_configuration_enabled",
+                "obligation_borrow_migration_to_fixed_execution_enabled" = EXCLUDED."obligation_borrow_migration_to_fixed_execution_enabled",
                 "padding2" = EXCLUDED."padding2",
                 "min_withdraw_queued_liquidity_value" = EXCLUDED."min_withdraw_queued_liquidity_value",
+                "fixed_term_rollover_window_duration_seconds" = EXCLUDED."fixed_term_rollover_window_duration_seconds",
+                "open_term_rollover_window_duration_seconds" = EXCLUDED."open_term_rollover_window_duration_seconds",
+                "min_partial_rollover_value" = EXCLUDED."min_partial_rollover_value",
+                "term_based_full_liquidation_duration_secs" = EXCLUDED."term_based_full_liquidation_duration_secs",
                 "padding1" = EXCLUDED."padding1",
                 __slot = EXCLUDED.__slot
             "#)
@@ -642,8 +717,14 @@ impl carbon_core::postgres::operations::Upsert for LendingMarketRow {
         .bind(&self.min_borrow_order_fill_value)
         .bind(self.withdraw_ticket_issuance_enabled)
         .bind(self.withdraw_ticket_redemption_enabled)
+        .bind(self.obligation_borrow_rollover_configuration_enabled)
+        .bind(self.obligation_borrow_migration_to_fixed_execution_enabled)
         .bind(&self.padding2)
         .bind(&self.min_withdraw_queued_liquidity_value)
+        .bind(&self.fixed_term_rollover_window_duration_seconds)
+        .bind(&self.open_term_rollover_window_duration_seconds)
+        .bind(&self.min_partial_rollover_value)
+        .bind(&self.term_based_full_liquidation_duration_secs)
         .bind(&self.padding1)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -741,8 +822,14 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LendingMarketMigrationOperatio
                 "min_borrow_order_fill_value" NUMERIC(20) NOT NULL,
                 "withdraw_ticket_issuance_enabled" INT2 NOT NULL,
                 "withdraw_ticket_redemption_enabled" INT2 NOT NULL,
+                "obligation_borrow_rollover_configuration_enabled" INT2 NOT NULL,
+                "obligation_borrow_migration_to_fixed_execution_enabled" INT2 NOT NULL,
                 "padding2" BYTEA NOT NULL,
                 "min_withdraw_queued_liquidity_value" NUMERIC(20) NOT NULL,
+                "fixed_term_rollover_window_duration_seconds" NUMERIC(20) NOT NULL,
+                "open_term_rollover_window_duration_seconds" NUMERIC(20) NOT NULL,
+                "min_partial_rollover_value" NUMERIC(20) NOT NULL,
+                "term_based_full_liquidation_duration_secs" NUMERIC(20) NOT NULL,
                 "padding1" NUMERIC(20)[] NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

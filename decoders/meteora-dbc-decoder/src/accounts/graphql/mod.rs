@@ -3,6 +3,7 @@ pub mod claim_fee_operator_schema;
 pub mod config_schema;
 pub mod lock_escrow_schema;
 pub mod meteora_damm_migration_metadata_schema;
+pub mod operator_schema;
 pub mod partner_metadata_schema;
 pub mod pool_config_schema;
 pub mod virtual_pool_metadata_schema;
@@ -11,8 +12,8 @@ pub mod virtual_pool_schema;
 use juniper::GraphQLObject;
 pub use {
     claim_fee_operator_schema::*, config_schema::*, lock_escrow_schema::*,
-    meteora_damm_migration_metadata_schema::*, partner_metadata_schema::*, pool_config_schema::*,
-    virtual_pool_metadata_schema::*, virtual_pool_schema::*,
+    meteora_damm_migration_metadata_schema::*, operator_schema::*, partner_metadata_schema::*,
+    pool_config_schema::*, virtual_pool_metadata_schema::*, virtual_pool_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

@@ -2,7 +2,7 @@
 use solana_pubkey::Pubkey;
 pub struct MarginfiV2Decoder;
 pub const PROGRAM_ID: Pubkey =
-    solana_pubkey::Pubkey::from_str_const("2jGhuVUuy3umdzByFx8sNWUAaf5vaeuDm78RDPEnhrMr");
+    solana_pubkey::Pubkey::from_str_const("MFv2hWf31Z9kbCa1snEPYctwafyhdvnV7FZnsebVacA");
 
 pub mod accounts;
 pub mod events;

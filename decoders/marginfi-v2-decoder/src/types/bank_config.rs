@@ -8,17 +8,39 @@ use {
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct BankConfig {
+    /// Discount factor for asset values in initial margin calculation (0 to 1).
+    /// E.g., 0.8 means assets count as 80% of their value for borrowing
+    /// purposes.
     pub asset_weight_init: WrappedI80F48,
+    /// Discount factor for asset values in maintenance margin calculation (0 to
+    /// 2). Used for liquidation eligibility. Generally >=
+    /// asset_weight_init.
     pub asset_weight_maint: WrappedI80F48,
+    /// Premium factor for liability values in initial margin calculation (>=
+    /// 1). E.g., 1.2 means liabilities count as 120% of their value for
+    /// borrowing purposes.
     pub liability_weight_init: WrappedI80F48,
+    /// Premium factor for liability values in maintenance margin calculation
+    /// (>= 1). Used for liquidation eligibility. Generally <=
+    /// liability_weight_init.
     pub liability_weight_maint: WrappedI80F48,
+    /// Maximum total deposits allowed in this bank, in native token units (0 =
+    /// no limit)
     pub deposit_limit: u64,
+    /// Interest rate model configuration
     pub interest_rate_config: InterestRateConfig,
+    /// Current operational state of the bank (Paused, Operational, ReduceOnly,
+    /// KilledByBankruptcy)
     pub operational_state: BankOperationalState,
+    /// Oracle type used for price feeds
     pub oracle_setup: OracleSetup,
+    /// Oracle account keys (usage depends on oracle_setup type)
     pub oracle_keys: [Pubkey; 5],
     pub pad0: [u8; 6],
+    /// Maximum total borrows allowed in this bank, in native token units (0 =
+    /// no limit)
     pub borrow_limit: u64,
+    /// Risk tier for this bank (Collateral or Isolated)
     pub risk_tier: RiskTier,
     /// Determines what kinds of assets users of this bank can interact with.
     /// Options:
@@ -54,7 +76,7 @@ pub struct BankConfig {
     /// and the limit it set to $500K, then SOL assets will be discounted by
     /// 50%. In other words the max value of liabilities that can be backed
     /// by the asset is $500K. This is useful for limiting the damage of
-    /// orcale attacks. Value is UI USD value, for example value 100 -> $100
+    /// oracle attacks. Value is UI USD value, for example value 100 -> $100
     pub total_asset_value_init_limit: u64,
     /// Time window in seconds for the oracle price feed to be considered live.
     pub oracle_max_age: u16,

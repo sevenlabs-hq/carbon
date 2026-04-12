@@ -11,7 +11,7 @@ pub struct BankMetadata {
     /// * utf-8
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
     pub ticker: [u8; 64],
-    /// The token's plain english descripion, e.g US Dollar Coin
+    /// The token's plain english description, e.g US Dollar Coin
     /// * utf-8
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
     pub description: [u8; 128],

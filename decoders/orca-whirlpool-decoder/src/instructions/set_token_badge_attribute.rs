@@ -3,6 +3,16 @@ use {
     crate::types::TokenBadgeAttribute,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
+/// Set an attribute on a TokenBadge account.
+/// ### Authority
+/// - "token_badge_authority" - Set authority in the WhirlpoolConfigExtension
+///
+/// ### Parameters
+/// - `attribute` - The attribute to set on the TokenBadge account.
+///
+/// #### Special Errors
+/// - `FeatureIsNotEnabled` - If the feature flag for token badges is not
+///   enabled.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct SetTokenBadgeAttribute {

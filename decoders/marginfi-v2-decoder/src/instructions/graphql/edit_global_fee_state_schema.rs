@@ -14,9 +14,11 @@ pub struct EditGlobalFeeStateGraphQL {
     pub fee_wallet: Pubkey,
     pub bank_init_flat_sol_fee: U32,
     pub liquidation_flat_sol_fee: U32,
+    pub order_init_flat_sol_fee: U32,
     pub program_fee_fixed: WrappedI80F48GraphQL,
     pub program_fee_rate: WrappedI80F48GraphQL,
     pub liquidation_max_fee: WrappedI80F48GraphQL,
+    pub order_execution_max_fee: WrappedI80F48GraphQL,
     pub accounts: carbon_core::graphql::primitives::Json,
 }
 
@@ -35,9 +37,13 @@ impl TryFrom<crate::instructions::postgres::EditGlobalFeeStateRow> for EditGloba
             liquidation_flat_sol_fee: carbon_core::graphql::primitives::U32(
                 (*row.liquidation_flat_sol_fee) as u32,
             ),
+            order_init_flat_sol_fee: carbon_core::graphql::primitives::U32(
+                (*row.order_init_flat_sol_fee) as u32,
+            ),
             program_fee_fixed: row.program_fee_fixed.0.into(),
             program_fee_rate: row.program_fee_rate.0.into(),
             liquidation_max_fee: row.liquidation_max_fee.0.into(),
+            order_execution_max_fee: row.order_execution_max_fee.0.into(),
             accounts: carbon_core::graphql::primitives::Json(
                 serde_json::to_value(&row.accounts.0)
                     .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?,

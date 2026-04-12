@@ -2,6 +2,7 @@
 pub mod claim_schema;
 pub mod claim_token_schema;
 pub mod close_token_schema;
+pub mod close_wsol_token_account_schema;
 pub mod cpi_event_schema;
 pub mod create_token_account_schema;
 pub mod create_token_ledger_schema;
@@ -19,13 +20,13 @@ pub mod shared_accounts_route_with_token_ledger_schema;
 
 use juniper::GraphQLObject;
 pub use {
-    claim_schema::*, claim_token_schema::*, close_token_schema::*, cpi_event_schema::*,
-    create_token_account_schema::*, create_token_ledger_schema::*, exact_out_route_schema::*,
-    exact_out_route_v2_schema::*, route_schema::*, route_v2_schema::*,
-    route_with_token_ledger_schema::*, set_token_ledger_schema::*,
-    shared_accounts_exact_out_route_schema::*, shared_accounts_exact_out_route_v2_schema::*,
-    shared_accounts_route_schema::*, shared_accounts_route_v2_schema::*,
-    shared_accounts_route_with_token_ledger_schema::*,
+    claim_schema::*, claim_token_schema::*, close_token_schema::*,
+    close_wsol_token_account_schema::*, cpi_event_schema::*, create_token_account_schema::*,
+    create_token_ledger_schema::*, exact_out_route_schema::*, exact_out_route_v2_schema::*,
+    route_schema::*, route_v2_schema::*, route_with_token_ledger_schema::*,
+    set_token_ledger_schema::*, shared_accounts_exact_out_route_schema::*,
+    shared_accounts_exact_out_route_v2_schema::*, shared_accounts_route_schema::*,
+    shared_accounts_route_v2_schema::*, shared_accounts_route_with_token_ledger_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

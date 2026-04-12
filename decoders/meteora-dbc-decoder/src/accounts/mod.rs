@@ -11,6 +11,7 @@ pub mod claim_fee_operator;
 pub mod config;
 pub mod lock_escrow;
 pub mod meteora_damm_migration_metadata;
+pub mod operator;
 pub mod partner_metadata;
 pub mod pool_config;
 pub mod virtual_pool;
@@ -26,6 +27,7 @@ pub enum MeteoraDbcAccount {
     MeteoraDammMigrationMetadata(
         Box<meteora_damm_migration_metadata::MeteoraDammMigrationMetadata>,
     ),
+    Operator(Box<operator::Operator>),
     PartnerMetadata(Box<partner_metadata::PartnerMetadata>),
     PoolConfig(Box<pool_config::PoolConfig>),
     VirtualPool(Box<virtual_pool::VirtualPool>),
@@ -85,6 +87,17 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for MeteoraDbcDecoder {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: MeteoraDbcAccount::MeteoraDammMigrationMetadata(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = operator::Operator::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: MeteoraDbcAccount::Operator(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

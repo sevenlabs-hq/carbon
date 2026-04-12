@@ -9,7 +9,7 @@ use {
 #[graphql(name = "MarginfiGroupConfigureEvent")]
 pub struct MarginfiGroupConfigureEventGraphQL {
     pub header: GroupEventHeaderGraphQL,
-    pub admin: Pubkey,
+    pub admin: Option<Pubkey>,
     pub flags: U64,
 }
 
@@ -17,7 +17,7 @@ impl From<crate::types::MarginfiGroupConfigureEvent> for MarginfiGroupConfigureE
     fn from(original: crate::types::MarginfiGroupConfigureEvent) -> Self {
         Self {
             header: original.header.into(),
-            admin: carbon_core::graphql::primitives::Pubkey(original.admin),
+            admin: original.admin.map(carbon_core::graphql::primitives::Pubkey),
             flags: carbon_core::graphql::primitives::U64(original.flags),
         }
     }

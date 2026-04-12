@@ -198,11 +198,10 @@ pub enum OpenbookV2Instruction {
         data: SweepFees,
         accounts: SweepFeesInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: CpiEventInstructionAccounts,
+        accounts: Option<CpiEventInstructionAccounts>,
     },
 }
 
@@ -211,45 +210,83 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OpenbookV2Decoder {
 
     fn decode_instruction(
         &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
         instruction: &solana_instruction::Instruction,
     ) -> Option<Self::InstructionType> {
+        self.decode_instructions(metadata, instruction)
+            .into_iter()
+            .next()
+    }
+
+    fn decode_instructions(
+        &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
+        instruction: &solana_instruction::Instruction,
+    ) -> Vec<Self::InstructionType> {
+        use carbon_core::deserialize::ArrangeAccounts as _;
         if instruction.program_id != PROGRAM_ID {
-            return None;
+            return Vec::new();
         }
 
-        carbon_core::try_decode_instructions!(
-            instruction,
-            PROGRAM_ID,
-            OpenbookV2Instruction::CancelAllAndPlaceOrders => CancelAllAndPlaceOrders,
-            OpenbookV2Instruction::CancelAllOrders => CancelAllOrders,
-            OpenbookV2Instruction::CancelOrder => CancelOrder,
-            OpenbookV2Instruction::CancelOrderByClientOrderId => CancelOrderByClientOrderId,
-            OpenbookV2Instruction::CloseMarket => CloseMarket,
-            OpenbookV2Instruction::CloseOpenOrdersAccount => CloseOpenOrdersAccount,
-            OpenbookV2Instruction::CloseOpenOrdersIndexer => CloseOpenOrdersIndexer,
-            OpenbookV2Instruction::ConsumeEvents => ConsumeEvents,
-            OpenbookV2Instruction::ConsumeGivenEvents => ConsumeGivenEvents,
-            OpenbookV2Instruction::CreateMarket => CreateMarket,
-            OpenbookV2Instruction::CreateOpenOrdersAccount => CreateOpenOrdersAccount,
-            OpenbookV2Instruction::CreateOpenOrdersIndexer => CreateOpenOrdersIndexer,
-            OpenbookV2Instruction::Deposit => Deposit,
-            OpenbookV2Instruction::EditOrder => EditOrder,
-            OpenbookV2Instruction::EditOrderPegged => EditOrderPegged,
-            OpenbookV2Instruction::PlaceOrder => PlaceOrder,
-            OpenbookV2Instruction::PlaceOrderPegged => PlaceOrderPegged,
-            OpenbookV2Instruction::PlaceOrders => PlaceOrders,
-            OpenbookV2Instruction::PlaceTakeOrder => PlaceTakeOrder,
-            OpenbookV2Instruction::PruneOrders => PruneOrders,
-            OpenbookV2Instruction::Refill => Refill,
-            OpenbookV2Instruction::SetDelegate => SetDelegate,
-            OpenbookV2Instruction::SetMarketExpired => SetMarketExpired,
-            OpenbookV2Instruction::SettleFunds => SettleFunds,
-            OpenbookV2Instruction::SettleFundsExpired => SettleFundsExpired,
-            OpenbookV2Instruction::StubOracleClose => StubOracleClose,
-            OpenbookV2Instruction::StubOracleCreate => StubOracleCreate,
-            OpenbookV2Instruction::StubOracleSet => StubOracleSet,
-            OpenbookV2Instruction::SweepFees => SweepFees,
-            OpenbookV2Instruction::CpiEvent => CpiEvent,
-        )
+        let decoded_instruction = (|| {
+            carbon_core::try_decode_instructions!(
+                instruction,
+                PROGRAM_ID,
+                OpenbookV2Instruction::CancelAllAndPlaceOrders => CancelAllAndPlaceOrders,
+                OpenbookV2Instruction::CancelAllOrders => CancelAllOrders,
+                OpenbookV2Instruction::CancelOrder => CancelOrder,
+                OpenbookV2Instruction::CancelOrderByClientOrderId => CancelOrderByClientOrderId,
+                OpenbookV2Instruction::CloseMarket => CloseMarket,
+                OpenbookV2Instruction::CloseOpenOrdersAccount => CloseOpenOrdersAccount,
+                OpenbookV2Instruction::CloseOpenOrdersIndexer => CloseOpenOrdersIndexer,
+                OpenbookV2Instruction::ConsumeEvents => ConsumeEvents,
+                OpenbookV2Instruction::ConsumeGivenEvents => ConsumeGivenEvents,
+                OpenbookV2Instruction::CreateMarket => CreateMarket,
+                OpenbookV2Instruction::CreateOpenOrdersAccount => CreateOpenOrdersAccount,
+                OpenbookV2Instruction::CreateOpenOrdersIndexer => CreateOpenOrdersIndexer,
+                OpenbookV2Instruction::Deposit => Deposit,
+                OpenbookV2Instruction::EditOrder => EditOrder,
+                OpenbookV2Instruction::EditOrderPegged => EditOrderPegged,
+                OpenbookV2Instruction::PlaceOrder => PlaceOrder,
+                OpenbookV2Instruction::PlaceOrderPegged => PlaceOrderPegged,
+                OpenbookV2Instruction::PlaceOrders => PlaceOrders,
+                OpenbookV2Instruction::PlaceTakeOrder => PlaceTakeOrder,
+                OpenbookV2Instruction::PruneOrders => PruneOrders,
+                OpenbookV2Instruction::Refill => Refill,
+                OpenbookV2Instruction::SetDelegate => SetDelegate,
+                OpenbookV2Instruction::SetMarketExpired => SetMarketExpired,
+                OpenbookV2Instruction::SettleFunds => SettleFunds,
+                OpenbookV2Instruction::SettleFundsExpired => SettleFundsExpired,
+                OpenbookV2Instruction::StubOracleClose => StubOracleClose,
+                OpenbookV2Instruction::StubOracleCreate => StubOracleCreate,
+                OpenbookV2Instruction::StubOracleSet => StubOracleSet,
+                OpenbookV2Instruction::SweepFees => SweepFees,
+            )
+        })();
+
+        let mut decoded_instructions = Vec::new();
+        if let Some(decoded_instruction) = decoded_instruction {
+            decoded_instructions.push(decoded_instruction);
+        }
+
+        if let Some(data) = CpiEvent::decode(&instruction.data) {
+            decoded_instructions.push(OpenbookV2Instruction::CpiEvent {
+                program_id: PROGRAM_ID,
+                data,
+                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
+            });
+        }
+
+        for payload in metadata.program_data_log_payloads() {
+            if let Some(data) = CpiEvent::decode(payload.as_slice()) {
+                decoded_instructions.push(OpenbookV2Instruction::CpiEvent {
+                    program_id: PROGRAM_ID,
+                    data,
+                    accounts: None,
+                });
+            }
+        }
+
+        decoded_instructions
     }
 }

@@ -123,11 +123,10 @@ pub enum DflowAggregatorV4Instruction {
         data: WrapSol,
         accounts: WrapSolInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: CpiEventInstructionAccounts,
+        accounts: Option<CpiEventInstructionAccounts>,
     },
 }
 
@@ -136,33 +135,71 @@ impl carbon_core::instruction::InstructionDecoder<'_> for DflowAggregatorV4Decod
 
     fn decode_instruction(
         &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
         instruction: &solana_instruction::Instruction,
     ) -> Option<Self::InstructionType> {
+        self.decode_instructions(metadata, instruction)
+            .into_iter()
+            .next()
+    }
+
+    fn decode_instructions(
+        &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
+        instruction: &solana_instruction::Instruction,
+    ) -> Vec<Self::InstructionType> {
+        use carbon_core::deserialize::ArrangeAccounts as _;
         if instruction.program_id != PROGRAM_ID {
-            return None;
+            return Vec::new();
         }
 
-        carbon_core::try_decode_instructions!(
-            instruction,
-            PROGRAM_ID,
-            DflowAggregatorV4Instruction::CloseEmptyTokenAccount => CloseEmptyTokenAccount,
-            DflowAggregatorV4Instruction::CloseOrder => CloseOrder,
-            DflowAggregatorV4Instruction::CreateReferralTokenAccountIdempotent => CreateReferralTokenAccountIdempotent,
-            DflowAggregatorV4Instruction::FillOrder => FillOrder,
-            DflowAggregatorV4Instruction::InitMarketLedgerIdempotent => InitMarketLedgerIdempotent,
-            DflowAggregatorV4Instruction::OpenOrder => OpenOrder,
-            DflowAggregatorV4Instruction::Swap => Swap,
-            DflowAggregatorV4Instruction::Swap2 => Swap2,
-            DflowAggregatorV4Instruction::Swap2WithDestination => Swap2WithDestination,
-            DflowAggregatorV4Instruction::Swap2WithDestinationNative => Swap2WithDestinationNative,
-            DflowAggregatorV4Instruction::SwapWithDestination => SwapWithDestination,
-            DflowAggregatorV4Instruction::SwapWithDestinationNative => SwapWithDestinationNative,
-            DflowAggregatorV4Instruction::TransferFee => TransferFee,
-            DflowAggregatorV4Instruction::TransferSol => TransferSol,
-            DflowAggregatorV4Instruction::TransferToSponsor => TransferToSponsor,
-            DflowAggregatorV4Instruction::UnwrapSol => UnwrapSol,
-            DflowAggregatorV4Instruction::WrapSol => WrapSol,
-            DflowAggregatorV4Instruction::CpiEvent => CpiEvent,
-        )
+        let decoded_instruction = (|| {
+            carbon_core::try_decode_instructions!(
+                instruction,
+                PROGRAM_ID,
+                DflowAggregatorV4Instruction::CloseEmptyTokenAccount => CloseEmptyTokenAccount,
+                DflowAggregatorV4Instruction::CloseOrder => CloseOrder,
+                DflowAggregatorV4Instruction::CreateReferralTokenAccountIdempotent => CreateReferralTokenAccountIdempotent,
+                DflowAggregatorV4Instruction::FillOrder => FillOrder,
+                DflowAggregatorV4Instruction::InitMarketLedgerIdempotent => InitMarketLedgerIdempotent,
+                DflowAggregatorV4Instruction::OpenOrder => OpenOrder,
+                DflowAggregatorV4Instruction::Swap => Swap,
+                DflowAggregatorV4Instruction::Swap2 => Swap2,
+                DflowAggregatorV4Instruction::Swap2WithDestination => Swap2WithDestination,
+                DflowAggregatorV4Instruction::Swap2WithDestinationNative => Swap2WithDestinationNative,
+                DflowAggregatorV4Instruction::SwapWithDestination => SwapWithDestination,
+                DflowAggregatorV4Instruction::SwapWithDestinationNative => SwapWithDestinationNative,
+                DflowAggregatorV4Instruction::TransferFee => TransferFee,
+                DflowAggregatorV4Instruction::TransferSol => TransferSol,
+                DflowAggregatorV4Instruction::TransferToSponsor => TransferToSponsor,
+                DflowAggregatorV4Instruction::UnwrapSol => UnwrapSol,
+                DflowAggregatorV4Instruction::WrapSol => WrapSol,
+            )
+        })();
+
+        let mut decoded_instructions = Vec::new();
+        if let Some(decoded_instruction) = decoded_instruction {
+            decoded_instructions.push(decoded_instruction);
+        }
+
+        if let Some(data) = CpiEvent::decode(&instruction.data) {
+            decoded_instructions.push(DflowAggregatorV4Instruction::CpiEvent {
+                program_id: PROGRAM_ID,
+                data,
+                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
+            });
+        }
+
+        for payload in metadata.program_data_log_payloads() {
+            if let Some(data) = CpiEvent::decode(payload.as_slice()) {
+                decoded_instructions.push(DflowAggregatorV4Instruction::CpiEvent {
+                    program_id: PROGRAM_ID,
+                    data,
+                    accounts: None,
+                });
+            }
+        }
+
+        decoded_instructions
     }
 }

@@ -38,11 +38,7 @@ pub struct MarginfiAccount {
     ///
     /// actions until unfrozen.
     pub account_flags: u64,
-    /// Set with `update_emissions_destination_account`. Emissions rewards can
-    /// be withdrawn to the cannonical ATA of this wallet without the user's
-    /// input (withdraw_emissions_permissionless). If pubkey default, the
-    /// user has not opted into this feature, and must claim emissions
-    /// manually (withdraw_emissions).
+    /// Wallet whose canonical ATA receives off-chain emissions distributions.
     pub emissions_destination_account: Pubkey,
     pub health_cache: HealthCache,
     /// If this account was migrated from another one, store the original
@@ -51,6 +47,8 @@ pub struct MarginfiAccount {
     /// If this account has been migrated to another one, store the destination
     /// account key
     pub migrated_to: Pubkey,
+    /// Unix timestamp (u64) of the last account interaction. Note:
+    /// Bank.last_update uses i64.
     pub last_update: u64,
     /// If a PDA-based account, the account index, a seed used to derive the PDA
     /// that can be chosen arbitrarily (0.1.5 or later). Otherwise, does

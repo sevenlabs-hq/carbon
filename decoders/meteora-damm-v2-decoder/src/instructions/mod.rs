@@ -8,7 +8,6 @@ pub mod postgres;
 pub mod graphql;
 
 pub mod add_liquidity;
-pub mod claim_partner_fee;
 pub mod claim_position_fee;
 pub mod claim_protocol_fee;
 pub mod claim_reward;
@@ -25,6 +24,7 @@ pub mod create_token_badge;
 pub mod dummy_ix;
 pub mod fix_config_fee_params;
 pub mod fix_pool_fee_params;
+pub mod fix_pool_layout_version;
 pub mod fund_reward;
 pub mod initialize_customizable_pool;
 pub mod initialize_pool;
@@ -48,11 +48,11 @@ pub mod withdraw_ineligible_reward;
 pub mod zap_protocol_fee;
 
 pub use self::{
-    add_liquidity::*, claim_partner_fee::*, claim_position_fee::*, claim_protocol_fee::*,
-    claim_reward::*, close_config::*, close_operator_account::*, close_position::*,
-    close_token_badge::*, cpi_event::*, create_config::*, create_dynamic_config::*,
-    create_operator_account::*, create_position::*, create_token_badge::*, dummy_ix::*,
-    fix_config_fee_params::*, fix_pool_fee_params::*, fund_reward::*,
+    add_liquidity::*, claim_position_fee::*, claim_protocol_fee::*, claim_reward::*,
+    close_config::*, close_operator_account::*, close_position::*, close_token_badge::*,
+    cpi_event::*, create_config::*, create_dynamic_config::*, create_operator_account::*,
+    create_position::*, create_token_badge::*, dummy_ix::*, fix_config_fee_params::*,
+    fix_pool_fee_params::*, fix_pool_layout_version::*, fund_reward::*,
     initialize_customizable_pool::*, initialize_pool::*, initialize_pool_with_dynamic_config::*,
     initialize_reward::*, lock_inner_position::*, lock_position::*, permanent_lock_position::*,
     refresh_vesting::*, remove_all_liquidity::*, remove_liquidity::*, set_pool_status::*,
@@ -69,11 +69,6 @@ pub enum MeteoraDammV2Instruction {
         program_id: solana_pubkey::Pubkey,
         data: AddLiquidity,
         accounts: AddLiquidityInstructionAccounts,
-    },
-    ClaimPartnerFee {
-        program_id: solana_pubkey::Pubkey,
-        data: ClaimPartnerFee,
-        accounts: ClaimPartnerFeeInstructionAccounts,
     },
     ClaimPositionFee {
         program_id: solana_pubkey::Pubkey,
@@ -149,6 +144,11 @@ pub enum MeteoraDammV2Instruction {
         program_id: solana_pubkey::Pubkey,
         data: FixPoolFeeParams,
         accounts: FixPoolFeeParamsInstructionAccounts,
+    },
+    FixPoolLayoutVersion {
+        program_id: solana_pubkey::Pubkey,
+        data: FixPoolLayoutVersion,
+        accounts: FixPoolLayoutVersionInstructionAccounts,
     },
     FundReward {
         program_id: solana_pubkey::Pubkey,
@@ -255,11 +255,10 @@ pub enum MeteoraDammV2Instruction {
         data: ZapProtocolFee,
         accounts: ZapProtocolFeeInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: CpiEventInstructionAccounts,
+        accounts: Option<CpiEventInstructionAccounts>,
     },
 }
 
@@ -268,54 +267,92 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDammV2Decoder {
 
     fn decode_instruction(
         &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
         instruction: &solana_instruction::Instruction,
     ) -> Option<Self::InstructionType> {
+        self.decode_instructions(metadata, instruction)
+            .into_iter()
+            .next()
+    }
+
+    fn decode_instructions(
+        &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
+        instruction: &solana_instruction::Instruction,
+    ) -> Vec<Self::InstructionType> {
+        use carbon_core::deserialize::ArrangeAccounts as _;
         if instruction.program_id != PROGRAM_ID {
-            return None;
+            return Vec::new();
         }
 
-        carbon_core::try_decode_instructions!(
-            instruction,
-            PROGRAM_ID,
-            MeteoraDammV2Instruction::AddLiquidity => AddLiquidity,
-            MeteoraDammV2Instruction::ClaimPartnerFee => ClaimPartnerFee,
-            MeteoraDammV2Instruction::ClaimPositionFee => ClaimPositionFee,
-            MeteoraDammV2Instruction::ClaimProtocolFee => ClaimProtocolFee,
-            MeteoraDammV2Instruction::ClaimReward => ClaimReward,
-            MeteoraDammV2Instruction::CloseConfig => CloseConfig,
-            MeteoraDammV2Instruction::CloseOperatorAccount => CloseOperatorAccount,
-            MeteoraDammV2Instruction::ClosePosition => ClosePosition,
-            MeteoraDammV2Instruction::CloseTokenBadge => CloseTokenBadge,
-            MeteoraDammV2Instruction::CreateConfig => CreateConfig,
-            MeteoraDammV2Instruction::CreateDynamicConfig => CreateDynamicConfig,
-            MeteoraDammV2Instruction::CreateOperatorAccount => CreateOperatorAccount,
-            MeteoraDammV2Instruction::CreatePosition => CreatePosition,
-            MeteoraDammV2Instruction::CreateTokenBadge => CreateTokenBadge,
-            MeteoraDammV2Instruction::DummyIx => DummyIx,
-            MeteoraDammV2Instruction::FixConfigFeeParams => FixConfigFeeParams,
-            MeteoraDammV2Instruction::FixPoolFeeParams => FixPoolFeeParams,
-            MeteoraDammV2Instruction::FundReward => FundReward,
-            MeteoraDammV2Instruction::InitializeCustomizablePool => InitializeCustomizablePool,
-            MeteoraDammV2Instruction::InitializePool => InitializePool,
-            MeteoraDammV2Instruction::InitializePoolWithDynamicConfig => InitializePoolWithDynamicConfig,
-            MeteoraDammV2Instruction::InitializeReward => InitializeReward,
-            MeteoraDammV2Instruction::LockInnerPosition => LockInnerPosition,
-            MeteoraDammV2Instruction::LockPosition => LockPosition,
-            MeteoraDammV2Instruction::PermanentLockPosition => PermanentLockPosition,
-            MeteoraDammV2Instruction::RefreshVesting => RefreshVesting,
-            MeteoraDammV2Instruction::RemoveAllLiquidity => RemoveAllLiquidity,
-            MeteoraDammV2Instruction::RemoveLiquidity => RemoveLiquidity,
-            MeteoraDammV2Instruction::SetPoolStatus => SetPoolStatus,
-            MeteoraDammV2Instruction::SplitPosition => SplitPosition,
-            MeteoraDammV2Instruction::SplitPosition2 => SplitPosition2,
-            MeteoraDammV2Instruction::Swap => Swap,
-            MeteoraDammV2Instruction::Swap2 => Swap2,
-            MeteoraDammV2Instruction::UpdatePoolFees => UpdatePoolFees,
-            MeteoraDammV2Instruction::UpdateRewardDuration => UpdateRewardDuration,
-            MeteoraDammV2Instruction::UpdateRewardFunder => UpdateRewardFunder,
-            MeteoraDammV2Instruction::WithdrawIneligibleReward => WithdrawIneligibleReward,
-            MeteoraDammV2Instruction::ZapProtocolFee => ZapProtocolFee,
-            MeteoraDammV2Instruction::CpiEvent => CpiEvent,
-        )
+        let decoded_instruction = (|| {
+            carbon_core::try_decode_instructions!(
+                instruction,
+                PROGRAM_ID,
+                MeteoraDammV2Instruction::AddLiquidity => AddLiquidity,
+                MeteoraDammV2Instruction::ClaimPositionFee => ClaimPositionFee,
+                MeteoraDammV2Instruction::ClaimProtocolFee => ClaimProtocolFee,
+                MeteoraDammV2Instruction::ClaimReward => ClaimReward,
+                MeteoraDammV2Instruction::CloseConfig => CloseConfig,
+                MeteoraDammV2Instruction::CloseOperatorAccount => CloseOperatorAccount,
+                MeteoraDammV2Instruction::ClosePosition => ClosePosition,
+                MeteoraDammV2Instruction::CloseTokenBadge => CloseTokenBadge,
+                MeteoraDammV2Instruction::CreateConfig => CreateConfig,
+                MeteoraDammV2Instruction::CreateDynamicConfig => CreateDynamicConfig,
+                MeteoraDammV2Instruction::CreateOperatorAccount => CreateOperatorAccount,
+                MeteoraDammV2Instruction::CreatePosition => CreatePosition,
+                MeteoraDammV2Instruction::CreateTokenBadge => CreateTokenBadge,
+                MeteoraDammV2Instruction::DummyIx => DummyIx,
+                MeteoraDammV2Instruction::FixConfigFeeParams => FixConfigFeeParams,
+                MeteoraDammV2Instruction::FixPoolFeeParams => FixPoolFeeParams,
+                MeteoraDammV2Instruction::FixPoolLayoutVersion => FixPoolLayoutVersion,
+                MeteoraDammV2Instruction::FundReward => FundReward,
+                MeteoraDammV2Instruction::InitializeCustomizablePool => InitializeCustomizablePool,
+                MeteoraDammV2Instruction::InitializePool => InitializePool,
+                MeteoraDammV2Instruction::InitializePoolWithDynamicConfig => InitializePoolWithDynamicConfig,
+                MeteoraDammV2Instruction::InitializeReward => InitializeReward,
+                MeteoraDammV2Instruction::LockInnerPosition => LockInnerPosition,
+                MeteoraDammV2Instruction::LockPosition => LockPosition,
+                MeteoraDammV2Instruction::PermanentLockPosition => PermanentLockPosition,
+                MeteoraDammV2Instruction::RefreshVesting => RefreshVesting,
+                MeteoraDammV2Instruction::RemoveAllLiquidity => RemoveAllLiquidity,
+                MeteoraDammV2Instruction::RemoveLiquidity => RemoveLiquidity,
+                MeteoraDammV2Instruction::SetPoolStatus => SetPoolStatus,
+                MeteoraDammV2Instruction::SplitPosition => SplitPosition,
+                MeteoraDammV2Instruction::SplitPosition2 => SplitPosition2,
+                MeteoraDammV2Instruction::Swap => Swap,
+                MeteoraDammV2Instruction::Swap2 => Swap2,
+                MeteoraDammV2Instruction::UpdatePoolFees => UpdatePoolFees,
+                MeteoraDammV2Instruction::UpdateRewardDuration => UpdateRewardDuration,
+                MeteoraDammV2Instruction::UpdateRewardFunder => UpdateRewardFunder,
+                MeteoraDammV2Instruction::WithdrawIneligibleReward => WithdrawIneligibleReward,
+                MeteoraDammV2Instruction::ZapProtocolFee => ZapProtocolFee,
+            )
+        })();
+
+        let mut decoded_instructions = Vec::new();
+        if let Some(decoded_instruction) = decoded_instruction {
+            decoded_instructions.push(decoded_instruction);
+        }
+
+        if let Some(data) = CpiEvent::decode(&instruction.data) {
+            decoded_instructions.push(MeteoraDammV2Instruction::CpiEvent {
+                program_id: PROGRAM_ID,
+                data,
+                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
+            });
+        }
+
+        for payload in metadata.program_data_log_payloads() {
+            if let Some(data) = CpiEvent::decode(payload.as_slice()) {
+                decoded_instructions.push(MeteoraDammV2Instruction::CpiEvent {
+                    program_id: PROGRAM_ID,
+                    data,
+                    accounts: None,
+                });
+            }
+        }
+
+        decoded_instructions
     }
 }

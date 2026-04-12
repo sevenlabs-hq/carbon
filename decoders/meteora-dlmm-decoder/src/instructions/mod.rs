@@ -485,11 +485,10 @@ pub enum MeteoraDlmmInstruction {
         data: ZapProtocolFee,
         accounts: ZapProtocolFeeInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: CpiEventInstructionAccounts,
+        accounts: Option<CpiEventInstructionAccounts>,
     },
 }
 
@@ -498,90 +497,128 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDlmmDecoder {
 
     fn decode_instruction(
         &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
         instruction: &solana_instruction::Instruction,
     ) -> Option<Self::InstructionType> {
+        self.decode_instructions(metadata, instruction)
+            .into_iter()
+            .next()
+    }
+
+    fn decode_instructions(
+        &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
+        instruction: &solana_instruction::Instruction,
+    ) -> Vec<Self::InstructionType> {
+        use carbon_core::deserialize::ArrangeAccounts as _;
         if instruction.program_id != PROGRAM_ID {
-            return None;
+            return Vec::new();
         }
 
-        carbon_core::try_decode_instructions!(
-            instruction,
-            PROGRAM_ID,
-            MeteoraDlmmInstruction::AddLiquidity => AddLiquidity,
-            MeteoraDlmmInstruction::AddLiquidity2 => AddLiquidity2,
-            MeteoraDlmmInstruction::AddLiquidityByStrategy => AddLiquidityByStrategy,
-            MeteoraDlmmInstruction::AddLiquidityByStrategy2 => AddLiquidityByStrategy2,
-            MeteoraDlmmInstruction::AddLiquidityByStrategyOneSide => AddLiquidityByStrategyOneSide,
-            MeteoraDlmmInstruction::AddLiquidityByWeight => AddLiquidityByWeight,
-            MeteoraDlmmInstruction::AddLiquidityOneSide => AddLiquidityOneSide,
-            MeteoraDlmmInstruction::AddLiquidityOneSidePrecise => AddLiquidityOneSidePrecise,
-            MeteoraDlmmInstruction::AddLiquidityOneSidePrecise2 => AddLiquidityOneSidePrecise2,
-            MeteoraDlmmInstruction::ClaimFee => ClaimFee,
-            MeteoraDlmmInstruction::ClaimFee2 => ClaimFee2,
-            MeteoraDlmmInstruction::ClaimReward => ClaimReward,
-            MeteoraDlmmInstruction::ClaimReward2 => ClaimReward2,
-            MeteoraDlmmInstruction::CloseClaimFeeOperatorAccount => CloseClaimFeeOperatorAccount,
-            MeteoraDlmmInstruction::CloseOperatorAccount => CloseOperatorAccount,
-            MeteoraDlmmInstruction::ClosePosition => ClosePosition,
-            MeteoraDlmmInstruction::ClosePosition2 => ClosePosition2,
-            MeteoraDlmmInstruction::ClosePositionIfEmpty => ClosePositionIfEmpty,
-            MeteoraDlmmInstruction::ClosePresetParameter => ClosePresetParameter,
-            MeteoraDlmmInstruction::ClosePresetParameter2 => ClosePresetParameter2,
-            MeteoraDlmmInstruction::CloseTokenBadge => CloseTokenBadge,
-            MeteoraDlmmInstruction::CreateOperatorAccount => CreateOperatorAccount,
-            MeteoraDlmmInstruction::DecreasePositionLength => DecreasePositionLength,
-            MeteoraDlmmInstruction::ForIdlTypeGenerationDoNotCall => ForIdlTypeGenerationDoNotCall,
-            MeteoraDlmmInstruction::FundReward => FundReward,
-            MeteoraDlmmInstruction::GoToABin => GoToABin,
-            MeteoraDlmmInstruction::IncreaseOracleLength => IncreaseOracleLength,
-            MeteoraDlmmInstruction::IncreasePositionLength => IncreasePositionLength,
-            MeteoraDlmmInstruction::IncreasePositionLength2 => IncreasePositionLength2,
-            MeteoraDlmmInstruction::InitializeBinArray => InitializeBinArray,
-            MeteoraDlmmInstruction::InitializeBinArrayBitmapExtension => InitializeBinArrayBitmapExtension,
-            MeteoraDlmmInstruction::InitializeCustomizablePermissionlessLbPair => InitializeCustomizablePermissionlessLbPair,
-            MeteoraDlmmInstruction::InitializeCustomizablePermissionlessLbPair2 => InitializeCustomizablePermissionlessLbPair2,
-            MeteoraDlmmInstruction::InitializeLbPair => InitializeLbPair,
-            MeteoraDlmmInstruction::InitializeLbPair2 => InitializeLbPair2,
-            MeteoraDlmmInstruction::InitializePermissionLbPair => InitializePermissionLbPair,
-            MeteoraDlmmInstruction::InitializePosition => InitializePosition,
-            MeteoraDlmmInstruction::InitializePosition2 => InitializePosition2,
-            MeteoraDlmmInstruction::InitializePositionByOperator => InitializePositionByOperator,
-            MeteoraDlmmInstruction::InitializePositionPda => InitializePositionPda,
-            MeteoraDlmmInstruction::InitializePresetParameter => InitializePresetParameter,
-            MeteoraDlmmInstruction::InitializeReward => InitializeReward,
-            MeteoraDlmmInstruction::InitializeTokenBadge => InitializeTokenBadge,
-            MeteoraDlmmInstruction::MigratePosition => MigratePosition,
-            MeteoraDlmmInstruction::RebalanceLiquidity => RebalanceLiquidity,
-            MeteoraDlmmInstruction::RemoveAllLiquidity => RemoveAllLiquidity,
-            MeteoraDlmmInstruction::RemoveLiquidity => RemoveLiquidity,
-            MeteoraDlmmInstruction::RemoveLiquidity2 => RemoveLiquidity2,
-            MeteoraDlmmInstruction::RemoveLiquidityByRange => RemoveLiquidityByRange,
-            MeteoraDlmmInstruction::RemoveLiquidityByRange2 => RemoveLiquidityByRange2,
-            MeteoraDlmmInstruction::ResetBinArrayTombstoneFields => ResetBinArrayTombstoneFields,
-            MeteoraDlmmInstruction::ResetPoolTombstoneFields => ResetPoolTombstoneFields,
-            MeteoraDlmmInstruction::ResetPositionTombstoneFields => ResetPositionTombstoneFields,
-            MeteoraDlmmInstruction::SetActivationPoint => SetActivationPoint,
-            MeteoraDlmmInstruction::SetPairStatus => SetPairStatus,
-            MeteoraDlmmInstruction::SetPairStatusPermissionless => SetPairStatusPermissionless,
-            MeteoraDlmmInstruction::SetPreActivationDuration => SetPreActivationDuration,
-            MeteoraDlmmInstruction::SetPreActivationSwapAddress => SetPreActivationSwapAddress,
-            MeteoraDlmmInstruction::Swap => Swap,
-            MeteoraDlmmInstruction::Swap2 => Swap2,
-            MeteoraDlmmInstruction::SwapExactOut => SwapExactOut,
-            MeteoraDlmmInstruction::SwapExactOut2 => SwapExactOut2,
-            MeteoraDlmmInstruction::SwapWithPriceImpact => SwapWithPriceImpact,
-            MeteoraDlmmInstruction::SwapWithPriceImpact2 => SwapWithPriceImpact2,
-            MeteoraDlmmInstruction::UpdateBaseFeeParameters => UpdateBaseFeeParameters,
-            MeteoraDlmmInstruction::UpdateDynamicFeeParameters => UpdateDynamicFeeParameters,
-            MeteoraDlmmInstruction::UpdateFeesAndReward2 => UpdateFeesAndReward2,
-            MeteoraDlmmInstruction::UpdateFeesAndRewards => UpdateFeesAndRewards,
-            MeteoraDlmmInstruction::UpdatePositionOperator => UpdatePositionOperator,
-            MeteoraDlmmInstruction::UpdateRewardDuration => UpdateRewardDuration,
-            MeteoraDlmmInstruction::UpdateRewardFunder => UpdateRewardFunder,
-            MeteoraDlmmInstruction::WithdrawIneligibleReward => WithdrawIneligibleReward,
-            MeteoraDlmmInstruction::WithdrawProtocolFee => WithdrawProtocolFee,
-            MeteoraDlmmInstruction::ZapProtocolFee => ZapProtocolFee,
-            MeteoraDlmmInstruction::CpiEvent => CpiEvent,
-        )
+        let decoded_instruction = (|| {
+            carbon_core::try_decode_instructions!(
+                instruction,
+                PROGRAM_ID,
+                MeteoraDlmmInstruction::AddLiquidity => AddLiquidity,
+                MeteoraDlmmInstruction::AddLiquidity2 => AddLiquidity2,
+                MeteoraDlmmInstruction::AddLiquidityByStrategy => AddLiquidityByStrategy,
+                MeteoraDlmmInstruction::AddLiquidityByStrategy2 => AddLiquidityByStrategy2,
+                MeteoraDlmmInstruction::AddLiquidityByStrategyOneSide => AddLiquidityByStrategyOneSide,
+                MeteoraDlmmInstruction::AddLiquidityByWeight => AddLiquidityByWeight,
+                MeteoraDlmmInstruction::AddLiquidityOneSide => AddLiquidityOneSide,
+                MeteoraDlmmInstruction::AddLiquidityOneSidePrecise => AddLiquidityOneSidePrecise,
+                MeteoraDlmmInstruction::AddLiquidityOneSidePrecise2 => AddLiquidityOneSidePrecise2,
+                MeteoraDlmmInstruction::ClaimFee => ClaimFee,
+                MeteoraDlmmInstruction::ClaimFee2 => ClaimFee2,
+                MeteoraDlmmInstruction::ClaimReward => ClaimReward,
+                MeteoraDlmmInstruction::ClaimReward2 => ClaimReward2,
+                MeteoraDlmmInstruction::CloseClaimFeeOperatorAccount => CloseClaimFeeOperatorAccount,
+                MeteoraDlmmInstruction::CloseOperatorAccount => CloseOperatorAccount,
+                MeteoraDlmmInstruction::ClosePosition => ClosePosition,
+                MeteoraDlmmInstruction::ClosePosition2 => ClosePosition2,
+                MeteoraDlmmInstruction::ClosePositionIfEmpty => ClosePositionIfEmpty,
+                MeteoraDlmmInstruction::ClosePresetParameter => ClosePresetParameter,
+                MeteoraDlmmInstruction::ClosePresetParameter2 => ClosePresetParameter2,
+                MeteoraDlmmInstruction::CloseTokenBadge => CloseTokenBadge,
+                MeteoraDlmmInstruction::CreateOperatorAccount => CreateOperatorAccount,
+                MeteoraDlmmInstruction::DecreasePositionLength => DecreasePositionLength,
+                MeteoraDlmmInstruction::ForIdlTypeGenerationDoNotCall => ForIdlTypeGenerationDoNotCall,
+                MeteoraDlmmInstruction::FundReward => FundReward,
+                MeteoraDlmmInstruction::GoToABin => GoToABin,
+                MeteoraDlmmInstruction::IncreaseOracleLength => IncreaseOracleLength,
+                MeteoraDlmmInstruction::IncreasePositionLength => IncreasePositionLength,
+                MeteoraDlmmInstruction::IncreasePositionLength2 => IncreasePositionLength2,
+                MeteoraDlmmInstruction::InitializeBinArray => InitializeBinArray,
+                MeteoraDlmmInstruction::InitializeBinArrayBitmapExtension => InitializeBinArrayBitmapExtension,
+                MeteoraDlmmInstruction::InitializeCustomizablePermissionlessLbPair => InitializeCustomizablePermissionlessLbPair,
+                MeteoraDlmmInstruction::InitializeCustomizablePermissionlessLbPair2 => InitializeCustomizablePermissionlessLbPair2,
+                MeteoraDlmmInstruction::InitializeLbPair => InitializeLbPair,
+                MeteoraDlmmInstruction::InitializeLbPair2 => InitializeLbPair2,
+                MeteoraDlmmInstruction::InitializePermissionLbPair => InitializePermissionLbPair,
+                MeteoraDlmmInstruction::InitializePosition => InitializePosition,
+                MeteoraDlmmInstruction::InitializePosition2 => InitializePosition2,
+                MeteoraDlmmInstruction::InitializePositionByOperator => InitializePositionByOperator,
+                MeteoraDlmmInstruction::InitializePositionPda => InitializePositionPda,
+                MeteoraDlmmInstruction::InitializePresetParameter => InitializePresetParameter,
+                MeteoraDlmmInstruction::InitializeReward => InitializeReward,
+                MeteoraDlmmInstruction::InitializeTokenBadge => InitializeTokenBadge,
+                MeteoraDlmmInstruction::MigratePosition => MigratePosition,
+                MeteoraDlmmInstruction::RebalanceLiquidity => RebalanceLiquidity,
+                MeteoraDlmmInstruction::RemoveAllLiquidity => RemoveAllLiquidity,
+                MeteoraDlmmInstruction::RemoveLiquidity => RemoveLiquidity,
+                MeteoraDlmmInstruction::RemoveLiquidity2 => RemoveLiquidity2,
+                MeteoraDlmmInstruction::RemoveLiquidityByRange => RemoveLiquidityByRange,
+                MeteoraDlmmInstruction::RemoveLiquidityByRange2 => RemoveLiquidityByRange2,
+                MeteoraDlmmInstruction::ResetBinArrayTombstoneFields => ResetBinArrayTombstoneFields,
+                MeteoraDlmmInstruction::ResetPoolTombstoneFields => ResetPoolTombstoneFields,
+                MeteoraDlmmInstruction::ResetPositionTombstoneFields => ResetPositionTombstoneFields,
+                MeteoraDlmmInstruction::SetActivationPoint => SetActivationPoint,
+                MeteoraDlmmInstruction::SetPairStatus => SetPairStatus,
+                MeteoraDlmmInstruction::SetPairStatusPermissionless => SetPairStatusPermissionless,
+                MeteoraDlmmInstruction::SetPreActivationDuration => SetPreActivationDuration,
+                MeteoraDlmmInstruction::SetPreActivationSwapAddress => SetPreActivationSwapAddress,
+                MeteoraDlmmInstruction::Swap => Swap,
+                MeteoraDlmmInstruction::Swap2 => Swap2,
+                MeteoraDlmmInstruction::SwapExactOut => SwapExactOut,
+                MeteoraDlmmInstruction::SwapExactOut2 => SwapExactOut2,
+                MeteoraDlmmInstruction::SwapWithPriceImpact => SwapWithPriceImpact,
+                MeteoraDlmmInstruction::SwapWithPriceImpact2 => SwapWithPriceImpact2,
+                MeteoraDlmmInstruction::UpdateBaseFeeParameters => UpdateBaseFeeParameters,
+                MeteoraDlmmInstruction::UpdateDynamicFeeParameters => UpdateDynamicFeeParameters,
+                MeteoraDlmmInstruction::UpdateFeesAndReward2 => UpdateFeesAndReward2,
+                MeteoraDlmmInstruction::UpdateFeesAndRewards => UpdateFeesAndRewards,
+                MeteoraDlmmInstruction::UpdatePositionOperator => UpdatePositionOperator,
+                MeteoraDlmmInstruction::UpdateRewardDuration => UpdateRewardDuration,
+                MeteoraDlmmInstruction::UpdateRewardFunder => UpdateRewardFunder,
+                MeteoraDlmmInstruction::WithdrawIneligibleReward => WithdrawIneligibleReward,
+                MeteoraDlmmInstruction::WithdrawProtocolFee => WithdrawProtocolFee,
+                MeteoraDlmmInstruction::ZapProtocolFee => ZapProtocolFee,
+            )
+        })();
+
+        let mut decoded_instructions = Vec::new();
+        if let Some(decoded_instruction) = decoded_instruction {
+            decoded_instructions.push(decoded_instruction);
+        }
+
+        if let Some(data) = CpiEvent::decode(&instruction.data) {
+            decoded_instructions.push(MeteoraDlmmInstruction::CpiEvent {
+                program_id: PROGRAM_ID,
+                data,
+                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
+            });
+        }
+
+        for payload in metadata.program_data_log_payloads() {
+            if let Some(data) = CpiEvent::decode(payload.as_slice()) {
+                decoded_instructions.push(MeteoraDlmmInstruction::CpiEvent {
+                    program_id: PROGRAM_ID,
+                    data,
+                    accounts: None,
+                });
+            }
+        }
+
+        decoded_instructions
     }
 }

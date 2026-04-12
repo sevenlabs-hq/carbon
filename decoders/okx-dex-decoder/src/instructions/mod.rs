@@ -104,11 +104,10 @@ pub enum OkxDexInstruction {
         data: WrapUnwrapV3WithReceiver,
         accounts: WrapUnwrapV3WithReceiverInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: CpiEventInstructionAccounts,
+        accounts: Option<CpiEventInstructionAccounts>,
     },
 }
 
@@ -117,30 +116,68 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OkxDexDecoder {
 
     fn decode_instruction(
         &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
         instruction: &solana_instruction::Instruction,
     ) -> Option<Self::InstructionType> {
+        self.decode_instructions(metadata, instruction)
+            .into_iter()
+            .next()
+    }
+
+    fn decode_instructions(
+        &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
+        instruction: &solana_instruction::Instruction,
+    ) -> Vec<Self::InstructionType> {
+        use carbon_core::deserialize::ArrangeAccounts as _;
         if instruction.program_id != PROGRAM_ID {
-            return None;
+            return Vec::new();
         }
 
-        carbon_core::try_decode_instructions!(
-            instruction,
-            PROGRAM_ID,
-            OkxDexInstruction::Claim => Claim,
-            OkxDexInstruction::ClaimCashbackPumpfun => ClaimCashbackPumpfun,
-            OkxDexInstruction::ClaimCashbackPumpswap => ClaimCashbackPumpswap,
-            OkxDexInstruction::CreateTokenAccount => CreateTokenAccount,
-            OkxDexInstruction::CreateTokenAccountWithSeed => CreateTokenAccountWithSeed,
-            OkxDexInstruction::ProxySwap => ProxySwap,
-            OkxDexInstruction::Swap => Swap,
-            OkxDexInstruction::SwapTobV3 => SwapTobV3,
-            OkxDexInstruction::SwapTobV3Enhanced => SwapTobV3Enhanced,
-            OkxDexInstruction::SwapTobV3WithReceiver => SwapTobV3WithReceiver,
-            OkxDexInstruction::SwapV3 => SwapV3,
-            OkxDexInstruction::SwapV3WithCpiEvent => SwapV3WithCpiEvent,
-            OkxDexInstruction::WrapUnwrapV3 => WrapUnwrapV3,
-            OkxDexInstruction::WrapUnwrapV3WithReceiver => WrapUnwrapV3WithReceiver,
-            OkxDexInstruction::CpiEvent => CpiEvent,
-        )
+        let decoded_instruction = (|| {
+            carbon_core::try_decode_instructions!(
+                instruction,
+                PROGRAM_ID,
+                OkxDexInstruction::Claim => Claim,
+                OkxDexInstruction::ClaimCashbackPumpfun => ClaimCashbackPumpfun,
+                OkxDexInstruction::ClaimCashbackPumpswap => ClaimCashbackPumpswap,
+                OkxDexInstruction::CreateTokenAccount => CreateTokenAccount,
+                OkxDexInstruction::CreateTokenAccountWithSeed => CreateTokenAccountWithSeed,
+                OkxDexInstruction::ProxySwap => ProxySwap,
+                OkxDexInstruction::Swap => Swap,
+                OkxDexInstruction::SwapTobV3 => SwapTobV3,
+                OkxDexInstruction::SwapTobV3Enhanced => SwapTobV3Enhanced,
+                OkxDexInstruction::SwapTobV3WithReceiver => SwapTobV3WithReceiver,
+                OkxDexInstruction::SwapV3 => SwapV3,
+                OkxDexInstruction::SwapV3WithCpiEvent => SwapV3WithCpiEvent,
+                OkxDexInstruction::WrapUnwrapV3 => WrapUnwrapV3,
+                OkxDexInstruction::WrapUnwrapV3WithReceiver => WrapUnwrapV3WithReceiver,
+            )
+        })();
+
+        let mut decoded_instructions = Vec::new();
+        if let Some(decoded_instruction) = decoded_instruction {
+            decoded_instructions.push(decoded_instruction);
+        }
+
+        if let Some(data) = CpiEvent::decode(&instruction.data) {
+            decoded_instructions.push(OkxDexInstruction::CpiEvent {
+                program_id: PROGRAM_ID,
+                data,
+                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
+            });
+        }
+
+        for payload in metadata.program_data_log_payloads() {
+            if let Some(data) = CpiEvent::decode(payload.as_slice()) {
+                decoded_instructions.push(OkxDexInstruction::CpiEvent {
+                    program_id: PROGRAM_ID,
+                    data,
+                    accounts: None,
+                });
+            }
+        }
+
+        decoded_instructions
     }
 }

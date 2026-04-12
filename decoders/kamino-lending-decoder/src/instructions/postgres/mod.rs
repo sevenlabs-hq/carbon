@@ -37,6 +37,7 @@ pub mod repay_and_withdraw_and_redeem_row;
 pub mod repay_obligation_liquidity_row;
 pub mod repay_obligation_liquidity_v2_row;
 pub mod request_elevation_group_row;
+pub mod rollover_fixed_term_borrow_row;
 pub mod seed_deposit_on_init_reserve_row;
 pub mod set_borrow_order_row;
 pub mod set_obligation_order_row;
@@ -46,6 +47,7 @@ pub mod update_global_config_admin_row;
 pub mod update_global_config_row;
 pub mod update_lending_market_owner_row;
 pub mod update_lending_market_row;
+pub mod update_obligation_config_row;
 pub mod update_reserve_config_row;
 pub mod withdraw_obligation_collateral_and_redeem_reserve_collateral_row;
 pub mod withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_row;
@@ -74,10 +76,11 @@ pub use self::{
     refresh_obligation_farms_for_reserve_row::*, refresh_obligation_row::*, refresh_reserve_row::*,
     refresh_reserves_batch_row::*, repay_and_withdraw_and_redeem_row::*,
     repay_obligation_liquidity_row::*, repay_obligation_liquidity_v2_row::*,
-    request_elevation_group_row::*, seed_deposit_on_init_reserve_row::*, set_borrow_order_row::*,
-    set_obligation_order_row::*, socialize_loss_row::*, socialize_loss_v2_row::*,
-    update_global_config_admin_row::*, update_global_config_row::*,
-    update_lending_market_owner_row::*, update_lending_market_row::*, update_reserve_config_row::*,
+    request_elevation_group_row::*, rollover_fixed_term_borrow_row::*,
+    seed_deposit_on_init_reserve_row::*, set_borrow_order_row::*, set_obligation_order_row::*,
+    socialize_loss_row::*, socialize_loss_v2_row::*, update_global_config_admin_row::*,
+    update_global_config_row::*, update_lending_market_owner_row::*, update_lending_market_row::*,
+    update_obligation_config_row::*, update_reserve_config_row::*,
     withdraw_obligation_collateral_and_redeem_reserve_collateral_row::*,
     withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_row::*,
     withdraw_obligation_collateral_row::*, withdraw_obligation_collateral_v2_row::*,
@@ -135,6 +138,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for KaminoLendingInstructionsMigra
             Box::new(RepayObligationLiquidityMigrationOperation),
             Box::new(RepayObligationLiquidityV2MigrationOperation),
             Box::new(RequestElevationGroupMigrationOperation),
+            Box::new(RolloverFixedTermBorrowMigrationOperation),
             Box::new(SeedDepositOnInitReserveMigrationOperation),
             Box::new(SetBorrowOrderMigrationOperation),
             Box::new(SetObligationOrderMigrationOperation),
@@ -144,6 +148,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for KaminoLendingInstructionsMigra
             Box::new(UpdateGlobalConfigAdminMigrationOperation),
             Box::new(UpdateLendingMarketMigrationOperation),
             Box::new(UpdateLendingMarketOwnerMigrationOperation),
+            Box::new(UpdateObligationConfigMigrationOperation),
             Box::new(UpdateReserveConfigMigrationOperation),
             Box::new(WithdrawObligationCollateralMigrationOperation),
             Box::new(WithdrawObligationCollateralAndRedeemReserveCollateralMigrationOperation),
@@ -421,6 +426,16 @@ impl carbon_core::postgres::operations::Insert for KaminoLendingInstructionWithM
                 row.insert(pool).await?;
                 Ok(())
             }
+            KaminoLendingInstruction::UpdateObligationConfig { data, .. } => {
+                let row = update_obligation_config_row::UpdateObligationConfigRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            KaminoLendingInstruction::RolloverFixedTermBorrow { data, .. } => {
+                let row = rollover_fixed_term_borrow_row::RolloverFixedTermBorrowRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
             KaminoLendingInstruction::FillBorrowOrder { data, .. } => {
                 let row = fill_borrow_order_row::FillBorrowOrderRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.insert(pool).await?;
@@ -461,9 +476,8 @@ impl carbon_core::postgres::operations::Insert for KaminoLendingInstructionWithM
                 row.insert(pool).await?;
                 Ok(())
             }
-            KaminoLendingInstruction::CpiEvent { data, .. } => {
-                let row = cpi_event_row::CpiEventRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.insert(pool).await?;
+            KaminoLendingInstruction::CpiEvent { data, accounts, .. } => {
+                cpi_event_row::CpiEventRow::from_parts(data.clone(), metadata.clone(), if accounts.is_some() { raw_accounts.clone() } else { Vec::new() }).insert(pool).await?;
                 Ok(())
             }
         }
@@ -706,6 +720,16 @@ impl carbon_core::postgres::operations::Upsert for KaminoLendingInstructionWithM
                 row.upsert(pool).await?;
                 Ok(())
             }
+            KaminoLendingInstruction::UpdateObligationConfig { data, .. } => {
+                let row = update_obligation_config_row::UpdateObligationConfigRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            KaminoLendingInstruction::RolloverFixedTermBorrow { data, .. } => {
+                let row = rollover_fixed_term_borrow_row::RolloverFixedTermBorrowRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
             KaminoLendingInstruction::FillBorrowOrder { data, .. } => {
                 let row = fill_borrow_order_row::FillBorrowOrderRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
                 row.upsert(pool).await?;
@@ -746,9 +770,8 @@ impl carbon_core::postgres::operations::Upsert for KaminoLendingInstructionWithM
                 row.upsert(pool).await?;
                 Ok(())
             }
-            KaminoLendingInstruction::CpiEvent { data, .. } => {
-                let row = cpi_event_row::CpiEventRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
-                row.upsert(pool).await?;
+            KaminoLendingInstruction::CpiEvent { data, accounts, .. } => {
+                cpi_event_row::CpiEventRow::from_parts(data.clone(), metadata.clone(), if accounts.is_some() { raw_accounts.clone() } else { Vec::new() }).upsert(pool).await?;
                 Ok(())
             }
         }

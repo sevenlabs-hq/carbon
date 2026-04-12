@@ -15,4 +15,9 @@ pub enum OracleSetup {
     DriftSwitchboardPull,
     SolendPythPull,
     SolendSwitchboardPull,
+    FixedKamino,
+    FixedDrift,
+    JuplendPythPull,
+    JuplendSwitchboardPull,
+    FixedJuplend,
 }

@@ -22,6 +22,9 @@ pub struct WithdrawQueuedLiquidityInstructionAccounts {
     pub withdraw_ticket_owner: solana_pubkey::Pubkey,
     pub associated_token_program: solana_pubkey::Pubkey,
     pub system_program: solana_pubkey::Pubkey,
+    pub progress_callback_program: Option<solana_pubkey::Pubkey>,
+    pub progress_callback_custom_account0: Option<solana_pubkey::Pubkey>,
+    pub progress_callback_custom_account1: Option<solana_pubkey::Pubkey>,
     pub instruction_sysvar_account: solana_pubkey::Pubkey,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
@@ -67,6 +70,9 @@ impl ArrangeAccounts for WithdrawQueuedLiquidity {
         let withdraw_ticket_owner = next_account(&mut iter)?;
         let associated_token_program = next_account(&mut iter)?;
         let system_program = next_account(&mut iter)?;
+        let progress_callback_program = next_account(&mut iter);
+        let progress_callback_custom_account0 = next_account(&mut iter);
+        let progress_callback_custom_account1 = next_account(&mut iter);
         let instruction_sysvar_account = next_account(&mut iter)?;
 
         let remaining = iter.as_slice();
@@ -87,6 +93,9 @@ impl ArrangeAccounts for WithdrawQueuedLiquidity {
             withdraw_ticket_owner,
             associated_token_program,
             system_program,
+            progress_callback_program,
+            progress_callback_custom_account0,
+            progress_callback_custom_account1,
             instruction_sysvar_account,
             remaining: remaining.to_vec(),
         })

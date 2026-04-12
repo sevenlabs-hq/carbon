@@ -18,8 +18,8 @@ pub struct PoolConfigGraphQL {
     pub pool_fees: PoolFeesConfigGraphQL,
     pub partner_liquidity_vesting_info: LiquidityVestingInfoGraphQL,
     pub creator_liquidity_vesting_info: LiquidityVestingInfoGraphQL,
-    pub padding0_0: Vec<U8>,
-    pub padding1_0: i32,
+    pub padding0: Vec<U8>,
+    pub padding1: i32,
     pub collect_fee_mode: U8,
     pub migration_option: U8,
     pub activation_type: U8,
@@ -50,7 +50,7 @@ pub struct PoolConfigGraphQL {
     pub migrated_pool_fee_bps: i32,
     pub migrated_pool_base_fee_mode: U8,
     pub enable_first_swap_with_min_fee: U8,
-    pub padding1: Vec<U8>,
+    pub migrated_compounding_fee_bps: i32,
     pub pool_creation_fee: U64,
     pub migrated_pool_base_fee_bytes: Vec<U8>,
     pub sqrt_start_price: U128,
@@ -68,12 +68,12 @@ impl TryFrom<crate::accounts::postgres::PoolConfigRow> for PoolConfigGraphQL {
             pool_fees: row.pool_fees.0.into(),
             partner_liquidity_vesting_info: row.partner_liquidity_vesting_info.0.into(),
             creator_liquidity_vesting_info: row.creator_liquidity_vesting_info.0.into(),
-            padding0_0: row
-                ._padding0
+            padding0: row
+                .padding0
                 .into_iter()
                 .map(carbon_core::graphql::primitives::U8)
                 .collect(),
-            padding1_0: *row._padding1,
+            padding1: *row.padding1,
             collect_fee_mode: carbon_core::graphql::primitives::U8((*row.collect_fee_mode) as u8),
             migration_option: carbon_core::graphql::primitives::U8((*row.migration_option) as u8),
             activation_type: carbon_core::graphql::primitives::U8((*row.activation_type) as u8),
@@ -144,11 +144,7 @@ impl TryFrom<crate::accounts::postgres::PoolConfigRow> for PoolConfigGraphQL {
             enable_first_swap_with_min_fee: carbon_core::graphql::primitives::U8(
                 (*row.enable_first_swap_with_min_fee) as u8,
             ),
-            padding1: row
-                .padding1
-                .into_iter()
-                .map(carbon_core::graphql::primitives::U8)
-                .collect(),
+            migrated_compounding_fee_bps: *row.migrated_compounding_fee_bps,
             pool_creation_fee: carbon_core::graphql::primitives::U64(*row.pool_creation_fee),
             migrated_pool_base_fee_bytes: row
                 .migrated_pool_base_fee_bytes

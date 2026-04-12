@@ -24,7 +24,6 @@ impl CpiEventRow {
         Self {
             instruction_metadata: metadata.into(),
             name: match &source {
-                CpiEvent::EvtClaimPartnerFee(_) => "evt_claim_partner_fee".to_string(),
                 CpiEvent::EvtClaimPositionFee(_) => "evt_claim_position_fee".to_string(),
                 CpiEvent::EvtClaimProtocolFee(_) => "evt_claim_protocol_fee".to_string(),
                 CpiEvent::EvtClaimReward(_) => "evt_claim_reward".to_string(),

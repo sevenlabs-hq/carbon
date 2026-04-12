@@ -3,6 +3,14 @@ use {
     crate::types::LockType,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
+/// Lock the position to prevent any liquidity changes.
+/// ### Authority
+/// - `position_authority` - The authority that owns the position token.
+///
+/// #### Special Errors
+/// - `PositionAlreadyLocked` - The provided position is already locked.
+/// - `PositionNotLockable` - The provided position is not lockable (e.g. An
+///   empty position).
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct LockPosition {

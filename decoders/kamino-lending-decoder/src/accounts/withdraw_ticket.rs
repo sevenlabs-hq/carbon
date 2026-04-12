@@ -56,11 +56,15 @@ pub struct WithdrawTicket {
     /// invalid = `1`. An invalid ticket cannot be made valid again, and can
     /// only be passed to the `recover_invalid_ticket_collateral` handler.
     pub invalid: u8,
+    /// One of the valid [ProgressCallbackType] representations.
+    pub progress_callback_type: u8,
     /// Inner padding, for alignment.
-    pub alignment_padding: [u8; 7],
+    pub alignment_padding: [u8; 6],
+    /// The (optional) accounts to be used by [Self::progress_callback_type]s.
+    pub progress_callback_custom_accounts: [Pubkey; 2],
     /// Trailing padding, for future developments.
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
-    pub end_padding: [u64; 48],
+    pub end_padding: [u64; 40],
 }
 
 impl WithdrawTicket {

@@ -12,9 +12,9 @@ pub struct SwapResult2GraphQL {
     pub amount_left: U64,
     pub output_amount: U64,
     pub next_sqrt_price: U128,
-    pub trading_fee: U64,
+    pub claiming_fee: U64,
     pub protocol_fee: U64,
-    pub partner_fee: U64,
+    pub compounding_fee: U64,
     pub referral_fee: U64,
 }
 
@@ -30,9 +30,9 @@ impl From<crate::types::SwapResult2> for SwapResult2GraphQL {
             amount_left: carbon_core::graphql::primitives::U64(original.amount_left),
             output_amount: carbon_core::graphql::primitives::U64(original.output_amount),
             next_sqrt_price: carbon_core::graphql::primitives::U128(original.next_sqrt_price),
-            trading_fee: carbon_core::graphql::primitives::U64(original.trading_fee),
+            claiming_fee: carbon_core::graphql::primitives::U64(original.claiming_fee),
             protocol_fee: carbon_core::graphql::primitives::U64(original.protocol_fee),
-            partner_fee: carbon_core::graphql::primitives::U64(original.partner_fee),
+            compounding_fee: carbon_core::graphql::primitives::U64(original.compounding_fee),
             referral_fee: carbon_core::graphql::primitives::U64(original.referral_fee),
         }
     }

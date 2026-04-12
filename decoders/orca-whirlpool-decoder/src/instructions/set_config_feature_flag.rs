@@ -3,6 +3,12 @@ use {
     crate::types::ConfigFeatureFlag,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
+/// Sets the feature flag for a WhirlpoolConfig.
+/// ### Authority
+/// - "authority" - Set authority that is one of ADMINS.
+///
+/// ### Parameters
+/// - `feature_flag` - The feature flag that the WhirlpoolConfig will use.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct SetConfigFeatureFlag {

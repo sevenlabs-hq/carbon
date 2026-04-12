@@ -23,7 +23,7 @@ pub struct LPPoolRow {
     pub total_mint_redeem_fees_paid: I128,
     pub last_aum_slot: U64,
     pub max_settle_quote_amount: U64,
-    pub _padding: U64,
+    pub padding: U64,
     pub mint_redeem_id: U64,
     pub settle_id: U64,
     pub min_mint_fee: i64,
@@ -37,7 +37,7 @@ pub struct LPPoolRow {
     pub target_oracle_delay_fee_bps_per10_slots: U8,
     pub target_position_delay_fee_bps_per10_slots: U8,
     pub lp_pool_id: U8,
-    pub padding: Vec<u8>,
+    pub padding_1: Vec<u8>,
 }
 
 impl LPPoolRow {
@@ -63,7 +63,7 @@ impl LPPoolRow {
             total_mint_redeem_fees_paid: source.total_mint_redeem_fees_paid.into(),
             last_aum_slot: source.last_aum_slot.into(),
             max_settle_quote_amount: source.max_settle_quote_amount.into(),
-            _padding: source._padding.into(),
+            padding: source._padding.into(),
             mint_redeem_id: source.mint_redeem_id.into(),
             settle_id: source.settle_id.into(),
             min_mint_fee: source.min_mint_fee,
@@ -81,7 +81,7 @@ impl LPPoolRow {
                 .target_position_delay_fee_bps_per10_slots
                 .into(),
             lp_pool_id: source.lp_pool_id.into(),
-            padding: source.padding.to_vec(),
+            padding_1: source.padding.to_vec(),
         }
     }
 }
@@ -103,7 +103,7 @@ impl TryFrom<LPPoolRow> for crate::accounts::l_p_pool::LPPool {
             total_mint_redeem_fees_paid: *source.total_mint_redeem_fees_paid,
             last_aum_slot: *source.last_aum_slot,
             max_settle_quote_amount: *source.max_settle_quote_amount,
-            _padding: *source._padding,
+            _padding: *source.padding,
             mint_redeem_id: *source.mint_redeem_id,
             settle_id: *source.settle_id,
             min_mint_fee: source.min_mint_fee,
@@ -155,7 +155,7 @@ impl TryFrom<LPPoolRow> for crate::accounts::l_p_pool::LPPool {
                     "Failed to convert value from postgres primitive".to_string(),
                 )
             })?,
-            padding: source.padding.as_slice().try_into().map_err(|_| {
+            padding: source.padding_1.as_slice().try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert padding from postgres primitive: expected 174 bytes"
                         .to_string(),
@@ -186,7 +186,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::l_p_pool::LPP
             "total_mint_redeem_fees_paid",
             "last_aum_slot",
             "max_settle_quote_amount",
-            "_padding",
+            "padding",
             "mint_redeem_id",
             "settle_id",
             "min_mint_fee",
@@ -200,7 +200,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::l_p_pool::LPP
             "target_oracle_delay_fee_bps_per10_slots",
             "target_position_delay_fee_bps_per10_slots",
             "lp_pool_id",
-            "padding",
+            "padding_1",
         ]
     }
 }
@@ -253,7 +253,7 @@ impl carbon_core::postgres::operations::Insert for LPPoolRow {
         .bind(&self.total_mint_redeem_fees_paid)
         .bind(&self.last_aum_slot)
         .bind(&self.max_settle_quote_amount)
-        .bind(&self._padding)
+        .bind(&self.padding)
         .bind(&self.mint_redeem_id)
         .bind(&self.settle_id)
         .bind(self.min_mint_fee)
@@ -267,7 +267,7 @@ impl carbon_core::postgres::operations::Insert for LPPoolRow {
         .bind(self.target_oracle_delay_fee_bps_per10_slots)
         .bind(self.target_position_delay_fee_bps_per10_slots)
         .bind(self.lp_pool_id)
-        .bind(&self.padding)
+        .bind(&self.padding_1)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool).await
@@ -292,7 +292,7 @@ impl carbon_core::postgres::operations::Upsert for LPPoolRow {
                 "total_mint_redeem_fees_paid",
                 "last_aum_slot",
                 "max_settle_quote_amount",
-                "_padding",
+                "padding",
                 "mint_redeem_id",
                 "settle_id",
                 "min_mint_fee",
@@ -306,7 +306,7 @@ impl carbon_core::postgres::operations::Upsert for LPPoolRow {
                 "target_oracle_delay_fee_bps_per10_slots",
                 "target_position_delay_fee_bps_per10_slots",
                 "lp_pool_id",
-                "padding",
+                "padding_1",
                 __pubkey, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29
@@ -325,7 +325,7 @@ impl carbon_core::postgres::operations::Upsert for LPPoolRow {
                 "total_mint_redeem_fees_paid" = EXCLUDED."total_mint_redeem_fees_paid",
                 "last_aum_slot" = EXCLUDED."last_aum_slot",
                 "max_settle_quote_amount" = EXCLUDED."max_settle_quote_amount",
-                "_padding" = EXCLUDED."_padding",
+                "padding" = EXCLUDED."padding",
                 "mint_redeem_id" = EXCLUDED."mint_redeem_id",
                 "settle_id" = EXCLUDED."settle_id",
                 "min_mint_fee" = EXCLUDED."min_mint_fee",
@@ -339,7 +339,7 @@ impl carbon_core::postgres::operations::Upsert for LPPoolRow {
                 "target_oracle_delay_fee_bps_per10_slots" = EXCLUDED."target_oracle_delay_fee_bps_per10_slots",
                 "target_position_delay_fee_bps_per10_slots" = EXCLUDED."target_position_delay_fee_bps_per10_slots",
                 "lp_pool_id" = EXCLUDED."lp_pool_id",
-                "padding" = EXCLUDED."padding",
+                "padding_1" = EXCLUDED."padding_1",
                 __slot = EXCLUDED.__slot
             "#)
         .bind(self.pubkey)
@@ -354,7 +354,7 @@ impl carbon_core::postgres::operations::Upsert for LPPoolRow {
         .bind(&self.total_mint_redeem_fees_paid)
         .bind(&self.last_aum_slot)
         .bind(&self.max_settle_quote_amount)
-        .bind(&self._padding)
+        .bind(&self.padding)
         .bind(&self.mint_redeem_id)
         .bind(&self.settle_id)
         .bind(self.min_mint_fee)
@@ -368,7 +368,7 @@ impl carbon_core::postgres::operations::Upsert for LPPoolRow {
         .bind(self.target_oracle_delay_fee_bps_per10_slots)
         .bind(self.target_position_delay_fee_bps_per10_slots)
         .bind(self.lp_pool_id)
-        .bind(&self.padding)
+        .bind(&self.padding_1)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
         .execute(pool).await
@@ -439,7 +439,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LPPoolMigrationOperation {
                 "total_mint_redeem_fees_paid" NUMERIC(38) NOT NULL,
                 "last_aum_slot" NUMERIC(20) NOT NULL,
                 "max_settle_quote_amount" NUMERIC(20) NOT NULL,
-                "_padding" NUMERIC(20) NOT NULL,
+                "padding" NUMERIC(20) NOT NULL,
                 "mint_redeem_id" NUMERIC(20) NOT NULL,
                 "settle_id" NUMERIC(20) NOT NULL,
                 "min_mint_fee" INT8 NOT NULL,
@@ -453,7 +453,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for LPPoolMigrationOperation {
                 "target_oracle_delay_fee_bps_per10_slots" INT2 NOT NULL,
                 "target_position_delay_fee_bps_per10_slots" INT2 NOT NULL,
                 "lp_pool_id" INT2 NOT NULL,
-                "padding" BYTEA NOT NULL,
+                "padding_1" BYTEA NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),

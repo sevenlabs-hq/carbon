@@ -111,6 +111,6 @@ pub struct ReserveConfig {
     /// repaid. Inactive when zeroed (i.e. funds can be borrowed
     /// indefinitely). Note: this feature is independent of
     /// [Self::debt_maturity_timestamp] - the liquidation mechanism is based
-    /// on the [ObligationLiquidity::first_borrowed_at_timestamp].
+    /// on the [ObligationLiquidity::last_borrowed_at_timestamp].
     pub debt_term_seconds: u64,
 }

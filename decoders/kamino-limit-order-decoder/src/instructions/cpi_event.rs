@@ -29,12 +29,11 @@ impl CpiEvent {
         if data.len() < 8 {
             return None;
         }
-        let discriminator = &data[0..8];
-        if discriminator != [228, 69, 165, 46, 81, 203, 154, 29] {
-            return None;
-        }
-
-        let event_data = &data[8..];
+        let event_data = if data[..8] == [228, 69, 165, 46, 81, 203, 154, 29] {
+            &data[8..]
+        } else {
+            data
+        };
 
         if let Some(decoded) = events::order_display::OrderDisplayEvent::decode(event_data) {
             return Some(CpiEvent::OrderDisplay(decoded));
@@ -54,14 +53,18 @@ impl ArrangeAccounts for CpiEvent {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [program, event_authority, remaining @ ..] = accounts else {
-            return None;
-        };
-
-        Some(CpiEventInstructionAccounts {
-            program: program.pubkey,
-            event_authority: event_authority.pubkey,
-            remaining: remaining.to_vec(),
-        })
+        match accounts {
+            [program, event_authority, remaining @ ..] => Some(CpiEventInstructionAccounts {
+                program: program.pubkey,
+                event_authority: event_authority.pubkey,
+                remaining: remaining.to_vec(),
+            }),
+            [event_authority] => Some(CpiEventInstructionAccounts {
+                program: crate::PROGRAM_ID,
+                event_authority: event_authority.pubkey,
+                remaining: Vec::new(),
+            }),
+            _ => None,
+        }
     }
 }

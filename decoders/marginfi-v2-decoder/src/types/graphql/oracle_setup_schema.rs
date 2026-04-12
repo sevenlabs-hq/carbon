@@ -17,6 +17,11 @@ pub enum OracleSetupGraphQL {
     DriftSwitchboardPull,
     SolendPythPull,
     SolendSwitchboardPull,
+    FixedKamino,
+    FixedDrift,
+    JuplendPythPull,
+    JuplendSwitchboardPull,
+    FixedJuplend,
 }
 
 impl From<crate::types::OracleSetup> for OracleSetupGraphQL {
@@ -35,6 +40,11 @@ impl From<crate::types::OracleSetup> for OracleSetupGraphQL {
             crate::types::OracleSetup::DriftSwitchboardPull => Self::DriftSwitchboardPull,
             crate::types::OracleSetup::SolendPythPull => Self::SolendPythPull,
             crate::types::OracleSetup::SolendSwitchboardPull => Self::SolendSwitchboardPull,
+            crate::types::OracleSetup::FixedKamino => Self::FixedKamino,
+            crate::types::OracleSetup::FixedDrift => Self::FixedDrift,
+            crate::types::OracleSetup::JuplendPythPull => Self::JuplendPythPull,
+            crate::types::OracleSetup::JuplendSwitchboardPull => Self::JuplendSwitchboardPull,
+            crate::types::OracleSetup::FixedJuplend => Self::FixedJuplend,
         }
     }
 }

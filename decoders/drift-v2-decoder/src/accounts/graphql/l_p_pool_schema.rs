@@ -20,7 +20,7 @@ pub struct LPPoolGraphQL {
     pub total_mint_redeem_fees_paid: I128,
     pub last_aum_slot: U64,
     pub max_settle_quote_amount: U64,
-    pub padding_0: U64,
+    pub padding: U64,
     pub mint_redeem_id: U64,
     pub settle_id: U64,
     pub min_mint_fee: I64,
@@ -34,7 +34,7 @@ pub struct LPPoolGraphQL {
     pub target_oracle_delay_fee_bps_per10_slots: U8,
     pub target_position_delay_fee_bps_per10_slots: U8,
     pub lp_pool_id: U8,
-    pub padding: Vec<U8>,
+    pub padding_1: Vec<U8>,
 }
 
 impl TryFrom<crate::accounts::postgres::LPPoolRow> for LPPoolGraphQL {
@@ -66,7 +66,7 @@ impl TryFrom<crate::accounts::postgres::LPPoolRow> for LPPoolGraphQL {
             max_settle_quote_amount: carbon_core::graphql::primitives::U64(
                 *row.max_settle_quote_amount,
             ),
-            padding_0: carbon_core::graphql::primitives::U64(*row._padding),
+            padding: carbon_core::graphql::primitives::U64(*row.padding),
             mint_redeem_id: carbon_core::graphql::primitives::U64(*row.mint_redeem_id),
             settle_id: carbon_core::graphql::primitives::U64(*row.settle_id),
             min_mint_fee: carbon_core::graphql::primitives::I64(row.min_mint_fee),
@@ -84,8 +84,8 @@ impl TryFrom<crate::accounts::postgres::LPPoolRow> for LPPoolGraphQL {
                 (*row.target_position_delay_fee_bps_per10_slots) as u8,
             ),
             lp_pool_id: carbon_core::graphql::primitives::U8((*row.lp_pool_id) as u8),
-            padding: row
-                .padding
+            padding_1: row
+                .padding_1
                 .into_iter()
                 .map(carbon_core::graphql::primitives::U8)
                 .collect(),

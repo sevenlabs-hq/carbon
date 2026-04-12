@@ -3,6 +3,7 @@ use {
     crate::types::BankConfigCompact,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
+/// (admin only) Add a new bank to the lending pool
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct LendingPoolAddBank {

@@ -19,8 +19,8 @@ pub struct BorrowOrder {
     pub filled_debt_destination: Pubkey,
     /// The minimum allowed debt term that the obligation owner agrees to.
     /// The reserves used to fill this order *cannot* define their debt term
-    /// *lower* than this. If zeroed, then only indefinite-term reserves may
-    /// be used.
+    /// *lower* than this. If zeroed, then only open-term reserves may be
+    /// used.
     pub min_debt_term_seconds: u64,
     /// The time until which the borrow order can still be filled.
     pub fillable_until_timestamp: u64,
@@ -47,8 +47,27 @@ pub struct BorrowOrder {
     /// (order-searchers) to efficiently list (i.e. `memcmp` filter)
     /// just the obligations that have active borrow orders.
     pub active: u8,
+    /// When `1`, all [Obligation::borrows] that get filled by this order will
+    /// have their [FixedTermBorrowRolloverConfig::auto_rollover_enabled]
+    /// flag set. Additionally, their rollover customizations:
+    /// - will exactly match this order's constraints regarding
+    ///   [Self::min_debt_term_seconds] and
+    ///
+    /// [Self::max_borrow_rate_bps];
+    /// - will use the [FixedTermBorrowRolloverConfig::open_term_allowed]
+    ///   fallback.
+    ///
+    /// See [BorrowOrder::get_rollover_config_for_filled_borrow()].
+    /// Clarification note: when `0`, this setting has no effect on any borrow
+    /// (i.e. if an existing borrow was independently marked for
+    /// auto-rollover, it will *not* be unmarked when filled by this order).
+    /// Feature flag note: when
+    /// [LendingMarket::obligation_borrow_rollover_configuration_enabled] is
+    /// disabled, this setting has no effect on any borrow (i.e. the fill will
+    /// be successful, but the borrow will not be marked for auto-rollover.
+    pub enable_auto_rollover_on_filled_borrows: u8,
     /// Alignment padding.
-    pub padding1: [u8; 3],
+    pub padding1: [u8; 2],
     /// End padding.
     pub end_padding: [u64; 5],
 }

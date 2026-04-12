@@ -79,11 +79,10 @@ pub enum RaydiumCpmmInstruction {
         data: Withdraw,
         accounts: WithdrawInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: CpiEventInstructionAccounts,
+        accounts: Option<CpiEventInstructionAccounts>,
     },
 }
 
@@ -92,26 +91,64 @@ impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumCpmmDecoder {
 
     fn decode_instruction(
         &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
         instruction: &solana_instruction::Instruction,
     ) -> Option<Self::InstructionType> {
+        self.decode_instructions(metadata, instruction)
+            .into_iter()
+            .next()
+    }
+
+    fn decode_instructions(
+        &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
+        instruction: &solana_instruction::Instruction,
+    ) -> Vec<Self::InstructionType> {
+        use carbon_core::deserialize::ArrangeAccounts as _;
         if instruction.program_id != PROGRAM_ID {
-            return None;
+            return Vec::new();
         }
 
-        carbon_core::try_decode_instructions!(
-            instruction,
-            PROGRAM_ID,
-            RaydiumCpmmInstruction::CollectFundFee => CollectFundFee,
-            RaydiumCpmmInstruction::CollectProtocolFee => CollectProtocolFee,
-            RaydiumCpmmInstruction::CreateAmmConfig => CreateAmmConfig,
-            RaydiumCpmmInstruction::Deposit => Deposit,
-            RaydiumCpmmInstruction::Initialize => Initialize,
-            RaydiumCpmmInstruction::SwapBaseInput => SwapBaseInput,
-            RaydiumCpmmInstruction::SwapBaseOutput => SwapBaseOutput,
-            RaydiumCpmmInstruction::UpdateAmmConfig => UpdateAmmConfig,
-            RaydiumCpmmInstruction::UpdatePoolStatus => UpdatePoolStatus,
-            RaydiumCpmmInstruction::Withdraw => Withdraw,
-            RaydiumCpmmInstruction::CpiEvent => CpiEvent,
-        )
+        let decoded_instruction = (|| {
+            carbon_core::try_decode_instructions!(
+                instruction,
+                PROGRAM_ID,
+                RaydiumCpmmInstruction::CollectFundFee => CollectFundFee,
+                RaydiumCpmmInstruction::CollectProtocolFee => CollectProtocolFee,
+                RaydiumCpmmInstruction::CreateAmmConfig => CreateAmmConfig,
+                RaydiumCpmmInstruction::Deposit => Deposit,
+                RaydiumCpmmInstruction::Initialize => Initialize,
+                RaydiumCpmmInstruction::SwapBaseInput => SwapBaseInput,
+                RaydiumCpmmInstruction::SwapBaseOutput => SwapBaseOutput,
+                RaydiumCpmmInstruction::UpdateAmmConfig => UpdateAmmConfig,
+                RaydiumCpmmInstruction::UpdatePoolStatus => UpdatePoolStatus,
+                RaydiumCpmmInstruction::Withdraw => Withdraw,
+            )
+        })();
+
+        let mut decoded_instructions = Vec::new();
+        if let Some(decoded_instruction) = decoded_instruction {
+            decoded_instructions.push(decoded_instruction);
+        }
+
+        if let Some(data) = CpiEvent::decode(&instruction.data) {
+            decoded_instructions.push(RaydiumCpmmInstruction::CpiEvent {
+                program_id: PROGRAM_ID,
+                data,
+                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
+            });
+        }
+
+        for payload in metadata.program_data_log_payloads() {
+            if let Some(data) = CpiEvent::decode(payload.as_slice()) {
+                decoded_instructions.push(RaydiumCpmmInstruction::CpiEvent {
+                    program_id: PROGRAM_ID,
+                    data,
+                    accounts: None,
+                });
+            }
+        }
+
+        decoded_instructions
     }
 }

@@ -6,6 +6,7 @@ pub mod candidate_swap_results_schema;
 pub mod candidate_swap_schema;
 pub mod defi_tuna_accounts_type_schema;
 pub mod fee_event_schema;
+pub mod hylo_swap_type_schema;
 pub mod remaining_accounts_info_schema;
 pub mod remaining_accounts_slice_schema;
 pub mod route_plan_step_schema;
@@ -19,8 +20,8 @@ pub mod swaps_event_schema;
 pub use {
     accounts_type_schema::*, best_swap_out_amount_violation_schema::*,
     candidate_swap_result_schema::*, candidate_swap_results_schema::*, candidate_swap_schema::*,
-    defi_tuna_accounts_type_schema::*, fee_event_schema::*, remaining_accounts_info_schema::*,
-    remaining_accounts_slice_schema::*, route_plan_step_schema::*, route_plan_step_v2_schema::*,
-    side_schema::*, swap_event_schema::*, swap_event_v2_schema::*, swap_schema::*,
-    swaps_event_schema::*,
+    defi_tuna_accounts_type_schema::*, fee_event_schema::*, hylo_swap_type_schema::*,
+    remaining_accounts_info_schema::*, remaining_accounts_slice_schema::*,
+    route_plan_step_schema::*, route_plan_step_v2_schema::*, side_schema::*, swap_event_schema::*,
+    swap_event_v2_schema::*, swap_schema::*, swaps_event_schema::*,
 };

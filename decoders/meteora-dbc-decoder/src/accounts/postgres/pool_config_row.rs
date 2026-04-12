@@ -22,8 +22,8 @@ pub struct PoolConfigRow {
     pub pool_fees: sqlx::types::Json<PoolFeesConfig>,
     pub partner_liquidity_vesting_info: sqlx::types::Json<LiquidityVestingInfo>,
     pub creator_liquidity_vesting_info: sqlx::types::Json<LiquidityVestingInfo>,
-    pub _padding0: Vec<u8>,
-    pub _padding1: U16,
+    pub padding0: Vec<u8>,
+    pub padding1: U16,
     pub collect_fee_mode: U8,
     pub migration_option: U8,
     pub activation_type: U8,
@@ -54,7 +54,7 @@ pub struct PoolConfigRow {
     pub migrated_pool_fee_bps: U16,
     pub migrated_pool_base_fee_mode: U8,
     pub enable_first_swap_with_min_fee: U8,
-    pub padding1: Vec<u8>,
+    pub migrated_compounding_fee_bps: U16,
     pub pool_creation_fee: U64,
     pub migrated_pool_base_fee_bytes: Vec<u8>,
     pub sqrt_start_price: U128,
@@ -78,8 +78,8 @@ impl PoolConfigRow {
             creator_liquidity_vesting_info: sqlx::types::Json(
                 source.creator_liquidity_vesting_info,
             ),
-            _padding0: source._padding0.to_vec(),
-            _padding1: source._padding1.into(),
+            padding0: source.padding0.to_vec(),
+            padding1: source.padding1.into(),
             collect_fee_mode: source.collect_fee_mode.into(),
             migration_option: source.migration_option.into(),
             activation_type: source.activation_type.into(),
@@ -114,7 +114,7 @@ impl PoolConfigRow {
             migrated_pool_fee_bps: source.migrated_pool_fee_bps.into(),
             migrated_pool_base_fee_mode: source.migrated_pool_base_fee_mode.into(),
             enable_first_swap_with_min_fee: source.enable_first_swap_with_min_fee.into(),
-            padding1: source.padding1.to_vec(),
+            migrated_compounding_fee_bps: source.migrated_compounding_fee_bps.into(),
             pool_creation_fee: source.pool_creation_fee.into(),
             migrated_pool_base_fee_bytes: source.migrated_pool_base_fee_bytes.to_vec(),
             sqrt_start_price: source.sqrt_start_price.into(),
@@ -133,13 +133,13 @@ impl TryFrom<PoolConfigRow> for crate::accounts::pool_config::PoolConfig {
             pool_fees: source.pool_fees.0,
             partner_liquidity_vesting_info: source.partner_liquidity_vesting_info.0,
             creator_liquidity_vesting_info: source.creator_liquidity_vesting_info.0,
-            _padding0: source._padding0.as_slice().try_into().map_err(|_| {
+            padding0: source.padding0.as_slice().try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert padding from postgres primitive: expected 14 bytes"
                         .to_string(),
                 )
             })?,
-            _padding1: source._padding1.try_into().map_err(|_| {
+            padding1: source.padding1.try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert value from postgres primitive".to_string(),
                 )
@@ -290,12 +290,13 @@ impl TryFrom<PoolConfigRow> for crate::accounts::pool_config::PoolConfig {
                         "Failed to convert value from postgres primitive".to_string(),
                     )
                 })?,
-            padding1: source.padding1.as_slice().try_into().map_err(|_| {
-                carbon_core::error::Error::Custom(
-                    "Failed to convert padding from postgres primitive: expected 2 bytes"
-                        .to_string(),
-                )
-            })?,
+            migrated_compounding_fee_bps: source.migrated_compounding_fee_bps.try_into().map_err(
+                |_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert value from postgres primitive".to_string(),
+                    )
+                },
+            )?,
             pool_creation_fee: *source.pool_creation_fee,
             migrated_pool_base_fee_bytes: source
                 .migrated_pool_base_fee_bytes
@@ -338,8 +339,8 @@ impl carbon_core::postgres::operations::Table for crate::accounts::pool_config::
             "pool_fees",
             "partner_liquidity_vesting_info",
             "creator_liquidity_vesting_info",
-            "_padding0",
-            "_padding1",
+            "padding0",
+            "padding1",
             "collect_fee_mode",
             "migration_option",
             "activation_type",
@@ -370,7 +371,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::pool_config::
             "migrated_pool_fee_bps",
             "migrated_pool_base_fee_mode",
             "enable_first_swap_with_min_fee",
-            "padding1",
+            "migrated_compounding_fee_bps",
             "pool_creation_fee",
             "migrated_pool_base_fee_bytes",
             "sqrt_start_price",
@@ -390,8 +391,8 @@ impl carbon_core::postgres::operations::Insert for PoolConfigRow {
                 "pool_fees",
                 "partner_liquidity_vesting_info",
                 "creator_liquidity_vesting_info",
-                "_padding0",
-                "_padding1",
+                "padding0",
+                "padding1",
                 "collect_fee_mode",
                 "migration_option",
                 "activation_type",
@@ -422,7 +423,7 @@ impl carbon_core::postgres::operations::Insert for PoolConfigRow {
                 "migrated_pool_fee_bps",
                 "migrated_pool_base_fee_mode",
                 "enable_first_swap_with_min_fee",
-                "padding1",
+                "migrated_compounding_fee_bps",
                 "pool_creation_fee",
                 "migrated_pool_base_fee_bytes",
                 "sqrt_start_price",
@@ -437,8 +438,8 @@ impl carbon_core::postgres::operations::Insert for PoolConfigRow {
         .bind(&self.pool_fees)
         .bind(&self.partner_liquidity_vesting_info)
         .bind(&self.creator_liquidity_vesting_info)
-        .bind(&self._padding0)
-        .bind(self._padding1)
+        .bind(&self.padding0)
+        .bind(self.padding1)
         .bind(self.collect_fee_mode)
         .bind(self.migration_option)
         .bind(self.activation_type)
@@ -469,7 +470,7 @@ impl carbon_core::postgres::operations::Insert for PoolConfigRow {
         .bind(self.migrated_pool_fee_bps)
         .bind(self.migrated_pool_base_fee_mode)
         .bind(self.enable_first_swap_with_min_fee)
-        .bind(&self.padding1)
+        .bind(self.migrated_compounding_fee_bps)
         .bind(&self.pool_creation_fee)
         .bind(&self.migrated_pool_base_fee_bytes)
         .bind(&self.sqrt_start_price)
@@ -492,8 +493,8 @@ impl carbon_core::postgres::operations::Upsert for PoolConfigRow {
                 "pool_fees",
                 "partner_liquidity_vesting_info",
                 "creator_liquidity_vesting_info",
-                "_padding0",
-                "_padding1",
+                "padding0",
+                "padding1",
                 "collect_fee_mode",
                 "migration_option",
                 "activation_type",
@@ -524,7 +525,7 @@ impl carbon_core::postgres::operations::Upsert for PoolConfigRow {
                 "migrated_pool_fee_bps",
                 "migrated_pool_base_fee_mode",
                 "enable_first_swap_with_min_fee",
-                "padding1",
+                "migrated_compounding_fee_bps",
                 "pool_creation_fee",
                 "migrated_pool_base_fee_bytes",
                 "sqrt_start_price",
@@ -541,8 +542,8 @@ impl carbon_core::postgres::operations::Upsert for PoolConfigRow {
                 "pool_fees" = EXCLUDED."pool_fees",
                 "partner_liquidity_vesting_info" = EXCLUDED."partner_liquidity_vesting_info",
                 "creator_liquidity_vesting_info" = EXCLUDED."creator_liquidity_vesting_info",
-                "_padding0" = EXCLUDED."_padding0",
-                "_padding1" = EXCLUDED."_padding1",
+                "padding0" = EXCLUDED."padding0",
+                "padding1" = EXCLUDED."padding1",
                 "collect_fee_mode" = EXCLUDED."collect_fee_mode",
                 "migration_option" = EXCLUDED."migration_option",
                 "activation_type" = EXCLUDED."activation_type",
@@ -573,7 +574,7 @@ impl carbon_core::postgres::operations::Upsert for PoolConfigRow {
                 "migrated_pool_fee_bps" = EXCLUDED."migrated_pool_fee_bps",
                 "migrated_pool_base_fee_mode" = EXCLUDED."migrated_pool_base_fee_mode",
                 "enable_first_swap_with_min_fee" = EXCLUDED."enable_first_swap_with_min_fee",
-                "padding1" = EXCLUDED."padding1",
+                "migrated_compounding_fee_bps" = EXCLUDED."migrated_compounding_fee_bps",
                 "pool_creation_fee" = EXCLUDED."pool_creation_fee",
                 "migrated_pool_base_fee_bytes" = EXCLUDED."migrated_pool_base_fee_bytes",
                 "sqrt_start_price" = EXCLUDED."sqrt_start_price",
@@ -586,8 +587,8 @@ impl carbon_core::postgres::operations::Upsert for PoolConfigRow {
         .bind(&self.pool_fees)
         .bind(&self.partner_liquidity_vesting_info)
         .bind(&self.creator_liquidity_vesting_info)
-        .bind(&self._padding0)
-        .bind(self._padding1)
+        .bind(&self.padding0)
+        .bind(self.padding1)
         .bind(self.collect_fee_mode)
         .bind(self.migration_option)
         .bind(self.activation_type)
@@ -618,7 +619,7 @@ impl carbon_core::postgres::operations::Upsert for PoolConfigRow {
         .bind(self.migrated_pool_fee_bps)
         .bind(self.migrated_pool_base_fee_mode)
         .bind(self.enable_first_swap_with_min_fee)
-        .bind(&self.padding1)
+        .bind(self.migrated_compounding_fee_bps)
         .bind(&self.pool_creation_fee)
         .bind(&self.migrated_pool_base_fee_bytes)
         .bind(&self.sqrt_start_price)
@@ -687,8 +688,8 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolConfigMigrationOperation {
                 "pool_fees" JSONB NOT NULL,
                 "partner_liquidity_vesting_info" JSONB NOT NULL,
                 "creator_liquidity_vesting_info" JSONB NOT NULL,
-                "_padding0" BYTEA NOT NULL,
-                "_padding1" INT4 NOT NULL,
+                "padding0" BYTEA NOT NULL,
+                "padding1" INT4 NOT NULL,
                 "collect_fee_mode" INT2 NOT NULL,
                 "migration_option" INT2 NOT NULL,
                 "activation_type" INT2 NOT NULL,
@@ -719,7 +720,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolConfigMigrationOperation {
                 "migrated_pool_fee_bps" INT4 NOT NULL,
                 "migrated_pool_base_fee_mode" INT2 NOT NULL,
                 "enable_first_swap_with_min_fee" INT2 NOT NULL,
-                "padding1" BYTEA NOT NULL,
+                "migrated_compounding_fee_bps" INT4 NOT NULL,
                 "pool_creation_fee" NUMERIC(20) NOT NULL,
                 "migrated_pool_base_fee_bytes" BYTEA NOT NULL,
                 "sqrt_start_price" NUMERIC(39) NOT NULL,

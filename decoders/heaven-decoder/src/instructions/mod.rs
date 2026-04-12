@@ -220,11 +220,10 @@ pub enum HeavenInstruction {
         data: UpdateProtocolConfig,
         accounts: UpdateProtocolConfigInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: CpiEventInstructionAccounts,
+        accounts: Option<CpiEventInstructionAccounts>,
     },
 }
 
@@ -233,48 +232,86 @@ impl carbon_core::instruction::InstructionDecoder<'_> for HeavenDecoder {
 
     fn decode_instruction(
         &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
         instruction: &solana_instruction::Instruction,
     ) -> Option<Self::InstructionType> {
+        self.decode_instructions(metadata, instruction)
+            .into_iter()
+            .next()
+    }
+
+    fn decode_instructions(
+        &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
+        instruction: &solana_instruction::Instruction,
+    ) -> Vec<Self::InstructionType> {
+        use carbon_core::deserialize::ArrangeAccounts as _;
         if instruction.program_id != PROGRAM_ID {
-            return None;
+            return Vec::new();
         }
 
-        carbon_core::try_decode_instructions!(
-            instruction,
-            PROGRAM_ID,
-            HeavenInstruction::AdminBorrowSol => AdminBorrowSol,
-            HeavenInstruction::AdminClaimMsol => AdminClaimMsol,
-            HeavenInstruction::AdminClaimStakingRewards => AdminClaimStakingRewards,
-            HeavenInstruction::AdminClaimStandardCreatorTradingFees => AdminClaimStandardCreatorTradingFees,
-            HeavenInstruction::AdminDepositMsol => AdminDepositMsol,
-            HeavenInstruction::AdminMintMsol => AdminMintMsol,
-            HeavenInstruction::AdminRepaySol => AdminRepaySol,
-            HeavenInstruction::AdminUnstakeMsol => AdminUnstakeMsol,
-            HeavenInstruction::AdminUpdateStandardLiquidityPoolState => AdminUpdateStandardLiquidityPoolState,
-            HeavenInstruction::AdminWithdrawMsol => AdminWithdrawMsol,
-            HeavenInstruction::AdminWithdrawTransferFee => AdminWithdrawTransferFee,
-            HeavenInstruction::Buy => Buy,
-            HeavenInstruction::ClaimStandardCreatorTradingFeeProtocolFees => ClaimStandardCreatorTradingFeeProtocolFees,
-            HeavenInstruction::ClaimStandardCreatorTradingFees => ClaimStandardCreatorTradingFees,
-            HeavenInstruction::ClaimStandardProtocolTradingFees => ClaimStandardProtocolTradingFees,
-            HeavenInstruction::ClaimStandardReflectionTradingFees => ClaimStandardReflectionTradingFees,
-            HeavenInstruction::CloseProtocolLookupTable => CloseProtocolLookupTable,
-            HeavenInstruction::CreateOrUpdateProtocolFeeAdmin => CreateOrUpdateProtocolFeeAdmin,
-            HeavenInstruction::CreateOrUpdateProtocolOwner => CreateOrUpdateProtocolOwner,
-            HeavenInstruction::CreateOrUpdateProtocolStakingAdmin => CreateOrUpdateProtocolStakingAdmin,
-            HeavenInstruction::CreateProtocolConfig => CreateProtocolConfig,
-            HeavenInstruction::CreateProtocolLookupTable => CreateProtocolLookupTable,
-            HeavenInstruction::CreateStandardLiquidityPool => CreateStandardLiquidityPool,
-            HeavenInstruction::DeactivateProtocolLookupTable => DeactivateProtocolLookupTable,
-            HeavenInstruction::ExtendProtocolLookupTable => ExtendProtocolLookupTable,
-            HeavenInstruction::InitializeProtocolLending => InitializeProtocolLending,
-            HeavenInstruction::RemainingAccountsStub => RemainingAccountsStub,
-            HeavenInstruction::Sell => Sell,
-            HeavenInstruction::SetProtocolSlotFees => SetProtocolSlotFees,
-            HeavenInstruction::UpdateAllowCreatePool => UpdateAllowCreatePool,
-            HeavenInstruction::UpdateCreatorTradingFeeReceiver => UpdateCreatorTradingFeeReceiver,
-            HeavenInstruction::UpdateProtocolConfig => UpdateProtocolConfig,
-            HeavenInstruction::CpiEvent => CpiEvent,
-        )
+        let decoded_instruction = (|| {
+            carbon_core::try_decode_instructions!(
+                instruction,
+                PROGRAM_ID,
+                HeavenInstruction::AdminBorrowSol => AdminBorrowSol,
+                HeavenInstruction::AdminClaimMsol => AdminClaimMsol,
+                HeavenInstruction::AdminClaimStakingRewards => AdminClaimStakingRewards,
+                HeavenInstruction::AdminClaimStandardCreatorTradingFees => AdminClaimStandardCreatorTradingFees,
+                HeavenInstruction::AdminDepositMsol => AdminDepositMsol,
+                HeavenInstruction::AdminMintMsol => AdminMintMsol,
+                HeavenInstruction::AdminRepaySol => AdminRepaySol,
+                HeavenInstruction::AdminUnstakeMsol => AdminUnstakeMsol,
+                HeavenInstruction::AdminUpdateStandardLiquidityPoolState => AdminUpdateStandardLiquidityPoolState,
+                HeavenInstruction::AdminWithdrawMsol => AdminWithdrawMsol,
+                HeavenInstruction::AdminWithdrawTransferFee => AdminWithdrawTransferFee,
+                HeavenInstruction::Buy => Buy,
+                HeavenInstruction::ClaimStandardCreatorTradingFeeProtocolFees => ClaimStandardCreatorTradingFeeProtocolFees,
+                HeavenInstruction::ClaimStandardCreatorTradingFees => ClaimStandardCreatorTradingFees,
+                HeavenInstruction::ClaimStandardProtocolTradingFees => ClaimStandardProtocolTradingFees,
+                HeavenInstruction::ClaimStandardReflectionTradingFees => ClaimStandardReflectionTradingFees,
+                HeavenInstruction::CloseProtocolLookupTable => CloseProtocolLookupTable,
+                HeavenInstruction::CreateOrUpdateProtocolFeeAdmin => CreateOrUpdateProtocolFeeAdmin,
+                HeavenInstruction::CreateOrUpdateProtocolOwner => CreateOrUpdateProtocolOwner,
+                HeavenInstruction::CreateOrUpdateProtocolStakingAdmin => CreateOrUpdateProtocolStakingAdmin,
+                HeavenInstruction::CreateProtocolConfig => CreateProtocolConfig,
+                HeavenInstruction::CreateProtocolLookupTable => CreateProtocolLookupTable,
+                HeavenInstruction::CreateStandardLiquidityPool => CreateStandardLiquidityPool,
+                HeavenInstruction::DeactivateProtocolLookupTable => DeactivateProtocolLookupTable,
+                HeavenInstruction::ExtendProtocolLookupTable => ExtendProtocolLookupTable,
+                HeavenInstruction::InitializeProtocolLending => InitializeProtocolLending,
+                HeavenInstruction::RemainingAccountsStub => RemainingAccountsStub,
+                HeavenInstruction::Sell => Sell,
+                HeavenInstruction::SetProtocolSlotFees => SetProtocolSlotFees,
+                HeavenInstruction::UpdateAllowCreatePool => UpdateAllowCreatePool,
+                HeavenInstruction::UpdateCreatorTradingFeeReceiver => UpdateCreatorTradingFeeReceiver,
+                HeavenInstruction::UpdateProtocolConfig => UpdateProtocolConfig,
+            )
+        })();
+
+        let mut decoded_instructions = Vec::new();
+        if let Some(decoded_instruction) = decoded_instruction {
+            decoded_instructions.push(decoded_instruction);
+        }
+
+        if let Some(data) = CpiEvent::decode(&instruction.data) {
+            decoded_instructions.push(HeavenInstruction::CpiEvent {
+                program_id: PROGRAM_ID,
+                data,
+                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
+            });
+        }
+
+        for payload in metadata.program_data_log_payloads() {
+            if let Some(data) = CpiEvent::decode(payload.as_slice()) {
+                decoded_instructions.push(HeavenInstruction::CpiEvent {
+                    program_id: PROGRAM_ID,
+                    data,
+                    accounts: None,
+                });
+            }
+        }
+
+        decoded_instructions
     }
 }
