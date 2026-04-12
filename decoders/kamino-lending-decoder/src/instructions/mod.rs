@@ -45,6 +45,7 @@ pub mod repay_and_withdraw_and_redeem;
 pub mod repay_obligation_liquidity;
 pub mod repay_obligation_liquidity_v2;
 pub mod request_elevation_group;
+pub mod rollover_fixed_term_borrow;
 pub mod seed_deposit_on_init_reserve;
 pub mod set_borrow_order;
 pub mod set_obligation_order;
@@ -54,6 +55,7 @@ pub mod update_global_config;
 pub mod update_global_config_admin;
 pub mod update_lending_market;
 pub mod update_lending_market_owner;
+pub mod update_obligation_config;
 pub mod update_reserve_config;
 pub mod withdraw_obligation_collateral;
 pub mod withdraw_obligation_collateral_and_redeem_reserve_collateral;
@@ -78,10 +80,11 @@ pub use self::{
     recover_invalid_ticket_collateral::*, redeem_fees::*, redeem_reserve_collateral::*,
     refresh_obligation::*, refresh_obligation_farms_for_reserve::*, refresh_reserve::*,
     refresh_reserves_batch::*, repay_and_withdraw_and_redeem::*, repay_obligation_liquidity::*,
-    repay_obligation_liquidity_v2::*, request_elevation_group::*, seed_deposit_on_init_reserve::*,
-    set_borrow_order::*, set_obligation_order::*, socialize_loss::*, socialize_loss_v2::*,
-    update_global_config::*, update_global_config_admin::*, update_lending_market::*,
-    update_lending_market_owner::*, update_reserve_config::*, withdraw_obligation_collateral::*,
+    repay_obligation_liquidity_v2::*, request_elevation_group::*, rollover_fixed_term_borrow::*,
+    seed_deposit_on_init_reserve::*, set_borrow_order::*, set_obligation_order::*,
+    socialize_loss::*, socialize_loss_v2::*, update_global_config::*,
+    update_global_config_admin::*, update_lending_market::*, update_lending_market_owner::*,
+    update_obligation_config::*, update_reserve_config::*, withdraw_obligation_collateral::*,
     withdraw_obligation_collateral_and_redeem_reserve_collateral::*,
     withdraw_obligation_collateral_and_redeem_reserve_collateral_v2::*,
     withdraw_obligation_collateral_v2::*, withdraw_protocol_fee::*, withdraw_queued_liquidity::*,
@@ -277,6 +280,11 @@ pub enum KaminoLendingInstruction {
         data: RequestElevationGroup,
         accounts: RequestElevationGroupInstructionAccounts,
     },
+    RolloverFixedTermBorrow {
+        program_id: solana_pubkey::Pubkey,
+        data: RolloverFixedTermBorrow,
+        accounts: RolloverFixedTermBorrowInstructionAccounts,
+    },
     SeedDepositOnInitReserve {
         program_id: solana_pubkey::Pubkey,
         data: SeedDepositOnInitReserve,
@@ -322,6 +330,11 @@ pub enum KaminoLendingInstruction {
         data: UpdateLendingMarketOwner,
         accounts: UpdateLendingMarketOwnerInstructionAccounts,
     },
+    UpdateObligationConfig {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateObligationConfig,
+        accounts: UpdateObligationConfigInstructionAccounts,
+    },
     UpdateReserveConfig {
         program_id: solana_pubkey::Pubkey,
         data: UpdateReserveConfig,
@@ -362,11 +375,10 @@ pub enum KaminoLendingInstruction {
         data: WithdrawReferrerFees,
         accounts: WithdrawReferrerFeesInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: CpiEventInstructionAccounts,
+        accounts: Option<CpiEventInstructionAccounts>,
     },
 }
 
@@ -375,70 +387,110 @@ impl carbon_core::instruction::InstructionDecoder<'_> for KaminoLendingDecoder {
 
     fn decode_instruction(
         &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
         instruction: &solana_instruction::Instruction,
     ) -> Option<Self::InstructionType> {
+        self.decode_instructions(metadata, instruction)
+            .into_iter()
+            .next()
+    }
+
+    fn decode_instructions(
+        &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
+        instruction: &solana_instruction::Instruction,
+    ) -> Vec<Self::InstructionType> {
+        use carbon_core::deserialize::ArrangeAccounts as _;
         if instruction.program_id != PROGRAM_ID {
-            return None;
+            return Vec::new();
         }
 
-        carbon_core::try_decode_instructions!(
-            instruction,
-            PROGRAM_ID,
-            KaminoLendingInstruction::BorrowObligationLiquidity => BorrowObligationLiquidity,
-            KaminoLendingInstruction::BorrowObligationLiquidityV2 => BorrowObligationLiquidityV2,
-            KaminoLendingInstruction::DeleteReferrerStateAndShortUrl => DeleteReferrerStateAndShortUrl,
-            KaminoLendingInstruction::DepositAndWithdraw => DepositAndWithdraw,
-            KaminoLendingInstruction::DepositObligationCollateral => DepositObligationCollateral,
-            KaminoLendingInstruction::DepositObligationCollateralV2 => DepositObligationCollateralV2,
-            KaminoLendingInstruction::DepositReserveLiquidity => DepositReserveLiquidity,
-            KaminoLendingInstruction::DepositReserveLiquidityAndObligationCollateral => DepositReserveLiquidityAndObligationCollateral,
-            KaminoLendingInstruction::DepositReserveLiquidityAndObligationCollateralV2 => DepositReserveLiquidityAndObligationCollateralV2,
-            KaminoLendingInstruction::EnqueueToWithdraw => EnqueueToWithdraw,
-            KaminoLendingInstruction::FillBorrowOrder => FillBorrowOrder,
-            KaminoLendingInstruction::FlashBorrowReserveLiquidity => FlashBorrowReserveLiquidity,
-            KaminoLendingInstruction::FlashRepayReserveLiquidity => FlashRepayReserveLiquidity,
-            KaminoLendingInstruction::IdlMissingTypes => IdlMissingTypes,
-            KaminoLendingInstruction::InitFarmsForReserve => InitFarmsForReserve,
-            KaminoLendingInstruction::InitGlobalConfig => InitGlobalConfig,
-            KaminoLendingInstruction::InitLendingMarket => InitLendingMarket,
-            KaminoLendingInstruction::InitObligation => InitObligation,
-            KaminoLendingInstruction::InitObligationFarmsForReserve => InitObligationFarmsForReserve,
-            KaminoLendingInstruction::InitReferrerStateAndShortUrl => InitReferrerStateAndShortUrl,
-            KaminoLendingInstruction::InitReferrerTokenState => InitReferrerTokenState,
-            KaminoLendingInstruction::InitReserve => InitReserve,
-            KaminoLendingInstruction::InitUserMetadata => InitUserMetadata,
-            KaminoLendingInstruction::LiquidateObligationAndRedeemReserveCollateral => LiquidateObligationAndRedeemReserveCollateral,
-            KaminoLendingInstruction::LiquidateObligationAndRedeemReserveCollateralV2 => LiquidateObligationAndRedeemReserveCollateralV2,
-            KaminoLendingInstruction::MarkObligationForDeleveraging => MarkObligationForDeleveraging,
-            KaminoLendingInstruction::RecoverInvalidTicketCollateral => RecoverInvalidTicketCollateral,
-            KaminoLendingInstruction::RedeemFees => RedeemFees,
-            KaminoLendingInstruction::RedeemReserveCollateral => RedeemReserveCollateral,
-            KaminoLendingInstruction::RefreshObligation => RefreshObligation,
-            KaminoLendingInstruction::RefreshObligationFarmsForReserve => RefreshObligationFarmsForReserve,
-            KaminoLendingInstruction::RefreshReserve => RefreshReserve,
-            KaminoLendingInstruction::RefreshReservesBatch => RefreshReservesBatch,
-            KaminoLendingInstruction::RepayAndWithdrawAndRedeem => RepayAndWithdrawAndRedeem,
-            KaminoLendingInstruction::RepayObligationLiquidity => RepayObligationLiquidity,
-            KaminoLendingInstruction::RepayObligationLiquidityV2 => RepayObligationLiquidityV2,
-            KaminoLendingInstruction::RequestElevationGroup => RequestElevationGroup,
-            KaminoLendingInstruction::SeedDepositOnInitReserve => SeedDepositOnInitReserve,
-            KaminoLendingInstruction::SetBorrowOrder => SetBorrowOrder,
-            KaminoLendingInstruction::SetObligationOrder => SetObligationOrder,
-            KaminoLendingInstruction::SocializeLoss => SocializeLoss,
-            KaminoLendingInstruction::SocializeLossV2 => SocializeLossV2,
-            KaminoLendingInstruction::UpdateGlobalConfig => UpdateGlobalConfig,
-            KaminoLendingInstruction::UpdateGlobalConfigAdmin => UpdateGlobalConfigAdmin,
-            KaminoLendingInstruction::UpdateLendingMarket => UpdateLendingMarket,
-            KaminoLendingInstruction::UpdateLendingMarketOwner => UpdateLendingMarketOwner,
-            KaminoLendingInstruction::UpdateReserveConfig => UpdateReserveConfig,
-            KaminoLendingInstruction::WithdrawObligationCollateral => WithdrawObligationCollateral,
-            KaminoLendingInstruction::WithdrawObligationCollateralAndRedeemReserveCollateral => WithdrawObligationCollateralAndRedeemReserveCollateral,
-            KaminoLendingInstruction::WithdrawObligationCollateralAndRedeemReserveCollateralV2 => WithdrawObligationCollateralAndRedeemReserveCollateralV2,
-            KaminoLendingInstruction::WithdrawObligationCollateralV2 => WithdrawObligationCollateralV2,
-            KaminoLendingInstruction::WithdrawProtocolFee => WithdrawProtocolFee,
-            KaminoLendingInstruction::WithdrawQueuedLiquidity => WithdrawQueuedLiquidity,
-            KaminoLendingInstruction::WithdrawReferrerFees => WithdrawReferrerFees,
-            KaminoLendingInstruction::CpiEvent => CpiEvent,
-        )
+        let decoded_instruction = (|| {
+            carbon_core::try_decode_instructions!(
+                instruction,
+                PROGRAM_ID,
+                KaminoLendingInstruction::BorrowObligationLiquidity => BorrowObligationLiquidity,
+                KaminoLendingInstruction::BorrowObligationLiquidityV2 => BorrowObligationLiquidityV2,
+                KaminoLendingInstruction::DeleteReferrerStateAndShortUrl => DeleteReferrerStateAndShortUrl,
+                KaminoLendingInstruction::DepositAndWithdraw => DepositAndWithdraw,
+                KaminoLendingInstruction::DepositObligationCollateral => DepositObligationCollateral,
+                KaminoLendingInstruction::DepositObligationCollateralV2 => DepositObligationCollateralV2,
+                KaminoLendingInstruction::DepositReserveLiquidity => DepositReserveLiquidity,
+                KaminoLendingInstruction::DepositReserveLiquidityAndObligationCollateral => DepositReserveLiquidityAndObligationCollateral,
+                KaminoLendingInstruction::DepositReserveLiquidityAndObligationCollateralV2 => DepositReserveLiquidityAndObligationCollateralV2,
+                KaminoLendingInstruction::EnqueueToWithdraw => EnqueueToWithdraw,
+                KaminoLendingInstruction::FillBorrowOrder => FillBorrowOrder,
+                KaminoLendingInstruction::FlashBorrowReserveLiquidity => FlashBorrowReserveLiquidity,
+                KaminoLendingInstruction::FlashRepayReserveLiquidity => FlashRepayReserveLiquidity,
+                KaminoLendingInstruction::IdlMissingTypes => IdlMissingTypes,
+                KaminoLendingInstruction::InitFarmsForReserve => InitFarmsForReserve,
+                KaminoLendingInstruction::InitGlobalConfig => InitGlobalConfig,
+                KaminoLendingInstruction::InitLendingMarket => InitLendingMarket,
+                KaminoLendingInstruction::InitObligation => InitObligation,
+                KaminoLendingInstruction::InitObligationFarmsForReserve => InitObligationFarmsForReserve,
+                KaminoLendingInstruction::InitReferrerStateAndShortUrl => InitReferrerStateAndShortUrl,
+                KaminoLendingInstruction::InitReferrerTokenState => InitReferrerTokenState,
+                KaminoLendingInstruction::InitReserve => InitReserve,
+                KaminoLendingInstruction::InitUserMetadata => InitUserMetadata,
+                KaminoLendingInstruction::LiquidateObligationAndRedeemReserveCollateral => LiquidateObligationAndRedeemReserveCollateral,
+                KaminoLendingInstruction::LiquidateObligationAndRedeemReserveCollateralV2 => LiquidateObligationAndRedeemReserveCollateralV2,
+                KaminoLendingInstruction::MarkObligationForDeleveraging => MarkObligationForDeleveraging,
+                KaminoLendingInstruction::RecoverInvalidTicketCollateral => RecoverInvalidTicketCollateral,
+                KaminoLendingInstruction::RedeemFees => RedeemFees,
+                KaminoLendingInstruction::RedeemReserveCollateral => RedeemReserveCollateral,
+                KaminoLendingInstruction::RefreshObligation => RefreshObligation,
+                KaminoLendingInstruction::RefreshObligationFarmsForReserve => RefreshObligationFarmsForReserve,
+                KaminoLendingInstruction::RefreshReserve => RefreshReserve,
+                KaminoLendingInstruction::RefreshReservesBatch => RefreshReservesBatch,
+                KaminoLendingInstruction::RepayAndWithdrawAndRedeem => RepayAndWithdrawAndRedeem,
+                KaminoLendingInstruction::RepayObligationLiquidity => RepayObligationLiquidity,
+                KaminoLendingInstruction::RepayObligationLiquidityV2 => RepayObligationLiquidityV2,
+                KaminoLendingInstruction::RequestElevationGroup => RequestElevationGroup,
+                KaminoLendingInstruction::RolloverFixedTermBorrow => RolloverFixedTermBorrow,
+                KaminoLendingInstruction::SeedDepositOnInitReserve => SeedDepositOnInitReserve,
+                KaminoLendingInstruction::SetBorrowOrder => SetBorrowOrder,
+                KaminoLendingInstruction::SetObligationOrder => SetObligationOrder,
+                KaminoLendingInstruction::SocializeLoss => SocializeLoss,
+                KaminoLendingInstruction::SocializeLossV2 => SocializeLossV2,
+                KaminoLendingInstruction::UpdateGlobalConfig => UpdateGlobalConfig,
+                KaminoLendingInstruction::UpdateGlobalConfigAdmin => UpdateGlobalConfigAdmin,
+                KaminoLendingInstruction::UpdateLendingMarket => UpdateLendingMarket,
+                KaminoLendingInstruction::UpdateLendingMarketOwner => UpdateLendingMarketOwner,
+                KaminoLendingInstruction::UpdateObligationConfig => UpdateObligationConfig,
+                KaminoLendingInstruction::UpdateReserveConfig => UpdateReserveConfig,
+                KaminoLendingInstruction::WithdrawObligationCollateral => WithdrawObligationCollateral,
+                KaminoLendingInstruction::WithdrawObligationCollateralAndRedeemReserveCollateral => WithdrawObligationCollateralAndRedeemReserveCollateral,
+                KaminoLendingInstruction::WithdrawObligationCollateralAndRedeemReserveCollateralV2 => WithdrawObligationCollateralAndRedeemReserveCollateralV2,
+                KaminoLendingInstruction::WithdrawObligationCollateralV2 => WithdrawObligationCollateralV2,
+                KaminoLendingInstruction::WithdrawProtocolFee => WithdrawProtocolFee,
+                KaminoLendingInstruction::WithdrawQueuedLiquidity => WithdrawQueuedLiquidity,
+                KaminoLendingInstruction::WithdrawReferrerFees => WithdrawReferrerFees,
+            )
+        })();
+
+        let mut decoded_instructions = Vec::new();
+        if let Some(decoded_instruction) = decoded_instruction {
+            decoded_instructions.push(decoded_instruction);
+        }
+
+        if let Some(data) = CpiEvent::decode(&instruction.data) {
+            decoded_instructions.push(KaminoLendingInstruction::CpiEvent {
+                program_id: PROGRAM_ID,
+                data,
+                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
+            });
+        }
+
+        for payload in metadata.program_data_log_payloads() {
+            if let Some(data) = CpiEvent::decode(payload.as_slice()) {
+                decoded_instructions.push(KaminoLendingInstruction::CpiEvent {
+                    program_id: PROGRAM_ID,
+                    data,
+                    accounts: None,
+                });
+            }
+        }
+
+        decoded_instructions
     }
 }

@@ -25,8 +25,12 @@ impl CpiEventRow {
             instruction_metadata: metadata.into(),
             name: match &source {
                 CpiEvent::DeleverageEvent(_) => "deleverage_event".to_string(),
+                CpiEvent::DeleverageWithdrawFlowEvent(_) => {
+                    "deleverage_withdraw_flow_event".to_string()
+                }
                 CpiEvent::EditStakedSettingsEvent(_) => "edit_staked_settings_event".to_string(),
                 CpiEvent::HealthPulseEvent(_) => "health_pulse_event".to_string(),
+                CpiEvent::KeeperCloseOrderEvent(_) => "keeper_close_order_event".to_string(),
                 CpiEvent::LendingAccountBorrowEvent(_) => {
                     "lending_account_borrow_event".to_string()
                 }
@@ -64,12 +68,24 @@ impl CpiEventRow {
                 CpiEvent::LendingPoolBankSetFixedOraclePriceEvent(_) => {
                     "lending_pool_bank_set_fixed_oracle_price_event".to_string()
                 }
+                CpiEvent::LendingPoolSuperAdminDepositEvent(_) => {
+                    "lending_pool_super_admin_deposit_event".to_string()
+                }
+                CpiEvent::LendingPoolSuperAdminWithdrawEvent(_) => {
+                    "lending_pool_super_admin_withdraw_event".to_string()
+                }
                 CpiEvent::LiquidationReceiverEvent(_) => "liquidation_receiver_event".to_string(),
+                CpiEvent::MarginfiAccountCloseOrderEvent(_) => {
+                    "marginfi_account_close_order_event".to_string()
+                }
                 CpiEvent::MarginfiAccountCreateEvent(_) => {
                     "marginfi_account_create_event".to_string()
                 }
                 CpiEvent::MarginfiAccountFreezeEvent(_) => {
                     "marginfi_account_freeze_event".to_string()
+                }
+                CpiEvent::MarginfiAccountPlaceOrderEvent(_) => {
+                    "marginfi_account_place_order_event".to_string()
                 }
                 CpiEvent::MarginfiAccountTransferToNewAccount(_) => {
                     "marginfi_account_transfer_to_new_account".to_string()
@@ -78,6 +94,8 @@ impl CpiEventRow {
                     "marginfi_group_configure_event".to_string()
                 }
                 CpiEvent::MarginfiGroupCreateEvent(_) => "marginfi_group_create_event".to_string(),
+                CpiEvent::RateLimitFlowEvent(_) => "rate_limit_flow_event".to_string(),
+                CpiEvent::SetKeeperCloseFlagsEvent(_) => "set_keeper_close_flags_event".to_string(),
             },
             data: sqlx::types::Json(source),
             accounts: sqlx::types::Json(accounts),

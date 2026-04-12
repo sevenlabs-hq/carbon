@@ -15,7 +15,9 @@ pub struct WithdrawTicketGraphQL {
     pub queued_collateral_amount: U64,
     pub created_at_timestamp: U64,
     pub invalid: U8,
+    pub progress_callback_type: U8,
     pub alignment_padding: Vec<U8>,
+    pub progress_callback_custom_accounts: Vec<Pubkey>,
     pub end_padding: Vec<U64>,
 }
 
@@ -35,10 +37,18 @@ impl TryFrom<crate::accounts::postgres::WithdrawTicketRow> for WithdrawTicketGra
             ),
             created_at_timestamp: carbon_core::graphql::primitives::U64(*row.created_at_timestamp),
             invalid: carbon_core::graphql::primitives::U8((*row.invalid) as u8),
+            progress_callback_type: carbon_core::graphql::primitives::U8(
+                (*row.progress_callback_type) as u8,
+            ),
             alignment_padding: row
                 .alignment_padding
                 .into_iter()
                 .map(carbon_core::graphql::primitives::U8)
+                .collect(),
+            progress_callback_custom_accounts: row
+                .progress_callback_custom_accounts
+                .into_iter()
+                .map(|item| carbon_core::graphql::primitives::Pubkey(item.0))
                 .collect(),
             end_padding: row
                 .end_padding

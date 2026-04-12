@@ -3,7 +3,9 @@ use {
     crate::types::BankConfigOpt,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
-/// (admin only)
+/// (admin only) Configure bank parameters. If the bank has `FREEZE_SETTINGS`,
+/// only deposit/borrow limits are updated and all other config changes are
+/// silently ignored.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct LendingPoolConfigureBank {

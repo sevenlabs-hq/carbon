@@ -9,7 +9,7 @@ pub struct ClaimProtocolPoolCreationFee {}
 pub struct ClaimProtocolPoolCreationFeeInstructionAccounts {
     pub config: solana_pubkey::Pubkey,
     pub pool: solana_pubkey::Pubkey,
-    pub claim_fee_operator: solana_pubkey::Pubkey,
+    pub operator: solana_pubkey::Pubkey,
     pub signer: solana_pubkey::Pubkey,
     pub treasury: solana_pubkey::Pubkey,
     pub event_authority: solana_pubkey::Pubkey,
@@ -45,7 +45,7 @@ impl ArrangeAccounts for ClaimProtocolPoolCreationFee {
 
         let config = next_account(&mut iter)?;
         let pool = next_account(&mut iter)?;
-        let claim_fee_operator = next_account(&mut iter)?;
+        let operator = next_account(&mut iter)?;
         let signer = next_account(&mut iter)?;
         let treasury = next_account(&mut iter)?;
         let event_authority = next_account(&mut iter)?;
@@ -56,7 +56,7 @@ impl ArrangeAccounts for ClaimProtocolPoolCreationFee {
         Some(ClaimProtocolPoolCreationFeeInstructionAccounts {
             config,
             pool,
-            claim_fee_operator,
+            operator,
             signer,
             treasury,
             event_authority,

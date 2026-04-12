@@ -434,11 +434,10 @@ pub enum OrcaWhirlpoolInstruction {
         data: UpdateFeesAndRewards,
         accounts: UpdateFeesAndRewardsInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: CpiEventInstructionAccounts,
+        accounts: Option<CpiEventInstructionAccounts>,
     },
 }
 
@@ -447,82 +446,120 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OrcaWhirlpoolDecoder {
 
     fn decode_instruction(
         &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
         instruction: &solana_instruction::Instruction,
     ) -> Option<Self::InstructionType> {
+        self.decode_instructions(metadata, instruction)
+            .into_iter()
+            .next()
+    }
+
+    fn decode_instructions(
+        &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
+        instruction: &solana_instruction::Instruction,
+    ) -> Vec<Self::InstructionType> {
+        use carbon_core::deserialize::ArrangeAccounts as _;
         if instruction.program_id != PROGRAM_ID {
-            return None;
+            return Vec::new();
         }
 
-        carbon_core::try_decode_instructions!(
-            instruction,
-            PROGRAM_ID,
-            OrcaWhirlpoolInstruction::CloseBundledPosition => CloseBundledPosition,
-            OrcaWhirlpoolInstruction::ClosePosition => ClosePosition,
-            OrcaWhirlpoolInstruction::ClosePositionWithTokenExtensions => ClosePositionWithTokenExtensions,
-            OrcaWhirlpoolInstruction::CollectFees => CollectFees,
-            OrcaWhirlpoolInstruction::CollectFeesV2 => CollectFeesV2,
-            OrcaWhirlpoolInstruction::CollectProtocolFees => CollectProtocolFees,
-            OrcaWhirlpoolInstruction::CollectProtocolFeesV2 => CollectProtocolFeesV2,
-            OrcaWhirlpoolInstruction::CollectReward => CollectReward,
-            OrcaWhirlpoolInstruction::CollectRewardV2 => CollectRewardV2,
-            OrcaWhirlpoolInstruction::DecreaseLiquidity => DecreaseLiquidity,
-            OrcaWhirlpoolInstruction::DecreaseLiquidityV2 => DecreaseLiquidityV2,
-            OrcaWhirlpoolInstruction::DeletePositionBundle => DeletePositionBundle,
-            OrcaWhirlpoolInstruction::DeleteTokenBadge => DeleteTokenBadge,
-            OrcaWhirlpoolInstruction::IdlInclude => IdlInclude,
-            OrcaWhirlpoolInstruction::IncreaseLiquidity => IncreaseLiquidity,
-            OrcaWhirlpoolInstruction::IncreaseLiquidityByTokenAmountsV2 => IncreaseLiquidityByTokenAmountsV2,
-            OrcaWhirlpoolInstruction::IncreaseLiquidityV2 => IncreaseLiquidityV2,
-            OrcaWhirlpoolInstruction::InitializeAdaptiveFeeTier => InitializeAdaptiveFeeTier,
-            OrcaWhirlpoolInstruction::InitializeConfig => InitializeConfig,
-            OrcaWhirlpoolInstruction::InitializeConfigExtension => InitializeConfigExtension,
-            OrcaWhirlpoolInstruction::InitializeDynamicTickArray => InitializeDynamicTickArray,
-            OrcaWhirlpoolInstruction::InitializeFeeTier => InitializeFeeTier,
-            OrcaWhirlpoolInstruction::InitializePool => InitializePool,
-            OrcaWhirlpoolInstruction::InitializePoolV2 => InitializePoolV2,
-            OrcaWhirlpoolInstruction::InitializePoolWithAdaptiveFee => InitializePoolWithAdaptiveFee,
-            OrcaWhirlpoolInstruction::InitializePositionBundle => InitializePositionBundle,
-            OrcaWhirlpoolInstruction::InitializePositionBundleWithMetadata => InitializePositionBundleWithMetadata,
-            OrcaWhirlpoolInstruction::InitializeReward => InitializeReward,
-            OrcaWhirlpoolInstruction::InitializeRewardV2 => InitializeRewardV2,
-            OrcaWhirlpoolInstruction::InitializeTickArray => InitializeTickArray,
-            OrcaWhirlpoolInstruction::InitializeTokenBadge => InitializeTokenBadge,
-            OrcaWhirlpoolInstruction::LockPosition => LockPosition,
-            OrcaWhirlpoolInstruction::MigrateRepurposeRewardAuthoritySpace => MigrateRepurposeRewardAuthoritySpace,
-            OrcaWhirlpoolInstruction::OpenBundledPosition => OpenBundledPosition,
-            OrcaWhirlpoolInstruction::OpenPosition => OpenPosition,
-            OrcaWhirlpoolInstruction::OpenPositionWithMetadata => OpenPositionWithMetadata,
-            OrcaWhirlpoolInstruction::OpenPositionWithTokenExtensions => OpenPositionWithTokenExtensions,
-            OrcaWhirlpoolInstruction::RepositionLiquidityV2 => RepositionLiquidityV2,
-            OrcaWhirlpoolInstruction::ResetPositionRange => ResetPositionRange,
-            OrcaWhirlpoolInstruction::SetAdaptiveFeeConstants => SetAdaptiveFeeConstants,
-            OrcaWhirlpoolInstruction::SetCollectProtocolFeesAuthority => SetCollectProtocolFeesAuthority,
-            OrcaWhirlpoolInstruction::SetConfigExtensionAuthority => SetConfigExtensionAuthority,
-            OrcaWhirlpoolInstruction::SetConfigFeatureFlag => SetConfigFeatureFlag,
-            OrcaWhirlpoolInstruction::SetDefaultBaseFeeRate => SetDefaultBaseFeeRate,
-            OrcaWhirlpoolInstruction::SetDefaultFeeRate => SetDefaultFeeRate,
-            OrcaWhirlpoolInstruction::SetDefaultProtocolFeeRate => SetDefaultProtocolFeeRate,
-            OrcaWhirlpoolInstruction::SetDelegatedFeeAuthority => SetDelegatedFeeAuthority,
-            OrcaWhirlpoolInstruction::SetFeeAuthority => SetFeeAuthority,
-            OrcaWhirlpoolInstruction::SetFeeRate => SetFeeRate,
-            OrcaWhirlpoolInstruction::SetFeeRateByDelegatedFeeAuthority => SetFeeRateByDelegatedFeeAuthority,
-            OrcaWhirlpoolInstruction::SetInitializePoolAuthority => SetInitializePoolAuthority,
-            OrcaWhirlpoolInstruction::SetPresetAdaptiveFeeConstants => SetPresetAdaptiveFeeConstants,
-            OrcaWhirlpoolInstruction::SetProtocolFeeRate => SetProtocolFeeRate,
-            OrcaWhirlpoolInstruction::SetRewardAuthority => SetRewardAuthority,
-            OrcaWhirlpoolInstruction::SetRewardAuthorityBySuperAuthority => SetRewardAuthorityBySuperAuthority,
-            OrcaWhirlpoolInstruction::SetRewardEmissions => SetRewardEmissions,
-            OrcaWhirlpoolInstruction::SetRewardEmissionsSuperAuthority => SetRewardEmissionsSuperAuthority,
-            OrcaWhirlpoolInstruction::SetRewardEmissionsV2 => SetRewardEmissionsV2,
-            OrcaWhirlpoolInstruction::SetTokenBadgeAttribute => SetTokenBadgeAttribute,
-            OrcaWhirlpoolInstruction::SetTokenBadgeAuthority => SetTokenBadgeAuthority,
-            OrcaWhirlpoolInstruction::Swap => Swap,
-            OrcaWhirlpoolInstruction::SwapV2 => SwapV2,
-            OrcaWhirlpoolInstruction::TransferLockedPosition => TransferLockedPosition,
-            OrcaWhirlpoolInstruction::TwoHopSwap => TwoHopSwap,
-            OrcaWhirlpoolInstruction::TwoHopSwapV2 => TwoHopSwapV2,
-            OrcaWhirlpoolInstruction::UpdateFeesAndRewards => UpdateFeesAndRewards,
-            OrcaWhirlpoolInstruction::CpiEvent => CpiEvent,
-        )
+        let decoded_instruction = (|| {
+            carbon_core::try_decode_instructions!(
+                instruction,
+                PROGRAM_ID,
+                OrcaWhirlpoolInstruction::CloseBundledPosition => CloseBundledPosition,
+                OrcaWhirlpoolInstruction::ClosePosition => ClosePosition,
+                OrcaWhirlpoolInstruction::ClosePositionWithTokenExtensions => ClosePositionWithTokenExtensions,
+                OrcaWhirlpoolInstruction::CollectFees => CollectFees,
+                OrcaWhirlpoolInstruction::CollectFeesV2 => CollectFeesV2,
+                OrcaWhirlpoolInstruction::CollectProtocolFees => CollectProtocolFees,
+                OrcaWhirlpoolInstruction::CollectProtocolFeesV2 => CollectProtocolFeesV2,
+                OrcaWhirlpoolInstruction::CollectReward => CollectReward,
+                OrcaWhirlpoolInstruction::CollectRewardV2 => CollectRewardV2,
+                OrcaWhirlpoolInstruction::DecreaseLiquidity => DecreaseLiquidity,
+                OrcaWhirlpoolInstruction::DecreaseLiquidityV2 => DecreaseLiquidityV2,
+                OrcaWhirlpoolInstruction::DeletePositionBundle => DeletePositionBundle,
+                OrcaWhirlpoolInstruction::DeleteTokenBadge => DeleteTokenBadge,
+                OrcaWhirlpoolInstruction::IdlInclude => IdlInclude,
+                OrcaWhirlpoolInstruction::IncreaseLiquidity => IncreaseLiquidity,
+                OrcaWhirlpoolInstruction::IncreaseLiquidityByTokenAmountsV2 => IncreaseLiquidityByTokenAmountsV2,
+                OrcaWhirlpoolInstruction::IncreaseLiquidityV2 => IncreaseLiquidityV2,
+                OrcaWhirlpoolInstruction::InitializeAdaptiveFeeTier => InitializeAdaptiveFeeTier,
+                OrcaWhirlpoolInstruction::InitializeConfig => InitializeConfig,
+                OrcaWhirlpoolInstruction::InitializeConfigExtension => InitializeConfigExtension,
+                OrcaWhirlpoolInstruction::InitializeDynamicTickArray => InitializeDynamicTickArray,
+                OrcaWhirlpoolInstruction::InitializeFeeTier => InitializeFeeTier,
+                OrcaWhirlpoolInstruction::InitializePool => InitializePool,
+                OrcaWhirlpoolInstruction::InitializePoolV2 => InitializePoolV2,
+                OrcaWhirlpoolInstruction::InitializePoolWithAdaptiveFee => InitializePoolWithAdaptiveFee,
+                OrcaWhirlpoolInstruction::InitializePositionBundle => InitializePositionBundle,
+                OrcaWhirlpoolInstruction::InitializePositionBundleWithMetadata => InitializePositionBundleWithMetadata,
+                OrcaWhirlpoolInstruction::InitializeReward => InitializeReward,
+                OrcaWhirlpoolInstruction::InitializeRewardV2 => InitializeRewardV2,
+                OrcaWhirlpoolInstruction::InitializeTickArray => InitializeTickArray,
+                OrcaWhirlpoolInstruction::InitializeTokenBadge => InitializeTokenBadge,
+                OrcaWhirlpoolInstruction::LockPosition => LockPosition,
+                OrcaWhirlpoolInstruction::MigrateRepurposeRewardAuthoritySpace => MigrateRepurposeRewardAuthoritySpace,
+                OrcaWhirlpoolInstruction::OpenBundledPosition => OpenBundledPosition,
+                OrcaWhirlpoolInstruction::OpenPosition => OpenPosition,
+                OrcaWhirlpoolInstruction::OpenPositionWithMetadata => OpenPositionWithMetadata,
+                OrcaWhirlpoolInstruction::OpenPositionWithTokenExtensions => OpenPositionWithTokenExtensions,
+                OrcaWhirlpoolInstruction::RepositionLiquidityV2 => RepositionLiquidityV2,
+                OrcaWhirlpoolInstruction::ResetPositionRange => ResetPositionRange,
+                OrcaWhirlpoolInstruction::SetAdaptiveFeeConstants => SetAdaptiveFeeConstants,
+                OrcaWhirlpoolInstruction::SetCollectProtocolFeesAuthority => SetCollectProtocolFeesAuthority,
+                OrcaWhirlpoolInstruction::SetConfigExtensionAuthority => SetConfigExtensionAuthority,
+                OrcaWhirlpoolInstruction::SetConfigFeatureFlag => SetConfigFeatureFlag,
+                OrcaWhirlpoolInstruction::SetDefaultBaseFeeRate => SetDefaultBaseFeeRate,
+                OrcaWhirlpoolInstruction::SetDefaultFeeRate => SetDefaultFeeRate,
+                OrcaWhirlpoolInstruction::SetDefaultProtocolFeeRate => SetDefaultProtocolFeeRate,
+                OrcaWhirlpoolInstruction::SetDelegatedFeeAuthority => SetDelegatedFeeAuthority,
+                OrcaWhirlpoolInstruction::SetFeeAuthority => SetFeeAuthority,
+                OrcaWhirlpoolInstruction::SetFeeRate => SetFeeRate,
+                OrcaWhirlpoolInstruction::SetFeeRateByDelegatedFeeAuthority => SetFeeRateByDelegatedFeeAuthority,
+                OrcaWhirlpoolInstruction::SetInitializePoolAuthority => SetInitializePoolAuthority,
+                OrcaWhirlpoolInstruction::SetPresetAdaptiveFeeConstants => SetPresetAdaptiveFeeConstants,
+                OrcaWhirlpoolInstruction::SetProtocolFeeRate => SetProtocolFeeRate,
+                OrcaWhirlpoolInstruction::SetRewardAuthority => SetRewardAuthority,
+                OrcaWhirlpoolInstruction::SetRewardAuthorityBySuperAuthority => SetRewardAuthorityBySuperAuthority,
+                OrcaWhirlpoolInstruction::SetRewardEmissions => SetRewardEmissions,
+                OrcaWhirlpoolInstruction::SetRewardEmissionsSuperAuthority => SetRewardEmissionsSuperAuthority,
+                OrcaWhirlpoolInstruction::SetRewardEmissionsV2 => SetRewardEmissionsV2,
+                OrcaWhirlpoolInstruction::SetTokenBadgeAttribute => SetTokenBadgeAttribute,
+                OrcaWhirlpoolInstruction::SetTokenBadgeAuthority => SetTokenBadgeAuthority,
+                OrcaWhirlpoolInstruction::Swap => Swap,
+                OrcaWhirlpoolInstruction::SwapV2 => SwapV2,
+                OrcaWhirlpoolInstruction::TransferLockedPosition => TransferLockedPosition,
+                OrcaWhirlpoolInstruction::TwoHopSwap => TwoHopSwap,
+                OrcaWhirlpoolInstruction::TwoHopSwapV2 => TwoHopSwapV2,
+                OrcaWhirlpoolInstruction::UpdateFeesAndRewards => UpdateFeesAndRewards,
+            )
+        })();
+
+        let mut decoded_instructions = Vec::new();
+        if let Some(decoded_instruction) = decoded_instruction {
+            decoded_instructions.push(decoded_instruction);
+        }
+
+        if let Some(data) = CpiEvent::decode(&instruction.data) {
+            decoded_instructions.push(OrcaWhirlpoolInstruction::CpiEvent {
+                program_id: PROGRAM_ID,
+                data,
+                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
+            });
+        }
+
+        for payload in metadata.program_data_log_payloads() {
+            if let Some(data) = CpiEvent::decode(payload.as_slice()) {
+                decoded_instructions.push(OrcaWhirlpoolInstruction::CpiEvent {
+                    program_id: PROGRAM_ID,
+                    data,
+                    accounts: None,
+                });
+            }
+        }
+
+        decoded_instructions
     }
 }

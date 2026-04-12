@@ -6,6 +6,10 @@ use crate::types::{BaseFeeParameters, DynamicFeeParameters};
 pub struct PoolFeeParameters {
     /// Base fee
     pub base_fee: BaseFeeParameters,
+    /// compounding fee bps, only have value if CollectFeeMode::Compounding
+    pub compounding_fee_bps: u16,
+    /// padding for future use
+    pub padding: u8,
     /// dynamic fee
     pub dynamic_fee: Option<DynamicFeeParameters>,
 }

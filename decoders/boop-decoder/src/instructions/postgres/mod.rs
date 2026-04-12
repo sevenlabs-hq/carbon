@@ -387,13 +387,18 @@ impl carbon_core::postgres::operations::Insert for BoopInstructionWithMetadata {
                 row.insert(pool).await?;
                 Ok(())
             }
-            BoopInstruction::CpiEvent { data, .. } => {
-                let row = cpi_event_row::CpiEventRow::from_parts(
+            BoopInstruction::CpiEvent { data, accounts, .. } => {
+                cpi_event_row::CpiEventRow::from_parts(
                     data.clone(),
                     metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.insert(pool).await?;
+                    if accounts.is_some() {
+                        raw_accounts.clone()
+                    } else {
+                        Vec::new()
+                    },
+                )
+                .insert(pool)
+                .await?;
                 Ok(())
             }
         }
@@ -667,13 +672,18 @@ impl carbon_core::postgres::operations::Upsert for BoopInstructionWithMetadata {
                 row.upsert(pool).await?;
                 Ok(())
             }
-            BoopInstruction::CpiEvent { data, .. } => {
-                let row = cpi_event_row::CpiEventRow::from_parts(
+            BoopInstruction::CpiEvent { data, accounts, .. } => {
+                cpi_event_row::CpiEventRow::from_parts(
                     data.clone(),
                     metadata.clone(),
-                    raw_accounts.clone(),
-                );
-                row.upsert(pool).await?;
+                    if accounts.is_some() {
+                        raw_accounts.clone()
+                    } else {
+                        Vec::new()
+                    },
+                )
+                .upsert(pool)
+                .await?;
                 Ok(())
             }
         }

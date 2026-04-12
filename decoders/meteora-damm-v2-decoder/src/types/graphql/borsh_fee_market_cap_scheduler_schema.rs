@@ -13,7 +13,6 @@ pub struct BorshFeeMarketCapSchedulerGraphQL {
     pub scheduler_expiration_duration: U32,
     pub reduction_factor: U64,
     pub base_fee_mode: U8,
-    pub padding: Vec<U8>,
 }
 
 impl From<crate::types::BorshFeeMarketCapScheduler> for BorshFeeMarketCapSchedulerGraphQL {
@@ -31,11 +30,6 @@ impl From<crate::types::BorshFeeMarketCapScheduler> for BorshFeeMarketCapSchedul
             ),
             reduction_factor: carbon_core::graphql::primitives::U64(original.reduction_factor),
             base_fee_mode: carbon_core::graphql::primitives::U8(original.base_fee_mode),
-            padding: original
-                .padding
-                .into_iter()
-                .map(carbon_core::graphql::primitives::U8)
-                .collect(),
         }
     }
 }

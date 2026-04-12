@@ -3,6 +3,18 @@ use {
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
     solana_pubkey::Pubkey,
 };
+/// Initializes a WhirlpoolsConfig account that hosts info & authorities
+/// required to govern a set of Whirlpools.
+/// ### Authority
+/// - "authority" - Set authority that is one of ADMINS.
+///
+/// ### Parameters
+/// - `fee_authority` - Authority authorized to initialize fee-tiers and set
+///   customs fees.
+/// - `collect_protocol_fees_authority` - Authority authorized to collect
+///   protocol fees.
+/// - `reward_emissions_super_authority` - Authority authorized to set reward
+///   authorities in pools.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct InitializeConfig {

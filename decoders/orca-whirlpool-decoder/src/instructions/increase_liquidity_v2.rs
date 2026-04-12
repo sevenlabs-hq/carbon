@@ -3,6 +3,25 @@ use {
     crate::types::RemainingAccountsInfo,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
+/// Add liquidity to a position in the Whirlpool. This call also updates the
+/// position's accrued fees and rewards. This instruction works with both Token
+/// and Token-2022. ### Authority
+/// - `position_authority` - authority that owns the token corresponding to this
+///   desired position.
+///
+/// ### Parameters
+/// - `liquidity_amount` - The total amount of Liquidity the user is willing to
+///   deposit.
+/// - `token_max_a` - The maximum amount of tokenA the user is willing to
+///   deposit.
+/// - `token_max_b` - The maximum amount of tokenB the user is willing to
+///   deposit.
+///
+/// #### Special Errors
+/// - `LiquidityZero` - Provided liquidity amount is zero.
+/// - `LiquidityTooHigh` - Provided liquidity exceeds u128::max.
+/// - `TokenMaxExceeded` - The required token to perform this operation exceeds
+///   the user defined amount.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct IncreaseLiquidityV2 {

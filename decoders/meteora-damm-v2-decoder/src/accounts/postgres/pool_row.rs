@@ -20,13 +20,12 @@ pub struct PoolRow {
     pub token_a_vault: Pubkey,
     pub token_b_vault: Pubkey,
     pub whitelisted_vault: Pubkey,
-    pub partner: Pubkey,
+    pub padding0: Vec<u8>,
     pub liquidity: U128,
-    pub padding: U128,
+    pub padding1: U128,
     pub protocol_a_fee: U64,
     pub protocol_b_fee: U64,
-    pub partner_a_fee: U64,
-    pub partner_b_fee: U64,
+    pub padding2: U128,
     pub sqrt_min_price: U128,
     pub sqrt_max_price: U128,
     pub sqrt_price: U128,
@@ -37,14 +36,18 @@ pub struct PoolRow {
     pub token_b_flag: U8,
     pub collect_fee_mode: U8,
     pub pool_type: U8,
-    pub version: U8,
-    pub padding0: U8,
+    pub fee_version: U8,
+    pub padding3: U8,
     pub fee_a_per_liquidity: Vec<u8>,
     pub fee_b_per_liquidity: Vec<u8>,
     pub permanent_lock_liquidity: U128,
     pub metrics: sqlx::types::Json<PoolMetrics>,
     pub creator: Pubkey,
-    pub padding1: Vec<U64>,
+    pub token_a_amount: U64,
+    pub token_b_amount: U64,
+    pub layout_version: U8,
+    pub padding4: Vec<u8>,
+    pub padding5: Vec<U64>,
     pub reward_infos: sqlx::types::Json<Vec<RewardInfo>>,
 }
 
@@ -58,13 +61,12 @@ impl PoolRow {
             token_a_vault: source.token_a_vault.into(),
             token_b_vault: source.token_b_vault.into(),
             whitelisted_vault: source.whitelisted_vault.into(),
-            partner: source.partner.into(),
+            padding0: source.padding0.to_vec(),
             liquidity: source.liquidity.into(),
-            padding: source.padding.into(),
+            padding1: source.padding1.into(),
             protocol_a_fee: source.protocol_a_fee.into(),
             protocol_b_fee: source.protocol_b_fee.into(),
-            partner_a_fee: source.partner_a_fee.into(),
-            partner_b_fee: source.partner_b_fee.into(),
+            padding2: source.padding2.into(),
             sqrt_min_price: source.sqrt_min_price.into(),
             sqrt_max_price: source.sqrt_max_price.into(),
             sqrt_price: source.sqrt_price.into(),
@@ -75,15 +77,19 @@ impl PoolRow {
             token_b_flag: source.token_b_flag.into(),
             collect_fee_mode: source.collect_fee_mode.into(),
             pool_type: source.pool_type.into(),
-            version: source.version.into(),
-            padding0: source.padding0.into(),
+            fee_version: source.fee_version.into(),
+            padding3: source.padding3.into(),
             fee_a_per_liquidity: source.fee_a_per_liquidity.to_vec(),
             fee_b_per_liquidity: source.fee_b_per_liquidity.to_vec(),
             permanent_lock_liquidity: source.permanent_lock_liquidity.into(),
             metrics: sqlx::types::Json(source.metrics),
             creator: source.creator.into(),
-            padding1: source
-                .padding1
+            token_a_amount: source.token_a_amount.into(),
+            token_b_amount: source.token_b_amount.into(),
+            layout_version: source.layout_version.into(),
+            padding4: source.padding4.to_vec(),
+            padding5: source
+                .padding5
                 .into_iter()
                 .map(|element| element.into())
                 .collect(),
@@ -102,13 +108,17 @@ impl TryFrom<PoolRow> for crate::accounts::pool::Pool {
             token_a_vault: *source.token_a_vault,
             token_b_vault: *source.token_b_vault,
             whitelisted_vault: *source.whitelisted_vault,
-            partner: *source.partner,
+            padding0: source.padding0.as_slice().try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert padding from postgres primitive: expected 32 bytes"
+                        .to_string(),
+                )
+            })?,
             liquidity: *source.liquidity,
-            padding: *source.padding,
+            padding1: *source.padding1,
             protocol_a_fee: *source.protocol_a_fee,
             protocol_b_fee: *source.protocol_b_fee,
-            partner_a_fee: *source.partner_a_fee,
-            partner_b_fee: *source.partner_b_fee,
+            padding2: *source.padding2,
             sqrt_min_price: *source.sqrt_min_price,
             sqrt_max_price: *source.sqrt_max_price,
             sqrt_price: *source.sqrt_price,
@@ -143,12 +153,12 @@ impl TryFrom<PoolRow> for crate::accounts::pool::Pool {
                     "Failed to convert value from postgres primitive".to_string(),
                 )
             })?,
-            version: source.version.try_into().map_err(|_| {
+            fee_version: source.fee_version.try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert value from postgres primitive".to_string(),
                 )
             })?,
-            padding0: source.padding0.try_into().map_err(|_| {
+            padding3: source.padding3.try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert value from postgres primitive".to_string(),
                 )
@@ -172,8 +182,21 @@ impl TryFrom<PoolRow> for crate::accounts::pool::Pool {
             permanent_lock_liquidity: *source.permanent_lock_liquidity,
             metrics: source.metrics.0,
             creator: *source.creator,
-            padding1: source
-                .padding1
+            token_a_amount: *source.token_a_amount,
+            token_b_amount: *source.token_b_amount,
+            layout_version: source.layout_version.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            padding4: source.padding4.as_slice().try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert padding from postgres primitive: expected 7 bytes"
+                        .to_string(),
+                )
+            })?,
+            padding5: source
+                .padding5
                 .into_iter()
                 .map(|element| Ok(*element))
                 .collect::<Result<Vec<_>, carbon_core::error::Error>>()
@@ -218,13 +241,12 @@ impl carbon_core::postgres::operations::Table for crate::accounts::pool::Pool {
             "token_a_vault",
             "token_b_vault",
             "whitelisted_vault",
-            "partner",
+            "padding0",
             "liquidity",
-            "padding",
+            "padding1",
             "protocol_a_fee",
             "protocol_b_fee",
-            "partner_a_fee",
-            "partner_b_fee",
+            "padding2",
             "sqrt_min_price",
             "sqrt_max_price",
             "sqrt_price",
@@ -235,14 +257,18 @@ impl carbon_core::postgres::operations::Table for crate::accounts::pool::Pool {
             "token_b_flag",
             "collect_fee_mode",
             "pool_type",
-            "version",
-            "padding0",
+            "fee_version",
+            "padding3",
             "fee_a_per_liquidity",
             "fee_b_per_liquidity",
             "permanent_lock_liquidity",
             "metrics",
             "creator",
-            "padding1",
+            "token_a_amount",
+            "token_b_amount",
+            "layout_version",
+            "padding4",
+            "padding5",
             "reward_infos",
         ]
     }
@@ -259,13 +285,12 @@ impl carbon_core::postgres::operations::Insert for PoolRow {
                 "token_a_vault",
                 "token_b_vault",
                 "whitelisted_vault",
-                "partner",
+                "padding0",
                 "liquidity",
-                "padding",
+                "padding1",
                 "protocol_a_fee",
                 "protocol_b_fee",
-                "partner_a_fee",
-                "partner_b_fee",
+                "padding2",
                 "sqrt_min_price",
                 "sqrt_max_price",
                 "sqrt_price",
@@ -276,18 +301,22 @@ impl carbon_core::postgres::operations::Insert for PoolRow {
                 "token_b_flag",
                 "collect_fee_mode",
                 "pool_type",
-                "version",
-                "padding0",
+                "fee_version",
+                "padding3",
                 "fee_a_per_liquidity",
                 "fee_b_per_liquidity",
                 "permanent_lock_liquidity",
                 "metrics",
                 "creator",
-                "padding1",
+                "token_a_amount",
+                "token_b_amount",
+                "layout_version",
+                "padding4",
+                "padding5",
                 "reward_infos",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37
             )"#)
         .bind(&self.pool_fees)
         .bind(self.token_a_mint)
@@ -295,13 +324,12 @@ impl carbon_core::postgres::operations::Insert for PoolRow {
         .bind(self.token_a_vault)
         .bind(self.token_b_vault)
         .bind(self.whitelisted_vault)
-        .bind(self.partner)
+        .bind(&self.padding0)
         .bind(&self.liquidity)
-        .bind(&self.padding)
+        .bind(&self.padding1)
         .bind(&self.protocol_a_fee)
         .bind(&self.protocol_b_fee)
-        .bind(&self.partner_a_fee)
-        .bind(&self.partner_b_fee)
+        .bind(&self.padding2)
         .bind(&self.sqrt_min_price)
         .bind(&self.sqrt_max_price)
         .bind(&self.sqrt_price)
@@ -312,14 +340,18 @@ impl carbon_core::postgres::operations::Insert for PoolRow {
         .bind(self.token_b_flag)
         .bind(self.collect_fee_mode)
         .bind(self.pool_type)
-        .bind(self.version)
-        .bind(self.padding0)
+        .bind(self.fee_version)
+        .bind(self.padding3)
         .bind(&self.fee_a_per_liquidity)
         .bind(&self.fee_b_per_liquidity)
         .bind(&self.permanent_lock_liquidity)
         .bind(&self.metrics)
         .bind(self.creator)
-        .bind(&self.padding1)
+        .bind(&self.token_a_amount)
+        .bind(&self.token_b_amount)
+        .bind(self.layout_version)
+        .bind(&self.padding4)
+        .bind(&self.padding5)
         .bind(&self.reward_infos)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -339,13 +371,12 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
                 "token_a_vault",
                 "token_b_vault",
                 "whitelisted_vault",
-                "partner",
+                "padding0",
                 "liquidity",
-                "padding",
+                "padding1",
                 "protocol_a_fee",
                 "protocol_b_fee",
-                "partner_a_fee",
-                "partner_b_fee",
+                "padding2",
                 "sqrt_min_price",
                 "sqrt_max_price",
                 "sqrt_price",
@@ -356,18 +387,22 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
                 "token_b_flag",
                 "collect_fee_mode",
                 "pool_type",
-                "version",
-                "padding0",
+                "fee_version",
+                "padding3",
                 "fee_a_per_liquidity",
                 "fee_b_per_liquidity",
                 "permanent_lock_liquidity",
                 "metrics",
                 "creator",
-                "padding1",
+                "token_a_amount",
+                "token_b_amount",
+                "layout_version",
+                "padding4",
+                "padding5",
                 "reward_infos",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25, $26, $27, $28, $29, $30, $31, $32, $33, $34, $35, $36, $37
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -377,13 +412,12 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
                 "token_a_vault" = EXCLUDED."token_a_vault",
                 "token_b_vault" = EXCLUDED."token_b_vault",
                 "whitelisted_vault" = EXCLUDED."whitelisted_vault",
-                "partner" = EXCLUDED."partner",
+                "padding0" = EXCLUDED."padding0",
                 "liquidity" = EXCLUDED."liquidity",
-                "padding" = EXCLUDED."padding",
+                "padding1" = EXCLUDED."padding1",
                 "protocol_a_fee" = EXCLUDED."protocol_a_fee",
                 "protocol_b_fee" = EXCLUDED."protocol_b_fee",
-                "partner_a_fee" = EXCLUDED."partner_a_fee",
-                "partner_b_fee" = EXCLUDED."partner_b_fee",
+                "padding2" = EXCLUDED."padding2",
                 "sqrt_min_price" = EXCLUDED."sqrt_min_price",
                 "sqrt_max_price" = EXCLUDED."sqrt_max_price",
                 "sqrt_price" = EXCLUDED."sqrt_price",
@@ -394,14 +428,18 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
                 "token_b_flag" = EXCLUDED."token_b_flag",
                 "collect_fee_mode" = EXCLUDED."collect_fee_mode",
                 "pool_type" = EXCLUDED."pool_type",
-                "version" = EXCLUDED."version",
-                "padding0" = EXCLUDED."padding0",
+                "fee_version" = EXCLUDED."fee_version",
+                "padding3" = EXCLUDED."padding3",
                 "fee_a_per_liquidity" = EXCLUDED."fee_a_per_liquidity",
                 "fee_b_per_liquidity" = EXCLUDED."fee_b_per_liquidity",
                 "permanent_lock_liquidity" = EXCLUDED."permanent_lock_liquidity",
                 "metrics" = EXCLUDED."metrics",
                 "creator" = EXCLUDED."creator",
-                "padding1" = EXCLUDED."padding1",
+                "token_a_amount" = EXCLUDED."token_a_amount",
+                "token_b_amount" = EXCLUDED."token_b_amount",
+                "layout_version" = EXCLUDED."layout_version",
+                "padding4" = EXCLUDED."padding4",
+                "padding5" = EXCLUDED."padding5",
                 "reward_infos" = EXCLUDED."reward_infos",
                 __slot = EXCLUDED.__slot
             "#)
@@ -411,13 +449,12 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
         .bind(self.token_a_vault)
         .bind(self.token_b_vault)
         .bind(self.whitelisted_vault)
-        .bind(self.partner)
+        .bind(&self.padding0)
         .bind(&self.liquidity)
-        .bind(&self.padding)
+        .bind(&self.padding1)
         .bind(&self.protocol_a_fee)
         .bind(&self.protocol_b_fee)
-        .bind(&self.partner_a_fee)
-        .bind(&self.partner_b_fee)
+        .bind(&self.padding2)
         .bind(&self.sqrt_min_price)
         .bind(&self.sqrt_max_price)
         .bind(&self.sqrt_price)
@@ -428,14 +465,18 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
         .bind(self.token_b_flag)
         .bind(self.collect_fee_mode)
         .bind(self.pool_type)
-        .bind(self.version)
-        .bind(self.padding0)
+        .bind(self.fee_version)
+        .bind(self.padding3)
         .bind(&self.fee_a_per_liquidity)
         .bind(&self.fee_b_per_liquidity)
         .bind(&self.permanent_lock_liquidity)
         .bind(&self.metrics)
         .bind(self.creator)
-        .bind(&self.padding1)
+        .bind(&self.token_a_amount)
+        .bind(&self.token_b_amount)
+        .bind(self.layout_version)
+        .bind(&self.padding4)
+        .bind(&self.padding5)
         .bind(&self.reward_infos)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -501,13 +542,12 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolMigrationOperation {
                 "token_a_vault" BYTEA NOT NULL,
                 "token_b_vault" BYTEA NOT NULL,
                 "whitelisted_vault" BYTEA NOT NULL,
-                "partner" BYTEA NOT NULL,
+                "padding0" BYTEA NOT NULL,
                 "liquidity" NUMERIC(39) NOT NULL,
-                "padding" NUMERIC(39) NOT NULL,
+                "padding1" NUMERIC(39) NOT NULL,
                 "protocol_a_fee" NUMERIC(20) NOT NULL,
                 "protocol_b_fee" NUMERIC(20) NOT NULL,
-                "partner_a_fee" NUMERIC(20) NOT NULL,
-                "partner_b_fee" NUMERIC(20) NOT NULL,
+                "padding2" NUMERIC(39) NOT NULL,
                 "sqrt_min_price" NUMERIC(39) NOT NULL,
                 "sqrt_max_price" NUMERIC(39) NOT NULL,
                 "sqrt_price" NUMERIC(39) NOT NULL,
@@ -518,14 +558,18 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolMigrationOperation {
                 "token_b_flag" INT2 NOT NULL,
                 "collect_fee_mode" INT2 NOT NULL,
                 "pool_type" INT2 NOT NULL,
-                "version" INT2 NOT NULL,
-                "padding0" INT2 NOT NULL,
+                "fee_version" INT2 NOT NULL,
+                "padding3" INT2 NOT NULL,
                 "fee_a_per_liquidity" BYTEA NOT NULL,
                 "fee_b_per_liquidity" BYTEA NOT NULL,
                 "permanent_lock_liquidity" NUMERIC(39) NOT NULL,
                 "metrics" JSONB NOT NULL,
                 "creator" BYTEA NOT NULL,
-                "padding1" NUMERIC(20)[] NOT NULL,
+                "token_a_amount" NUMERIC(20) NOT NULL,
+                "token_b_amount" NUMERIC(20) NOT NULL,
+                "layout_version" INT2 NOT NULL,
+                "padding4" BYTEA NOT NULL,
+                "padding5" NUMERIC(20)[] NOT NULL,
                 "reward_infos" JSONB NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

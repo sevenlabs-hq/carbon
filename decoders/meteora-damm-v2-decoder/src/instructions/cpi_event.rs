@@ -12,7 +12,6 @@ use carbon_core::{borsh, deserialize::ArrangeAccounts};
     PartialEq,
 )]
 pub enum CpiEvent {
-    EvtClaimPartnerFee(events::evt_claim_partner_fee::EvtClaimPartnerFeeEvent),
     EvtClaimPositionFee(events::evt_claim_position_fee::EvtClaimPositionFeeEvent),
     EvtClaimProtocolFee(events::evt_claim_protocol_fee::EvtClaimProtocolFeeEvent),
     EvtClaimReward(events::evt_claim_reward::EvtClaimRewardEvent),
@@ -53,18 +52,12 @@ impl CpiEvent {
         if data.len() < 8 {
             return None;
         }
-        let discriminator = &data[0..8];
-        if discriminator != [228, 69, 165, 46, 81, 203, 154, 29] {
-            return None;
-        }
+        let event_data = if data[..8] == [228, 69, 165, 46, 81, 203, 154, 29] {
+            &data[8..]
+        } else {
+            data
+        };
 
-        let event_data = &data[8..];
-
-        if let Some(decoded) =
-            events::evt_claim_partner_fee::EvtClaimPartnerFeeEvent::decode(event_data)
-        {
-            return Some(CpiEvent::EvtClaimPartnerFee(decoded));
-        }
         if let Some(decoded) =
             events::evt_claim_position_fee::EvtClaimPositionFeeEvent::decode(event_data)
         {
@@ -179,14 +172,18 @@ impl ArrangeAccounts for CpiEvent {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [program, event_authority, remaining @ ..] = accounts else {
-            return None;
-        };
-
-        Some(CpiEventInstructionAccounts {
-            program: program.pubkey,
-            event_authority: event_authority.pubkey,
-            remaining: remaining.to_vec(),
-        })
+        match accounts {
+            [program, event_authority, remaining @ ..] => Some(CpiEventInstructionAccounts {
+                program: program.pubkey,
+                event_authority: event_authority.pubkey,
+                remaining: remaining.to_vec(),
+            }),
+            [event_authority] => Some(CpiEventInstructionAccounts {
+                program: crate::PROGRAM_ID,
+                event_authority: event_authority.pubkey,
+                remaining: Vec::new(),
+            }),
+            _ => None,
+        }
     }
 }

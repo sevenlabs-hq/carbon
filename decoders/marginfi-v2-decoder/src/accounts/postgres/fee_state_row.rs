@@ -27,7 +27,8 @@ pub struct FeeStateRow {
     pub panic_state: sqlx::types::Json<PanicState>,
     pub placeholder1: U64,
     pub liquidation_flat_sol_fee: U32,
-    pub reserved0: Vec<u8>,
+    pub order_init_flat_sol_fee: U32,
+    pub order_execution_max_fee: sqlx::types::Json<WrappedI80F48>,
     pub reserved1: Vec<u8>,
 }
 
@@ -51,7 +52,8 @@ impl FeeStateRow {
             panic_state: sqlx::types::Json(source.panic_state),
             placeholder1: source.placeholder1.into(),
             liquidation_flat_sol_fee: source.liquidation_flat_sol_fee.into(),
-            reserved0: source.reserved0.to_vec(),
+            order_init_flat_sol_fee: source.order_init_flat_sol_fee.into(),
+            order_execution_max_fee: sqlx::types::Json(source.order_execution_max_fee),
             reserved1: source.reserved1.to_vec(),
         }
     }
@@ -91,12 +93,12 @@ impl TryFrom<FeeStateRow> for crate::accounts::fee_state::FeeState {
                     "Failed to convert value from postgres primitive".to_string(),
                 )
             })?,
-            reserved0: source.reserved0.as_slice().try_into().map_err(|_| {
+            order_init_flat_sol_fee: source.order_init_flat_sol_fee.try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
-                    "Failed to convert padding from postgres primitive: expected 20 bytes"
-                        .to_string(),
+                    "Failed to convert value from postgres primitive".to_string(),
                 )
             })?,
+            order_execution_max_fee: source.order_execution_max_fee.0,
             reserved1: source.reserved1.as_slice().try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert padding from postgres primitive: expected 32 bytes"
@@ -129,7 +131,8 @@ impl carbon_core::postgres::operations::Table for crate::accounts::fee_state::Fe
             "panic_state",
             "placeholder1",
             "liquidation_flat_sol_fee",
-            "reserved0",
+            "order_init_flat_sol_fee",
+            "order_execution_max_fee",
             "reserved1",
         ]
     }
@@ -154,11 +157,12 @@ impl carbon_core::postgres::operations::Insert for FeeStateRow {
                 "panic_state",
                 "placeholder1",
                 "liquidation_flat_sol_fee",
-                "reserved0",
+                "order_init_flat_sol_fee",
+                "order_execution_max_fee",
                 "reserved1",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
             )"#,
         )
         .bind(self.key)
@@ -174,7 +178,8 @@ impl carbon_core::postgres::operations::Insert for FeeStateRow {
         .bind(&self.panic_state)
         .bind(&self.placeholder1)
         .bind(self.liquidation_flat_sol_fee)
-        .bind(&self.reserved0)
+        .bind(self.order_init_flat_sol_fee)
+        .bind(&self.order_execution_max_fee)
         .bind(&self.reserved1)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -203,11 +208,12 @@ impl carbon_core::postgres::operations::Upsert for FeeStateRow {
                 "panic_state",
                 "placeholder1",
                 "liquidation_flat_sol_fee",
-                "reserved0",
+                "order_init_flat_sol_fee",
+                "order_execution_max_fee",
                 "reserved1",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -224,7 +230,8 @@ impl carbon_core::postgres::operations::Upsert for FeeStateRow {
                 "panic_state" = EXCLUDED."panic_state",
                 "placeholder1" = EXCLUDED."placeholder1",
                 "liquidation_flat_sol_fee" = EXCLUDED."liquidation_flat_sol_fee",
-                "reserved0" = EXCLUDED."reserved0",
+                "order_init_flat_sol_fee" = EXCLUDED."order_init_flat_sol_fee",
+                "order_execution_max_fee" = EXCLUDED."order_execution_max_fee",
                 "reserved1" = EXCLUDED."reserved1",
                 __slot = EXCLUDED.__slot
             "#,
@@ -242,7 +249,8 @@ impl carbon_core::postgres::operations::Upsert for FeeStateRow {
         .bind(&self.panic_state)
         .bind(&self.placeholder1)
         .bind(self.liquidation_flat_sol_fee)
-        .bind(&self.reserved0)
+        .bind(self.order_init_flat_sol_fee)
+        .bind(&self.order_execution_max_fee)
         .bind(&self.reserved1)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -316,7 +324,8 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeStateMigrationOperation {
                 "panic_state" JSONB NOT NULL,
                 "placeholder1" NUMERIC(20) NOT NULL,
                 "liquidation_flat_sol_fee" INT8 NOT NULL,
-                "reserved0" BYTEA NOT NULL,
+                "order_init_flat_sol_fee" INT8 NOT NULL,
+                "order_execution_max_fee" JSONB NOT NULL,
                 "reserved1" BYTEA NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

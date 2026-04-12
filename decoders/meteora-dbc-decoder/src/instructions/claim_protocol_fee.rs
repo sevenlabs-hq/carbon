@@ -19,7 +19,7 @@ pub struct ClaimProtocolFeeInstructionAccounts {
     pub quote_mint: solana_pubkey::Pubkey,
     pub token_base_account: solana_pubkey::Pubkey,
     pub token_quote_account: solana_pubkey::Pubkey,
-    pub claim_fee_operator: solana_pubkey::Pubkey,
+    pub operator: solana_pubkey::Pubkey,
     pub signer: solana_pubkey::Pubkey,
     pub token_base_program: solana_pubkey::Pubkey,
     pub token_quote_program: solana_pubkey::Pubkey,
@@ -63,7 +63,7 @@ impl ArrangeAccounts for ClaimProtocolFee {
         let quote_mint = next_account(&mut iter)?;
         let token_base_account = next_account(&mut iter)?;
         let token_quote_account = next_account(&mut iter)?;
-        let claim_fee_operator = next_account(&mut iter)?;
+        let operator = next_account(&mut iter)?;
         let signer = next_account(&mut iter)?;
         let token_base_program = next_account(&mut iter)?;
         let token_quote_program = next_account(&mut iter)?;
@@ -82,7 +82,7 @@ impl ArrangeAccounts for ClaimProtocolFee {
             quote_mint,
             token_base_account,
             token_quote_account,
-            claim_fee_operator,
+            operator,
             signer,
             token_base_program,
             token_quote_program,

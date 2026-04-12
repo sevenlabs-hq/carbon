@@ -30,7 +30,7 @@ pub struct KaminoWithdrawInstructionAccounts {
     pub lending_market: solana_pubkey::Pubkey,
     pub lending_market_authority: solana_pubkey::Pubkey,
     pub integration_acc1: solana_pubkey::Pubkey,
-    pub reserve_liquidity_mint: solana_pubkey::Pubkey,
+    pub mint: solana_pubkey::Pubkey,
     pub reserve_liquidity_supply: solana_pubkey::Pubkey,
     pub reserve_collateral_mint: solana_pubkey::Pubkey,
     pub reserve_source_collateral: solana_pubkey::Pubkey,
@@ -81,7 +81,7 @@ impl ArrangeAccounts for KaminoWithdraw {
         let lending_market = next_account(&mut iter)?;
         let lending_market_authority = next_account(&mut iter)?;
         let integration_acc1 = next_account(&mut iter)?;
-        let reserve_liquidity_mint = next_account(&mut iter)?;
+        let mint = next_account(&mut iter)?;
         let reserve_liquidity_supply = next_account(&mut iter)?;
         let reserve_collateral_mint = next_account(&mut iter)?;
         let reserve_source_collateral = next_account(&mut iter)?;
@@ -107,7 +107,7 @@ impl ArrangeAccounts for KaminoWithdraw {
             lending_market,
             lending_market_authority,
             integration_acc1,
-            reserve_liquidity_mint,
+            mint,
             reserve_liquidity_supply,
             reserve_collateral_mint,
             reserve_source_collateral,

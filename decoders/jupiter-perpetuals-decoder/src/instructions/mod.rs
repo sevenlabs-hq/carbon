@@ -390,11 +390,10 @@ pub enum JupiterPerpetualsInstruction {
         data: WithdrawStake,
         accounts: WithdrawStakeInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: CpiEventInstructionAccounts,
+        accounts: Option<CpiEventInstructionAccounts>,
     },
 }
 
@@ -403,75 +402,113 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterPerpetualsDecod
 
     fn decode_instruction(
         &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
         instruction: &solana_instruction::Instruction,
     ) -> Option<Self::InstructionType> {
+        self.decode_instructions(metadata, instruction)
+            .into_iter()
+            .next()
+    }
+
+    fn decode_instructions(
+        &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
+        instruction: &solana_instruction::Instruction,
+    ) -> Vec<Self::InstructionType> {
+        use carbon_core::deserialize::ArrangeAccounts as _;
         if instruction.program_id != PROGRAM_ID {
-            return None;
+            return Vec::new();
         }
 
-        carbon_core::try_decode_instructions!(
-            instruction,
-            PROGRAM_ID,
-            JupiterPerpetualsInstruction::AddCustody => AddCustody,
-            JupiterPerpetualsInstruction::AddLiquidity2 => AddLiquidity2,
-            JupiterPerpetualsInstruction::AddPool => AddPool,
-            JupiterPerpetualsInstruction::BorrowFromCustody => BorrowFromCustody,
-            JupiterPerpetualsInstruction::CloseBorrowPosition => CloseBorrowPosition,
-            JupiterPerpetualsInstruction::ClosePositionRequest2 => ClosePositionRequest2,
-            JupiterPerpetualsInstruction::ClosePositionRequest3 => ClosePositionRequest3,
-            JupiterPerpetualsInstruction::CreateAndDelegateStakeAccount => CreateAndDelegateStakeAccount,
-            JupiterPerpetualsInstruction::CreateDecreasePositionMarketRequest => CreateDecreasePositionMarketRequest,
-            JupiterPerpetualsInstruction::CreateDecreasePositionRequest2 => CreateDecreasePositionRequest2,
-            JupiterPerpetualsInstruction::CreateIncreasePositionMarketRequest => CreateIncreasePositionMarketRequest,
-            JupiterPerpetualsInstruction::CreateTokenLedger => CreateTokenLedger,
-            JupiterPerpetualsInstruction::CreateTokenMetadata => CreateTokenMetadata,
-            JupiterPerpetualsInstruction::DecreasePosition4 => DecreasePosition4,
-            JupiterPerpetualsInstruction::DecreasePositionWithInternalSwap => DecreasePositionWithInternalSwap,
-            JupiterPerpetualsInstruction::DecreasePositionWithTpsl => DecreasePositionWithTpsl,
-            JupiterPerpetualsInstruction::DecreasePositionWithTpslAndInternalSwap => DecreasePositionWithTpslAndInternalSwap,
-            JupiterPerpetualsInstruction::DepositCollateralForBorrows => DepositCollateralForBorrows,
-            JupiterPerpetualsInstruction::GetAddLiquidityAmountAndFee2 => GetAddLiquidityAmountAndFee2,
-            JupiterPerpetualsInstruction::GetAssetsUnderManagement2 => GetAssetsUnderManagement2,
-            JupiterPerpetualsInstruction::GetRemoveLiquidityAmountAndFee2 => GetRemoveLiquidityAmountAndFee2,
-            JupiterPerpetualsInstruction::IncreasePosition4 => IncreasePosition4,
-            JupiterPerpetualsInstruction::IncreasePositionPreSwap => IncreasePositionPreSwap,
-            JupiterPerpetualsInstruction::IncreasePositionWithInternalSwap => IncreasePositionWithInternalSwap,
-            JupiterPerpetualsInstruction::Init => Init,
-            JupiterPerpetualsInstruction::InstantCreateLimitOrder => InstantCreateLimitOrder,
-            JupiterPerpetualsInstruction::InstantCreateTpsl => InstantCreateTpsl,
-            JupiterPerpetualsInstruction::InstantDecreasePosition => InstantDecreasePosition,
-            JupiterPerpetualsInstruction::InstantDecreasePosition2 => InstantDecreasePosition2,
-            JupiterPerpetualsInstruction::InstantIncreasePosition => InstantIncreasePosition,
-            JupiterPerpetualsInstruction::InstantIncreasePositionPreSwap => InstantIncreasePositionPreSwap,
-            JupiterPerpetualsInstruction::InstantUpdateLimitOrder => InstantUpdateLimitOrder,
-            JupiterPerpetualsInstruction::InstantUpdateTpsl => InstantUpdateTpsl,
-            JupiterPerpetualsInstruction::LiquidateBorrowPosition => LiquidateBorrowPosition,
-            JupiterPerpetualsInstruction::LiquidateFullPosition4 => LiquidateFullPosition4,
-            JupiterPerpetualsInstruction::OperatorSetCustodyConfig => OperatorSetCustodyConfig,
-            JupiterPerpetualsInstruction::OperatorSetPoolConfig => OperatorSetPoolConfig,
-            JupiterPerpetualsInstruction::PartialLiquidateBorrowPosition => PartialLiquidateBorrowPosition,
-            JupiterPerpetualsInstruction::ReallocCustody => ReallocCustody,
-            JupiterPerpetualsInstruction::ReallocPool => ReallocPool,
-            JupiterPerpetualsInstruction::RedeemStake => RedeemStake,
-            JupiterPerpetualsInstruction::RefreshAssetsUnderManagement => RefreshAssetsUnderManagement,
-            JupiterPerpetualsInstruction::RemoveLiquidity2 => RemoveLiquidity2,
-            JupiterPerpetualsInstruction::RepayToCustody => RepayToCustody,
-            JupiterPerpetualsInstruction::SetCustodyConfig => SetCustodyConfig,
-            JupiterPerpetualsInstruction::SetMaxGlobalSizes => SetMaxGlobalSizes,
-            JupiterPerpetualsInstruction::SetPerpetualsConfig => SetPerpetualsConfig,
-            JupiterPerpetualsInstruction::SetPoolConfig => SetPoolConfig,
-            JupiterPerpetualsInstruction::SetTestTime => SetTestTime,
-            JupiterPerpetualsInstruction::SetTokenLedger => SetTokenLedger,
-            JupiterPerpetualsInstruction::Swap2 => Swap2,
-            JupiterPerpetualsInstruction::SwapWithTokenLedger => SwapWithTokenLedger,
-            JupiterPerpetualsInstruction::TestInit => TestInit,
-            JupiterPerpetualsInstruction::TransferAdmin => TransferAdmin,
-            JupiterPerpetualsInstruction::Unstake => Unstake,
-            JupiterPerpetualsInstruction::UpdateDecreasePositionRequest2 => UpdateDecreasePositionRequest2,
-            JupiterPerpetualsInstruction::WithdrawCollateralForBorrows => WithdrawCollateralForBorrows,
-            JupiterPerpetualsInstruction::WithdrawFees2 => WithdrawFees2,
-            JupiterPerpetualsInstruction::WithdrawStake => WithdrawStake,
-            JupiterPerpetualsInstruction::CpiEvent => CpiEvent,
-        )
+        let decoded_instruction = (|| {
+            carbon_core::try_decode_instructions!(
+                instruction,
+                PROGRAM_ID,
+                JupiterPerpetualsInstruction::AddCustody => AddCustody,
+                JupiterPerpetualsInstruction::AddLiquidity2 => AddLiquidity2,
+                JupiterPerpetualsInstruction::AddPool => AddPool,
+                JupiterPerpetualsInstruction::BorrowFromCustody => BorrowFromCustody,
+                JupiterPerpetualsInstruction::CloseBorrowPosition => CloseBorrowPosition,
+                JupiterPerpetualsInstruction::ClosePositionRequest2 => ClosePositionRequest2,
+                JupiterPerpetualsInstruction::ClosePositionRequest3 => ClosePositionRequest3,
+                JupiterPerpetualsInstruction::CreateAndDelegateStakeAccount => CreateAndDelegateStakeAccount,
+                JupiterPerpetualsInstruction::CreateDecreasePositionMarketRequest => CreateDecreasePositionMarketRequest,
+                JupiterPerpetualsInstruction::CreateDecreasePositionRequest2 => CreateDecreasePositionRequest2,
+                JupiterPerpetualsInstruction::CreateIncreasePositionMarketRequest => CreateIncreasePositionMarketRequest,
+                JupiterPerpetualsInstruction::CreateTokenLedger => CreateTokenLedger,
+                JupiterPerpetualsInstruction::CreateTokenMetadata => CreateTokenMetadata,
+                JupiterPerpetualsInstruction::DecreasePosition4 => DecreasePosition4,
+                JupiterPerpetualsInstruction::DecreasePositionWithInternalSwap => DecreasePositionWithInternalSwap,
+                JupiterPerpetualsInstruction::DecreasePositionWithTpsl => DecreasePositionWithTpsl,
+                JupiterPerpetualsInstruction::DecreasePositionWithTpslAndInternalSwap => DecreasePositionWithTpslAndInternalSwap,
+                JupiterPerpetualsInstruction::DepositCollateralForBorrows => DepositCollateralForBorrows,
+                JupiterPerpetualsInstruction::GetAddLiquidityAmountAndFee2 => GetAddLiquidityAmountAndFee2,
+                JupiterPerpetualsInstruction::GetAssetsUnderManagement2 => GetAssetsUnderManagement2,
+                JupiterPerpetualsInstruction::GetRemoveLiquidityAmountAndFee2 => GetRemoveLiquidityAmountAndFee2,
+                JupiterPerpetualsInstruction::IncreasePosition4 => IncreasePosition4,
+                JupiterPerpetualsInstruction::IncreasePositionPreSwap => IncreasePositionPreSwap,
+                JupiterPerpetualsInstruction::IncreasePositionWithInternalSwap => IncreasePositionWithInternalSwap,
+                JupiterPerpetualsInstruction::Init => Init,
+                JupiterPerpetualsInstruction::InstantCreateLimitOrder => InstantCreateLimitOrder,
+                JupiterPerpetualsInstruction::InstantCreateTpsl => InstantCreateTpsl,
+                JupiterPerpetualsInstruction::InstantDecreasePosition => InstantDecreasePosition,
+                JupiterPerpetualsInstruction::InstantDecreasePosition2 => InstantDecreasePosition2,
+                JupiterPerpetualsInstruction::InstantIncreasePosition => InstantIncreasePosition,
+                JupiterPerpetualsInstruction::InstantIncreasePositionPreSwap => InstantIncreasePositionPreSwap,
+                JupiterPerpetualsInstruction::InstantUpdateLimitOrder => InstantUpdateLimitOrder,
+                JupiterPerpetualsInstruction::InstantUpdateTpsl => InstantUpdateTpsl,
+                JupiterPerpetualsInstruction::LiquidateBorrowPosition => LiquidateBorrowPosition,
+                JupiterPerpetualsInstruction::LiquidateFullPosition4 => LiquidateFullPosition4,
+                JupiterPerpetualsInstruction::OperatorSetCustodyConfig => OperatorSetCustodyConfig,
+                JupiterPerpetualsInstruction::OperatorSetPoolConfig => OperatorSetPoolConfig,
+                JupiterPerpetualsInstruction::PartialLiquidateBorrowPosition => PartialLiquidateBorrowPosition,
+                JupiterPerpetualsInstruction::ReallocCustody => ReallocCustody,
+                JupiterPerpetualsInstruction::ReallocPool => ReallocPool,
+                JupiterPerpetualsInstruction::RedeemStake => RedeemStake,
+                JupiterPerpetualsInstruction::RefreshAssetsUnderManagement => RefreshAssetsUnderManagement,
+                JupiterPerpetualsInstruction::RemoveLiquidity2 => RemoveLiquidity2,
+                JupiterPerpetualsInstruction::RepayToCustody => RepayToCustody,
+                JupiterPerpetualsInstruction::SetCustodyConfig => SetCustodyConfig,
+                JupiterPerpetualsInstruction::SetMaxGlobalSizes => SetMaxGlobalSizes,
+                JupiterPerpetualsInstruction::SetPerpetualsConfig => SetPerpetualsConfig,
+                JupiterPerpetualsInstruction::SetPoolConfig => SetPoolConfig,
+                JupiterPerpetualsInstruction::SetTestTime => SetTestTime,
+                JupiterPerpetualsInstruction::SetTokenLedger => SetTokenLedger,
+                JupiterPerpetualsInstruction::Swap2 => Swap2,
+                JupiterPerpetualsInstruction::SwapWithTokenLedger => SwapWithTokenLedger,
+                JupiterPerpetualsInstruction::TestInit => TestInit,
+                JupiterPerpetualsInstruction::TransferAdmin => TransferAdmin,
+                JupiterPerpetualsInstruction::Unstake => Unstake,
+                JupiterPerpetualsInstruction::UpdateDecreasePositionRequest2 => UpdateDecreasePositionRequest2,
+                JupiterPerpetualsInstruction::WithdrawCollateralForBorrows => WithdrawCollateralForBorrows,
+                JupiterPerpetualsInstruction::WithdrawFees2 => WithdrawFees2,
+                JupiterPerpetualsInstruction::WithdrawStake => WithdrawStake,
+            )
+        })();
+
+        let mut decoded_instructions = Vec::new();
+        if let Some(decoded_instruction) = decoded_instruction {
+            decoded_instructions.push(decoded_instruction);
+        }
+
+        if let Some(data) = CpiEvent::decode(&instruction.data) {
+            decoded_instructions.push(JupiterPerpetualsInstruction::CpiEvent {
+                program_id: PROGRAM_ID,
+                data,
+                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
+            });
+        }
+
+        for payload in metadata.program_data_log_payloads() {
+            if let Some(data) = CpiEvent::decode(payload.as_slice()) {
+                decoded_instructions.push(JupiterPerpetualsInstruction::CpiEvent {
+                    program_id: PROGRAM_ID,
+                    data,
+                    accounts: None,
+                });
+            }
+        }
+
+        decoded_instructions
     }
 }

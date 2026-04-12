@@ -17,6 +17,7 @@ pub struct BorrowOrderGraphQL {
     pub requested_debt_amount: U64,
     pub max_borrow_rate_bps: U32,
     pub active: U8,
+    pub enable_auto_rollover_on_filled_borrows: U8,
     pub padding1: Vec<U8>,
     pub end_padding: Vec<U64>,
 }
@@ -52,6 +53,9 @@ impl From<crate::types::BorrowOrder> for BorrowOrderGraphQL {
                 original.max_borrow_rate_bps,
             ),
             active: carbon_core::graphql::primitives::U8(original.active),
+            enable_auto_rollover_on_filled_borrows: carbon_core::graphql::primitives::U8(
+                original.enable_auto_rollover_on_filled_borrows,
+            ),
             padding1: original
                 .padding1
                 .into_iter()

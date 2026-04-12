@@ -183,11 +183,10 @@ pub enum MeteoraPoolsInstruction {
         data: WithdrawProtocolFees,
         accounts: WithdrawProtocolFeesInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: CpiEventInstructionAccounts,
+        accounts: Option<CpiEventInstructionAccounts>,
     },
 }
 
@@ -196,42 +195,80 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraPoolsDecoder {
 
     fn decode_instruction(
         &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
         instruction: &solana_instruction::Instruction,
     ) -> Option<Self::InstructionType> {
+        self.decode_instructions(metadata, instruction)
+            .into_iter()
+            .next()
+    }
+
+    fn decode_instructions(
+        &self,
+        metadata: &carbon_core::instruction::InstructionMetadata,
+        instruction: &solana_instruction::Instruction,
+    ) -> Vec<Self::InstructionType> {
+        use carbon_core::deserialize::ArrangeAccounts as _;
         if instruction.program_id != PROGRAM_ID {
-            return None;
+            return Vec::new();
         }
 
-        carbon_core::try_decode_instructions!(
-            instruction,
-            PROGRAM_ID,
-            MeteoraPoolsInstruction::AddBalanceLiquidity => AddBalanceLiquidity,
-            MeteoraPoolsInstruction::AddImbalanceLiquidity => AddImbalanceLiquidity,
-            MeteoraPoolsInstruction::BootstrapLiquidity => BootstrapLiquidity,
-            MeteoraPoolsInstruction::ClaimFee => ClaimFee,
-            MeteoraPoolsInstruction::CloseConfig => CloseConfig,
-            MeteoraPoolsInstruction::CreateConfig => CreateConfig,
-            MeteoraPoolsInstruction::CreateLockEscrow => CreateLockEscrow,
-            MeteoraPoolsInstruction::CreateMintMetadata => CreateMintMetadata,
-            MeteoraPoolsInstruction::EnableOrDisablePool => EnableOrDisablePool,
-            MeteoraPoolsInstruction::GetPoolInfo => GetPoolInfo,
-            MeteoraPoolsInstruction::InitializeCustomizablePermissionlessConstantProductPool => InitializeCustomizablePermissionlessConstantProductPool,
-            MeteoraPoolsInstruction::InitializePermissionedPool => InitializePermissionedPool,
-            MeteoraPoolsInstruction::InitializePermissionlessConstantProductPoolWithConfig => InitializePermissionlessConstantProductPoolWithConfig,
-            MeteoraPoolsInstruction::InitializePermissionlessConstantProductPoolWithConfig2 => InitializePermissionlessConstantProductPoolWithConfig2,
-            MeteoraPoolsInstruction::InitializePermissionlessPool => InitializePermissionlessPool,
-            MeteoraPoolsInstruction::InitializePermissionlessPoolWithFeeTier => InitializePermissionlessPoolWithFeeTier,
-            MeteoraPoolsInstruction::Lock => Lock,
-            MeteoraPoolsInstruction::OverrideCurveParam => OverrideCurveParam,
-            MeteoraPoolsInstruction::PartnerClaimFee => PartnerClaimFee,
-            MeteoraPoolsInstruction::RemoveBalanceLiquidity => RemoveBalanceLiquidity,
-            MeteoraPoolsInstruction::RemoveLiquiditySingleSide => RemoveLiquiditySingleSide,
-            MeteoraPoolsInstruction::SetPoolFees => SetPoolFees,
-            MeteoraPoolsInstruction::SetWhitelistedVault => SetWhitelistedVault,
-            MeteoraPoolsInstruction::Swap => Swap,
-            MeteoraPoolsInstruction::UpdateActivationPoint => UpdateActivationPoint,
-            MeteoraPoolsInstruction::WithdrawProtocolFees => WithdrawProtocolFees,
-            MeteoraPoolsInstruction::CpiEvent => CpiEvent,
-        )
+        let decoded_instruction = (|| {
+            carbon_core::try_decode_instructions!(
+                instruction,
+                PROGRAM_ID,
+                MeteoraPoolsInstruction::AddBalanceLiquidity => AddBalanceLiquidity,
+                MeteoraPoolsInstruction::AddImbalanceLiquidity => AddImbalanceLiquidity,
+                MeteoraPoolsInstruction::BootstrapLiquidity => BootstrapLiquidity,
+                MeteoraPoolsInstruction::ClaimFee => ClaimFee,
+                MeteoraPoolsInstruction::CloseConfig => CloseConfig,
+                MeteoraPoolsInstruction::CreateConfig => CreateConfig,
+                MeteoraPoolsInstruction::CreateLockEscrow => CreateLockEscrow,
+                MeteoraPoolsInstruction::CreateMintMetadata => CreateMintMetadata,
+                MeteoraPoolsInstruction::EnableOrDisablePool => EnableOrDisablePool,
+                MeteoraPoolsInstruction::GetPoolInfo => GetPoolInfo,
+                MeteoraPoolsInstruction::InitializeCustomizablePermissionlessConstantProductPool => InitializeCustomizablePermissionlessConstantProductPool,
+                MeteoraPoolsInstruction::InitializePermissionedPool => InitializePermissionedPool,
+                MeteoraPoolsInstruction::InitializePermissionlessConstantProductPoolWithConfig => InitializePermissionlessConstantProductPoolWithConfig,
+                MeteoraPoolsInstruction::InitializePermissionlessConstantProductPoolWithConfig2 => InitializePermissionlessConstantProductPoolWithConfig2,
+                MeteoraPoolsInstruction::InitializePermissionlessPool => InitializePermissionlessPool,
+                MeteoraPoolsInstruction::InitializePermissionlessPoolWithFeeTier => InitializePermissionlessPoolWithFeeTier,
+                MeteoraPoolsInstruction::Lock => Lock,
+                MeteoraPoolsInstruction::OverrideCurveParam => OverrideCurveParam,
+                MeteoraPoolsInstruction::PartnerClaimFee => PartnerClaimFee,
+                MeteoraPoolsInstruction::RemoveBalanceLiquidity => RemoveBalanceLiquidity,
+                MeteoraPoolsInstruction::RemoveLiquiditySingleSide => RemoveLiquiditySingleSide,
+                MeteoraPoolsInstruction::SetPoolFees => SetPoolFees,
+                MeteoraPoolsInstruction::SetWhitelistedVault => SetWhitelistedVault,
+                MeteoraPoolsInstruction::Swap => Swap,
+                MeteoraPoolsInstruction::UpdateActivationPoint => UpdateActivationPoint,
+                MeteoraPoolsInstruction::WithdrawProtocolFees => WithdrawProtocolFees,
+            )
+        })();
+
+        let mut decoded_instructions = Vec::new();
+        if let Some(decoded_instruction) = decoded_instruction {
+            decoded_instructions.push(decoded_instruction);
+        }
+
+        if let Some(data) = CpiEvent::decode(&instruction.data) {
+            decoded_instructions.push(MeteoraPoolsInstruction::CpiEvent {
+                program_id: PROGRAM_ID,
+                data,
+                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
+            });
+        }
+
+        for payload in metadata.program_data_log_payloads() {
+            if let Some(data) = CpiEvent::decode(payload.as_slice()) {
+                decoded_instructions.push(MeteoraPoolsInstruction::CpiEvent {
+                    program_id: PROGRAM_ID,
+                    data,
+                    accounts: None,
+                });
+            }
+        }
+
+        decoded_instructions
     }
 }

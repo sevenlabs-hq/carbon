@@ -4,8 +4,6 @@ use crate::types::{BaseFeeStruct, DynamicFeeStruct};
 /// trading_fee = amount * trade_fee_numerator / denominator
 /// protocol_fee = trading_fee * protocol_fee_percentage / 100
 /// referral_fee = protocol_fee * referral_percentage / 100
-/// partner_fee = (protocol_fee - referral_fee) * partner_fee_percentage /
-/// denominator
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct PoolFeesStruct {
@@ -18,12 +16,14 @@ pub struct PoolFeesStruct {
     /// minted to the protocol of the program.
     /// Protocol trade fee numerator
     pub protocol_fee_percent: u8,
-    /// partner fee
-    pub partner_fee_percent: u8,
+    /// padding for future use
+    pub padding0: u8,
     /// referral fee
     pub referral_fee_percent: u8,
     /// padding
-    pub padding0: [u8; 5],
+    pub padding1: [u8; 3],
+    /// compounding fee bps, only non-zero in CollectFeeMode::Compounding
+    pub compounding_fee_bps: u16,
     /// dynamic fee
     pub dynamic_fee: DynamicFeeStruct,
     pub init_sqrt_price: u128,

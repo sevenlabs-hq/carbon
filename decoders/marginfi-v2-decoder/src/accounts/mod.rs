@@ -9,7 +9,9 @@ pub mod graphql;
 
 pub mod bank;
 pub mod bank_metadata;
+pub mod execute_order_record;
 pub mod fee_state;
+pub mod lending;
 pub mod liquidation_record;
 pub mod marginfi_account;
 pub mod marginfi_group;
@@ -17,6 +19,7 @@ pub mod minimal_obligation;
 pub mod minimal_reserve;
 pub mod minimal_spot_market;
 pub mod minimal_user;
+pub mod order;
 pub mod solend_minimal_reserve;
 pub mod staked_settings;
 
@@ -26,7 +29,9 @@ pub mod staked_settings;
 pub enum MarginfiV2Account {
     Bank(Box<bank::Bank>),
     BankMetadata(Box<bank_metadata::BankMetadata>),
+    ExecuteOrderRecord(Box<execute_order_record::ExecuteOrderRecord>),
     FeeState(Box<fee_state::FeeState>),
+    Lending(Box<lending::Lending>),
     LiquidationRecord(Box<liquidation_record::LiquidationRecord>),
     MarginfiAccount(Box<marginfi_account::MarginfiAccount>),
     MarginfiGroup(Box<marginfi_group::MarginfiGroup>),
@@ -34,6 +39,7 @@ pub enum MarginfiV2Account {
     MinimalReserve(Box<minimal_reserve::MinimalReserve>),
     MinimalSpotMarket(Box<minimal_spot_market::MinimalSpotMarket>),
     MinimalUser(Box<minimal_user::MinimalUser>),
+    Order(Box<order::Order>),
     SolendMinimalReserve(Box<solend_minimal_reserve::SolendMinimalReserve>),
     StakedSettings(Box<staked_settings::StakedSettings>),
 }
@@ -74,10 +80,32 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for MarginfiV2Decoder {
             }
         }
         {
+            if let Some(decoded) = execute_order_record::ExecuteOrderRecord::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: MarginfiV2Account::ExecuteOrderRecord(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
             if let Some(decoded) = fee_state::FeeState::decode(data) {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: MarginfiV2Account::FeeState(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = lending::Lending::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: MarginfiV2Account::Lending(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,
@@ -155,6 +183,17 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for MarginfiV2Decoder {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: MarginfiV2Account::MinimalUser(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = order::Order::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: MarginfiV2Account::Order(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

@@ -11,13 +11,14 @@ use {
 pub struct MarginfiGroupConfigureRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,
-    pub new_admin: Pubkey,
-    pub new_emode_admin: Pubkey,
-    pub new_curve_admin: Pubkey,
-    pub new_limit_admin: Pubkey,
-    pub new_emissions_admin: Pubkey,
-    pub new_metadata_admin: Pubkey,
-    pub new_risk_admin: Pubkey,
+    pub new_admin: Option<Pubkey>,
+    pub new_emode_admin: Option<Pubkey>,
+    pub new_curve_admin: Option<Pubkey>,
+    pub new_limit_admin: Option<Pubkey>,
+    pub new_flow_admin: Option<Pubkey>,
+    pub new_emissions_admin: Option<Pubkey>,
+    pub new_metadata_admin: Option<Pubkey>,
+    pub new_risk_admin: Option<Pubkey>,
     pub emode_max_init_leverage: Option<sqlx::types::Json<WrappedI80F48>>,
     pub emode_max_maint_leverage: Option<sqlx::types::Json<WrappedI80F48>>,
     #[sqlx(rename = "__accounts")]
@@ -32,13 +33,14 @@ impl MarginfiGroupConfigureRow {
     ) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            new_admin: source.new_admin.into(),
-            new_emode_admin: source.new_emode_admin.into(),
-            new_curve_admin: source.new_curve_admin.into(),
-            new_limit_admin: source.new_limit_admin.into(),
-            new_emissions_admin: source.new_emissions_admin.into(),
-            new_metadata_admin: source.new_metadata_admin.into(),
-            new_risk_admin: source.new_risk_admin.into(),
+            new_admin: source.new_admin.map(|value| value.into()),
+            new_emode_admin: source.new_emode_admin.map(|value| value.into()),
+            new_curve_admin: source.new_curve_admin.map(|value| value.into()),
+            new_limit_admin: source.new_limit_admin.map(|value| value.into()),
+            new_flow_admin: source.new_flow_admin.map(|value| value.into()),
+            new_emissions_admin: source.new_emissions_admin.map(|value| value.into()),
+            new_metadata_admin: source.new_metadata_admin.map(|value| value.into()),
+            new_risk_admin: source.new_risk_admin.map(|value| value.into()),
             emode_max_init_leverage: source.emode_max_init_leverage.map(sqlx::types::Json),
             emode_max_maint_leverage: source.emode_max_maint_leverage.map(sqlx::types::Json),
             accounts: sqlx::types::Json(accounts),
@@ -52,13 +54,14 @@ impl TryFrom<MarginfiGroupConfigureRow>
     type Error = carbon_core::error::Error;
     fn try_from(source: MarginfiGroupConfigureRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            new_admin: *source.new_admin,
-            new_emode_admin: *source.new_emode_admin,
-            new_curve_admin: *source.new_curve_admin,
-            new_limit_admin: *source.new_limit_admin,
-            new_emissions_admin: *source.new_emissions_admin,
-            new_metadata_admin: *source.new_metadata_admin,
-            new_risk_admin: *source.new_risk_admin,
+            new_admin: source.new_admin.map(|value| *value),
+            new_emode_admin: source.new_emode_admin.map(|value| *value),
+            new_curve_admin: source.new_curve_admin.map(|value| *value),
+            new_limit_admin: source.new_limit_admin.map(|value| *value),
+            new_flow_admin: source.new_flow_admin.map(|value| *value),
+            new_emissions_admin: source.new_emissions_admin.map(|value| *value),
+            new_metadata_admin: source.new_metadata_admin.map(|value| *value),
+            new_risk_admin: source.new_risk_admin.map(|value| *value),
             emode_max_init_leverage: source.emode_max_init_leverage.map(|value| value.0),
             emode_max_maint_leverage: source.emode_max_maint_leverage.map(|value| value.0),
         })
@@ -82,6 +85,7 @@ impl carbon_core::postgres::operations::Table
             "new_emode_admin",
             "new_curve_admin",
             "new_limit_admin",
+            "new_flow_admin",
             "new_emissions_admin",
             "new_metadata_admin",
             "new_risk_admin",
@@ -102,6 +106,7 @@ impl carbon_core::postgres::operations::Insert for MarginfiGroupConfigureRow {
                 "new_emode_admin",
                 "new_curve_admin",
                 "new_limit_admin",
+                "new_flow_admin",
                 "new_emissions_admin",
                 "new_metadata_admin",
                 "new_risk_admin",
@@ -109,13 +114,14 @@ impl carbon_core::postgres::operations::Insert for MarginfiGroupConfigureRow {
                 "emode_max_maint_leverage",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
             )"#,
         )
         .bind(self.new_admin)
         .bind(self.new_emode_admin)
         .bind(self.new_curve_admin)
         .bind(self.new_limit_admin)
+        .bind(self.new_flow_admin)
         .bind(self.new_emissions_admin)
         .bind(self.new_metadata_admin)
         .bind(self.new_risk_admin)
@@ -142,6 +148,7 @@ impl carbon_core::postgres::operations::Upsert for MarginfiGroupConfigureRow {
                 "new_emode_admin",
                 "new_curve_admin",
                 "new_limit_admin",
+                "new_flow_admin",
                 "new_emissions_admin",
                 "new_metadata_admin",
                 "new_risk_admin",
@@ -149,7 +156,7 @@ impl carbon_core::postgres::operations::Upsert for MarginfiGroupConfigureRow {
                 "emode_max_maint_leverage",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
             ) ON CONFLICT (
                 __signature, __instruction_index, __stack_height
             ) DO UPDATE SET
@@ -157,6 +164,7 @@ impl carbon_core::postgres::operations::Upsert for MarginfiGroupConfigureRow {
                 "new_emode_admin" = EXCLUDED."new_emode_admin",
                 "new_curve_admin" = EXCLUDED."new_curve_admin",
                 "new_limit_admin" = EXCLUDED."new_limit_admin",
+                "new_flow_admin" = EXCLUDED."new_flow_admin",
                 "new_emissions_admin" = EXCLUDED."new_emissions_admin",
                 "new_metadata_admin" = EXCLUDED."new_metadata_admin",
                 "new_risk_admin" = EXCLUDED."new_risk_admin",
@@ -172,6 +180,7 @@ impl carbon_core::postgres::operations::Upsert for MarginfiGroupConfigureRow {
         .bind(self.new_emode_admin)
         .bind(self.new_curve_admin)
         .bind(self.new_limit_admin)
+        .bind(self.new_flow_admin)
         .bind(self.new_emissions_admin)
         .bind(self.new_metadata_admin)
         .bind(self.new_risk_admin)
@@ -251,13 +260,14 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MarginfiGroupConfigureMigratio
         sqlx::query(
             r#"CREATE TABLE IF NOT EXISTS marginfi_group_configure_instruction (
                 -- Instruction data
-                "new_admin" BYTEA NOT NULL,
-                "new_emode_admin" BYTEA NOT NULL,
-                "new_curve_admin" BYTEA NOT NULL,
-                "new_limit_admin" BYTEA NOT NULL,
-                "new_emissions_admin" BYTEA NOT NULL,
-                "new_metadata_admin" BYTEA NOT NULL,
-                "new_risk_admin" BYTEA NOT NULL,
+                "new_admin" BYTEA,
+                "new_emode_admin" BYTEA,
+                "new_curve_admin" BYTEA,
+                "new_limit_admin" BYTEA,
+                "new_flow_admin" BYTEA,
+                "new_emissions_admin" BYTEA,
+                "new_metadata_admin" BYTEA,
+                "new_risk_admin" BYTEA,
                 "emode_max_init_leverage" JSONB,
                 "emode_max_maint_leverage" JSONB,
                 -- Instruction metadata

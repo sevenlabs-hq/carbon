@@ -47,8 +47,14 @@ pub struct LendingMarketGraphQL {
     pub min_borrow_order_fill_value: U64,
     pub withdraw_ticket_issuance_enabled: U8,
     pub withdraw_ticket_redemption_enabled: U8,
+    pub obligation_borrow_rollover_configuration_enabled: U8,
+    pub obligation_borrow_migration_to_fixed_execution_enabled: U8,
     pub padding2: Vec<U8>,
     pub min_withdraw_queued_liquidity_value: U64,
+    pub fixed_term_rollover_window_duration_seconds: U64,
+    pub open_term_rollover_window_duration_seconds: U64,
+    pub min_partial_rollover_value: U64,
+    pub term_based_full_liquidation_duration_secs: U64,
     pub padding1: Vec<U64>,
 }
 
@@ -169,6 +175,13 @@ impl TryFrom<crate::accounts::postgres::LendingMarketRow> for LendingMarketGraph
             withdraw_ticket_redemption_enabled: carbon_core::graphql::primitives::U8(
                 (*row.withdraw_ticket_redemption_enabled) as u8,
             ),
+            obligation_borrow_rollover_configuration_enabled: carbon_core::graphql::primitives::U8(
+                (*row.obligation_borrow_rollover_configuration_enabled) as u8,
+            ),
+            obligation_borrow_migration_to_fixed_execution_enabled:
+                carbon_core::graphql::primitives::U8(
+                    (*row.obligation_borrow_migration_to_fixed_execution_enabled) as u8,
+                ),
             padding2: row
                 .padding2
                 .into_iter()
@@ -176,6 +189,18 @@ impl TryFrom<crate::accounts::postgres::LendingMarketRow> for LendingMarketGraph
                 .collect(),
             min_withdraw_queued_liquidity_value: carbon_core::graphql::primitives::U64(
                 *row.min_withdraw_queued_liquidity_value,
+            ),
+            fixed_term_rollover_window_duration_seconds: carbon_core::graphql::primitives::U64(
+                *row.fixed_term_rollover_window_duration_seconds,
+            ),
+            open_term_rollover_window_duration_seconds: carbon_core::graphql::primitives::U64(
+                *row.open_term_rollover_window_duration_seconds,
+            ),
+            min_partial_rollover_value: carbon_core::graphql::primitives::U64(
+                *row.min_partial_rollover_value,
+            ),
+            term_based_full_liquidation_duration_secs: carbon_core::graphql::primitives::U64(
+                *row.term_based_full_liquidation_duration_secs,
             ),
             padding1: row
                 .padding1

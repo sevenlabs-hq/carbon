@@ -121,13 +121,73 @@ pub struct LendingMarket {
     /// tickets can be used to transfer accumulated pending liquidity to
     /// destination accounts).
     pub withdraw_ticket_redemption_enabled: u8,
-    pub padding2: [u8; 6],
+    /// Whether the owners can enable the borrow rollover/migration on their
+    /// obligations. *Note 1:* the actual execution of (different kinds of)
+    /// rollovers are enabled/disabled by:
+    /// - [Self::fixed_term_rollover_window_duration_seconds],
+    /// - [Self::open_term_rollover_window_duration_seconds],
+    /// - [Self::obligation_borrow_migration_to_fixed_execution_enabled].
+    ///
+    /// Note 2: when this configuration is disabled, the obligation owners can
+    /// still disable their rollover (i.e. set the obligation's flags to
+    /// zeroes).
+    pub obligation_borrow_rollover_configuration_enabled: u8,
+    /// Whether the actual execution of a "migration to fixed" rollover flavor
+    /// is allowed.
+    /// See [FixedTermBorrowRolloverConfig::migration_to_fixed_enabled].
+    pub obligation_borrow_migration_to_fixed_execution_enabled: u8,
+    pub padding2: [u8; 4],
     /// Minimum value that can be withdrawn in a single
     /// `withdraw_queued_liquidity()` call, in full units of the quote
     /// currency (e.g. `2` means "$2", not "2 lamports of USDC").
     pub min_withdraw_queued_liquidity_value: u64,
+    /// A configurable time window (right before the end of a fixed debt term)
+    /// during which an auto-rollover into another *fixed* rate/term can
+    /// happen. When zeroed, this rollover mode is effectively disabled.
+    /// Can only be enabled when [Self::min_partial_rollover_value] is
+    /// configured. See [FixedTermBorrowRolloverConfig].
+    pub fixed_term_rollover_window_duration_seconds: u64,
+    /// A configurable time window (right before the end of a fixed debt term)
+    /// during which an auto-rollover into a *variable* (indefinite)
+    /// rate/term can happen. When zeroed, this rollover mode is effectively
+    /// disabled. Can only be enabled when
+    /// [Self::min_partial_rollover_value] is configured.
+    /// This will typically be shorter than
+    /// [Self::fixed_term_rollover_window_duration_seconds], acting as a
+    /// fallback if a fixed reserve liquidity remains unavailable for
+    /// considerable time.
+    pub open_term_rollover_window_duration_seconds: u64,
+    /// Minimum dollar value for a partial rollover into a different reserve.
+    /// When the achievable rollover amount is below this threshold (and it's
+    /// not a full rollover), the rollover is rejected.
+    /// In full units of the quote currency (e.g. `2` means "$2").
+    pub min_partial_rollover_value: u64,
+    /// The time that must pass before an entire expired debt becomes
+    /// liquidatable. For example:
+    /// Let's assume this duration is configured as 100 seconds; then:
+    /// - right after fixed-term debt expiration, effectively no debt can be
+    ///   liquidated.
+    /// - 30 seconds after expiration, we allow to 30% of the expired debt to be
+    ///   liquidated
+    /// - to be specific: at this point in time, we "protect" from liquidation
+    ///   70% of the
+    ///
+    /// [ObligationLiquidity::borrowed_amount_at_expiration] (regardless of how
+    /// much interest was accrued or how much debt was repaid while
+    /// expired).
+    /// - 100 seconds after expiration we allow the entire debt to be
+    ///   liquidated.
+    ///
+    /// Only effective when
+    /// [Self::obligation_borrow_debt_term_liquidation_enabled]. Motivation
+    /// note: this throttling feature gives an opportunity to execute a
+    /// configured auto-rollover (after a partial liquidation brings the
+    /// debt size down so that there is enough available liquidity in some
+    /// compatible reserve). When zeroed, an entire expired debt can be
+    /// liquidated right after expiration (i.e. no throttling).
+    pub term_based_full_liquidation_duration_secs: u64,
     #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
-    pub padding1: [u64; 162],
+    pub padding1: [u64; 158],
 }
 
 impl LendingMarket {

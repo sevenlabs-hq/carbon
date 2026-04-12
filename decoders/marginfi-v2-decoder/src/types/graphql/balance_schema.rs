@@ -11,6 +11,7 @@ pub struct BalanceGraphQL {
     pub active: U8,
     pub bank_pk: Pubkey,
     pub bank_asset_tag: U8,
+    pub tag: i32,
     pub pad0: Vec<U8>,
     pub asset_shares: WrappedI80F48GraphQL,
     pub liability_shares: WrappedI80F48GraphQL,
@@ -25,6 +26,7 @@ impl From<crate::types::Balance> for BalanceGraphQL {
             active: carbon_core::graphql::primitives::U8(original.active),
             bank_pk: carbon_core::graphql::primitives::Pubkey(original.bank_pk),
             bank_asset_tag: carbon_core::graphql::primitives::U8(original.bank_asset_tag),
+            tag: original.tag as i32,
             pad0: original
                 .pad0
                 .into_iter()

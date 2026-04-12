@@ -4,16 +4,21 @@ use {
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
     solana_pubkey::Pubkey,
 };
+/// (admin only) Configure group admin keys and emode leverage caps. All admin
+/// keys must be provided on every call. Emode leverage caps are set if
+/// provided, otherwise the existing (non-zero) values are kept. Pass
+/// `Some(value)` to update, `None` to leave unchanged.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct MarginfiGroupConfigure {
-    pub new_admin: Pubkey,
-    pub new_emode_admin: Pubkey,
-    pub new_curve_admin: Pubkey,
-    pub new_limit_admin: Pubkey,
-    pub new_emissions_admin: Pubkey,
-    pub new_metadata_admin: Pubkey,
-    pub new_risk_admin: Pubkey,
+    pub new_admin: Option<Pubkey>,
+    pub new_emode_admin: Option<Pubkey>,
+    pub new_curve_admin: Option<Pubkey>,
+    pub new_limit_admin: Option<Pubkey>,
+    pub new_flow_admin: Option<Pubkey>,
+    pub new_emissions_admin: Option<Pubkey>,
+    pub new_metadata_admin: Option<Pubkey>,
+    pub new_risk_admin: Option<Pubkey>,
     pub emode_max_init_leverage: Option<WrappedI80F48>,
     pub emode_max_maint_leverage: Option<WrappedI80F48>,
 }
