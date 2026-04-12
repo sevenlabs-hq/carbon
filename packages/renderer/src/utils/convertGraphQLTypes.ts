@@ -429,6 +429,17 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
             }
             return `${fieldAccess}.into_iter().map(|item| item.into_iter().map(|item| ${innerItemExpr}).collect()).collect()`;
         }
+        if (isNode(actualItem, 'fixedSizeTypeNode')) {
+            const postgresManifest = visit(typeNode, getPostgresTypeManifestVisitor()) as PostgresTypeManifest;
+            const isJson = (postgresManifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
+            const prefix = isJson ? `${fieldAccess}.0` : fieldAccess;
+            if (isNode(actualItem.type, 'bytesTypeNode')) {
+                return `${prefix}.into_iter().map(|item| item.into_iter().map(carbon_core::graphql::primitives::U8).collect()).collect()`;
+            }
+            const innerExpr = buildConversionFromOriginal(actualItem.type, 'inner_item');
+            return `${prefix}.into_iter().map(|item| item.into_iter().map(|inner_item| ${innerExpr}).collect()).collect()`;
+        }
+
         if (isNode(typeNode.item, 'definedTypeLinkNode')) {
             if (fieldAccess.includes('.0')) {
                 return `${fieldAccess}.clone().into_iter().map(|item| item.into()).collect()`;
@@ -453,6 +464,19 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
     if (isNode(typeNode, 'fixedSizeTypeNode')) {
         if (isNode(typeNode.type, 'bytesTypeNode')) {
             return `${fieldAccess}.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
+        }
+        const postgresManifest = visit(typeNode, getPostgresTypeManifestVisitor()) as PostgresTypeManifest;
+        const isJson = (postgresManifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
+        if (isJson) {
+            const innerExpr = buildConversionFromOriginal(typeNode.type, 'item');
+            if (innerExpr === 'item') {
+                return `${fieldAccess}.0.to_vec()`;
+            }
+            const funcRef = extractFunctionReference(innerExpr, 'item');
+            if (funcRef) {
+                return `${fieldAccess}.0.into_iter().map(${funcRef}).collect()`;
+            }
+            return `${fieldAccess}.0.into_iter().map(|item| ${innerExpr}).collect()`;
         }
         const innerExpr = buildConversionFromPostgresRow(typeNode.type, 'item');
         if ((innerExpr === 'item' || innerExpr === '*item') && !isNode(typeNode.type, 'publicKeyTypeNode')) {
