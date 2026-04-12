@@ -2,16 +2,16 @@
 use carbon_core::{instruction::InstructionMetadata, postgres::metadata::InstructionRowMetadata};
 
 #[derive(sqlx::FromRow, Debug, Clone)]
-pub struct CreateAssociatedTokenIdempotentRow {
+pub struct CreateRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,
     #[sqlx(rename = "__accounts")]
     pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
 
-impl CreateAssociatedTokenIdempotentRow {
+impl CreateRow {
     pub fn from_parts(
-        _source: crate::instructions::create_associated_token_idempotent::CreateAssociatedTokenIdempotent,
+        _source: crate::instructions::create::Create,
         metadata: InstructionMetadata,
         accounts: Vec<solana_instruction::AccountMeta>,
     ) -> Self {
@@ -22,20 +22,16 @@ impl CreateAssociatedTokenIdempotentRow {
     }
 }
 
-impl TryFrom<CreateAssociatedTokenIdempotentRow>
-    for crate::instructions::create_associated_token_idempotent::CreateAssociatedTokenIdempotent
-{
+impl TryFrom<CreateRow> for crate::instructions::create::Create {
     type Error = carbon_core::error::Error;
-    fn try_from(_source: CreateAssociatedTokenIdempotentRow) -> Result<Self, Self::Error> {
+    fn try_from(_source: CreateRow) -> Result<Self, Self::Error> {
         Ok(Self {})
     }
 }
 
-impl carbon_core::postgres::operations::Table
-    for crate::instructions::create_associated_token_idempotent::CreateAssociatedTokenIdempotent
-{
+impl carbon_core::postgres::operations::Table for crate::instructions::create::Create {
     fn table() -> &'static str {
-        "create_associated_token_idempotent_instruction"
+        "create_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -50,11 +46,11 @@ impl carbon_core::postgres::operations::Table
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Insert for CreateAssociatedTokenIdempotentRow {
+impl carbon_core::postgres::operations::Insert for CreateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_associated_token_idempotent_instruction (
+            INSERT INTO create_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -73,10 +69,10 @@ impl carbon_core::postgres::operations::Insert for CreateAssociatedTokenIdempote
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Upsert for CreateAssociatedTokenIdempotentRow {
+impl carbon_core::postgres::operations::Upsert for CreateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_associated_token_idempotent_instruction (
+            r#"INSERT INTO create_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -102,7 +98,7 @@ impl carbon_core::postgres::operations::Upsert for CreateAssociatedTokenIdempote
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Delete for CreateAssociatedTokenIdempotentRow {
+impl carbon_core::postgres::operations::Delete for CreateRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,
@@ -111,7 +107,7 @@ impl carbon_core::postgres::operations::Delete for CreateAssociatedTokenIdempote
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_associated_token_idempotent_instruction WHERE
+            r#"DELETE FROM create_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -126,7 +122,7 @@ impl carbon_core::postgres::operations::Delete for CreateAssociatedTokenIdempote
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateAssociatedTokenIdempotentRow {
+impl carbon_core::postgres::operations::LookUp for CreateRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,
@@ -138,7 +134,7 @@ impl carbon_core::postgres::operations::LookUp for CreateAssociatedTokenIdempote
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_associated_token_idempotent_instruction WHERE
+            r#"SELECT * FROM create_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -152,18 +148,16 @@ impl carbon_core::postgres::operations::LookUp for CreateAssociatedTokenIdempote
     }
 }
 
-pub struct CreateAssociatedTokenIdempotentMigrationOperation;
+pub struct CreateMigrationOperation;
 
 #[async_trait::async_trait]
-impl sqlx_migrator::Operation<sqlx::Postgres>
-    for CreateAssociatedTokenIdempotentMigrationOperation
-{
+impl sqlx_migrator::Operation<sqlx::Postgres> for CreateMigrationOperation {
     async fn up(
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_associated_token_idempotent_instruction (
+            r#"CREATE TABLE IF NOT EXISTS create_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -183,7 +177,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres>
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_associated_token_idempotent_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS create_instruction"#)
             .execute(connection)
             .await?;
         Ok(())

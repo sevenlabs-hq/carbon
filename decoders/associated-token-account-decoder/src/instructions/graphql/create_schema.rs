@@ -2,19 +2,15 @@
 use {juniper::GraphQLObject, serde_json};
 
 #[derive(Debug, Clone, GraphQLObject)]
-#[graphql(name = "RecoverNestedAssociatedToken")]
-pub struct RecoverNestedAssociatedTokenGraphQL {
+#[graphql(name = "Create")]
+pub struct CreateGraphQL {
     pub instruction_metadata: crate::instructions::graphql::InstructionMetadataGraphQL,
     pub accounts: carbon_core::graphql::primitives::Json,
 }
 
-impl TryFrom<crate::instructions::postgres::RecoverNestedAssociatedTokenRow>
-    for RecoverNestedAssociatedTokenGraphQL
-{
+impl TryFrom<crate::instructions::postgres::CreateRow> for CreateGraphQL {
     type Error = carbon_core::error::Error;
-    fn try_from(
-        row: crate::instructions::postgres::RecoverNestedAssociatedTokenRow,
-    ) -> Result<Self, Self::Error> {
+    fn try_from(row: crate::instructions::postgres::CreateRow) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
             accounts: carbon_core::graphql::primitives::Json(

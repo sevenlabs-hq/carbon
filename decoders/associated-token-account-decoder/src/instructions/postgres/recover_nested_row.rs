@@ -2,16 +2,16 @@
 use carbon_core::{instruction::InstructionMetadata, postgres::metadata::InstructionRowMetadata};
 
 #[derive(sqlx::FromRow, Debug, Clone)]
-pub struct CreateAssociatedTokenRow {
+pub struct RecoverNestedRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,
     #[sqlx(rename = "__accounts")]
     pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
 
-impl CreateAssociatedTokenRow {
+impl RecoverNestedRow {
     pub fn from_parts(
-        _source: crate::instructions::create_associated_token::CreateAssociatedToken,
+        _source: crate::instructions::recover_nested::RecoverNested,
         metadata: InstructionMetadata,
         accounts: Vec<solana_instruction::AccountMeta>,
     ) -> Self {
@@ -22,20 +22,18 @@ impl CreateAssociatedTokenRow {
     }
 }
 
-impl TryFrom<CreateAssociatedTokenRow>
-    for crate::instructions::create_associated_token::CreateAssociatedToken
-{
+impl TryFrom<RecoverNestedRow> for crate::instructions::recover_nested::RecoverNested {
     type Error = carbon_core::error::Error;
-    fn try_from(_source: CreateAssociatedTokenRow) -> Result<Self, Self::Error> {
+    fn try_from(_source: RecoverNestedRow) -> Result<Self, Self::Error> {
         Ok(Self {})
     }
 }
 
 impl carbon_core::postgres::operations::Table
-    for crate::instructions::create_associated_token::CreateAssociatedToken
+    for crate::instructions::recover_nested::RecoverNested
 {
     fn table() -> &'static str {
-        "create_associated_token_instruction"
+        "recover_nested_instruction"
     }
 
     fn columns() -> Vec<&'static str> {
@@ -50,11 +48,11 @@ impl carbon_core::postgres::operations::Table
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Insert for CreateAssociatedTokenRow {
+impl carbon_core::postgres::operations::Insert for RecoverNestedRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
             r#"
-            INSERT INTO create_associated_token_instruction (
+            INSERT INTO recover_nested_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -73,10 +71,10 @@ impl carbon_core::postgres::operations::Insert for CreateAssociatedTokenRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Upsert for CreateAssociatedTokenRow {
+impl carbon_core::postgres::operations::Upsert for RecoverNestedRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"INSERT INTO create_associated_token_instruction (
+            r#"INSERT INTO recover_nested_instruction (
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
                 $1, $2, $3, $4, $5
@@ -102,7 +100,7 @@ impl carbon_core::postgres::operations::Upsert for CreateAssociatedTokenRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::Delete for CreateAssociatedTokenRow {
+impl carbon_core::postgres::operations::Delete for RecoverNestedRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,
@@ -111,7 +109,7 @@ impl carbon_core::postgres::operations::Delete for CreateAssociatedTokenRow {
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
         sqlx::query(
-            r#"DELETE FROM create_associated_token_instruction WHERE
+            r#"DELETE FROM recover_nested_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -126,7 +124,7 @@ impl carbon_core::postgres::operations::Delete for CreateAssociatedTokenRow {
 }
 
 #[async_trait::async_trait]
-impl carbon_core::postgres::operations::LookUp for CreateAssociatedTokenRow {
+impl carbon_core::postgres::operations::LookUp for RecoverNestedRow {
     type Key = (
         String,
         carbon_core::postgres::primitives::U32,
@@ -138,7 +136,7 @@ impl carbon_core::postgres::operations::LookUp for CreateAssociatedTokenRow {
         pool: &sqlx::PgPool,
     ) -> carbon_core::error::CarbonResult<Option<Self>> {
         let row = sqlx::query_as(
-            r#"SELECT * FROM create_associated_token_instruction WHERE
+            r#"SELECT * FROM recover_nested_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
             "#,
         )
@@ -152,16 +150,16 @@ impl carbon_core::postgres::operations::LookUp for CreateAssociatedTokenRow {
     }
 }
 
-pub struct CreateAssociatedTokenMigrationOperation;
+pub struct RecoverNestedMigrationOperation;
 
 #[async_trait::async_trait]
-impl sqlx_migrator::Operation<sqlx::Postgres> for CreateAssociatedTokenMigrationOperation {
+impl sqlx_migrator::Operation<sqlx::Postgres> for RecoverNestedMigrationOperation {
     async fn up(
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
         sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_associated_token_instruction (
+            r#"CREATE TABLE IF NOT EXISTS recover_nested_instruction (
                 -- Instruction data
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
@@ -181,7 +179,7 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateAssociatedTokenMigration
         &self,
         connection: &mut sqlx::PgConnection,
     ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_associated_token_instruction"#)
+        sqlx::query(r#"DROP TABLE IF EXISTS recover_nested_instruction"#)
             .execute(connection)
             .await?;
         Ok(())
