@@ -49,7 +49,7 @@ impl TryFrom<crate::datasource::TransactionUpdate> for TransactionMetadata {
 #[derive(Debug)]
 pub struct TransactionProcessorInputType<'a, T> {
     pub metadata: &'a Arc<TransactionMetadata>,
-    pub instructions: &'a Vec<(InstructionMetadata, T)>,
+    pub instructions: &'a [(InstructionMetadata, T)],
 }
 
 pub struct TransactionPipe<T: InstructionDecoderCollection, P> {
