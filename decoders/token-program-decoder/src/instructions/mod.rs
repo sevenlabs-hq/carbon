@@ -10,6 +10,7 @@ pub mod graphql;
 pub mod amount_to_ui_amount;
 pub mod approve;
 pub mod approve_checked;
+pub mod batch;
 pub mod burn;
 pub mod burn_checked;
 pub mod close_account;
@@ -32,14 +33,17 @@ pub mod thaw_account;
 pub mod transfer;
 pub mod transfer_checked;
 pub mod ui_amount_to_amount;
+pub mod unwrap_lamports;
+pub mod withdraw_excess_lamports;
 
 pub use self::{
-    amount_to_ui_amount::*, approve::*, approve_checked::*, burn::*, burn_checked::*,
+    amount_to_ui_amount::*, approve::*, approve_checked::*, batch::*, burn::*, burn_checked::*,
     close_account::*, freeze_account::*, get_account_data_size::*, initialize_account::*,
     initialize_account2::*, initialize_account3::*, initialize_immutable_owner::*,
     initialize_mint::*, initialize_mint2::*, initialize_multisig::*, initialize_multisig2::*,
     mint_to::*, mint_to_checked::*, revoke::*, set_authority::*, sync_native::*, thaw_account::*,
-    transfer::*, transfer_checked::*, ui_amount_to_amount::*,
+    transfer::*, transfer_checked::*, ui_amount_to_amount::*, unwrap_lamports::*,
+    withdraw_excess_lamports::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -60,6 +64,11 @@ pub enum TokenProgramInstruction {
         program_id: solana_pubkey::Pubkey,
         data: ApproveChecked,
         accounts: ApproveCheckedInstructionAccounts,
+    },
+    Batch {
+        program_id: solana_pubkey::Pubkey,
+        data: Batch,
+        accounts: BatchInstructionAccounts,
     },
     Burn {
         program_id: solana_pubkey::Pubkey,
@@ -171,6 +180,16 @@ pub enum TokenProgramInstruction {
         data: UiAmountToAmount,
         accounts: UiAmountToAmountInstructionAccounts,
     },
+    UnwrapLamports {
+        program_id: solana_pubkey::Pubkey,
+        data: UnwrapLamports,
+        accounts: UnwrapLamportsInstructionAccounts,
+    },
+    WithdrawExcessLamports {
+        program_id: solana_pubkey::Pubkey,
+        data: WithdrawExcessLamports,
+        accounts: WithdrawExcessLamportsInstructionAccounts,
+    },
 }
 
 impl carbon_core::instruction::InstructionDecoder<'_> for TokenProgramDecoder {
@@ -191,6 +210,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for TokenProgramDecoder {
             TokenProgramInstruction::AmountToUiAmount => AmountToUiAmount,
             TokenProgramInstruction::Approve => Approve,
             TokenProgramInstruction::ApproveChecked => ApproveChecked,
+            TokenProgramInstruction::Batch => Batch,
             TokenProgramInstruction::Burn => Burn,
             TokenProgramInstruction::BurnChecked => BurnChecked,
             TokenProgramInstruction::CloseAccount => CloseAccount,
@@ -213,6 +233,8 @@ impl carbon_core::instruction::InstructionDecoder<'_> for TokenProgramDecoder {
             TokenProgramInstruction::Transfer => Transfer,
             TokenProgramInstruction::TransferChecked => TransferChecked,
             TokenProgramInstruction::UiAmountToAmount => UiAmountToAmount,
+            TokenProgramInstruction::UnwrapLamports => UnwrapLamports,
+            TokenProgramInstruction::WithdrawExcessLamports => WithdrawExcessLamports,
         )
     }
 }
