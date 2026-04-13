@@ -604,6 +604,8 @@ impl PipelineBuilder {
 
     pub fn build(self) -> CarbonResult<Pipeline> {
         register_pipeline_metrics();
+        #[cfg(feature = "postgres")]
+        crate::postgres::processors::register_postgres_metrics();
         Ok(Pipeline {
             datasources: self.datasources,
             account_pipes: self.account_pipes,
