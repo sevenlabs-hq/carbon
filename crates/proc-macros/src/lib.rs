@@ -3,8 +3,7 @@ use {
     quote::{format_ident, quote},
     syn::{
         parse::{Parse, ParseStream},
-        parse_macro_input, Ident, ItemEnum, Token,
-        TypePath,
+        parse_macro_input, Ident, ItemEnum, Token, TypePath,
     },
 };
 struct InstructionMacroInput {
