@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { createFromJson, createFromRoot } from 'codama';
 import { rootNodeFromAnchorWithoutDefaultVisitor, rootNodeFromAnchor } from '@codama/nodes-from-anchor';
-import { renderVisitor, type PackageMetadata } from '@sevenlabs-hq/carbon-codama-renderer';
+import { renderVisitor, extractStructArrayItems, type PackageMetadata } from '@sevenlabs-hq/carbon-codama-renderer';
 import {
     deduplicateIdenticalDefinedTypesVisitor,
     setFixedAccountSizesVisitor,
@@ -371,6 +371,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
         );
     } else {
         const codama = createFromJson(JSON.stringify(idlJson));
+        codama.update(extractStructArrayItems());
         codama.accept(
             renderVisitor(outputDir, {
                 deleteFolderBeforeRendering,
