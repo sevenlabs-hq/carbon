@@ -104,7 +104,7 @@ pub struct AccountDeletion {
 #[derive(Debug, Clone)]
 pub struct TransactionUpdate {
     pub signature: Signature,
-    pub transaction: VersionedTransaction, // TODO: replace with solana_transaction crate after 2.2.0 release
+    pub transaction: VersionedTransaction,
     pub meta: TransactionStatusMeta,
     pub is_vote: bool,
     pub slot: u64,
