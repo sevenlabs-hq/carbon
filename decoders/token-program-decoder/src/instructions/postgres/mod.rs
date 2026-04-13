@@ -2,6 +2,7 @@
 pub mod amount_to_ui_amount_row;
 pub mod approve_checked_row;
 pub mod approve_row;
+pub mod batch_row;
 pub mod burn_checked_row;
 pub mod burn_row;
 pub mod close_account_row;
@@ -24,15 +25,18 @@ pub mod thaw_account_row;
 pub mod transfer_checked_row;
 pub mod transfer_row;
 pub mod ui_amount_to_amount_row;
+pub mod unwrap_lamports_row;
+pub mod withdraw_excess_lamports_row;
 
 pub use self::{
-    amount_to_ui_amount_row::*, approve_checked_row::*, approve_row::*, burn_checked_row::*,
-    burn_row::*, close_account_row::*, freeze_account_row::*, get_account_data_size_row::*,
-    initialize_account2_row::*, initialize_account3_row::*, initialize_account_row::*,
-    initialize_immutable_owner_row::*, initialize_mint2_row::*, initialize_mint_row::*,
-    initialize_multisig2_row::*, initialize_multisig_row::*, mint_to_checked_row::*,
-    mint_to_row::*, revoke_row::*, set_authority_row::*, sync_native_row::*, thaw_account_row::*,
-    transfer_checked_row::*, transfer_row::*, ui_amount_to_amount_row::*,
+    amount_to_ui_amount_row::*, approve_checked_row::*, approve_row::*, batch_row::*,
+    burn_checked_row::*, burn_row::*, close_account_row::*, freeze_account_row::*,
+    get_account_data_size_row::*, initialize_account2_row::*, initialize_account3_row::*,
+    initialize_account_row::*, initialize_immutable_owner_row::*, initialize_mint2_row::*,
+    initialize_mint_row::*, initialize_multisig2_row::*, initialize_multisig_row::*,
+    mint_to_checked_row::*, mint_to_row::*, revoke_row::*, set_authority_row::*,
+    sync_native_row::*, thaw_account_row::*, transfer_checked_row::*, transfer_row::*,
+    ui_amount_to_amount_row::*, unwrap_lamports_row::*, withdraw_excess_lamports_row::*,
 };
 use super::TokenProgramInstruction;
 
@@ -52,6 +56,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for TokenProgramInstructionsMigrat
             Box::new(AmountToUiAmountMigrationOperation),
             Box::new(ApproveMigrationOperation),
             Box::new(ApproveCheckedMigrationOperation),
+            Box::new(BatchMigrationOperation),
             Box::new(BurnMigrationOperation),
             Box::new(BurnCheckedMigrationOperation),
             Box::new(CloseAccountMigrationOperation),
@@ -74,6 +79,8 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for TokenProgramInstructionsMigrat
             Box::new(TransferMigrationOperation),
             Box::new(TransferCheckedMigrationOperation),
             Box::new(UiAmountToAmountMigrationOperation),
+            Box::new(UnwrapLamportsMigrationOperation),
+            Box::new(WithdrawExcessLamportsMigrationOperation),
         ]
     }
 
@@ -336,6 +343,33 @@ impl carbon_core::postgres::operations::Insert for TokenProgramInstructionWithMe
                 row.insert(pool).await?;
                 Ok(())
             }
+            TokenProgramInstruction::WithdrawExcessLamports { data, .. } => {
+                let row = withdraw_excess_lamports_row::WithdrawExcessLamportsRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            TokenProgramInstruction::UnwrapLamports { data, .. } => {
+                let row = unwrap_lamports_row::UnwrapLamportsRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            TokenProgramInstruction::Batch { data, .. } => {
+                let row = batch_row::BatchRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
         }
     }
 }
@@ -563,6 +597,33 @@ impl carbon_core::postgres::operations::Upsert for TokenProgramInstructionWithMe
             }
             TokenProgramInstruction::UiAmountToAmount { data, .. } => {
                 let row = ui_amount_to_amount_row::UiAmountToAmountRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            TokenProgramInstruction::WithdrawExcessLamports { data, .. } => {
+                let row = withdraw_excess_lamports_row::WithdrawExcessLamportsRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            TokenProgramInstruction::UnwrapLamports { data, .. } => {
+                let row = unwrap_lamports_row::UnwrapLamportsRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            TokenProgramInstruction::Batch { data, .. } => {
+                let row = batch_row::BatchRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
