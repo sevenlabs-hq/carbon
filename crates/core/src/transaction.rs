@@ -87,7 +87,7 @@ pub trait TransactionPipes<'a>: Send + Sync {
         instructions: &[(InstructionMetadata, Instruction)],
     ) -> CarbonResult<()>;
 
-    fn filters(&self) -> &Vec<Box<dyn Filter + Send + Sync + 'static>>;
+    fn filters(&self) -> &[Box<dyn Filter + Send + Sync + 'static>];
 }
 
 #[async_trait]
@@ -113,7 +113,7 @@ where
         Ok(())
     }
 
-    fn filters(&self) -> &Vec<Box<dyn Filter + Send + Sync + 'static>> {
+    fn filters(&self) -> &[Box<dyn Filter + Send + Sync + 'static>] {
         &self.filters
     }
 }
