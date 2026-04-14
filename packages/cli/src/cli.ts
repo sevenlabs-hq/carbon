@@ -76,7 +76,7 @@ program
     .option('--categories <csv>', 'Package categories, comma-separated (default: encoding)')
     .option('--package-version <string>', 'Package version in Cargo.toml (default: 0.1.0)')
     .option('--version-name <name>', 'Decoder version name (e.g., "v1", "v2")')
-    .option('--no-clean', 'Do not delete output directory before rendering', false)
+    .option('--no-clean', 'Do not delete output directory before rendering')
     .action(async opts => {
         showBanner();
 
@@ -98,7 +98,7 @@ program
             opts.withBase58 !== undefined ? opts.withBase58 === 'true' || opts.withBase58 === true : false;
         const standalone =
             opts.standalone !== undefined ? opts.standalone === 'true' || opts.standalone === true : true;
-        const desc = opts.description != null && String(opts.description).trim();
+        const desc = opts.description != null ? String(opts.description).trim() || undefined : undefined;
         const kws =
             opts.keywords != null
                 ? String(opts.keywords)
