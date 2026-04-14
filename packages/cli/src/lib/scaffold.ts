@@ -82,7 +82,7 @@ function buildProjectImports(ctx: any): string {
         } else {
             lines.push(`use ${crate}::instructions::${d.name}Instruction;`);
         }
-        if (ctx.withGraphQL) {
+        if (ctx.withGraphql) {
             lines.push(`use ${crate}::graphql::{QueryRoot, context::GraphQLContext};`);
         }
         lines.push(`use ${crate}::${d.name}Decoder;`);
@@ -100,7 +100,7 @@ function buildProjectImports(ctx: any): string {
 
     // Datasource-specific imports are provided exclusively by the datasource builders
 
-    if (ctx.withGraphQL) {
+    if (ctx.withGraphql) {
         lines.push('use std::net::SocketAddr;');
     }
 
@@ -172,7 +172,7 @@ export function renderScaffold(opts: ScaffoldOptions) {
             module_name: opts.metrics,
         },
         withPostgres: opts.withPostgres,
-        withGraphQL: opts.withGraphql,
+        withGraphql: opts.withGraphql,
         useGenericPostgres: opts.postgresMode === 'generic',
     };
 
