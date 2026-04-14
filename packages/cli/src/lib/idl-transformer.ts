@@ -1,3 +1,4 @@
+import { createHash } from 'crypto';
 import { getDefinedTypeHistogramVisitor, getRecordLinkablesVisitor } from '@codama/visitors';
 import { LinkableDictionary, visit } from '@codama/visitors-core';
 import { definedTypeLinkNode, isNode } from '@codama/nodes';
@@ -12,21 +13,10 @@ export function hasLegacyEvents(idlJson: any): boolean {
     return idlJson.events.some((event: any) => event.fields && Array.isArray(event.fields));
 }
 
-function generateDiscriminator(eventName: string, index: number): number[] {
-    const cpiEventsDiscriminator = [228, 69, 165, 46, 81, 203, 154, 29];
-
-    const nameBytes = Buffer.from(eventName, 'utf8');
-    const eventSpecific: number[] = [];
-
-    for (let i = 0; i < 8; i++) {
-        if (i < nameBytes.length) {
-            eventSpecific.push(nameBytes[i]);
-        } else {
-            eventSpecific.push((nameBytes.length + index + i) % 256);
-        }
-    }
-
-    return [...cpiEventsDiscriminator, ...eventSpecific];
+function generateDiscriminator(eventName: string): number[] {
+    const outerDiscriminator = [228, 69, 165, 46, 81, 203, 154, 29];
+    const eventDiscriminator = Array.from(createHash('sha256').update(`event:${eventName}`).digest().subarray(0, 8));
+    return [...outerDiscriminator, ...eventDiscriminator];
 }
 
 function convertEventToType(event: any): any {
@@ -42,10 +32,10 @@ function convertEventToType(event: any): any {
     };
 }
 
-function convertEventToModern(event: any, index: number): any {
+function convertEventToModern(event: any): any {
     return {
         name: event.name,
-        discriminator: generateDiscriminator(event.name, index),
+        discriminator: generateDiscriminator(event.name),
     };
 }
 
@@ -63,7 +53,7 @@ export function transformLegacyEvents(idlJson: any): any {
     }
     transformedIdl.types = [...transformedIdl.types, ...convertedEventTypes];
 
-    const modernEvents = transformedIdl.events.map((event: any, index: number) => convertEventToModern(event, index));
+    const modernEvents = transformedIdl.events.map((event: any) => convertEventToModern(event));
 
     transformedIdl.events = modernEvents;
 
