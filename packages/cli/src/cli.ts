@@ -4,7 +4,7 @@ import { promptForParse, promptForScaffold } from './lib/prompts';
 import { generateDecoder, parseIdlSource, getIdlMetadata } from './lib/decoder';
 import type { PackageMetadata } from '@sevenlabs-hq/carbon-codama-renderer';
 import { validateDataSource, validateMetrics } from './lib/validation';
-import { resolveRpcUrl, runCargoFmt } from './lib/utils';
+import { parseBoolOpt, resolveRpcUrl, runCargoFmt } from './lib/utils';
 import { logger, showBanner } from './lib/logger';
 
 const program = new Command();
@@ -87,17 +87,12 @@ program
         }
 
         // Normalize boolean options
-        const withPostgres =
-            opts.withPostgres !== undefined ? opts.withPostgres === 'true' || opts.withPostgres === true : true;
-        const withGraphql =
-            opts.withGraphql !== undefined ? opts.withGraphql === 'true' || opts.withGraphql === true : true;
-        const withSerdeDefault = !withPostgres && !withGraphql ? true : false;
-        const withSerde =
-            opts.withSerde !== undefined ? opts.withSerde === 'true' || opts.withSerde === true : withSerdeDefault;
-        const withBase58 =
-            opts.withBase58 !== undefined ? opts.withBase58 === 'true' || opts.withBase58 === true : false;
-        const standalone =
-            opts.standalone !== undefined ? opts.standalone === 'true' || opts.standalone === true : true;
+        const withPostgres = parseBoolOpt(opts.withPostgres, true);
+        const withGraphql = parseBoolOpt(opts.withGraphql, true);
+        const withSerdeDefault = !withPostgres && !withGraphql;
+        const withSerde = parseBoolOpt(opts.withSerde, withSerdeDefault);
+        const withBase58 = parseBoolOpt(opts.withBase58, false);
+        const standalone = parseBoolOpt(opts.standalone, true);
         const desc = opts.description != null ? String(opts.description).trim() || undefined : undefined;
         const kws =
             opts.keywords != null
@@ -215,17 +210,13 @@ program
         const outDir = resolve(process.cwd(), String(opts.outDir));
         const dataSource = String(opts.dataSource);
         const metrics = String(opts.metrics || 'log').toLowerCase();
-        const withPostgres =
-            opts.withPostgres !== undefined ? opts.withPostgres === 'true' || opts.withPostgres === true : true;
-        const withGraphql =
-            opts.withGraphql !== undefined ? opts.withGraphql === 'true' || opts.withGraphql === true : true;
+        const withPostgres = parseBoolOpt(opts.withPostgres, true);
+        const withGraphql = parseBoolOpt(opts.withGraphql, true);
         // Default serde to true if both postgres and graphql are disabled (since generated code always includes serde attributes)
         // Otherwise, serde will be auto-enabled by postgres/graphql, so default to false
-        const withSerdeDefault = !withPostgres && !withGraphql ? true : false;
-        const withSerde =
-            opts.withSerde !== undefined ? opts.withSerde === 'true' || opts.withSerde === true : withSerdeDefault;
-        const withBase58 =
-            opts.withBase58 !== undefined ? opts.withBase58 === 'true' || opts.withBase58 === true : false;
+        const withSerdeDefault = !withPostgres && !withGraphql;
+        const withSerde = parseBoolOpt(opts.withSerde, withSerdeDefault);
+        const withBase58 = parseBoolOpt(opts.withBase58, false);
         const force = Boolean(opts.force);
 
         // Use provided decoder name or auto-detect from IDL

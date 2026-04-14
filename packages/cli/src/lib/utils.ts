@@ -4,6 +4,11 @@ import { promisify } from 'util';
 
 const execAsync = promisify(exec);
 
+export function parseBoolOpt(val: unknown, defaultVal: boolean): boolean {
+    if (val === undefined || val === null) return defaultVal;
+    return val === 'true' || val === true;
+}
+
 export function exitWithError(message: string): never {
     console.error(chalk.red('✗ Error: ') + chalk.white(message));
     process.exit(2);
