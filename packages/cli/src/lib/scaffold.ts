@@ -5,7 +5,7 @@ import nunjucks from 'nunjucks';
 import { exitWithError } from './utils';
 import { kebabCase } from '@codama/nodes';
 import * as Datasources from '../datasources';
-import type { DecoderMeta } from '../datasources';
+import type { DecoderMeta, DatasourceArtifact } from '../datasources';
 import { generateIndexerCargoToml } from './cargoTomlGenerator';
 
 export type ScaffoldOptions = {
@@ -112,33 +112,18 @@ function buildProjectImports(ctx: any): string {
     return lines.join('\n');
 }
 
-function getEnvContent(dataSource: string, withPostgres: boolean): string {
-    const dataSourceLower = dataSource.toLowerCase().replace(/-/g, '_');
+function getEnvContent(artifact: DatasourceArtifact | undefined, withPostgres: boolean): string {
+    const lines: string[] = [];
 
-    let envContent = '';
-
-    // Add database URL if postgres is enabled
     if (withPostgres) {
-        envContent = 'DATABASE_URL=postgres://user:password@localhost/dbname\n';
+        lines.push('DATABASE_URL=postgres://user:password@localhost/dbname');
     }
 
-    // Add datasource-specific env vars
-    switch (dataSourceLower) {
-        case 'helius_laserstream':
-            envContent += 'GEYSER_URL=your-grpc-url-here\nX_TOKEN=your-x-token-here';
-            break;
-        case 'rpc_block_subscribe':
-            envContent += 'RPC_WS_URL=your-rpc-ws-url-here';
-            break;
-        case 'rpc_transaction_crawler':
-            envContent += 'RPC_URL=your-rpc-url-here';
-            break;
-        case 'yellowstone_grpc':
-            envContent += 'GEYSER_URL=your-rpc-url-here\nX_TOKEN=your-x-token-here';
-            break;
+    for (const key of artifact?.env?.required ?? []) {
+        lines.push(`${key}=your-${key.toLowerCase().replace(/_/g, '-')}-here`);
     }
 
-    return envContent;
+    return lines.join('\n');
 }
 
 export function renderScaffold(opts: ScaffoldOptions) {
@@ -194,28 +179,13 @@ export function renderScaffold(opts: ScaffoldOptions) {
     // Build datasource artifacts from TS module
     const dsModuleName = mainContext.data_source.module_name as string;
     const builder = Datasources.getDatasourceBuilder(dsModuleName);
-    if (builder) {
-        const decodersMeta = mainContext.decoders as DecoderMeta[];
-        const artifact = builder(decodersMeta);
-        // Compose import lines
-        const datasource_imports = artifact.imports.map((i: string) => `use ${i};`).join('\n');
-        mainContext.datasource_imports = datasource_imports;
-        mainContext.datasource_init = artifact.init;
-    } else {
-        // Provide a clearer error message if no builder is found
-        const available = Object.keys(
-            (Datasources as unknown as { getDatasourceBuilder: any }).getDatasourceBuilder
-                ? {
-                      helius_laserstream: true,
-                      rpc_block_subscribe: true,
-                      yellowstone_grpc: true,
-                      rpc_transaction_crawler: true,
-                      rpc_program_subscribe: true,
-                  }
-                : {},
-        );
-        exitWithError(`No datasource builder found for '${dsModuleName}'. Available: ${available.join(', ')}`);
+    if (!builder) {
+        exitWithError(`No datasource builder found for '${dsModuleName}'. This is an internal error — please report it.`);
     }
+    const decodersMeta = mainContext.decoders as DecoderMeta[];
+    const artifact = builder(decodersMeta);
+    mainContext.datasource_imports = artifact.imports.map((i: string) => `use ${i};`).join('\n');
+    mainContext.datasource_init = artifact.init;
 
     // Generate workspace Cargo.toml
     const workspaceToml = env.render('workspace.njk', {});
@@ -242,7 +212,7 @@ target/
     writeFileSync(join(base, '.gitignore'), gitignore);
 
     // Generate .env at workspace root
-    const envContent = getEnvContent(opts.dataSource, opts.withPostgres);
+    const envContent = getEnvContent(artifact, opts.withPostgres);
     if (envContent) {
         writeFileSync(join(base, '.env'), envContent);
     }
