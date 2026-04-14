@@ -244,128 +244,72 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
     const standard = validateIdlStandard(standardOpt || 'anchor', idlSource);
     validateDecoderOptions(standard, idlSource, url, options.eventHints, programId);
 
+    // Common render options shared across all branches
+    const renderOpts = {
+        deleteFolderBeforeRendering,
+        packageName,
+        postgresMode,
+        withPostgres,
+        withGraphql,
+        withSerde,
+        withBase58,
+        standalone,
+        workspaceDeps,
+        packageMetadata,
+        version,
+        versionName,
+    };
+
+    // Load IDL from program address or file
+    let idlJson: any;
     if (idlSource.type === 'program') {
-        let idlJson = await fetchAnchorIdl(idl, url!);
-
+        idlJson = await fetchAnchorIdl(idl, url!);
         const idlAddress = getValidIdlAddress(idlJson);
-
         const programAddress = idlAddress || idl || programId;
         if (!programAddress) {
             exitWithError(
                 'Program ID is required. IDL missing or invalid address field - provide via --program-id parameter',
             );
         }
-
         if (!idlAddress) {
             idlJson.address = programAddress;
             if (!idlJson.metadata) idlJson.metadata = {};
             idlJson.metadata.address = programAddress;
         }
-
-        if (hasLegacyEvents(idlJson)) {
-            idlJson = transformLegacyEvents(idlJson);
+    } else {
+        const idlPath = resolve(process.cwd(), idl);
+        idlJson = JSON.parse(readFileSync(idlPath, 'utf8'));
+        const idlAddress = getValidIdlAddress(idlJson);
+        const programAddress = idlAddress || programId;
+        if (!programAddress) {
+            exitWithError(
+                'Program ID is required. IDL missing or invalid address field - provide via --program-id parameter',
+            );
         }
+        if (!idlAddress) {
+            idlJson.address = programAddress;
+            if (!idlJson.metadata) idlJson.metadata = {};
+            idlJson.metadata.address = programAddress;
+        }
+    }
 
-        // Apply IDL normalization for nested structure
-        idlJson = fixPdaSeedArgumentPaths(idlJson);
-        idlJson = fixPdaSeedAccountReferences(idlJson);
-
-        // Check if we need to preserve nested structure
-        const needsNestedPreservation = hasNestedInstructionArguments(idlJson);
-
-        // Use custom pipeline only if we have nested arguments to preserve
-        const codama = needsNestedPreservation
-            ? createFromRootWithoutFlattening(idlJson)
-            : createFromRoot(rootNodeFromAnchorWithoutDefaultVisitor(idlJson));
-        codama.accept(
-            renderVisitor(outputDir, {
-                deleteFolderBeforeRendering,
-                packageName,
-                anchorEvents: idlJson.events,
-                postgresMode,
-                withPostgres,
-                withGraphql,
-                withSerde,
-                withBase58,
-                standalone,
-                workspaceDeps,
-                packageMetadata,
-                version: options.version,
-                versionName: options.versionName,
-            }),
-        );
+    // Codama standard: no anchor transformations needed
+    if (standard === 'codama') {
+        const codama = createFromJson(JSON.stringify(idlJson));
+        codama.accept(renderVisitor(outputDir, renderOpts));
         return;
     }
 
-    // File-based IDL
-    const idlPath = resolve(process.cwd(), idl);
-    let idlJson = JSON.parse(readFileSync(idlPath, 'utf8'));
-
-    const idlAddress = getValidIdlAddress(idlJson);
-
-    const programAddress = idlAddress || programId;
-    if (!programAddress) {
-        exitWithError(
-            'Program ID is required. IDL missing or invalid address field - provide via --program-id parameter',
-        );
-    }
-
-    if (!idlAddress) {
-        idlJson.address = programAddress;
-        if (!idlJson.metadata) idlJson.metadata = {};
-        idlJson.metadata.address = programAddress;
-    }
-
+    // Anchor standard: apply event and PDA normalization
     if (hasLegacyEvents(idlJson)) {
         idlJson = transformLegacyEvents(idlJson);
     }
-
-    // Apply IDL normalization for nested structure (fixes PDA seed paths)
     idlJson = fixPdaSeedArgumentPaths(idlJson);
     idlJson = fixPdaSeedAccountReferences(idlJson);
 
-    if (standard === 'anchor') {
-        // Check if we need to preserve nested structure
-        const needsNestedPreservation = hasNestedInstructionArguments(idlJson);
-
-        // Use custom pipeline only if we have nested arguments to preserve
-        const codama = needsNestedPreservation
-            ? createFromRootWithoutFlattening(idlJson)
-            : createFromRoot(rootNodeFromAnchorWithoutDefaultVisitor(idlJson));
-        codama.accept(
-            renderVisitor(outputDir, {
-                deleteFolderBeforeRendering,
-                packageName,
-                anchorEvents: idlJson.events,
-                postgresMode,
-                withPostgres,
-                withGraphql,
-                withSerde,
-                withBase58,
-                standalone,
-                workspaceDeps,
-                packageMetadata,
-                version: options.version,
-                versionName: options.versionName,
-            }),
-        );
-    } else {
-        const codama = createFromJson(JSON.stringify(idlJson));
-        codama.accept(
-            renderVisitor(outputDir, {
-                deleteFolderBeforeRendering,
-                packageName,
-                postgresMode,
-                withPostgres,
-                withGraphql,
-                withSerde,
-                withBase58,
-                standalone,
-                workspaceDeps,
-                packageMetadata,
-                version: options.version,
-                versionName: options.versionName,
-            }),
-        );
-    }
+    const needsNestedPreservation = hasNestedInstructionArguments(idlJson);
+    const codama = needsNestedPreservation
+        ? createFromRootWithoutFlattening(idlJson)
+        : createFromRoot(rootNodeFromAnchorWithoutDefaultVisitor(idlJson));
+    codama.accept(renderVisitor(outputDir, { ...renderOpts, anchorEvents: idlJson.events }));
 }
