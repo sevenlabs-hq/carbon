@@ -19,7 +19,6 @@ import { fetchAnchorIdl } from './anchor';
 import {
     hasLegacyEvents,
     transformLegacyEvents,
-    getTransformationInfo,
     fixPdaSeedArgumentPaths,
     fixPdaSeedAccountReferences,
     hasNestedInstructionArguments,
@@ -90,6 +89,14 @@ export type IdlMetadata = {
     address?: string;
     programId?: string;
 };
+
+function getValidIdlAddress(idlJson: any): string | undefined {
+    const addr = idlJson.address || idlJson.metadata?.address;
+    if (addr && addr.trim() !== '' && isBase58Like(addr) && addr.length >= 32 && addr.length <= 44) {
+        return addr as string;
+    }
+    return undefined;
+}
 
 /**
  * Validates and determines the IDL source type
@@ -197,16 +204,9 @@ export async function getIdlMetadata(
         .replace(/[\s_]+/g, '-')
         .toLowerCase();
 
-    const idlAddress = idlJson.address || idlJson.metadata?.address;
-    const isValidAddress =
-        idlAddress &&
-        idlAddress.trim() !== '' &&
-        isBase58Like(idlAddress) &&
-        idlAddress.length >= 32 &&
-        idlAddress.length <= 44;
+    const idlAddress = getValidIdlAddress(idlJson);
 
-    const finalAddress =
-        (isValidAddress ? idlAddress : undefined) || (idlSource.type === 'program' ? idl : undefined) || programId;
+    const finalAddress = idlAddress || (idlSource.type === 'program' ? idl : undefined) || programId;
 
     return {
         name: kebabName,
@@ -247,29 +247,22 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
     if (idlSource.type === 'program') {
         let idlJson = await fetchAnchorIdl(idl, url!);
 
-        const idlAddress = idlJson.address || idlJson.metadata?.address;
-        const isValidAddress =
-            idlAddress &&
-            idlAddress.trim() !== '' &&
-            isBase58Like(idlAddress) &&
-            idlAddress.length >= 32 &&
-            idlAddress.length <= 44;
+        const idlAddress = getValidIdlAddress(idlJson);
 
-        const programAddress = (isValidAddress ? idlAddress : undefined) || idl || programId;
+        const programAddress = idlAddress || idl || programId;
         if (!programAddress) {
             exitWithError(
                 'Program ID is required. IDL missing or invalid address field - provide via --program-id parameter',
             );
         }
 
-        if (!isValidAddress) {
+        if (!idlAddress) {
             idlJson.address = programAddress;
             if (!idlJson.metadata) idlJson.metadata = {};
             idlJson.metadata.address = programAddress;
         }
 
         if (hasLegacyEvents(idlJson)) {
-            const info = getTransformationInfo(idlJson);
             idlJson = transformLegacyEvents(idlJson);
         }
 
@@ -308,35 +301,22 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
     const idlPath = resolve(process.cwd(), idl);
     let idlJson = JSON.parse(readFileSync(idlPath, 'utf8'));
 
-    const idlAddress = idlJson.address || idlJson.metadata?.address;
-    const isValidAddress =
-        idlAddress &&
-        idlAddress.trim() !== '' &&
-        isBase58Like(idlAddress) &&
-        idlAddress.length >= 32 &&
-        idlAddress.length <= 44;
+    const idlAddress = getValidIdlAddress(idlJson);
 
-    if (!isValidAddress && !programId) {
-        exitWithError(
-            'Program ID is required. IDL missing or invalid address field - provide via --program-id parameter',
-        );
-    }
-
-    const programAddress = (isValidAddress ? idlAddress : undefined) || programId;
+    const programAddress = idlAddress || programId;
     if (!programAddress) {
         exitWithError(
             'Program ID is required. IDL missing or invalid address field - provide via --program-id parameter',
         );
     }
 
-    if (!isValidAddress) {
+    if (!idlAddress) {
         idlJson.address = programAddress;
         if (!idlJson.metadata) idlJson.metadata = {};
         idlJson.metadata.address = programAddress;
     }
 
     if (hasLegacyEvents(idlJson)) {
-        const info = getTransformationInfo(idlJson);
         idlJson = transformLegacyEvents(idlJson);
     }
 
