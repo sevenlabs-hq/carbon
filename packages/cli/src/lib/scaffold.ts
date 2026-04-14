@@ -180,7 +180,9 @@ export function renderScaffold(opts: ScaffoldOptions) {
     const dsModuleName = mainContext.data_source.module_name as string;
     const builder = Datasources.getDatasourceBuilder(dsModuleName);
     if (!builder) {
-        exitWithError(`No datasource builder found for '${dsModuleName}'. This is an internal error — please report it.`);
+        exitWithError(
+            `No datasource builder found for '${dsModuleName}'. This is an internal error — please report it.`,
+        );
     }
     const decodersMeta = mainContext.decoders as DecoderMeta[];
     const artifact = builder(decodersMeta);
