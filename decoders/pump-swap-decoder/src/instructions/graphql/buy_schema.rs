@@ -21,7 +21,7 @@ impl TryFrom<crate::instructions::postgres::BuyRow> for BuyGraphQL {
             instruction_metadata: row.instruction_metadata.into(),
             base_amount_out: carbon_core::graphql::primitives::U64(*row.base_amount_out),
             max_quote_amount_in: carbon_core::graphql::primitives::U64(*row.max_quote_amount_in),
-            track_volume: row.track_volume.0,
+            track_volume: row.track_volume.0 .0,
             accounts: carbon_core::graphql::primitives::Json(
                 serde_json::to_value(&row.accounts.0)
                     .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?,
