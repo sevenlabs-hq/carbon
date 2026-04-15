@@ -13,11 +13,13 @@ pub mod claim_creator_fee;
 pub mod claim_platform_fee;
 pub mod claim_platform_fee_from_vault;
 pub mod claim_vested_token;
+pub mod close_platform_global_access;
 pub mod collect_fee;
 pub mod collect_migrate_fee;
 pub mod cpi_event;
 pub mod create_config;
 pub mod create_platform_config;
+pub mod create_platform_global_access;
 pub mod create_platform_vesting_account;
 pub mod create_vesting_account;
 pub mod initialize;
@@ -34,8 +36,9 @@ pub mod update_platform_curve_param;
 
 pub use self::{
     buy_exact_in::*, buy_exact_out::*, claim_creator_fee::*, claim_platform_fee::*,
-    claim_platform_fee_from_vault::*, claim_vested_token::*, collect_fee::*,
-    collect_migrate_fee::*, cpi_event::*, create_config::*, create_platform_config::*,
+    claim_platform_fee_from_vault::*, claim_vested_token::*, close_platform_global_access::*,
+    collect_fee::*, collect_migrate_fee::*, cpi_event::*, create_config::*,
+    create_platform_config::*, create_platform_global_access::*,
     create_platform_vesting_account::*, create_vesting_account::*, initialize::*, initialize_v2::*,
     initialize_with_token2022::*, migrate_to_amm::*, migrate_to_cpswap::*,
     remove_platform_curve_param::*, sell_exact_in::*, sell_exact_out::*, update_config::*,
@@ -76,6 +79,11 @@ pub enum RaydiumLaunchpadInstruction {
         data: ClaimVestedToken,
         accounts: ClaimVestedTokenInstructionAccounts,
     },
+    ClosePlatformGlobalAccess {
+        program_id: solana_pubkey::Pubkey,
+        data: ClosePlatformGlobalAccess,
+        accounts: ClosePlatformGlobalAccessInstructionAccounts,
+    },
     CollectFee {
         program_id: solana_pubkey::Pubkey,
         data: CollectFee,
@@ -95,6 +103,11 @@ pub enum RaydiumLaunchpadInstruction {
         program_id: solana_pubkey::Pubkey,
         data: CreatePlatformConfig,
         accounts: CreatePlatformConfigInstructionAccounts,
+    },
+    CreatePlatformGlobalAccess {
+        program_id: solana_pubkey::Pubkey,
+        data: CreatePlatformGlobalAccess,
+        accounts: CreatePlatformGlobalAccessInstructionAccounts,
     },
     CreatePlatformVestingAccount {
         program_id: solana_pubkey::Pubkey,
@@ -201,10 +214,12 @@ impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumLaunchpadDecode
                 RaydiumLaunchpadInstruction::ClaimPlatformFee => ClaimPlatformFee,
                 RaydiumLaunchpadInstruction::ClaimPlatformFeeFromVault => ClaimPlatformFeeFromVault,
                 RaydiumLaunchpadInstruction::ClaimVestedToken => ClaimVestedToken,
+                RaydiumLaunchpadInstruction::ClosePlatformGlobalAccess => ClosePlatformGlobalAccess,
                 RaydiumLaunchpadInstruction::CollectFee => CollectFee,
                 RaydiumLaunchpadInstruction::CollectMigrateFee => CollectMigrateFee,
                 RaydiumLaunchpadInstruction::CreateConfig => CreateConfig,
                 RaydiumLaunchpadInstruction::CreatePlatformConfig => CreatePlatformConfig,
+                RaydiumLaunchpadInstruction::CreatePlatformGlobalAccess => CreatePlatformGlobalAccess,
                 RaydiumLaunchpadInstruction::CreatePlatformVestingAccount => CreatePlatformVestingAccount,
                 RaydiumLaunchpadInstruction::CreateVestingAccount => CreateVestingAccount,
                 RaydiumLaunchpadInstruction::Initialize => Initialize,

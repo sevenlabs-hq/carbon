@@ -16,6 +16,7 @@ pub enum CpiEvent {
     SwapEvent(events::swap_event::SwapEventEvent),
     SwapsEvent(events::swaps_event::SwapsEventEvent),
     CandidateSwapResults(events::candidate_swap_results::CandidateSwapResultsEvent),
+    CandidateSwapQuoteError(events::candidate_swap_quote_error::CandidateSwapQuoteErrorEvent),
     BestSwapOutAmountViolation(
         events::best_swap_out_amount_violation::BestSwapOutAmountViolationEvent,
     ),
@@ -53,6 +54,11 @@ impl CpiEvent {
             events::candidate_swap_results::CandidateSwapResultsEvent::decode(event_data)
         {
             return Some(CpiEvent::CandidateSwapResults(decoded));
+        }
+        if let Some(decoded) =
+            events::candidate_swap_quote_error::CandidateSwapQuoteErrorEvent::decode(event_data)
+        {
+            return Some(CpiEvent::CandidateSwapQuoteError(decoded));
         }
         if let Some(decoded) =
             events::best_swap_out_amount_violation::BestSwapOutAmountViolationEvent::decode(

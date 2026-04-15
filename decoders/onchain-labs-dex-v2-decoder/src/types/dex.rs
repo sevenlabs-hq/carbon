@@ -140,4 +140,5 @@ pub enum Dex {
         signature: [u8; 64],
         recovery_id: u8,
     },
+    FusionAmm,
 }

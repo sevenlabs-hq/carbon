@@ -166,6 +166,9 @@ impl Processor<InstructionProcessorInputType<'_, JupiterSwapInstruction>>
                 CpiEvent::BestSwapOutAmountViolation(best_swap_out_amount_violation) => {
                     log::info!("best_swap_out_amount_violation: signature: {signature}, best_swap_out_amount_violation: {best_swap_out_amount_violation:?}");
                 }
+                CpiEvent::CandidateSwapQuoteError(candidate_swap_quote_error) => {
+                    log::info!("candidate_swap_quote_error: signature: {signature}, candidate_swap_quote_error: {candidate_swap_quote_error:?}");
+                }
             },
         };
 
