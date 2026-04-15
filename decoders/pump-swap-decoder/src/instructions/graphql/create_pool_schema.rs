@@ -29,7 +29,7 @@ impl TryFrom<crate::instructions::postgres::CreatePoolRow> for CreatePoolGraphQL
             quote_amount_in: carbon_core::graphql::primitives::U64(*row.quote_amount_in),
             coin_creator: carbon_core::graphql::primitives::Pubkey(row.coin_creator.0),
             is_mayhem_mode: row.is_mayhem_mode,
-            is_cashback_coin: row.is_cashback_coin.0,
+            is_cashback_coin: row.is_cashback_coin.0 .0,
             accounts: carbon_core::graphql::primitives::Json(
                 serde_json::to_value(&row.accounts.0)
                     .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?,
