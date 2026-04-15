@@ -23,7 +23,7 @@ impl TryFrom<crate::instructions::postgres::BuyExactQuoteInRow> for BuyExactQuot
             instruction_metadata: row.instruction_metadata.into(),
             spendable_quote_in: carbon_core::graphql::primitives::U64(*row.spendable_quote_in),
             min_base_amount_out: carbon_core::graphql::primitives::U64(*row.min_base_amount_out),
-            track_volume: row.track_volume.0.into(),
+            track_volume: row.track_volume.0 .0,
             accounts: carbon_core::graphql::primitives::Json(
                 serde_json::to_value(&row.accounts.0)
                     .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?,
