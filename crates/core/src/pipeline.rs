@@ -415,7 +415,7 @@ impl Default for PipelineBuilder {
             datasource_cancellation_token: None,
             shutdown_strategy: ShutdownStrategy::default(),
             channel_buffer_size: DEFAULT_CHANNEL_BUFFER_SIZE,
-        }    
+        }
     }
 }
 
@@ -604,6 +604,8 @@ impl PipelineBuilder {
 
     pub fn build(self) -> CarbonResult<Pipeline> {
         register_pipeline_metrics();
+        #[cfg(feature = "postgres")]
+        crate::postgres::processors::register_postgres_metrics();
         Ok(Pipeline {
             datasources: self.datasources,
             account_pipes: self.account_pipes,
