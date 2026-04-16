@@ -27,7 +27,7 @@ impl TryFrom<crate::instructions::postgres::CreateV2Row> for CreateV2GraphQL {
             uri: row.uri,
             creator: carbon_core::graphql::primitives::Pubkey(row.creator.0),
             is_mayhem_mode: row.is_mayhem_mode,
-            is_cashback_enabled: row.is_cashback_enabled.0,
+            is_cashback_enabled: row.is_cashback_enabled.0 .0,
             accounts: carbon_core::graphql::primitives::Json(
                 serde_json::to_value(&row.accounts.0)
                     .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?,
