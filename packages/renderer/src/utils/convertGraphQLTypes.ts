@@ -29,7 +29,12 @@ function handleBooleanTypeConversion(fieldAccess: string, isJson: boolean, isOpt
 
 function isBooleanTypeAlias(typeName: string): boolean {
     const lowerName = typeName.toLowerCase();
-    return lowerName === 'bool' || lowerName === 'boolean' || lowerName === 'optionbool';
+    return lowerName === 'bool' || lowerName === 'boolean';
+}
+
+// Newtype wrapping bool (e.g. OptionBool): .0 for direct access, .0.0 when wrapped in Json<T>.
+function isOptionalBoolNewtype(typeName: string): boolean {
+    return typeName.toLowerCase() === 'optionbool';
 }
 
 function requiresClosureForPrimitive(funcRef: string, innerExpr: string, param: string): boolean {
@@ -230,6 +235,9 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
 
     if (isNode(typeNode, 'definedTypeLinkNode')) {
         const typeName = typeNode.name.toLowerCase();
+        if (isOptionalBoolNewtype(typeName)) {
+            return `${fieldAccess}.0`; // unwrap newtype: OptionBool(bool) -> bool
+        }
         if (isBooleanTypeAlias(typeName)) {
             return fieldAccess;
         }
@@ -542,6 +550,9 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
         const typeName = typeNode.name.toLowerCase();
         if (typeName.includes('decrypt') || typeName.includes('cipher') || typeName.includes('elgamal')) {
             return `${fieldAccess}.0.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
+        }
+        if (isOptionalBoolNewtype(typeName)) {
+            return `${fieldAccess}.0.0`; // unwrap Json<OptionBool>, then unwrap OptionBool(bool)
         }
         if (isBooleanTypeAlias(typeName)) {
             return handleBooleanTypeConversion(fieldAccess, true, false);

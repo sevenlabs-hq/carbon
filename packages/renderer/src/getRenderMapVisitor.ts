@@ -68,7 +68,8 @@ type FlattenedField = {
 export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
     const renderParentInstructions = options.renderParentInstructions ?? false;
     let definedTypesMap: Map<string, any> | null = null;
-    const newtypeWrapperTypes = new Set<string>(); // Track which types were converted to newtype wrappers
+    const newtypeWrapperTypes = new Set<string>();
+    const optionalBoolWrapperTypes = new Set<string>(); // single-bool tuples: EOF → false (e.g. pump.fun OptionBool)
     const createTypeManifestVisitor = () =>
         getTypeManifestVisitor(definedTypesMap, newtypeWrapperTypes, options.withBase58 ?? false);
     let typeManifestVisitor = createTypeManifestVisitor();
@@ -323,6 +324,17 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         newtypeWrapperTypes.add(node.name);
                     }
 
+                    // Single-item bool tuple → custom BorshDeserialize (EOF = false)
+                    let isOptionalBoolWrapper = false;
+                    if (
+                        isNode(node.type, 'tupleTypeNode') &&
+                        node.type.items.length === 1 &&
+                        isNode(node.type.items[0], 'booleanTypeNode')
+                    ) {
+                        isOptionalBoolWrapper = true;
+                        optionalBoolWrapperTypes.add(node.name);
+                    }
+
                     // Add token-2022 specific imports for Extension type
                     // Use case-insensitive check to match impl block condition
                     const isToken2022ForImports = isToken2022Program(currentProgram);
@@ -344,6 +356,7 @@ export function getRenderMapVisitor(options: GetRenderMapOptions = {}) {
                         imports: imports.toString(),
                         typeManifest,
                         needsNewtypeWrapper,
+                        isOptionalBoolWrapper,
                         arraySize,
                         program: currentProgram,
                         originalProgramName: currentProgram?.name,
