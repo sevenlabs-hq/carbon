@@ -145,7 +145,7 @@ impl Histogram {
             .boundaries
             .binary_search_by(|b| b.partial_cmp(&value).unwrap_or(std::cmp::Ordering::Equal))
         {
-            Ok(i) => i + 1,
+            Ok(i) => i,
             Err(i) => i,
         }
     }
