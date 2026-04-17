@@ -162,7 +162,6 @@ pub trait InstructionDecoder<'a> {
 
     fn decode_instruction(
         &self,
-        metadata: &'a InstructionMetadata,
         instruction: &'a solana_instruction::Instruction,
     ) -> Option<Self::InstructionType>;
 }
@@ -195,10 +194,10 @@ where
     P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
 {
     async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()> {
-        if let Some(decoded_instruction) = self.decoder.decode_instruction(
-            &nested_instruction.metadata,
-            &nested_instruction.instruction,
-        ) {
+        if let Some(decoded_instruction) = self
+            .decoder
+            .decode_instruction(&nested_instruction.instruction)
+        {
             let data = InstructionProcessorInputType {
                 metadata: &nested_instruction.metadata,
                 decoded_instruction: &decoded_instruction,
