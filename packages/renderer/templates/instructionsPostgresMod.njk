@@ -67,8 +67,9 @@ impl carbon_core::postgres::operations::Insert for {{ program.name | pascalCase 
             }
 {% endfor %}
 {% if hasAnchorEvents %}
-            {{ program.name | pascalCase }}Instruction::CpiEvent { data, accounts, .. } => {
-                cpi_event_row::CpiEventRow::from_parts(data.clone(), metadata.clone(), if accounts.is_some() { raw_accounts.clone() } else { Vec::new() }).insert(pool).await?;
+            {{ program.name | pascalCase }}Instruction::CpiEvent { data, .. } => {
+                let row = cpi_event_row::CpiEventRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.insert(pool).await?;
                 Ok(())
             }
 {% endif %}
@@ -89,8 +90,9 @@ impl carbon_core::postgres::operations::Upsert for {{ program.name | pascalCase 
             }
 {% endfor %}
 {% if hasAnchorEvents %}
-            {{ program.name | pascalCase }}Instruction::CpiEvent { data, accounts, .. } => {
-                cpi_event_row::CpiEventRow::from_parts(data.clone(), metadata.clone(), if accounts.is_some() { raw_accounts.clone() } else { Vec::new() }).upsert(pool).await?;
+            {{ program.name | pascalCase }}Instruction::CpiEvent { data, .. } => {
+                let row = cpi_event_row::CpiEventRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+                row.upsert(pool).await?;
                 Ok(())
             }
 {% endif %}
