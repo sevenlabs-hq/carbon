@@ -21,7 +21,7 @@ impl DelegateStakeEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 68, 101, 108, 101, 103, 97, 116, 101,
+                228, 69, 165, 46, 81, 203, 154, 29, 85, 135, 75, 222, 168, 133, 159, 212,
             ]
         {
             return None;

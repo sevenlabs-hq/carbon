@@ -201,7 +201,7 @@ pub enum PumpfunInstruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -216,53 +216,39 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpfunDecoder {
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                PumpfunInstruction::AdminSetCreator => AdminSetCreator,
-                PumpfunInstruction::AdminSetIdlAuthority => AdminSetIdlAuthority,
-                PumpfunInstruction::AdminUpdateTokenIncentives => AdminUpdateTokenIncentives,
-                PumpfunInstruction::Buy => Buy,
-                PumpfunInstruction::BuyExactSolIn => BuyExactSolIn,
-                PumpfunInstruction::ClaimCashback => ClaimCashback,
-                PumpfunInstruction::ClaimTokenIncentives => ClaimTokenIncentives,
-                PumpfunInstruction::CloseUserVolumeAccumulator => CloseUserVolumeAccumulator,
-                PumpfunInstruction::CollectCreatorFee => CollectCreatorFee,
-                PumpfunInstruction::Create => Create,
-                PumpfunInstruction::CreateV2 => CreateV2,
-                PumpfunInstruction::DistributeCreatorFees => DistributeCreatorFees,
-                PumpfunInstruction::ExtendAccount => ExtendAccount,
-                PumpfunInstruction::GetMinimumDistributableFee => GetMinimumDistributableFee,
-                PumpfunInstruction::Initialize => Initialize,
-                PumpfunInstruction::InitUserVolumeAccumulator => InitUserVolumeAccumulator,
-                PumpfunInstruction::Migrate => Migrate,
-                PumpfunInstruction::MigrateBondingCurveCreator => MigrateBondingCurveCreator,
-                PumpfunInstruction::Sell => Sell,
-                PumpfunInstruction::SetCreator => SetCreator,
-                PumpfunInstruction::SetMayhemVirtualParams => SetMayhemVirtualParams,
-                PumpfunInstruction::SetMetaplexCreator => SetMetaplexCreator,
-                PumpfunInstruction::SetParams => SetParams,
-                PumpfunInstruction::SetReservedFeeRecipients => SetReservedFeeRecipients,
-                PumpfunInstruction::SyncUserVolumeAccumulator => SyncUserVolumeAccumulator,
-                PumpfunInstruction::ToggleCashbackEnabled => ToggleCashbackEnabled,
-                PumpfunInstruction::ToggleCreateV2 => ToggleCreateV2,
-                PumpfunInstruction::ToggleMayhemMode => ToggleMayhemMode,
-                PumpfunInstruction::UpdateGlobalAuthority => UpdateGlobalAuthority,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(PumpfunInstruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            PumpfunInstruction::AdminSetCreator => AdminSetCreator,
+            PumpfunInstruction::AdminSetIdlAuthority => AdminSetIdlAuthority,
+            PumpfunInstruction::AdminUpdateTokenIncentives => AdminUpdateTokenIncentives,
+            PumpfunInstruction::Buy => Buy,
+            PumpfunInstruction::BuyExactSolIn => BuyExactSolIn,
+            PumpfunInstruction::ClaimCashback => ClaimCashback,
+            PumpfunInstruction::ClaimTokenIncentives => ClaimTokenIncentives,
+            PumpfunInstruction::CloseUserVolumeAccumulator => CloseUserVolumeAccumulator,
+            PumpfunInstruction::CollectCreatorFee => CollectCreatorFee,
+            PumpfunInstruction::Create => Create,
+            PumpfunInstruction::CreateV2 => CreateV2,
+            PumpfunInstruction::DistributeCreatorFees => DistributeCreatorFees,
+            PumpfunInstruction::ExtendAccount => ExtendAccount,
+            PumpfunInstruction::GetMinimumDistributableFee => GetMinimumDistributableFee,
+            PumpfunInstruction::Initialize => Initialize,
+            PumpfunInstruction::InitUserVolumeAccumulator => InitUserVolumeAccumulator,
+            PumpfunInstruction::Migrate => Migrate,
+            PumpfunInstruction::MigrateBondingCurveCreator => MigrateBondingCurveCreator,
+            PumpfunInstruction::Sell => Sell,
+            PumpfunInstruction::SetCreator => SetCreator,
+            PumpfunInstruction::SetMayhemVirtualParams => SetMayhemVirtualParams,
+            PumpfunInstruction::SetMetaplexCreator => SetMetaplexCreator,
+            PumpfunInstruction::SetParams => SetParams,
+            PumpfunInstruction::SetReservedFeeRecipients => SetReservedFeeRecipients,
+            PumpfunInstruction::SyncUserVolumeAccumulator => SyncUserVolumeAccumulator,
+            PumpfunInstruction::ToggleCashbackEnabled => ToggleCashbackEnabled,
+            PumpfunInstruction::ToggleCreateV2 => ToggleCreateV2,
+            PumpfunInstruction::ToggleMayhemMode => ToggleMayhemMode,
+            PumpfunInstruction::UpdateGlobalAuthority => UpdateGlobalAuthority,
+            PumpfunInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

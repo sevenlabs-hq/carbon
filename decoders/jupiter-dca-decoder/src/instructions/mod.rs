@@ -94,7 +94,7 @@ pub enum JupiterDcaInstruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -109,36 +109,22 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterDcaDecoder {
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                JupiterDcaInstruction::CloseDca => CloseDca,
-                JupiterDcaInstruction::Deposit => Deposit,
-                JupiterDcaInstruction::EndAndClose => EndAndClose,
-                JupiterDcaInstruction::FulfillDlmmFill => FulfillDlmmFill,
-                JupiterDcaInstruction::FulfillFlashFill => FulfillFlashFill,
-                JupiterDcaInstruction::InitiateDlmmFill => InitiateDlmmFill,
-                JupiterDcaInstruction::InitiateFlashFill => InitiateFlashFill,
-                JupiterDcaInstruction::OpenDca => OpenDca,
-                JupiterDcaInstruction::OpenDcaV2 => OpenDcaV2,
-                JupiterDcaInstruction::Transfer => Transfer,
-                JupiterDcaInstruction::Withdraw => Withdraw,
-                JupiterDcaInstruction::WithdrawFees => WithdrawFees,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(JupiterDcaInstruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            JupiterDcaInstruction::CloseDca => CloseDca,
+            JupiterDcaInstruction::Deposit => Deposit,
+            JupiterDcaInstruction::EndAndClose => EndAndClose,
+            JupiterDcaInstruction::FulfillDlmmFill => FulfillDlmmFill,
+            JupiterDcaInstruction::FulfillFlashFill => FulfillFlashFill,
+            JupiterDcaInstruction::InitiateDlmmFill => InitiateDlmmFill,
+            JupiterDcaInstruction::InitiateFlashFill => InitiateFlashFill,
+            JupiterDcaInstruction::OpenDca => OpenDca,
+            JupiterDcaInstruction::OpenDcaV2 => OpenDcaV2,
+            JupiterDcaInstruction::Transfer => Transfer,
+            JupiterDcaInstruction::Withdraw => Withdraw,
+            JupiterDcaInstruction::WithdrawFees => WithdrawFees,
+            JupiterDcaInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

@@ -203,7 +203,7 @@ pub enum BoopInstruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -218,53 +218,39 @@ impl carbon_core::instruction::InstructionDecoder<'_> for BoopDecoder {
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                BoopInstruction::AddOperators => AddOperators,
-                BoopInstruction::BuyToken => BuyToken,
-                BoopInstruction::CancelAuthorityTransfer => CancelAuthorityTransfer,
-                BoopInstruction::CloseBondingCurveVault => CloseBondingCurveVault,
-                BoopInstruction::CollectMeteoraTradingFees => CollectMeteoraTradingFees,
-                BoopInstruction::CollectMeteoraTradingFeesV2 => CollectMeteoraTradingFeesV2,
-                BoopInstruction::CollectTradingFees => CollectTradingFees,
-                BoopInstruction::CollectTradingFeesV2 => CollectTradingFeesV2,
-                BoopInstruction::CompleteAuthorityTransfer => CompleteAuthorityTransfer,
-                BoopInstruction::CreateMeteoraPool => CreateMeteoraPool,
-                BoopInstruction::CreateRaydiumPool => CreateRaydiumPool,
-                BoopInstruction::CreateRaydiumRandomPool => CreateRaydiumRandomPool,
-                BoopInstruction::CreateToken => CreateToken,
-                BoopInstruction::CreateTokenFallback => CreateTokenFallback,
-                BoopInstruction::DeployBondingCurve => DeployBondingCurve,
-                BoopInstruction::DeployBondingCurveFallback => DeployBondingCurveFallback,
-                BoopInstruction::DepositIntoRaydium => DepositIntoRaydium,
-                BoopInstruction::Graduate => Graduate,
-                BoopInstruction::Initialize => Initialize,
-                BoopInstruction::InitiateAuthorityTransfer => InitiateAuthorityTransfer,
-                BoopInstruction::LockRaydiumLiquidity => LockRaydiumLiquidity,
-                BoopInstruction::RemoveOperators => RemoveOperators,
-                BoopInstruction::SellToken => SellToken,
-                BoopInstruction::SplitPostGraduationTradingFees => SplitPostGraduationTradingFees,
-                BoopInstruction::SplitTradingFees => SplitTradingFees,
-                BoopInstruction::SwapSolForTokensOnRaydium => SwapSolForTokensOnRaydium,
-                BoopInstruction::SwapTokensForSolOnRaydium => SwapTokensForSolOnRaydium,
-                BoopInstruction::TogglePaused => TogglePaused,
-                BoopInstruction::UpdateConfig => UpdateConfig,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(BoopInstruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            BoopInstruction::AddOperators => AddOperators,
+            BoopInstruction::BuyToken => BuyToken,
+            BoopInstruction::CancelAuthorityTransfer => CancelAuthorityTransfer,
+            BoopInstruction::CloseBondingCurveVault => CloseBondingCurveVault,
+            BoopInstruction::CollectMeteoraTradingFees => CollectMeteoraTradingFees,
+            BoopInstruction::CollectMeteoraTradingFeesV2 => CollectMeteoraTradingFeesV2,
+            BoopInstruction::CollectTradingFees => CollectTradingFees,
+            BoopInstruction::CollectTradingFeesV2 => CollectTradingFeesV2,
+            BoopInstruction::CompleteAuthorityTransfer => CompleteAuthorityTransfer,
+            BoopInstruction::CreateMeteoraPool => CreateMeteoraPool,
+            BoopInstruction::CreateRaydiumPool => CreateRaydiumPool,
+            BoopInstruction::CreateRaydiumRandomPool => CreateRaydiumRandomPool,
+            BoopInstruction::CreateToken => CreateToken,
+            BoopInstruction::CreateTokenFallback => CreateTokenFallback,
+            BoopInstruction::DeployBondingCurve => DeployBondingCurve,
+            BoopInstruction::DeployBondingCurveFallback => DeployBondingCurveFallback,
+            BoopInstruction::DepositIntoRaydium => DepositIntoRaydium,
+            BoopInstruction::Graduate => Graduate,
+            BoopInstruction::Initialize => Initialize,
+            BoopInstruction::InitiateAuthorityTransfer => InitiateAuthorityTransfer,
+            BoopInstruction::LockRaydiumLiquidity => LockRaydiumLiquidity,
+            BoopInstruction::RemoveOperators => RemoveOperators,
+            BoopInstruction::SellToken => SellToken,
+            BoopInstruction::SplitPostGraduationTradingFees => SplitPostGraduationTradingFees,
+            BoopInstruction::SplitTradingFees => SplitTradingFees,
+            BoopInstruction::SwapSolForTokensOnRaydium => SwapSolForTokensOnRaydium,
+            BoopInstruction::SwapTokensForSolOnRaydium => SwapTokensForSolOnRaydium,
+            BoopInstruction::TogglePaused => TogglePaused,
+            BoopInstruction::UpdateConfig => UpdateConfig,
+            BoopInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

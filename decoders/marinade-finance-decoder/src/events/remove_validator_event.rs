@@ -18,7 +18,7 @@ impl RemoveValidatorEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 82, 101, 109, 111, 118, 101, 86, 97,
+                228, 69, 165, 46, 81, 203, 154, 29, 67, 164, 190, 192, 156, 156, 168, 210,
             ]
         {
             return None;

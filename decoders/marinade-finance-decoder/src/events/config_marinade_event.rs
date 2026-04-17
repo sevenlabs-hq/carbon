@@ -29,7 +29,7 @@ impl ConfigMarinadeEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 67, 111, 110, 102, 105, 103, 77, 97,
+                228, 69, 165, 46, 81, 203, 154, 29, 159, 164, 245, 114, 94, 253, 3, 9,
             ]
         {
             return None;

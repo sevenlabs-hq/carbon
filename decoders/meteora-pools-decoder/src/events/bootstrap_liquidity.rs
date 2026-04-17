@@ -18,7 +18,7 @@ impl BootstrapLiquidityEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 66, 111, 111, 116, 115, 116, 114, 97,
+                228, 69, 165, 46, 81, 203, 154, 29, 121, 127, 38, 136, 92, 55, 14, 247,
             ]
         {
             return None;

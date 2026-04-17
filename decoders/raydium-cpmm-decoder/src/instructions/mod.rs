@@ -82,7 +82,7 @@ pub enum RaydiumCpmmInstruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -97,34 +97,20 @@ impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumCpmmDecoder {
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                RaydiumCpmmInstruction::CollectFundFee => CollectFundFee,
-                RaydiumCpmmInstruction::CollectProtocolFee => CollectProtocolFee,
-                RaydiumCpmmInstruction::CreateAmmConfig => CreateAmmConfig,
-                RaydiumCpmmInstruction::Deposit => Deposit,
-                RaydiumCpmmInstruction::Initialize => Initialize,
-                RaydiumCpmmInstruction::SwapBaseInput => SwapBaseInput,
-                RaydiumCpmmInstruction::SwapBaseOutput => SwapBaseOutput,
-                RaydiumCpmmInstruction::UpdateAmmConfig => UpdateAmmConfig,
-                RaydiumCpmmInstruction::UpdatePoolStatus => UpdatePoolStatus,
-                RaydiumCpmmInstruction::Withdraw => Withdraw,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(RaydiumCpmmInstruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            RaydiumCpmmInstruction::CollectFundFee => CollectFundFee,
+            RaydiumCpmmInstruction::CollectProtocolFee => CollectProtocolFee,
+            RaydiumCpmmInstruction::CreateAmmConfig => CreateAmmConfig,
+            RaydiumCpmmInstruction::Deposit => Deposit,
+            RaydiumCpmmInstruction::Initialize => Initialize,
+            RaydiumCpmmInstruction::SwapBaseInput => SwapBaseInput,
+            RaydiumCpmmInstruction::SwapBaseOutput => SwapBaseOutput,
+            RaydiumCpmmInstruction::UpdateAmmConfig => UpdateAmmConfig,
+            RaydiumCpmmInstruction::UpdatePoolStatus => UpdatePoolStatus,
+            RaydiumCpmmInstruction::Withdraw => Withdraw,
+            RaydiumCpmmInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

@@ -2516,18 +2516,13 @@ impl carbon_core::postgres::operations::Insert for DriftV2InstructionWithMetadat
                 row.insert(pool).await?;
                 Ok(())
             }
-            DriftV2Instruction::CpiEvent { data, accounts, .. } => {
-                cpi_event_row::CpiEventRow::from_parts(
+            DriftV2Instruction::CpiEvent { data, .. } => {
+                let row = cpi_event_row::CpiEventRow::from_parts(
                     data.clone(),
                     metadata.clone(),
-                    if accounts.is_some() {
-                        raw_accounts.clone()
-                    } else {
-                        Vec::new()
-                    },
-                )
-                .insert(pool)
-                .await?;
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
                 Ok(())
             }
         }
@@ -4390,18 +4385,13 @@ impl carbon_core::postgres::operations::Upsert for DriftV2InstructionWithMetadat
                 row.upsert(pool).await?;
                 Ok(())
             }
-            DriftV2Instruction::CpiEvent { data, accounts, .. } => {
-                cpi_event_row::CpiEventRow::from_parts(
+            DriftV2Instruction::CpiEvent { data, .. } => {
+                let row = cpi_event_row::CpiEventRow::from_parts(
                     data.clone(),
                     metadata.clone(),
-                    if accounts.is_some() {
-                        raw_accounts.clone()
-                    } else {
-                        Vec::new()
-                    },
-                )
-                .upsert(pool)
-                .await?;
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
                 Ok(())
             }
         }

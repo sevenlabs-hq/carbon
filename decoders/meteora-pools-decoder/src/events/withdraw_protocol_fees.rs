@@ -19,7 +19,7 @@ impl WithdrawProtocolFeesEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 87, 105, 116, 104, 100, 114, 97, 119,
+                228, 69, 165, 46, 81, 203, 154, 29, 30, 240, 207, 196, 139, 239, 79, 28,
             ]
         {
             return None;

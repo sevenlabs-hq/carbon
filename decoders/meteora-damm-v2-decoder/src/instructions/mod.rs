@@ -258,7 +258,7 @@ pub enum MeteoraDammV2Instruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -273,62 +273,48 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDammV2Decoder {
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                MeteoraDammV2Instruction::AddLiquidity => AddLiquidity,
-                MeteoraDammV2Instruction::ClaimPositionFee => ClaimPositionFee,
-                MeteoraDammV2Instruction::ClaimProtocolFee => ClaimProtocolFee,
-                MeteoraDammV2Instruction::ClaimReward => ClaimReward,
-                MeteoraDammV2Instruction::CloseConfig => CloseConfig,
-                MeteoraDammV2Instruction::CloseOperatorAccount => CloseOperatorAccount,
-                MeteoraDammV2Instruction::ClosePosition => ClosePosition,
-                MeteoraDammV2Instruction::CloseTokenBadge => CloseTokenBadge,
-                MeteoraDammV2Instruction::CreateConfig => CreateConfig,
-                MeteoraDammV2Instruction::CreateDynamicConfig => CreateDynamicConfig,
-                MeteoraDammV2Instruction::CreateOperatorAccount => CreateOperatorAccount,
-                MeteoraDammV2Instruction::CreatePosition => CreatePosition,
-                MeteoraDammV2Instruction::CreateTokenBadge => CreateTokenBadge,
-                MeteoraDammV2Instruction::DummyIx => DummyIx,
-                MeteoraDammV2Instruction::FixConfigFeeParams => FixConfigFeeParams,
-                MeteoraDammV2Instruction::FixPoolFeeParams => FixPoolFeeParams,
-                MeteoraDammV2Instruction::FixPoolLayoutVersion => FixPoolLayoutVersion,
-                MeteoraDammV2Instruction::FundReward => FundReward,
-                MeteoraDammV2Instruction::InitializeCustomizablePool => InitializeCustomizablePool,
-                MeteoraDammV2Instruction::InitializePool => InitializePool,
-                MeteoraDammV2Instruction::InitializePoolWithDynamicConfig => InitializePoolWithDynamicConfig,
-                MeteoraDammV2Instruction::InitializeReward => InitializeReward,
-                MeteoraDammV2Instruction::LockInnerPosition => LockInnerPosition,
-                MeteoraDammV2Instruction::LockPosition => LockPosition,
-                MeteoraDammV2Instruction::PermanentLockPosition => PermanentLockPosition,
-                MeteoraDammV2Instruction::RefreshVesting => RefreshVesting,
-                MeteoraDammV2Instruction::RemoveAllLiquidity => RemoveAllLiquidity,
-                MeteoraDammV2Instruction::RemoveLiquidity => RemoveLiquidity,
-                MeteoraDammV2Instruction::SetPoolStatus => SetPoolStatus,
-                MeteoraDammV2Instruction::SplitPosition => SplitPosition,
-                MeteoraDammV2Instruction::SplitPosition2 => SplitPosition2,
-                MeteoraDammV2Instruction::Swap => Swap,
-                MeteoraDammV2Instruction::Swap2 => Swap2,
-                MeteoraDammV2Instruction::UpdatePoolFees => UpdatePoolFees,
-                MeteoraDammV2Instruction::UpdateRewardDuration => UpdateRewardDuration,
-                MeteoraDammV2Instruction::UpdateRewardFunder => UpdateRewardFunder,
-                MeteoraDammV2Instruction::WithdrawIneligibleReward => WithdrawIneligibleReward,
-                MeteoraDammV2Instruction::ZapProtocolFee => ZapProtocolFee,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(MeteoraDammV2Instruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            MeteoraDammV2Instruction::AddLiquidity => AddLiquidity,
+            MeteoraDammV2Instruction::ClaimPositionFee => ClaimPositionFee,
+            MeteoraDammV2Instruction::ClaimProtocolFee => ClaimProtocolFee,
+            MeteoraDammV2Instruction::ClaimReward => ClaimReward,
+            MeteoraDammV2Instruction::CloseConfig => CloseConfig,
+            MeteoraDammV2Instruction::CloseOperatorAccount => CloseOperatorAccount,
+            MeteoraDammV2Instruction::ClosePosition => ClosePosition,
+            MeteoraDammV2Instruction::CloseTokenBadge => CloseTokenBadge,
+            MeteoraDammV2Instruction::CreateConfig => CreateConfig,
+            MeteoraDammV2Instruction::CreateDynamicConfig => CreateDynamicConfig,
+            MeteoraDammV2Instruction::CreateOperatorAccount => CreateOperatorAccount,
+            MeteoraDammV2Instruction::CreatePosition => CreatePosition,
+            MeteoraDammV2Instruction::CreateTokenBadge => CreateTokenBadge,
+            MeteoraDammV2Instruction::DummyIx => DummyIx,
+            MeteoraDammV2Instruction::FixConfigFeeParams => FixConfigFeeParams,
+            MeteoraDammV2Instruction::FixPoolFeeParams => FixPoolFeeParams,
+            MeteoraDammV2Instruction::FixPoolLayoutVersion => FixPoolLayoutVersion,
+            MeteoraDammV2Instruction::FundReward => FundReward,
+            MeteoraDammV2Instruction::InitializeCustomizablePool => InitializeCustomizablePool,
+            MeteoraDammV2Instruction::InitializePool => InitializePool,
+            MeteoraDammV2Instruction::InitializePoolWithDynamicConfig => InitializePoolWithDynamicConfig,
+            MeteoraDammV2Instruction::InitializeReward => InitializeReward,
+            MeteoraDammV2Instruction::LockInnerPosition => LockInnerPosition,
+            MeteoraDammV2Instruction::LockPosition => LockPosition,
+            MeteoraDammV2Instruction::PermanentLockPosition => PermanentLockPosition,
+            MeteoraDammV2Instruction::RefreshVesting => RefreshVesting,
+            MeteoraDammV2Instruction::RemoveAllLiquidity => RemoveAllLiquidity,
+            MeteoraDammV2Instruction::RemoveLiquidity => RemoveLiquidity,
+            MeteoraDammV2Instruction::SetPoolStatus => SetPoolStatus,
+            MeteoraDammV2Instruction::SplitPosition => SplitPosition,
+            MeteoraDammV2Instruction::SplitPosition2 => SplitPosition2,
+            MeteoraDammV2Instruction::Swap => Swap,
+            MeteoraDammV2Instruction::Swap2 => Swap2,
+            MeteoraDammV2Instruction::UpdatePoolFees => UpdatePoolFees,
+            MeteoraDammV2Instruction::UpdateRewardDuration => UpdateRewardDuration,
+            MeteoraDammV2Instruction::UpdateRewardFunder => UpdateRewardFunder,
+            MeteoraDammV2Instruction::WithdrawIneligibleReward => WithdrawIneligibleReward,
+            MeteoraDammV2Instruction::ZapProtocolFee => ZapProtocolFee,
+            MeteoraDammV2Instruction::CpiEvent => CpiEvent,
+        )
     }
 }

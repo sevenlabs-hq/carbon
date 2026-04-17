@@ -38,7 +38,7 @@ impl LiquidateFullPositionEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 76, 105, 113, 117, 105, 100, 97, 116,
+                228, 69, 165, 46, 81, 203, 154, 29, 128, 101, 71, 168, 128, 72, 86, 84,
             ]
         {
             return None;

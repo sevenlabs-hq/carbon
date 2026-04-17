@@ -29,7 +29,7 @@ impl MergeStakesEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 77, 101, 114, 103, 101, 83, 116, 97,
+                228, 69, 165, 46, 81, 203, 154, 29, 73, 156, 69, 233, 32, 14, 150, 65,
             ]
         {
             return None;

@@ -25,7 +25,7 @@ impl TradeEventV3Event {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 84, 114, 97, 100, 101, 69, 118, 101,
+                228, 69, 165, 46, 81, 203, 154, 29, 114, 162, 59, 33, 84, 134, 108, 62,
             ]
         {
             return None;

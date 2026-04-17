@@ -16,7 +16,7 @@ impl PoolEnabledEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 80, 111, 111, 108, 69, 110, 97, 98,
+                228, 69, 165, 46, 81, 203, 154, 29, 2, 151, 18, 83, 204, 134, 92, 191,
             ]
         {
             return None;

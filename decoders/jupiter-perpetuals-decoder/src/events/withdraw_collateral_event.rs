@@ -27,7 +27,7 @@ impl WithdrawCollateralEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 87, 105, 116, 104, 100, 114, 97, 119,
+                228, 69, 165, 46, 81, 203, 154, 29, 145, 38, 46, 87, 190, 149, 253, 191,
             ]
         {
             return None;

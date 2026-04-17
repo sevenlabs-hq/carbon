@@ -23,7 +23,7 @@ impl InitializeEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 73, 110, 105, 116, 105, 97, 108, 105,
+                228, 69, 165, 46, 81, 203, 154, 29, 206, 175, 169, 208, 241, 210, 35, 221,
             ]
         {
             return None;

@@ -17,7 +17,7 @@ impl DecreasePositionPostSwapEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 68, 101, 99, 114, 101, 97, 115, 101,
+                228, 69, 165, 46, 81, 203, 154, 29, 23, 210, 16, 233, 98, 245, 89, 82,
             ]
         {
             return None;

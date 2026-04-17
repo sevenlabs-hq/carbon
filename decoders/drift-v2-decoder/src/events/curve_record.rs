@@ -33,7 +33,7 @@ impl CurveRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 67, 117, 114, 118, 101, 82, 101, 99,
+                228, 69, 165, 46, 81, 203, 154, 29, 101, 238, 40, 228, 70, 46, 61, 117,
             ]
         {
             return None;

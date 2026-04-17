@@ -22,7 +22,7 @@ impl WithdrawStakeEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 87, 105, 116, 104, 100, 114, 97, 119,
+                228, 69, 165, 46, 81, 203, 154, 29, 47, 85, 239, 214, 207, 29, 151, 88,
             ]
         {
             return None;

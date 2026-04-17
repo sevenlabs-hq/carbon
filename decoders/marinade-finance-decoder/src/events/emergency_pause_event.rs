@@ -15,7 +15,7 @@ impl EmergencyPauseEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 69, 109, 101, 114, 103, 101, 110, 99,
+                228, 69, 165, 46, 81, 203, 154, 29, 159, 241, 192, 232, 29, 208, 51, 21,
             ]
         {
             return None;

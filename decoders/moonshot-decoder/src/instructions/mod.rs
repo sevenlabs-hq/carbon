@@ -57,7 +57,7 @@ pub enum MoonshotInstruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -72,30 +72,16 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MoonshotDecoder {
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                MoonshotInstruction::Buy => Buy,
-                MoonshotInstruction::ConfigInit => ConfigInit,
-                MoonshotInstruction::ConfigUpdate => ConfigUpdate,
-                MoonshotInstruction::MigrateFunds => MigrateFunds,
-                MoonshotInstruction::Sell => Sell,
-                MoonshotInstruction::TokenMint => TokenMint,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(MoonshotInstruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            MoonshotInstruction::Buy => Buy,
+            MoonshotInstruction::ConfigInit => ConfigInit,
+            MoonshotInstruction::ConfigUpdate => ConfigUpdate,
+            MoonshotInstruction::MigrateFunds => MigrateFunds,
+            MoonshotInstruction::Sell => Sell,
+            MoonshotInstruction::TokenMint => TokenMint,
+            MoonshotInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

@@ -19,7 +19,7 @@ impl MigrateFeeAccountEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 77, 105, 103, 114, 97, 116, 101, 70,
+                228, 69, 165, 46, 81, 203, 154, 29, 223, 234, 232, 26, 252, 105, 180, 125,
             ]
         {
             return None;

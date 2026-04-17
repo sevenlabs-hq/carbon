@@ -35,7 +35,7 @@ impl DepositRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 68, 101, 112, 111, 115, 105, 116, 82,
+                228, 69, 165, 46, 81, 203, 154, 29, 180, 241, 218, 207, 102, 135, 44, 134,
             ]
         {
             return None;

@@ -26,7 +26,7 @@ impl InsuranceFundStakeRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 73, 110, 115, 117, 114, 97, 110, 99,
+                228, 69, 165, 46, 81, 203, 154, 29, 68, 66, 156, 7, 216, 148, 250, 114,
             ]
         {
             return None;

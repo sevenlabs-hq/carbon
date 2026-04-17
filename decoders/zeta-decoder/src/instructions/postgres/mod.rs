@@ -1212,18 +1212,13 @@ impl carbon_core::postgres::operations::Insert for ZetaInstructionWithMetadata {
                 row.insert(pool).await?;
                 Ok(())
             }
-            ZetaInstruction::CpiEvent { data, accounts, .. } => {
-                cpi_event_row::CpiEventRow::from_parts(
+            ZetaInstruction::CpiEvent { data, .. } => {
+                let row = cpi_event_row::CpiEventRow::from_parts(
                     data.clone(),
                     metadata.clone(),
-                    if accounts.is_some() {
-                        raw_accounts.clone()
-                    } else {
-                        Vec::new()
-                    },
-                )
-                .insert(pool)
-                .await?;
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
                 Ok(())
             }
         }
@@ -2134,18 +2129,13 @@ impl carbon_core::postgres::operations::Upsert for ZetaInstructionWithMetadata {
                 row.upsert(pool).await?;
                 Ok(())
             }
-            ZetaInstruction::CpiEvent { data, accounts, .. } => {
-                cpi_event_row::CpiEventRow::from_parts(
+            ZetaInstruction::CpiEvent { data, .. } => {
+                let row = cpi_event_row::CpiEventRow::from_parts(
                     data.clone(),
                     metadata.clone(),
-                    if accounts.is_some() {
-                        raw_accounts.clone()
-                    } else {
-                        Vec::new()
-                    },
-                )
-                .upsert(pool)
-                .await?;
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
                 Ok(())
             }
         }

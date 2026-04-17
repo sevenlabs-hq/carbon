@@ -75,7 +75,7 @@ pub enum JupiterLimitOrderInstruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -90,33 +90,19 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterLimitOrderDecod
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                JupiterLimitOrderInstruction::CancelExpiredOrder => CancelExpiredOrder,
-                JupiterLimitOrderInstruction::CancelOrder => CancelOrder,
-                JupiterLimitOrderInstruction::FillOrder => FillOrder,
-                JupiterLimitOrderInstruction::FlashFillOrder => FlashFillOrder,
-                JupiterLimitOrderInstruction::InitFee => InitFee,
-                JupiterLimitOrderInstruction::InitializeOrder => InitializeOrder,
-                JupiterLimitOrderInstruction::PreFlashFillOrder => PreFlashFillOrder,
-                JupiterLimitOrderInstruction::UpdateFee => UpdateFee,
-                JupiterLimitOrderInstruction::WithdrawFee => WithdrawFee,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(JupiterLimitOrderInstruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            JupiterLimitOrderInstruction::CancelExpiredOrder => CancelExpiredOrder,
+            JupiterLimitOrderInstruction::CancelOrder => CancelOrder,
+            JupiterLimitOrderInstruction::FillOrder => FillOrder,
+            JupiterLimitOrderInstruction::FlashFillOrder => FlashFillOrder,
+            JupiterLimitOrderInstruction::InitFee => InitFee,
+            JupiterLimitOrderInstruction::InitializeOrder => InitializeOrder,
+            JupiterLimitOrderInstruction::PreFlashFillOrder => PreFlashFillOrder,
+            JupiterLimitOrderInstruction::UpdateFee => UpdateFee,
+            JupiterLimitOrderInstruction::WithdrawFee => WithdrawFee,
+            JupiterLimitOrderInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

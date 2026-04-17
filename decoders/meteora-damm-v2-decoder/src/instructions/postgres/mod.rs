@@ -484,18 +484,13 @@ impl carbon_core::postgres::operations::Insert for MeteoraDammV2InstructionWithM
                 row.insert(pool).await?;
                 Ok(())
             }
-            MeteoraDammV2Instruction::CpiEvent { data, accounts, .. } => {
-                cpi_event_row::CpiEventRow::from_parts(
+            MeteoraDammV2Instruction::CpiEvent { data, .. } => {
+                let row = cpi_event_row::CpiEventRow::from_parts(
                     data.clone(),
                     metadata.clone(),
-                    if accounts.is_some() {
-                        raw_accounts.clone()
-                    } else {
-                        Vec::new()
-                    },
-                )
-                .insert(pool)
-                .await?;
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
                 Ok(())
             }
         }
@@ -847,18 +842,13 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDammV2InstructionWithM
                 row.upsert(pool).await?;
                 Ok(())
             }
-            MeteoraDammV2Instruction::CpiEvent { data, accounts, .. } => {
-                cpi_event_row::CpiEventRow::from_parts(
+            MeteoraDammV2Instruction::CpiEvent { data, .. } => {
+                let row = cpi_event_row::CpiEventRow::from_parts(
                     data.clone(),
                     metadata.clone(),
-                    if accounts.is_some() {
-                        raw_accounts.clone()
-                    } else {
-                        Vec::new()
-                    },
-                )
-                .upsert(pool)
-                .await?;
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
                 Ok(())
             }
         }

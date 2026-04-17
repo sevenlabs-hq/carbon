@@ -107,7 +107,7 @@ pub enum OkxDexInstruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -122,38 +122,24 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OkxDexDecoder {
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                OkxDexInstruction::Claim => Claim,
-                OkxDexInstruction::ClaimCashbackPumpfun => ClaimCashbackPumpfun,
-                OkxDexInstruction::ClaimCashbackPumpswap => ClaimCashbackPumpswap,
-                OkxDexInstruction::CreateTokenAccount => CreateTokenAccount,
-                OkxDexInstruction::CreateTokenAccountWithSeed => CreateTokenAccountWithSeed,
-                OkxDexInstruction::ProxySwap => ProxySwap,
-                OkxDexInstruction::Swap => Swap,
-                OkxDexInstruction::SwapTobV3 => SwapTobV3,
-                OkxDexInstruction::SwapTobV3Enhanced => SwapTobV3Enhanced,
-                OkxDexInstruction::SwapTobV3WithReceiver => SwapTobV3WithReceiver,
-                OkxDexInstruction::SwapV3 => SwapV3,
-                OkxDexInstruction::SwapV3WithCpiEvent => SwapV3WithCpiEvent,
-                OkxDexInstruction::WrapUnwrapV3 => WrapUnwrapV3,
-                OkxDexInstruction::WrapUnwrapV3WithReceiver => WrapUnwrapV3WithReceiver,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(OkxDexInstruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            OkxDexInstruction::Claim => Claim,
+            OkxDexInstruction::ClaimCashbackPumpfun => ClaimCashbackPumpfun,
+            OkxDexInstruction::ClaimCashbackPumpswap => ClaimCashbackPumpswap,
+            OkxDexInstruction::CreateTokenAccount => CreateTokenAccount,
+            OkxDexInstruction::CreateTokenAccountWithSeed => CreateTokenAccountWithSeed,
+            OkxDexInstruction::ProxySwap => ProxySwap,
+            OkxDexInstruction::Swap => Swap,
+            OkxDexInstruction::SwapTobV3 => SwapTobV3,
+            OkxDexInstruction::SwapTobV3Enhanced => SwapTobV3Enhanced,
+            OkxDexInstruction::SwapTobV3WithReceiver => SwapTobV3WithReceiver,
+            OkxDexInstruction::SwapV3 => SwapV3,
+            OkxDexInstruction::SwapV3WithCpiEvent => SwapV3WithCpiEvent,
+            OkxDexInstruction::WrapUnwrapV3 => WrapUnwrapV3,
+            OkxDexInstruction::WrapUnwrapV3WithReceiver => WrapUnwrapV3WithReceiver,
+            OkxDexInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

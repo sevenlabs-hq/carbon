@@ -194,7 +194,7 @@ pub enum MarinadeFinanceInstruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -209,52 +209,38 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MarinadeFinanceDecoder
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                MarinadeFinanceInstruction::AddLiquidity => AddLiquidity,
-                MarinadeFinanceInstruction::AddValidator => AddValidator,
-                MarinadeFinanceInstruction::ChangeAuthority => ChangeAuthority,
-                MarinadeFinanceInstruction::Claim => Claim,
-                MarinadeFinanceInstruction::ConfigLp => ConfigLp,
-                MarinadeFinanceInstruction::ConfigMarinade => ConfigMarinade,
-                MarinadeFinanceInstruction::ConfigValidatorSystem => ConfigValidatorSystem,
-                MarinadeFinanceInstruction::DeactivateStake => DeactivateStake,
-                MarinadeFinanceInstruction::Deposit => Deposit,
-                MarinadeFinanceInstruction::DepositStakeAccount => DepositStakeAccount,
-                MarinadeFinanceInstruction::EmergencyUnstake => EmergencyUnstake,
-                MarinadeFinanceInstruction::Initialize => Initialize,
-                MarinadeFinanceInstruction::LiquidUnstake => LiquidUnstake,
-                MarinadeFinanceInstruction::MergeStakes => MergeStakes,
-                MarinadeFinanceInstruction::OrderUnstake => OrderUnstake,
-                MarinadeFinanceInstruction::PartialUnstake => PartialUnstake,
-                MarinadeFinanceInstruction::Pause => Pause,
-                MarinadeFinanceInstruction::ReallocStakeList => ReallocStakeList,
-                MarinadeFinanceInstruction::ReallocValidatorList => ReallocValidatorList,
-                MarinadeFinanceInstruction::Redelegate => Redelegate,
-                MarinadeFinanceInstruction::RemoveLiquidity => RemoveLiquidity,
-                MarinadeFinanceInstruction::RemoveValidator => RemoveValidator,
-                MarinadeFinanceInstruction::Resume => Resume,
-                MarinadeFinanceInstruction::SetValidatorScore => SetValidatorScore,
-                MarinadeFinanceInstruction::StakeReserve => StakeReserve,
-                MarinadeFinanceInstruction::UpdateActive => UpdateActive,
-                MarinadeFinanceInstruction::UpdateDeactivated => UpdateDeactivated,
-                MarinadeFinanceInstruction::WithdrawStakeAccount => WithdrawStakeAccount,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(MarinadeFinanceInstruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            MarinadeFinanceInstruction::AddLiquidity => AddLiquidity,
+            MarinadeFinanceInstruction::AddValidator => AddValidator,
+            MarinadeFinanceInstruction::ChangeAuthority => ChangeAuthority,
+            MarinadeFinanceInstruction::Claim => Claim,
+            MarinadeFinanceInstruction::ConfigLp => ConfigLp,
+            MarinadeFinanceInstruction::ConfigMarinade => ConfigMarinade,
+            MarinadeFinanceInstruction::ConfigValidatorSystem => ConfigValidatorSystem,
+            MarinadeFinanceInstruction::DeactivateStake => DeactivateStake,
+            MarinadeFinanceInstruction::Deposit => Deposit,
+            MarinadeFinanceInstruction::DepositStakeAccount => DepositStakeAccount,
+            MarinadeFinanceInstruction::EmergencyUnstake => EmergencyUnstake,
+            MarinadeFinanceInstruction::Initialize => Initialize,
+            MarinadeFinanceInstruction::LiquidUnstake => LiquidUnstake,
+            MarinadeFinanceInstruction::MergeStakes => MergeStakes,
+            MarinadeFinanceInstruction::OrderUnstake => OrderUnstake,
+            MarinadeFinanceInstruction::PartialUnstake => PartialUnstake,
+            MarinadeFinanceInstruction::Pause => Pause,
+            MarinadeFinanceInstruction::ReallocStakeList => ReallocStakeList,
+            MarinadeFinanceInstruction::ReallocValidatorList => ReallocValidatorList,
+            MarinadeFinanceInstruction::Redelegate => Redelegate,
+            MarinadeFinanceInstruction::RemoveLiquidity => RemoveLiquidity,
+            MarinadeFinanceInstruction::RemoveValidator => RemoveValidator,
+            MarinadeFinanceInstruction::Resume => Resume,
+            MarinadeFinanceInstruction::SetValidatorScore => SetValidatorScore,
+            MarinadeFinanceInstruction::StakeReserve => StakeReserve,
+            MarinadeFinanceInstruction::UpdateActive => UpdateActive,
+            MarinadeFinanceInstruction::UpdateDeactivated => UpdateDeactivated,
+            MarinadeFinanceInstruction::WithdrawStakeAccount => WithdrawStakeAccount,
+            MarinadeFinanceInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

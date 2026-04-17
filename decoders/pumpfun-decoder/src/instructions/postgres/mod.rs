@@ -391,18 +391,13 @@ impl carbon_core::postgres::operations::Insert for PumpfunInstructionWithMetadat
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpfunInstruction::CpiEvent { data, accounts, .. } => {
-                cpi_event_row::CpiEventRow::from_parts(
+            PumpfunInstruction::CpiEvent { data, .. } => {
+                let row = cpi_event_row::CpiEventRow::from_parts(
                     data.clone(),
                     metadata.clone(),
-                    if accounts.is_some() {
-                        raw_accounts.clone()
-                    } else {
-                        Vec::new()
-                    },
-                )
-                .insert(pool)
-                .await?;
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
                 Ok(())
             }
         }
@@ -681,18 +676,13 @@ impl carbon_core::postgres::operations::Upsert for PumpfunInstructionWithMetadat
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpfunInstruction::CpiEvent { data, accounts, .. } => {
-                cpi_event_row::CpiEventRow::from_parts(
+            PumpfunInstruction::CpiEvent { data, .. } => {
+                let row = cpi_event_row::CpiEventRow::from_parts(
                     data.clone(),
                     metadata.clone(),
-                    if accounts.is_some() {
-                        raw_accounts.clone()
-                    } else {
-                        Vec::new()
-                    },
-                )
-                .upsert(pool)
-                .await?;
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
                 Ok(())
             }
         }

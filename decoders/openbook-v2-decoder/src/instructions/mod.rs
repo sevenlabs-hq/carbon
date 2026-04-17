@@ -201,7 +201,7 @@ pub enum OpenbookV2Instruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -216,53 +216,39 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OpenbookV2Decoder {
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                OpenbookV2Instruction::CancelAllAndPlaceOrders => CancelAllAndPlaceOrders,
-                OpenbookV2Instruction::CancelAllOrders => CancelAllOrders,
-                OpenbookV2Instruction::CancelOrder => CancelOrder,
-                OpenbookV2Instruction::CancelOrderByClientOrderId => CancelOrderByClientOrderId,
-                OpenbookV2Instruction::CloseMarket => CloseMarket,
-                OpenbookV2Instruction::CloseOpenOrdersAccount => CloseOpenOrdersAccount,
-                OpenbookV2Instruction::CloseOpenOrdersIndexer => CloseOpenOrdersIndexer,
-                OpenbookV2Instruction::ConsumeEvents => ConsumeEvents,
-                OpenbookV2Instruction::ConsumeGivenEvents => ConsumeGivenEvents,
-                OpenbookV2Instruction::CreateMarket => CreateMarket,
-                OpenbookV2Instruction::CreateOpenOrdersAccount => CreateOpenOrdersAccount,
-                OpenbookV2Instruction::CreateOpenOrdersIndexer => CreateOpenOrdersIndexer,
-                OpenbookV2Instruction::Deposit => Deposit,
-                OpenbookV2Instruction::EditOrder => EditOrder,
-                OpenbookV2Instruction::EditOrderPegged => EditOrderPegged,
-                OpenbookV2Instruction::PlaceOrder => PlaceOrder,
-                OpenbookV2Instruction::PlaceOrderPegged => PlaceOrderPegged,
-                OpenbookV2Instruction::PlaceOrders => PlaceOrders,
-                OpenbookV2Instruction::PlaceTakeOrder => PlaceTakeOrder,
-                OpenbookV2Instruction::PruneOrders => PruneOrders,
-                OpenbookV2Instruction::Refill => Refill,
-                OpenbookV2Instruction::SetDelegate => SetDelegate,
-                OpenbookV2Instruction::SetMarketExpired => SetMarketExpired,
-                OpenbookV2Instruction::SettleFunds => SettleFunds,
-                OpenbookV2Instruction::SettleFundsExpired => SettleFundsExpired,
-                OpenbookV2Instruction::StubOracleClose => StubOracleClose,
-                OpenbookV2Instruction::StubOracleCreate => StubOracleCreate,
-                OpenbookV2Instruction::StubOracleSet => StubOracleSet,
-                OpenbookV2Instruction::SweepFees => SweepFees,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(OpenbookV2Instruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            OpenbookV2Instruction::CancelAllAndPlaceOrders => CancelAllAndPlaceOrders,
+            OpenbookV2Instruction::CancelAllOrders => CancelAllOrders,
+            OpenbookV2Instruction::CancelOrder => CancelOrder,
+            OpenbookV2Instruction::CancelOrderByClientOrderId => CancelOrderByClientOrderId,
+            OpenbookV2Instruction::CloseMarket => CloseMarket,
+            OpenbookV2Instruction::CloseOpenOrdersAccount => CloseOpenOrdersAccount,
+            OpenbookV2Instruction::CloseOpenOrdersIndexer => CloseOpenOrdersIndexer,
+            OpenbookV2Instruction::ConsumeEvents => ConsumeEvents,
+            OpenbookV2Instruction::ConsumeGivenEvents => ConsumeGivenEvents,
+            OpenbookV2Instruction::CreateMarket => CreateMarket,
+            OpenbookV2Instruction::CreateOpenOrdersAccount => CreateOpenOrdersAccount,
+            OpenbookV2Instruction::CreateOpenOrdersIndexer => CreateOpenOrdersIndexer,
+            OpenbookV2Instruction::Deposit => Deposit,
+            OpenbookV2Instruction::EditOrder => EditOrder,
+            OpenbookV2Instruction::EditOrderPegged => EditOrderPegged,
+            OpenbookV2Instruction::PlaceOrder => PlaceOrder,
+            OpenbookV2Instruction::PlaceOrderPegged => PlaceOrderPegged,
+            OpenbookV2Instruction::PlaceOrders => PlaceOrders,
+            OpenbookV2Instruction::PlaceTakeOrder => PlaceTakeOrder,
+            OpenbookV2Instruction::PruneOrders => PruneOrders,
+            OpenbookV2Instruction::Refill => Refill,
+            OpenbookV2Instruction::SetDelegate => SetDelegate,
+            OpenbookV2Instruction::SetMarketExpired => SetMarketExpired,
+            OpenbookV2Instruction::SettleFunds => SettleFunds,
+            OpenbookV2Instruction::SettleFundsExpired => SettleFundsExpired,
+            OpenbookV2Instruction::StubOracleClose => StubOracleClose,
+            OpenbookV2Instruction::StubOracleCreate => StubOracleCreate,
+            OpenbookV2Instruction::StubOracleSet => StubOracleSet,
+            OpenbookV2Instruction::SweepFees => SweepFees,
+            OpenbookV2Instruction::CpiEvent => CpiEvent,
+        )
     }
 }

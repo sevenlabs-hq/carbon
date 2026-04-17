@@ -19,7 +19,7 @@ impl TotalOrderFillEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 84, 111, 116, 97, 108, 79, 114, 100,
+                228, 69, 165, 46, 81, 203, 154, 29, 8, 235, 48, 58, 174, 76, 156, 105,
             ]
         {
             return None;

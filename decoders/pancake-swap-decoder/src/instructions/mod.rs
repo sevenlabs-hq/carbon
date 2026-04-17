@@ -190,7 +190,7 @@ pub enum PancakeSwapInstruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -205,51 +205,37 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PancakeSwapDecoder {
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                PancakeSwapInstruction::ClosePosition => ClosePosition,
-                PancakeSwapInstruction::CollectFundFee => CollectFundFee,
-                PancakeSwapInstruction::CollectProtocolFee => CollectProtocolFee,
-                PancakeSwapInstruction::CollectRemainingRewards => CollectRemainingRewards,
-                PancakeSwapInstruction::CreateAmmConfig => CreateAmmConfig,
-                PancakeSwapInstruction::CreateOperationAccount => CreateOperationAccount,
-                PancakeSwapInstruction::CreatePermissionlessFarmSwitch => CreatePermissionlessFarmSwitch,
-                PancakeSwapInstruction::CreatePool => CreatePool,
-                PancakeSwapInstruction::CreateSupportMintAssociated => CreateSupportMintAssociated,
-                PancakeSwapInstruction::DecreaseLiquidity => DecreaseLiquidity,
-                PancakeSwapInstruction::DecreaseLiquidityV2 => DecreaseLiquidityV2,
-                PancakeSwapInstruction::IncreaseLiquidity => IncreaseLiquidity,
-                PancakeSwapInstruction::IncreaseLiquidityV2 => IncreaseLiquidityV2,
-                PancakeSwapInstruction::InitializeReward => InitializeReward,
-                PancakeSwapInstruction::OpenPosition => OpenPosition,
-                PancakeSwapInstruction::OpenPositionV2 => OpenPositionV2,
-                PancakeSwapInstruction::OpenPositionWithToken22Nft => OpenPositionWithToken22Nft,
-                PancakeSwapInstruction::SetRewardParams => SetRewardParams,
-                PancakeSwapInstruction::Swap => Swap,
-                PancakeSwapInstruction::SwapRouterBaseIn => SwapRouterBaseIn,
-                PancakeSwapInstruction::SwapV2 => SwapV2,
-                PancakeSwapInstruction::TogglePermissionlessFarmSwitch => TogglePermissionlessFarmSwitch,
-                PancakeSwapInstruction::TransferRewardOwner => TransferRewardOwner,
-                PancakeSwapInstruction::UpdateAmmConfig => UpdateAmmConfig,
-                PancakeSwapInstruction::UpdateOperationAccount => UpdateOperationAccount,
-                PancakeSwapInstruction::UpdatePoolStatus => UpdatePoolStatus,
-                PancakeSwapInstruction::UpdateRewardInfos => UpdateRewardInfos,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(PancakeSwapInstruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            PancakeSwapInstruction::ClosePosition => ClosePosition,
+            PancakeSwapInstruction::CollectFundFee => CollectFundFee,
+            PancakeSwapInstruction::CollectProtocolFee => CollectProtocolFee,
+            PancakeSwapInstruction::CollectRemainingRewards => CollectRemainingRewards,
+            PancakeSwapInstruction::CreateAmmConfig => CreateAmmConfig,
+            PancakeSwapInstruction::CreateOperationAccount => CreateOperationAccount,
+            PancakeSwapInstruction::CreatePermissionlessFarmSwitch => CreatePermissionlessFarmSwitch,
+            PancakeSwapInstruction::CreatePool => CreatePool,
+            PancakeSwapInstruction::CreateSupportMintAssociated => CreateSupportMintAssociated,
+            PancakeSwapInstruction::DecreaseLiquidity => DecreaseLiquidity,
+            PancakeSwapInstruction::DecreaseLiquidityV2 => DecreaseLiquidityV2,
+            PancakeSwapInstruction::IncreaseLiquidity => IncreaseLiquidity,
+            PancakeSwapInstruction::IncreaseLiquidityV2 => IncreaseLiquidityV2,
+            PancakeSwapInstruction::InitializeReward => InitializeReward,
+            PancakeSwapInstruction::OpenPosition => OpenPosition,
+            PancakeSwapInstruction::OpenPositionV2 => OpenPositionV2,
+            PancakeSwapInstruction::OpenPositionWithToken22Nft => OpenPositionWithToken22Nft,
+            PancakeSwapInstruction::SetRewardParams => SetRewardParams,
+            PancakeSwapInstruction::Swap => Swap,
+            PancakeSwapInstruction::SwapRouterBaseIn => SwapRouterBaseIn,
+            PancakeSwapInstruction::SwapV2 => SwapV2,
+            PancakeSwapInstruction::TogglePermissionlessFarmSwitch => TogglePermissionlessFarmSwitch,
+            PancakeSwapInstruction::TransferRewardOwner => TransferRewardOwner,
+            PancakeSwapInstruction::UpdateAmmConfig => UpdateAmmConfig,
+            PancakeSwapInstruction::UpdateOperationAccount => UpdateOperationAccount,
+            PancakeSwapInstruction::UpdatePoolStatus => UpdatePoolStatus,
+            PancakeSwapInstruction::UpdateRewardInfos => UpdateRewardInfos,
+            PancakeSwapInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

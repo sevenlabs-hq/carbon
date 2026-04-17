@@ -17,7 +17,7 @@ impl CreateConfigEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 67, 114, 101, 97, 116, 101, 67, 111,
+                228, 69, 165, 46, 81, 203, 154, 29, 199, 152, 10, 19, 39, 39, 157, 104,
             ]
         {
             return None;

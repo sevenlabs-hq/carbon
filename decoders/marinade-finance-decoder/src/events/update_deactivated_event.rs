@@ -29,7 +29,7 @@ impl UpdateDeactivatedEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 85, 112, 100, 97, 116, 101, 68, 101,
+                228, 69, 165, 46, 81, 203, 154, 29, 252, 159, 177, 147, 182, 113, 186, 94,
             ]
         {
             return None;

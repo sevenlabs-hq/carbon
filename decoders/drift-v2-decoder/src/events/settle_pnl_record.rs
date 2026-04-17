@@ -23,7 +23,7 @@ impl SettlePnlRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 83, 101, 116, 116, 108, 101, 80, 110,
+                228, 69, 165, 46, 81, 203, 154, 29, 57, 68, 105, 26, 119, 198, 213, 89,
             ]
         {
             return None;

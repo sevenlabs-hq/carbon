@@ -100,7 +100,7 @@ pub enum StabbleWeightedSwapInstruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -115,37 +115,23 @@ impl carbon_core::instruction::InstructionDecoder<'_> for StabbleWeightedSwapDec
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                StabbleWeightedSwapInstruction::AcceptOwner => AcceptOwner,
-                StabbleWeightedSwapInstruction::ChangeMaxSupply => ChangeMaxSupply,
-                StabbleWeightedSwapInstruction::ChangeSwapFee => ChangeSwapFee,
-                StabbleWeightedSwapInstruction::Deposit => Deposit,
-                StabbleWeightedSwapInstruction::Initialize => Initialize,
-                StabbleWeightedSwapInstruction::Pause => Pause,
-                StabbleWeightedSwapInstruction::RejectOwner => RejectOwner,
-                StabbleWeightedSwapInstruction::Shutdown => Shutdown,
-                StabbleWeightedSwapInstruction::Swap => Swap,
-                StabbleWeightedSwapInstruction::SwapV2 => SwapV2,
-                StabbleWeightedSwapInstruction::TransferOwner => TransferOwner,
-                StabbleWeightedSwapInstruction::Unpause => Unpause,
-                StabbleWeightedSwapInstruction::Withdraw => Withdraw,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(StabbleWeightedSwapInstruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            StabbleWeightedSwapInstruction::AcceptOwner => AcceptOwner,
+            StabbleWeightedSwapInstruction::ChangeMaxSupply => ChangeMaxSupply,
+            StabbleWeightedSwapInstruction::ChangeSwapFee => ChangeSwapFee,
+            StabbleWeightedSwapInstruction::Deposit => Deposit,
+            StabbleWeightedSwapInstruction::Initialize => Initialize,
+            StabbleWeightedSwapInstruction::Pause => Pause,
+            StabbleWeightedSwapInstruction::RejectOwner => RejectOwner,
+            StabbleWeightedSwapInstruction::Shutdown => Shutdown,
+            StabbleWeightedSwapInstruction::Swap => Swap,
+            StabbleWeightedSwapInstruction::SwapV2 => SwapV2,
+            StabbleWeightedSwapInstruction::TransferOwner => TransferOwner,
+            StabbleWeightedSwapInstruction::Unpause => Unpause,
+            StabbleWeightedSwapInstruction::Withdraw => Withdraw,
+            StabbleWeightedSwapInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

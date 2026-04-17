@@ -20,7 +20,7 @@ impl SettleCpFeeEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 83, 101, 116, 116, 108, 101, 67, 112,
+                228, 69, 165, 46, 81, 203, 154, 29, 29, 78, 165, 5, 246, 167, 91, 244,
             ]
         {
             return None;

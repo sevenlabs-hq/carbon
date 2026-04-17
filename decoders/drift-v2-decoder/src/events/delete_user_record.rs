@@ -19,7 +19,7 @@ impl DeleteUserRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 68, 101, 108, 101, 116, 101, 85, 115,
+                228, 69, 165, 46, 81, 203, 154, 29, 71, 111, 190, 118, 7, 3, 132, 222,
             ]
         {
             return None;

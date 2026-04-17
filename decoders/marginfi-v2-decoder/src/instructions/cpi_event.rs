@@ -57,11 +57,12 @@ impl CpiEvent {
         if data.len() < 8 {
             return None;
         }
-        let event_data = if data[..8] == [228, 69, 165, 46, 81, 203, 154, 29] {
-            &data[8..]
-        } else {
-            data
-        };
+        let discriminator = &data[0..8];
+        if discriminator != [228, 69, 165, 46, 81, 203, 154, 29] {
+            return None;
+        }
+
+        let event_data = &data[8..];
 
         if let Some(decoded) = events::deleverage_event::DeleverageEventEvent::decode(event_data) {
             return Some(CpiEvent::DeleverageEvent(decoded));

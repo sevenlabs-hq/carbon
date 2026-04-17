@@ -18,7 +18,7 @@ impl SetValidatorScoreEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 83, 101, 116, 86, 97, 108, 105, 100,
+                228, 69, 165, 46, 81, 203, 154, 29, 58, 53, 237, 178, 238, 153, 85, 156,
             ]
         {
             return None;

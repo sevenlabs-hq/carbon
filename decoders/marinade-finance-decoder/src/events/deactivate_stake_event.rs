@@ -29,7 +29,7 @@ impl DeactivateStakeEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 68, 101, 97, 99, 116, 105, 118, 97,
+                228, 69, 165, 46, 81, 203, 154, 29, 2, 54, 184, 218, 78, 181, 163, 117,
             ]
         {
             return None;
