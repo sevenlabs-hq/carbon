@@ -41,10 +41,6 @@ impl InstructionMetadata {
             .collect()
     }
 
-    pub fn program_data_log_payloads(&self) -> Vec<Vec<u8>> {
-        self.extract_event_log_data()
-    }
-
     fn extract_event_log_data(&self) -> Vec<Vec<u8>> {
         let logs = match &self.transaction_metadata.meta.log_messages {
             Some(logs) => logs,
@@ -169,16 +165,6 @@ pub trait InstructionDecoder<'a> {
         metadata: &'a InstructionMetadata,
         instruction: &'a solana_instruction::Instruction,
     ) -> Option<Self::InstructionType>;
-
-    fn decode_instructions(
-        &self,
-        metadata: &'a InstructionMetadata,
-        instruction: &'a solana_instruction::Instruction,
-    ) -> Vec<Self::InstructionType> {
-        self.decode_instruction(metadata, instruction)
-            .into_iter()
-            .collect()
-    }
 }
 
 #[derive(Debug)]
@@ -209,11 +195,10 @@ where
     P: for<'a> Processor<InstructionProcessorInputType<'a, T>> + Send + Sync + 'static,
 {
     async fn run(&mut self, nested_instruction: &NestedInstruction) -> CarbonResult<()> {
-        let decoded_instructions = self.decoder.decode_instructions(
+        if let Some(decoded_instruction) = self.decoder.decode_instruction(
             &nested_instruction.metadata,
             &nested_instruction.instruction,
-        );
-        for decoded_instruction in decoded_instructions {
+        ) {
             let data = InstructionProcessorInputType {
                 metadata: &nested_instruction.metadata,
                 decoded_instruction: &decoded_instruction,

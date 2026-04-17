@@ -149,7 +149,7 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
             parse_instruction_match_arms.push(quote! {
                 #program_id_path => {
                     #decoder_expr
-                        .decode_instructions(metadata, &instruction)
+                        .decode_instruction(metadata, &instruction)
                         .into_iter()
                         .map(#instructions_enum_name::#program_variant)
                         .collect()
@@ -158,13 +158,8 @@ pub fn instruction_decoder_collection(input: TokenStream) -> TokenStream {
         } else {
             // No program id path: include in slow-path fallback.
             fallback_decode_blocks.push(quote! {
-                let decoded_instructions = #decoder_expr
-                    .decode_instructions(metadata, &instruction)
-                    .into_iter()
-                    .map(#instructions_enum_name::#program_variant)
-                    .collect::<Vec<_>>();
-                if !decoded_instructions.is_empty() {
-                    return decoded_instructions;
+                if let Some(decoded) = #decoder_expr.decode_instruction(metadata, &instruction) {
+                    return vec![#instructions_enum_name::#program_variant(decoded)];
                 }
             });
         }
