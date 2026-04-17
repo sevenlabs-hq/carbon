@@ -78,7 +78,7 @@ pub async fn main() -> CarbonResult<()> {
         {%- endif %}
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
         .build()?;
-{% if withGraphQL %}
+{% if withGraphql %}
     tokio::select! {
         res = run_graphql(Arc::new(pool.clone())) => {
             res?;
@@ -93,7 +93,7 @@ pub async fn main() -> CarbonResult<()> {
 
     Ok(())
 }
-{%- if withGraphQL %}
+{%- if withGraphql %}
 
 async fn run_graphql(pool: Arc<sqlx::PgPool>) -> CarbonResult<()> {
     {%- for decoder in decoders %}

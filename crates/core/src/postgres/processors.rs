@@ -12,36 +12,36 @@ use solana_instruction::AccountMeta;
 use std::sync::LazyLock;
 
 static POSTGRES_ACCOUNTS_UPSERTED: Counter = Counter::new(
-    "postgres.accounts.upsert.upserted",
+    "postgres_accounts_upsert_upserted",
     "Total number of account upserts successfully completed",
 );
 
 static POSTGRES_ACCOUNTS_UPSERT_FAILED: Counter = Counter::new(
-    "postgres.accounts.upsert.failed",
+    "postgres_accounts_upsert_failed",
     "Total number of account upserts that failed",
 );
 
 static POSTGRES_ACCOUNTS_UPSERT_DURATION_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
     Histogram::new(
-        "postgres.accounts.upsert.duration_milliseconds",
+        "postgres_accounts_upsert_duration_milliseconds",
         "Duration of account upsert operations in milliseconds",
         vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
     )
 });
 
 static POSTGRES_INSTRUCTIONS_UPSERTED: Counter = Counter::new(
-    "postgres.instructions.upsert.upserted",
+    "postgres_instructions_upsert_upserted",
     "Total number of instruction upserts successfully completed",
 );
 
 static POSTGRES_INSTRUCTIONS_UPSERT_FAILED: Counter = Counter::new(
-    "postgres.instructions.upsert.failed",
+    "postgres_instructions_upsert_failed",
     "Total number of instruction upserts that failed",
 );
 
 static POSTGRES_INSTRUCTIONS_UPSERT_DURATION_MILLIS: LazyLock<Histogram> = LazyLock::new(|| {
     Histogram::new(
-        "postgres.instructions.upsert.duration_milliseconds",
+        "postgres_instructions_upsert_duration_milliseconds",
         "Duration of instruction upsert operations in milliseconds",
         vec![1.0, 5.0, 10.0, 25.0, 50.0, 100.0, 250.0, 500.0, 1000.0],
     )
