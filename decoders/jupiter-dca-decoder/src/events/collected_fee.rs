@@ -18,7 +18,7 @@ impl CollectedFeeEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 67, 111, 108, 108, 101, 99, 116, 101,
+                228, 69, 165, 46, 81, 203, 154, 29, 42, 136, 216, 116, 181, 209, 109, 181,
             ]
         {
             return None;

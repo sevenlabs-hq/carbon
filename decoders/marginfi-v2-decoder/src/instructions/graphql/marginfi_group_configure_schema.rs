@@ -8,13 +8,14 @@ use {
 #[graphql(name = "MarginfiGroupConfigure")]
 pub struct MarginfiGroupConfigureGraphQL {
     pub instruction_metadata: crate::instructions::graphql::InstructionMetadataGraphQL,
-    pub new_admin: Pubkey,
-    pub new_emode_admin: Pubkey,
-    pub new_curve_admin: Pubkey,
-    pub new_limit_admin: Pubkey,
-    pub new_emissions_admin: Pubkey,
-    pub new_metadata_admin: Pubkey,
-    pub new_risk_admin: Pubkey,
+    pub new_admin: Option<Pubkey>,
+    pub new_emode_admin: Option<Pubkey>,
+    pub new_curve_admin: Option<Pubkey>,
+    pub new_limit_admin: Option<Pubkey>,
+    pub new_flow_admin: Option<Pubkey>,
+    pub new_emissions_admin: Option<Pubkey>,
+    pub new_metadata_admin: Option<Pubkey>,
+    pub new_risk_admin: Option<Pubkey>,
     pub emode_max_init_leverage: Option<WrappedI80F48GraphQL>,
     pub emode_max_maint_leverage: Option<WrappedI80F48GraphQL>,
     pub accounts: carbon_core::graphql::primitives::Json,
@@ -29,15 +30,30 @@ impl TryFrom<crate::instructions::postgres::MarginfiGroupConfigureRow>
     ) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            new_admin: carbon_core::graphql::primitives::Pubkey(row.new_admin.0),
-            new_emode_admin: carbon_core::graphql::primitives::Pubkey(row.new_emode_admin.0),
-            new_curve_admin: carbon_core::graphql::primitives::Pubkey(row.new_curve_admin.0),
-            new_limit_admin: carbon_core::graphql::primitives::Pubkey(row.new_limit_admin.0),
-            new_emissions_admin: carbon_core::graphql::primitives::Pubkey(
-                row.new_emissions_admin.0,
-            ),
-            new_metadata_admin: carbon_core::graphql::primitives::Pubkey(row.new_metadata_admin.0),
-            new_risk_admin: carbon_core::graphql::primitives::Pubkey(row.new_risk_admin.0),
+            new_admin: row
+                .new_admin
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            new_emode_admin: row
+                .new_emode_admin
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            new_curve_admin: row
+                .new_curve_admin
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            new_limit_admin: row
+                .new_limit_admin
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            new_flow_admin: row
+                .new_flow_admin
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            new_emissions_admin: row
+                .new_emissions_admin
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            new_metadata_admin: row
+                .new_metadata_admin
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
+            new_risk_admin: row
+                .new_risk_admin
+                .map(|v| carbon_core::graphql::primitives::Pubkey(v.0)),
             emode_max_init_leverage: row.emode_max_init_leverage.map(|v| v.0.into()),
             emode_max_maint_leverage: row.emode_max_maint_leverage.map(|v| v.0.into()),
             accounts: carbon_core::graphql::primitives::Json(

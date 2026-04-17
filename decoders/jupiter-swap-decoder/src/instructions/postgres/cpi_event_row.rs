@@ -28,6 +28,7 @@ impl CpiEventRow {
                 CpiEvent::SwapEvent(_) => "swap_event".to_string(),
                 CpiEvent::SwapsEvent(_) => "swaps_event".to_string(),
                 CpiEvent::CandidateSwapResults(_) => "candidate_swap_results".to_string(),
+                CpiEvent::CandidateSwapQuoteError(_) => "candidate_swap_quote_error".to_string(),
                 CpiEvent::BestSwapOutAmountViolation(_) => {
                     "best_swap_out_amount_violation".to_string()
                 }

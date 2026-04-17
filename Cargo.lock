@@ -1184,17 +1184,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "borsh-derive-internal-satellite"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "996ac35ecdc9995ca77355f4ad93d4ff5d4d49215e8155ecc863d1be43bfe8ef"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn 1.0.109",
-]
-
-[[package]]
 name = "brotli"
 version = "8.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2307,9 +2296,6 @@ dependencies = [
 name = "carbon-proc-macros"
 version = "0.12.0"
 dependencies = [
- "borsh-derive-internal-satellite",
- "hex",
- "proc-macro2",
  "quote",
  "serde",
  "syn 1.0.109",

@@ -16,7 +16,7 @@ impl CreateLockEscrowEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 67, 114, 101, 97, 116, 101, 76, 111,
+                228, 69, 165, 46, 81, 203, 154, 29, 74, 94, 106, 141, 49, 17, 98, 109,
             ]
         {
             return None;

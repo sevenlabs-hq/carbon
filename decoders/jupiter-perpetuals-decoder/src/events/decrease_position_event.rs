@@ -43,7 +43,7 @@ impl DecreasePositionEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 68, 101, 99, 114, 101, 97, 115, 101,
+                228, 69, 165, 46, 81, 203, 154, 29, 64, 156, 43, 74, 109, 131, 16, 127,
             ]
         {
             return None;

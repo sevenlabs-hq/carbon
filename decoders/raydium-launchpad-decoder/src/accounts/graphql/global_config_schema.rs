@@ -24,6 +24,8 @@ pub struct GlobalConfigGraphQL {
     pub migrate_fee_owner: Pubkey,
     pub migrate_to_amm_wallet: Pubkey,
     pub migrate_to_cpswap_wallet: Pubkey,
+    pub requires_platform_auth: U8,
+    pub padding_alignment: Vec<U8>,
     pub padding: Vec<U64>,
 }
 
@@ -56,6 +58,14 @@ impl TryFrom<crate::accounts::postgres::GlobalConfigRow> for GlobalConfigGraphQL
             migrate_to_cpswap_wallet: carbon_core::graphql::primitives::Pubkey(
                 row.migrate_to_cpswap_wallet.0,
             ),
+            requires_platform_auth: carbon_core::graphql::primitives::U8(
+                (*row.requires_platform_auth) as u8,
+            ),
+            padding_alignment: row
+                .padding_alignment
+                .into_iter()
+                .map(carbon_core::graphql::primitives::U8)
+                .collect(),
             padding: row
                 .padding
                 .into_iter()

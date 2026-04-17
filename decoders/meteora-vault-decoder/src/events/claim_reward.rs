@@ -17,7 +17,7 @@ impl ClaimRewardEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 67, 108, 97, 105, 109, 82, 101, 119,
+                228, 69, 165, 46, 81, 203, 154, 29, 148, 116, 134, 204, 22, 171, 85, 95,
             ]
         {
             return None;

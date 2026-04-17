@@ -15,7 +15,7 @@ impl BorrowOrderPlaceEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 66, 111, 114, 114, 111, 119, 79, 114,
+                228, 69, 165, 46, 81, 203, 154, 29, 43, 211, 208, 186, 94, 227, 218, 198,
             ]
         {
             return None;

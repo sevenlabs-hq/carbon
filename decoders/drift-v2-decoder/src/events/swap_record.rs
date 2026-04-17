@@ -23,7 +23,7 @@ impl SwapRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 83, 119, 97, 112, 82, 101, 99, 111,
+                228, 69, 165, 46, 81, 203, 154, 29, 162, 187, 123, 194, 138, 56, 250, 241,
             ]
         {
             return None;

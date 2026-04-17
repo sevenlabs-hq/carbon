@@ -37,4 +37,10 @@ pub enum UpdateLendingMarketMode {
     UpdateWithdrawTicketIssuanceEnabled,
     UpdateWithdrawTicketRedemptionEnabled,
     UpdateMinWithdrawQueuedLiquidityValue,
+    UpdateFixedTermRolloverWindowDurationSeconds,
+    UpdateOpenTermRolloverWindowDurationSeconds,
+    UpdateObligationBorrowRolloverConfigurationEnabled,
+    UpdateTermBasedFullLiquidationDurationSecs,
+    UpdateObligationBorrowMigrationToFixedExecutionEnabled,
+    UpdateMinPartialRolloverValue,
 }

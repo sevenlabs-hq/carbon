@@ -17,7 +17,7 @@ impl OverrideCurveParamEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 79, 118, 101, 114, 114, 105, 100, 101,
+                228, 69, 165, 46, 81, 203, 154, 29, 247, 20, 165, 248, 75, 5, 54, 246,
             ]
         {
             return None;

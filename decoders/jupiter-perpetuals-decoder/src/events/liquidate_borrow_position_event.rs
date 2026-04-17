@@ -26,7 +26,7 @@ impl LiquidateBorrowPositionEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 76, 105, 113, 117, 105, 100, 97, 116,
+                228, 69, 165, 46, 81, 203, 154, 29, 11, 128, 252, 59, 49, 192, 56, 170,
             ]
         {
             return None;

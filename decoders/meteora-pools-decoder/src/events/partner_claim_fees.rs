@@ -18,7 +18,7 @@ impl PartnerClaimFeesEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 80, 97, 114, 116, 110, 101, 114, 67,
+                228, 69, 165, 46, 81, 203, 154, 29, 135, 131, 10, 94, 119, 209, 202, 48,
             ]
         {
             return None;

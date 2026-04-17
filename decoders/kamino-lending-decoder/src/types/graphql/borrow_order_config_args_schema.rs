@@ -11,6 +11,7 @@ pub struct BorrowOrderConfigArgsGraphQL {
     pub max_borrow_rate_bps: U32,
     pub min_debt_term_seconds: U64,
     pub fillable_until_timestamp: U64,
+    pub enable_auto_rollover_on_filled_borrows: bool,
 }
 
 impl From<crate::types::BorrowOrderConfigArgs> for BorrowOrderConfigArgsGraphQL {
@@ -28,6 +29,7 @@ impl From<crate::types::BorrowOrderConfigArgs> for BorrowOrderConfigArgsGraphQL 
             fillable_until_timestamp: carbon_core::graphql::primitives::U64(
                 original.fillable_until_timestamp,
             ),
+            enable_auto_rollover_on_filled_borrows: original.enable_auto_rollover_on_filled_borrows,
         }
     }
 }

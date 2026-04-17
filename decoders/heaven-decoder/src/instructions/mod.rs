@@ -220,7 +220,6 @@ pub enum HeavenInstruction {
         data: UpdateProtocolConfig,
         accounts: UpdateProtocolConfigInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,

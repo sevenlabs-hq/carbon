@@ -27,6 +27,8 @@ pub struct GlobalConfigRow {
     pub migrate_fee_owner: Pubkey,
     pub migrate_to_amm_wallet: Pubkey,
     pub migrate_to_cpswap_wallet: Pubkey,
+    pub requires_platform_auth: U8,
+    pub padding_alignment: Vec<u8>,
     pub padding: Vec<U64>,
 }
 
@@ -53,6 +55,8 @@ impl GlobalConfigRow {
             migrate_fee_owner: source.migrate_fee_owner.into(),
             migrate_to_amm_wallet: source.migrate_to_amm_wallet.into(),
             migrate_to_cpswap_wallet: source.migrate_to_cpswap_wallet.into(),
+            requires_platform_auth: source.requires_platform_auth.into(),
+            padding_alignment: source.padding_alignment.to_vec(),
             padding: source
                 .padding
                 .into_iter()
@@ -90,6 +94,21 @@ impl TryFrom<GlobalConfigRow> for crate::accounts::global_config::GlobalConfig {
             migrate_fee_owner: *source.migrate_fee_owner,
             migrate_to_amm_wallet: *source.migrate_to_amm_wallet,
             migrate_to_cpswap_wallet: *source.migrate_to_cpswap_wallet,
+            requires_platform_auth: source.requires_platform_auth.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
+            padding_alignment: source
+                .padding_alignment
+                .as_slice()
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert padding from postgres primitive: expected 7 bytes"
+                            .to_string(),
+                    )
+                })?,
             padding: source
                 .padding
                 .into_iter()
@@ -135,6 +154,8 @@ impl carbon_core::postgres::operations::Table for crate::accounts::global_config
             "migrate_fee_owner",
             "migrate_to_amm_wallet",
             "migrate_to_cpswap_wallet",
+            "requires_platform_auth",
+            "padding_alignment",
             "padding",
         ]
     }
@@ -143,8 +164,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::global_config
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO global_config_account (
                 "epoch",
                 "curve_type",
@@ -162,12 +182,13 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
                 "migrate_fee_owner",
                 "migrate_to_amm_wallet",
                 "migrate_to_cpswap_wallet",
+                "requires_platform_auth",
+                "padding_alignment",
                 "padding",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19
-            )"#,
-        )
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21
+            )"#)
         .bind(&self.epoch)
         .bind(self.curve_type)
         .bind(self.index)
@@ -184,11 +205,12 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
         .bind(self.migrate_fee_owner)
         .bind(self.migrate_to_amm_wallet)
         .bind(self.migrate_to_cpswap_wallet)
+        .bind(self.requires_platform_auth)
+        .bind(&self.padding_alignment)
         .bind(&self.padding)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -197,8 +219,7 @@ impl carbon_core::postgres::operations::Insert for GlobalConfigRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO global_config_account (
+        sqlx::query(r#"INSERT INTO global_config_account (
                 "epoch",
                 "curve_type",
                 "index",
@@ -215,10 +236,12 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
                 "migrate_fee_owner",
                 "migrate_to_amm_wallet",
                 "migrate_to_cpswap_wallet",
+                "requires_platform_auth",
+                "padding_alignment",
                 "padding",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -238,10 +261,11 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
                 "migrate_fee_owner" = EXCLUDED."migrate_fee_owner",
                 "migrate_to_amm_wallet" = EXCLUDED."migrate_to_amm_wallet",
                 "migrate_to_cpswap_wallet" = EXCLUDED."migrate_to_cpswap_wallet",
+                "requires_platform_auth" = EXCLUDED."requires_platform_auth",
+                "padding_alignment" = EXCLUDED."padding_alignment",
                 "padding" = EXCLUDED."padding",
                 __slot = EXCLUDED.__slot
-            "#,
-        )
+            "#)
         .bind(&self.epoch)
         .bind(self.curve_type)
         .bind(self.index)
@@ -258,11 +282,12 @@ impl carbon_core::postgres::operations::Upsert for GlobalConfigRow {
         .bind(self.migrate_fee_owner)
         .bind(self.migrate_to_amm_wallet)
         .bind(self.migrate_to_cpswap_wallet)
+        .bind(self.requires_platform_auth)
+        .bind(&self.padding_alignment)
         .bind(&self.padding)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -334,6 +359,8 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for GlobalConfigMigrationOperation
                 "migrate_fee_owner" BYTEA NOT NULL,
                 "migrate_to_amm_wallet" BYTEA NOT NULL,
                 "migrate_to_cpswap_wallet" BYTEA NOT NULL,
+                "requires_platform_auth" INT2 NOT NULL,
+                "padding_alignment" BYTEA NOT NULL,
                 "padding" NUMERIC(20)[] NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

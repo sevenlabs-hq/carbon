@@ -3,6 +3,7 @@ use {
     crate::types::StakedSettingsEditConfig,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
+/// (admin only) Edit the staked collateral settings for the group.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct EditStakedSettings {

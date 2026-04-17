@@ -2,6 +2,7 @@
 pub mod amount_to_ui_amount_schema;
 pub mod approve_checked_schema;
 pub mod approve_schema;
+pub mod batch_schema;
 pub mod burn_checked_schema;
 pub mod burn_schema;
 pub mod close_account_schema;
@@ -24,17 +25,19 @@ pub mod thaw_account_schema;
 pub mod transfer_checked_schema;
 pub mod transfer_schema;
 pub mod ui_amount_to_amount_schema;
+pub mod unwrap_lamports_schema;
+pub mod withdraw_excess_lamports_schema;
 
 use juniper::GraphQLObject;
 pub use {
-    amount_to_ui_amount_schema::*, approve_checked_schema::*, approve_schema::*,
+    amount_to_ui_amount_schema::*, approve_checked_schema::*, approve_schema::*, batch_schema::*,
     burn_checked_schema::*, burn_schema::*, close_account_schema::*, freeze_account_schema::*,
     get_account_data_size_schema::*, initialize_account2_schema::*, initialize_account3_schema::*,
     initialize_account_schema::*, initialize_immutable_owner_schema::*, initialize_mint2_schema::*,
     initialize_mint_schema::*, initialize_multisig2_schema::*, initialize_multisig_schema::*,
     mint_to_checked_schema::*, mint_to_schema::*, revoke_schema::*, set_authority_schema::*,
     sync_native_schema::*, thaw_account_schema::*, transfer_checked_schema::*, transfer_schema::*,
-    ui_amount_to_amount_schema::*,
+    ui_amount_to_amount_schema::*, unwrap_lamports_schema::*, withdraw_excess_lamports_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

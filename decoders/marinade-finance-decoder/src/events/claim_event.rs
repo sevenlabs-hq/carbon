@@ -23,7 +23,7 @@ impl ClaimEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 67, 108, 97, 105, 109, 69, 118, 101,
+                228, 69, 165, 46, 81, 203, 154, 29, 93, 15, 70, 170, 48, 140, 212, 219,
             ]
         {
             return None;

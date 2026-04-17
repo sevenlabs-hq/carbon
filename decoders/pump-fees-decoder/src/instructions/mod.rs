@@ -124,7 +124,6 @@ pub enum PumpFeesInstruction {
         data: UpsertFeeTiers,
         accounts: UpsertFeeTiersInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,

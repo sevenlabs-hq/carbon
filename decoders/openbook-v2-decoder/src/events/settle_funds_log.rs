@@ -19,7 +19,7 @@ impl SettleFundsLogEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 83, 101, 116, 116, 108, 101, 70, 117,
+                228, 69, 165, 46, 81, 203, 154, 29, 10, 50, 240, 117, 237, 67, 230, 233,
             ]
         {
             return None;

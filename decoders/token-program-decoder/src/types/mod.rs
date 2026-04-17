@@ -4,5 +4,6 @@ pub mod graphql;
 
 pub mod account_state;
 pub mod authority_type;
+pub mod batch_item;
 
-pub use self::{account_state::*, authority_type::*};
+pub use self::{account_state::*, authority_type::*, batch_item::*};

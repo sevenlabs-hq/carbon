@@ -34,7 +34,7 @@ impl InstantIncreasePositionEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 73, 110, 115, 116, 97, 110, 116, 73,
+                228, 69, 165, 46, 81, 203, 154, 29, 205, 236, 57, 4, 209, 106, 87, 69,
             ]
         {
             return None;

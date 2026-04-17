@@ -27,7 +27,7 @@ impl DepositEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 68, 101, 112, 111, 115, 105, 116, 69,
+                228, 69, 165, 46, 81, 203, 154, 29, 120, 248, 61, 83, 31, 142, 107, 144,
             ]
         {
             return None;

@@ -5,10 +5,11 @@ pub mod claim_protocol_fee_row;
 pub mod claim_protocol_pool_creation_fee_row;
 pub mod claim_trading_fee_row;
 pub mod close_claim_protocol_fee_operator_row;
+pub mod close_operator_account_row;
 pub mod cpi_event_row;
-pub mod create_claim_protocol_fee_operator_row;
 pub mod create_config_row;
 pub mod create_locker_row;
+pub mod create_operator_account_row;
 pub mod create_partner_metadata_row;
 pub mod create_virtual_pool_metadata_row;
 pub mod creator_withdraw_surplus_row;
@@ -26,12 +27,13 @@ pub mod swap_row;
 pub mod transfer_pool_creator_row;
 pub mod withdraw_leftover_row;
 pub mod withdraw_migration_fee_row;
+pub mod zap_protocol_fee_row;
 
 pub use self::{
     claim_creator_trading_fee_row::*, claim_partner_pool_creation_fee_row::*,
     claim_protocol_fee_row::*, claim_protocol_pool_creation_fee_row::*, claim_trading_fee_row::*,
-    close_claim_protocol_fee_operator_row::*, cpi_event_row::*,
-    create_claim_protocol_fee_operator_row::*, create_config_row::*, create_locker_row::*,
+    close_claim_protocol_fee_operator_row::*, close_operator_account_row::*, cpi_event_row::*,
+    create_config_row::*, create_locker_row::*, create_operator_account_row::*,
     create_partner_metadata_row::*, create_virtual_pool_metadata_row::*,
     creator_withdraw_surplus_row::*, initialize_virtual_pool_with_spl_token_row::*,
     initialize_virtual_pool_with_token2022_row::*, migrate_meteora_damm_claim_lp_token_row::*,
@@ -39,7 +41,7 @@ pub use self::{
     migration_damm_v2_create_metadata_row::*, migration_damm_v2_row::*,
     migration_meteora_damm_create_metadata_row::*, partner_withdraw_surplus_row::*, swap2_row::*,
     swap_row::*, transfer_pool_creator_row::*, withdraw_leftover_row::*,
-    withdraw_migration_fee_row::*,
+    withdraw_migration_fee_row::*, zap_protocol_fee_row::*,
 };
 use super::MeteoraDbcInstruction;
 
@@ -62,9 +64,10 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for MeteoraDbcInstructionsMigratio
             Box::new(ClaimProtocolPoolCreationFeeMigrationOperation),
             Box::new(ClaimTradingFeeMigrationOperation),
             Box::new(CloseClaimProtocolFeeOperatorMigrationOperation),
-            Box::new(CreateClaimProtocolFeeOperatorMigrationOperation),
+            Box::new(CloseOperatorAccountMigrationOperation),
             Box::new(CreateConfigMigrationOperation),
             Box::new(CreateLockerMigrationOperation),
+            Box::new(CreateOperatorAccountMigrationOperation),
             Box::new(CreatePartnerMetadataMigrationOperation),
             Box::new(CreateVirtualPoolMetadataMigrationOperation),
             Box::new(CreatorWithdrawSurplusMigrationOperation),
@@ -82,6 +85,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for MeteoraDbcInstructionsMigratio
             Box::new(TransferPoolCreatorMigrationOperation),
             Box::new(WithdrawLeftoverMigrationOperation),
             Box::new(WithdrawMigrationFeeMigrationOperation),
+            Box::new(ZapProtocolFeeMigrationOperation),
             Box::new(CpiEventMigrationOperation),
         ]
     }
@@ -167,8 +171,12 @@ impl carbon_core::postgres::operations::Insert for MeteoraDbcInstructionWithMeta
                 row.insert(pool).await?;
                 Ok(())
             }
-            MeteoraDbcInstruction::CreateClaimProtocolFeeOperator { data, .. } => {
-                let row = create_claim_protocol_fee_operator_row::CreateClaimProtocolFeeOperatorRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+            MeteoraDbcInstruction::CloseOperatorAccount { data, .. } => {
+                let row = close_operator_account_row::CloseOperatorAccountRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -183,6 +191,15 @@ impl carbon_core::postgres::operations::Insert for MeteoraDbcInstructionWithMeta
             }
             MeteoraDbcInstruction::CreateLocker { data, .. } => {
                 let row = create_locker_row::CreateLockerRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraDbcInstruction::CreateOperatorAccount { data, .. } => {
+                let row = create_operator_account_row::CreateOperatorAccountRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -313,6 +330,15 @@ impl carbon_core::postgres::operations::Insert for MeteoraDbcInstructionWithMeta
             }
             MeteoraDbcInstruction::WithdrawMigrationFee { data, .. } => {
                 let row = withdraw_migration_fee_row::WithdrawMigrationFeeRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraDbcInstruction::ZapProtocolFee { data, .. } => {
+                let row = zap_protocol_fee_row::ZapProtocolFeeRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -385,8 +411,12 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDbcInstructionWithMeta
                 row.upsert(pool).await?;
                 Ok(())
             }
-            MeteoraDbcInstruction::CreateClaimProtocolFeeOperator { data, .. } => {
-                let row = create_claim_protocol_fee_operator_row::CreateClaimProtocolFeeOperatorRow::from_parts(data.clone(), metadata.clone(), raw_accounts.clone());
+            MeteoraDbcInstruction::CloseOperatorAccount { data, .. } => {
+                let row = close_operator_account_row::CloseOperatorAccountRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
                 row.upsert(pool).await?;
                 Ok(())
             }
@@ -401,6 +431,15 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDbcInstructionWithMeta
             }
             MeteoraDbcInstruction::CreateLocker { data, .. } => {
                 let row = create_locker_row::CreateLockerRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraDbcInstruction::CreateOperatorAccount { data, .. } => {
+                let row = create_operator_account_row::CreateOperatorAccountRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -531,6 +570,15 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDbcInstructionWithMeta
             }
             MeteoraDbcInstruction::WithdrawMigrationFee { data, .. } => {
                 let row = withdraw_migration_fee_row::WithdrawMigrationFeeRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraDbcInstruction::ZapProtocolFee { data, .. } => {
+                let row = zap_protocol_fee_row::ZapProtocolFeeRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),

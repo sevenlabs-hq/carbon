@@ -54,7 +54,6 @@ pub enum MoonshotInstruction {
         data: TokenMint,
         accounts: TokenMintInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,

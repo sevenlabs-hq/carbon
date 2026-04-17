@@ -9,6 +9,7 @@ pub mod graphql;
 
 pub mod global_config;
 pub mod platform_config;
+pub mod platform_global_access;
 pub mod pool_state;
 pub mod vesting_record;
 
@@ -18,6 +19,7 @@ pub mod vesting_record;
 pub enum RaydiumLaunchpadAccount {
     GlobalConfig(Box<global_config::GlobalConfig>),
     PlatformConfig(Box<platform_config::PlatformConfig>),
+    PlatformGlobalAccess(Box<platform_global_access::PlatformGlobalAccess>),
     PoolState(Box<pool_state::PoolState>),
     VestingRecord(Box<vesting_record::VestingRecord>),
 }
@@ -51,6 +53,17 @@ impl<'a> carbon_core::account::AccountDecoder<'a> for RaydiumLaunchpadDecoder {
                 return Some(carbon_core::account::DecodedAccount {
                     lamports: account.lamports,
                     data: RaydiumLaunchpadAccount::PlatformConfig(Box::new(decoded)),
+                    owner: account.owner,
+                    executable: account.executable,
+                    rent_epoch: account.rent_epoch,
+                });
+            }
+        }
+        {
+            if let Some(decoded) = platform_global_access::PlatformGlobalAccess::decode(data) {
+                return Some(carbon_core::account::DecodedAccount {
+                    lamports: account.lamports,
+                    data: RaydiumLaunchpadAccount::PlatformGlobalAccess(Box::new(decoded)),
                     owner: account.owner,
                     executable: account.executable,
                     rent_epoch: account.rent_epoch,

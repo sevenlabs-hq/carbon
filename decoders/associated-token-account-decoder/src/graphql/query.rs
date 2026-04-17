@@ -8,13 +8,13 @@ impl QueryRoot {
     // Accounts
 
     // Instructions (per-instruction list and lookup by signature+index)
-    async fn create_associated_token(
+    async fn create(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::CreateAssociatedTokenGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::CreateAssociatedTokenRow> = sqlx::query_as(
-            r#"SELECT * FROM create_associated_token_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreateGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreateRow> = sqlx::query_as(
+            r#"SELECT * FROM create_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -27,13 +27,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn list_create_associated_token(
+    async fn list_create(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::CreateAssociatedTokenGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::CreateAssociatedTokenRow> = sqlx::query_as(
-            r#"SELECT * FROM create_associated_token_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreateGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreateRow> = sqlx::query_as(
+            r#"SELECT * FROM create_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -46,14 +46,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn create_associated_token_idempotent(
+    async fn create_idempotent(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::CreateAssociatedTokenIdempotentGraphQL>>
-    {
-        let rows: Vec<crate::instructions::postgres::CreateAssociatedTokenIdempotentRow> = sqlx::query_as(
-            r#"SELECT * FROM create_associated_token_idempotent_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreateIdempotentGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreateIdempotentRow> = sqlx::query_as(
+            r#"SELECT * FROM create_idempotent_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -66,14 +65,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn list_create_associated_token_idempotent(
+    async fn list_create_idempotent(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::CreateAssociatedTokenIdempotentGraphQL>>
-    {
-        let rows: Vec<crate::instructions::postgres::CreateAssociatedTokenIdempotentRow> = sqlx::query_as(
-            r#"SELECT * FROM create_associated_token_idempotent_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreateIdempotentGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreateIdempotentRow> = sqlx::query_as(
+            r#"SELECT * FROM create_idempotent_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -86,13 +84,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn recover_nested_associated_token(
+    async fn recover_nested(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::RecoverNestedAssociatedTokenGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::RecoverNestedAssociatedTokenRow> = sqlx::query_as(
-            r#"SELECT * FROM recover_nested_associated_token_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::RecoverNestedGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::RecoverNestedRow> = sqlx::query_as(
+            r#"SELECT * FROM recover_nested_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -105,13 +103,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn list_recover_nested_associated_token(
+    async fn list_recover_nested(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::RecoverNestedAssociatedTokenGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::RecoverNestedAssociatedTokenRow> = sqlx::query_as(
-            r#"SELECT * FROM recover_nested_associated_token_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::RecoverNestedGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::RecoverNestedRow> = sqlx::query_as(
+            r#"SELECT * FROM recover_nested_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

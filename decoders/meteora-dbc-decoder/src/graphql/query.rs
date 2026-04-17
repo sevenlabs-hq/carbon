@@ -146,6 +146,40 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn operator(
+        context: &crate::graphql::context::GraphQLContext,
+        pubkey: String,
+    ) -> FieldResult<Option<crate::accounts::graphql::OperatorGraphQL>> {
+        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        let pk = PgPubkey(
+            solana_pubkey::Pubkey::from_str(&pubkey)
+                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
+        );
+        let row = crate::accounts::postgres::OperatorRow::lookup(pk, &context.pool)
+            .await
+            .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(row.and_then(|row| row.try_into().ok()))
+    }
+
+    async fn list_operator(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::accounts::graphql::OperatorGraphQL>> {
+        let rows: Vec<crate::accounts::postgres::OperatorRow> = sqlx::query_as(
+            r#"SELECT * FROM operator_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn partner_metadata(
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
@@ -511,13 +545,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn create_claim_protocol_fee_operator(
+    async fn close_operator_account(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
         instruction_index: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::CreateClaimProtocolFeeOperatorGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::CreateClaimProtocolFeeOperatorRow> = sqlx::query_as(
-            r#"SELECT * FROM create_claim_protocol_fee_operator_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CloseOperatorAccountGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CloseOperatorAccountRow> = sqlx::query_as(
+            r#"SELECT * FROM close_operator_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
         )
         .bind(signature)
         .bind(instruction_index)
@@ -530,13 +564,13 @@ impl QueryRoot {
             .collect())
     }
 
-    async fn list_create_claim_protocol_fee_operator(
+    async fn list_close_operator_account(
         context: &crate::graphql::context::GraphQLContext,
         limit: i32,
         offset: i32,
-    ) -> FieldResult<Vec<crate::instructions::graphql::CreateClaimProtocolFeeOperatorGraphQL>> {
-        let rows: Vec<crate::instructions::postgres::CreateClaimProtocolFeeOperatorRow> = sqlx::query_as(
-            r#"SELECT * FROM create_claim_protocol_fee_operator_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CloseOperatorAccountGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CloseOperatorAccountRow> = sqlx::query_as(
+            r#"SELECT * FROM close_operator_account_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -613,6 +647,44 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::CreateLockerGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreateLockerRow> = sqlx::query_as(
             r#"SELECT * FROM create_locker_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn create_operator_account(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreateOperatorAccountGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreateOperatorAccountRow> = sqlx::query_as(
+            r#"SELECT * FROM create_operator_account_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_create_operator_account(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreateOperatorAccountGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreateOperatorAccountRow> = sqlx::query_as(
+            r#"SELECT * FROM create_operator_account_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)
@@ -1265,6 +1337,44 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::WithdrawMigrationFeeGraphQL>> {
         let rows: Vec<crate::instructions::postgres::WithdrawMigrationFeeRow> = sqlx::query_as(
             r#"SELECT * FROM withdraw_migration_fee_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn zap_protocol_fee(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ZapProtocolFeeGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ZapProtocolFeeRow> = sqlx::query_as(
+            r#"SELECT * FROM zap_protocol_fee_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_zap_protocol_fee(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ZapProtocolFeeGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ZapProtocolFeeRow> = sqlx::query_as(
+            r#"SELECT * FROM zap_protocol_fee_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

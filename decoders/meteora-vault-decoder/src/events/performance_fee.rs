@@ -14,7 +14,7 @@ impl PerformanceFeeEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 80, 101, 114, 102, 111, 114, 109, 97,
+                228, 69, 165, 46, 81, 203, 154, 29, 28, 70, 231, 223, 81, 109, 239, 167,
             ]
         {
             return None;

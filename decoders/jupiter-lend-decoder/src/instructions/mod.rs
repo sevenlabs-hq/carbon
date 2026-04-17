@@ -167,7 +167,6 @@ pub enum JupiterLendInstruction {
         data: UpdateUserWithdrawalLimit,
         accounts: UpdateUserWithdrawalLimitInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,

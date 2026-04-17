@@ -104,7 +104,6 @@ pub enum MeteoraVaultInstruction {
         data: WithdrawStrategy,
         accounts: WithdrawStrategyInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,

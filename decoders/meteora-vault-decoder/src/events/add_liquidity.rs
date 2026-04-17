@@ -15,7 +15,7 @@ impl AddLiquidityEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 65, 100, 100, 76, 105, 113, 117, 105,
+                228, 69, 165, 46, 81, 203, 154, 29, 31, 94, 125, 90, 227, 52, 61, 186,
             ]
         {
             return None;

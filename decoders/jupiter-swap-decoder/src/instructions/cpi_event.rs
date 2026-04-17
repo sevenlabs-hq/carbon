@@ -16,6 +16,7 @@ pub enum CpiEvent {
     SwapEvent(events::swap_event::SwapEventEvent),
     SwapsEvent(events::swaps_event::SwapsEventEvent),
     CandidateSwapResults(events::candidate_swap_results::CandidateSwapResultsEvent),
+    CandidateSwapQuoteError(events::candidate_swap_quote_error::CandidateSwapQuoteErrorEvent),
     BestSwapOutAmountViolation(
         events::best_swap_out_amount_violation::BestSwapOutAmountViolationEvent,
     ),
@@ -56,6 +57,11 @@ impl CpiEvent {
             return Some(CpiEvent::CandidateSwapResults(decoded));
         }
         if let Some(decoded) =
+            events::candidate_swap_quote_error::CandidateSwapQuoteErrorEvent::decode(event_data)
+        {
+            return Some(CpiEvent::CandidateSwapQuoteError(decoded));
+        }
+        if let Some(decoded) =
             events::best_swap_out_amount_violation::BestSwapOutAmountViolationEvent::decode(
                 event_data,
             )
@@ -72,14 +78,18 @@ impl ArrangeAccounts for CpiEvent {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [program, event_authority, remaining @ ..] = accounts else {
-            return None;
-        };
-
-        Some(CpiEventInstructionAccounts {
-            program: program.pubkey,
-            event_authority: event_authority.pubkey,
-            remaining: remaining.to_vec(),
-        })
+        match accounts {
+            [program, event_authority, remaining @ ..] => Some(CpiEventInstructionAccounts {
+                program: program.pubkey,
+                event_authority: event_authority.pubkey,
+                remaining: remaining.to_vec(),
+            }),
+            [event_authority] => Some(CpiEventInstructionAccounts {
+                program: crate::PROGRAM_ID,
+                event_authority: event_authority.pubkey,
+                remaining: Vec::new(),
+            }),
+            _ => None,
+        }
     }
 }

@@ -14,7 +14,6 @@ pub mod dynamic_config_parameters;
 pub mod dynamic_fee_config;
 pub mod dynamic_fee_parameters;
 pub mod dynamic_fee_struct;
-pub mod evt_claim_partner_fee;
 pub mod evt_claim_position_fee;
 pub mod evt_claim_protocol_fee;
 pub mod evt_claim_reward;
@@ -67,10 +66,10 @@ pub use self::{
     add_liquidity_parameters::*, base_fee_info::*, base_fee_parameters::*, base_fee_struct::*,
     borsh_fee_market_cap_scheduler::*, borsh_fee_rate_limiter::*, borsh_fee_time_scheduler::*,
     dummy_params::*, dynamic_config_parameters::*, dynamic_fee_config::*,
-    dynamic_fee_parameters::*, dynamic_fee_struct::*, evt_claim_partner_fee::*,
-    evt_claim_position_fee::*, evt_claim_protocol_fee::*, evt_claim_reward::*, evt_close_config::*,
-    evt_close_position::*, evt_create_config::*, evt_create_dynamic_config::*,
-    evt_create_position::*, evt_create_token_badge::*, evt_fund_reward::*, evt_initialize_pool::*,
+    dynamic_fee_parameters::*, dynamic_fee_struct::*, evt_claim_position_fee::*,
+    evt_claim_protocol_fee::*, evt_claim_reward::*, evt_close_config::*, evt_close_position::*,
+    evt_create_config::*, evt_create_dynamic_config::*, evt_create_position::*,
+    evt_create_token_badge::*, evt_fund_reward::*, evt_initialize_pool::*,
     evt_initialize_reward::*, evt_liquidity_change::*, evt_lock_position::*,
     evt_permanent_lock_position::*, evt_set_pool_status::*, evt_split_position2::*,
     evt_split_position3::*, evt_swap2::*, evt_update_pool_fees::*, evt_update_reward_duration::*,

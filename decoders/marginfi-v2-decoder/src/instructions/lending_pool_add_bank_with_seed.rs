@@ -3,7 +3,7 @@ use {
     crate::types::BankConfigCompact,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
-/// A copy of lending_pool_add_bank with an additional bank seed.
+/// (admin only) A copy of lending_pool_add_bank with an additional bank seed.
 /// This seed is used to create a PDA for the bank's signature.
 /// lending_pool_add_bank is preserved for backwards compatibility.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

@@ -17,7 +17,7 @@ impl StrategyWithdrawEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 83, 116, 114, 97, 116, 101, 103, 121,
+                228, 69, 165, 46, 81, 203, 154, 29, 120, 76, 208, 95, 221, 210, 229, 189,
             ]
         {
             return None;

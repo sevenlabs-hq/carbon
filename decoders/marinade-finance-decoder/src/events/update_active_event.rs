@@ -33,7 +33,7 @@ impl UpdateActiveEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 85, 112, 100, 97, 116, 101, 65, 99,
+                228, 69, 165, 46, 81, 203, 154, 29, 251, 18, 128, 75, 208, 80, 174, 140,
             ]
         {
             return None;

@@ -3,6 +3,47 @@ use {
     crate::types::{RemainingAccountsInfo, RepositionLiquidityMethod},
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
+/// An atomic instruction that repositions liquidity for a position through the
+/// following steps:
+/// - Withdraws liquidity from the current position range
+/// - Resets the position to a new tick range
+/// - Adds liquidity to the new position range
+/// - Restores fees and rewards
+///
+/// This instruction works with both Token and Token-2022.
+/// ### Authority
+/// - `position_authority` - authority that owns the token corresponding to this
+///   desired position.
+///
+/// ### Parameters
+/// - `new_tick_lower_index` - The new tick index for the lower end of the
+///   position range.
+/// - `new_tick_upper_index` - The new tick index for the upper end of the
+///   position range.
+/// - `new_liquidity_amount` - The total amount of Liquidity the user is willing
+///   to deposit.
+/// - `existing_range_token_min_a` - The minimum amount of tokenA the user is
+///   willing to withdraw from the existing range.
+/// - `existing_range_token_min_b` - The minimum amount of tokenB the user is
+///   willing to withdraw from the existing range.
+/// - `new_range_token_max_a` - The maximum amount of tokenA the user is willing
+///   to deposit into the new range.
+/// - `new_range_token_max_b` - The maximum amount of tokenB the user is willing
+///   to deposit into the new range.
+///
+/// #### Special Errors
+/// - `LiquidityZero` - Provided liquidity amount is zero.
+/// - `LiquidityTooHigh` - Provided liquidity exceeds u128::max.
+/// - `TokenMaxExceeded` - The required token to perform this operation exceeds
+///   the user defined amount.
+/// - `TokenMinSubceeded` - The required token to perform this operation
+///   subceeds the user defined amount.
+/// - `InvalidTickIndex` - If a provided tick is out of bounds, out of order or
+///   not a multiple of
+///
+/// the tick-spacing in this pool.
+/// - `SameTickRangeNotAllowed` - The provided tick range is the same as the
+///   current tick range.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct RepositionLiquidityV2 {

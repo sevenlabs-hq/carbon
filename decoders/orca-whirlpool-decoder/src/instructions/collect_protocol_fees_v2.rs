@@ -3,6 +3,11 @@ use {
     crate::types::RemainingAccountsInfo,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
+/// Collect the protocol fees accrued in this Whirlpool
+/// This instruction works with both Token and Token-2022.
+/// ### Authority
+/// - `collect_protocol_fees_authority` - assigned authority in the
+///   WhirlpoolConfig that can collect protocol fees
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct CollectProtocolFeesV2 {

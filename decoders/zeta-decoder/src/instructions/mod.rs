@@ -695,7 +695,6 @@ pub enum ZetaInstruction {
         data: WithdrawV2,
         accounts: WithdrawV2InstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,

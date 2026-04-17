@@ -22,7 +22,8 @@ pub struct FeeStateGraphQL {
     pub panic_state: PanicStateGraphQL,
     pub placeholder1: U64,
     pub liquidation_flat_sol_fee: U32,
-    pub reserved0: Vec<U8>,
+    pub order_init_flat_sol_fee: U32,
+    pub order_execution_max_fee: WrappedI80F48GraphQL,
     pub reserved1: Vec<U8>,
 }
 
@@ -52,11 +53,10 @@ impl TryFrom<crate::accounts::postgres::FeeStateRow> for FeeStateGraphQL {
             liquidation_flat_sol_fee: carbon_core::graphql::primitives::U32(
                 (*row.liquidation_flat_sol_fee) as u32,
             ),
-            reserved0: row
-                .reserved0
-                .into_iter()
-                .map(carbon_core::graphql::primitives::U8)
-                .collect(),
+            order_init_flat_sol_fee: carbon_core::graphql::primitives::U32(
+                (*row.order_init_flat_sol_fee) as u32,
+            ),
+            order_execution_max_fee: row.order_execution_max_fee.0.into(),
             reserved1: row
                 .reserved1
                 .into_iter()

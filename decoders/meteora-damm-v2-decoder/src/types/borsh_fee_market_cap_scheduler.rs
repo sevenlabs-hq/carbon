@@ -8,5 +8,4 @@ pub struct BorshFeeMarketCapScheduler {
     pub scheduler_expiration_duration: u32,
     pub reduction_factor: u64,
     pub base_fee_mode: u8,
-    pub padding: [u8; 3],
 }

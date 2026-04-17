@@ -12,9 +12,11 @@ pub struct EditGlobalFeeState {
     pub fee_wallet: Pubkey,
     pub bank_init_flat_sol_fee: u32,
     pub liquidation_flat_sol_fee: u32,
+    pub order_init_flat_sol_fee: u32,
     pub program_fee_fixed: WrappedI80F48,
     pub program_fee_rate: WrappedI80F48,
     pub liquidation_max_fee: WrappedI80F48,
+    pub order_execution_max_fee: WrappedI80F48,
 }
 
 #[derive(Debug, Clone, PartialEq)]

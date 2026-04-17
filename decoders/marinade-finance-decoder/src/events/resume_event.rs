@@ -15,7 +15,7 @@ impl ResumeEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 82, 101, 115, 117, 109, 101, 69, 118,
+                228, 69, 165, 46, 81, 203, 154, 29, 97, 117, 183, 115, 117, 224, 8, 229,
             ]
         {
             return None;

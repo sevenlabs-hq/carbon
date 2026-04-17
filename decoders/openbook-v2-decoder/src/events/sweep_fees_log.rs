@@ -17,7 +17,7 @@ impl SweepFeesLogEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 83, 119, 101, 101, 112, 70, 101, 101,
+                228, 69, 165, 46, 81, 203, 154, 29, 210, 242, 26, 77, 94, 48, 255, 61,
             ]
         {
             return None;

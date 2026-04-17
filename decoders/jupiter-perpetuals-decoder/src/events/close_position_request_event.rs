@@ -24,7 +24,7 @@ impl ClosePositionRequestEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 67, 108, 111, 115, 101, 80, 111, 115,
+                228, 69, 165, 46, 81, 203, 154, 29, 21, 34, 92, 158, 224, 29, 180, 243,
             ]
         {
             return None;

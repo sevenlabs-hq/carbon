@@ -104,7 +104,6 @@ pub enum OkxDexInstruction {
         data: WrapUnwrapV3WithReceiver,
         accounts: WrapUnwrapV3WithReceiverInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,

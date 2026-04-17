@@ -3,6 +3,11 @@ use {
     crate::types::RemainingAccountsInfo,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
+/// Collect fees accrued for this position.
+/// This instruction works with both Token and Token-2022.
+/// ### Authority
+/// - `position_authority` - authority that owns the token corresponding to this
+///   desired position.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct CollectFeesV2 {

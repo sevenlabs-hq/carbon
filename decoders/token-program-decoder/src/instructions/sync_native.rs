@@ -13,6 +13,7 @@ pub struct SyncNative {}
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct SyncNativeInstructionAccounts {
     pub account: solana_pubkey::Pubkey,
+    pub rent: Option<solana_pubkey::Pubkey>,
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
@@ -43,11 +44,13 @@ impl ArrangeAccounts for SyncNative {
         let mut iter = accounts.iter();
 
         let account = next_account(&mut iter)?;
+        let rent = next_account(&mut iter);
 
         let remaining = iter.as_slice();
 
         Some(SyncNativeInstructionAccounts {
             account,
+            rent,
             remaining: remaining.to_vec(),
         })
     }

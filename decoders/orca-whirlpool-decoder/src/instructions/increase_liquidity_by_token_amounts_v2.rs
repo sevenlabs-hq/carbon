@@ -3,6 +3,26 @@ use {
     crate::types::{IncreaseLiquidityMethod, RemainingAccountsInfo},
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
+/// Add liquidity to a position by specifying token maxima, not liquidity.
+/// This instruction works with both Token and Token-2022.
+/// NOTE: This instruction is only implemented in Pinocchio, not Anchor.
+/// ### Authority
+/// - `position_authority` - authority that owns the token corresponding to this
+///   desired position.
+///
+/// ### Parameters
+/// - `token_max_a` - The maximum amount of tokenA the user is willing to
+///   deposit.
+/// - `token_max_b` - The maximum amount of tokenB the user is willing to
+///   deposit.
+/// - `min_sqrt_price` - The minimum sqrt price allowed.
+/// - `max_sqrt_price` - The maximum sqrt price allowed.
+///
+/// #### Special Errors
+/// - `LiquidityZero` - Computed liquidity amount is zero.
+/// - `LiquidityTooHigh` - Computed liquidity exceeds u128::max.
+/// - `TokenMaxExceeded` - The required token to perform this operation exceeds
+///   the user defined amount.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct IncreaseLiquidityByTokenAmountsV2 {

@@ -27,7 +27,7 @@ impl InstantUpdateTpslEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 73, 110, 115, 116, 97, 110, 116, 85,
+                228, 69, 165, 46, 81, 203, 154, 29, 177, 22, 47, 37, 120, 246, 17, 101,
             ]
         {
             return None;

@@ -4,7 +4,6 @@ use crate::types::OrchestratorFlags;
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct DeriverseSwapOptions {
     pub amount: u64,
-    pub instr_id: u32,
-    /// Flags for the swap (e.g. buy/sell).
+    /// Optional flags for the swap
     pub orchestrator_flags: OrchestratorFlags,
 }

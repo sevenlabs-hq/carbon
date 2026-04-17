@@ -10,6 +10,7 @@ pub mod graphql;
 pub mod claim;
 pub mod claim_token;
 pub mod close_token;
+pub mod close_wsol_token_account;
 pub mod cpi_event;
 pub mod create_token_account;
 pub mod create_token_ledger;
@@ -26,10 +27,11 @@ pub mod shared_accounts_route_v2;
 pub mod shared_accounts_route_with_token_ledger;
 
 pub use self::{
-    claim::*, claim_token::*, close_token::*, cpi_event::*, create_token_account::*,
-    create_token_ledger::*, exact_out_route::*, exact_out_route_v2::*, route::*, route_v2::*,
-    route_with_token_ledger::*, set_token_ledger::*, shared_accounts_exact_out_route::*,
-    shared_accounts_exact_out_route_v2::*, shared_accounts_route::*, shared_accounts_route_v2::*,
+    claim::*, claim_token::*, close_token::*, close_wsol_token_account::*, cpi_event::*,
+    create_token_account::*, create_token_ledger::*, exact_out_route::*, exact_out_route_v2::*,
+    route::*, route_v2::*, route_with_token_ledger::*, set_token_ledger::*,
+    shared_accounts_exact_out_route::*, shared_accounts_exact_out_route_v2::*,
+    shared_accounts_route::*, shared_accounts_route_v2::*,
     shared_accounts_route_with_token_ledger::*,
 };
 
@@ -51,6 +53,11 @@ pub enum JupiterSwapInstruction {
         program_id: solana_pubkey::Pubkey,
         data: CloseToken,
         accounts: CloseTokenInstructionAccounts,
+    },
+    CloseWsolTokenAccount {
+        program_id: solana_pubkey::Pubkey,
+        data: CloseWsolTokenAccount,
+        accounts: CloseWsolTokenAccountInstructionAccounts,
     },
     CreateTokenAccount {
         program_id: solana_pubkey::Pubkey,
@@ -117,7 +124,6 @@ pub enum JupiterSwapInstruction {
         data: SharedAccountsRouteWithTokenLedger,
         accounts: SharedAccountsRouteWithTokenLedgerInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
@@ -142,6 +148,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterSwapDecoder {
             JupiterSwapInstruction::Claim => Claim,
             JupiterSwapInstruction::ClaimToken => ClaimToken,
             JupiterSwapInstruction::CloseToken => CloseToken,
+            JupiterSwapInstruction::CloseWsolTokenAccount => CloseWsolTokenAccount,
             JupiterSwapInstruction::CreateTokenAccount => CreateTokenAccount,
             JupiterSwapInstruction::CreateTokenLedger => CreateTokenLedger,
             JupiterSwapInstruction::ExactOutRoute => ExactOutRoute,

@@ -26,7 +26,7 @@ impl LPSettleRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 76, 80, 83, 101, 116, 116, 108, 101,
+                228, 69, 165, 46, 81, 203, 154, 29, 208, 191, 131, 110, 173, 48, 7, 2,
             ]
         {
             return None;

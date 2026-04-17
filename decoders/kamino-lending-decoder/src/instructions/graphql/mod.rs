@@ -37,6 +37,7 @@ pub mod repay_and_withdraw_and_redeem_schema;
 pub mod repay_obligation_liquidity_schema;
 pub mod repay_obligation_liquidity_v2_schema;
 pub mod request_elevation_group_schema;
+pub mod rollover_fixed_term_borrow_schema;
 pub mod seed_deposit_on_init_reserve_schema;
 pub mod set_borrow_order_schema;
 pub mod set_obligation_order_schema;
@@ -46,6 +47,7 @@ pub mod update_global_config_admin_schema;
 pub mod update_global_config_schema;
 pub mod update_lending_market_owner_schema;
 pub mod update_lending_market_schema;
+pub mod update_obligation_config_schema;
 pub mod update_reserve_config_schema;
 pub mod withdraw_obligation_collateral_and_redeem_reserve_collateral_schema;
 pub mod withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_schema;
@@ -78,10 +80,11 @@ pub use {
     refresh_reserve_schema::*, refresh_reserves_batch_schema::*,
     repay_and_withdraw_and_redeem_schema::*, repay_obligation_liquidity_schema::*,
     repay_obligation_liquidity_v2_schema::*, request_elevation_group_schema::*,
-    seed_deposit_on_init_reserve_schema::*, set_borrow_order_schema::*,
-    set_obligation_order_schema::*, socialize_loss_schema::*, socialize_loss_v2_schema::*,
-    update_global_config_admin_schema::*, update_global_config_schema::*,
-    update_lending_market_owner_schema::*, update_lending_market_schema::*,
+    rollover_fixed_term_borrow_schema::*, seed_deposit_on_init_reserve_schema::*,
+    set_borrow_order_schema::*, set_obligation_order_schema::*, socialize_loss_schema::*,
+    socialize_loss_v2_schema::*, update_global_config_admin_schema::*,
+    update_global_config_schema::*, update_lending_market_owner_schema::*,
+    update_lending_market_schema::*, update_obligation_config_schema::*,
     update_reserve_config_schema::*,
     withdraw_obligation_collateral_and_redeem_reserve_collateral_schema::*,
     withdraw_obligation_collateral_and_redeem_reserve_collateral_v2_schema::*,

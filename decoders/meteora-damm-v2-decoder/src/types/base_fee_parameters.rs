@@ -2,5 +2,5 @@
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct BaseFeeParameters {
-    pub data: [u8; 30],
+    pub data: [u8; 27],
 }

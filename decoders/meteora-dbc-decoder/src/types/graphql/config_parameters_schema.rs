@@ -39,6 +39,7 @@ pub struct ConfigParametersGraphQL {
     pub migrated_pool_market_cap_fee_scheduler_params:
         MigratedPoolMarketCapFeeSchedulerParamsGraphQL,
     pub enable_first_swap_with_min_fee: bool,
+    pub compounding_fee_bps: i32,
     pub padding: Vec<U8>,
     pub curve: Vec<LiquidityDistributionParametersGraphQL>,
 }
@@ -91,6 +92,7 @@ impl From<crate::types::ConfigParameters> for ConfigParametersGraphQL {
                 .migrated_pool_market_cap_fee_scheduler_params
                 .into(),
             enable_first_swap_with_min_fee: original.enable_first_swap_with_min_fee,
+            compounding_fee_bps: original.compounding_fee_bps as i32,
             padding: original
                 .padding
                 .into_iter()

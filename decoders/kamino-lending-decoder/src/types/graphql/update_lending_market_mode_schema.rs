@@ -39,6 +39,12 @@ pub enum UpdateLendingMarketModeGraphQL {
     UpdateWithdrawTicketIssuanceEnabled,
     UpdateWithdrawTicketRedemptionEnabled,
     UpdateMinWithdrawQueuedLiquidityValue,
+    UpdateFixedTermRolloverWindowDurationSeconds,
+    UpdateOpenTermRolloverWindowDurationSeconds,
+    UpdateObligationBorrowRolloverConfigurationEnabled,
+    UpdateTermBasedFullLiquidationDurationSecs,
+    UpdateObligationBorrowMigrationToFixedExecutionEnabled,
+    UpdateMinPartialRolloverValue,
 }
 
 impl From<crate::types::UpdateLendingMarketMode> for UpdateLendingMarketModeGraphQL {
@@ -79,6 +85,12 @@ impl From<crate::types::UpdateLendingMarketMode> for UpdateLendingMarketModeGrap
             crate::types::UpdateLendingMarketMode::UpdateWithdrawTicketIssuanceEnabled => Self::UpdateWithdrawTicketIssuanceEnabled,
             crate::types::UpdateLendingMarketMode::UpdateWithdrawTicketRedemptionEnabled => Self::UpdateWithdrawTicketRedemptionEnabled,
             crate::types::UpdateLendingMarketMode::UpdateMinWithdrawQueuedLiquidityValue => Self::UpdateMinWithdrawQueuedLiquidityValue,
+            crate::types::UpdateLendingMarketMode::UpdateFixedTermRolloverWindowDurationSeconds => Self::UpdateFixedTermRolloverWindowDurationSeconds,
+            crate::types::UpdateLendingMarketMode::UpdateOpenTermRolloverWindowDurationSeconds => Self::UpdateOpenTermRolloverWindowDurationSeconds,
+            crate::types::UpdateLendingMarketMode::UpdateObligationBorrowRolloverConfigurationEnabled => Self::UpdateObligationBorrowRolloverConfigurationEnabled,
+            crate::types::UpdateLendingMarketMode::UpdateTermBasedFullLiquidationDurationSecs => Self::UpdateTermBasedFullLiquidationDurationSecs,
+            crate::types::UpdateLendingMarketMode::UpdateObligationBorrowMigrationToFixedExecutionEnabled => Self::UpdateObligationBorrowMigrationToFixedExecutionEnabled,
+            crate::types::UpdateLendingMarketMode::UpdateMinPartialRolloverValue => Self::UpdateMinPartialRolloverValue,
         }
     }
 }

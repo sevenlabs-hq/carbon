@@ -23,7 +23,7 @@ impl FuelSeasonRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 70, 117, 101, 108, 83, 101, 97, 115,
+                228, 69, 165, 46, 81, 203, 154, 29, 19, 137, 119, 33, 224, 249, 6, 87,
             ]
         {
             return None;

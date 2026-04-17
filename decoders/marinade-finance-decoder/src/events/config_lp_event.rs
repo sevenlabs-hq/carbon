@@ -22,7 +22,7 @@ impl ConfigLpEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 67, 111, 110, 102, 105, 103, 76, 112,
+                228, 69, 165, 46, 81, 203, 154, 29, 159, 204, 192, 138, 68, 145, 224, 148,
             ]
         {
             return None;

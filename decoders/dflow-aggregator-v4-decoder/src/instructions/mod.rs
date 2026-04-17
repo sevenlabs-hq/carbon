@@ -123,7 +123,6 @@ pub enum DflowAggregatorV4Instruction {
         data: WrapSol,
         accounts: WrapSolInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,

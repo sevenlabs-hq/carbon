@@ -6,6 +6,7 @@ use carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts};
 /// * `param` - Parameter to update:
 /// - 0: Update trade_fee_rate
 /// - 1: Update fee owner
+/// - 12: Toggle whether explicit platform authorization is required
 /// * `value` - New value for the selected parameter
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]

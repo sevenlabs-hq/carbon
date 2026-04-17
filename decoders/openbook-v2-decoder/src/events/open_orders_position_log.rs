@@ -26,7 +26,7 @@ impl OpenOrdersPositionLogEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 79, 112, 101, 110, 79, 114, 100, 101,
+                228, 69, 165, 46, 81, 203, 154, 29, 196, 249, 148, 33, 168, 228, 73, 6,
             ]
         {
             return None;

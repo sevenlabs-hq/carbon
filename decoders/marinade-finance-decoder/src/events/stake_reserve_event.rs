@@ -27,7 +27,7 @@ impl StakeReserveEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 83, 116, 97, 107, 101, 82, 101, 115,
+                228, 69, 165, 46, 81, 203, 154, 29, 112, 117, 149, 185, 77, 119, 190, 106,
             ]
         {
             return None;
