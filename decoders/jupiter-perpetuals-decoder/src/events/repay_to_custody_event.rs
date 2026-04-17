@@ -22,7 +22,7 @@ impl RepayToCustodyEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 82, 101, 112, 97, 121, 84, 111, 67,
+                228, 69, 165, 46, 81, 203, 154, 29, 232, 54, 116, 175, 186, 24, 249, 221,
             ]
         {
             return None;

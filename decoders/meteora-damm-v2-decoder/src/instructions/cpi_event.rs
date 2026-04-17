@@ -12,7 +12,6 @@ use carbon_core::{borsh, deserialize::ArrangeAccounts};
     PartialEq,
 )]
 pub enum CpiEvent {
-    EvtClaimPartnerFee(events::evt_claim_partner_fee::EvtClaimPartnerFeeEvent),
     EvtClaimPositionFee(events::evt_claim_position_fee::EvtClaimPositionFeeEvent),
     EvtClaimProtocolFee(events::evt_claim_protocol_fee::EvtClaimProtocolFeeEvent),
     EvtClaimReward(events::evt_claim_reward::EvtClaimRewardEvent),
@@ -60,11 +59,6 @@ impl CpiEvent {
 
         let event_data = &data[8..];
 
-        if let Some(decoded) =
-            events::evt_claim_partner_fee::EvtClaimPartnerFeeEvent::decode(event_data)
-        {
-            return Some(CpiEvent::EvtClaimPartnerFee(decoded));
-        }
         if let Some(decoded) =
             events::evt_claim_position_fee::EvtClaimPositionFeeEvent::decode(event_data)
         {
@@ -179,14 +173,18 @@ impl ArrangeAccounts for CpiEvent {
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
     ) -> Option<Self::ArrangedAccounts> {
-        let [program, event_authority, remaining @ ..] = accounts else {
-            return None;
-        };
-
-        Some(CpiEventInstructionAccounts {
-            program: program.pubkey,
-            event_authority: event_authority.pubkey,
-            remaining: remaining.to_vec(),
-        })
+        match accounts {
+            [program, event_authority, remaining @ ..] => Some(CpiEventInstructionAccounts {
+                program: program.pubkey,
+                event_authority: event_authority.pubkey,
+                remaining: remaining.to_vec(),
+            }),
+            [event_authority] => Some(CpiEventInstructionAccounts {
+                program: crate::PROGRAM_ID,
+                event_authority: event_authority.pubkey,
+                remaining: Vec::new(),
+            }),
+            _ => None,
+        }
     }
 }

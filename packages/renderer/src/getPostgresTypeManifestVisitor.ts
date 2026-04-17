@@ -128,9 +128,13 @@ export function getPostgresTypeManifestVisitor() {
                     return jsonb();
                 },
                 visitFixedSizeType(node, { self }) {
-                    // Fixed-size bytes stored as Vec<u8> (BYTEA) in Postgres
-                    // The inner type visitor will handle bytesTypeNode → Vec<u8>
-                    return visit(node.type, self);
+                    const inner = visit(node.type, self);
+                    // Nested fixed arrays (e.g. [[u8; 32]; 4]) → JSONB
+                    if (isNode(node.type, 'fixedSizeTypeNode') || isNode(node.type, 'arrayTypeNode')) {
+                        return jsonb(inner, true);
+                    }
+                    // Simple fixed arrays (e.g. [u8; 7]) → delegate to inner type
+                    return inner;
                 },
                 visitSizePrefixType(node, { self }) {
                     return visit(node.type, self);

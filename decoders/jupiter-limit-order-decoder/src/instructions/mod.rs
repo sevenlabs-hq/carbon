@@ -72,7 +72,6 @@ pub enum JupiterLimitOrderInstruction {
         data: WithdrawFee,
         accounts: WithdrawFeeInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,

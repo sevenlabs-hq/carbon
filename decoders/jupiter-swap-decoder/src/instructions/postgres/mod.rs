@@ -2,6 +2,7 @@
 pub mod claim_row;
 pub mod claim_token_row;
 pub mod close_token_row;
+pub mod close_wsol_token_account_row;
 pub mod cpi_event_row;
 pub mod create_token_account_row;
 pub mod create_token_ledger_row;
@@ -18,12 +19,13 @@ pub mod shared_accounts_route_v2_row;
 pub mod shared_accounts_route_with_token_ledger_row;
 
 pub use self::{
-    claim_row::*, claim_token_row::*, close_token_row::*, cpi_event_row::*,
-    create_token_account_row::*, create_token_ledger_row::*, exact_out_route_row::*,
-    exact_out_route_v2_row::*, route_row::*, route_v2_row::*, route_with_token_ledger_row::*,
-    set_token_ledger_row::*, shared_accounts_exact_out_route_row::*,
-    shared_accounts_exact_out_route_v2_row::*, shared_accounts_route_row::*,
-    shared_accounts_route_v2_row::*, shared_accounts_route_with_token_ledger_row::*,
+    claim_row::*, claim_token_row::*, close_token_row::*, close_wsol_token_account_row::*,
+    cpi_event_row::*, create_token_account_row::*, create_token_ledger_row::*,
+    exact_out_route_row::*, exact_out_route_v2_row::*, route_row::*, route_v2_row::*,
+    route_with_token_ledger_row::*, set_token_ledger_row::*,
+    shared_accounts_exact_out_route_row::*, shared_accounts_exact_out_route_v2_row::*,
+    shared_accounts_route_row::*, shared_accounts_route_v2_row::*,
+    shared_accounts_route_with_token_ledger_row::*,
 };
 use super::JupiterSwapInstruction;
 
@@ -43,6 +45,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for JupiterSwapInstructionsMigrati
             Box::new(ClaimMigrationOperation),
             Box::new(ClaimTokenMigrationOperation),
             Box::new(CloseTokenMigrationOperation),
+            Box::new(CloseWsolTokenAccountMigrationOperation),
             Box::new(CreateTokenAccountMigrationOperation),
             Box::new(CreateTokenLedgerMigrationOperation),
             Box::new(ExactOutRouteMigrationOperation),
@@ -132,6 +135,15 @@ impl carbon_core::postgres::operations::Insert for JupiterSwapInstructionWithMet
             }
             JupiterSwapInstruction::CreateTokenAccount { data, .. } => {
                 let row = create_token_account_row::CreateTokenAccountRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            JupiterSwapInstruction::CloseWsolTokenAccount { data, .. } => {
+                let row = close_wsol_token_account_row::CloseWsolTokenAccountRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),
@@ -287,6 +299,15 @@ impl carbon_core::postgres::operations::Upsert for JupiterSwapInstructionWithMet
             }
             JupiterSwapInstruction::CreateTokenAccount { data, .. } => {
                 let row = create_token_account_row::CreateTokenAccountRow::from_parts(
+                    data.clone(),
+                    metadata.clone(),
+                    raw_accounts.clone(),
+                );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            JupiterSwapInstruction::CloseWsolTokenAccount { data, .. } => {
+                let row = close_wsol_token_account_row::CloseWsolTokenAccountRow::from_parts(
                     data.clone(),
                     metadata.clone(),
                     raw_accounts.clone(),

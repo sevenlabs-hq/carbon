@@ -16,8 +16,12 @@ pub struct BankCacheGraphQL {
     pub last_oracle_price: WrappedI80F48GraphQL,
     pub last_oracle_price_timestamp: I64,
     pub last_oracle_price_confidence: WrappedI80F48GraphQL,
+    pub liq_cache_flags: U8,
     pub padding: Vec<U8>,
-    pub reserved0: Vec<U8>,
+    pub liquidation_price_rt: WrappedI80F48GraphQL,
+    pub liquidation_price_rt_confidence: WrappedI80F48GraphQL,
+    pub liquidation_price_twap: WrappedI80F48GraphQL,
+    pub liquidation_price_twap_confidence: WrappedI80F48GraphQL,
 }
 
 impl From<crate::types::BankCache> for BankCacheGraphQL {
@@ -35,16 +39,16 @@ impl From<crate::types::BankCache> for BankCacheGraphQL {
                 original.last_oracle_price_timestamp,
             ),
             last_oracle_price_confidence: original.last_oracle_price_confidence.into(),
+            liq_cache_flags: carbon_core::graphql::primitives::U8(original.liq_cache_flags),
             padding: original
                 .padding
                 .into_iter()
                 .map(carbon_core::graphql::primitives::U8)
                 .collect(),
-            reserved0: original
-                .reserved0
-                .into_iter()
-                .map(carbon_core::graphql::primitives::U8)
-                .collect(),
+            liquidation_price_rt: original.liquidation_price_rt.into(),
+            liquidation_price_rt_confidence: original.liquidation_price_rt_confidence.into(),
+            liquidation_price_twap: original.liquidation_price_twap.into(),
+            liquidation_price_twap_confidence: original.liquidation_price_twap_confidence.into(),
         }
     }
 }

@@ -33,7 +33,7 @@ impl LPMintRedeemRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 76, 80, 77, 105, 110, 116, 82, 101,
+                228, 69, 165, 46, 81, 203, 154, 29, 53, 178, 142, 73, 78, 91, 91, 8,
             ]
         {
             return None;

@@ -33,7 +33,8 @@ pub struct ConfigParameters {
     pub migrated_pool_base_fee_mode: u8,
     pub migrated_pool_market_cap_fee_scheduler_params: MigratedPoolMarketCapFeeSchedulerParams,
     pub enable_first_swap_with_min_fee: bool,
+    pub compounding_fee_bps: u16,
     /// padding for future use
-    pub padding: [u8; 4],
+    pub padding: [u8; 2],
     pub curve: Vec<LiquidityDistributionParameters>,
 }

@@ -18,9 +18,11 @@ pub struct EditGlobalFeeStateRow {
     pub fee_wallet: Pubkey,
     pub bank_init_flat_sol_fee: U32,
     pub liquidation_flat_sol_fee: U32,
+    pub order_init_flat_sol_fee: U32,
     pub program_fee_fixed: sqlx::types::Json<WrappedI80F48>,
     pub program_fee_rate: sqlx::types::Json<WrappedI80F48>,
     pub liquidation_max_fee: sqlx::types::Json<WrappedI80F48>,
+    pub order_execution_max_fee: sqlx::types::Json<WrappedI80F48>,
     #[sqlx(rename = "__accounts")]
     pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
@@ -37,9 +39,11 @@ impl EditGlobalFeeStateRow {
             fee_wallet: source.fee_wallet.into(),
             bank_init_flat_sol_fee: source.bank_init_flat_sol_fee.into(),
             liquidation_flat_sol_fee: source.liquidation_flat_sol_fee.into(),
+            order_init_flat_sol_fee: source.order_init_flat_sol_fee.into(),
             program_fee_fixed: sqlx::types::Json(source.program_fee_fixed),
             program_fee_rate: sqlx::types::Json(source.program_fee_rate),
             liquidation_max_fee: sqlx::types::Json(source.liquidation_max_fee),
+            order_execution_max_fee: sqlx::types::Json(source.order_execution_max_fee),
             accounts: sqlx::types::Json(accounts),
         }
     }
@@ -63,9 +67,15 @@ impl TryFrom<EditGlobalFeeStateRow>
                     "Failed to convert value from postgres primitive".to_string(),
                 )
             })?,
+            order_init_flat_sol_fee: source.order_init_flat_sol_fee.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
             program_fee_fixed: source.program_fee_fixed.0,
             program_fee_rate: source.program_fee_rate.0,
             liquidation_max_fee: source.liquidation_max_fee.0,
+            order_execution_max_fee: source.order_execution_max_fee.0,
         })
     }
 }
@@ -87,9 +97,11 @@ impl carbon_core::postgres::operations::Table
             "fee_wallet",
             "bank_init_flat_sol_fee",
             "liquidation_flat_sol_fee",
+            "order_init_flat_sol_fee",
             "program_fee_fixed",
             "program_fee_rate",
             "liquidation_max_fee",
+            "order_execution_max_fee",
             "__accounts",
         ]
     }
@@ -105,21 +117,25 @@ impl carbon_core::postgres::operations::Insert for EditGlobalFeeStateRow {
                 "fee_wallet",
                 "bank_init_flat_sol_fee",
                 "liquidation_flat_sol_fee",
+                "order_init_flat_sol_fee",
                 "program_fee_fixed",
                 "program_fee_rate",
                 "liquidation_max_fee",
+                "order_execution_max_fee",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
             )"#,
         )
         .bind(self.admin)
         .bind(self.fee_wallet)
         .bind(self.bank_init_flat_sol_fee)
         .bind(self.liquidation_flat_sol_fee)
+        .bind(self.order_init_flat_sol_fee)
         .bind(&self.program_fee_fixed)
         .bind(&self.program_fee_rate)
         .bind(&self.liquidation_max_fee)
+        .bind(&self.order_execution_max_fee)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -141,12 +157,14 @@ impl carbon_core::postgres::operations::Upsert for EditGlobalFeeStateRow {
                 "fee_wallet",
                 "bank_init_flat_sol_fee",
                 "liquidation_flat_sol_fee",
+                "order_init_flat_sol_fee",
                 "program_fee_fixed",
                 "program_fee_rate",
                 "liquidation_max_fee",
+                "order_execution_max_fee",
                 __signature, __instruction_index, __stack_height, __slot, __accounts
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
             ) ON CONFLICT (
                 __signature, __instruction_index, __stack_height
             ) DO UPDATE SET
@@ -154,9 +172,11 @@ impl carbon_core::postgres::operations::Upsert for EditGlobalFeeStateRow {
                 "fee_wallet" = EXCLUDED."fee_wallet",
                 "bank_init_flat_sol_fee" = EXCLUDED."bank_init_flat_sol_fee",
                 "liquidation_flat_sol_fee" = EXCLUDED."liquidation_flat_sol_fee",
+                "order_init_flat_sol_fee" = EXCLUDED."order_init_flat_sol_fee",
                 "program_fee_fixed" = EXCLUDED."program_fee_fixed",
                 "program_fee_rate" = EXCLUDED."program_fee_rate",
                 "liquidation_max_fee" = EXCLUDED."liquidation_max_fee",
+                "order_execution_max_fee" = EXCLUDED."order_execution_max_fee",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
                 __slot = EXCLUDED.__slot,
@@ -167,9 +187,11 @@ impl carbon_core::postgres::operations::Upsert for EditGlobalFeeStateRow {
         .bind(self.fee_wallet)
         .bind(self.bank_init_flat_sol_fee)
         .bind(self.liquidation_flat_sol_fee)
+        .bind(self.order_init_flat_sol_fee)
         .bind(&self.program_fee_fixed)
         .bind(&self.program_fee_rate)
         .bind(&self.liquidation_max_fee)
+        .bind(&self.order_execution_max_fee)
         .bind(&self.instruction_metadata.signature)
         .bind(self.instruction_metadata.instruction_index)
         .bind(self.instruction_metadata.stack_height)
@@ -248,9 +270,11 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for EditGlobalFeeStateMigrationOpe
                 "fee_wallet" BYTEA NOT NULL,
                 "bank_init_flat_sol_fee" INT8 NOT NULL,
                 "liquidation_flat_sol_fee" INT8 NOT NULL,
+                "order_init_flat_sol_fee" INT8 NOT NULL,
                 "program_fee_fixed" JSONB NOT NULL,
                 "program_fee_rate" JSONB NOT NULL,
                 "liquidation_max_fee" JSONB NOT NULL,
+                "order_execution_max_fee" JSONB NOT NULL,
                 -- Instruction metadata
                 __signature TEXT NOT NULL,
                 __instruction_index BIGINT NOT NULL,

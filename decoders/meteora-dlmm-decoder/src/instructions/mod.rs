@@ -485,7 +485,6 @@ pub enum MeteoraDlmmInstruction {
         data: ZapProtocolFee,
         accounts: ZapProtocolFeeInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,

@@ -21,7 +21,7 @@ impl ApplyFundingEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 65, 112, 112, 108, 121, 70, 117, 110,
+                228, 69, 165, 46, 81, 203, 154, 29, 127, 202, 15, 183, 200, 192, 4, 12,
             ]
         {
             return None;

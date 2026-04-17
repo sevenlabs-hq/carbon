@@ -7,33 +7,30 @@ pub mod postgres;
 #[cfg(feature = "graphql")]
 pub mod graphql;
 
-pub mod create_associated_token;
-pub mod create_associated_token_idempotent;
-pub mod recover_nested_associated_token;
+pub mod create;
+pub mod create_idempotent;
+pub mod recover_nested;
 
-pub use self::{
-    create_associated_token::*, create_associated_token_idempotent::*,
-    recover_nested_associated_token::*,
-};
+pub use self::{create::*, create_idempotent::*, recover_nested::*};
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[cfg_attr(feature = "serde", serde(tag = "type", content = "data"))]
 pub enum AssociatedTokenAccountInstruction {
-    CreateAssociatedToken {
+    Create {
         program_id: solana_pubkey::Pubkey,
-        data: CreateAssociatedToken,
-        accounts: CreateAssociatedTokenInstructionAccounts,
+        data: Create,
+        accounts: CreateInstructionAccounts,
     },
-    CreateAssociatedTokenIdempotent {
+    CreateIdempotent {
         program_id: solana_pubkey::Pubkey,
-        data: CreateAssociatedTokenIdempotent,
-        accounts: CreateAssociatedTokenIdempotentInstructionAccounts,
+        data: CreateIdempotent,
+        accounts: CreateIdempotentInstructionAccounts,
     },
-    RecoverNestedAssociatedToken {
+    RecoverNested {
         program_id: solana_pubkey::Pubkey,
-        data: RecoverNestedAssociatedToken,
-        accounts: RecoverNestedAssociatedTokenInstructionAccounts,
+        data: RecoverNested,
+        accounts: RecoverNestedInstructionAccounts,
     },
 }
 
@@ -51,9 +48,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for AssociatedTokenAccount
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
-            AssociatedTokenAccountInstruction::CreateAssociatedToken => CreateAssociatedToken,
-            AssociatedTokenAccountInstruction::CreateAssociatedTokenIdempotent => CreateAssociatedTokenIdempotent,
-            AssociatedTokenAccountInstruction::RecoverNestedAssociatedToken => RecoverNestedAssociatedToken,
+            AssociatedTokenAccountInstruction::Create => Create,
+            AssociatedTokenAccountInstruction::CreateIdempotent => CreateIdempotent,
+            AssociatedTokenAccountInstruction::RecoverNested => RecoverNested,
         )
     }
 }

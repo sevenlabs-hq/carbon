@@ -5,10 +5,11 @@ pub mod claim_protocol_fee_schema;
 pub mod claim_protocol_pool_creation_fee_schema;
 pub mod claim_trading_fee_schema;
 pub mod close_claim_protocol_fee_operator_schema;
+pub mod close_operator_account_schema;
 pub mod cpi_event_schema;
-pub mod create_claim_protocol_fee_operator_schema;
 pub mod create_config_schema;
 pub mod create_locker_schema;
+pub mod create_operator_account_schema;
 pub mod create_partner_metadata_schema;
 pub mod create_virtual_pool_metadata_schema;
 pub mod creator_withdraw_surplus_schema;
@@ -26,21 +27,24 @@ pub mod swap_schema;
 pub mod transfer_pool_creator_schema;
 pub mod withdraw_leftover_schema;
 pub mod withdraw_migration_fee_schema;
+pub mod zap_protocol_fee_schema;
 
 use juniper::GraphQLObject;
 pub use {
     claim_creator_trading_fee_schema::*, claim_partner_pool_creation_fee_schema::*,
     claim_protocol_fee_schema::*, claim_protocol_pool_creation_fee_schema::*,
-    claim_trading_fee_schema::*, close_claim_protocol_fee_operator_schema::*, cpi_event_schema::*,
-    create_claim_protocol_fee_operator_schema::*, create_config_schema::*, create_locker_schema::*,
-    create_partner_metadata_schema::*, create_virtual_pool_metadata_schema::*,
-    creator_withdraw_surplus_schema::*, initialize_virtual_pool_with_spl_token_schema::*,
+    claim_trading_fee_schema::*, close_claim_protocol_fee_operator_schema::*,
+    close_operator_account_schema::*, cpi_event_schema::*, create_config_schema::*,
+    create_locker_schema::*, create_operator_account_schema::*, create_partner_metadata_schema::*,
+    create_virtual_pool_metadata_schema::*, creator_withdraw_surplus_schema::*,
+    initialize_virtual_pool_with_spl_token_schema::*,
     initialize_virtual_pool_with_token2022_schema::*,
     migrate_meteora_damm_claim_lp_token_schema::*, migrate_meteora_damm_lock_lp_token_schema::*,
     migrate_meteora_damm_schema::*, migration_damm_v2_create_metadata_schema::*,
     migration_damm_v2_schema::*, migration_meteora_damm_create_metadata_schema::*,
     partner_withdraw_surplus_schema::*, swap2_schema::*, swap_schema::*,
     transfer_pool_creator_schema::*, withdraw_leftover_schema::*, withdraw_migration_fee_schema::*,
+    zap_protocol_fee_schema::*,
 };
 
 #[derive(Debug, Clone, GraphQLObject)]

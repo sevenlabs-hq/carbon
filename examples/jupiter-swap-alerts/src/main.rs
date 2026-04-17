@@ -147,6 +147,9 @@ impl Processor<InstructionProcessorInputType<'_, JupiterSwapInstruction>>
                     "create_token_account: signature: {signature}, create_token_account: {data:?}"
                 );
             }
+            JupiterSwapInstruction::CloseWsolTokenAccount { data, .. } => {
+                log::info!("close_wsol_token_account: signature: {signature}, close_wsol_token_account: {data:?}");
+            }
             JupiterSwapInstruction::CpiEvent { data, .. } => match data {
                 CpiEvent::FeeEvent(fee_event) => {
                     log::info!("fee_event: signature: {signature}, fee_event: {fee_event:?}");
@@ -162,6 +165,9 @@ impl Processor<InstructionProcessorInputType<'_, JupiterSwapInstruction>>
                 }
                 CpiEvent::BestSwapOutAmountViolation(best_swap_out_amount_violation) => {
                     log::info!("best_swap_out_amount_violation: signature: {signature}, best_swap_out_amount_violation: {best_swap_out_amount_violation:?}");
+                }
+                CpiEvent::CandidateSwapQuoteError(candidate_swap_quote_error) => {
+                    log::info!("candidate_swap_quote_error: signature: {signature}, candidate_swap_quote_error: {candidate_swap_quote_error:?}");
                 }
             },
         };

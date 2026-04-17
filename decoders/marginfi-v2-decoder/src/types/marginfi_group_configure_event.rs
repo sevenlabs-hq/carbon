@@ -4,6 +4,6 @@ use {crate::types::GroupEventHeader, solana_pubkey::Pubkey};
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct MarginfiGroupConfigureEvent {
     pub header: GroupEventHeader,
-    pub admin: Pubkey,
+    pub admin: Option<Pubkey>,
     pub flags: u64,
 }

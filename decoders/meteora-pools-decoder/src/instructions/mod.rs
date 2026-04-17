@@ -183,7 +183,6 @@ pub enum MeteoraPoolsInstruction {
         data: WithdrawProtocolFees,
         accounts: WithdrawProtocolFeesInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,

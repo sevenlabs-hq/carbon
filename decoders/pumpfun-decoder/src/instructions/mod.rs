@@ -198,7 +198,6 @@ pub enum PumpfunInstruction {
         data: UpdateGlobalAuthority,
         accounts: UpdateGlobalAuthorityInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,

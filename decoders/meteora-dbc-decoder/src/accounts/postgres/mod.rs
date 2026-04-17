@@ -3,6 +3,7 @@ pub mod claim_fee_operator_row;
 pub mod config_row;
 pub mod lock_escrow_row;
 pub mod meteora_damm_migration_metadata_row;
+pub mod operator_row;
 pub mod partner_metadata_row;
 pub mod pool_config_row;
 pub mod virtual_pool_metadata_row;
@@ -10,8 +11,8 @@ pub mod virtual_pool_row;
 
 pub use self::{
     claim_fee_operator_row::*, config_row::*, lock_escrow_row::*,
-    meteora_damm_migration_metadata_row::*, partner_metadata_row::*, pool_config_row::*,
-    virtual_pool_metadata_row::*, virtual_pool_row::*,
+    meteora_damm_migration_metadata_row::*, operator_row::*, partner_metadata_row::*,
+    pool_config_row::*, virtual_pool_metadata_row::*, virtual_pool_row::*,
 };
 use super::MeteoraDbcAccount;
 
@@ -32,6 +33,7 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for MeteoraDbcAccountsMigration {
             Box::new(ConfigMigrationOperation),
             Box::new(LockEscrowMigrationOperation),
             Box::new(MeteoraDammMigrationMetadataMigrationOperation),
+            Box::new(OperatorMigrationOperation),
             Box::new(PartnerMetadataMigrationOperation),
             Box::new(PoolConfigMigrationOperation),
             Box::new(VirtualPoolMigrationOperation),
@@ -84,6 +86,11 @@ impl carbon_core::postgres::operations::Insert for MeteoraDbcAccountWithMetadata
             }
             MeteoraDbcAccount::MeteoraDammMigrationMetadata(account) => {
                 let row = meteora_damm_migration_metadata_row::MeteoraDammMigrationMetadataRow::from_parts(*account.clone(), metadata.clone());
+                row.insert(pool).await?;
+                Ok(())
+            }
+            MeteoraDbcAccount::Operator(account) => {
+                let row = operator_row::OperatorRow::from_parts(*account.clone(), metadata.clone());
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -147,6 +154,11 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDbcAccountWithMetadata
             }
             MeteoraDbcAccount::MeteoraDammMigrationMetadata(account) => {
                 let row = meteora_damm_migration_metadata_row::MeteoraDammMigrationMetadataRow::from_parts(*account.clone(), metadata.clone());
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            MeteoraDbcAccount::Operator(account) => {
+                let row = operator_row::OperatorRow::from_parts(*account.clone(), metadata.clone());
                 row.upsert(pool).await?;
                 Ok(())
             }

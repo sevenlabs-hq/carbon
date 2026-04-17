@@ -16,7 +16,7 @@ impl BorrowOrderUpdateEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 66, 111, 114, 114, 111, 119, 79, 114,
+                228, 69, 165, 46, 81, 203, 154, 29, 21, 33, 67, 131, 48, 184, 90, 64,
             ]
         {
             return None;

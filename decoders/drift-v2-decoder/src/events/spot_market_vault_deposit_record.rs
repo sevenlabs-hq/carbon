@@ -20,7 +20,7 @@ impl SpotMarketVaultDepositRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 83, 112, 111, 116, 77, 97, 114, 107,
+                228, 69, 165, 46, 81, 203, 154, 29, 178, 217, 23, 188, 127, 190, 32, 73,
             ]
         {
             return None;

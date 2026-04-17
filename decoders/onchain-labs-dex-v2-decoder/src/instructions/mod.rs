@@ -136,7 +136,6 @@ pub enum OnchainLabsDexV2Instruction {
         data: WrapUnwrapWithReceiver,
         accounts: WrapUnwrapWithReceiverInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,

@@ -17,7 +17,7 @@ impl PositionMovementEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 80, 111, 115, 105, 116, 105, 111, 110,
+                228, 69, 165, 46, 81, 203, 154, 29, 68, 185, 13, 148, 28, 227, 101, 95,
             ]
         {
             return None;

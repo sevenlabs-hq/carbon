@@ -111,7 +111,6 @@ pub enum KaminoLimitOrderInstruction {
         data: WithdrawHostTip,
         accounts: WithdrawHostTipInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,

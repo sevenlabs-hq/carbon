@@ -20,7 +20,7 @@ impl ChangeAuthorityEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 67, 104, 97, 110, 103, 101, 65, 117,
+                228, 69, 165, 46, 81, 203, 154, 29, 228, 111, 35, 24, 187, 78, 224, 138,
             ]
         {
             return None;

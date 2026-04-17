@@ -66,3 +66,10 @@
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, carbon_core::borsh::BorshSerialize, carbon_core::borsh::BorshDeserialize, PartialEq)]
 {%- endmacro %}
+
+{# Derives for optional bool newtypes (e.g. OptionBool) with custom BorshDeserialize. #}
+{% macro optionalBoolDerives() -%}
+#[derive(Debug, Clone, Copy, PartialEq, borsh::BorshSerialize)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(transparent))]
+{%- endmacro %}

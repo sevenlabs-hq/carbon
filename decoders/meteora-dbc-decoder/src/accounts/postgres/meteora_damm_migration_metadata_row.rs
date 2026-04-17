@@ -12,14 +12,14 @@ pub struct MeteoraDammMigrationMetadataRow {
     #[sqlx(flatten)]
     pub account_metadata: AccountRowMetadata,
     pub virtual_pool: Pubkey,
-    pub _padding0: Vec<u8>,
+    pub padding0: Vec<u8>,
     pub partner: Pubkey,
     pub lp_mint: Pubkey,
     pub partner_locked_liquidity: U64,
     pub partner_liquidity: U64,
     pub creator_locked_liquidity: U64,
     pub creator_liquidity: U64,
-    pub padding0: U8,
+    pub padding0_1: U8,
     pub creator_locked_status: U8,
     pub partner_locked_status: U8,
     pub creator_claim_status: U8,
@@ -35,14 +35,14 @@ impl MeteoraDammMigrationMetadataRow {
         Self {
             account_metadata: metadata.into(),
             virtual_pool: source.virtual_pool.into(),
-            _padding0: source._padding0.to_vec(),
+            padding0: source._padding0.to_vec(),
             partner: source.partner.into(),
             lp_mint: source.lp_mint.into(),
             partner_locked_liquidity: source.partner_locked_liquidity.into(),
             partner_liquidity: source.partner_liquidity.into(),
             creator_locked_liquidity: source.creator_locked_liquidity.into(),
             creator_liquidity: source.creator_liquidity.into(),
-            padding0: source.padding0.into(),
+            padding0_1: source.padding0.into(),
             creator_locked_status: source.creator_locked_status.into(),
             partner_locked_status: source.partner_locked_status.into(),
             creator_claim_status: source.creator_claim_status.into(),
@@ -59,7 +59,7 @@ impl TryFrom<MeteoraDammMigrationMetadataRow>
     fn try_from(source: MeteoraDammMigrationMetadataRow) -> Result<Self, Self::Error> {
         Ok(Self {
             virtual_pool: *source.virtual_pool,
-            _padding0: source._padding0.as_slice().try_into().map_err(|_| {
+            _padding0: source.padding0.as_slice().try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert padding from postgres primitive: expected 32 bytes"
                         .to_string(),
@@ -71,7 +71,7 @@ impl TryFrom<MeteoraDammMigrationMetadataRow>
             partner_liquidity: *source.partner_liquidity,
             creator_locked_liquidity: *source.creator_locked_liquidity,
             creator_liquidity: *source.creator_liquidity,
-            padding0: source.padding0.try_into().map_err(|_| {
+            padding0: source.padding0_1.try_into().map_err(|_| {
                 carbon_core::error::Error::Custom(
                     "Failed to convert value from postgres primitive".to_string(),
                 )
@@ -118,14 +118,14 @@ impl carbon_core::postgres::operations::Table
             "__pubkey",
             "__slot",
             "virtual_pool",
-            "_padding0",
+            "padding0",
             "partner",
             "lp_mint",
             "partner_locked_liquidity",
             "partner_liquidity",
             "creator_locked_liquidity",
             "creator_liquidity",
-            "padding0",
+            "padding0_1",
             "creator_locked_status",
             "partner_locked_status",
             "creator_claim_status",
@@ -142,14 +142,14 @@ impl carbon_core::postgres::operations::Insert for MeteoraDammMigrationMetadataR
             r#"
             INSERT INTO meteora_damm_migration_metadata_account (
                 "virtual_pool",
-                "_padding0",
+                "padding0",
                 "partner",
                 "lp_mint",
                 "partner_locked_liquidity",
                 "partner_liquidity",
                 "creator_locked_liquidity",
                 "creator_liquidity",
-                "padding0",
+                "padding0_1",
                 "creator_locked_status",
                 "partner_locked_status",
                 "creator_claim_status",
@@ -161,14 +161,14 @@ impl carbon_core::postgres::operations::Insert for MeteoraDammMigrationMetadataR
             )"#,
         )
         .bind(self.virtual_pool)
-        .bind(&self._padding0)
+        .bind(&self.padding0)
         .bind(self.partner)
         .bind(self.lp_mint)
         .bind(&self.partner_locked_liquidity)
         .bind(&self.partner_liquidity)
         .bind(&self.creator_locked_liquidity)
         .bind(&self.creator_liquidity)
-        .bind(self.padding0)
+        .bind(self.padding0_1)
         .bind(self.creator_locked_status)
         .bind(self.partner_locked_status)
         .bind(self.creator_claim_status)
@@ -189,14 +189,14 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDammMigrationMetadataR
         sqlx::query(
             r#"INSERT INTO meteora_damm_migration_metadata_account (
                 "virtual_pool",
-                "_padding0",
+                "padding0",
                 "partner",
                 "lp_mint",
                 "partner_locked_liquidity",
                 "partner_liquidity",
                 "creator_locked_liquidity",
                 "creator_liquidity",
-                "padding0",
+                "padding0_1",
                 "creator_locked_status",
                 "partner_locked_status",
                 "creator_claim_status",
@@ -209,14 +209,14 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDammMigrationMetadataR
                 __pubkey
             ) DO UPDATE SET
                 "virtual_pool" = EXCLUDED."virtual_pool",
-                "padding0" = EXCLUDED."_padding0",
+                "padding0" = EXCLUDED."padding0",
                 "partner" = EXCLUDED."partner",
                 "lp_mint" = EXCLUDED."lp_mint",
                 "partner_locked_liquidity" = EXCLUDED."partner_locked_liquidity",
                 "partner_liquidity" = EXCLUDED."partner_liquidity",
                 "creator_locked_liquidity" = EXCLUDED."creator_locked_liquidity",
                 "creator_liquidity" = EXCLUDED."creator_liquidity",
-                "padding0" = EXCLUDED."padding0",
+                "padding0_1" = EXCLUDED."padding0_1",
                 "creator_locked_status" = EXCLUDED."creator_locked_status",
                 "partner_locked_status" = EXCLUDED."partner_locked_status",
                 "creator_claim_status" = EXCLUDED."creator_claim_status",
@@ -226,14 +226,14 @@ impl carbon_core::postgres::operations::Upsert for MeteoraDammMigrationMetadataR
             "#,
         )
         .bind(self.virtual_pool)
-        .bind(&self._padding0)
+        .bind(&self.padding0)
         .bind(self.partner)
         .bind(self.lp_mint)
         .bind(&self.partner_locked_liquidity)
         .bind(&self.partner_liquidity)
         .bind(&self.creator_locked_liquidity)
         .bind(&self.creator_liquidity)
-        .bind(self.padding0)
+        .bind(self.padding0_1)
         .bind(self.creator_locked_status)
         .bind(self.partner_locked_status)
         .bind(self.creator_claim_status)
@@ -299,14 +299,14 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for MeteoraDammMigrationMetadataMi
             r#"CREATE TABLE IF NOT EXISTS meteora_damm_migration_metadata_account (
                 -- Account data
                 "virtual_pool" BYTEA NOT NULL,
-                "_padding0" BYTEA NOT NULL,
+                "padding0" BYTEA NOT NULL,
                 "partner" BYTEA NOT NULL,
                 "lp_mint" BYTEA NOT NULL,
                 "partner_locked_liquidity" NUMERIC(20) NOT NULL,
                 "partner_liquidity" NUMERIC(20) NOT NULL,
                 "creator_locked_liquidity" NUMERIC(20) NOT NULL,
                 "creator_liquidity" NUMERIC(20) NOT NULL,
-                "padding0" INT2 NOT NULL,
+                "padding0_1" INT2 NOT NULL,
                 "creator_locked_status" INT2 NOT NULL,
                 "partner_locked_status" INT2 NOT NULL,
                 "creator_claim_status" INT2 NOT NULL,

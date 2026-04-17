@@ -28,7 +28,7 @@ impl UserSwapBalanceDiffsEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 85, 115, 101, 114, 83, 119, 97, 112,
+                228, 69, 165, 46, 81, 203, 154, 29, 139, 203, 35, 31, 25, 8, 62, 143,
             ]
         {
             return None;

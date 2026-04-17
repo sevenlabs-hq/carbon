@@ -28,7 +28,7 @@ impl FuelSweepRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 70, 117, 101, 108, 83, 119, 101, 101,
+                228, 69, 165, 46, 81, 203, 154, 29, 41, 84, 37, 246, 132, 240, 131, 8,
             ]
         {
             return None;

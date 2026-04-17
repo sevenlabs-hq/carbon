@@ -17,7 +17,7 @@ impl PlaceOrderEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 80, 108, 97, 99, 101, 79, 114, 100,
+                228, 69, 165, 46, 81, 203, 154, 29, 65, 191, 25, 91, 27, 252, 192, 40,
             ]
         {
             return None;

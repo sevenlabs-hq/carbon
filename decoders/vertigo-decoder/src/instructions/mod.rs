@@ -51,7 +51,6 @@ pub enum VertigoInstruction {
         data: Sell,
         accounts: SellInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,

@@ -29,7 +29,12 @@ function handleBooleanTypeConversion(fieldAccess: string, isJson: boolean, isOpt
 
 function isBooleanTypeAlias(typeName: string): boolean {
     const lowerName = typeName.toLowerCase();
-    return lowerName === 'bool' || lowerName === 'boolean' || lowerName === 'optionbool';
+    return lowerName === 'bool' || lowerName === 'boolean';
+}
+
+// Newtype wrapping bool (e.g. OptionBool): .0 for direct access, .0.0 when wrapped in Json<T>.
+function isOptionalBoolNewtype(typeName: string): boolean {
+    return typeName.toLowerCase() === 'optionbool';
 }
 
 function requiresClosureForPrimitive(funcRef: string, innerExpr: string, param: string): boolean {
@@ -230,6 +235,9 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
 
     if (isNode(typeNode, 'definedTypeLinkNode')) {
         const typeName = typeNode.name.toLowerCase();
+        if (isOptionalBoolNewtype(typeName)) {
+            return `${fieldAccess}.0`; // unwrap newtype: OptionBool(bool) -> bool
+        }
         if (isBooleanTypeAlias(typeName)) {
             return fieldAccess;
         }
@@ -246,7 +254,7 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
     }
 
     if (isNode(typeNode, 'tupleTypeNode') || isNode(typeNode, 'mapTypeNode') || isNode(typeNode, 'setTypeNode')) {
-        return `serde_json::to_value(${fieldAccess}).map(carbon_core::graphql::primitives::Json).map_err(|e| juniper::FieldError::from(e))?`;
+        return `carbon_core::graphql::primitives::Json(serde_json::to_value(${fieldAccess}).unwrap_or(serde_json::Value::Null))`;
     }
 
     return fieldAccess;
@@ -429,6 +437,17 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
             }
             return `${fieldAccess}.into_iter().map(|item| item.into_iter().map(|item| ${innerItemExpr}).collect()).collect()`;
         }
+        if (isNode(actualItem, 'fixedSizeTypeNode')) {
+            const postgresManifest = visit(typeNode, getPostgresTypeManifestVisitor()) as PostgresTypeManifest;
+            const isJson = (postgresManifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
+            const prefix = isJson ? `${fieldAccess}.0` : fieldAccess;
+            if (isNode(actualItem.type, 'bytesTypeNode')) {
+                return `${prefix}.into_iter().map(|item| item.into_iter().map(carbon_core::graphql::primitives::U8).collect()).collect()`;
+            }
+            const innerExpr = buildConversionFromOriginal(actualItem.type, 'inner_item');
+            return `${prefix}.into_iter().map(|item| item.into_iter().map(|inner_item| ${innerExpr}).collect()).collect()`;
+        }
+
         if (isNode(typeNode.item, 'definedTypeLinkNode')) {
             if (fieldAccess.includes('.0')) {
                 return `${fieldAccess}.clone().into_iter().map(|item| item.into()).collect()`;
@@ -453,6 +472,19 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
     if (isNode(typeNode, 'fixedSizeTypeNode')) {
         if (isNode(typeNode.type, 'bytesTypeNode')) {
             return `${fieldAccess}.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
+        }
+        const postgresManifest = visit(typeNode, getPostgresTypeManifestVisitor()) as PostgresTypeManifest;
+        const isJson = (postgresManifest.postgresColumnType || '').toUpperCase().startsWith('JSONB');
+        if (isJson) {
+            const innerExpr = buildConversionFromOriginal(typeNode.type, 'item');
+            if (innerExpr === 'item') {
+                return `${fieldAccess}.0.to_vec()`;
+            }
+            const funcRef = extractFunctionReference(innerExpr, 'item');
+            if (funcRef) {
+                return `${fieldAccess}.0.into_iter().map(${funcRef}).collect()`;
+            }
+            return `${fieldAccess}.0.into_iter().map(|item| ${innerExpr}).collect()`;
         }
         const innerExpr = buildConversionFromPostgresRow(typeNode.type, 'item');
         if ((innerExpr === 'item' || innerExpr === '*item') && !isNode(typeNode.type, 'publicKeyTypeNode')) {
@@ -518,6 +550,9 @@ export function buildConversionFromPostgresRow(typeNode: TypeNode, fieldAccess: 
         const typeName = typeNode.name.toLowerCase();
         if (typeName.includes('decrypt') || typeName.includes('cipher') || typeName.includes('elgamal')) {
             return `${fieldAccess}.0.into_iter().map(carbon_core::graphql::primitives::U8).collect()`;
+        }
+        if (isOptionalBoolNewtype(typeName)) {
+            return `${fieldAccess}.0.0`; // unwrap Json<OptionBool>, then unwrap OptionBool(bool)
         }
         if (isBooleanTypeAlias(typeName)) {
             return handleBooleanTypeConversion(fieldAccess, true, false);

@@ -8,7 +8,9 @@ pub mod postgres;
 pub mod graphql;
 
 pub mod config_group_fee;
+pub mod configure_bank_rate_limits;
 pub mod configure_deleverage_withdrawal_limit;
+pub mod configure_group_rate_limits;
 pub mod cpi_event;
 pub mod drift_deposit;
 pub mod drift_harvest_reward;
@@ -21,25 +23,27 @@ pub mod end_liquidation;
 pub mod init_bank_metadata;
 pub mod init_global_fee_state;
 pub mod init_staked_settings;
+pub mod juplend_deposit;
+pub mod juplend_init_position;
+pub mod juplend_withdraw;
 pub mod kamino_deposit;
 pub mod kamino_harvest_reward;
 pub mod kamino_init_obligation;
 pub mod kamino_withdraw;
 pub mod lending_account_borrow;
+pub mod lending_account_clear_emissions;
 pub mod lending_account_close_balance;
 pub mod lending_account_deposit;
 pub mod lending_account_end_flashloan;
 pub mod lending_account_liquidate;
 pub mod lending_account_pulse_health;
 pub mod lending_account_repay;
-pub mod lending_account_settle_emissions;
 pub mod lending_account_start_flashloan;
 pub mod lending_account_withdraw;
-pub mod lending_account_withdraw_emissions;
-pub mod lending_account_withdraw_emissions_permissionless;
 pub mod lending_pool_accrue_bank_interest;
 pub mod lending_pool_add_bank;
 pub mod lending_pool_add_bank_drift;
+pub mod lending_pool_add_bank_juplend;
 pub mod lending_pool_add_bank_kamino;
 pub mod lending_pool_add_bank_permissionless;
 pub mod lending_pool_add_bank_solend;
@@ -56,18 +60,23 @@ pub mod lending_pool_configure_bank_oracle;
 pub mod lending_pool_force_tokenless_repay_complete;
 pub mod lending_pool_handle_bankruptcy;
 pub mod lending_pool_pulse_bank_price_cache;
+pub mod lending_pool_reclaim_emissions_vault;
 pub mod lending_pool_set_fixed_oracle_price;
-pub mod lending_pool_setup_emissions;
-pub mod lending_pool_update_emissions_parameters;
 pub mod lending_pool_update_fees_destination_account;
 pub mod lending_pool_withdraw_fees;
 pub mod lending_pool_withdraw_fees_permissionless;
 pub mod lending_pool_withdraw_insurance;
 pub mod marginfi_account_close;
+pub mod marginfi_account_close_order;
+pub mod marginfi_account_end_execute_order;
 pub mod marginfi_account_init_liq_record;
 pub mod marginfi_account_initialize;
 pub mod marginfi_account_initialize_pda;
+pub mod marginfi_account_keeper_close_order;
+pub mod marginfi_account_place_order;
 pub mod marginfi_account_set_freeze;
+pub mod marginfi_account_set_keeper_close_flags;
+pub mod marginfi_account_start_execute_order;
 pub mod marginfi_account_update_emissions_destination_account;
 pub mod marginfi_group_configure;
 pub mod marginfi_group_initialize;
@@ -83,40 +92,49 @@ pub mod solend_init_obligation;
 pub mod solend_withdraw;
 pub mod start_deleverage;
 pub mod start_liquidation;
+pub mod super_admin_deposit;
+pub mod super_admin_withdraw;
 pub mod transfer_to_new_account;
 pub mod transfer_to_new_account_pda;
+pub mod update_deleverage_withdrawals;
+pub mod update_group_rate_limiter;
 pub mod write_bank_metadata;
 
 pub use self::{
-    config_group_fee::*, configure_deleverage_withdrawal_limit::*, cpi_event::*, drift_deposit::*,
-    drift_harvest_reward::*, drift_init_user::*, drift_withdraw::*, edit_global_fee_state::*,
-    edit_staked_settings::*, end_deleverage::*, end_liquidation::*, init_bank_metadata::*,
-    init_global_fee_state::*, init_staked_settings::*, kamino_deposit::*, kamino_harvest_reward::*,
-    kamino_init_obligation::*, kamino_withdraw::*, lending_account_borrow::*,
+    config_group_fee::*, configure_bank_rate_limits::*, configure_deleverage_withdrawal_limit::*,
+    configure_group_rate_limits::*, cpi_event::*, drift_deposit::*, drift_harvest_reward::*,
+    drift_init_user::*, drift_withdraw::*, edit_global_fee_state::*, edit_staked_settings::*,
+    end_deleverage::*, end_liquidation::*, init_bank_metadata::*, init_global_fee_state::*,
+    init_staked_settings::*, juplend_deposit::*, juplend_init_position::*, juplend_withdraw::*,
+    kamino_deposit::*, kamino_harvest_reward::*, kamino_init_obligation::*, kamino_withdraw::*,
+    lending_account_borrow::*, lending_account_clear_emissions::*,
     lending_account_close_balance::*, lending_account_deposit::*, lending_account_end_flashloan::*,
     lending_account_liquidate::*, lending_account_pulse_health::*, lending_account_repay::*,
-    lending_account_settle_emissions::*, lending_account_start_flashloan::*,
-    lending_account_withdraw::*, lending_account_withdraw_emissions::*,
-    lending_account_withdraw_emissions_permissionless::*, lending_pool_accrue_bank_interest::*,
-    lending_pool_add_bank::*, lending_pool_add_bank_drift::*, lending_pool_add_bank_kamino::*,
+    lending_account_start_flashloan::*, lending_account_withdraw::*,
+    lending_pool_accrue_bank_interest::*, lending_pool_add_bank::*, lending_pool_add_bank_drift::*,
+    lending_pool_add_bank_juplend::*, lending_pool_add_bank_kamino::*,
     lending_pool_add_bank_permissionless::*, lending_pool_add_bank_solend::*,
     lending_pool_add_bank_with_seed::*, lending_pool_clone_bank::*, lending_pool_clone_emode::*,
     lending_pool_close_bank::*, lending_pool_collect_bank_fees::*, lending_pool_configure_bank::*,
     lending_pool_configure_bank_emode::*, lending_pool_configure_bank_interest_only::*,
     lending_pool_configure_bank_limits_only::*, lending_pool_configure_bank_oracle::*,
     lending_pool_force_tokenless_repay_complete::*, lending_pool_handle_bankruptcy::*,
-    lending_pool_pulse_bank_price_cache::*, lending_pool_set_fixed_oracle_price::*,
-    lending_pool_setup_emissions::*, lending_pool_update_emissions_parameters::*,
-    lending_pool_update_fees_destination_account::*, lending_pool_withdraw_fees::*,
-    lending_pool_withdraw_fees_permissionless::*, lending_pool_withdraw_insurance::*,
-    marginfi_account_close::*, marginfi_account_init_liq_record::*, marginfi_account_initialize::*,
-    marginfi_account_initialize_pda::*, marginfi_account_set_freeze::*,
+    lending_pool_pulse_bank_price_cache::*, lending_pool_reclaim_emissions_vault::*,
+    lending_pool_set_fixed_oracle_price::*, lending_pool_update_fees_destination_account::*,
+    lending_pool_withdraw_fees::*, lending_pool_withdraw_fees_permissionless::*,
+    lending_pool_withdraw_insurance::*, marginfi_account_close::*, marginfi_account_close_order::*,
+    marginfi_account_end_execute_order::*, marginfi_account_init_liq_record::*,
+    marginfi_account_initialize::*, marginfi_account_initialize_pda::*,
+    marginfi_account_keeper_close_order::*, marginfi_account_place_order::*,
+    marginfi_account_set_freeze::*, marginfi_account_set_keeper_close_flags::*,
+    marginfi_account_start_execute_order::*,
     marginfi_account_update_emissions_destination_account::*, marginfi_group_configure::*,
     marginfi_group_initialize::*, migrate_curve::*, panic_pause::*, panic_unpause::*,
     panic_unpause_permissionless::*, propagate_fee_state::*, propagate_staked_settings::*,
     purge_deleverage_balance::*, solend_deposit::*, solend_init_obligation::*, solend_withdraw::*,
-    start_deleverage::*, start_liquidation::*, transfer_to_new_account::*,
-    transfer_to_new_account_pda::*, write_bank_metadata::*,
+    start_deleverage::*, start_liquidation::*, super_admin_deposit::*, super_admin_withdraw::*,
+    transfer_to_new_account::*, transfer_to_new_account_pda::*, update_deleverage_withdrawals::*,
+    update_group_rate_limiter::*, write_bank_metadata::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -128,10 +146,20 @@ pub enum MarginfiV2Instruction {
         data: ConfigGroupFee,
         accounts: ConfigGroupFeeInstructionAccounts,
     },
+    ConfigureBankRateLimits {
+        program_id: solana_pubkey::Pubkey,
+        data: ConfigureBankRateLimits,
+        accounts: ConfigureBankRateLimitsInstructionAccounts,
+    },
     ConfigureDeleverageWithdrawalLimit {
         program_id: solana_pubkey::Pubkey,
         data: ConfigureDeleverageWithdrawalLimit,
         accounts: ConfigureDeleverageWithdrawalLimitInstructionAccounts,
+    },
+    ConfigureGroupRateLimits {
+        program_id: solana_pubkey::Pubkey,
+        data: ConfigureGroupRateLimits,
+        accounts: ConfigureGroupRateLimitsInstructionAccounts,
     },
     DriftDeposit {
         program_id: solana_pubkey::Pubkey,
@@ -188,6 +216,21 @@ pub enum MarginfiV2Instruction {
         data: InitStakedSettings,
         accounts: InitStakedSettingsInstructionAccounts,
     },
+    JuplendDeposit {
+        program_id: solana_pubkey::Pubkey,
+        data: JuplendDeposit,
+        accounts: JuplendDepositInstructionAccounts,
+    },
+    JuplendInitPosition {
+        program_id: solana_pubkey::Pubkey,
+        data: JuplendInitPosition,
+        accounts: JuplendInitPositionInstructionAccounts,
+    },
+    JuplendWithdraw {
+        program_id: solana_pubkey::Pubkey,
+        data: JuplendWithdraw,
+        accounts: JuplendWithdrawInstructionAccounts,
+    },
     KaminoDeposit {
         program_id: solana_pubkey::Pubkey,
         data: KaminoDeposit,
@@ -212,6 +255,11 @@ pub enum MarginfiV2Instruction {
         program_id: solana_pubkey::Pubkey,
         data: LendingAccountBorrow,
         accounts: LendingAccountBorrowInstructionAccounts,
+    },
+    LendingAccountClearEmissions {
+        program_id: solana_pubkey::Pubkey,
+        data: LendingAccountClearEmissions,
+        accounts: LendingAccountClearEmissionsInstructionAccounts,
     },
     LendingAccountCloseBalance {
         program_id: solana_pubkey::Pubkey,
@@ -243,11 +291,6 @@ pub enum MarginfiV2Instruction {
         data: LendingAccountRepay,
         accounts: LendingAccountRepayInstructionAccounts,
     },
-    LendingAccountSettleEmissions {
-        program_id: solana_pubkey::Pubkey,
-        data: LendingAccountSettleEmissions,
-        accounts: LendingAccountSettleEmissionsInstructionAccounts,
-    },
     LendingAccountStartFlashloan {
         program_id: solana_pubkey::Pubkey,
         data: LendingAccountStartFlashloan,
@@ -257,16 +300,6 @@ pub enum MarginfiV2Instruction {
         program_id: solana_pubkey::Pubkey,
         data: LendingAccountWithdraw,
         accounts: LendingAccountWithdrawInstructionAccounts,
-    },
-    LendingAccountWithdrawEmissions {
-        program_id: solana_pubkey::Pubkey,
-        data: LendingAccountWithdrawEmissions,
-        accounts: LendingAccountWithdrawEmissionsInstructionAccounts,
-    },
-    LendingAccountWithdrawEmissionsPermissionless {
-        program_id: solana_pubkey::Pubkey,
-        data: LendingAccountWithdrawEmissionsPermissionless,
-        accounts: LendingAccountWithdrawEmissionsPermissionlessInstructionAccounts,
     },
     LendingPoolAccrueBankInterest {
         program_id: solana_pubkey::Pubkey,
@@ -282,6 +315,11 @@ pub enum MarginfiV2Instruction {
         program_id: solana_pubkey::Pubkey,
         data: LendingPoolAddBankDrift,
         accounts: LendingPoolAddBankDriftInstructionAccounts,
+    },
+    LendingPoolAddBankJuplend {
+        program_id: solana_pubkey::Pubkey,
+        data: LendingPoolAddBankJuplend,
+        accounts: LendingPoolAddBankJuplendInstructionAccounts,
     },
     LendingPoolAddBankKamino {
         program_id: solana_pubkey::Pubkey,
@@ -363,20 +401,15 @@ pub enum MarginfiV2Instruction {
         data: LendingPoolPulseBankPriceCache,
         accounts: LendingPoolPulseBankPriceCacheInstructionAccounts,
     },
+    LendingPoolReclaimEmissionsVault {
+        program_id: solana_pubkey::Pubkey,
+        data: LendingPoolReclaimEmissionsVault,
+        accounts: LendingPoolReclaimEmissionsVaultInstructionAccounts,
+    },
     LendingPoolSetFixedOraclePrice {
         program_id: solana_pubkey::Pubkey,
         data: LendingPoolSetFixedOraclePrice,
         accounts: LendingPoolSetFixedOraclePriceInstructionAccounts,
-    },
-    LendingPoolSetupEmissions {
-        program_id: solana_pubkey::Pubkey,
-        data: LendingPoolSetupEmissions,
-        accounts: LendingPoolSetupEmissionsInstructionAccounts,
-    },
-    LendingPoolUpdateEmissionsParameters {
-        program_id: solana_pubkey::Pubkey,
-        data: LendingPoolUpdateEmissionsParameters,
-        accounts: LendingPoolUpdateEmissionsParametersInstructionAccounts,
     },
     LendingPoolUpdateFeesDestinationAccount {
         program_id: solana_pubkey::Pubkey,
@@ -403,6 +436,16 @@ pub enum MarginfiV2Instruction {
         data: MarginfiAccountClose,
         accounts: MarginfiAccountCloseInstructionAccounts,
     },
+    MarginfiAccountCloseOrder {
+        program_id: solana_pubkey::Pubkey,
+        data: MarginfiAccountCloseOrder,
+        accounts: MarginfiAccountCloseOrderInstructionAccounts,
+    },
+    MarginfiAccountEndExecuteOrder {
+        program_id: solana_pubkey::Pubkey,
+        data: MarginfiAccountEndExecuteOrder,
+        accounts: MarginfiAccountEndExecuteOrderInstructionAccounts,
+    },
     MarginfiAccountInitialize {
         program_id: solana_pubkey::Pubkey,
         data: MarginfiAccountInitialize,
@@ -418,10 +461,30 @@ pub enum MarginfiV2Instruction {
         data: MarginfiAccountInitLiqRecord,
         accounts: MarginfiAccountInitLiqRecordInstructionAccounts,
     },
+    MarginfiAccountKeeperCloseOrder {
+        program_id: solana_pubkey::Pubkey,
+        data: MarginfiAccountKeeperCloseOrder,
+        accounts: MarginfiAccountKeeperCloseOrderInstructionAccounts,
+    },
+    MarginfiAccountPlaceOrder {
+        program_id: solana_pubkey::Pubkey,
+        data: MarginfiAccountPlaceOrder,
+        accounts: MarginfiAccountPlaceOrderInstructionAccounts,
+    },
     MarginfiAccountSetFreeze {
         program_id: solana_pubkey::Pubkey,
         data: MarginfiAccountSetFreeze,
         accounts: MarginfiAccountSetFreezeInstructionAccounts,
+    },
+    MarginfiAccountSetKeeperCloseFlags {
+        program_id: solana_pubkey::Pubkey,
+        data: MarginfiAccountSetKeeperCloseFlags,
+        accounts: MarginfiAccountSetKeeperCloseFlagsInstructionAccounts,
+    },
+    MarginfiAccountStartExecuteOrder {
+        program_id: solana_pubkey::Pubkey,
+        data: MarginfiAccountStartExecuteOrder,
+        accounts: MarginfiAccountStartExecuteOrderInstructionAccounts,
     },
     MarginfiAccountUpdateEmissionsDestinationAccount {
         program_id: solana_pubkey::Pubkey,
@@ -498,6 +561,16 @@ pub enum MarginfiV2Instruction {
         data: StartLiquidation,
         accounts: StartLiquidationInstructionAccounts,
     },
+    SuperAdminDeposit {
+        program_id: solana_pubkey::Pubkey,
+        data: SuperAdminDeposit,
+        accounts: SuperAdminDepositInstructionAccounts,
+    },
+    SuperAdminWithdraw {
+        program_id: solana_pubkey::Pubkey,
+        data: SuperAdminWithdraw,
+        accounts: SuperAdminWithdrawInstructionAccounts,
+    },
     TransferToNewAccount {
         program_id: solana_pubkey::Pubkey,
         data: TransferToNewAccount,
@@ -508,12 +581,21 @@ pub enum MarginfiV2Instruction {
         data: TransferToNewAccountPda,
         accounts: TransferToNewAccountPdaInstructionAccounts,
     },
+    UpdateDeleverageWithdrawals {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateDeleverageWithdrawals,
+        accounts: UpdateDeleverageWithdrawalsInstructionAccounts,
+    },
+    UpdateGroupRateLimiter {
+        program_id: solana_pubkey::Pubkey,
+        data: UpdateGroupRateLimiter,
+        accounts: UpdateGroupRateLimiterInstructionAccounts,
+    },
     WriteBankMetadata {
         program_id: solana_pubkey::Pubkey,
         data: WriteBankMetadata,
         accounts: WriteBankMetadataInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
@@ -536,7 +618,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MarginfiV2Decoder {
             instruction,
             PROGRAM_ID,
             MarginfiV2Instruction::ConfigGroupFee => ConfigGroupFee,
+            MarginfiV2Instruction::ConfigureBankRateLimits => ConfigureBankRateLimits,
             MarginfiV2Instruction::ConfigureDeleverageWithdrawalLimit => ConfigureDeleverageWithdrawalLimit,
+            MarginfiV2Instruction::ConfigureGroupRateLimits => ConfigureGroupRateLimits,
             MarginfiV2Instruction::DriftDeposit => DriftDeposit,
             MarginfiV2Instruction::DriftHarvestReward => DriftHarvestReward,
             MarginfiV2Instruction::DriftInitUser => DriftInitUser,
@@ -548,25 +632,27 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MarginfiV2Decoder {
             MarginfiV2Instruction::InitBankMetadata => InitBankMetadata,
             MarginfiV2Instruction::InitGlobalFeeState => InitGlobalFeeState,
             MarginfiV2Instruction::InitStakedSettings => InitStakedSettings,
+            MarginfiV2Instruction::JuplendDeposit => JuplendDeposit,
+            MarginfiV2Instruction::JuplendInitPosition => JuplendInitPosition,
+            MarginfiV2Instruction::JuplendWithdraw => JuplendWithdraw,
             MarginfiV2Instruction::KaminoDeposit => KaminoDeposit,
             MarginfiV2Instruction::KaminoHarvestReward => KaminoHarvestReward,
             MarginfiV2Instruction::KaminoInitObligation => KaminoInitObligation,
             MarginfiV2Instruction::KaminoWithdraw => KaminoWithdraw,
             MarginfiV2Instruction::LendingAccountBorrow => LendingAccountBorrow,
+            MarginfiV2Instruction::LendingAccountClearEmissions => LendingAccountClearEmissions,
             MarginfiV2Instruction::LendingAccountCloseBalance => LendingAccountCloseBalance,
             MarginfiV2Instruction::LendingAccountDeposit => LendingAccountDeposit,
             MarginfiV2Instruction::LendingAccountEndFlashloan => LendingAccountEndFlashloan,
             MarginfiV2Instruction::LendingAccountLiquidate => LendingAccountLiquidate,
             MarginfiV2Instruction::LendingAccountPulseHealth => LendingAccountPulseHealth,
             MarginfiV2Instruction::LendingAccountRepay => LendingAccountRepay,
-            MarginfiV2Instruction::LendingAccountSettleEmissions => LendingAccountSettleEmissions,
             MarginfiV2Instruction::LendingAccountStartFlashloan => LendingAccountStartFlashloan,
             MarginfiV2Instruction::LendingAccountWithdraw => LendingAccountWithdraw,
-            MarginfiV2Instruction::LendingAccountWithdrawEmissions => LendingAccountWithdrawEmissions,
-            MarginfiV2Instruction::LendingAccountWithdrawEmissionsPermissionless => LendingAccountWithdrawEmissionsPermissionless,
             MarginfiV2Instruction::LendingPoolAccrueBankInterest => LendingPoolAccrueBankInterest,
             MarginfiV2Instruction::LendingPoolAddBank => LendingPoolAddBank,
             MarginfiV2Instruction::LendingPoolAddBankDrift => LendingPoolAddBankDrift,
+            MarginfiV2Instruction::LendingPoolAddBankJuplend => LendingPoolAddBankJuplend,
             MarginfiV2Instruction::LendingPoolAddBankKamino => LendingPoolAddBankKamino,
             MarginfiV2Instruction::LendingPoolAddBankPermissionless => LendingPoolAddBankPermissionless,
             MarginfiV2Instruction::LendingPoolAddBankSolend => LendingPoolAddBankSolend,
@@ -583,18 +669,23 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MarginfiV2Decoder {
             MarginfiV2Instruction::LendingPoolForceTokenlessRepayComplete => LendingPoolForceTokenlessRepayComplete,
             MarginfiV2Instruction::LendingPoolHandleBankruptcy => LendingPoolHandleBankruptcy,
             MarginfiV2Instruction::LendingPoolPulseBankPriceCache => LendingPoolPulseBankPriceCache,
+            MarginfiV2Instruction::LendingPoolReclaimEmissionsVault => LendingPoolReclaimEmissionsVault,
             MarginfiV2Instruction::LendingPoolSetFixedOraclePrice => LendingPoolSetFixedOraclePrice,
-            MarginfiV2Instruction::LendingPoolSetupEmissions => LendingPoolSetupEmissions,
-            MarginfiV2Instruction::LendingPoolUpdateEmissionsParameters => LendingPoolUpdateEmissionsParameters,
             MarginfiV2Instruction::LendingPoolUpdateFeesDestinationAccount => LendingPoolUpdateFeesDestinationAccount,
             MarginfiV2Instruction::LendingPoolWithdrawFees => LendingPoolWithdrawFees,
             MarginfiV2Instruction::LendingPoolWithdrawFeesPermissionless => LendingPoolWithdrawFeesPermissionless,
             MarginfiV2Instruction::LendingPoolWithdrawInsurance => LendingPoolWithdrawInsurance,
             MarginfiV2Instruction::MarginfiAccountClose => MarginfiAccountClose,
+            MarginfiV2Instruction::MarginfiAccountCloseOrder => MarginfiAccountCloseOrder,
+            MarginfiV2Instruction::MarginfiAccountEndExecuteOrder => MarginfiAccountEndExecuteOrder,
             MarginfiV2Instruction::MarginfiAccountInitialize => MarginfiAccountInitialize,
             MarginfiV2Instruction::MarginfiAccountInitializePda => MarginfiAccountInitializePda,
             MarginfiV2Instruction::MarginfiAccountInitLiqRecord => MarginfiAccountInitLiqRecord,
+            MarginfiV2Instruction::MarginfiAccountKeeperCloseOrder => MarginfiAccountKeeperCloseOrder,
+            MarginfiV2Instruction::MarginfiAccountPlaceOrder => MarginfiAccountPlaceOrder,
             MarginfiV2Instruction::MarginfiAccountSetFreeze => MarginfiAccountSetFreeze,
+            MarginfiV2Instruction::MarginfiAccountSetKeeperCloseFlags => MarginfiAccountSetKeeperCloseFlags,
+            MarginfiV2Instruction::MarginfiAccountStartExecuteOrder => MarginfiAccountStartExecuteOrder,
             MarginfiV2Instruction::MarginfiAccountUpdateEmissionsDestinationAccount => MarginfiAccountUpdateEmissionsDestinationAccount,
             MarginfiV2Instruction::MarginfiGroupConfigure => MarginfiGroupConfigure,
             MarginfiV2Instruction::MarginfiGroupInitialize => MarginfiGroupInitialize,
@@ -610,8 +701,12 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MarginfiV2Decoder {
             MarginfiV2Instruction::SolendWithdraw => SolendWithdraw,
             MarginfiV2Instruction::StartDeleverage => StartDeleverage,
             MarginfiV2Instruction::StartLiquidation => StartLiquidation,
+            MarginfiV2Instruction::SuperAdminDeposit => SuperAdminDeposit,
+            MarginfiV2Instruction::SuperAdminWithdraw => SuperAdminWithdraw,
             MarginfiV2Instruction::TransferToNewAccount => TransferToNewAccount,
             MarginfiV2Instruction::TransferToNewAccountPda => TransferToNewAccountPda,
+            MarginfiV2Instruction::UpdateDeleverageWithdrawals => UpdateDeleverageWithdrawals,
+            MarginfiV2Instruction::UpdateGroupRateLimiter => UpdateGroupRateLimiter,
             MarginfiV2Instruction::WriteBankMetadata => WriteBankMetadata,
             MarginfiV2Instruction::CpiEvent => CpiEvent,
         )

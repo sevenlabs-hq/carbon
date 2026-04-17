@@ -11,12 +11,14 @@ pub mod borrow_rate_curve_schema;
 pub mod curve_point_schema;
 pub mod elevation_group_schema;
 pub mod fee_calculation_schema;
+pub mod fixed_term_borrow_rollover_config_schema;
 pub mod init_obligation_args_schema;
 pub mod last_update_schema;
 pub mod obligation_collateral_schema;
 pub mod obligation_liquidity_schema;
 pub mod obligation_order_schema;
 pub mod price_heuristic_schema;
+pub mod progress_callback_type_schema;
 pub mod pyth_configuration_schema;
 pub mod reserve_collateral_schema;
 pub mod reserve_config_schema;
@@ -31,6 +33,7 @@ pub mod update_config_mode_schema;
 pub mod update_global_config_mode_schema;
 pub mod update_lending_market_config_value_schema;
 pub mod update_lending_market_mode_schema;
+pub mod update_obligation_config_mode_schema;
 pub mod withdraw_queue_schema;
 pub mod withdrawal_caps_schema;
 
@@ -40,12 +43,13 @@ pub use {
     borrow_order_partial_fill_event_schema::*, borrow_order_place_event_schema::*,
     borrow_order_schema::*, borrow_order_update_event_schema::*, borrow_rate_curve_schema::*,
     curve_point_schema::*, elevation_group_schema::*, fee_calculation_schema::*,
-    init_obligation_args_schema::*, last_update_schema::*, obligation_collateral_schema::*,
-    obligation_liquidity_schema::*, obligation_order_schema::*, price_heuristic_schema::*,
+    fixed_term_borrow_rollover_config_schema::*, init_obligation_args_schema::*,
+    last_update_schema::*, obligation_collateral_schema::*, obligation_liquidity_schema::*,
+    obligation_order_schema::*, price_heuristic_schema::*, progress_callback_type_schema::*,
     pyth_configuration_schema::*, reserve_collateral_schema::*, reserve_config_schema::*,
     reserve_farm_kind_schema::*, reserve_fees_schema::*, reserve_liquidity_schema::*,
     reserve_status_schema::*, scope_configuration_schema::*, switchboard_configuration_schema::*,
     token_info_schema::*, update_config_mode_schema::*, update_global_config_mode_schema::*,
     update_lending_market_config_value_schema::*, update_lending_market_mode_schema::*,
-    withdraw_queue_schema::*, withdrawal_caps_schema::*,
+    update_obligation_config_mode_schema::*, withdraw_queue_schema::*, withdrawal_caps_schema::*,
 };

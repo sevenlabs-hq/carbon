@@ -16,7 +16,7 @@ impl SetDelegateLogEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 83, 101, 116, 68, 101, 108, 101, 103,
+                228, 69, 165, 46, 81, 203, 154, 29, 53, 130, 151, 92, 109, 57, 145, 112,
             ]
         {
             return None;

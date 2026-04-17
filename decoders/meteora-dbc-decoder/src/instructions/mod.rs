@@ -13,10 +13,11 @@ pub mod claim_protocol_fee;
 pub mod claim_protocol_pool_creation_fee;
 pub mod claim_trading_fee;
 pub mod close_claim_protocol_fee_operator;
+pub mod close_operator_account;
 pub mod cpi_event;
-pub mod create_claim_protocol_fee_operator;
 pub mod create_config;
 pub mod create_locker;
+pub mod create_operator_account;
 pub mod create_partner_metadata;
 pub mod create_virtual_pool_metadata;
 pub mod creator_withdraw_surplus;
@@ -34,19 +35,20 @@ pub mod swap2;
 pub mod transfer_pool_creator;
 pub mod withdraw_leftover;
 pub mod withdraw_migration_fee;
+pub mod zap_protocol_fee;
 
 pub use self::{
     claim_creator_trading_fee::*, claim_partner_pool_creation_fee::*, claim_protocol_fee::*,
     claim_protocol_pool_creation_fee::*, claim_trading_fee::*,
-    close_claim_protocol_fee_operator::*, cpi_event::*, create_claim_protocol_fee_operator::*,
-    create_config::*, create_locker::*, create_partner_metadata::*,
+    close_claim_protocol_fee_operator::*, close_operator_account::*, cpi_event::*,
+    create_config::*, create_locker::*, create_operator_account::*, create_partner_metadata::*,
     create_virtual_pool_metadata::*, creator_withdraw_surplus::*,
     initialize_virtual_pool_with_spl_token::*, initialize_virtual_pool_with_token2022::*,
     migrate_meteora_damm::*, migrate_meteora_damm_claim_lp_token::*,
     migrate_meteora_damm_lock_lp_token::*, migration_damm_v2::*,
     migration_damm_v2_create_metadata::*, migration_meteora_damm_create_metadata::*,
     partner_withdraw_surplus::*, swap::*, swap2::*, transfer_pool_creator::*, withdraw_leftover::*,
-    withdraw_migration_fee::*,
+    withdraw_migration_fee::*, zap_protocol_fee::*,
 };
 
 #[derive(Debug, Clone, PartialEq)]
@@ -83,10 +85,10 @@ pub enum MeteoraDbcInstruction {
         data: CloseClaimProtocolFeeOperator,
         accounts: CloseClaimProtocolFeeOperatorInstructionAccounts,
     },
-    CreateClaimProtocolFeeOperator {
+    CloseOperatorAccount {
         program_id: solana_pubkey::Pubkey,
-        data: CreateClaimProtocolFeeOperator,
-        accounts: CreateClaimProtocolFeeOperatorInstructionAccounts,
+        data: CloseOperatorAccount,
+        accounts: CloseOperatorAccountInstructionAccounts,
     },
     CreateConfig {
         program_id: solana_pubkey::Pubkey,
@@ -97,6 +99,11 @@ pub enum MeteoraDbcInstruction {
         program_id: solana_pubkey::Pubkey,
         data: CreateLocker,
         accounts: CreateLockerInstructionAccounts,
+    },
+    CreateOperatorAccount {
+        program_id: solana_pubkey::Pubkey,
+        data: CreateOperatorAccount,
+        accounts: CreateOperatorAccountInstructionAccounts,
     },
     CreatePartnerMetadata {
         program_id: solana_pubkey::Pubkey,
@@ -183,7 +190,11 @@ pub enum MeteoraDbcInstruction {
         data: WithdrawMigrationFee,
         accounts: WithdrawMigrationFeeInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
+    ZapProtocolFee {
+        program_id: solana_pubkey::Pubkey,
+        data: ZapProtocolFee,
+        accounts: ZapProtocolFeeInstructionAccounts,
+    },
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
@@ -211,9 +222,10 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDbcDecoder {
             MeteoraDbcInstruction::ClaimProtocolPoolCreationFee => ClaimProtocolPoolCreationFee,
             MeteoraDbcInstruction::ClaimTradingFee => ClaimTradingFee,
             MeteoraDbcInstruction::CloseClaimProtocolFeeOperator => CloseClaimProtocolFeeOperator,
-            MeteoraDbcInstruction::CreateClaimProtocolFeeOperator => CreateClaimProtocolFeeOperator,
+            MeteoraDbcInstruction::CloseOperatorAccount => CloseOperatorAccount,
             MeteoraDbcInstruction::CreateConfig => CreateConfig,
             MeteoraDbcInstruction::CreateLocker => CreateLocker,
+            MeteoraDbcInstruction::CreateOperatorAccount => CreateOperatorAccount,
             MeteoraDbcInstruction::CreatePartnerMetadata => CreatePartnerMetadata,
             MeteoraDbcInstruction::CreateVirtualPoolMetadata => CreateVirtualPoolMetadata,
             MeteoraDbcInstruction::CreatorWithdrawSurplus => CreatorWithdrawSurplus,
@@ -231,6 +243,7 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDbcDecoder {
             MeteoraDbcInstruction::TransferPoolCreator => TransferPoolCreator,
             MeteoraDbcInstruction::WithdrawLeftover => WithdrawLeftover,
             MeteoraDbcInstruction::WithdrawMigrationFee => WithdrawMigrationFee,
+            MeteoraDbcInstruction::ZapProtocolFee => ZapProtocolFee,
             MeteoraDbcInstruction::CpiEvent => CpiEvent,
         )
     }

@@ -6,13 +6,13 @@ use crate::types::WrappedI80F48;
 pub struct BankCache {
     /// Actual (spot) interest/fee rates of the bank, based on utilization
     /// * APR (annual percentage rate) values
-    /// * From 0-1000%, as u32, e.g. u32::MAX = 1000%, u:32::MAX/2 = 500%, etc
+    /// * From 0-1000%, as u32, e.g. u32::MAX = 1000%, u32::MAX/2 = 500%, etc
     pub base_rate: u32,
     /// Equivalent to `base_rate` * utilization
-    /// * From 0-1000%, as u32, e.g. u32::MAX = 1000%, u:32::MAX/2 = 500%, etc
+    /// * From 0-1000%, as u32, e.g. u32::MAX = 1000%, u32::MAX/2 = 500%, etc
     pub lending_rate: u32,
     /// Equivalent to `base_rate` * (1 + ir_fees) + fixed_fees
-    /// * From 0-1000%, as u32, e.g. u32::MAX = 1000%, u:32::MAX/2 = 500%, etc
+    /// * From 0-1000%, as u32, e.g. u32::MAX = 1000%, u32::MAX/2 = 500%, etc
     pub borrowing_rate: u32,
     /// * in seconds
     pub interest_accumulated_for: u32,
@@ -45,7 +45,27 @@ pub struct BankCache {
     /// * Note: this value is the confidence reported by oracles, multiplied by
     ///   `STD_DEV_MULTIPLE`
     pub last_oracle_price_confidence: WrappedI80F48,
-    pub padding: [u8; 24],
-    #[cfg_attr(feature = "serde", serde(with = "serde_big_array::BigArray"))]
-    pub reserved0: [u8; 64],
+    /// Liquidation cache flags, set during receivership flow.
+    /// * 1 (LIQ_CACHE_LOCKED_FLAG) - We "lock" the liquidation cache when
+    ///   writing to it in Start
+    ///
+    /// Liquidate as an additional safeguard, if the liquidation prices stored
+    /// here were to be edited between start and end, it would completely
+    /// break the risk engine. End validates that the lock is set, panics if
+    /// not, and removes it - which prevents footguns if the cache was
+    /// e.g. accidently set to default. The lock is also removed when a Balance
+    /// is closed via withdraw_all, repay_all, or close_balance, but only
+    /// when the account has ACCOUNT_IN_RECEIVERSHIP set, so that operations
+    /// on unrelated accounts sharing the same bank do not interfere with an
+    /// in-progress liquidation.
+    pub liq_cache_flags: u8,
+    pub padding: [u8; 23],
+    /// Cached real-time price for receivership liquidation.
+    pub liquidation_price_rt: WrappedI80F48,
+    /// Cached real-time price confidence for receivership liquidation.
+    pub liquidation_price_rt_confidence: WrappedI80F48,
+    /// Cached TWAP price for receivership liquidation.
+    pub liquidation_price_twap: WrappedI80F48,
+    /// Cached TWAP price confidence for receivership liquidation.
+    pub liquidation_price_twap_confidence: WrappedI80F48,
 }

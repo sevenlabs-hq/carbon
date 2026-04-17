@@ -32,7 +32,7 @@ impl CreatePositionRequestEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 67, 114, 101, 97, 116, 101, 80, 111,
+                228, 69, 165, 46, 81, 203, 154, 29, 2, 238, 94, 53, 105, 211, 46, 186,
             ]
         {
             return None;

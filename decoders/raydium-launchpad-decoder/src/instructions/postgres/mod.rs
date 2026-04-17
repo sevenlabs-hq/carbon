@@ -5,11 +5,13 @@ pub mod claim_creator_fee_row;
 pub mod claim_platform_fee_from_vault_row;
 pub mod claim_platform_fee_row;
 pub mod claim_vested_token_row;
+pub mod close_platform_global_access_row;
 pub mod collect_fee_row;
 pub mod collect_migrate_fee_row;
 pub mod cpi_event_row;
 pub mod create_config_row;
 pub mod create_platform_config_row;
+pub mod create_platform_global_access_row;
 pub mod create_platform_vesting_account_row;
 pub mod create_vesting_account_row;
 pub mod initialize_row;
@@ -27,8 +29,9 @@ pub mod update_platform_curve_param_row;
 pub use self::{
     buy_exact_in_row::*, buy_exact_out_row::*, claim_creator_fee_row::*,
     claim_platform_fee_from_vault_row::*, claim_platform_fee_row::*, claim_vested_token_row::*,
-    collect_fee_row::*, collect_migrate_fee_row::*, cpi_event_row::*, create_config_row::*,
-    create_platform_config_row::*, create_platform_vesting_account_row::*,
+    close_platform_global_access_row::*, collect_fee_row::*, collect_migrate_fee_row::*,
+    cpi_event_row::*, create_config_row::*, create_platform_config_row::*,
+    create_platform_global_access_row::*, create_platform_vesting_account_row::*,
     create_vesting_account_row::*, initialize_row::*, initialize_v2_row::*,
     initialize_with_token2022_row::*, migrate_to_amm_row::*, migrate_to_cpswap_row::*,
     remove_platform_curve_param_row::*, sell_exact_in_row::*, sell_exact_out_row::*,
@@ -55,10 +58,12 @@ impl sqlx_migrator::Migration<sqlx::Postgres> for RaydiumLaunchpadInstructionsMi
             Box::new(ClaimPlatformFeeMigrationOperation),
             Box::new(ClaimPlatformFeeFromVaultMigrationOperation),
             Box::new(ClaimVestedTokenMigrationOperation),
+            Box::new(ClosePlatformGlobalAccessMigrationOperation),
             Box::new(CollectFeeMigrationOperation),
             Box::new(CollectMigrateFeeMigrationOperation),
             Box::new(CreateConfigMigrationOperation),
             Box::new(CreatePlatformConfigMigrationOperation),
+            Box::new(CreatePlatformGlobalAccessMigrationOperation),
             Box::new(CreatePlatformVestingAccountMigrationOperation),
             Box::new(CreateVestingAccountMigrationOperation),
             Box::new(InitializeMigrationOperation),
@@ -166,6 +171,16 @@ impl carbon_core::postgres::operations::Insert for RaydiumLaunchpadInstructionWi
                 row.insert(pool).await?;
                 Ok(())
             }
+            RaydiumLaunchpadInstruction::ClosePlatformGlobalAccess { data, .. } => {
+                let row =
+                    close_platform_global_access_row::ClosePlatformGlobalAccessRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
+                row.insert(pool).await?;
+                Ok(())
+            }
             RaydiumLaunchpadInstruction::CollectFee { data, .. } => {
                 let row = collect_fee_row::CollectFeeRow::from_parts(
                     data.clone(),
@@ -199,6 +214,16 @@ impl carbon_core::postgres::operations::Insert for RaydiumLaunchpadInstructionWi
                     metadata.clone(),
                     raw_accounts.clone(),
                 );
+                row.insert(pool).await?;
+                Ok(())
+            }
+            RaydiumLaunchpadInstruction::CreatePlatformGlobalAccess { data, .. } => {
+                let row =
+                    create_platform_global_access_row::CreatePlatformGlobalAccessRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
                 row.insert(pool).await?;
                 Ok(())
             }
@@ -389,6 +414,16 @@ impl carbon_core::postgres::operations::Upsert for RaydiumLaunchpadInstructionWi
                 row.upsert(pool).await?;
                 Ok(())
             }
+            RaydiumLaunchpadInstruction::ClosePlatformGlobalAccess { data, .. } => {
+                let row =
+                    close_platform_global_access_row::ClosePlatformGlobalAccessRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
+                row.upsert(pool).await?;
+                Ok(())
+            }
             RaydiumLaunchpadInstruction::CollectFee { data, .. } => {
                 let row = collect_fee_row::CollectFeeRow::from_parts(
                     data.clone(),
@@ -422,6 +457,16 @@ impl carbon_core::postgres::operations::Upsert for RaydiumLaunchpadInstructionWi
                     metadata.clone(),
                     raw_accounts.clone(),
                 );
+                row.upsert(pool).await?;
+                Ok(())
+            }
+            RaydiumLaunchpadInstruction::CreatePlatformGlobalAccess { data, .. } => {
+                let row =
+                    create_platform_global_access_row::CreatePlatformGlobalAccessRow::from_parts(
+                        data.clone(),
+                        metadata.clone(),
+                        raw_accounts.clone(),
+                    );
                 row.upsert(pool).await?;
                 Ok(())
             }

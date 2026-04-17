@@ -15,7 +15,7 @@ impl CloseConfigEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 67, 108, 111, 115, 101, 67, 111, 110,
+                228, 69, 165, 46, 81, 203, 154, 29, 249, 181, 108, 89, 4, 150, 90, 174,
             ]
         {
             return None;

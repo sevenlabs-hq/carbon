@@ -24,7 +24,7 @@ impl BorrowFromCustodyEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 66, 111, 114, 114, 111, 119, 70, 114,
+                228, 69, 165, 46, 81, 203, 154, 29, 23, 121, 131, 68, 168, 70, 14, 76,
             ]
         {
             return None;

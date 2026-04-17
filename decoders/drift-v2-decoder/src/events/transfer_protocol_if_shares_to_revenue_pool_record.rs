@@ -20,7 +20,7 @@ impl TransferProtocolIfSharesToRevenuePoolRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 84, 114, 97, 110, 115, 102, 101, 114,
+                228, 69, 165, 46, 81, 203, 154, 29, 209, 118, 142, 167, 130, 46, 164, 151,
             ]
         {
             return None;

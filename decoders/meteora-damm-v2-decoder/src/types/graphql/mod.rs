@@ -11,7 +11,6 @@ pub mod dynamic_config_parameters_schema;
 pub mod dynamic_fee_config_schema;
 pub mod dynamic_fee_parameters_schema;
 pub mod dynamic_fee_struct_schema;
-pub mod evt_claim_partner_fee_schema;
 pub mod evt_claim_position_fee_schema;
 pub mod evt_claim_protocol_fee_schema;
 pub mod evt_claim_reward_schema;
@@ -66,14 +65,14 @@ pub use {
     borsh_fee_rate_limiter_schema::*, borsh_fee_time_scheduler_schema::*, dummy_params_schema::*,
     dynamic_config_parameters_schema::*, dynamic_fee_config_schema::*,
     dynamic_fee_parameters_schema::*, dynamic_fee_struct_schema::*,
-    evt_claim_partner_fee_schema::*, evt_claim_position_fee_schema::*,
-    evt_claim_protocol_fee_schema::*, evt_claim_reward_schema::*, evt_close_config_schema::*,
-    evt_close_position_schema::*, evt_create_config_schema::*, evt_create_dynamic_config_schema::*,
-    evt_create_position_schema::*, evt_create_token_badge_schema::*, evt_fund_reward_schema::*,
-    evt_initialize_pool_schema::*, evt_initialize_reward_schema::*, evt_liquidity_change_schema::*,
-    evt_lock_position_schema::*, evt_permanent_lock_position_schema::*,
-    evt_set_pool_status_schema::*, evt_split_position2_schema::*, evt_split_position3_schema::*,
-    evt_swap2_schema::*, evt_update_pool_fees_schema::*, evt_update_reward_duration_schema::*,
+    evt_claim_position_fee_schema::*, evt_claim_protocol_fee_schema::*, evt_claim_reward_schema::*,
+    evt_close_config_schema::*, evt_close_position_schema::*, evt_create_config_schema::*,
+    evt_create_dynamic_config_schema::*, evt_create_position_schema::*,
+    evt_create_token_badge_schema::*, evt_fund_reward_schema::*, evt_initialize_pool_schema::*,
+    evt_initialize_reward_schema::*, evt_liquidity_change_schema::*, evt_lock_position_schema::*,
+    evt_permanent_lock_position_schema::*, evt_set_pool_status_schema::*,
+    evt_split_position2_schema::*, evt_split_position3_schema::*, evt_swap2_schema::*,
+    evt_update_pool_fees_schema::*, evt_update_reward_duration_schema::*,
     evt_update_reward_funder_schema::*, evt_withdraw_ineligible_reward_schema::*,
     initialize_customizable_pool_parameters_schema::*, initialize_pool_parameters_schema::*,
     inner_vesting_schema::*, pool_fee_parameters_schema::*, pool_fees_config_schema::*,

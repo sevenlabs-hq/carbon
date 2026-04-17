@@ -3,7 +3,8 @@ use {
     crate::types::InterestRateConfigOpt,
     carbon_core::{account_utils::next_account, deserialize::ArrangeAccounts},
 };
-/// (delegate_curve_admin only)
+/// (delegate_curve_admin only) Update interest rate config. Does nothing if
+/// bank has `FREEZE_SETTINGS`.
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, borsh::BorshDeserialize, PartialEq)]
 pub struct LendingPoolConfigureBankInterestOnly {

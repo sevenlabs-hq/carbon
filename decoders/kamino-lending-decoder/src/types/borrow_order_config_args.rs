@@ -8,4 +8,5 @@ pub struct BorrowOrderConfigArgs {
     pub max_borrow_rate_bps: u32,
     pub min_debt_term_seconds: u64,
     pub fillable_until_timestamp: u64,
+    pub enable_auto_rollover_on_filled_borrows: bool,
 }

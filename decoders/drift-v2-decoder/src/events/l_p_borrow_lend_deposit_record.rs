@@ -24,7 +24,7 @@ impl LPBorrowLendDepositRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 76, 80, 66, 111, 114, 114, 111, 119,
+                228, 69, 165, 46, 81, 203, 154, 29, 242, 181, 11, 56, 243, 61, 79, 210,
             ]
         {
             return None;

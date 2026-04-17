@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { createFromJson, createFromRoot } from 'codama';
 import { rootNodeFromAnchorWithoutDefaultVisitor, rootNodeFromAnchor } from '@codama/nodes-from-anchor';
-import { renderVisitor, type PackageMetadata } from '@sevenlabs-hq/carbon-codama-renderer';
+import { renderVisitor, extractStructArrayItems, type PackageMetadata } from '@sevenlabs-hq/carbon-codama-renderer';
 import {
     deduplicateIdenticalDefinedTypesVisitor,
     setFixedAccountSizesVisitor,
@@ -296,6 +296,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
     // Codama standard: no anchor transformations needed
     if (standard === 'codama') {
         const codama = createFromJson(JSON.stringify(idlJson));
+        codama.update(extractStructArrayItems());
         codama.accept(renderVisitor(outputDir, renderOpts));
         return;
     }
@@ -307,9 +308,30 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
     idlJson = fixPdaSeedArgumentPaths(idlJson);
     idlJson = fixPdaSeedAccountReferences(idlJson);
 
-    const needsNestedPreservation = hasNestedInstructionArguments(idlJson);
-    const codama = needsNestedPreservation
-        ? createFromRootWithoutFlattening(idlJson)
-        : createFromRoot(rootNodeFromAnchorWithoutDefaultVisitor(idlJson));
-    codama.accept(renderVisitor(outputDir, { ...renderOpts, anchorEvents: idlJson.events }));
+    if (standard === 'anchor') {
+        // Check if we need to preserve nested structure
+        const needsNestedPreservation = hasNestedInstructionArguments(idlJson);
+
+        // Use custom pipeline only if we have nested arguments to preserve
+        const codama = needsNestedPreservation
+            ? createFromRootWithoutFlattening(idlJson)
+            : createFromRoot(rootNodeFromAnchorWithoutDefaultVisitor(idlJson));
+        codama.accept(
+            renderVisitor(outputDir, {
+                deleteFolderBeforeRendering,
+                packageName,
+                anchorEvents: idlJson.events,
+                postgresMode,
+                withPostgres,
+                withGraphql,
+                withSerde,
+                withBase58,
+                standalone,
+                workspaceDeps,
+                packageMetadata,
+                version: options.version,
+                versionName: options.versionName,
+            }),
+        );
+    }
 }

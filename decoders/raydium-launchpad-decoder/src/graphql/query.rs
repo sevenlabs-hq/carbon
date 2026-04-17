@@ -77,6 +77,40 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn platform_global_access(
+        context: &crate::graphql::context::GraphQLContext,
+        pubkey: String,
+    ) -> FieldResult<Option<crate::accounts::graphql::PlatformGlobalAccessGraphQL>> {
+        use carbon_core::postgres::{operations::LookUp, primitives::Pubkey as PgPubkey};
+        let pk = PgPubkey(
+            solana_pubkey::Pubkey::from_str(&pubkey)
+                .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?,
+        );
+        let row = crate::accounts::postgres::PlatformGlobalAccessRow::lookup(pk, &context.pool)
+            .await
+            .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(row.and_then(|row| row.try_into().ok()))
+    }
+
+    async fn list_platform_global_access(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::accounts::graphql::PlatformGlobalAccessGraphQL>> {
+        let rows: Vec<crate::accounts::postgres::PlatformGlobalAccessRow> = sqlx::query_as(
+            r#"SELECT * FROM platform_global_access_account ORDER BY __slot DESC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn pool_state(
         context: &crate::graphql::context::GraphQLContext,
         pubkey: String,
@@ -374,6 +408,44 @@ impl QueryRoot {
             .collect())
     }
 
+    async fn close_platform_global_access(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ClosePlatformGlobalAccessGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ClosePlatformGlobalAccessRow> = sqlx::query_as(
+            r#"SELECT * FROM close_platform_global_access_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_close_platform_global_access(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::ClosePlatformGlobalAccessGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::ClosePlatformGlobalAccessRow> = sqlx::query_as(
+            r#"SELECT * FROM close_platform_global_access_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
     async fn collect_fee(
         context: &crate::graphql::context::GraphQLContext,
         signature: String,
@@ -514,6 +586,44 @@ impl QueryRoot {
     ) -> FieldResult<Vec<crate::instructions::graphql::CreatePlatformConfigGraphQL>> {
         let rows: Vec<crate::instructions::postgres::CreatePlatformConfigRow> = sqlx::query_as(
             r#"SELECT * FROM create_platform_config_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
+        )
+        .bind(limit)
+        .bind(offset)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn create_platform_global_access(
+        context: &crate::graphql::context::GraphQLContext,
+        signature: String,
+        instruction_index: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreatePlatformGlobalAccessGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreatePlatformGlobalAccessRow> = sqlx::query_as(
+            r#"SELECT * FROM create_platform_global_access_instruction WHERE __signature = $1 AND __instruction_index = $2 ORDER BY __stack_height ASC"#,
+        )
+        .bind(signature)
+        .bind(instruction_index)
+        .fetch_all(&*context.pool)
+        .await
+        .map_err(|e| juniper::FieldError::new(e.to_string(), juniper::Value::null()))?;
+        Ok(rows
+            .into_iter()
+            .filter_map(|row| row.try_into().ok())
+            .collect())
+    }
+
+    async fn list_create_platform_global_access(
+        context: &crate::graphql::context::GraphQLContext,
+        limit: i32,
+        offset: i32,
+    ) -> FieldResult<Vec<crate::instructions::graphql::CreatePlatformGlobalAccessGraphQL>> {
+        let rows: Vec<crate::instructions::postgres::CreatePlatformGlobalAccessRow> = sqlx::query_as(
+            r#"SELECT * FROM create_platform_global_access_instruction ORDER BY __slot DESC, __signature DESC, __instruction_index ASC LIMIT $1 OFFSET $2"#,
         )
         .bind(limit)
         .bind(offset)

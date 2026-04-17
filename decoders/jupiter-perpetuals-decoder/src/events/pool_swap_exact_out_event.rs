@@ -24,7 +24,7 @@ impl PoolSwapExactOutEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 80, 111, 111, 108, 83, 119, 97, 112,
+                228, 69, 165, 46, 81, 203, 154, 29, 121, 118, 11, 11, 198, 66, 142, 115,
             ]
         {
             return None;

@@ -18,7 +18,9 @@ pub struct WithdrawTicketRow {
     pub queued_collateral_amount: U64,
     pub created_at_timestamp: U64,
     pub invalid: U8,
+    pub progress_callback_type: U8,
     pub alignment_padding: Vec<u8>,
+    pub progress_callback_custom_accounts: Vec<Pubkey>,
     pub end_padding: Vec<U64>,
 }
 
@@ -36,7 +38,13 @@ impl WithdrawTicketRow {
             queued_collateral_amount: source.queued_collateral_amount.into(),
             created_at_timestamp: source.created_at_timestamp.into(),
             invalid: source.invalid.into(),
+            progress_callback_type: source.progress_callback_type.into(),
             alignment_padding: source.alignment_padding.to_vec(),
+            progress_callback_custom_accounts: source
+                .progress_callback_custom_accounts
+                .into_iter()
+                .map(|element| element.into())
+                .collect(),
             end_padding: source
                 .end_padding
                 .into_iter()
@@ -61,14 +69,35 @@ impl TryFrom<WithdrawTicketRow> for crate::accounts::withdraw_ticket::WithdrawTi
                     "Failed to convert value from postgres primitive".to_string(),
                 )
             })?,
+            progress_callback_type: source.progress_callback_type.try_into().map_err(|_| {
+                carbon_core::error::Error::Custom(
+                    "Failed to convert value from postgres primitive".to_string(),
+                )
+            })?,
             alignment_padding: source
                 .alignment_padding
                 .as_slice()
                 .try_into()
                 .map_err(|_| {
                     carbon_core::error::Error::Custom(
-                        "Failed to convert padding from postgres primitive: expected 7 bytes"
+                        "Failed to convert padding from postgres primitive: expected 6 bytes"
                             .to_string(),
+                    )
+                })?,
+            progress_callback_custom_accounts: source
+                .progress_callback_custom_accounts
+                .into_iter()
+                .map(|element| Ok(*element))
+                .collect::<Result<Vec<_>, carbon_core::error::Error>>()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to collect array elements".to_string(),
+                    )
+                })?
+                .try_into()
+                .map_err(|_| {
+                    carbon_core::error::Error::Custom(
+                        "Failed to convert array element to primitive".to_string(),
                     )
                 })?,
             end_padding: source
@@ -107,7 +136,9 @@ impl carbon_core::postgres::operations::Table for crate::accounts::withdraw_tick
             "queued_collateral_amount",
             "created_at_timestamp",
             "invalid",
+            "progress_callback_type",
             "alignment_padding",
+            "progress_callback_custom_accounts",
             "end_padding",
         ]
     }
@@ -126,11 +157,13 @@ impl carbon_core::postgres::operations::Insert for WithdrawTicketRow {
                 "queued_collateral_amount",
                 "created_at_timestamp",
                 "invalid",
+                "progress_callback_type",
                 "alignment_padding",
+                "progress_callback_custom_accounts",
                 "end_padding",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
             )"#,
         )
         .bind(&self.sequence_number)
@@ -140,7 +173,9 @@ impl carbon_core::postgres::operations::Insert for WithdrawTicketRow {
         .bind(&self.queued_collateral_amount)
         .bind(&self.created_at_timestamp)
         .bind(self.invalid)
+        .bind(self.progress_callback_type)
         .bind(&self.alignment_padding)
+        .bind(&self.progress_callback_custom_accounts)
         .bind(&self.end_padding)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -163,11 +198,13 @@ impl carbon_core::postgres::operations::Upsert for WithdrawTicketRow {
                 "queued_collateral_amount",
                 "created_at_timestamp",
                 "invalid",
+                "progress_callback_type",
                 "alignment_padding",
+                "progress_callback_custom_accounts",
                 "end_padding",
                 __pubkey, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
             ) ON CONFLICT (
                 __pubkey
             ) DO UPDATE SET
@@ -178,7 +215,9 @@ impl carbon_core::postgres::operations::Upsert for WithdrawTicketRow {
                 "queued_collateral_amount" = EXCLUDED."queued_collateral_amount",
                 "created_at_timestamp" = EXCLUDED."created_at_timestamp",
                 "invalid" = EXCLUDED."invalid",
+                "progress_callback_type" = EXCLUDED."progress_callback_type",
                 "alignment_padding" = EXCLUDED."alignment_padding",
+                "progress_callback_custom_accounts" = EXCLUDED."progress_callback_custom_accounts",
                 "end_padding" = EXCLUDED."end_padding",
                 __slot = EXCLUDED.__slot
             "#,
@@ -190,7 +229,9 @@ impl carbon_core::postgres::operations::Upsert for WithdrawTicketRow {
         .bind(&self.queued_collateral_amount)
         .bind(&self.created_at_timestamp)
         .bind(self.invalid)
+        .bind(self.progress_callback_type)
         .bind(&self.alignment_padding)
+        .bind(&self.progress_callback_custom_accounts)
         .bind(&self.end_padding)
         .bind(self.account_metadata.pubkey)
         .bind(&self.account_metadata.slot)
@@ -258,7 +299,9 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for WithdrawTicketMigrationOperati
                 "queued_collateral_amount" NUMERIC(20) NOT NULL,
                 "created_at_timestamp" NUMERIC(20) NOT NULL,
                 "invalid" INT2 NOT NULL,
+                "progress_callback_type" INT2 NOT NULL,
                 "alignment_padding" BYTEA NOT NULL,
+                "progress_callback_custom_accounts" BYTEA[] NOT NULL,
                 "end_padding" NUMERIC(20)[] NOT NULL,
                 -- Account metadata
                 __pubkey BYTEA NOT NULL,

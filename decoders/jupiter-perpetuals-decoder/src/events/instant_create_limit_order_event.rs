@@ -27,7 +27,7 @@ impl InstantCreateLimitOrderEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 73, 110, 115, 116, 97, 110, 116, 67,
+                228, 69, 165, 46, 81, 203, 154, 29, 10, 163, 85, 115, 129, 224, 80, 192,
             ]
         {
             return None;

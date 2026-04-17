@@ -66,7 +66,6 @@ pub enum VirtualsInstruction {
         data: UpdatePoolCreator,
         accounts: UpdatePoolCreatorInstructionAccounts,
     },
-    // Anchor CPI Event Instruction
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,

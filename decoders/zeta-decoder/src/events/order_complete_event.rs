@@ -26,7 +26,7 @@ impl OrderCompleteEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 79, 114, 100, 101, 114, 67, 111, 109,
+                228, 69, 165, 46, 81, 203, 154, 29, 26, 100, 196, 234, 93, 121, 159, 223,
             ]
         {
             return None;

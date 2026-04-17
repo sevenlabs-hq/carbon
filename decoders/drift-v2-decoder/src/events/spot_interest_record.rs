@@ -22,7 +22,7 @@ impl SpotInterestRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 83, 112, 111, 116, 73, 110, 116, 101,
+                228, 69, 165, 46, 81, 203, 154, 29, 183, 186, 203, 186, 225, 187, 95, 130,
             ]
         {
             return None;

@@ -25,7 +25,7 @@ impl LiquidationEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 76, 105, 113, 117, 105, 100, 97, 116,
+                228, 69, 165, 46, 81, 203, 154, 29, 3, 13, 21, 93, 173, 136, 72, 144,
             ]
         {
             return None;
