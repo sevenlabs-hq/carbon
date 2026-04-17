@@ -296,6 +296,7 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
     // Codama standard: no anchor transformations needed
     if (standard === 'codama') {
         const codama = createFromJson(JSON.stringify(idlJson));
+        codama.update(extractStructArrayItems());
         codama.accept(renderVisitor(outputDir, renderOpts));
         return;
     }
@@ -320,25 +321,6 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
                 deleteFolderBeforeRendering,
                 packageName,
                 anchorEvents: idlJson.events,
-                postgresMode,
-                withPostgres,
-                withGraphql,
-                withSerde,
-                withBase58,
-                standalone,
-                workspaceDeps,
-                packageMetadata,
-                version: options.version,
-                versionName: options.versionName,
-            }),
-        );
-    } else {
-        const codama = createFromJson(JSON.stringify(idlJson));
-        codama.update(extractStructArrayItems());
-        codama.accept(
-            renderVisitor(outputDir, {
-                deleteFolderBeforeRendering,
-                packageName,
                 postgresMode,
                 withPostgres,
                 withGraphql,
