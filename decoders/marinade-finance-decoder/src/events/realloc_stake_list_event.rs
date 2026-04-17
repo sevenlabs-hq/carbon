@@ -17,7 +17,7 @@ impl ReallocStakeListEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 82, 101, 97, 108, 108, 111, 99, 83,
+                228, 69, 165, 46, 81, 203, 154, 29, 193, 129, 16, 243, 177, 131, 248, 23,
             ]
         {
             return None;

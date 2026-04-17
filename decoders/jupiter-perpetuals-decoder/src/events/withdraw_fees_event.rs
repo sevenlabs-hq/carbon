@@ -31,7 +31,7 @@ impl WithdrawFeesEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 87, 105, 116, 104, 100, 114, 97, 119,
+                228, 69, 165, 46, 81, 203, 154, 29, 236, 118, 138, 90, 139, 173, 177, 89,
             ]
         {
             return None;

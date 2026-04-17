@@ -22,7 +22,7 @@ impl RemoveLiquidityEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 82, 101, 109, 111, 118, 101, 76, 105,
+                228, 69, 165, 46, 81, 203, 154, 29, 141, 199, 182, 123, 159, 94, 215, 102,
             ]
         {
             return None;

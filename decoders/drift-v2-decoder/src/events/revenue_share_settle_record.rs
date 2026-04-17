@@ -23,7 +23,7 @@ impl RevenueShareSettleRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 82, 101, 118, 101, 110, 117, 101, 83,
+                228, 69, 165, 46, 81, 203, 154, 29, 61, 162, 89, 10, 24, 20, 59, 45,
             ]
         {
             return None;

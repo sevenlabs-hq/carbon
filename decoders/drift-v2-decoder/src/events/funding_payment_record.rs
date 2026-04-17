@@ -23,7 +23,7 @@ impl FundingPaymentRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 70, 117, 110, 100, 105, 110, 103, 80,
+                228, 69, 165, 46, 81, 203, 154, 29, 8, 59, 96, 20, 137, 201, 56, 95,
             ]
         {
             return None;

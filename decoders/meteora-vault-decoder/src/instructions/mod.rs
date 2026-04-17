@@ -107,7 +107,7 @@ pub enum MeteoraVaultInstruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -122,38 +122,24 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraVaultDecoder {
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                MeteoraVaultInstruction::AddStrategy => AddStrategy,
-                MeteoraVaultInstruction::CollectDust => CollectDust,
-                MeteoraVaultInstruction::Deposit => Deposit,
-                MeteoraVaultInstruction::DepositStrategy => DepositStrategy,
-                MeteoraVaultInstruction::EnableVault => EnableVault,
-                MeteoraVaultInstruction::Initialize => Initialize,
-                MeteoraVaultInstruction::InitializeStrategy => InitializeStrategy,
-                MeteoraVaultInstruction::RemoveStrategy => RemoveStrategy,
-                MeteoraVaultInstruction::RemoveStrategy2 => RemoveStrategy2,
-                MeteoraVaultInstruction::SetOperator => SetOperator,
-                MeteoraVaultInstruction::Withdraw => Withdraw,
-                MeteoraVaultInstruction::Withdraw2 => Withdraw2,
-                MeteoraVaultInstruction::WithdrawDirectlyFromStrategy => WithdrawDirectlyFromStrategy,
-                MeteoraVaultInstruction::WithdrawStrategy => WithdrawStrategy,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(MeteoraVaultInstruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            MeteoraVaultInstruction::AddStrategy => AddStrategy,
+            MeteoraVaultInstruction::CollectDust => CollectDust,
+            MeteoraVaultInstruction::Deposit => Deposit,
+            MeteoraVaultInstruction::DepositStrategy => DepositStrategy,
+            MeteoraVaultInstruction::EnableVault => EnableVault,
+            MeteoraVaultInstruction::Initialize => Initialize,
+            MeteoraVaultInstruction::InitializeStrategy => InitializeStrategy,
+            MeteoraVaultInstruction::RemoveStrategy => RemoveStrategy,
+            MeteoraVaultInstruction::RemoveStrategy2 => RemoveStrategy2,
+            MeteoraVaultInstruction::SetOperator => SetOperator,
+            MeteoraVaultInstruction::Withdraw => Withdraw,
+            MeteoraVaultInstruction::Withdraw2 => Withdraw2,
+            MeteoraVaultInstruction::WithdrawDirectlyFromStrategy => WithdrawDirectlyFromStrategy,
+            MeteoraVaultInstruction::WithdrawStrategy => WithdrawStrategy,
+            MeteoraVaultInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

@@ -137,7 +137,7 @@ pub enum StabbleStableSwapInstruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -152,43 +152,29 @@ impl carbon_core::instruction::InstructionDecoder<'_> for StabbleStableSwapDecod
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                StabbleStableSwapInstruction::AcceptOwner => AcceptOwner,
-                StabbleStableSwapInstruction::ApproveStrategy => ApproveStrategy,
-                StabbleStableSwapInstruction::ChangeAmpFactor => ChangeAmpFactor,
-                StabbleStableSwapInstruction::ChangeMaxSupply => ChangeMaxSupply,
-                StabbleStableSwapInstruction::ChangeSwapFee => ChangeSwapFee,
-                StabbleStableSwapInstruction::ChangeSwapFeePrivileged => ChangeSwapFeePrivileged,
-                StabbleStableSwapInstruction::CloseStrategy => CloseStrategy,
-                StabbleStableSwapInstruction::CreateStrategy => CreateStrategy,
-                StabbleStableSwapInstruction::Deposit => Deposit,
-                StabbleStableSwapInstruction::ExecStrategy => ExecStrategy,
-                StabbleStableSwapInstruction::Initialize => Initialize,
-                StabbleStableSwapInstruction::Pause => Pause,
-                StabbleStableSwapInstruction::RejectOwner => RejectOwner,
-                StabbleStableSwapInstruction::Shutdown => Shutdown,
-                StabbleStableSwapInstruction::Swap => Swap,
-                StabbleStableSwapInstruction::SwapV2 => SwapV2,
-                StabbleStableSwapInstruction::TransferOwner => TransferOwner,
-                StabbleStableSwapInstruction::Unpause => Unpause,
-                StabbleStableSwapInstruction::Withdraw => Withdraw,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(StabbleStableSwapInstruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            StabbleStableSwapInstruction::AcceptOwner => AcceptOwner,
+            StabbleStableSwapInstruction::ApproveStrategy => ApproveStrategy,
+            StabbleStableSwapInstruction::ChangeAmpFactor => ChangeAmpFactor,
+            StabbleStableSwapInstruction::ChangeMaxSupply => ChangeMaxSupply,
+            StabbleStableSwapInstruction::ChangeSwapFee => ChangeSwapFee,
+            StabbleStableSwapInstruction::ChangeSwapFeePrivileged => ChangeSwapFeePrivileged,
+            StabbleStableSwapInstruction::CloseStrategy => CloseStrategy,
+            StabbleStableSwapInstruction::CreateStrategy => CreateStrategy,
+            StabbleStableSwapInstruction::Deposit => Deposit,
+            StabbleStableSwapInstruction::ExecStrategy => ExecStrategy,
+            StabbleStableSwapInstruction::Initialize => Initialize,
+            StabbleStableSwapInstruction::Pause => Pause,
+            StabbleStableSwapInstruction::RejectOwner => RejectOwner,
+            StabbleStableSwapInstruction::Shutdown => Shutdown,
+            StabbleStableSwapInstruction::Swap => Swap,
+            StabbleStableSwapInstruction::SwapV2 => SwapV2,
+            StabbleStableSwapInstruction::TransferOwner => TransferOwner,
+            StabbleStableSwapInstruction::Unpause => Unpause,
+            StabbleStableSwapInstruction::Withdraw => Withdraw,
+            StabbleStableSwapInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

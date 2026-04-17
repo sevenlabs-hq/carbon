@@ -127,7 +127,7 @@ pub enum PumpFeesInstruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -142,41 +142,27 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PumpFeesDecoder {
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                PumpFeesInstruction::ClaimSocialFeePda => ClaimSocialFeePda,
-                PumpFeesInstruction::CreateFeeSharingConfig => CreateFeeSharingConfig,
-                PumpFeesInstruction::CreateSocialFeePda => CreateSocialFeePda,
-                PumpFeesInstruction::GetFees => GetFees,
-                PumpFeesInstruction::InitializeFeeConfig => InitializeFeeConfig,
-                PumpFeesInstruction::InitializeFeeProgramGlobal => InitializeFeeProgramGlobal,
-                PumpFeesInstruction::ResetFeeSharingConfig => ResetFeeSharingConfig,
-                PumpFeesInstruction::RevokeFeeSharingAuthority => RevokeFeeSharingAuthority,
-                PumpFeesInstruction::SetAuthority => SetAuthority,
-                PumpFeesInstruction::SetClaimRateLimit => SetClaimRateLimit,
-                PumpFeesInstruction::SetDisableFlags => SetDisableFlags,
-                PumpFeesInstruction::SetSocialClaimAuthority => SetSocialClaimAuthority,
-                PumpFeesInstruction::TransferFeeSharingAuthority => TransferFeeSharingAuthority,
-                PumpFeesInstruction::UpdateAdmin => UpdateAdmin,
-                PumpFeesInstruction::UpdateFeeConfig => UpdateFeeConfig,
-                PumpFeesInstruction::UpdateFeeShares => UpdateFeeShares,
-                PumpFeesInstruction::UpsertFeeTiers => UpsertFeeTiers,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(PumpFeesInstruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            PumpFeesInstruction::ClaimSocialFeePda => ClaimSocialFeePda,
+            PumpFeesInstruction::CreateFeeSharingConfig => CreateFeeSharingConfig,
+            PumpFeesInstruction::CreateSocialFeePda => CreateSocialFeePda,
+            PumpFeesInstruction::GetFees => GetFees,
+            PumpFeesInstruction::InitializeFeeConfig => InitializeFeeConfig,
+            PumpFeesInstruction::InitializeFeeProgramGlobal => InitializeFeeProgramGlobal,
+            PumpFeesInstruction::ResetFeeSharingConfig => ResetFeeSharingConfig,
+            PumpFeesInstruction::RevokeFeeSharingAuthority => RevokeFeeSharingAuthority,
+            PumpFeesInstruction::SetAuthority => SetAuthority,
+            PumpFeesInstruction::SetClaimRateLimit => SetClaimRateLimit,
+            PumpFeesInstruction::SetDisableFlags => SetDisableFlags,
+            PumpFeesInstruction::SetSocialClaimAuthority => SetSocialClaimAuthority,
+            PumpFeesInstruction::TransferFeeSharingAuthority => TransferFeeSharingAuthority,
+            PumpFeesInstruction::UpdateAdmin => UpdateAdmin,
+            PumpFeesInstruction::UpdateFeeConfig => UpdateFeeConfig,
+            PumpFeesInstruction::UpdateFeeShares => UpdateFeeShares,
+            PumpFeesInstruction::UpsertFeeTiers => UpsertFeeTiers,
+            PumpFeesInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

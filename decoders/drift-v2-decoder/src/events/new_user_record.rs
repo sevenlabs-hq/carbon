@@ -20,7 +20,7 @@ impl NewUserRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 78, 101, 119, 85, 115, 101, 114, 82,
+                228, 69, 165, 46, 81, 203, 154, 29, 236, 186, 113, 219, 42, 51, 149, 249,
             ]
         {
             return None;

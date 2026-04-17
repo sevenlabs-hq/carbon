@@ -198,7 +198,7 @@ pub enum MeteoraDbcInstruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -213,52 +213,38 @@ impl carbon_core::instruction::InstructionDecoder<'_> for MeteoraDbcDecoder {
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                MeteoraDbcInstruction::ClaimCreatorTradingFee => ClaimCreatorTradingFee,
-                MeteoraDbcInstruction::ClaimPartnerPoolCreationFee => ClaimPartnerPoolCreationFee,
-                MeteoraDbcInstruction::ClaimProtocolFee => ClaimProtocolFee,
-                MeteoraDbcInstruction::ClaimProtocolPoolCreationFee => ClaimProtocolPoolCreationFee,
-                MeteoraDbcInstruction::ClaimTradingFee => ClaimTradingFee,
-                MeteoraDbcInstruction::CloseClaimProtocolFeeOperator => CloseClaimProtocolFeeOperator,
-                MeteoraDbcInstruction::CloseOperatorAccount => CloseOperatorAccount,
-                MeteoraDbcInstruction::CreateConfig => CreateConfig,
-                MeteoraDbcInstruction::CreateLocker => CreateLocker,
-                MeteoraDbcInstruction::CreateOperatorAccount => CreateOperatorAccount,
-                MeteoraDbcInstruction::CreatePartnerMetadata => CreatePartnerMetadata,
-                MeteoraDbcInstruction::CreateVirtualPoolMetadata => CreateVirtualPoolMetadata,
-                MeteoraDbcInstruction::CreatorWithdrawSurplus => CreatorWithdrawSurplus,
-                MeteoraDbcInstruction::InitializeVirtualPoolWithSplToken => InitializeVirtualPoolWithSplToken,
-                MeteoraDbcInstruction::InitializeVirtualPoolWithToken2022 => InitializeVirtualPoolWithToken2022,
-                MeteoraDbcInstruction::MigrateMeteoraDamm => MigrateMeteoraDamm,
-                MeteoraDbcInstruction::MigrateMeteoraDammClaimLpToken => MigrateMeteoraDammClaimLpToken,
-                MeteoraDbcInstruction::MigrateMeteoraDammLockLpToken => MigrateMeteoraDammLockLpToken,
-                MeteoraDbcInstruction::MigrationDammV2 => MigrationDammV2,
-                MeteoraDbcInstruction::MigrationDammV2CreateMetadata => MigrationDammV2CreateMetadata,
-                MeteoraDbcInstruction::MigrationMeteoraDammCreateMetadata => MigrationMeteoraDammCreateMetadata,
-                MeteoraDbcInstruction::PartnerWithdrawSurplus => PartnerWithdrawSurplus,
-                MeteoraDbcInstruction::Swap => Swap,
-                MeteoraDbcInstruction::Swap2 => Swap2,
-                MeteoraDbcInstruction::TransferPoolCreator => TransferPoolCreator,
-                MeteoraDbcInstruction::WithdrawLeftover => WithdrawLeftover,
-                MeteoraDbcInstruction::WithdrawMigrationFee => WithdrawMigrationFee,
-                MeteoraDbcInstruction::ZapProtocolFee => ZapProtocolFee,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(MeteoraDbcInstruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            MeteoraDbcInstruction::ClaimCreatorTradingFee => ClaimCreatorTradingFee,
+            MeteoraDbcInstruction::ClaimPartnerPoolCreationFee => ClaimPartnerPoolCreationFee,
+            MeteoraDbcInstruction::ClaimProtocolFee => ClaimProtocolFee,
+            MeteoraDbcInstruction::ClaimProtocolPoolCreationFee => ClaimProtocolPoolCreationFee,
+            MeteoraDbcInstruction::ClaimTradingFee => ClaimTradingFee,
+            MeteoraDbcInstruction::CloseClaimProtocolFeeOperator => CloseClaimProtocolFeeOperator,
+            MeteoraDbcInstruction::CloseOperatorAccount => CloseOperatorAccount,
+            MeteoraDbcInstruction::CreateConfig => CreateConfig,
+            MeteoraDbcInstruction::CreateLocker => CreateLocker,
+            MeteoraDbcInstruction::CreateOperatorAccount => CreateOperatorAccount,
+            MeteoraDbcInstruction::CreatePartnerMetadata => CreatePartnerMetadata,
+            MeteoraDbcInstruction::CreateVirtualPoolMetadata => CreateVirtualPoolMetadata,
+            MeteoraDbcInstruction::CreatorWithdrawSurplus => CreatorWithdrawSurplus,
+            MeteoraDbcInstruction::InitializeVirtualPoolWithSplToken => InitializeVirtualPoolWithSplToken,
+            MeteoraDbcInstruction::InitializeVirtualPoolWithToken2022 => InitializeVirtualPoolWithToken2022,
+            MeteoraDbcInstruction::MigrateMeteoraDamm => MigrateMeteoraDamm,
+            MeteoraDbcInstruction::MigrateMeteoraDammClaimLpToken => MigrateMeteoraDammClaimLpToken,
+            MeteoraDbcInstruction::MigrateMeteoraDammLockLpToken => MigrateMeteoraDammLockLpToken,
+            MeteoraDbcInstruction::MigrationDammV2 => MigrationDammV2,
+            MeteoraDbcInstruction::MigrationDammV2CreateMetadata => MigrationDammV2CreateMetadata,
+            MeteoraDbcInstruction::MigrationMeteoraDammCreateMetadata => MigrationMeteoraDammCreateMetadata,
+            MeteoraDbcInstruction::PartnerWithdrawSurplus => PartnerWithdrawSurplus,
+            MeteoraDbcInstruction::Swap => Swap,
+            MeteoraDbcInstruction::Swap2 => Swap2,
+            MeteoraDbcInstruction::TransferPoolCreator => TransferPoolCreator,
+            MeteoraDbcInstruction::WithdrawLeftover => WithdrawLeftover,
+            MeteoraDbcInstruction::WithdrawMigrationFee => WithdrawMigrationFee,
+            MeteoraDbcInstruction::ZapProtocolFee => ZapProtocolFee,
+            MeteoraDbcInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

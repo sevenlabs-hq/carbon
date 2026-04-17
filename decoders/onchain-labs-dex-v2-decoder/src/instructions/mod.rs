@@ -139,7 +139,7 @@ pub enum OnchainLabsDexV2Instruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -154,43 +154,29 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OnchainLabsDexV2Decode
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                OnchainLabsDexV2Instruction::Claim => Claim,
-                OnchainLabsDexV2Instruction::ClaimCashbackPumpfun => ClaimCashbackPumpfun,
-                OnchainLabsDexV2Instruction::ClaimCashbackPumpswap => ClaimCashbackPumpswap,
-                OnchainLabsDexV2Instruction::CreateTokenAccount => CreateTokenAccount,
-                OnchainLabsDexV2Instruction::CreateTokenAccountWithSeed => CreateTokenAccountWithSeed,
-                OnchainLabsDexV2Instruction::InitTokenLedger => InitTokenLedger,
-                OnchainLabsDexV2Instruction::ProxySwap => ProxySwap,
-                OnchainLabsDexV2Instruction::SetTokenLedger => SetTokenLedger,
-                OnchainLabsDexV2Instruction::Swap => Swap,
-                OnchainLabsDexV2Instruction::SwapTob => SwapTob,
-                OnchainLabsDexV2Instruction::SwapTobEnhanced => SwapTobEnhanced,
-                OnchainLabsDexV2Instruction::SwapTobV2 => SwapTobV2,
-                OnchainLabsDexV2Instruction::SwapTobWithReceiver => SwapTobWithReceiver,
-                OnchainLabsDexV2Instruction::SwapTobWithReceiverTokenLedger => SwapTobWithReceiverTokenLedger,
-                OnchainLabsDexV2Instruction::SwapTobWithTokenLedger => SwapTobWithTokenLedger,
-                OnchainLabsDexV2Instruction::SwapToc => SwapToc,
-                OnchainLabsDexV2Instruction::SwapTocV2 => SwapTocV2,
-                OnchainLabsDexV2Instruction::WrapUnwrap => WrapUnwrap,
-                OnchainLabsDexV2Instruction::WrapUnwrapWithReceiver => WrapUnwrapWithReceiver,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(OnchainLabsDexV2Instruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            OnchainLabsDexV2Instruction::Claim => Claim,
+            OnchainLabsDexV2Instruction::ClaimCashbackPumpfun => ClaimCashbackPumpfun,
+            OnchainLabsDexV2Instruction::ClaimCashbackPumpswap => ClaimCashbackPumpswap,
+            OnchainLabsDexV2Instruction::CreateTokenAccount => CreateTokenAccount,
+            OnchainLabsDexV2Instruction::CreateTokenAccountWithSeed => CreateTokenAccountWithSeed,
+            OnchainLabsDexV2Instruction::InitTokenLedger => InitTokenLedger,
+            OnchainLabsDexV2Instruction::ProxySwap => ProxySwap,
+            OnchainLabsDexV2Instruction::SetTokenLedger => SetTokenLedger,
+            OnchainLabsDexV2Instruction::Swap => Swap,
+            OnchainLabsDexV2Instruction::SwapTob => SwapTob,
+            OnchainLabsDexV2Instruction::SwapTobEnhanced => SwapTobEnhanced,
+            OnchainLabsDexV2Instruction::SwapTobV2 => SwapTobV2,
+            OnchainLabsDexV2Instruction::SwapTobWithReceiver => SwapTobWithReceiver,
+            OnchainLabsDexV2Instruction::SwapTobWithReceiverTokenLedger => SwapTobWithReceiverTokenLedger,
+            OnchainLabsDexV2Instruction::SwapTobWithTokenLedger => SwapTobWithTokenLedger,
+            OnchainLabsDexV2Instruction::SwapToc => SwapToc,
+            OnchainLabsDexV2Instruction::SwapTocV2 => SwapTocV2,
+            OnchainLabsDexV2Instruction::WrapUnwrap => WrapUnwrap,
+            OnchainLabsDexV2Instruction::WrapUnwrapWithReceiver => WrapUnwrapWithReceiver,
+            OnchainLabsDexV2Instruction::CpiEvent => CpiEvent,
+        )
     }
 }

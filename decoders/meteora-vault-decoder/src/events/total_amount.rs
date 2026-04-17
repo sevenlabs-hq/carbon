@@ -14,7 +14,7 @@ impl TotalAmountEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 84, 111, 116, 97, 108, 65, 109, 111,
+                228, 69, 165, 46, 81, 203, 154, 29, 92, 200, 122, 145, 211, 203, 49, 205,
             ]
         {
             return None;

@@ -170,7 +170,7 @@ pub enum JupiterLendInstruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -185,48 +185,34 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterLendDecoder {
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                JupiterLendInstruction::ChangeStatus => ChangeStatus,
-                JupiterLendInstruction::Claim => Claim,
-                JupiterLendInstruction::CloseClaimAccount => CloseClaimAccount,
-                JupiterLendInstruction::CollectRevenue => CollectRevenue,
-                JupiterLendInstruction::InitClaimAccount => InitClaimAccount,
-                JupiterLendInstruction::InitLiquidity => InitLiquidity,
-                JupiterLendInstruction::InitNewProtocol => InitNewProtocol,
-                JupiterLendInstruction::InitTokenReserve => InitTokenReserve,
-                JupiterLendInstruction::Operate => Operate,
-                JupiterLendInstruction::PauseUser => PauseUser,
-                JupiterLendInstruction::PreOperate => PreOperate,
-                JupiterLendInstruction::UnpauseUser => UnpauseUser,
-                JupiterLendInstruction::UpdateAuthority => UpdateAuthority,
-                JupiterLendInstruction::UpdateAuths => UpdateAuths,
-                JupiterLendInstruction::UpdateExchangePrice => UpdateExchangePrice,
-                JupiterLendInstruction::UpdateGuardians => UpdateGuardians,
-                JupiterLendInstruction::UpdateRateDataV1 => UpdateRateDataV1,
-                JupiterLendInstruction::UpdateRateDataV2 => UpdateRateDataV2,
-                JupiterLendInstruction::UpdateRevenueCollector => UpdateRevenueCollector,
-                JupiterLendInstruction::UpdateTokenConfig => UpdateTokenConfig,
-                JupiterLendInstruction::UpdateUserBorrowConfig => UpdateUserBorrowConfig,
-                JupiterLendInstruction::UpdateUserClass => UpdateUserClass,
-                JupiterLendInstruction::UpdateUserSupplyConfig => UpdateUserSupplyConfig,
-                JupiterLendInstruction::UpdateUserWithdrawalLimit => UpdateUserWithdrawalLimit,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(JupiterLendInstruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            JupiterLendInstruction::ChangeStatus => ChangeStatus,
+            JupiterLendInstruction::Claim => Claim,
+            JupiterLendInstruction::CloseClaimAccount => CloseClaimAccount,
+            JupiterLendInstruction::CollectRevenue => CollectRevenue,
+            JupiterLendInstruction::InitClaimAccount => InitClaimAccount,
+            JupiterLendInstruction::InitLiquidity => InitLiquidity,
+            JupiterLendInstruction::InitNewProtocol => InitNewProtocol,
+            JupiterLendInstruction::InitTokenReserve => InitTokenReserve,
+            JupiterLendInstruction::Operate => Operate,
+            JupiterLendInstruction::PauseUser => PauseUser,
+            JupiterLendInstruction::PreOperate => PreOperate,
+            JupiterLendInstruction::UnpauseUser => UnpauseUser,
+            JupiterLendInstruction::UpdateAuthority => UpdateAuthority,
+            JupiterLendInstruction::UpdateAuths => UpdateAuths,
+            JupiterLendInstruction::UpdateExchangePrice => UpdateExchangePrice,
+            JupiterLendInstruction::UpdateGuardians => UpdateGuardians,
+            JupiterLendInstruction::UpdateRateDataV1 => UpdateRateDataV1,
+            JupiterLendInstruction::UpdateRateDataV2 => UpdateRateDataV2,
+            JupiterLendInstruction::UpdateRevenueCollector => UpdateRevenueCollector,
+            JupiterLendInstruction::UpdateTokenConfig => UpdateTokenConfig,
+            JupiterLendInstruction::UpdateUserBorrowConfig => UpdateUserBorrowConfig,
+            JupiterLendInstruction::UpdateUserClass => UpdateUserClass,
+            JupiterLendInstruction::UpdateUserSupplyConfig => UpdateUserSupplyConfig,
+            JupiterLendInstruction::UpdateUserWithdrawalLimit => UpdateUserWithdrawalLimit,
+            JupiterLendInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

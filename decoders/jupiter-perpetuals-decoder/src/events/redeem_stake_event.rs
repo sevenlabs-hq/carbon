@@ -22,7 +22,7 @@ impl RedeemStakeEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 82, 101, 100, 101, 101, 109, 83, 116,
+                228, 69, 165, 46, 81, 203, 154, 29, 0, 241, 84, 141, 139, 170, 218, 110,
             ]
         {
             return None;

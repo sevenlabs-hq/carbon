@@ -113,7 +113,7 @@ pub enum CircleMessageTransmitterV2Instruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -128,39 +128,25 @@ impl carbon_core::instruction::InstructionDecoder<'_> for CircleMessageTransmitt
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                CircleMessageTransmitterV2Instruction::AcceptOwnership => AcceptOwnership,
-                CircleMessageTransmitterV2Instruction::DisableAttester => DisableAttester,
-                CircleMessageTransmitterV2Instruction::EnableAttester => EnableAttester,
-                CircleMessageTransmitterV2Instruction::Initialize => Initialize,
-                CircleMessageTransmitterV2Instruction::IsNonceUsed => IsNonceUsed,
-                CircleMessageTransmitterV2Instruction::Pause => Pause,
-                CircleMessageTransmitterV2Instruction::ReceiveMessage => ReceiveMessage,
-                CircleMessageTransmitterV2Instruction::ReclaimEventAccount => ReclaimEventAccount,
-                CircleMessageTransmitterV2Instruction::SendMessage => SendMessage,
-                CircleMessageTransmitterV2Instruction::SetMaxMessageBodySize => SetMaxMessageBodySize,
-                CircleMessageTransmitterV2Instruction::SetSignatureThreshold => SetSignatureThreshold,
-                CircleMessageTransmitterV2Instruction::TransferOwnership => TransferOwnership,
-                CircleMessageTransmitterV2Instruction::Unpause => Unpause,
-                CircleMessageTransmitterV2Instruction::UpdateAttesterManager => UpdateAttesterManager,
-                CircleMessageTransmitterV2Instruction::UpdatePauser => UpdatePauser,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(CircleMessageTransmitterV2Instruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            CircleMessageTransmitterV2Instruction::AcceptOwnership => AcceptOwnership,
+            CircleMessageTransmitterV2Instruction::DisableAttester => DisableAttester,
+            CircleMessageTransmitterV2Instruction::EnableAttester => EnableAttester,
+            CircleMessageTransmitterV2Instruction::Initialize => Initialize,
+            CircleMessageTransmitterV2Instruction::IsNonceUsed => IsNonceUsed,
+            CircleMessageTransmitterV2Instruction::Pause => Pause,
+            CircleMessageTransmitterV2Instruction::ReceiveMessage => ReceiveMessage,
+            CircleMessageTransmitterV2Instruction::ReclaimEventAccount => ReclaimEventAccount,
+            CircleMessageTransmitterV2Instruction::SendMessage => SendMessage,
+            CircleMessageTransmitterV2Instruction::SetMaxMessageBodySize => SetMaxMessageBodySize,
+            CircleMessageTransmitterV2Instruction::SetSignatureThreshold => SetSignatureThreshold,
+            CircleMessageTransmitterV2Instruction::TransferOwnership => TransferOwnership,
+            CircleMessageTransmitterV2Instruction::Unpause => Unpause,
+            CircleMessageTransmitterV2Instruction::UpdateAttesterManager => UpdateAttesterManager,
+            CircleMessageTransmitterV2Instruction::UpdatePauser => UpdatePauser,
+            CircleMessageTransmitterV2Instruction::CpiEvent => CpiEvent,
+        )
     }
 }

@@ -36,7 +36,7 @@ impl LPSwapRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 76, 80, 83, 119, 97, 112, 82, 101,
+                228, 69, 165, 46, 81, 203, 154, 29, 159, 62, 130, 196, 96, 79, 176, 254,
             ]
         {
             return None;

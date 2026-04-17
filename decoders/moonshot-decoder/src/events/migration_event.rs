@@ -18,7 +18,7 @@ impl MigrationEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 77, 105, 103, 114, 97, 116, 105, 111,
+                228, 69, 165, 46, 81, 203, 154, 29, 255, 202, 76, 147, 91, 231, 73, 22,
             ]
         {
             return None;

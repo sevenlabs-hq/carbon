@@ -19,7 +19,7 @@ impl SetPoolFeesEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 83, 101, 116, 80, 111, 111, 108, 70,
+                228, 69, 165, 46, 81, 203, 154, 29, 245, 26, 198, 164, 88, 18, 75, 9,
             ]
         {
             return None;

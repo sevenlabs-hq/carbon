@@ -17,7 +17,7 @@ impl ReallocValidatorListEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 82, 101, 97, 108, 108, 111, 99, 86,
+                228, 69, 165, 46, 81, 203, 154, 29, 70, 191, 242, 164, 56, 156, 130, 13,
             ]
         {
             return None;

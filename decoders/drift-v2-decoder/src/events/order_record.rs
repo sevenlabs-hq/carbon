@@ -17,7 +17,7 @@ impl OrderRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 79, 114, 100, 101, 114, 82, 101, 99,
+                228, 69, 165, 46, 81, 203, 154, 29, 104, 19, 64, 56, 89, 21, 2, 90,
             ]
         {
             return None;

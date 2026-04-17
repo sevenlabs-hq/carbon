@@ -21,7 +21,7 @@ impl SignedMsgOrderRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 83, 105, 103, 110, 101, 100, 77, 115,
+                228, 69, 165, 46, 81, 203, 154, 29, 211, 197, 25, 18, 142, 86, 113, 27,
             ]
         {
             return None;

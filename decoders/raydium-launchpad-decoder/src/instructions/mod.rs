@@ -177,7 +177,7 @@ pub enum RaydiumLaunchpadInstruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -192,49 +192,35 @@ impl carbon_core::instruction::InstructionDecoder<'_> for RaydiumLaunchpadDecode
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                RaydiumLaunchpadInstruction::BuyExactIn => BuyExactIn,
-                RaydiumLaunchpadInstruction::BuyExactOut => BuyExactOut,
-                RaydiumLaunchpadInstruction::ClaimCreatorFee => ClaimCreatorFee,
-                RaydiumLaunchpadInstruction::ClaimPlatformFee => ClaimPlatformFee,
-                RaydiumLaunchpadInstruction::ClaimPlatformFeeFromVault => ClaimPlatformFeeFromVault,
-                RaydiumLaunchpadInstruction::ClaimVestedToken => ClaimVestedToken,
-                RaydiumLaunchpadInstruction::ClosePlatformGlobalAccess => ClosePlatformGlobalAccess,
-                RaydiumLaunchpadInstruction::CollectFee => CollectFee,
-                RaydiumLaunchpadInstruction::CollectMigrateFee => CollectMigrateFee,
-                RaydiumLaunchpadInstruction::CreateConfig => CreateConfig,
-                RaydiumLaunchpadInstruction::CreatePlatformConfig => CreatePlatformConfig,
-                RaydiumLaunchpadInstruction::CreatePlatformGlobalAccess => CreatePlatformGlobalAccess,
-                RaydiumLaunchpadInstruction::CreatePlatformVestingAccount => CreatePlatformVestingAccount,
-                RaydiumLaunchpadInstruction::CreateVestingAccount => CreateVestingAccount,
-                RaydiumLaunchpadInstruction::Initialize => Initialize,
-                RaydiumLaunchpadInstruction::InitializeV2 => InitializeV2,
-                RaydiumLaunchpadInstruction::InitializeWithToken2022 => InitializeWithToken2022,
-                RaydiumLaunchpadInstruction::MigrateToAmm => MigrateToAmm,
-                RaydiumLaunchpadInstruction::MigrateToCpswap => MigrateToCpswap,
-                RaydiumLaunchpadInstruction::RemovePlatformCurveParam => RemovePlatformCurveParam,
-                RaydiumLaunchpadInstruction::SellExactIn => SellExactIn,
-                RaydiumLaunchpadInstruction::SellExactOut => SellExactOut,
-                RaydiumLaunchpadInstruction::UpdateConfig => UpdateConfig,
-                RaydiumLaunchpadInstruction::UpdatePlatformConfig => UpdatePlatformConfig,
-                RaydiumLaunchpadInstruction::UpdatePlatformCurveParam => UpdatePlatformCurveParam,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(RaydiumLaunchpadInstruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            RaydiumLaunchpadInstruction::BuyExactIn => BuyExactIn,
+            RaydiumLaunchpadInstruction::BuyExactOut => BuyExactOut,
+            RaydiumLaunchpadInstruction::ClaimCreatorFee => ClaimCreatorFee,
+            RaydiumLaunchpadInstruction::ClaimPlatformFee => ClaimPlatformFee,
+            RaydiumLaunchpadInstruction::ClaimPlatformFeeFromVault => ClaimPlatformFeeFromVault,
+            RaydiumLaunchpadInstruction::ClaimVestedToken => ClaimVestedToken,
+            RaydiumLaunchpadInstruction::ClosePlatformGlobalAccess => ClosePlatformGlobalAccess,
+            RaydiumLaunchpadInstruction::CollectFee => CollectFee,
+            RaydiumLaunchpadInstruction::CollectMigrateFee => CollectMigrateFee,
+            RaydiumLaunchpadInstruction::CreateConfig => CreateConfig,
+            RaydiumLaunchpadInstruction::CreatePlatformConfig => CreatePlatformConfig,
+            RaydiumLaunchpadInstruction::CreatePlatformGlobalAccess => CreatePlatformGlobalAccess,
+            RaydiumLaunchpadInstruction::CreatePlatformVestingAccount => CreatePlatformVestingAccount,
+            RaydiumLaunchpadInstruction::CreateVestingAccount => CreateVestingAccount,
+            RaydiumLaunchpadInstruction::Initialize => Initialize,
+            RaydiumLaunchpadInstruction::InitializeV2 => InitializeV2,
+            RaydiumLaunchpadInstruction::InitializeWithToken2022 => InitializeWithToken2022,
+            RaydiumLaunchpadInstruction::MigrateToAmm => MigrateToAmm,
+            RaydiumLaunchpadInstruction::MigrateToCpswap => MigrateToCpswap,
+            RaydiumLaunchpadInstruction::RemovePlatformCurveParam => RemovePlatformCurveParam,
+            RaydiumLaunchpadInstruction::SellExactIn => SellExactIn,
+            RaydiumLaunchpadInstruction::SellExactOut => SellExactOut,
+            RaydiumLaunchpadInstruction::UpdateConfig => UpdateConfig,
+            RaydiumLaunchpadInstruction::UpdatePlatformConfig => UpdatePlatformConfig,
+            RaydiumLaunchpadInstruction::UpdatePlatformCurveParam => UpdatePlatformCurveParam,
+            RaydiumLaunchpadInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

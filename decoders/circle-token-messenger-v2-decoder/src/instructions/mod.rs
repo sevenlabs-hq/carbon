@@ -177,7 +177,7 @@ pub enum CircleTokenMessengerV2Instruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -192,49 +192,35 @@ impl carbon_core::instruction::InstructionDecoder<'_> for CircleTokenMessengerV2
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                CircleTokenMessengerV2Instruction::AcceptOwnership => AcceptOwnership,
-                CircleTokenMessengerV2Instruction::AddLocalToken => AddLocalToken,
-                CircleTokenMessengerV2Instruction::AddRemoteTokenMessenger => AddRemoteTokenMessenger,
-                CircleTokenMessengerV2Instruction::BurnTokenCustody => BurnTokenCustody,
-                CircleTokenMessengerV2Instruction::DenylistAccount => DenylistAccount,
-                CircleTokenMessengerV2Instruction::DepositForBurn => DepositForBurn,
-                CircleTokenMessengerV2Instruction::DepositForBurnWithHook => DepositForBurnWithHook,
-                CircleTokenMessengerV2Instruction::HandleReceiveFinalizedMessage => HandleReceiveFinalizedMessage,
-                CircleTokenMessengerV2Instruction::HandleReceiveUnfinalizedMessage => HandleReceiveUnfinalizedMessage,
-                CircleTokenMessengerV2Instruction::Initialize => Initialize,
-                CircleTokenMessengerV2Instruction::LinkTokenPair => LinkTokenPair,
-                CircleTokenMessengerV2Instruction::Pause => Pause,
-                CircleTokenMessengerV2Instruction::RemoveLocalToken => RemoveLocalToken,
-                CircleTokenMessengerV2Instruction::RemoveRemoteTokenMessenger => RemoveRemoteTokenMessenger,
-                CircleTokenMessengerV2Instruction::SetFeeRecipient => SetFeeRecipient,
-                CircleTokenMessengerV2Instruction::SetMaxBurnAmountPerMessage => SetMaxBurnAmountPerMessage,
-                CircleTokenMessengerV2Instruction::SetMinFee => SetMinFee,
-                CircleTokenMessengerV2Instruction::SetMinFeeController => SetMinFeeController,
-                CircleTokenMessengerV2Instruction::SetTokenController => SetTokenController,
-                CircleTokenMessengerV2Instruction::TransferOwnership => TransferOwnership,
-                CircleTokenMessengerV2Instruction::UndenylistAccount => UndenylistAccount,
-                CircleTokenMessengerV2Instruction::UnlinkTokenPair => UnlinkTokenPair,
-                CircleTokenMessengerV2Instruction::Unpause => Unpause,
-                CircleTokenMessengerV2Instruction::UpdateDenylister => UpdateDenylister,
-                CircleTokenMessengerV2Instruction::UpdatePauser => UpdatePauser,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(CircleTokenMessengerV2Instruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            CircleTokenMessengerV2Instruction::AcceptOwnership => AcceptOwnership,
+            CircleTokenMessengerV2Instruction::AddLocalToken => AddLocalToken,
+            CircleTokenMessengerV2Instruction::AddRemoteTokenMessenger => AddRemoteTokenMessenger,
+            CircleTokenMessengerV2Instruction::BurnTokenCustody => BurnTokenCustody,
+            CircleTokenMessengerV2Instruction::DenylistAccount => DenylistAccount,
+            CircleTokenMessengerV2Instruction::DepositForBurn => DepositForBurn,
+            CircleTokenMessengerV2Instruction::DepositForBurnWithHook => DepositForBurnWithHook,
+            CircleTokenMessengerV2Instruction::HandleReceiveFinalizedMessage => HandleReceiveFinalizedMessage,
+            CircleTokenMessengerV2Instruction::HandleReceiveUnfinalizedMessage => HandleReceiveUnfinalizedMessage,
+            CircleTokenMessengerV2Instruction::Initialize => Initialize,
+            CircleTokenMessengerV2Instruction::LinkTokenPair => LinkTokenPair,
+            CircleTokenMessengerV2Instruction::Pause => Pause,
+            CircleTokenMessengerV2Instruction::RemoveLocalToken => RemoveLocalToken,
+            CircleTokenMessengerV2Instruction::RemoveRemoteTokenMessenger => RemoveRemoteTokenMessenger,
+            CircleTokenMessengerV2Instruction::SetFeeRecipient => SetFeeRecipient,
+            CircleTokenMessengerV2Instruction::SetMaxBurnAmountPerMessage => SetMaxBurnAmountPerMessage,
+            CircleTokenMessengerV2Instruction::SetMinFee => SetMinFee,
+            CircleTokenMessengerV2Instruction::SetMinFeeController => SetMinFeeController,
+            CircleTokenMessengerV2Instruction::SetTokenController => SetTokenController,
+            CircleTokenMessengerV2Instruction::TransferOwnership => TransferOwnership,
+            CircleTokenMessengerV2Instruction::UndenylistAccount => UndenylistAccount,
+            CircleTokenMessengerV2Instruction::UnlinkTokenPair => UnlinkTokenPair,
+            CircleTokenMessengerV2Instruction::Unpause => Unpause,
+            CircleTokenMessengerV2Instruction::UpdateDenylister => UpdateDenylister,
+            CircleTokenMessengerV2Instruction::UpdatePauser => UpdatePauser,
+            CircleTokenMessengerV2Instruction::CpiEvent => CpiEvent,
+        )
     }
 }

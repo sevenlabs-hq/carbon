@@ -54,7 +54,7 @@ pub enum VertigoInstruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -69,30 +69,16 @@ impl carbon_core::instruction::InstructionDecoder<'_> for VertigoDecoder {
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                VertigoInstruction::Buy => Buy,
-                VertigoInstruction::Claim => Claim,
-                VertigoInstruction::Create => Create,
-                VertigoInstruction::QuoteBuy => QuoteBuy,
-                VertigoInstruction::QuoteSell => QuoteSell,
-                VertigoInstruction::Sell => Sell,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(VertigoInstruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            VertigoInstruction::Buy => Buy,
+            VertigoInstruction::Claim => Claim,
+            VertigoInstruction::Create => Create,
+            VertigoInstruction::QuoteBuy => QuoteBuy,
+            VertigoInstruction::QuoteSell => QuoteSell,
+            VertigoInstruction::Sell => Sell,
+            VertigoInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

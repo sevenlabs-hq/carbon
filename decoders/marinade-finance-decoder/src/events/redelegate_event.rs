@@ -33,7 +33,7 @@ impl RedelegateEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 82, 101, 100, 101, 108, 101, 103, 97,
+                228, 69, 165, 46, 81, 203, 154, 29, 241, 75, 135, 173, 204, 215, 72, 67,
             ]
         {
             return None;

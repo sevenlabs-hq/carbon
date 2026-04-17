@@ -22,7 +22,7 @@ impl DepositCollateralEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 68, 101, 112, 111, 115, 105, 116, 67,
+                228, 69, 165, 46, 81, 203, 154, 29, 169, 14, 102, 148, 155, 137, 18, 235,
             ]
         {
             return None;

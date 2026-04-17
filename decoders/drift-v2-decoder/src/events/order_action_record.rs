@@ -53,7 +53,7 @@ impl OrderActionRecordEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 79, 114, 100, 101, 114, 65, 99, 116,
+                228, 69, 165, 46, 81, 203, 154, 29, 224, 52, 67, 71, 194, 237, 109, 1,
             ]
         {
             return None;

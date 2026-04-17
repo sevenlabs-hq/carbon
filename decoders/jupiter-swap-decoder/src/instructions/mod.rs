@@ -127,7 +127,7 @@ pub enum JupiterSwapInstruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 }
 
@@ -142,41 +142,27 @@ impl carbon_core::instruction::InstructionDecoder<'_> for JupiterSwapDecoder {
             return None;
         }
 
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-                JupiterSwapInstruction::Claim => Claim,
-                JupiterSwapInstruction::ClaimToken => ClaimToken,
-                JupiterSwapInstruction::CloseToken => CloseToken,
-                JupiterSwapInstruction::CloseWsolTokenAccount => CloseWsolTokenAccount,
-                JupiterSwapInstruction::CreateTokenAccount => CreateTokenAccount,
-                JupiterSwapInstruction::CreateTokenLedger => CreateTokenLedger,
-                JupiterSwapInstruction::ExactOutRoute => ExactOutRoute,
-                JupiterSwapInstruction::ExactOutRouteV2 => ExactOutRouteV2,
-                JupiterSwapInstruction::Route => Route,
-                JupiterSwapInstruction::RouteV2 => RouteV2,
-                JupiterSwapInstruction::RouteWithTokenLedger => RouteWithTokenLedger,
-                JupiterSwapInstruction::SetTokenLedger => SetTokenLedger,
-                JupiterSwapInstruction::SharedAccountsExactOutRoute => SharedAccountsExactOutRoute,
-                JupiterSwapInstruction::SharedAccountsExactOutRouteV2 => SharedAccountsExactOutRouteV2,
-                JupiterSwapInstruction::SharedAccountsRoute => SharedAccountsRoute,
-                JupiterSwapInstruction::SharedAccountsRouteV2 => SharedAccountsRouteV2,
-                JupiterSwapInstruction::SharedAccountsRouteWithTokenLedger => SharedAccountsRouteWithTokenLedger,
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some(JupiterSwapInstruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
+        carbon_core::try_decode_instructions!(
+            instruction,
+            PROGRAM_ID,
+            JupiterSwapInstruction::Claim => Claim,
+            JupiterSwapInstruction::ClaimToken => ClaimToken,
+            JupiterSwapInstruction::CloseToken => CloseToken,
+            JupiterSwapInstruction::CloseWsolTokenAccount => CloseWsolTokenAccount,
+            JupiterSwapInstruction::CreateTokenAccount => CreateTokenAccount,
+            JupiterSwapInstruction::CreateTokenLedger => CreateTokenLedger,
+            JupiterSwapInstruction::ExactOutRoute => ExactOutRoute,
+            JupiterSwapInstruction::ExactOutRouteV2 => ExactOutRouteV2,
+            JupiterSwapInstruction::Route => Route,
+            JupiterSwapInstruction::RouteV2 => RouteV2,
+            JupiterSwapInstruction::RouteWithTokenLedger => RouteWithTokenLedger,
+            JupiterSwapInstruction::SetTokenLedger => SetTokenLedger,
+            JupiterSwapInstruction::SharedAccountsExactOutRoute => SharedAccountsExactOutRoute,
+            JupiterSwapInstruction::SharedAccountsExactOutRouteV2 => SharedAccountsExactOutRouteV2,
+            JupiterSwapInstruction::SharedAccountsRoute => SharedAccountsRoute,
+            JupiterSwapInstruction::SharedAccountsRouteV2 => SharedAccountsRouteV2,
+            JupiterSwapInstruction::SharedAccountsRouteWithTokenLedger => SharedAccountsRouteWithTokenLedger,
+            JupiterSwapInstruction::CpiEvent => CpiEvent,
+        )
     }
 }

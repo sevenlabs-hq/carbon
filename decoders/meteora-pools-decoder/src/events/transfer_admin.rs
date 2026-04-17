@@ -17,7 +17,7 @@ impl TransferAdminEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 84, 114, 97, 110, 115, 102, 101, 114,
+                228, 69, 165, 46, 81, 203, 154, 29, 228, 169, 131, 244, 61, 56, 65, 254,
             ]
         {
             return None;

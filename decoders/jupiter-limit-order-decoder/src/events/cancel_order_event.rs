@@ -15,7 +15,7 @@ impl CancelOrderEventEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 67, 97, 110, 99, 101, 108, 79, 114,
+                228, 69, 165, 46, 81, 203, 154, 29, 174, 66, 141, 17, 4, 224, 162, 77,
             ]
         {
             return None;

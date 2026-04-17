@@ -22,7 +22,7 @@ impl MarketMetaDataLogEvent {
         let discriminator = &data[0..16];
         if discriminator
             != [
-                228, 69, 165, 46, 81, 203, 154, 29, 77, 97, 114, 107, 101, 116, 77, 101,
+                228, 69, 165, 46, 81, 203, 154, 29, 209, 87, 212, 236, 164, 58, 60, 117,
             ]
         {
             return None;
