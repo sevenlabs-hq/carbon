@@ -59,7 +59,7 @@ export function buildHeliusLaserstream(decoders: DecoderMeta[]): DatasourceArtif
         imports,
         init,
         env: {
-            required: ['GEYSER_URL'],
+            required: ['GEYSER_URL', 'X_TOKEN'],
             validate: () => {
                 const v = process.env.GEYSER_URL;
                 if (!v || !v.trim()) throw new Error('Missing required environment variable: GEYSER_URL');
