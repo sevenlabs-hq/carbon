@@ -254,7 +254,7 @@ export function buildConversionFromOriginal(typeNode: TypeNode, fieldAccess: str
     }
 
     if (isNode(typeNode, 'tupleTypeNode') || isNode(typeNode, 'mapTypeNode') || isNode(typeNode, 'setTypeNode')) {
-        return `serde_json::to_value(${fieldAccess}).map(carbon_core::graphql::primitives::Json).map_err(|e| juniper::FieldError::from(e))?`;
+        return `carbon_core::graphql::primitives::Json(serde_json::to_value(${fieldAccess}).unwrap_or(serde_json::Value::Null))`;
     }
 
     return fieldAccess;
