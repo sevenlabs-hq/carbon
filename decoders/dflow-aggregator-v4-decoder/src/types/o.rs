@@ -6,4 +6,6 @@ pub struct O {
     pub a: Vec<A>,
     pub amount: u64,
     pub orchestrator_flags: OrchestratorFlags,
+    pub pfs: u16,
+    pub dfs: u16,
 }
