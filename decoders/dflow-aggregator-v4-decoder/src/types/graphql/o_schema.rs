@@ -11,6 +11,8 @@ pub struct OGraphQL {
     pub a: Vec<AGraphQL>,
     pub amount: U64,
     pub orchestrator_flags: OrchestratorFlagsGraphQL,
+    pub pfs: i32,
+    pub dfs: i32,
 }
 
 impl From<crate::types::O> for OGraphQL {
@@ -19,6 +21,8 @@ impl From<crate::types::O> for OGraphQL {
             a: original.a.into_iter().map(|item| item.into()).collect(),
             amount: carbon_core::graphql::primitives::U64(original.amount),
             orchestrator_flags: original.orchestrator_flags.into(),
+            pfs: original.pfs as i32,
+            dfs: original.dfs as i32,
         }
     }
 }

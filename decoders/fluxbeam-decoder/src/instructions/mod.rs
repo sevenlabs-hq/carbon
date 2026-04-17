@@ -60,7 +60,6 @@ impl carbon_core::instruction::InstructionDecoder<'_> for FluxbeamDecoder {
 
     fn decode_instruction(
         &self,
-        _metadata: &carbon_core::instruction::InstructionMetadata,
         instruction: &solana_instruction::Instruction,
     ) -> Option<Self::InstructionType> {
         if instruction.program_id != PROGRAM_ID {
