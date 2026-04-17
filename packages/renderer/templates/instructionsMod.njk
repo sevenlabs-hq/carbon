@@ -40,7 +40,7 @@ pub enum {{ program.name | pascalCase }}Instruction {
     CpiEvent {
         program_id: solana_pubkey::Pubkey,
         data: CpiEvent,
-        accounts: Option<CpiEventInstructionAccounts>,
+        accounts: CpiEventInstructionAccounts,
     },
 {% endif %}
 }
@@ -56,38 +56,16 @@ impl carbon_core::instruction::InstructionDecoder<'_> for {{ program.name | pasc
             return None;
         }
 
-{% if hasAnchorEvents %}
-        use carbon_core::deserialize::ArrangeAccounts as _;
-        if let Some(decoded) = (|| {
-            carbon_core::try_decode_instructions!(
-                instruction,
-                PROGRAM_ID,
-{% for instruction in instructionsToExport | sort(false, false, 'name') %}
-                {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} => {{ instruction.name | pascalCase }},
-{% endfor %}
-            )
-        })() {
-            return Some(decoded);
-        }
-
-        if let Some(data) = CpiEvent::decode(&instruction.data) {
-            return Some({{ program.name | pascalCase }}Instruction::CpiEvent {
-                program_id: PROGRAM_ID,
-                data,
-                accounts: CpiEvent::arrange_accounts(&instruction.accounts),
-            });
-        }
-
-        None
-{% else %}
         carbon_core::try_decode_instructions!(
             instruction,
             PROGRAM_ID,
 {% for instruction in instructionsToExport | sort(false, false, 'name') %}
             {{ program.name | pascalCase }}Instruction::{{ instruction.name | pascalCase }} => {{ instruction.name | pascalCase }},
 {% endfor %}
-        )
+{% if hasAnchorEvents %}
+            {{ program.name | pascalCase }}Instruction::CpiEvent => CpiEvent,
 {% endif %}
+        )
     }
 }
 {% endblock %}
