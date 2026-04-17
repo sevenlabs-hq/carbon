@@ -24,7 +24,6 @@ impl CpiEventRow {
         Self {
             instruction_metadata: metadata.into(),
             name: match &source {
-                CpiEvent::EvtClaimPartnerFee(_) => "evt_claim_partner_fee".to_string(),
                 CpiEvent::EvtClaimPositionFee(_) => "evt_claim_position_fee".to_string(),
                 CpiEvent::EvtClaimProtocolFee(_) => "evt_claim_protocol_fee".to_string(),
                 CpiEvent::EvtClaimReward(_) => "evt_claim_reward".to_string(),
@@ -42,6 +41,7 @@ impl CpiEventRow {
                 CpiEvent::EvtPermanentLockPosition(_) => "evt_permanent_lock_position".to_string(),
                 CpiEvent::EvtSetPoolStatus(_) => "evt_set_pool_status".to_string(),
                 CpiEvent::EvtSplitPosition2(_) => "evt_split_position2".to_string(),
+                CpiEvent::EvtSplitPosition3(_) => "evt_split_position3".to_string(),
                 CpiEvent::EvtSwap2(_) => "evt_swap2".to_string(),
                 CpiEvent::EvtUpdatePoolFees(_) => "evt_update_pool_fees".to_string(),
                 CpiEvent::EvtUpdateRewardDuration(_) => "evt_update_reward_duration".to_string(),

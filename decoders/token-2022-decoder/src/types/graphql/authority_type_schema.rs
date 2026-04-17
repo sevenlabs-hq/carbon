@@ -21,6 +21,7 @@ pub enum AuthorityTypeGraphQL {
     GroupMemberPointer,
     ScaledUiAmount,
     Pause,
+    PermissionedBurn,
 }
 
 impl From<crate::types::AuthorityType> for AuthorityTypeGraphQL {
@@ -45,6 +46,7 @@ impl From<crate::types::AuthorityType> for AuthorityTypeGraphQL {
             crate::types::AuthorityType::GroupMemberPointer => Self::GroupMemberPointer,
             crate::types::AuthorityType::ScaledUiAmount => Self::ScaledUiAmount,
             crate::types::AuthorityType::Pause => Self::Pause,
+            crate::types::AuthorityType::PermissionedBurn => Self::PermissionedBurn,
         }
     }
 }

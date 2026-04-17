@@ -5,8 +5,9 @@
 pub struct SocialFeePda {
     pub bump: u8,
     pub version: u8,
-    /// Max 20 characters to fit u64::MAX (18,446,744,073,709,551,615) as a string.
-    /// Actual storage: 4 bytes (length prefix) + 20 bytes (content) = 24 bytes.
+    /// Max 20 characters to fit u64::MAX (18,446,744,073,709,551,615) as a
+    /// string. Actual storage: 4 bytes (length prefix) + 20 bytes (content)
+    /// = 24 bytes.
     pub user_id: String,
     pub platform: u8,
     pub total_claimed: u64,

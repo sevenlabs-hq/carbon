@@ -18,5 +18,4 @@ pub struct BorshFeeRateLimiter {
     pub max_fee_bps: u32,
     pub reference_amount: u64,
     pub base_fee_mode: u8,
-    pub padding: [u8; 3],
 }

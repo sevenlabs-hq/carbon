@@ -2,6 +2,7 @@ import { TypeNode, isNode, snakeCase, SnakeCaseString } from '@codama/nodes';
 import { visit } from '@codama/visitors-core';
 import { getGraphQLTypeManifestVisitor, GraphQLTypeManifest } from '../getGraphQLTypeManifestVisitor';
 import { buildConversionFromOriginal, buildConversionFromPostgresRow } from './convertGraphQLTypes';
+import { escapeRustKeyword } from '../constants/rustKeywords';
 
 export type FlattenedGraphQLField = {
     fieldName: string;
@@ -23,7 +24,7 @@ export function flattenTypeForGraphQL(
     const out: FlattenedGraphQLField[] = [];
 
     const makeName = (nameParts: string[]) => {
-        let fieldName = snakeCase(nameParts.join('_'));
+        let fieldName = escapeRustKeyword(snakeCase(nameParts.join('_')));
         if (seen.has(fieldName)) {
             let i = 1;
             while (seen.has(`${fieldName}_${i}`)) i++;
@@ -35,7 +36,7 @@ export function flattenTypeForGraphQL(
 
     if (isNode(typeNode, 'structTypeNode')) {
         for (const field of typeNode.fields) {
-            out.push(...flattenTypeForGraphQL(field.type, [...prefix, snakeCase(field.name)], field.docs || [], seen));
+            out.push(...flattenTypeForGraphQL(field.type, [...prefix, field.name], field.docs || [], seen));
         }
         return out;
     }

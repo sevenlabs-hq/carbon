@@ -239,7 +239,6 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-mpl-token-metadata-decoder`            | MPL Token Metadata Program Decoder         | metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s  |
 | `carbon-name-service-decoder`                  | SPL Name Service Program Decoder           | namesLPneVptA9Z5rqUDD9tMTWEJwofgaYwp8cawRkX  |
 | `carbon-okx-dex-decoder`                       | OKX DEX Decoder                            | 6m2CDdhRgxpH4WjvdzxAYbGxwdGUz5MziiL5jek2kBma |
-| `carbon-onchain-labs-dex-v1-decoder`           | OnChain Labs DEX V1 Decoder                | 6m2CDdhRgxpH4WjvdzxAYbGxwdGUz5MziiL5jek2kBma |
 | `carbon-onchain-labs-dex-v2-decoder`           | OnChain Labs DEX V2 Decoder                | proVF4pMXVaYqmy4NjniPh4pqKNfMmsihgd4wdkCX3u  |
 | `carbon-openbook-v2-decoder`                   | Openbook V2 Program Decoder                | opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb  |
 | `carbon-orca-whirlpool-decoder`                | Orca Whirlpool Program Decoder             | whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc  |
@@ -267,6 +266,17 @@ Decoders for most popular Solana programs are published and maintained:
 | `carbon-virtuals-decoder`                      | Virtuals Program Decoder                   | 5U3EU2ubXtK84QcRjWVmYt9RaDyA8gKxdUrPFXmZyaki |
 | `carbon-wavebreak-decoder`                     | Wavebreak Program Decoder                  | waveQX2yP3H1pVU8djGvEHmYg8uamQ84AuyGtpsrXTF  |
 | `carbon-zeta-decoder`                          | Zeta Program Decoder                       | ZETAxsqBRek56DhiGXrn75yj2NHU3aYUnxvHXpkf3aD  |
+
+## Scripts
+
+The `scripts/` directory contains utility scripts for development and publishing:
+
+- `bump-cli-version.sh`: Bumps the version of CLI packages
+- `cargo-clippy.sh`: Runs clippy checks on the codebase
+- `cargo-fmt.sh`: Formats code using cargo fmt
+- `publish-cli-packages.sh`: Publishes CLI packages to npm
+- `publish-crate.sh`: Publishes Rust crates to crates.io
+- `yank-crates.sh`: Yanks published crates from crates.io
 
 ## Pre-commit hooks
 

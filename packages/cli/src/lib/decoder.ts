@@ -2,7 +2,7 @@ import { readFileSync } from 'fs';
 import { resolve } from 'path';
 import { createFromJson, createFromRoot } from 'codama';
 import { rootNodeFromAnchorWithoutDefaultVisitor, rootNodeFromAnchor } from '@codama/nodes-from-anchor';
-import { renderVisitor } from '@sevenlabs-hq/carbon-codama-renderer';
+import { renderVisitor, extractStructArrayItems, type PackageMetadata } from '@sevenlabs-hq/carbon-codama-renderer';
 import {
     deduplicateIdenticalDefinedTypesVisitor,
     setFixedAccountSizesVisitor,
@@ -19,7 +19,6 @@ import { fetchAnchorIdl } from './anchor';
 import {
     hasLegacyEvents,
     transformLegacyEvents,
-    getTransformationInfo,
     fixPdaSeedArgumentPaths,
     fixPdaSeedAccountReferences,
     hasNestedInstructionArguments,
@@ -78,6 +77,10 @@ export type DecoderGenerationOptions = {
     withSerde?: boolean;
     withBase58?: boolean;
     standalone?: boolean;
+    workspaceDeps?: boolean;
+    packageMetadata?: PackageMetadata;
+    version?: string;
+    versionName?: string;
 };
 
 export type IdlMetadata = {
@@ -86,6 +89,14 @@ export type IdlMetadata = {
     address?: string;
     programId?: string;
 };
+
+function getValidIdlAddress(idlJson: any): string | undefined {
+    const addr = idlJson.address || idlJson.metadata?.address;
+    if (addr && addr.trim() !== '' && isBase58Like(addr) && addr.length >= 32 && addr.length <= 44) {
+        return addr as string;
+    }
+    return undefined;
+}
 
 /**
  * Validates and determines the IDL source type
@@ -193,16 +204,9 @@ export async function getIdlMetadata(
         .replace(/[\s_]+/g, '-')
         .toLowerCase();
 
-    const idlAddress = idlJson.address || idlJson.metadata?.address;
-    const isValidAddress =
-        idlAddress &&
-        idlAddress.trim() !== '' &&
-        isBase58Like(idlAddress) &&
-        idlAddress.length >= 32 &&
-        idlAddress.length <= 44;
+    const idlAddress = getValidIdlAddress(idlJson);
 
-    const finalAddress =
-        (isValidAddress ? idlAddress : undefined) || (idlSource.type === 'program' ? idl : undefined) || programId;
+    const finalAddress = idlAddress || (idlSource.type === 'program' ? idl : undefined) || programId;
 
     return {
         name: kebabName,
@@ -230,105 +234,77 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
         withSerde,
         withBase58,
         standalone,
+        workspaceDeps,
+        packageMetadata,
+        version,
+        versionName,
     } = options;
 
     const idlSource = parseIdlSource(idl);
     const standard = validateIdlStandard(standardOpt || 'anchor', idlSource);
     validateDecoderOptions(standard, idlSource, url, options.eventHints, programId);
 
+    // Common render options shared across all branches
+    const renderOpts = {
+        deleteFolderBeforeRendering,
+        packageName,
+        postgresMode,
+        withPostgres,
+        withGraphql,
+        withSerde,
+        withBase58,
+        standalone,
+        workspaceDeps,
+        packageMetadata,
+        version,
+        versionName,
+    };
+
+    // Load IDL from program address or file
+    let idlJson: any;
     if (idlSource.type === 'program') {
-        let idlJson = await fetchAnchorIdl(idl, url!);
-
-        const idlAddress = idlJson.address || idlJson.metadata?.address;
-        const isValidAddress =
-            idlAddress &&
-            idlAddress.trim() !== '' &&
-            isBase58Like(idlAddress) &&
-            idlAddress.length >= 32 &&
-            idlAddress.length <= 44;
-
-        const programAddress = (isValidAddress ? idlAddress : undefined) || idl || programId;
+        idlJson = await fetchAnchorIdl(idl, url!);
+        const idlAddress = getValidIdlAddress(idlJson);
+        const programAddress = idlAddress || idl || programId;
         if (!programAddress) {
             exitWithError(
                 'Program ID is required. IDL missing or invalid address field - provide via --program-id parameter',
             );
         }
-
-        if (!isValidAddress) {
+        if (!idlAddress) {
             idlJson.address = programAddress;
             if (!idlJson.metadata) idlJson.metadata = {};
             idlJson.metadata.address = programAddress;
         }
-
-        if (hasLegacyEvents(idlJson)) {
-            const info = getTransformationInfo(idlJson);
-            idlJson = transformLegacyEvents(idlJson);
+    } else {
+        const idlPath = resolve(process.cwd(), idl);
+        idlJson = JSON.parse(readFileSync(idlPath, 'utf8'));
+        const idlAddress = getValidIdlAddress(idlJson);
+        const programAddress = idlAddress || programId;
+        if (!programAddress) {
+            exitWithError(
+                'Program ID is required. IDL missing or invalid address field - provide via --program-id parameter',
+            );
         }
+        if (!idlAddress) {
+            idlJson.address = programAddress;
+            if (!idlJson.metadata) idlJson.metadata = {};
+            idlJson.metadata.address = programAddress;
+        }
+    }
 
-        // Apply IDL normalization for nested structure
-        idlJson = fixPdaSeedArgumentPaths(idlJson);
-        idlJson = fixPdaSeedAccountReferences(idlJson);
-
-        // Check if we need to preserve nested structure
-        const needsNestedPreservation = hasNestedInstructionArguments(idlJson);
-
-        // Use custom pipeline only if we have nested arguments to preserve
-        const codama = needsNestedPreservation
-            ? createFromRootWithoutFlattening(idlJson)
-            : createFromRoot(rootNodeFromAnchorWithoutDefaultVisitor(idlJson));
-        codama.accept(
-            renderVisitor(outputDir, {
-                deleteFolderBeforeRendering,
-                packageName,
-                anchorEvents: idlJson.events,
-                postgresMode,
-                withPostgres,
-                withGraphql,
-                withSerde,
-                withBase58,
-                standalone,
-            }),
-        );
+    // Codama standard: no anchor transformations needed
+    if (standard === 'codama') {
+        const codama = createFromJson(JSON.stringify(idlJson));
+        codama.update(extractStructArrayItems());
+        codama.accept(renderVisitor(outputDir, renderOpts));
         return;
     }
 
-    // File-based IDL
-    const idlPath = resolve(process.cwd(), idl);
-    let idlJson = JSON.parse(readFileSync(idlPath, 'utf8'));
-
-    const idlAddress = idlJson.address || idlJson.metadata?.address;
-    const isValidAddress =
-        idlAddress &&
-        idlAddress.trim() !== '' &&
-        isBase58Like(idlAddress) &&
-        idlAddress.length >= 32 &&
-        idlAddress.length <= 44;
-
-    if (!isValidAddress && !programId) {
-        exitWithError(
-            'Program ID is required. IDL missing or invalid address field - provide via --program-id parameter',
-        );
-    }
-
-    const programAddress = (isValidAddress ? idlAddress : undefined) || programId;
-    if (!programAddress) {
-        exitWithError(
-            'Program ID is required. IDL missing or invalid address field - provide via --program-id parameter',
-        );
-    }
-
-    if (!isValidAddress) {
-        idlJson.address = programAddress;
-        if (!idlJson.metadata) idlJson.metadata = {};
-        idlJson.metadata.address = programAddress;
-    }
-
+    // Anchor standard: apply event and PDA normalization
     if (hasLegacyEvents(idlJson)) {
-        const info = getTransformationInfo(idlJson);
         idlJson = transformLegacyEvents(idlJson);
     }
-
-    // Apply IDL normalization for nested structure (fixes PDA seed paths)
     idlJson = fixPdaSeedArgumentPaths(idlJson);
     idlJson = fixPdaSeedAccountReferences(idlJson);
 
@@ -351,20 +327,10 @@ export async function generateDecoder(options: DecoderGenerationOptions): Promis
                 withSerde,
                 withBase58,
                 standalone,
-            }),
-        );
-    } else {
-        const codama = createFromJson(JSON.stringify(idlJson));
-        codama.accept(
-            renderVisitor(outputDir, {
-                deleteFolderBeforeRendering,
-                packageName,
-                postgresMode,
-                withPostgres,
-                withGraphql,
-                withSerde,
-                withBase58,
-                standalone,
+                workspaceDeps,
+                packageMetadata,
+                version: options.version,
+                versionName: options.versionName,
             }),
         );
     }

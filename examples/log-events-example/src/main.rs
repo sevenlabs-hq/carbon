@@ -1,15 +1,11 @@
 use {
-    async_trait::async_trait,
     carbon_core::{
-        error::CarbonResult,
-        instruction::{DecodedInstruction, InstructionMetadata, NestedInstructions},
-        metrics::MetricsCollection,
-        processor::Processor,
+        error::CarbonResult, instruction::InstructionProcessorInputType, processor::Processor,
     },
     carbon_log_metrics::LogMetrics,
     carbon_raydium_cpmm_decoder::{
-        instructions::RaydiumCpmmInstruction, types::SwapEvent, RaydiumCpmmDecoder,
-        PROGRAM_ID as RAYDIUM_CPMM_PROGRAM_ID,
+        instructions::{CpiEvent, RaydiumCpmmInstruction},
+        RaydiumCpmmDecoder, PROGRAM_ID as RAYDIUM_CPMM_PROGRAM_ID,
     },
     carbon_yellowstone_grpc_datasource::{
         YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient,
@@ -76,7 +72,6 @@ pub async fn main() -> CarbonResult<()> {
     carbon_core::pipeline::Pipeline::builder()
         .datasource(yellowstone_grpc)
         .metrics(Arc::new(LogMetrics::new()))
-        .metrics_flush_interval(3)
         .instruction(RaydiumCpmmDecoder, RaydiumCpmmInstructionProcessor)
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
         .build()?
@@ -88,23 +83,46 @@ pub async fn main() -> CarbonResult<()> {
 
 pub struct RaydiumCpmmInstructionProcessor;
 
-#[async_trait]
-impl Processor for RaydiumCpmmInstructionProcessor {
-    type InputType = (
-        InstructionMetadata,
-        DecodedInstruction<RaydiumCpmmInstruction>,
-        NestedInstructions,
-        solana_instruction::Instruction,
-    );
+impl Processor<InstructionProcessorInputType<'_, RaydiumCpmmInstruction>>
+    for RaydiumCpmmInstructionProcessor
+{
     async fn process(
         &mut self,
-        (metadata, _, _, _): Self::InputType,
-        _metrics: Arc<MetricsCollection>,
+        input: &InstructionProcessorInputType<'_, RaydiumCpmmInstruction>,
     ) -> CarbonResult<()> {
-        let logs = metadata.decode_log_events::<SwapEvent>();
-
-        if !logs.is_empty() {
-            println!("Swap Events: {logs:?}");
+        match input.decoded_instruction {
+            RaydiumCpmmInstruction::SwapBaseInput { data, accounts, .. } => {
+                log::info!(
+                    "SwapBaseInput: amount_in={}, minimum_amount_out={}, input_mint={}, output_mint={}, slot={}",
+                    data.amount_in,
+                    data.minimum_amount_out,
+                    accounts.input_token_mint,
+                    accounts.output_token_mint,
+                    input.metadata.transaction_metadata.slot
+                );
+            }
+            RaydiumCpmmInstruction::SwapBaseOutput { data, accounts, .. } => {
+                log::info!(
+                    "SwapBaseOutput: amount_out={}, max_amount_in={}, input_mint={}, output_mint={}, slot={}",
+                    data.amount_out,
+                    data.max_amount_in,
+                    accounts.input_token_mint,
+                    accounts.output_token_mint,
+                    input.metadata.transaction_metadata.slot
+                );
+            }
+            RaydiumCpmmInstruction::CpiEvent { data, .. } => {
+                if let CpiEvent::SwapEvent(swap_event) = data {
+                    log::info!(
+                        "SwapEvent: {:?} on slot {}",
+                        swap_event,
+                        input.metadata.transaction_metadata.slot
+                    );
+                }
+            }
+            _ => {
+                log::info!("Unknown instruction: {:?}", input.decoded_instruction);
+            }
         }
 
         Ok(())

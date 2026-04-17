@@ -24,14 +24,13 @@ impl CpiEventRow {
         Self {
             instruction_metadata: metadata.into(),
             name: match &source {
-                CpiEvent::SwapCpiEvent(_) => "swap_cpi_event".to_string(),
+                CpiEvent::SwapCpiEvent2(_) => "swap_cpi_event2".to_string(),
                 CpiEvent::SwapEvent(_) => "swap_event".to_string(),
-                CpiEvent::SwapToCWithFeesCpiEventV2(_) => {
-                    "swap_to_c_with_fees_cpi_event_v2".to_string()
-                }
-                CpiEvent::SwapWithFeesCpiEvent(_) => "swap_with_fees_cpi_event".to_string(),
-                CpiEvent::SwapWithFeesCpiEventEnhanced(_) => {
-                    "swap_with_fees_cpi_event_enhanced".to_string()
+                CpiEvent::SwapTobV2CpiEvent2(_) => "swap_tob_v2_cpi_event2".to_string(),
+                CpiEvent::SwapTocV2CpiEvent2(_) => "swap_toc_v2_cpi_event2".to_string(),
+                CpiEvent::SwapWithFeesCpiEvent2(_) => "swap_with_fees_cpi_event2".to_string(),
+                CpiEvent::SwapWithFeesCpiEventEnhanced2(_) => {
+                    "swap_with_fees_cpi_event_enhanced2".to_string()
                 }
             },
             data: sqlx::types::Json(source),

@@ -13,7 +13,6 @@ pub struct BorshFeeRateLimiterGraphQL {
     pub max_fee_bps: U32,
     pub reference_amount: U64,
     pub base_fee_mode: U8,
-    pub padding: Vec<U8>,
 }
 
 impl From<crate::types::BorshFeeRateLimiter> for BorshFeeRateLimiterGraphQL {
@@ -29,11 +28,6 @@ impl From<crate::types::BorshFeeRateLimiter> for BorshFeeRateLimiterGraphQL {
             max_fee_bps: carbon_core::graphql::primitives::U32(original.max_fee_bps),
             reference_amount: carbon_core::graphql::primitives::U64(original.reference_amount),
             base_fee_mode: carbon_core::graphql::primitives::U8(original.base_fee_mode),
-            padding: original
-                .padding
-                .into_iter()
-                .map(carbon_core::graphql::primitives::U8)
-                .collect(),
         }
     }
 }

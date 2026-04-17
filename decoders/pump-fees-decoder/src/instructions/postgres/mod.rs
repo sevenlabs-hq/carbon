@@ -18,25 +18,15 @@ pub mod update_fee_config_row;
 pub mod update_fee_shares_row;
 pub mod upsert_fee_tiers_row;
 
-pub use self::claim_social_fee_pda_row::*;
-pub use self::cpi_event_row::*;
-pub use self::create_fee_sharing_config_row::*;
-pub use self::create_social_fee_pda_row::*;
-pub use self::get_fees_row::*;
-pub use self::initialize_fee_config_row::*;
-pub use self::initialize_fee_program_global_row::*;
-pub use self::reset_fee_sharing_config_row::*;
-pub use self::revoke_fee_sharing_authority_row::*;
-pub use self::set_authority_row::*;
-pub use self::set_claim_rate_limit_row::*;
-pub use self::set_disable_flags_row::*;
-pub use self::set_social_claim_authority_row::*;
-pub use self::transfer_fee_sharing_authority_row::*;
-pub use self::update_admin_row::*;
-pub use self::update_fee_config_row::*;
-pub use self::update_fee_shares_row::*;
-pub use self::upsert_fee_tiers_row::*;
-
+pub use self::{
+    claim_social_fee_pda_row::*, cpi_event_row::*, create_fee_sharing_config_row::*,
+    create_social_fee_pda_row::*, get_fees_row::*, initialize_fee_config_row::*,
+    initialize_fee_program_global_row::*, reset_fee_sharing_config_row::*,
+    revoke_fee_sharing_authority_row::*, set_authority_row::*, set_claim_rate_limit_row::*,
+    set_disable_flags_row::*, set_social_claim_authority_row::*,
+    transfer_fee_sharing_authority_row::*, update_admin_row::*, update_fee_config_row::*,
+    update_fee_shares_row::*, upsert_fee_tiers_row::*,
+};
 use super::PumpFeesInstruction;
 
 pub struct PumpFeesInstructionsMigration;
@@ -105,169 +95,169 @@ impl
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for PumpFeesInstructionWithMetadata {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let PumpFeesInstructionWithMetadata(instruction, metadata, accounts) = self;
-        match instruction {
-            PumpFeesInstruction::ClaimSocialFeePda(instruction) => {
+        let PumpFeesInstructionWithMetadata(decoded_instruction, metadata, raw_accounts) = self;
+        match decoded_instruction {
+            PumpFeesInstruction::ClaimSocialFeePda { data, .. } => {
                 let row = claim_social_fee_pda_row::ClaimSocialFeePdaRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::CreateFeeSharingConfig(instruction) => {
+            PumpFeesInstruction::CreateFeeSharingConfig { data, .. } => {
                 let row = create_fee_sharing_config_row::CreateFeeSharingConfigRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::CreateSocialFeePda(instruction) => {
+            PumpFeesInstruction::CreateSocialFeePda { data, .. } => {
                 let row = create_social_fee_pda_row::CreateSocialFeePdaRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::GetFees(instruction) => {
+            PumpFeesInstruction::GetFees { data, .. } => {
                 let row = get_fees_row::GetFeesRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::InitializeFeeConfig(instruction) => {
+            PumpFeesInstruction::InitializeFeeConfig { data, .. } => {
                 let row = initialize_fee_config_row::InitializeFeeConfigRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::InitializeFeeProgramGlobal(instruction) => {
+            PumpFeesInstruction::InitializeFeeProgramGlobal { data, .. } => {
                 let row =
                     initialize_fee_program_global_row::InitializeFeeProgramGlobalRow::from_parts(
-                        instruction.clone(),
+                        data.clone(),
                         metadata.clone(),
-                        accounts.clone(),
+                        raw_accounts.clone(),
                     );
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::ResetFeeSharingConfig(instruction) => {
+            PumpFeesInstruction::ResetFeeSharingConfig { data, .. } => {
                 let row = reset_fee_sharing_config_row::ResetFeeSharingConfigRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::RevokeFeeSharingAuthority(instruction) => {
+            PumpFeesInstruction::RevokeFeeSharingAuthority { data, .. } => {
                 let row =
                     revoke_fee_sharing_authority_row::RevokeFeeSharingAuthorityRow::from_parts(
-                        instruction.clone(),
+                        data.clone(),
                         metadata.clone(),
-                        accounts.clone(),
+                        raw_accounts.clone(),
                     );
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::SetAuthority(instruction) => {
+            PumpFeesInstruction::SetAuthority { data, .. } => {
                 let row = set_authority_row::SetAuthorityRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::SetClaimRateLimit(instruction) => {
+            PumpFeesInstruction::SetClaimRateLimit { data, .. } => {
                 let row = set_claim_rate_limit_row::SetClaimRateLimitRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::SetDisableFlags(instruction) => {
+            PumpFeesInstruction::SetDisableFlags { data, .. } => {
                 let row = set_disable_flags_row::SetDisableFlagsRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::SetSocialClaimAuthority(instruction) => {
+            PumpFeesInstruction::SetSocialClaimAuthority { data, .. } => {
                 let row = set_social_claim_authority_row::SetSocialClaimAuthorityRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::TransferFeeSharingAuthority(instruction) => {
+            PumpFeesInstruction::TransferFeeSharingAuthority { data, .. } => {
                 let row =
                     transfer_fee_sharing_authority_row::TransferFeeSharingAuthorityRow::from_parts(
-                        instruction.clone(),
+                        data.clone(),
                         metadata.clone(),
-                        accounts.clone(),
+                        raw_accounts.clone(),
                     );
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::UpdateAdmin(instruction) => {
+            PumpFeesInstruction::UpdateAdmin { data, .. } => {
                 let row = update_admin_row::UpdateAdminRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::UpdateFeeConfig(instruction) => {
+            PumpFeesInstruction::UpdateFeeConfig { data, .. } => {
                 let row = update_fee_config_row::UpdateFeeConfigRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::UpdateFeeShares(instruction) => {
+            PumpFeesInstruction::UpdateFeeShares { data, .. } => {
                 let row = update_fee_shares_row::UpdateFeeSharesRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::UpsertFeeTiers(instruction) => {
+            PumpFeesInstruction::UpsertFeeTiers { data, .. } => {
                 let row = upsert_fee_tiers_row::UpsertFeeTiersRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::CpiEvent(instruction) => {
+            PumpFeesInstruction::CpiEvent { data, .. } => {
                 let row = cpi_event_row::CpiEventRow::from_parts(
-                    (**instruction).clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.insert(pool).await?;
                 Ok(())
@@ -279,169 +269,169 @@ impl carbon_core::postgres::operations::Insert for PumpFeesInstructionWithMetada
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for PumpFeesInstructionWithMetadata {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        let PumpFeesInstructionWithMetadata(instruction, metadata, accounts) = self;
-        match instruction {
-            PumpFeesInstruction::ClaimSocialFeePda(instruction) => {
+        let PumpFeesInstructionWithMetadata(decoded_instruction, metadata, raw_accounts) = self;
+        match decoded_instruction {
+            PumpFeesInstruction::ClaimSocialFeePda { data, .. } => {
                 let row = claim_social_fee_pda_row::ClaimSocialFeePdaRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::CreateFeeSharingConfig(instruction) => {
+            PumpFeesInstruction::CreateFeeSharingConfig { data, .. } => {
                 let row = create_fee_sharing_config_row::CreateFeeSharingConfigRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::CreateSocialFeePda(instruction) => {
+            PumpFeesInstruction::CreateSocialFeePda { data, .. } => {
                 let row = create_social_fee_pda_row::CreateSocialFeePdaRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::GetFees(instruction) => {
+            PumpFeesInstruction::GetFees { data, .. } => {
                 let row = get_fees_row::GetFeesRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::InitializeFeeConfig(instruction) => {
+            PumpFeesInstruction::InitializeFeeConfig { data, .. } => {
                 let row = initialize_fee_config_row::InitializeFeeConfigRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::InitializeFeeProgramGlobal(instruction) => {
+            PumpFeesInstruction::InitializeFeeProgramGlobal { data, .. } => {
                 let row =
                     initialize_fee_program_global_row::InitializeFeeProgramGlobalRow::from_parts(
-                        instruction.clone(),
+                        data.clone(),
                         metadata.clone(),
-                        accounts.clone(),
+                        raw_accounts.clone(),
                     );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::ResetFeeSharingConfig(instruction) => {
+            PumpFeesInstruction::ResetFeeSharingConfig { data, .. } => {
                 let row = reset_fee_sharing_config_row::ResetFeeSharingConfigRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::RevokeFeeSharingAuthority(instruction) => {
+            PumpFeesInstruction::RevokeFeeSharingAuthority { data, .. } => {
                 let row =
                     revoke_fee_sharing_authority_row::RevokeFeeSharingAuthorityRow::from_parts(
-                        instruction.clone(),
+                        data.clone(),
                         metadata.clone(),
-                        accounts.clone(),
+                        raw_accounts.clone(),
                     );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::SetAuthority(instruction) => {
+            PumpFeesInstruction::SetAuthority { data, .. } => {
                 let row = set_authority_row::SetAuthorityRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::SetClaimRateLimit(instruction) => {
+            PumpFeesInstruction::SetClaimRateLimit { data, .. } => {
                 let row = set_claim_rate_limit_row::SetClaimRateLimitRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::SetDisableFlags(instruction) => {
+            PumpFeesInstruction::SetDisableFlags { data, .. } => {
                 let row = set_disable_flags_row::SetDisableFlagsRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::SetSocialClaimAuthority(instruction) => {
+            PumpFeesInstruction::SetSocialClaimAuthority { data, .. } => {
                 let row = set_social_claim_authority_row::SetSocialClaimAuthorityRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::TransferFeeSharingAuthority(instruction) => {
+            PumpFeesInstruction::TransferFeeSharingAuthority { data, .. } => {
                 let row =
                     transfer_fee_sharing_authority_row::TransferFeeSharingAuthorityRow::from_parts(
-                        instruction.clone(),
+                        data.clone(),
                         metadata.clone(),
-                        accounts.clone(),
+                        raw_accounts.clone(),
                     );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::UpdateAdmin(instruction) => {
+            PumpFeesInstruction::UpdateAdmin { data, .. } => {
                 let row = update_admin_row::UpdateAdminRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::UpdateFeeConfig(instruction) => {
+            PumpFeesInstruction::UpdateFeeConfig { data, .. } => {
                 let row = update_fee_config_row::UpdateFeeConfigRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::UpdateFeeShares(instruction) => {
+            PumpFeesInstruction::UpdateFeeShares { data, .. } => {
                 let row = update_fee_shares_row::UpdateFeeSharesRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::UpsertFeeTiers(instruction) => {
+            PumpFeesInstruction::UpsertFeeTiers { data, .. } => {
                 let row = upsert_fee_tiers_row::UpsertFeeTiersRow::from_parts(
-                    instruction.clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())
             }
-            PumpFeesInstruction::CpiEvent(instruction) => {
+            PumpFeesInstruction::CpiEvent { data, .. } => {
                 let row = cpi_event_row::CpiEventRow::from_parts(
-                    (**instruction).clone(),
+                    data.clone(),
                     metadata.clone(),
-                    accounts.clone(),
+                    raw_accounts.clone(),
                 );
                 row.upsert(pool).await?;
                 Ok(())

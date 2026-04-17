@@ -30,38 +30,21 @@ pub mod toggle_create_v2_schema;
 pub mod toggle_mayhem_mode_schema;
 pub mod update_global_authority_schema;
 
-pub use admin_set_creator_schema::*;
-pub use admin_set_idl_authority_schema::*;
-pub use admin_update_token_incentives_schema::*;
-pub use buy_exact_sol_in_schema::*;
-pub use buy_schema::*;
-pub use claim_cashback_schema::*;
-pub use claim_token_incentives_schema::*;
-pub use close_user_volume_accumulator_schema::*;
-pub use collect_creator_fee_schema::*;
-pub use cpi_event_schema::*;
-pub use create_schema::*;
-pub use create_v2_schema::*;
-pub use distribute_creator_fees_schema::*;
-pub use extend_account_schema::*;
-pub use get_minimum_distributable_fee_schema::*;
-pub use init_user_volume_accumulator_schema::*;
-pub use initialize_schema::*;
-pub use migrate_bonding_curve_creator_schema::*;
-pub use migrate_schema::*;
-pub use sell_schema::*;
-pub use set_creator_schema::*;
-pub use set_mayhem_virtual_params_schema::*;
-pub use set_metaplex_creator_schema::*;
-pub use set_params_schema::*;
-pub use set_reserved_fee_recipients_schema::*;
-pub use sync_user_volume_accumulator_schema::*;
-pub use toggle_cashback_enabled_schema::*;
-pub use toggle_create_v2_schema::*;
-pub use toggle_mayhem_mode_schema::*;
-pub use update_global_authority_schema::*;
-
 use juniper::GraphQLObject;
+pub use {
+    admin_set_creator_schema::*, admin_set_idl_authority_schema::*,
+    admin_update_token_incentives_schema::*, buy_exact_sol_in_schema::*, buy_schema::*,
+    claim_cashback_schema::*, claim_token_incentives_schema::*,
+    close_user_volume_accumulator_schema::*, collect_creator_fee_schema::*, cpi_event_schema::*,
+    create_schema::*, create_v2_schema::*, distribute_creator_fees_schema::*,
+    extend_account_schema::*, get_minimum_distributable_fee_schema::*,
+    init_user_volume_accumulator_schema::*, initialize_schema::*,
+    migrate_bonding_curve_creator_schema::*, migrate_schema::*, sell_schema::*,
+    set_creator_schema::*, set_mayhem_virtual_params_schema::*, set_metaplex_creator_schema::*,
+    set_params_schema::*, set_reserved_fee_recipients_schema::*,
+    sync_user_volume_accumulator_schema::*, toggle_cashback_enabled_schema::*,
+    toggle_create_v2_schema::*, toggle_mayhem_mode_schema::*, update_global_authority_schema::*,
+};
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "InstructionMetadata")]

@@ -30,30 +30,14 @@ pub mod update_admin_event;
 pub mod update_fee_config_event;
 pub mod withdraw_event;
 
-pub use self::admin_set_coin_creator_event::*;
-pub use self::admin_update_token_incentives_event::*;
-pub use self::buy_event::*;
-pub use self::claim_cashback_event::*;
-pub use self::claim_token_incentives_event::*;
-pub use self::close_user_volume_accumulator_event::*;
-pub use self::collect_coin_creator_fee_event::*;
-pub use self::config_status::*;
-pub use self::create_config_event::*;
-pub use self::create_pool_event::*;
-pub use self::deposit_event::*;
-pub use self::disable_event::*;
-pub use self::extend_account_event::*;
-pub use self::fee_tier::*;
-pub use self::fees::*;
-pub use self::init_user_volume_accumulator_event::*;
-pub use self::migrate_pool_coin_creator_event::*;
-pub use self::option_bool::*;
-pub use self::reserved_fee_recipients_event::*;
-pub use self::sell_event::*;
-pub use self::set_bonding_curve_coin_creator_event::*;
-pub use self::set_metaplex_coin_creator_event::*;
-pub use self::shareholder::*;
-pub use self::sync_user_volume_accumulator_event::*;
-pub use self::update_admin_event::*;
-pub use self::update_fee_config_event::*;
-pub use self::withdraw_event::*;
+pub use self::{
+    admin_set_coin_creator_event::*, admin_update_token_incentives_event::*, buy_event::*,
+    claim_cashback_event::*, claim_token_incentives_event::*,
+    close_user_volume_accumulator_event::*, collect_coin_creator_fee_event::*, config_status::*,
+    create_config_event::*, create_pool_event::*, deposit_event::*, disable_event::*,
+    extend_account_event::*, fee_tier::*, fees::*, init_user_volume_accumulator_event::*,
+    migrate_pool_coin_creator_event::*, option_bool::*, reserved_fee_recipients_event::*,
+    sell_event::*, set_bonding_curve_coin_creator_event::*, set_metaplex_coin_creator_event::*,
+    shareholder::*, sync_user_volume_accumulator_event::*, update_admin_event::*,
+    update_fee_config_event::*, withdraw_event::*,
+};

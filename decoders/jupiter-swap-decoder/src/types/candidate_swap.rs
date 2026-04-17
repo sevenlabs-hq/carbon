@@ -10,4 +10,20 @@ pub enum CandidateSwap {
     TesseraV {
         side: Side,
     },
+    HumidiFiV2 {
+        swap_id: u64,
+        is_base_to_quote: bool,
+    },
+    RaydiumV2,
+    RaydiumClmm,
+    Whirlpool {
+        a_to_b: bool,
+    },
+    ZeroFi,
+    BisonFiV2 {
+        a_to_b: bool,
+    },
+    GoonFiV2 {
+        is_bid: bool,
+    },
 }

@@ -6,8 +6,10 @@ pub struct PoolFeesConfig {
     pub base_fee: BaseFeeInfo,
     pub dynamic_fee: DynamicFeeConfig,
     pub protocol_fee_percent: u8,
-    pub partner_fee_percent: u8,
+    pub padding0: u8,
     pub referral_fee_percent: u8,
-    pub padding0: [u8; 5],
-    pub padding1: [u64; 5],
+    pub padding1: [u8; 3],
+    /// Compounding fee bps, only non-zero if collect_fee_mode is compounding
+    pub compounding_fee_bps: u16,
+    pub padding2: [u64; 5],
 }

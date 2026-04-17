@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 
 import { camelCase, kebabCase, pascalCase, snakeCase, titleCase } from '@codama/nodes';
 import nunjucks, { ConfigureOptions as NunJucksOptions } from 'nunjucks';
+import { RUST_KEYWORDS, escapeRustKeyword } from '../constants/rustKeywords';
 
 export function rustDocblock(docs: string[]): string {
     if (docs.length <= 0) return '';
@@ -38,41 +39,29 @@ export function formatDocComments(docs: string[], indent: string = ''): string {
             result.push(`${indent}/// ${trimmed}`);
             inListContext = true;
         } else {
-            // Not a list item
-            // First check if previous non-empty line was a list item (for cases where context was lost)
-            if (!inListContext) {
-                let prevWasListItem = false;
-                let prevWasContinuation = false;
-                for (let j = i - 1; j >= 0; j--) {
-                    const prevTrimmed = allLines[j].trim();
-                    if (prevTrimmed !== '') {
-                        prevWasListItem = prevTrimmed.startsWith('*') || prevTrimmed.startsWith('-');
-                        // Check if previous line was a continuation (indented)
-                        // Look at the result array to see if the last line was indented
-                        if (result.length > 0) {
-                            const lastResult = result[result.length - 1];
-                            prevWasContinuation = lastResult.includes('///   ');
-                        }
-                        break;
-                    }
-                }
-                if (prevWasListItem || prevWasContinuation) {
-                    // Previous line was a list item or continuation, so this is a continuation
-                    inListContext = true;
+            // Not a list item; this may follow a list or start a new section/paragraph.
+            // When a non-list line directly follows a list item, Clippy expects a blank
+            // doc line to mark a paragraph break; otherwise it flags doc_lazy_continuation.
+            let prevNonEmpty: string | null = null;
+            for (let j = i - 1; j >= 0; j--) {
+                const prevTrimmed = allLines[j].trim();
+                if (prevTrimmed !== '') {
+                    prevNonEmpty = prevTrimmed;
+                    break;
                 }
             }
 
-            if (inListContext) {
-                // Continuation line after list item - indent it with 3 spaces after ///
-                // CRITICAL: Must use exactly 3 spaces after /// for clippy doc_lazy_continuation
-                result.push(`${indent}///   ${trimmed}`);
-                // Keep context true for subsequent continuation lines
-                // Only reset when we see a new list item (handled above) or empty line (handled in the empty line check)
-            } else {
-                // Regular line, not in list context
-                result.push(`${indent}/// ${trimmed}`);
-                inListContext = false;
+            if (prevNonEmpty) {
+                const isPrevBullet =
+                    prevNonEmpty.startsWith('*') || prevNonEmpty.startsWith('-') || /^[0-9]+\./.test(prevNonEmpty);
+                if (isPrevBullet) {
+                    // Blank doc line (paragraph break)
+                    result.push(`${indent}///`);
+                }
             }
+
+            result.push(`${indent}/// ${trimmed}`);
+            inListContext = false;
         }
     }
 
@@ -81,12 +70,12 @@ export function formatDocComments(docs: string[], indent: string = ''): string {
 }
 
 export const render = (template: string, context?: object, options?: NunJucksOptions): string => {
-    // Get templates directory from the package directory
     const isESM = typeof import.meta !== 'undefined';
     const dirname = isESM ? pathDirname(fileURLToPath(import.meta.url)) : __dirname;
-    const templates = join(dirname, '..', 'templates'); // Path to templates from src/utils
+    const templates = join(dirname, '..', 'templates');
 
     const env = nunjucks.configure(templates, { autoescape: false, trimBlocks: true, ...options });
+
     env.addFilter('pascalCase', pascalCase);
     env.addFilter('camelCase', camelCase);
     env.addFilter('snakeCase', snakeCase);
@@ -94,5 +83,9 @@ export const render = (template: string, context?: object, options?: NunJucksOpt
     env.addFilter('titleCase', titleCase);
     env.addFilter('rustDocblock', rustDocblock);
     env.addFilter('formatDocComments', (docs: string[], indent: string = '') => formatDocComments(docs, indent));
+    env.addFilter('escapeRustKeyword', escapeRustKeyword);
+
+    env.addGlobal('RUST_KEYWORDS', RUST_KEYWORDS);
+
     return env.render(template, context);
 };

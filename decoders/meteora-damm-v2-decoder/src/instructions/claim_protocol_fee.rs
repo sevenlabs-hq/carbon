@@ -19,7 +19,7 @@ pub struct ClaimProtocolFeeInstructionAccounts {
     pub token_a_account: solana_pubkey::Pubkey,
     pub token_b_account: solana_pubkey::Pubkey,
     pub operator: solana_pubkey::Pubkey,
-    pub whitelisted_address: solana_pubkey::Pubkey,
+    pub signer: solana_pubkey::Pubkey,
     pub token_a_program: solana_pubkey::Pubkey,
     pub token_b_program: solana_pubkey::Pubkey,
     pub event_authority: solana_pubkey::Pubkey,
@@ -62,7 +62,7 @@ impl ArrangeAccounts for ClaimProtocolFee {
         let token_a_account = next_account(&mut iter)?;
         let token_b_account = next_account(&mut iter)?;
         let operator = next_account(&mut iter)?;
-        let whitelisted_address = next_account(&mut iter)?;
+        let signer = next_account(&mut iter)?;
         let token_a_program = next_account(&mut iter)?;
         let token_b_program = next_account(&mut iter)?;
         let event_authority = next_account(&mut iter)?;
@@ -80,7 +80,7 @@ impl ArrangeAccounts for ClaimProtocolFee {
             token_a_account,
             token_b_account,
             operator,
-            whitelisted_address,
+            signer,
             token_a_program,
             token_b_program,
             event_authority,

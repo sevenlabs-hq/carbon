@@ -11,8 +11,7 @@ pub struct PoolMetricsGraphQL {
     pub total_lp_b_fee: U128,
     pub total_protocol_a_fee: U64,
     pub total_protocol_b_fee: U64,
-    pub total_partner_a_fee: U64,
-    pub total_partner_b_fee: U64,
+    pub padding0: Vec<U64>,
     pub total_position: U64,
     pub padding: U64,
 }
@@ -28,12 +27,11 @@ impl From<crate::types::PoolMetrics> for PoolMetricsGraphQL {
             total_protocol_b_fee: carbon_core::graphql::primitives::U64(
                 original.total_protocol_b_fee,
             ),
-            total_partner_a_fee: carbon_core::graphql::primitives::U64(
-                original.total_partner_a_fee,
-            ),
-            total_partner_b_fee: carbon_core::graphql::primitives::U64(
-                original.total_partner_b_fee,
-            ),
+            padding0: original
+                .padding0
+                .into_iter()
+                .map(carbon_core::graphql::primitives::U64)
+                .collect(),
             total_position: carbon_core::graphql::primitives::U64(original.total_position),
             padding: carbon_core::graphql::primitives::U64(original.padding),
         }
