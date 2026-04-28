@@ -162,14 +162,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 async fn recover_watch_list() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let supabase_url = env::var("SUPABASE_URL")?;
     let supabase_key = env::var("SUPABASE_SERVICE_ROLE_KEY")?;
-    let server_id = env::var("SESSION_PRIMITIVE_SERVER_ID")
+    // RECOVERY_SOURCE_SERVER_ID = where we READ the watch list from on startup.
+    // During soak, this is `frankfurt-prod` (frankfurt-node's claim) so we
+    // surveil the same wallets without competing for ownership. After cutover
+    // it can be set to the same value as SESSION_PRIMITIVE_SERVER_ID.
+    // This is INTENTIONALLY DIFFERENT from SESSION_PRIMITIVE_SERVER_ID, which
+    // is our own claim ID for heartbeat writes.
+    let recovery_source = env::var("RECOVERY_SOURCE_SERVER_ID")
         .unwrap_or_else(|_| "frankfurt-prod".into());
 
-    // Read sessions claimed by frankfurt-node (server_id='frankfurt-prod') so
-    // during soak we surveil exactly the same wallets.
     let url = format!(
         "{}/rest/v1/surveillance_wallet_sessions?server_id=eq.{}&status=eq.running&select=user_id,target_id,wallet_address,wallet_label,surveillance_targets(name)",
-        supabase_url, server_id
+        supabase_url, recovery_source
     );
     let rows: Vec<SessionRow> = reqwest::Client::new()
         .get(&url)
@@ -226,8 +230,12 @@ async fn heartbeat_loop() {
         Ok(k) => k,
         Err(_) => return,
     };
+    // Heartbeat refreshes rows we OWN — claimed under our own server_id, not
+    // the recovery source. During soak we typically own zero rows, so this is
+    // a no-op. After cutover, the backend inserts new sessions with our
+    // server_id and this loop keeps them alive for the Phase 3 reaper.
     let server_id = env::var("SESSION_PRIMITIVE_SERVER_ID")
-        .unwrap_or_else(|_| "frankfurt-prod".into());
+        .unwrap_or_else(|_| "frankfurt-carbon-surveillance".into());
     let http = reqwest::Client::new();
     loop {
         tokio::time::sleep(Duration::from_secs(30)).await;
@@ -272,6 +280,8 @@ async fn stats_handler() -> axum::Json<serde_json::Value> {
         "watch_wallets": state::watch_count(),
         "output_mode": env::var("OUTPUT_MODE").unwrap_or_else(|_| "parity".into()),
         "server_id": env::var("SESSION_PRIMITIVE_SERVER_ID")
+            .unwrap_or_else(|_| "frankfurt-carbon-surveillance".into()),
+        "recovery_source": env::var("RECOVERY_SOURCE_SERVER_ID")
             .unwrap_or_else(|_| "frankfurt-prod".into()),
     }))
 }
