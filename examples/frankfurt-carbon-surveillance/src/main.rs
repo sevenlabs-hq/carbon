@@ -82,14 +82,29 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     // Carbon Pipeline.
     let api_key = env::var("HELIUS_API_KEY").expect("HELIUS_API_KEY not set");
     let dynamic_set: Arc<RwLock<HashSet<Pubkey>>> = Arc::clone(&ATLAS_WS_ACCOUNTS);
+    // Helius EWS requires accountInclude at subscribe time. Carbon's atlas-ws
+    // example reads the dynamic set to mutate later, but the INITIAL subscribe
+    // must include a non-empty list. Snapshot the recovered watch list now.
+    let initial_accounts: Vec<String> = {
+        let set = dynamic_set.read().await;
+        set.iter().map(|pk| pk.to_string()).collect()
+    };
+    log::info!(
+        "atlas-ws initial account_include count = {}",
+        initial_accounts.len()
+    );
     let helius_ws = HeliusWebsocket::new(
         api_key,
         Filters {
             accounts: vec![],
             transactions: Some(RpcTransactionsConfig {
                 filter: TransactionSubscribeFilter {
-                    account_include: None, // Carbon sources `account_include`
-                    account_exclude: None, // from `dynamic_set` below.
+                    account_include: if initial_accounts.is_empty() {
+                        None
+                    } else {
+                        Some(initial_accounts)
+                    },
+                    account_exclude: None,
                     account_required: None,
                     vote: Some(false),
                     failed: Some(false),
