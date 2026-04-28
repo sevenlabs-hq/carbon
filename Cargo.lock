@@ -2769,7 +2769,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ba5a308b75df32fe02788e748662718f03fde005016435c444eea572398219fd"
 dependencies = [
  "bytes",
+ "futures-core",
  "memchr",
+ "pin-project-lite",
+ "tokio",
+ "tokio-util 0.7.17",
 ]
 
 [[package]]
@@ -3144,6 +3148,20 @@ dependencies = [
  "parking_lot_core 0.9.12",
  "rayon",
  "serde",
+]
+
+[[package]]
+name = "dashmap"
+version = "6.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5041cc499144891f3790297212f32a74fb938e5136a14943f338ef9e0ae276cf"
+dependencies = [
+ "cfg-if 1.0.4",
+ "crossbeam-utils",
+ "hashbrown 0.14.5",
+ "lock_api",
+ "once_cell",
+ "parking_lot_core 0.9.12",
 ]
 
 [[package]]
@@ -3833,6 +3851,95 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28dd6caf6059519a65843af8fe2a3ae298b14b80179855aeb4adc2c1934ee619"
 
 [[package]]
+name = "frankfurt-carbon-surveillance"
+version = "0.1.0"
+dependencies = [
+ "async-trait",
+ "axum 0.8.8",
+ "carbon-address-lookup-table-decoder",
+ "carbon-associated-token-account-decoder",
+ "carbon-bonkswap-decoder",
+ "carbon-boop-decoder",
+ "carbon-bubblegum-decoder",
+ "carbon-circle-message-transmitter-v2-decoder",
+ "carbon-circle-token-messenger-v2-decoder",
+ "carbon-core",
+ "carbon-dflow-aggregator-v4-decoder",
+ "carbon-drift-v2-decoder",
+ "carbon-fluxbeam-decoder",
+ "carbon-gavel-decoder",
+ "carbon-heaven-decoder",
+ "carbon-helius-atlas-ws-datasource",
+ "carbon-jupiter-dca-decoder",
+ "carbon-jupiter-lend-decoder",
+ "carbon-jupiter-limit-order-2-decoder",
+ "carbon-jupiter-limit-order-decoder",
+ "carbon-jupiter-perpetuals-decoder",
+ "carbon-jupiter-swap-decoder",
+ "carbon-kamino-farms-decoder",
+ "carbon-kamino-lending-decoder",
+ "carbon-kamino-limit-order-decoder",
+ "carbon-kamino-vault-decoder",
+ "carbon-lifinity-amm-v2-decoder",
+ "carbon-marginfi-v2-decoder",
+ "carbon-marinade-finance-decoder",
+ "carbon-memo-program-decoder",
+ "carbon-meteora-damm-v2-decoder",
+ "carbon-meteora-dbc-decoder",
+ "carbon-meteora-dlmm-decoder",
+ "carbon-meteora-pools-decoder",
+ "carbon-meteora-vault-decoder",
+ "carbon-moonshot-decoder",
+ "carbon-mpl-core-decoder",
+ "carbon-mpl-token-metadata-decoder",
+ "carbon-name-service-decoder",
+ "carbon-okx-dex-decoder",
+ "carbon-onchain-labs-dex-v1-decoder",
+ "carbon-onchain-labs-dex-v2-decoder",
+ "carbon-openbook-v2-decoder",
+ "carbon-orca-whirlpool-decoder",
+ "carbon-pancake-swap-decoder",
+ "carbon-phoenix-v1-decoder",
+ "carbon-pump-fees-decoder",
+ "carbon-pump-swap-decoder",
+ "carbon-pumpfun-decoder",
+ "carbon-raydium-amm-v4-decoder",
+ "carbon-raydium-clmm-decoder",
+ "carbon-raydium-cpmm-decoder",
+ "carbon-raydium-launchpad-decoder",
+ "carbon-raydium-liquidity-locking-decoder",
+ "carbon-raydium-stable-swap-decoder",
+ "carbon-sharky-decoder",
+ "carbon-solayer-restaking-program-decoder",
+ "carbon-stabble-stable-swap-decoder",
+ "carbon-stabble-weighted-swap-decoder",
+ "carbon-stake-program-decoder",
+ "carbon-swig-decoder",
+ "carbon-system-program-decoder",
+ "carbon-token-2022-decoder",
+ "carbon-token-program-decoder",
+ "carbon-vertigo-decoder",
+ "carbon-virtuals-decoder",
+ "carbon-wavebreak-decoder",
+ "carbon-zeta-decoder",
+ "chrono",
+ "dashmap 6.1.0",
+ "helius",
+ "log",
+ "once_cell",
+ "redis",
+ "reqwest 0.12.28",
+ "serde",
+ "serde_json",
+ "solana-native-token",
+ "solana-pubkey 3.0.0",
+ "solana-signature",
+ "solana-transaction-status",
+ "tokio",
+ "tracing-subscriber",
+]
+
+[[package]]
 name = "frankfurt-shadow-carbon-example"
 version = "0.1.0"
 dependencies = [
@@ -4141,7 +4248,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "68a7f542ee6b35af73b06abc0dad1c1bae89964e4e253bc4b587b91c9637867b"
 dependencies = [
  "cfg-if 1.0.4",
- "dashmap",
+ "dashmap 5.5.3",
  "futures 0.3.31",
  "futures-timer",
  "no-std-compat",
@@ -5016,7 +5123,7 @@ dependencies = [
  "cid",
  "crc",
  "crossbeam-channel",
- "dashmap",
+ "dashmap 5.5.3",
  "fnv",
  "futures-util",
  "log",
@@ -7246,6 +7353,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "redis"
+version = "0.27.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "09d8f99a4090c89cc489a94833c901ead69bfbf3877b4867d5482e321ee875bc"
+dependencies = [
+ "arc-swap",
+ "async-trait",
+ "bytes",
+ "combine 4.6.7",
+ "futures-util",
+ "itertools 0.13.0",
+ "itoa",
+ "num-bigint 0.4.6",
+ "percent-encoding 2.3.2",
+ "pin-project-lite",
+ "ryu",
+ "tokio",
+ "tokio-util 0.7.17",
+ "url 2.5.7",
+]
+
+[[package]]
 name = "redox_syscall"
 version = "0.2.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8046,7 +8175,7 @@ version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0e56dd856803e253c8f298af3f4d7eb0ae5e23a737252cd90bb4f3b435033b2d"
 dependencies = [
- "dashmap",
+ "dashmap 5.5.3",
  "futures 0.3.31",
  "lazy_static",
  "log",
@@ -8428,7 +8557,7 @@ dependencies = [
  "bytemuck",
  "bytemuck_derive",
  "crossbeam-channel",
- "dashmap",
+ "dashmap 5.5.3",
  "indexmap 2.12.1",
  "itertools 0.12.1",
  "log",
@@ -8806,7 +8935,7 @@ checksum = "fd6627613e1a0a078d4933f48f405faefe594389ebc3c36fcb821c4257954d19"
 dependencies = [
  "async-trait",
  "bincode",
- "dashmap",
+ "dashmap 5.5.3",
  "futures 0.3.31",
  "futures-util",
  "indexmap 2.12.1",
@@ -9608,7 +9737,7 @@ dependencies = [
  "chrono",
  "chrono-humanize",
  "crossbeam-channel",
- "dashmap",
+ "dashmap 5.5.3",
  "eager",
  "fs_extra",
  "futures 0.3.31",
@@ -9849,7 +9978,7 @@ dependencies = [
  "bincode",
  "bytes",
  "cfg-if 1.0.4",
- "dashmap",
+ "dashmap 5.5.3",
  "itertools 0.12.1",
  "log",
  "nix",
@@ -10317,7 +10446,7 @@ dependencies = [
  "bincode",
  "bs58",
  "crossbeam-channel",
- "dashmap",
+ "dashmap 5.5.3",
  "itertools 0.12.1",
  "jsonrpc-core",
  "jsonrpc-core-client",
@@ -10520,7 +10649,7 @@ dependencies = [
  "bv",
  "bytemuck",
  "crossbeam-channel",
- "dashmap",
+ "dashmap 5.5.3",
  "dir-diff",
  "fnv",
  "im",
@@ -11047,7 +11176,7 @@ dependencies = [
  "arc-swap",
  "bytes",
  "crossbeam-channel",
- "dashmap",
+ "dashmap 5.5.3",
  "futures 0.3.31",
  "futures-util",
  "governor",
