@@ -1,0 +1,98 @@
+[package]
+name = "frankfurt-shadow-carbon-example"
+version = "0.1.0"
+edition = { workspace = true }
+
+# Standalone surveillance binary that runs as a separate process from the
+# Frankfurt trading pipeline. Watches a configurable wallet allowlist for any
+# program activity Carbon ships a decoder for, logs WATCH_BUY/WATCH_SELL/
+# WATCH_AGG lines for verification against on-chain truth (Solscan etc.),
+# never executes trades or touches Frankfurt's keypair store. Designed to be
+# deployed as systemd unit `frankfurt-shadow.service` alongside (but completely
+# independent of) the production frankfurt-rust binary.
+
+[[bin]]
+name = "frankfurt-shadow"
+path = "src/main.rs"
+
+[dependencies]
+# Framework + datasource
+carbon-core = { workspace = true }
+carbon-jito-shredstream-grpc-datasource = { workspace = true }
+
+# All Carbon swap/trade/program decoders we want to surveil
+carbon-address-lookup-table-decoder = { workspace = true }
+carbon-associated-token-account-decoder = { workspace = true }
+carbon-bonkswap-decoder = { workspace = true }
+carbon-boop-decoder = { workspace = true }
+carbon-bubblegum-decoder = { workspace = true }
+carbon-circle-message-transmitter-v2-decoder = { workspace = true }
+carbon-circle-token-messenger-v2-decoder = { workspace = true }
+carbon-dflow-aggregator-v4-decoder = { workspace = true }
+carbon-drift-v2-decoder = { workspace = true }
+carbon-fluxbeam-decoder = { workspace = true }
+carbon-gavel-decoder = { workspace = true }
+carbon-heaven-decoder = { workspace = true }
+carbon-jupiter-dca-decoder = { workspace = true }
+carbon-jupiter-lend-decoder = { workspace = true }
+carbon-jupiter-limit-order-2-decoder = { workspace = true }
+carbon-jupiter-limit-order-decoder = { workspace = true }
+carbon-jupiter-perpetuals-decoder = { workspace = true }
+carbon-jupiter-swap-decoder = { workspace = true }
+carbon-kamino-farms-decoder = { workspace = true }
+carbon-kamino-lending-decoder = { workspace = true }
+carbon-kamino-limit-order-decoder = { workspace = true }
+carbon-kamino-vault-decoder = { workspace = true }
+carbon-lifinity-amm-v2-decoder = { workspace = true }
+carbon-marginfi-v2-decoder = { workspace = true }
+carbon-marinade-finance-decoder = { workspace = true }
+carbon-memo-program-decoder = { workspace = true }
+carbon-meteora-damm-v2-decoder = { workspace = true }
+carbon-meteora-dbc-decoder = { workspace = true }
+carbon-meteora-dlmm-decoder = { workspace = true }
+carbon-meteora-pools-decoder = { workspace = true }
+carbon-meteora-vault-decoder = { workspace = true }
+carbon-moonshot-decoder = { workspace = true }
+carbon-mpl-core-decoder = { workspace = true }
+carbon-mpl-token-metadata-decoder = { workspace = true }
+carbon-name-service-decoder = { workspace = true }
+carbon-okx-dex-decoder = { workspace = true }
+carbon-onchain-labs-dex-v1-decoder = { workspace = true }
+carbon-onchain-labs-dex-v2-decoder = { workspace = true }
+carbon-openbook-v2-decoder = { workspace = true }
+carbon-orca-whirlpool-decoder = { workspace = true }
+carbon-pancake-swap-decoder = { workspace = true }
+carbon-phoenix-v1-decoder = { workspace = true }
+carbon-pump-fees-decoder = { workspace = true }
+carbon-pump-swap-decoder = { workspace = true }
+carbon-pumpfun-decoder = { workspace = true }
+carbon-raydium-amm-v4-decoder = { workspace = true }
+carbon-raydium-clmm-decoder = { workspace = true }
+carbon-raydium-cpmm-decoder = { workspace = true }
+carbon-raydium-launchpad-decoder = { workspace = true }
+carbon-raydium-liquidity-locking-decoder = { workspace = true }
+carbon-raydium-stable-swap-decoder = { workspace = true }
+carbon-sharky-decoder = { workspace = true }
+carbon-solayer-restaking-program-decoder = { workspace = true }
+carbon-stabble-stable-swap-decoder = { workspace = true }
+carbon-stabble-weighted-swap-decoder = { workspace = true }
+carbon-stake-program-decoder = { workspace = true }
+carbon-swig-decoder = { workspace = true }
+carbon-system-program-decoder = { workspace = true }
+carbon-token-2022-decoder = { workspace = true }
+carbon-token-program-decoder = { workspace = true }
+carbon-vertigo-decoder = { workspace = true }
+carbon-virtuals-decoder = { workspace = true }
+carbon-wavebreak-decoder = { workspace = true }
+carbon-zeta-decoder = { workspace = true }
+
+# Runtime + HTTP
+async-trait = { workspace = true }
+axum = { workspace = true }
+log = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+
+# Not in Carbon's workspace deps — pulled directly
+once_cell = "1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
