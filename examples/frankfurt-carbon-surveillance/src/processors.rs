@@ -202,6 +202,13 @@ impl Processor for TransferSolWatch {
     ) -> CarbonResult<()> {
         let (metadata, decoded, _nested, _raw) = data;
 
+        // Only outer (top-level) transfers. Inner-CPI'd SystemProgram transfers
+        // are typically program internals (fees, rent, etc.), not user
+        // transfers — frankfurt-node ignores them and so do we.
+        if metadata.stack_height != 1 {
+            return Ok(());
+        }
+
         let (amount, source_pk, dest_pk, ix_variant) = match &decoded.data {
             SystemProgramInstruction::TransferSol(ix) => {
                 let s = decoded.accounts.first().map(|a| a.pubkey);
@@ -405,6 +412,12 @@ impl Processor for SplTransferWatch {
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let (metadata, decoded, _nested, _raw) = data;
+        // Skip inner-CPI'd token transfers (swap legs, pool internals, etc.).
+        // Only emit for top-level user-initiated transfers — matches
+        // frankfurt-node's surveillance shape.
+        if metadata.stack_height != 1 {
+            return Ok(());
+        }
         match &decoded.data {
             TokenProgramInstruction::Transfer(ix) => {
                 // accounts: [source, destination, authority, ...]
@@ -479,6 +492,9 @@ impl Processor for Token2022TransferWatch {
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let (metadata, decoded, _nested, _raw) = data;
+        if metadata.stack_height != 1 {
+            return Ok(());
+        }
         match &decoded.data {
             Token2022Instruction::Transfer(ix) => {
                 let src = match decoded.accounts.first() {
