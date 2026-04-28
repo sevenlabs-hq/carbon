@@ -100,6 +100,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for PancakeSwapDecoder {
         &self,
         instruction: &solana_instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if instruction.program_id != crate::PROGRAM_ID {
+            return None;
+        }
         carbon_core::try_decode_instructions!(instruction,
             AmmV3Instruction::ClosePosition => close_position::ClosePosition,
             AmmV3Instruction::CollectFundFee => collect_fund_fee::CollectFundFee,

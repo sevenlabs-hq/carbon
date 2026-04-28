@@ -31,6 +31,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for VertigoDecoder {
         &self,
         instruction: &solana_instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if instruction.program_id != crate::PROGRAM_ID {
+            return None;
+        }
         carbon_core::try_decode_instructions!(instruction,
             VertigoInstruction::Buy => buy::Buy,
             VertigoInstruction::Claim => claim::Claim,

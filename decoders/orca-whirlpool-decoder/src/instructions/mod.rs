@@ -158,6 +158,9 @@ impl carbon_core::instruction::InstructionDecoder<'_> for OrcaWhirlpoolDecoder {
         &self,
         instruction: &solana_instruction::Instruction,
     ) -> Option<carbon_core::instruction::DecodedInstruction<Self::InstructionType>> {
+        if instruction.program_id != crate::PROGRAM_ID {
+            return None;
+        }
         carbon_core::try_decode_instructions!(instruction,
             WhirlpoolInstruction::InitializeConfig => initialize_config::InitializeConfig,
             WhirlpoolInstruction::InitializePool => initialize_pool::InitializePool,
