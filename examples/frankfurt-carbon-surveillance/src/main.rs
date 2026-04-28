@@ -18,7 +18,10 @@ mod processors;
 mod state;
 mod writer;
 
-use crate::processors::{AggWatch, PumpSwapWatch, PumpfunWatch};
+use crate::processors::{
+    AggWatch, PumpSwapWatch, PumpfunWatch, SplTransferWatch, Token2022TransferWatch,
+    TransferSolWatch,
+};
 use crate::state::{ATLAS_WS_ACCOUNTS, WatchedWallet};
 use axum::{
     extract::Json, http::StatusCode, http::HeaderMap, routing::{get, post}, Router,
@@ -158,11 +161,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .instruction(carbon_stabble_stable_swap_decoder::StableSwapDecoder, AggWatch::<carbon_stabble_stable_swap_decoder::instructions::StableSwapInstruction>::new("stabble_stable_swap", true))
         .instruction(carbon_stabble_weighted_swap_decoder::WeightedSwapDecoder, AggWatch::<carbon_stabble_weighted_swap_decoder::instructions::WeightedSwapInstruction>::new("stabble_weighted_swap", true))
         .instruction(carbon_pancake_swap_decoder::PancakeSwapDecoder, AggWatch::<carbon_pancake_swap_decoder::instructions::AmmV3Instruction>::new("pancake_swap", true))
-        // Infrastructure programs — register so noise doesn't fall to a default
-        // decoder, but emit=false so we don't surface them in surveillance.
-        .instruction(carbon_system_program_decoder::SystemProgramDecoder, AggWatch::<carbon_system_program_decoder::instructions::SystemProgramInstruction>::new("system_program", false))
-        .instruction(carbon_token_program_decoder::TokenProgramDecoder, AggWatch::<carbon_token_program_decoder::instructions::TokenProgramInstruction>::new("token_program", false))
-        .instruction(carbon_token_2022_decoder::Token2022Decoder, AggWatch::<carbon_token_2022_decoder::instructions::Token2022Instruction>::new("token_2022", false))
+        // System + token programs: dedicated transfer processors emit
+        // transfer_in / transfer_out events. Mirrors frankfurt-node's transfer
+        // surveillance.
+        .instruction(carbon_system_program_decoder::SystemProgramDecoder, TransferSolWatch)
+        .instruction(carbon_token_program_decoder::TokenProgramDecoder, SplTransferWatch::new("token_program"))
+        .instruction(carbon_token_2022_decoder::Token2022Decoder, Token2022TransferWatch::new("token_2022"))
+        // Other infrastructure programs — register so noise doesn't fall to a
+        // default decoder, but emit=false so we don't surface them.
         .instruction(carbon_associated_token_account_decoder::SplAssociatedTokenAccountDecoder, AggWatch::<carbon_associated_token_account_decoder::instructions::SplAssociatedTokenAccountInstruction>::new("ata", false))
         .instruction(carbon_memo_program_decoder::MemoProgramDecoder, AggWatch::<carbon_memo_program_decoder::instructions::MemoProgramInstruction>::new("memo", false))
         .instruction(carbon_address_lookup_table_decoder::AddressLookupTableDecoder, AggWatch::<carbon_address_lookup_table_decoder::instructions::AddressLookupTableInstruction>::new("alt", false))

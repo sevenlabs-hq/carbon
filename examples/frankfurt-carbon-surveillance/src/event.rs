@@ -101,6 +101,43 @@ pub fn fmt_decimal(raw: u64, decimals: u8) -> f64 {
     raw as f64 / 10f64.powi(decimals as i32)
 }
 
+/// Full account-keys list (static + ALT-loaded writable + ALT-loaded readonly),
+/// stringified, in the order `account_index` indexes into. Used by
+/// `owner_of_token_account` to map an SPL token account pubkey to its owner.
+pub fn full_account_keys(
+    meta: &TransactionStatusMeta,
+    static_keys: &[Pubkey],
+) -> Vec<String> {
+    let mut keys: Vec<String> = static_keys.iter().map(|p| p.to_string()).collect();
+    keys.extend(meta.loaded_addresses.writable.iter().map(|p| p.to_string()));
+    keys.extend(meta.loaded_addresses.readonly.iter().map(|p| p.to_string()));
+    keys
+}
+
+/// For a given SPL token account pubkey, look up its (owner_wallet, mint,
+/// decimals) from `post_token_balances`. Falls back to `pre_token_balances`
+/// if the account was closed by this tx and isn't in post.
+pub fn owner_of_token_account(
+    meta: &TransactionStatusMeta,
+    full_keys: &[String],
+    token_account: &Pubkey,
+) -> Option<(String, String, u8)> {
+    let target = token_account.to_string();
+    let idx = full_keys.iter().position(|k| k == &target)?;
+    let pick = |opt: &Option<Vec<TransactionTokenBalance>>| {
+        opt.as_ref().and_then(|tbs| {
+            tbs.iter().find_map(|tb| {
+                if tb.account_index as usize == idx {
+                    Some((tb.owner.clone(), tb.mint.clone(), tb.ui_token_amount.decimals))
+                } else {
+                    None
+                }
+            })
+        })
+    };
+    pick(&meta.post_token_balances).or_else(|| pick(&meta.pre_token_balances))
+}
+
 pub fn safe_price_sol(sol_amount_lamports: u64, token_amount_raw: u64, decimals: u8) -> f64 {
     if token_amount_raw == 0 {
         return 0.0;

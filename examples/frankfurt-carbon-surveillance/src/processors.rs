@@ -2,10 +2,10 @@
 //! WATCH map. Output goes through `crate::writer::send_event` (bounded mpsc).
 
 use crate::event::{
-    extract_decimals, fmt_decimal, iso8601_block_time, safe_price_sol,
-    token_balance_delta_raw, SurveillanceEventOut,
+    extract_decimals, fmt_decimal, full_account_keys, iso8601_block_time,
+    owner_of_token_account, safe_price_sol, token_balance_delta_raw, SurveillanceEventOut,
 };
-use crate::state;
+use crate::state::{self, WatchedWallet};
 use crate::writer;
 use async_trait::async_trait;
 use carbon_core::{
@@ -14,6 +14,10 @@ use carbon_core::{
 };
 use carbon_pump_swap_decoder::instructions::PumpSwapInstruction;
 use carbon_pumpfun_decoder::instructions::{CpiEvent, PumpfunInstruction};
+use carbon_system_program_decoder::instructions::SystemProgramInstruction;
+use carbon_token_2022_decoder::instructions::Token2022Instruction;
+use carbon_token_program_decoder::instructions::TokenProgramInstruction;
+use solana_pubkey::Pubkey;
 use std::{marker::PhantomData, sync::Arc};
 
 // ─── PumpFun ──────────────────────────────────────────────────────────────
@@ -175,6 +179,354 @@ impl Processor for PumpSwapWatch {
             }),
         };
         writer::send_event(event).await;
+        Ok(())
+    }
+}
+
+// ─── SOL transfers (SystemProgram::TransferSol / TransferSolWithSeed) ─────
+// Source/destination of a SOL transfer ARE wallet pubkeys, so matching is
+// direct: lookup against WATCH for either side. Emits one event per matching
+// side (a self-transfer between the same watched wallet emits transfer_out
+// once — the second side is the same wallet, suppressed by the dedup below).
+
+pub struct TransferSolWatch;
+
+#[async_trait]
+impl Processor for TransferSolWatch {
+    type InputType = InstructionProcessorInputType<SystemProgramInstruction>;
+
+    async fn process(
+        &mut self,
+        data: Self::InputType,
+        _metrics: Arc<MetricsCollection>,
+    ) -> CarbonResult<()> {
+        let (metadata, decoded, _nested, _raw) = data;
+
+        let (amount, source_pk, dest_pk, ix_variant) = match &decoded.data {
+            SystemProgramInstruction::TransferSol(ix) => {
+                let s = decoded.accounts.first().map(|a| a.pubkey);
+                let d = decoded.accounts.get(1).map(|a| a.pubkey);
+                match (s, d) {
+                    (Some(s), Some(d)) => (ix.amount, s, d, "TransferSol"),
+                    _ => return Ok(()),
+                }
+            }
+            SystemProgramInstruction::TransferSolWithSeed(ix) => {
+                // accounts: [source, base_account, destination, ...]
+                let s = decoded.accounts.first().map(|a| a.pubkey);
+                let d = decoded.accounts.get(2).map(|a| a.pubkey);
+                match (s, d) {
+                    (Some(s), Some(d)) => (ix.amount, s, d, "TransferSolWithSeed"),
+                    _ => return Ok(()),
+                }
+            }
+            _ => return Ok(()),
+        };
+
+        if amount == 0 {
+            return Ok(());
+        }
+
+        let source_str = source_pk.to_string();
+        let dest_str = dest_pk.to_string();
+        let signer_str = metadata.transaction_metadata.fee_payer.to_string();
+        let signature = metadata.transaction_metadata.signature.to_string();
+        let block_time = iso8601_block_time(metadata.transaction_metadata.block_time);
+        let slot = metadata.transaction_metadata.slot;
+
+        let mut sides: Vec<(&'static str, String, String, WatchedWallet)> = Vec::new();
+        if let Some(w) = state::lookup(&source_str) {
+            sides.push(("transfer_out", source_str.clone(), dest_str.clone(), w));
+        }
+        if source_str != dest_str {
+            if let Some(w) = state::lookup(&dest_str) {
+                sides.push(("transfer_in", dest_str.clone(), source_str.clone(), w));
+            }
+        }
+
+        for (event_type, wallet, counterparty, watched) in sides {
+            let event = SurveillanceEventOut {
+                user_id: watched.user_id.clone(),
+                target_id: watched.target_id.clone(),
+                target_name: watched.target_name.clone(),
+                wallet_address: wallet,
+                wallet_label: watched.wallet_label.clone(),
+                signature: signature.clone(),
+                event_type,
+                token_address: None,
+                token_symbol: None,
+                sol_amount: amount as f64 / 1e9,
+                token_amount: 0.0,
+                price_sol: 0.0,
+                program: "system_program",
+                counterparty,
+                block_time: block_time.clone(),
+                slot,
+                raw_data: serde_json::json!({
+                    "source": "frankfurt-carbon-surveillance",
+                    "carbon_program": "system_program_decoder",
+                    "ix_variant": ix_variant,
+                    "raw_sol_amount_lamports": amount,
+                    "fee_payer": signer_str,
+                }),
+            };
+            writer::send_event(event).await;
+        }
+        Ok(())
+    }
+}
+
+// ─── SPL transfers (TokenProgram + Token2022) ─────────────────────────────
+// SPL `source`/`destination` are TOKEN ACCOUNTS, not wallets. The wallet
+// (owner) of each token account is read from `post_token_balances` via
+// `owner_of_token_account`. The `authority` slot in the ix's accounts is the
+// sender's signer, but we don't rely on it for transfer_in detection — the
+// recipient's wallet derives only from the destination token account's owner.
+//
+// Two concrete processors share `emit_spl_transfer_event` because TokenProgram
+// and Token2022 expose distinct InstructionType enums — the per-variant
+// dispatch differs but the event shape is identical.
+
+#[allow(clippy::too_many_arguments)]
+async fn emit_spl_transfer_event(
+    program_label: &'static str,
+    carbon_program: &'static str,
+    ix_variant: &'static str,
+    metadata: &Arc<carbon_core::transaction::TransactionMetadata>,
+    source_token_account: Pubkey,
+    dest_token_account: Pubkey,
+    raw_amount: u64,
+    explicit_decimals: Option<u8>,
+    explicit_mint: Option<Pubkey>,
+) {
+    if raw_amount == 0 {
+        return;
+    }
+    let meta = &metadata.meta;
+    let static_keys = metadata.message.static_account_keys();
+    let full_keys = full_account_keys(meta, static_keys);
+
+    let src_info = owner_of_token_account(meta, &full_keys, &source_token_account);
+    let dst_info = owner_of_token_account(meta, &full_keys, &dest_token_account);
+
+    // Pick mint+decimals: explicit (TransferChecked) wins; else from balances.
+    let (mint_str, decimals) = match (explicit_mint, explicit_decimals) {
+        (Some(m), Some(d)) => (m.to_string(), d),
+        _ => {
+            if let Some((_, m, d)) = src_info.as_ref() {
+                (m.clone(), *d)
+            } else if let Some((_, m, d)) = dst_info.as_ref() {
+                (m.clone(), *d)
+            } else {
+                return; // can't resolve mint — skip
+            }
+        }
+    };
+
+    let signer_str = metadata.fee_payer.to_string();
+    let signature = metadata.signature.to_string();
+    let block_time = iso8601_block_time(metadata.block_time);
+    let slot = metadata.slot;
+
+    let src_owner = src_info.as_ref().map(|(o, _, _)| o.clone());
+    let dst_owner = dst_info.as_ref().map(|(o, _, _)| o.clone());
+
+    let mut sides: Vec<(&'static str, String, String, WatchedWallet)> = Vec::new();
+    if let Some(o) = src_owner.as_ref() {
+        if let Some(w) = state::lookup(o) {
+            let cp = dst_owner.clone().unwrap_or_default();
+            sides.push(("transfer_out", o.clone(), cp, w));
+        }
+    }
+    if let Some(o) = dst_owner.as_ref() {
+        if Some(o) != src_owner.as_ref() {
+            if let Some(w) = state::lookup(o) {
+                let cp = src_owner.clone().unwrap_or_default();
+                sides.push(("transfer_in", o.clone(), cp, w));
+            }
+        }
+    }
+
+    if sides.is_empty() {
+        return;
+    }
+
+    let token_amount = fmt_decimal(raw_amount, decimals);
+    for (event_type, wallet, counterparty, watched) in sides {
+        let event = SurveillanceEventOut {
+            user_id: watched.user_id.clone(),
+            target_id: watched.target_id.clone(),
+            target_name: watched.target_name.clone(),
+            wallet_address: wallet,
+            wallet_label: watched.wallet_label.clone(),
+            signature: signature.clone(),
+            event_type,
+            token_address: Some(mint_str.clone()),
+            token_symbol: None,
+            sol_amount: 0.0,
+            token_amount,
+            price_sol: 0.0,
+            program: program_label,
+            counterparty,
+            block_time: block_time.clone(),
+            slot,
+            raw_data: serde_json::json!({
+                "source": "frankfurt-carbon-surveillance",
+                "carbon_program": carbon_program,
+                "ix_variant": ix_variant,
+                "decimals": decimals,
+                "raw_token_amount": raw_amount,
+                "source_token_account": source_token_account.to_string(),
+                "dest_token_account": dest_token_account.to_string(),
+                "fee_payer": signer_str,
+            }),
+        };
+        writer::send_event(event).await;
+    }
+}
+
+pub struct SplTransferWatch {
+    pub program: &'static str,
+}
+
+impl SplTransferWatch {
+    pub fn new(program: &'static str) -> Self {
+        Self { program }
+    }
+}
+
+#[async_trait]
+impl Processor for SplTransferWatch {
+    type InputType = InstructionProcessorInputType<TokenProgramInstruction>;
+
+    async fn process(
+        &mut self,
+        data: Self::InputType,
+        _metrics: Arc<MetricsCollection>,
+    ) -> CarbonResult<()> {
+        let (metadata, decoded, _nested, _raw) = data;
+        match &decoded.data {
+            TokenProgramInstruction::Transfer(ix) => {
+                // accounts: [source, destination, authority, ...]
+                let src = match decoded.accounts.first() {
+                    Some(a) => a.pubkey,
+                    None => return Ok(()),
+                };
+                let dst = match decoded.accounts.get(1) {
+                    Some(a) => a.pubkey,
+                    None => return Ok(()),
+                };
+                emit_spl_transfer_event(
+                    self.program,
+                    "token_program_decoder",
+                    "Transfer",
+                    &metadata.transaction_metadata,
+                    src,
+                    dst,
+                    ix.amount,
+                    None,
+                    None,
+                )
+                .await;
+            }
+            TokenProgramInstruction::TransferChecked(ix) => {
+                // accounts: [source, mint, destination, authority, ...]
+                let src = match decoded.accounts.first() {
+                    Some(a) => a.pubkey,
+                    None => return Ok(()),
+                };
+                let mint = decoded.accounts.get(1).map(|a| a.pubkey);
+                let dst = match decoded.accounts.get(2) {
+                    Some(a) => a.pubkey,
+                    None => return Ok(()),
+                };
+                emit_spl_transfer_event(
+                    self.program,
+                    "token_program_decoder",
+                    "TransferChecked",
+                    &metadata.transaction_metadata,
+                    src,
+                    dst,
+                    ix.amount,
+                    Some(ix.decimals),
+                    mint,
+                )
+                .await;
+            }
+            _ => {}
+        }
+        Ok(())
+    }
+}
+
+pub struct Token2022TransferWatch {
+    pub program: &'static str,
+}
+
+impl Token2022TransferWatch {
+    pub fn new(program: &'static str) -> Self {
+        Self { program }
+    }
+}
+
+#[async_trait]
+impl Processor for Token2022TransferWatch {
+    type InputType = InstructionProcessorInputType<Token2022Instruction>;
+
+    async fn process(
+        &mut self,
+        data: Self::InputType,
+        _metrics: Arc<MetricsCollection>,
+    ) -> CarbonResult<()> {
+        let (metadata, decoded, _nested, _raw) = data;
+        match &decoded.data {
+            Token2022Instruction::Transfer(ix) => {
+                let src = match decoded.accounts.first() {
+                    Some(a) => a.pubkey,
+                    None => return Ok(()),
+                };
+                let dst = match decoded.accounts.get(1) {
+                    Some(a) => a.pubkey,
+                    None => return Ok(()),
+                };
+                emit_spl_transfer_event(
+                    self.program,
+                    "token_2022_decoder",
+                    "Transfer",
+                    &metadata.transaction_metadata,
+                    src,
+                    dst,
+                    ix.amount,
+                    None,
+                    None,
+                )
+                .await;
+            }
+            Token2022Instruction::TransferChecked(ix) => {
+                let src = match decoded.accounts.first() {
+                    Some(a) => a.pubkey,
+                    None => return Ok(()),
+                };
+                let mint = decoded.accounts.get(1).map(|a| a.pubkey);
+                let dst = match decoded.accounts.get(2) {
+                    Some(a) => a.pubkey,
+                    None => return Ok(()),
+                };
+                emit_spl_transfer_event(
+                    self.program,
+                    "token_2022_decoder",
+                    "TransferChecked",
+                    &metadata.transaction_metadata,
+                    src,
+                    dst,
+                    ix.amount,
+                    Some(ix.decimals),
+                    mint,
+                )
+                .await;
+            }
+            _ => {}
+        }
         Ok(())
     }
 }
