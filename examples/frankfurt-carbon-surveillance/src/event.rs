@@ -88,9 +88,13 @@ pub fn token_balance_delta_raw(
 }
 
 pub fn iso8601_block_time(t: Option<i64>) -> String {
+    // atlas-ws sometimes hands us None for block_time even on confirmed
+    // notifications; fall back to "received now" rather than emit an empty
+    // string (which Postgres rejects as TIMESTAMPTZ). Drift vs actual
+    // block_time is sub-second.
     t.and_then(|s| chrono::DateTime::<chrono::Utc>::from_timestamp(s, 0))
-        .map(|dt| dt.to_rfc3339())
-        .unwrap_or_default()
+        .unwrap_or_else(chrono::Utc::now)
+        .to_rfc3339()
 }
 
 pub fn fmt_decimal(raw: u64, decimals: u8) -> f64 {
