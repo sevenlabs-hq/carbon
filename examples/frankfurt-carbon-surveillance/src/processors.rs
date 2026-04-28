@@ -577,7 +577,22 @@ impl<T: Send + Sync + 'static> Processor for AggWatch<T> {
         data: Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let (metadata, _decoded, _nested, _raw) = data;
+        let (metadata, _decoded, _nested, raw) = data;
+
+        // Anchor self-CPI event log: programs emit a CPI to themselves with
+        // the instruction data being the event payload, prefixed with the
+        // 8-byte sentinel `0xe445a52e51cb9a1d`. Carbon's decoders model these
+        // as enum variants alongside real instructions, so without this gate
+        // we emit one extra row per (sig, program) for any program that uses
+        // Anchor events — e.g. raydium-launchpad's TradeEvent paired with
+        // its own BuyExactIn outer ix. Skip them here so AggWatch emits only
+        // for genuine instructions.
+        const ANCHOR_EVENT_PREFIX: [u8; 8] =
+            [228, 69, 165, 46, 81, 203, 154, 29];
+        if raw.data.len() >= 8 && raw.data[..8] == ANCHOR_EVENT_PREFIX {
+            return Ok(());
+        }
+
         let signer_str = metadata.transaction_metadata.fee_payer.to_string();
         let watched = match state::lookup(&signer_str) {
             Some(w) => w,
