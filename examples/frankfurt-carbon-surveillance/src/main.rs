@@ -13,6 +13,7 @@
 //!                   user:<userId>:events. After frankfurt-node's surveillance
 //!                   role is retired, flip this to production.
 
+mod attribution;
 mod coordinator;
 mod event;
 mod processors;

@@ -88,6 +88,7 @@ carbon-zeta-decoder = { workspace = true }
 # Helius types (re-exported by Carbon's atlas-ws datasource)
 helius = { workspace = true }
 solana-native-token = { workspace = true }
+solana-instruction = { workspace = true }
 solana-pubkey = { workspace = true }
 solana-signature = { workspace = true }
 solana-transaction-status = { workspace = true }

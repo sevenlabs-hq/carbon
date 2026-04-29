@@ -3,6 +3,7 @@
 //! collapses candidates per (sig, wallet, family) and ships final events to
 //! the writer — never one event per ix.
 
+use crate::attribution;
 use crate::coordinator::{self, ActivityCandidate};
 use crate::event::{
     extract_decimals, fmt_decimal, full_account_keys, iso8601_block_time,
@@ -137,8 +138,9 @@ impl Processor for PumpSwapWatch {
         // ATTRIBUTION: per PumpSwap's IDL the user is `accounts[1]` (pool=0,
         // user=1). Use that — NOT fee_payer — so we attribute correctly when
         // a router (OKX/BonkBot/Trojan/etc.) signs on the user's behalf.
-        let user_pk = match decoded.accounts.get(1) {
-            Some(a) => a.pubkey,
+        // See `attribution::pumpswap_user` + its tests.
+        let user_pk = match attribution::pumpswap_user(&decoded.accounts) {
+            Some(pk) => pk,
             None => return Ok(()),
         };
         let user_str = user_pk.to_string();
@@ -146,8 +148,8 @@ impl Processor for PumpSwapWatch {
             Some(w) => w,
             None => return Ok(()),
         };
-        let base_mint = match decoded.accounts.get(3) {
-            Some(a) => a.pubkey,
+        let base_mint = match attribution::pumpswap_base_mint(&decoded.accounts) {
+            Some(pk) => pk,
             None => return Ok(()),
         };
 
@@ -653,16 +655,15 @@ impl<T: Send + Sync + 'static> Processor for AggWatch<T> {
         let block_time = iso8601_block_time(metadata.transaction_metadata.block_time);
         let slot = metadata.transaction_metadata.slot;
         let signer_str = metadata.transaction_metadata.fee_payer.to_string();
-        let mut emitted_for: std::collections::HashSet<String> =
-            std::collections::HashSet::new();
-        for acct in decoded.accounts.iter() {
-            let pk_str = acct.pubkey.to_string();
-            if !emitted_for.insert(pk_str.clone()) {
-                continue; // wallet already had a candidate from this ix
-            }
+        let matched =
+            attribution::aggwatch_matched_wallets(&decoded.accounts, |s| {
+                state::lookup(s).is_some()
+            });
+        for matched_pk in matched {
+            let pk_str = matched_pk.to_string();
             let watched = match state::lookup(&pk_str) {
                 Some(w) => w,
-                None => continue,
+                None => continue, // race: removed between scan and emit
             };
             let event = SurveillanceEventOut {
                 user_id: watched.user_id.clone(),
