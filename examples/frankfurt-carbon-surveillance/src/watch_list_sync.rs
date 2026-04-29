@@ -203,20 +203,19 @@ async fn handle_message(
         .cloned()
         .unwrap_or(serde_json::Value::Null);
     let change_type = data.get("type").and_then(|v| v.as_str()).unwrap_or("");
-    // Client-side server_id filter (replaces the dropped server-side
-    // `filter:` arg, which doesn't apply to DELETE events). The relevant
-    // record is `new` for INSERT/UPDATE, `old` for DELETE.
-    let row_for_filter = match change_type {
-        "INSERT" | "UPDATE" => data.get("record"),
-        "DELETE" => data.get("old_record"),
-        _ => None,
-    };
-    let row_server_id = row_for_filter
-        .and_then(|r| r.get("server_id"))
-        .and_then(|v| v.as_str())
-        .unwrap_or("");
-    if row_server_id != recovery_source {
-        return;
+    // Client-side server_id filter for INSERT/UPDATE only — Realtime's
+    // DELETE old_record contains only the PK, so we can't filter DELETEs
+    // by server_id here. DELETE branch's ID_TO_WALLET lookup acts as the
+    // implicit filter: if we never tracked the id, it wasn't ours.
+    if matches!(change_type, "INSERT" | "UPDATE") {
+        let row_server_id = data
+            .get("record")
+            .and_then(|r| r.get("server_id"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        if row_server_id != recovery_source {
+            return;
+        }
     }
 
     match change_type {
