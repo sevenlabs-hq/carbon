@@ -18,23 +18,16 @@ pub struct SocialFeePdaRow {
 }
 
 impl SocialFeePdaRow {
-    pub fn from_parts(
-        source: crate::accounts::social_fee_pda::SocialFeePda,
-        metadata: AccountMetadata,
-    ) -> Self {
+    pub fn from_parts(source: crate::accounts::social_fee_pda::SocialFeePda, metadata: AccountMetadata) -> Self {
         Self {
             account_metadata: metadata.into(),
             bump: source.bump.into(),
             version: source.version.into(),
-            user_id: source.user_id,
+            user_id: source.user_id.into(),
             platform: source.platform.into(),
             total_claimed: source.total_claimed.into(),
             last_claimed: source.last_claimed.into(),
-            reserved: source
-                .reserved
-                .into_iter()
-                .map(|element| element.into())
-                .collect(),
+            reserved: source.reserved.into_iter().map(|element| element.into()).collect(),
         }
     }
 }
@@ -43,41 +36,13 @@ impl TryFrom<SocialFeePdaRow> for crate::accounts::social_fee_pda::SocialFeePda 
     type Error = carbon_core::error::Error;
     fn try_from(source: SocialFeePdaRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            bump: source.bump.try_into().map_err(|_| {
-                carbon_core::error::Error::Custom(
-                    "Failed to convert value from postgres primitive".to_string(),
-                )
-            })?,
-            version: source.version.try_into().map_err(|_| {
-                carbon_core::error::Error::Custom(
-                    "Failed to convert value from postgres primitive".to_string(),
-                )
-            })?,
-            user_id: source.user_id,
-            platform: source.platform.try_into().map_err(|_| {
-                carbon_core::error::Error::Custom(
-                    "Failed to convert value from postgres primitive".to_string(),
-                )
-            })?,
+            bump: source.bump.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
+            version: source.version.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
+            user_id: source.user_id.into(),
+            platform: source.platform.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
             total_claimed: *source.total_claimed,
             last_claimed: *source.last_claimed,
-            reserved: source
-                .reserved
-                .into_iter()
-                .map(|element| {
-                    element.try_into().map_err(|_| {
-                        carbon_core::error::Error::Custom(
-                            "Failed to convert value from postgres primitive".to_string(),
-                        )
-                    })
-                })
-                .collect::<Result<Vec<_>, carbon_core::error::Error>>()?
-                .try_into()
-                .map_err(|_| {
-                    carbon_core::error::Error::Custom(
-                        "Failed to convert array element to primitive".to_string(),
-                    )
-                })?,
+            reserved: source.reserved.into_iter().map(|element| Ok(element.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?)).collect::<Result<Vec<_>, _>>()?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
         })
     }
 }
@@ -105,8 +70,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::social_fee_pd
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for SocialFeePdaRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO social_fee_pda_account (
                 "bump",
                 "version",
@@ -118,19 +82,17 @@ impl carbon_core::postgres::operations::Insert for SocialFeePdaRow {
                 __pubkey, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8, $9
-            )"#,
-        )
-        .bind(self.bump)
-        .bind(self.version)
-        .bind(&self.user_id)
-        .bind(self.platform)
-        .bind(&self.total_claimed)
-        .bind(&self.last_claimed)
-        .bind(&self.reserved)
-        .bind(self.account_metadata.pubkey)
-        .bind(&self.account_metadata.slot)
-        .execute(pool)
-        .await
+            )"#)
+        .bind(self.bump.clone())
+        .bind(self.version.clone())
+        .bind(self.user_id.clone())
+        .bind(self.platform.clone())
+        .bind(self.total_claimed.clone())
+        .bind(self.last_claimed.clone())
+        .bind(self.reserved.clone())
+        .bind(self.account_metadata.pubkey.clone())
+        .bind(self.account_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -139,8 +101,7 @@ impl carbon_core::postgres::operations::Insert for SocialFeePdaRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for SocialFeePdaRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO social_fee_pda_account (
+        sqlx::query(r#"INSERT INTO social_fee_pda_account (
                 "bump",
                 "version",
                 "user_id",
@@ -162,19 +123,17 @@ impl carbon_core::postgres::operations::Upsert for SocialFeePdaRow {
                 "last_claimed" = EXCLUDED."last_claimed",
                 "reserved" = EXCLUDED."reserved",
                 __slot = EXCLUDED.__slot
-            "#,
-        )
-        .bind(self.bump)
-        .bind(self.version)
-        .bind(&self.user_id)
-        .bind(self.platform)
-        .bind(&self.total_claimed)
-        .bind(&self.last_claimed)
-        .bind(&self.reserved)
+            "#)
+        .bind(self.bump.clone())
+        .bind(self.version.clone())
+        .bind(self.user_id.clone())
+        .bind(self.platform.clone())
+        .bind(self.total_claimed.clone())
+        .bind(self.last_claimed.clone())
+        .bind(self.reserved.clone())
         .bind(self.account_metadata.pubkey)
-        .bind(&self.account_metadata.slot)
-        .execute(pool)
-        .await
+        .bind(self.account_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -185,14 +144,11 @@ impl carbon_core::postgres::operations::Delete for SocialFeePdaRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM social_fee_pda_account WHERE
+        sqlx::query(r#"DELETE FROM social_fee_pda_account WHERE
                 __pubkey = $1
-            "#,
-        )
+            "#)
         .bind(key)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -202,18 +158,12 @@ impl carbon_core::postgres::operations::Delete for SocialFeePdaRow {
 impl carbon_core::postgres::operations::LookUp for SocialFeePdaRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
-    async fn lookup(
-        key: Self::Key,
-        pool: &sqlx::PgPool,
-    ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM social_fee_pda_account WHERE
+    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(r#"SELECT * FROM social_fee_pda_account WHERE
                 __pubkey = $1
-            "#,
-        )
+            "#)
         .bind(key)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -223,12 +173,8 @@ pub struct SocialFeePdaMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for SocialFeePdaMigrationOperation {
-    async fn up(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS social_fee_pda_account (
+    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS social_fee_pda_account (
                 -- Account data
                 "bump" INT2 NOT NULL,
                 "version" INT2 NOT NULL,
@@ -241,20 +187,12 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SocialFeePdaMigrationOperation
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__pubkey)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
-    async fn down(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS social_fee_pda_account"#)
-            .execute(connection)
-            .await?;
+    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS social_fee_pda_account"#).execute(connection).await?;
         Ok(())
     }
 }

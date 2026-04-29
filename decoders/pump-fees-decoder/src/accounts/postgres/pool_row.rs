@@ -37,7 +37,7 @@ impl PoolRow {
             pool_quote_token_account: source.pool_quote_token_account.into(),
             lp_supply: source.lp_supply.into(),
             coin_creator: source.coin_creator.into(),
-            is_mayhem_mode: source.is_mayhem_mode,
+            is_mayhem_mode: source.is_mayhem_mode.into(),
         }
     }
 }
@@ -46,16 +46,8 @@ impl TryFrom<PoolRow> for crate::accounts::pool::Pool {
     type Error = carbon_core::error::Error;
     fn try_from(source: PoolRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            pool_bump: source.pool_bump.try_into().map_err(|_| {
-                carbon_core::error::Error::Custom(
-                    "Failed to convert value from postgres primitive".to_string(),
-                )
-            })?,
-            index: source.index.try_into().map_err(|_| {
-                carbon_core::error::Error::Custom(
-                    "Failed to convert value from postgres primitive".to_string(),
-                )
-            })?,
+            pool_bump: source.pool_bump.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
+            index: source.index.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
             creator: *source.creator,
             base_mint: *source.base_mint,
             quote_mint: *source.quote_mint,
@@ -64,7 +56,7 @@ impl TryFrom<PoolRow> for crate::accounts::pool::Pool {
             pool_quote_token_account: *source.pool_quote_token_account,
             lp_supply: *source.lp_supply,
             coin_creator: *source.coin_creator,
-            is_mayhem_mode: source.is_mayhem_mode,
+            is_mayhem_mode: source.is_mayhem_mode.into(),
         })
     }
 }
@@ -96,8 +88,7 @@ impl carbon_core::postgres::operations::Table for crate::accounts::pool::Pool {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for PoolRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO pool_account (
                 "pool_bump",
                 "index",
@@ -113,23 +104,21 @@ impl carbon_core::postgres::operations::Insert for PoolRow {
                 __pubkey, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
-            )"#,
-        )
-        .bind(self.pool_bump)
-        .bind(self.index)
-        .bind(self.creator)
-        .bind(self.base_mint)
-        .bind(self.quote_mint)
-        .bind(self.lp_mint)
-        .bind(self.pool_base_token_account)
-        .bind(self.pool_quote_token_account)
-        .bind(&self.lp_supply)
-        .bind(self.coin_creator)
-        .bind(self.is_mayhem_mode)
-        .bind(self.account_metadata.pubkey)
-        .bind(&self.account_metadata.slot)
-        .execute(pool)
-        .await
+            )"#)
+        .bind(self.pool_bump.clone())
+        .bind(self.index.clone())
+        .bind(self.creator.clone())
+        .bind(self.base_mint.clone())
+        .bind(self.quote_mint.clone())
+        .bind(self.lp_mint.clone())
+        .bind(self.pool_base_token_account.clone())
+        .bind(self.pool_quote_token_account.clone())
+        .bind(self.lp_supply.clone())
+        .bind(self.coin_creator.clone())
+        .bind(self.is_mayhem_mode.clone())
+        .bind(self.account_metadata.pubkey.clone())
+        .bind(self.account_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -138,8 +127,7 @@ impl carbon_core::postgres::operations::Insert for PoolRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for PoolRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO pool_account (
+        sqlx::query(r#"INSERT INTO pool_account (
                 "pool_bump",
                 "index",
                 "creator",
@@ -169,23 +157,21 @@ impl carbon_core::postgres::operations::Upsert for PoolRow {
                 "coin_creator" = EXCLUDED."coin_creator",
                 "is_mayhem_mode" = EXCLUDED."is_mayhem_mode",
                 __slot = EXCLUDED.__slot
-            "#,
-        )
-        .bind(self.pool_bump)
-        .bind(self.index)
-        .bind(self.creator)
-        .bind(self.base_mint)
-        .bind(self.quote_mint)
-        .bind(self.lp_mint)
-        .bind(self.pool_base_token_account)
-        .bind(self.pool_quote_token_account)
-        .bind(&self.lp_supply)
-        .bind(self.coin_creator)
-        .bind(self.is_mayhem_mode)
+            "#)
+        .bind(self.pool_bump.clone())
+        .bind(self.index.clone())
+        .bind(self.creator.clone())
+        .bind(self.base_mint.clone())
+        .bind(self.quote_mint.clone())
+        .bind(self.lp_mint.clone())
+        .bind(self.pool_base_token_account.clone())
+        .bind(self.pool_quote_token_account.clone())
+        .bind(self.lp_supply.clone())
+        .bind(self.coin_creator.clone())
+        .bind(self.is_mayhem_mode.clone())
         .bind(self.account_metadata.pubkey)
-        .bind(&self.account_metadata.slot)
-        .execute(pool)
-        .await
+        .bind(self.account_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -196,14 +182,11 @@ impl carbon_core::postgres::operations::Delete for PoolRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM pool_account WHERE
+        sqlx::query(r#"DELETE FROM pool_account WHERE
                 __pubkey = $1
-            "#,
-        )
+            "#)
         .bind(key)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -213,18 +196,12 @@ impl carbon_core::postgres::operations::Delete for PoolRow {
 impl carbon_core::postgres::operations::LookUp for PoolRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
-    async fn lookup(
-        key: Self::Key,
-        pool: &sqlx::PgPool,
-    ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM pool_account WHERE
+    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(r#"SELECT * FROM pool_account WHERE
                 __pubkey = $1
-            "#,
-        )
+            "#)
         .bind(key)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -234,12 +211,8 @@ pub struct PoolMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for PoolMigrationOperation {
-    async fn up(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS pool_account (
+    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS pool_account (
                 -- Account data
                 "pool_bump" INT2 NOT NULL,
                 "index" INT4 NOT NULL,
@@ -256,20 +229,12 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for PoolMigrationOperation {
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__pubkey)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
-    async fn down(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS pool_account"#)
-            .execute(connection)
-            .await?;
+    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS pool_account"#).execute(connection).await?;
         Ok(())
     }
 }

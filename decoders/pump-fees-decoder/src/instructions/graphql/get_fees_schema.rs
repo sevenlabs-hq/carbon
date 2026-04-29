@@ -2,7 +2,6 @@
 use carbon_core::graphql::primitives::U128;
 use carbon_core::graphql::primitives::U64;
 use juniper::GraphQLObject;
-use serde_json;
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "GetFees")]
@@ -11,7 +10,6 @@ pub struct GetFeesGraphQL {
     pub is_pump_pool: bool,
     pub market_cap_lamports: U128,
     pub trade_size_lamports: U64,
-    pub accounts: carbon_core::graphql::primitives::Json,
 }
 
 impl TryFrom<crate::instructions::postgres::GetFeesRow> for GetFeesGraphQL {
@@ -22,10 +20,6 @@ impl TryFrom<crate::instructions::postgres::GetFeesRow> for GetFeesGraphQL {
             is_pump_pool: row.is_pump_pool,
             market_cap_lamports: carbon_core::graphql::primitives::U128(*row.market_cap_lamports),
             trade_size_lamports: carbon_core::graphql::primitives::U64(*row.trade_size_lamports),
-            accounts: carbon_core::graphql::primitives::Json(
-                serde_json::to_value(&row.accounts.0)
-                    .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?,
-            ),
         })
     }
 }

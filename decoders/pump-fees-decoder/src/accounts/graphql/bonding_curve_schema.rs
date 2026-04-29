@@ -22,9 +22,7 @@ impl TryFrom<crate::accounts::postgres::BondingCurveRow> for BondingCurveGraphQL
     fn try_from(row: crate::accounts::postgres::BondingCurveRow) -> Result<Self, Self::Error> {
         Ok(Self {
             account_metadata: row.account_metadata.into(),
-            virtual_token_reserves: carbon_core::graphql::primitives::U64(
-                *row.virtual_token_reserves,
-            ),
+            virtual_token_reserves: carbon_core::graphql::primitives::U64(*row.virtual_token_reserves),
             virtual_sol_reserves: carbon_core::graphql::primitives::U64(*row.virtual_sol_reserves),
             real_token_reserves: carbon_core::graphql::primitives::U64(*row.real_token_reserves),
             real_sol_reserves: carbon_core::graphql::primitives::U64(*row.real_sol_reserves),

@@ -18,10 +18,7 @@ pub struct FeeProgramGlobalRow {
 }
 
 impl FeeProgramGlobalRow {
-    pub fn from_parts(
-        source: crate::accounts::fee_program_global::FeeProgramGlobal,
-        metadata: AccountMetadata,
-    ) -> Self {
+    pub fn from_parts(source: crate::accounts::fee_program_global::FeeProgramGlobal, metadata: AccountMetadata) -> Self {
         Self {
             account_metadata: metadata.into(),
             bump: source.bump.into(),
@@ -29,11 +26,7 @@ impl FeeProgramGlobalRow {
             disable_flags: source.disable_flags.into(),
             social_claim_authority: source.social_claim_authority.into(),
             claim_rate_limit: source.claim_rate_limit.into(),
-            reserved: source
-                .reserved
-                .into_iter()
-                .map(|element| element.into())
-                .collect(),
+            reserved: source.reserved.into_iter().map(|element| element.into()).collect(),
         }
     }
 }
@@ -42,43 +35,17 @@ impl TryFrom<FeeProgramGlobalRow> for crate::accounts::fee_program_global::FeePr
     type Error = carbon_core::error::Error;
     fn try_from(source: FeeProgramGlobalRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            bump: source.bump.try_into().map_err(|_| {
-                carbon_core::error::Error::Custom(
-                    "Failed to convert value from postgres primitive".to_string(),
-                )
-            })?,
+            bump: source.bump.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
             authority: *source.authority,
-            disable_flags: source.disable_flags.try_into().map_err(|_| {
-                carbon_core::error::Error::Custom(
-                    "Failed to convert value from postgres primitive".to_string(),
-                )
-            })?,
+            disable_flags: source.disable_flags.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
             social_claim_authority: *source.social_claim_authority,
             claim_rate_limit: *source.claim_rate_limit,
-            reserved: source
-                .reserved
-                .into_iter()
-                .map(|element| {
-                    element.try_into().map_err(|_| {
-                        carbon_core::error::Error::Custom(
-                            "Failed to convert value from postgres primitive".to_string(),
-                        )
-                    })
-                })
-                .collect::<Result<Vec<_>, carbon_core::error::Error>>()?
-                .try_into()
-                .map_err(|_| {
-                    carbon_core::error::Error::Custom(
-                        "Failed to convert array element to primitive".to_string(),
-                    )
-                })?,
+            reserved: source.reserved.into_iter().map(|element| Ok(element.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?)).collect::<Result<Vec<_>, _>>()?.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert array element to primitive".to_string()))?,
         })
     }
 }
 
-impl carbon_core::postgres::operations::Table
-    for crate::accounts::fee_program_global::FeeProgramGlobal
-{
+impl carbon_core::postgres::operations::Table for crate::accounts::fee_program_global::FeeProgramGlobal {
     fn table() -> &'static str {
         "fee_program_global_account"
     }
@@ -100,8 +67,7 @@ impl carbon_core::postgres::operations::Table
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for FeeProgramGlobalRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO fee_program_global_account (
                 "bump",
                 "authority",
@@ -112,18 +78,16 @@ impl carbon_core::postgres::operations::Insert for FeeProgramGlobalRow {
                 __pubkey, __slot
             ) VALUES (
                 $1, $2, $3, $4, $5, $6, $7, $8
-            )"#,
-        )
-        .bind(self.bump)
-        .bind(self.authority)
-        .bind(self.disable_flags)
-        .bind(self.social_claim_authority)
-        .bind(&self.claim_rate_limit)
-        .bind(&self.reserved)
-        .bind(self.account_metadata.pubkey)
-        .bind(&self.account_metadata.slot)
-        .execute(pool)
-        .await
+            )"#)
+        .bind(self.bump.clone())
+        .bind(self.authority.clone())
+        .bind(self.disable_flags.clone())
+        .bind(self.social_claim_authority.clone())
+        .bind(self.claim_rate_limit.clone())
+        .bind(self.reserved.clone())
+        .bind(self.account_metadata.pubkey.clone())
+        .bind(self.account_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -132,8 +96,7 @@ impl carbon_core::postgres::operations::Insert for FeeProgramGlobalRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for FeeProgramGlobalRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO fee_program_global_account (
+        sqlx::query(r#"INSERT INTO fee_program_global_account (
                 "bump",
                 "authority",
                 "disable_flags",
@@ -153,18 +116,16 @@ impl carbon_core::postgres::operations::Upsert for FeeProgramGlobalRow {
                 "claim_rate_limit" = EXCLUDED."claim_rate_limit",
                 "reserved" = EXCLUDED."reserved",
                 __slot = EXCLUDED.__slot
-            "#,
-        )
-        .bind(self.bump)
-        .bind(self.authority)
-        .bind(self.disable_flags)
-        .bind(self.social_claim_authority)
-        .bind(&self.claim_rate_limit)
-        .bind(&self.reserved)
+            "#)
+        .bind(self.bump.clone())
+        .bind(self.authority.clone())
+        .bind(self.disable_flags.clone())
+        .bind(self.social_claim_authority.clone())
+        .bind(self.claim_rate_limit.clone())
+        .bind(self.reserved.clone())
         .bind(self.account_metadata.pubkey)
-        .bind(&self.account_metadata.slot)
-        .execute(pool)
-        .await
+        .bind(self.account_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -175,14 +136,11 @@ impl carbon_core::postgres::operations::Delete for FeeProgramGlobalRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM fee_program_global_account WHERE
+        sqlx::query(r#"DELETE FROM fee_program_global_account WHERE
                 __pubkey = $1
-            "#,
-        )
+            "#)
         .bind(key)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -192,18 +150,12 @@ impl carbon_core::postgres::operations::Delete for FeeProgramGlobalRow {
 impl carbon_core::postgres::operations::LookUp for FeeProgramGlobalRow {
     type Key = carbon_core::postgres::primitives::Pubkey;
 
-    async fn lookup(
-        key: Self::Key,
-        pool: &sqlx::PgPool,
-    ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM fee_program_global_account WHERE
+    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(r#"SELECT * FROM fee_program_global_account WHERE
                 __pubkey = $1
-            "#,
-        )
+            "#)
         .bind(key)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -213,12 +165,8 @@ pub struct FeeProgramGlobalMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for FeeProgramGlobalMigrationOperation {
-    async fn up(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS fee_program_global_account (
+    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS fee_program_global_account (
                 -- Account data
                 "bump" INT2 NOT NULL,
                 "authority" BYTEA NOT NULL,
@@ -230,20 +178,12 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for FeeProgramGlobalMigrationOpera
                 __pubkey BYTEA NOT NULL,
                 __slot NUMERIC(20),
                 PRIMARY KEY (__pubkey)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
-    async fn down(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS fee_program_global_account"#)
-            .execute(connection)
-            .await?;
+    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS fee_program_global_account"#).execute(connection).await?;
         Ok(())
     }
 }

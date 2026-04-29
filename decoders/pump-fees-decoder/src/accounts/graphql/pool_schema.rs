@@ -27,17 +27,13 @@ impl TryFrom<crate::accounts::postgres::PoolRow> for PoolGraphQL {
         Ok(Self {
             account_metadata: row.account_metadata.into(),
             pool_bump: carbon_core::graphql::primitives::U8((*row.pool_bump) as u8),
-            index: *row.index,
+            index: (*row.index) as i32,
             creator: carbon_core::graphql::primitives::Pubkey(row.creator.0),
             base_mint: carbon_core::graphql::primitives::Pubkey(row.base_mint.0),
             quote_mint: carbon_core::graphql::primitives::Pubkey(row.quote_mint.0),
             lp_mint: carbon_core::graphql::primitives::Pubkey(row.lp_mint.0),
-            pool_base_token_account: carbon_core::graphql::primitives::Pubkey(
-                row.pool_base_token_account.0,
-            ),
-            pool_quote_token_account: carbon_core::graphql::primitives::Pubkey(
-                row.pool_quote_token_account.0,
-            ),
+            pool_base_token_account: carbon_core::graphql::primitives::Pubkey(row.pool_base_token_account.0),
+            pool_quote_token_account: carbon_core::graphql::primitives::Pubkey(row.pool_quote_token_account.0),
             lp_supply: carbon_core::graphql::primitives::U64(*row.lp_supply),
             coin_creator: carbon_core::graphql::primitives::Pubkey(row.coin_creator.0),
             is_mayhem_mode: row.is_mayhem_mode,

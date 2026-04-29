@@ -8,20 +8,13 @@ pub struct SetDisableFlagsRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,
     pub disable_flags: U8,
-    #[sqlx(rename = "__accounts")]
-    pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
 
 impl SetDisableFlagsRow {
-    pub fn from_parts(
-        source: crate::instructions::set_disable_flags::SetDisableFlags,
-        metadata: InstructionMetadata,
-        accounts: Vec<solana_instruction::AccountMeta>,
-    ) -> Self {
+    pub fn from_parts(source: crate::instructions::set_disable_flags::SetDisableFlags, metadata: InstructionMetadata) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             disable_flags: source.disable_flags.into(),
-            accounts: sqlx::types::Json(accounts),
         }
     }
 }
@@ -30,18 +23,12 @@ impl TryFrom<SetDisableFlagsRow> for crate::instructions::set_disable_flags::Set
     type Error = carbon_core::error::Error;
     fn try_from(source: SetDisableFlagsRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            disable_flags: source.disable_flags.try_into().map_err(|_| {
-                carbon_core::error::Error::Custom(
-                    "Failed to convert value from postgres primitive".to_string(),
-                )
-            })?,
+            disable_flags: source.disable_flags.try_into().map_err(|_| carbon_core::error::Error::Custom("Failed to convert value from postgres primitive".to_string()))?,
         })
     }
 }
 
-impl carbon_core::postgres::operations::Table
-    for crate::instructions::set_disable_flags::SetDisableFlags
-{
+impl carbon_core::postgres::operations::Table for crate::instructions::set_disable_flags::SetDisableFlags {
     fn table() -> &'static str {
         "set_disable_flags_instruction"
     }
@@ -53,7 +40,6 @@ impl carbon_core::postgres::operations::Table
             "__stack_height",
             "__slot",
             "disable_flags",
-            "__accounts",
         ]
     }
 }
@@ -61,23 +47,19 @@ impl carbon_core::postgres::operations::Table
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for SetDisableFlagsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO set_disable_flags_instruction (
                 "disable_flags",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6
-            )"#,
-        )
-        .bind(self.disable_flags)
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                $1, $2, $3, $4, $5
+            )"#)
+        .bind(self.disable_flags.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -86,30 +68,25 @@ impl carbon_core::postgres::operations::Insert for SetDisableFlagsRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for SetDisableFlagsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO set_disable_flags_instruction (
+        sqlx::query(r#"INSERT INTO set_disable_flags_instruction (
                 "disable_flags",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6
+                $1, $2, $3, $4, $5
             ) ON CONFLICT (
                 __signature, __instruction_index, __stack_height
             ) DO UPDATE SET
                 "disable_flags" = EXCLUDED."disable_flags",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
-                __slot = EXCLUDED.__slot,
-                __accounts = EXCLUDED.__accounts
-            "#,
-        )
-        .bind(self.disable_flags)
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                __slot = EXCLUDED.__slot
+            "#)
+        .bind(self.disable_flags.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -117,23 +94,16 @@ impl carbon_core::postgres::operations::Upsert for SetDisableFlagsRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for SetDisableFlagsRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM set_disable_flags_instruction WHERE
+        sqlx::query(r#"DELETE FROM set_disable_flags_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -141,26 +111,16 @@ impl carbon_core::postgres::operations::Delete for SetDisableFlagsRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for SetDisableFlagsRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
-    async fn lookup(
-        key: Self::Key,
-        pool: &sqlx::PgPool,
-    ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM set_disable_flags_instruction WHERE
+    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(r#"SELECT * FROM set_disable_flags_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -170,12 +130,8 @@ pub struct SetDisableFlagsMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for SetDisableFlagsMigrationOperation {
-    async fn up(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_disable_flags_instruction (
+    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS set_disable_flags_instruction (
                 -- Instruction data
                 "disable_flags" INT2 NOT NULL,
                 -- Instruction metadata
@@ -183,22 +139,13 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetDisableFlagsMigrationOperat
                 __instruction_index BIGINT NOT NULL,
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
-                __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
-    async fn down(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_disable_flags_instruction"#)
-            .execute(connection)
-            .await?;
+    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS set_disable_flags_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

@@ -2,7 +2,6 @@
 use crate::types::graphql::FeeTierGraphQL;
 use crate::types::graphql::FeesGraphQL;
 use juniper::GraphQLObject;
-use serde_json;
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "UpdateFeeConfig")]
@@ -10,27 +9,15 @@ pub struct UpdateFeeConfigGraphQL {
     pub instruction_metadata: crate::instructions::graphql::InstructionMetadataGraphQL,
     pub fee_tiers: Vec<FeeTierGraphQL>,
     pub flat_fees: FeesGraphQL,
-    pub accounts: carbon_core::graphql::primitives::Json,
 }
 
 impl TryFrom<crate::instructions::postgres::UpdateFeeConfigRow> for UpdateFeeConfigGraphQL {
     type Error = carbon_core::error::Error;
-    fn try_from(
-        row: crate::instructions::postgres::UpdateFeeConfigRow,
-    ) -> Result<Self, Self::Error> {
+    fn try_from(row: crate::instructions::postgres::UpdateFeeConfigRow) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            fee_tiers: row
-                .fee_tiers
-                .0
-                .into_iter()
-                .map(|item| item.into())
-                .collect(),
+            fee_tiers: row.fee_tiers.0.into_iter().map(|item| item.into()).collect(),
             flat_fees: row.flat_fees.0.into(),
-            accounts: carbon_core::graphql::primitives::Json(
-                serde_json::to_value(&row.accounts.0)
-                    .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?,
-            ),
         })
     }
 }
