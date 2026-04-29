@@ -20,6 +20,7 @@ mod processors;
 mod state;
 mod taxonomy;
 mod writer;
+mod writer_clickhouse;
 
 use crate::processors::{
     AggWatch, PumpSwapWatch, PumpfunWatch, SplTransferWatch, Token2022TransferWatch,
@@ -60,8 +61,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         env::var("OUTPUT_MODE").unwrap_or_else(|_| "parity".into())
     );
 
-    // Bounded channel + writer task.
+    // Bounded channel + writer task (Postgres + Redis publish).
     writer::spawn();
+
+    // Optional ClickHouse writer — independent failure domain. No-op if
+    // CLICKHOUSE_URL isn't set, so this can be enabled per-environment.
+    writer_clickhouse::spawn();
 
     // Per-tx coordinator flusher: drains the candidate buffer every ~50ms,
     // collapses per-(sig, wallet, family) winners, ships final events.

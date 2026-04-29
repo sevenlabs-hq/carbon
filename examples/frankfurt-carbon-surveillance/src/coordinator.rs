@@ -21,6 +21,7 @@ use crate::event::SurveillanceEventOut;
 use crate::state::WatchedWallet;
 use crate::taxonomy::{Activity, ActivityFamily};
 use crate::writer;
+use crate::writer_clickhouse;
 use dashmap::DashMap;
 use once_cell::sync::Lazy;
 use std::collections::HashMap;
@@ -104,6 +105,11 @@ async fn sweep_once() {
     for sig in ready {
         if let Some((_, bucket)) = BUFFER.remove(&sig) {
             for event in classify(bucket.candidates) {
+                // Fan to both writers. Independent failure domains —
+                // writer_clickhouse no-ops if CLICKHOUSE_URL isn't set, so
+                // this is also the env-gated kill switch for analytics
+                // shipping without a code change.
+                writer_clickhouse::send_event(event.clone()).await;
                 writer::send_event(event).await;
             }
         }

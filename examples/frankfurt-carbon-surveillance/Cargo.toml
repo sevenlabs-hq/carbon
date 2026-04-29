@@ -108,3 +108,4 @@ reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"
 redis = { version = "0.27", default-features = false, features = ["tokio-comp"] }
 chrono = "0.4"
 serde = { version = "1", features = ["derive"] }
+urlencoding = "2"
