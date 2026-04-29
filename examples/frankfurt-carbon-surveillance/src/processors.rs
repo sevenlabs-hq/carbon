@@ -1,12 +1,15 @@
-//! Carbon Processor impls. Each match runs only when the tx's signer is in the
-//! WATCH map. Output goes through `crate::writer::send_event` (bounded mpsc).
+//! Carbon Processor impls. Each match decodes its program's instruction and
+//! submits a typed `ActivityCandidate` to `coordinator`. The coordinator
+//! collapses candidates per (sig, wallet, family) and ships final events to
+//! the writer — never one event per ix.
 
+use crate::coordinator::{self, ActivityCandidate};
 use crate::event::{
     extract_decimals, fmt_decimal, full_account_keys, iso8601_block_time,
     owner_of_token_account, safe_price_sol, token_balance_delta_raw, SurveillanceEventOut,
 };
 use crate::state::{self, WatchedWallet};
-use crate::writer;
+use crate::taxonomy::Activity;
 use async_trait::async_trait;
 use carbon_core::{
     error::CarbonResult, instruction::InstructionProcessorInputType,
@@ -34,6 +37,9 @@ impl Processor for PumpfunWatch {
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let (metadata, decoded, _nested, _raw) = data;
+        if metadata.transaction_metadata.meta.status.is_err() {
+            return Ok(());
+        }
         let signer_str = metadata.transaction_metadata.fee_payer.to_string();
         let watched = match state::lookup(&signer_str) {
             Some(w) => w,
@@ -88,7 +94,8 @@ impl Processor for PumpfunWatch {
                         "raw_sol_amount": ev.sol_amount,
                     }),
                 };
-                writer::send_event(event).await;
+                let activity = if ev.is_buy { Activity::SwapBuy } else { Activity::SwapSell };
+                coordinator::submit(ActivityCandidate { activity, watched: watched.clone(), event }).await;
             }
         }
         Ok(())
@@ -109,6 +116,9 @@ impl Processor for PumpSwapWatch {
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let (metadata, decoded, _nested, _raw) = data;
+        if metadata.transaction_metadata.meta.status.is_err() {
+            return Ok(());
+        }
         let signer_str = metadata.transaction_metadata.fee_payer.to_string();
         let watched = match state::lookup(&signer_str) {
             Some(w) => w,
@@ -117,10 +127,12 @@ impl Processor for PumpSwapWatch {
 
         // PumpSwap: extract base mint from accounts[3] (matches existing
         // decoder.rs convention). Buy/Sell variants tell us direction.
-        let (event_type, ix_variant) = match &decoded.data {
-            PumpSwapInstruction::Buy(_) => ("swap_buy", "Buy"),
-            PumpSwapInstruction::BuyExactQuoteIn(_) => ("swap_buy", "BuyExactQuoteIn"),
-            PumpSwapInstruction::Sell(_) => ("swap_sell", "Sell"),
+        let (event_type, ix_variant, activity) = match &decoded.data {
+            PumpSwapInstruction::Buy(_) => ("swap_buy", "Buy", Activity::SwapBuy),
+            PumpSwapInstruction::BuyExactQuoteIn(_) => {
+                ("swap_buy", "BuyExactQuoteIn", Activity::SwapBuy)
+            }
+            PumpSwapInstruction::Sell(_) => ("swap_sell", "Sell", Activity::SwapSell),
             _ => return Ok(()),
         };
         let base_mint = match decoded.accounts.get(3) {
@@ -178,7 +190,7 @@ impl Processor for PumpSwapWatch {
                 "raw_sol_amount_lamports": sol_amount_lamports,
             }),
         };
-        writer::send_event(event).await;
+        coordinator::submit(ActivityCandidate { activity, watched: watched.clone(), event }).await;
         Ok(())
     }
 }
@@ -201,6 +213,9 @@ impl Processor for TransferSolWatch {
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let (metadata, decoded, _nested, _raw) = data;
+        if metadata.transaction_metadata.meta.status.is_err() {
+            return Ok(());
+        }
 
         // Only outer (top-level) transfers. Inner-CPI'd SystemProgram transfers
         // are typically program internals (fees, rent, etc.), not user
@@ -252,6 +267,11 @@ impl Processor for TransferSolWatch {
         }
 
         for (event_type, wallet, counterparty, watched) in sides {
+            let activity = if event_type == "transfer_in" {
+                Activity::TransferIn
+            } else {
+                Activity::TransferOut
+            };
             let event = SurveillanceEventOut {
                 user_id: watched.user_id.clone(),
                 target_id: watched.target_id.clone(),
@@ -277,7 +297,7 @@ impl Processor for TransferSolWatch {
                     "fee_payer": signer_str,
                 }),
             };
-            writer::send_event(event).await;
+            coordinator::submit(ActivityCandidate { activity, watched: watched.clone(), event }).await;
         }
         Ok(())
     }
@@ -360,6 +380,11 @@ async fn emit_spl_transfer_event(
 
     let token_amount = fmt_decimal(raw_amount, decimals);
     for (event_type, wallet, counterparty, watched) in sides {
+        let activity = if event_type == "transfer_in" {
+            Activity::TransferIn
+        } else {
+            Activity::TransferOut
+        };
         let event = SurveillanceEventOut {
             user_id: watched.user_id.clone(),
             target_id: watched.target_id.clone(),
@@ -388,7 +413,7 @@ async fn emit_spl_transfer_event(
                 "fee_payer": signer_str,
             }),
         };
-        writer::send_event(event).await;
+        coordinator::submit(ActivityCandidate { activity, watched: watched.clone(), event }).await;
     }
 }
 
@@ -412,6 +437,9 @@ impl Processor for SplTransferWatch {
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let (metadata, decoded, _nested, _raw) = data;
+        if metadata.transaction_metadata.meta.status.is_err() {
+            return Ok(());
+        }
         // Skip inner-CPI'd token transfers (swap legs, pool internals, etc.).
         // Only emit for top-level user-initiated transfers — matches
         // frankfurt-node's surveillance shape.
@@ -492,6 +520,9 @@ impl Processor for Token2022TransferWatch {
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let (metadata, decoded, _nested, _raw) = data;
+        if metadata.transaction_metadata.meta.status.is_err() {
+            return Ok(());
+        }
         if metadata.stack_height != 1 {
             return Ok(());
         }
@@ -578,6 +609,9 @@ impl<T: Send + Sync + 'static> Processor for AggWatch<T> {
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
         let (metadata, _decoded, _nested, raw) = data;
+        if metadata.transaction_metadata.meta.status.is_err() {
+            return Ok(());
+        }
 
         // Anchor self-CPI event log: programs emit a CPI to themselves with
         // the instruction data being the event payload, prefixed with the
@@ -602,9 +636,11 @@ impl<T: Send + Sync + 'static> Processor for AggWatch<T> {
             return Ok(()); // SKIP_PROGRAMS: silent
         }
 
-        // We don't know the mint from a generic ix without per-program logic;
-        // emit a coarse event with what we have. The frontend can still show
-        // "wallet X used program Y" rows even without exact amounts.
+        // We don't know the variant or mint from a generic decoder match
+        // without per-program logic. Submit a Fallback (ProgramActivity)
+        // candidate — the coordinator will suppress it for any wallet that
+        // also has a richer same-tx Swap/Mint/etc. candidate from a
+        // dedicated processor.
         let signature = metadata.transaction_metadata.signature.to_string();
         let event = SurveillanceEventOut {
             user_id: watched.user_id.clone(),
@@ -613,7 +649,7 @@ impl<T: Send + Sync + 'static> Processor for AggWatch<T> {
             wallet_address: signer_str.clone(),
             wallet_label: watched.wallet_label.clone(),
             signature: signature.clone(),
-            event_type: "swap_buy", // conservatively label as buy; frontend dedups by sig
+            event_type: Activity::ProgramActivity.as_event_type(),
             token_address: None,
             token_symbol: None,
             sol_amount: 0.0,
@@ -626,10 +662,15 @@ impl<T: Send + Sync + 'static> Processor for AggWatch<T> {
             raw_data: serde_json::json!({
                 "source": "frankfurt-carbon-surveillance",
                 "carbon_program": format!("{}_decoder", self.program),
-                "note": "generic AggWatch — amounts/mint require per-program extraction",
+                "note": "generic AggWatch — coordinator may suppress if richer candidate also fired",
             }),
         };
-        writer::send_event(event).await;
+        coordinator::submit(ActivityCandidate {
+            activity: Activity::ProgramActivity,
+            watched: watched.clone(),
+            event,
+        })
+        .await;
         Ok(())
     }
 }

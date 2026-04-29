@@ -13,9 +13,11 @@
 //!                   user:<userId>:events. After frankfurt-node's surveillance
 //!                   role is retired, flip this to production.
 
+mod coordinator;
 mod event;
 mod processors;
 mod state;
+mod taxonomy;
 mod writer;
 
 use crate::processors::{
@@ -59,6 +61,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
 
     // Bounded channel + writer task.
     writer::spawn();
+
+    // Per-tx coordinator flusher: drains the candidate buffer every ~50ms,
+    // collapses per-(sig, wallet, family) winners, ships final events.
+    coordinator::spawn_flusher();
 
     // Recover watch list from surveillance_wallet_sessions on startup.
     if let Err(e) = recover_watch_list().await {
