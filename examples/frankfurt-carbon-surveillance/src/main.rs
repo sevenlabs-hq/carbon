@@ -14,6 +14,7 @@
 //!                   role is retired, flip this to production.
 
 mod attribution;
+mod blocklist;
 mod coordinator;
 mod event;
 mod processors;
@@ -243,7 +244,22 @@ async fn recover_watch_list() -> Result<(), Box<dyn std::error::Error + Send + S
         .json()
         .await?;
     let mut count = 0;
+    let mut skipped_routers = 0;
     for r in rows {
+        // Defense in depth: a router row could exist if it was added
+        // before the blocklist gate shipped, or via direct DB insert.
+        // Skip it on recovery so it doesn't pollute the watch list,
+        // and log so an operator can run the cleanup query.
+        if let Some(label) = blocklist::router_label(&r.wallet_address) {
+            log::warn!(
+                "recover: skipping blocked router row id={} wallet={} ({})",
+                r.id,
+                r.wallet_address,
+                label
+            );
+            skipped_routers += 1;
+            continue;
+        }
         let target_name = r
             .surveillance_targets
             .and_then(|t| t.name)
@@ -262,9 +278,10 @@ async fn recover_watch_list() -> Result<(), Box<dyn std::error::Error + Send + S
         count += 1;
     }
     log::info!(
-        "recovered {} watcher rows ({} distinct wallets)",
+        "recovered {} watcher rows ({} distinct wallets); skipped {} router rows",
         count,
-        state::watch_count()
+        state::watch_count(),
+        skipped_routers
     );
     Ok(())
 }
@@ -383,13 +400,38 @@ fn synthetic_row_id(user_id: &str, target_id: &str, wallet: &str) -> String {
     format!("legacy:{}:{}:{}", user_id, target_id, wallet)
 }
 
-async fn handle_wallet(headers: HeaderMap, Json(req): Json<WalletReq>) -> StatusCode {
+async fn handle_wallet(
+    headers: HeaderMap,
+    Json(req): Json<WalletReq>,
+) -> (StatusCode, Json<serde_json::Value>) {
     if !check_bearer(&headers) {
-        return StatusCode::UNAUTHORIZED;
+        return (
+            StatusCode::UNAUTHORIZED,
+            Json(serde_json::json!({"error": "unauthorized"})),
+        );
     }
     let label = req.label.unwrap_or_else(|| req.address.chars().take(8).collect());
     match req.action.as_str() {
         "add" => {
+            // Surveillance-specific router blocklist: routers route every
+            // user's swaps and produce noise events for unrelated trades.
+            if let Some(reason) = blocklist::rejection_reason(&req.address) {
+                log::warn!(
+                    "rejected add: {} (user={}, target={}) — {}",
+                    req.address,
+                    req.user_id,
+                    req.target_id,
+                    reason
+                );
+                return (
+                    StatusCode::UNPROCESSABLE_ENTITY,
+                    Json(serde_json::json!({
+                        "added": false,
+                        "wallet": req.address,
+                        "reason": reason,
+                    })),
+                );
+            }
             let target_name = lookup_target_name(&req.target_id).await;
             let id = synthetic_row_id(&req.user_id, &req.target_id, &req.address);
             state::add(
@@ -403,14 +445,19 @@ async fn handle_wallet(headers: HeaderMap, Json(req): Json<WalletReq>) -> Status
                 },
             )
             .await;
-            StatusCode::OK
+            (StatusCode::OK, Json(serde_json::json!({"added": true})))
         }
+        // Remove never blocked — if a router somehow got added (legacy
+        // row, direct DB insert), we must always be able to remove it.
         "remove" => {
             let id = synthetic_row_id(&req.user_id, &req.target_id, &req.address);
             state::remove_by_id(&id).await;
-            StatusCode::OK
+            (StatusCode::OK, Json(serde_json::json!({"removed": true})))
         }
-        _ => StatusCode::BAD_REQUEST,
+        _ => (
+            StatusCode::BAD_REQUEST,
+            Json(serde_json::json!({"error": "unknown action"})),
+        ),
     }
 }
 
@@ -431,21 +478,46 @@ struct WalletEntry {
     label: Option<String>,
 }
 
-async fn handle_start(headers: HeaderMap, Json(req): Json<StartReq>) -> StatusCode {
+async fn handle_start(
+    headers: HeaderMap,
+    Json(req): Json<StartReq>,
+) -> (StatusCode, Json<serde_json::Value>) {
     if !check_bearer(&headers) {
-        return StatusCode::UNAUTHORIZED;
+        return (
+            StatusCode::UNAUTHORIZED,
+            Json(serde_json::json!({"error": "unauthorized"})),
+        );
     }
     let target_name = match req.target_name {
         Some(n) if !n.is_empty() => n,
         _ => lookup_target_name(&req.target_id).await,
     };
+    // Partial accept: routers in the batch get rejected per-wallet with
+    // a reason, the rest go through. The caller (frontend) decides how
+    // to surface this — typically a toast listing rejected entries.
+    let mut added: Vec<String> = Vec::new();
+    let mut rejected: Vec<serde_json::Value> = Vec::new();
     for w in req.wallets {
+        if let Some(reason) = blocklist::rejection_reason(&w.address) {
+            log::warn!(
+                "rejected bulk add: {} (user={}, target={}) — {}",
+                w.address,
+                req.user_id,
+                req.target_id,
+                reason
+            );
+            rejected.push(serde_json::json!({
+                "wallet": w.address,
+                "reason": reason,
+            }));
+            continue;
+        }
         let label = w
             .label
             .unwrap_or_else(|| w.address.chars().take(8).collect());
         let id = synthetic_row_id(&req.user_id, &req.target_id, &w.address);
         state::add(
-            w.address,
+            w.address.clone(),
             WatchedWallet {
                 id,
                 user_id: req.user_id.clone(),
@@ -455,8 +527,15 @@ async fn handle_start(headers: HeaderMap, Json(req): Json<StartReq>) -> StatusCo
             },
         )
         .await;
+        added.push(w.address);
     }
-    StatusCode::OK
+    (
+        StatusCode::OK,
+        Json(serde_json::json!({
+            "added": added,
+            "rejected": rejected,
+        })),
+    )
 }
 
 #[derive(Deserialize)]

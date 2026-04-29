@@ -282,6 +282,17 @@ async fn fetch_and_add(
         .json()
         .await?;
     if let Some(r) = rows.into_iter().next() {
+        // Defense in depth: a direct DB insert that bypassed the HTTP
+        // gate must not become a live watcher.
+        if let Some(label) = crate::blocklist::router_label(&r.wallet_address) {
+            log::warn!(
+                "watch_list_sync: skipping blocked router row id={} wallet={} ({})",
+                r.id,
+                r.wallet_address,
+                label
+            );
+            return Ok(());
+        }
         let target_name = r
             .surveillance_targets
             .and_then(|t| t.name)
