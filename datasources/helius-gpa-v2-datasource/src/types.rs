@@ -25,11 +25,19 @@ pub struct HeliusGpaV2Response {
 pub struct HeliusGpaV2Result {
     #[serde(default)]
     pub context: Option<HeliusGpaV2Context>,
-    #[serde(flatten)]
-    pub accounts: Option<Vec<HeliusGpaV2Account>>,
-    #[serde(flatten)]
-    #[serde(rename = "paginationKey")]
-    pub pagination_key_flat: Option<String>,
+    #[serde(default)]
+    pub value: Option<HeliusGpaV2Value>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct HeliusGpaV2Value {
+    #[serde(default)]
+    pub accounts: Vec<HeliusGpaV2Account>,
+    #[serde(default, rename = "paginationKey")]
+    pub pagination_key: Option<String>,
+    #[serde(default)]
+    #[allow(dead_code)]
+    pub count: Option<u64>,
 }
 
 #[derive(Debug, Deserialize)]
