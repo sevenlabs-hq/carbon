@@ -272,8 +272,30 @@ async fn das_get_asset(
                 .and_then(|f| f.get("uri"))
                 .and_then(|v| v.as_str())
         })
-        .map(String::from);
+        .map(normalize_image_url);
     Some((symbol, name, image))
+}
+
+/// Rewrite known-flaky image gateways to more reliable equivalents.
+/// `ipfs.io` is notorious for timeouts and hotlink failures —
+/// `cf-ipfs.com` (Cloudflare) is the same content with a CDN in front
+/// and works reliably from browsers. Same `ipfs://` scheme handling
+/// for completeness — DAS rarely returns it but some token URIs do.
+fn normalize_image_url(raw: &str) -> String {
+    let url = raw.trim();
+    // ipfs.io/ipfs/<cid> → cf-ipfs.com/ipfs/<cid>
+    if let Some(rest) = url
+        .strip_prefix("https://ipfs.io/")
+        .or_else(|| url.strip_prefix("http://ipfs.io/"))
+    {
+        return format!("https://cf-ipfs.com/{}", rest);
+    }
+    // ipfs://<cid> → https://cf-ipfs.com/ipfs/<cid>
+    if let Some(rest) = url.strip_prefix("ipfs://") {
+        let rest = rest.trim_start_matches("ipfs/");
+        return format!("https://cf-ipfs.com/ipfs/{}", rest);
+    }
+    url.to_string()
 }
 
 #[cfg(test)]
@@ -344,6 +366,45 @@ mod tests {
         record_from_create(&mint, Some(""), Some("   "));
         assert!(lookup(&mint).is_none() || lookup(&mint).unwrap().symbol.is_none());
         MINT_META.remove(&mint);
+    }
+
+    #[test]
+    fn normalize_rewrites_ipfs_io_to_cloudflare() {
+        // The exact failure case from the user report:
+        // ipfs.io/ipfs/bafkreiamwxu6dcvvrnc7z32bjifgtjcxspejigtdt5qzf2o2cu4vb2eskq
+        // returning net::ERR_FAILED in the browser. cf-ipfs.com serves
+        // the same content with a CDN in front.
+        assert_eq!(
+            normalize_image_url(
+                "https://ipfs.io/ipfs/bafkreiamwxu6dcvvrnc7z32bjifgtjcxspejigtdt5qzf2o2cu4vb2eskq"
+            ),
+            "https://cf-ipfs.com/ipfs/bafkreiamwxu6dcvvrnc7z32bjifgtjcxspejigtdt5qzf2o2cu4vb2eskq"
+        );
+    }
+
+    #[test]
+    fn normalize_rewrites_ipfs_scheme() {
+        assert_eq!(
+            normalize_image_url("ipfs://bafkreitest"),
+            "https://cf-ipfs.com/ipfs/bafkreitest"
+        );
+        // ipfs://ipfs/<cid> redundancy stripped
+        assert_eq!(
+            normalize_image_url("ipfs://ipfs/bafkreitest"),
+            "https://cf-ipfs.com/ipfs/bafkreitest"
+        );
+    }
+
+    #[test]
+    fn normalize_passes_through_non_ipfs() {
+        assert_eq!(
+            normalize_image_url("https://pump.mypinata.cloud/ipfs/abc"),
+            "https://pump.mypinata.cloud/ipfs/abc"
+        );
+        assert_eq!(
+            normalize_image_url("https://cdn.example.com/logo.png"),
+            "https://cdn.example.com/logo.png"
+        );
     }
 
     #[test]
