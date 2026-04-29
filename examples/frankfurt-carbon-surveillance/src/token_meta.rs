@@ -139,12 +139,82 @@ pub fn spawn_das_fetch(mint: String) {
     tokio::spawn(async move {
         let _drop_guard = InFlightGuard(mint.clone());
         if let Some((symbol, name, image)) = das_get_asset(&mint).await {
-            record_from_das(&mint, symbol, name, image);
+            record_from_das(&mint, symbol.clone(), name.clone(), image.clone());
+            // Backfill historical rows: when an event ships with null
+            // metadata because DAS hadn't resolved yet (the typical
+            // BUY-then-SELL race where the BUY is the first sighting),
+            // patch the row in-place so the user's UI updates via
+            // Realtime UPDATE. Scoped to last 30 min — the active feed
+            // window. Older rows aren't visible; backfilling them
+            // would just churn writes.
+            if symbol.is_some() || name.is_some() || image.is_some() {
+                backfill_recent_rows(&mint, symbol, name, image).await;
+            }
         } else {
             // Negative-cache the miss so we don't keep retrying.
             record_from_das(&mint, None, None, None);
         }
     });
+}
+
+/// PATCH surveillance_events (and the parity mirror) for any row in the
+/// last 30 minutes with this `mint` and a null token_symbol. Realtime
+/// fires UPDATE per affected row → the user's dashboard re-renders that
+/// row with the resolved metadata.
+async fn backfill_recent_rows(
+    mint: &str,
+    symbol: Option<String>,
+    name: Option<String>,
+    image: Option<String>,
+) {
+    let url = match std::env::var("SUPABASE_URL") {
+        Ok(u) => u,
+        Err(_) => return,
+    };
+    let key = match std::env::var("SUPABASE_SERVICE_ROLE_KEY") {
+        Ok(k) => k,
+        Err(_) => return,
+    };
+    let mut patch = serde_json::Map::new();
+    if let Some(s) = symbol {
+        patch.insert("token_symbol".into(), serde_json::Value::String(s));
+    }
+    if let Some(n) = name {
+        patch.insert("token_name".into(), serde_json::Value::String(n));
+    }
+    if let Some(i) = image {
+        patch.insert("token_image".into(), serde_json::Value::String(i));
+    }
+    if patch.is_empty() {
+        return;
+    }
+    let body = serde_json::Value::Object(patch);
+    let cutoff = (chrono::Utc::now() - chrono::Duration::minutes(30)).to_rfc3339();
+    let client = reqwest::Client::builder()
+        .timeout(Duration::from_secs(10))
+        .build();
+    let client = match client {
+        Ok(c) => c,
+        Err(_) => return,
+    };
+    for table in &["surveillance_events", "carbon_surveillance_parity_events"] {
+        let endpoint = format!(
+            "{}/rest/v1/{}?token_address=eq.{}&token_symbol=is.null&block_time=gte.{}",
+            url.trim_end_matches('/'),
+            table,
+            urlencoding::encode(mint),
+            urlencoding::encode(&cutoff),
+        );
+        let _ = client
+            .patch(&endpoint)
+            .header("apikey", &key)
+            .header("Authorization", format!("Bearer {}", key))
+            .header("Content-Type", "application/json")
+            .header("Prefer", "return=minimal")
+            .json(&body)
+            .send()
+            .await;
+    }
 }
 
 struct InFlightGuard(String);
