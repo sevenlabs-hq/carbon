@@ -9,21 +9,14 @@ pub struct SellRow {
     pub instruction_metadata: InstructionRowMetadata,
     pub amount: U64,
     pub min_sol_output: U64,
-    #[sqlx(rename = "__accounts")]
-    pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
 
 impl SellRow {
-    pub fn from_parts(
-        source: crate::instructions::sell::Sell,
-        metadata: InstructionMetadata,
-        accounts: Vec<solana_instruction::AccountMeta>,
-    ) -> Self {
+    pub fn from_parts(source: crate::instructions::sell::Sell, metadata: InstructionMetadata) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             amount: source.amount.into(),
             min_sol_output: source.min_sol_output.into(),
-            accounts: sqlx::types::Json(accounts),
         }
     }
 }
@@ -51,7 +44,6 @@ impl carbon_core::postgres::operations::Table for crate::instructions::sell::Sel
             "__slot",
             "amount",
             "min_sol_output",
-            "__accounts",
         ]
     }
 }
@@ -59,25 +51,21 @@ impl carbon_core::postgres::operations::Table for crate::instructions::sell::Sel
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for SellRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO sell_instruction (
                 "amount",
                 "min_sol_output",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7
-            )"#,
-        )
-        .bind(&self.amount)
-        .bind(&self.min_sol_output)
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                $1, $2, $3, $4, $5, $6
+            )"#)
+        .bind(self.amount.clone())
+        .bind(self.min_sol_output.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -86,13 +74,12 @@ impl carbon_core::postgres::operations::Insert for SellRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for SellRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO sell_instruction (
+        sqlx::query(r#"INSERT INTO sell_instruction (
                 "amount",
                 "min_sol_output",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7
+                $1, $2, $3, $4, $5, $6
             ) ON CONFLICT (
                 __signature, __instruction_index, __stack_height
             ) DO UPDATE SET
@@ -100,19 +87,15 @@ impl carbon_core::postgres::operations::Upsert for SellRow {
                 "min_sol_output" = EXCLUDED."min_sol_output",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
-                __slot = EXCLUDED.__slot,
-                __accounts = EXCLUDED.__accounts
-            "#,
-        )
-        .bind(&self.amount)
-        .bind(&self.min_sol_output)
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                __slot = EXCLUDED.__slot
+            "#)
+        .bind(self.amount.clone())
+        .bind(self.min_sol_output.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -120,23 +103,16 @@ impl carbon_core::postgres::operations::Upsert for SellRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for SellRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM sell_instruction WHERE
+        sqlx::query(r#"DELETE FROM sell_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -144,26 +120,16 @@ impl carbon_core::postgres::operations::Delete for SellRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for SellRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
-    async fn lookup(
-        key: Self::Key,
-        pool: &sqlx::PgPool,
-    ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM sell_instruction WHERE
+    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(r#"SELECT * FROM sell_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -173,12 +139,8 @@ pub struct SellMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for SellMigrationOperation {
-    async fn up(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS sell_instruction (
+    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS sell_instruction (
                 -- Instruction data
                 "amount" NUMERIC(20) NOT NULL,
                 "min_sol_output" NUMERIC(20) NOT NULL,
@@ -187,22 +149,13 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SellMigrationOperation {
                 __instruction_index BIGINT NOT NULL,
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
-                __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
-    async fn down(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS sell_instruction"#)
-            .execute(connection)
-            .await?;
+    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS sell_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

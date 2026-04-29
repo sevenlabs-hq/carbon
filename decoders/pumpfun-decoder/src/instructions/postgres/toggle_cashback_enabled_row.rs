@@ -7,38 +7,27 @@ pub struct ToggleCashbackEnabledRow {
     #[sqlx(flatten)]
     pub instruction_metadata: InstructionRowMetadata,
     pub enabled: bool,
-    #[sqlx(rename = "__accounts")]
-    pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
 
 impl ToggleCashbackEnabledRow {
-    pub fn from_parts(
-        source: crate::instructions::toggle_cashback_enabled::ToggleCashbackEnabled,
-        metadata: InstructionMetadata,
-        accounts: Vec<solana_instruction::AccountMeta>,
-    ) -> Self {
+    pub fn from_parts(source: crate::instructions::toggle_cashback_enabled::ToggleCashbackEnabled, metadata: InstructionMetadata) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            enabled: source.enabled,
-            accounts: sqlx::types::Json(accounts),
+            enabled: source.enabled.into(),
         }
     }
 }
 
-impl TryFrom<ToggleCashbackEnabledRow>
-    for crate::instructions::toggle_cashback_enabled::ToggleCashbackEnabled
-{
+impl TryFrom<ToggleCashbackEnabledRow> for crate::instructions::toggle_cashback_enabled::ToggleCashbackEnabled {
     type Error = carbon_core::error::Error;
     fn try_from(source: ToggleCashbackEnabledRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            enabled: source.enabled,
+            enabled: source.enabled.into(),
         })
     }
 }
 
-impl carbon_core::postgres::operations::Table
-    for crate::instructions::toggle_cashback_enabled::ToggleCashbackEnabled
-{
+impl carbon_core::postgres::operations::Table for crate::instructions::toggle_cashback_enabled::ToggleCashbackEnabled {
     fn table() -> &'static str {
         "toggle_cashback_enabled_instruction"
     }
@@ -50,7 +39,6 @@ impl carbon_core::postgres::operations::Table
             "__stack_height",
             "__slot",
             "enabled",
-            "__accounts",
         ]
     }
 }
@@ -58,23 +46,19 @@ impl carbon_core::postgres::operations::Table
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for ToggleCashbackEnabledRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO toggle_cashback_enabled_instruction (
                 "enabled",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6
-            )"#,
-        )
-        .bind(self.enabled)
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                $1, $2, $3, $4, $5
+            )"#)
+        .bind(self.enabled.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -83,30 +67,25 @@ impl carbon_core::postgres::operations::Insert for ToggleCashbackEnabledRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for ToggleCashbackEnabledRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO toggle_cashback_enabled_instruction (
+        sqlx::query(r#"INSERT INTO toggle_cashback_enabled_instruction (
                 "enabled",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6
+                $1, $2, $3, $4, $5
             ) ON CONFLICT (
                 __signature, __instruction_index, __stack_height
             ) DO UPDATE SET
                 "enabled" = EXCLUDED."enabled",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
-                __slot = EXCLUDED.__slot,
-                __accounts = EXCLUDED.__accounts
-            "#,
-        )
-        .bind(self.enabled)
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                __slot = EXCLUDED.__slot
+            "#)
+        .bind(self.enabled.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -114,23 +93,16 @@ impl carbon_core::postgres::operations::Upsert for ToggleCashbackEnabledRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for ToggleCashbackEnabledRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM toggle_cashback_enabled_instruction WHERE
+        sqlx::query(r#"DELETE FROM toggle_cashback_enabled_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -138,26 +110,16 @@ impl carbon_core::postgres::operations::Delete for ToggleCashbackEnabledRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for ToggleCashbackEnabledRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
-    async fn lookup(
-        key: Self::Key,
-        pool: &sqlx::PgPool,
-    ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM toggle_cashback_enabled_instruction WHERE
+    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(r#"SELECT * FROM toggle_cashback_enabled_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -167,12 +129,8 @@ pub struct ToggleCashbackEnabledMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for ToggleCashbackEnabledMigrationOperation {
-    async fn up(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS toggle_cashback_enabled_instruction (
+    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS toggle_cashback_enabled_instruction (
                 -- Instruction data
                 "enabled" BOOLEAN NOT NULL,
                 -- Instruction metadata
@@ -180,22 +138,13 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for ToggleCashbackEnabledMigration
                 __instruction_index BIGINT NOT NULL,
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
-                __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
-    async fn down(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS toggle_cashback_enabled_instruction"#)
-            .execute(connection)
-            .await?;
+    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS toggle_cashback_enabled_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

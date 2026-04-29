@@ -32,3 +32,4 @@ impl From<carbon_core::postgres::metadata::AccountRowMetadata> for AccountMetada
         }
     }
 }
+

@@ -28,6 +28,8 @@ pub struct GlobalGraphQL {
     pub mayhem_mode_enabled: bool,
     pub reserved_fee_recipients: Vec<Pubkey>,
     pub is_cashback_enabled: bool,
+    pub buyback_fee_recipients: Vec<Pubkey>,
+    pub buyback_basis_points: U64,
 }
 
 impl TryFrom<crate::accounts::postgres::GlobalRow> for GlobalGraphQL {
@@ -38,46 +40,26 @@ impl TryFrom<crate::accounts::postgres::GlobalRow> for GlobalGraphQL {
             initialized: row.initialized,
             authority: carbon_core::graphql::primitives::Pubkey(row.authority.0),
             fee_recipient: carbon_core::graphql::primitives::Pubkey(row.fee_recipient.0),
-            initial_virtual_token_reserves: carbon_core::graphql::primitives::U64(
-                *row.initial_virtual_token_reserves,
-            ),
-            initial_virtual_sol_reserves: carbon_core::graphql::primitives::U64(
-                *row.initial_virtual_sol_reserves,
-            ),
-            initial_real_token_reserves: carbon_core::graphql::primitives::U64(
-                *row.initial_real_token_reserves,
-            ),
+            initial_virtual_token_reserves: carbon_core::graphql::primitives::U64(*row.initial_virtual_token_reserves),
+            initial_virtual_sol_reserves: carbon_core::graphql::primitives::U64(*row.initial_virtual_sol_reserves),
+            initial_real_token_reserves: carbon_core::graphql::primitives::U64(*row.initial_real_token_reserves),
             token_total_supply: carbon_core::graphql::primitives::U64(*row.token_total_supply),
             fee_basis_points: carbon_core::graphql::primitives::U64(*row.fee_basis_points),
             withdraw_authority: carbon_core::graphql::primitives::Pubkey(row.withdraw_authority.0),
             enable_migrate: row.enable_migrate,
             pool_migration_fee: carbon_core::graphql::primitives::U64(*row.pool_migration_fee),
-            creator_fee_basis_points: carbon_core::graphql::primitives::U64(
-                *row.creator_fee_basis_points,
-            ),
-            fee_recipients: row
-                .fee_recipients
-                .into_iter()
-                .map(|item| carbon_core::graphql::primitives::Pubkey(item.0))
-                .collect(),
-            set_creator_authority: carbon_core::graphql::primitives::Pubkey(
-                row.set_creator_authority.0,
-            ),
-            admin_set_creator_authority: carbon_core::graphql::primitives::Pubkey(
-                row.admin_set_creator_authority.0,
-            ),
+            creator_fee_basis_points: carbon_core::graphql::primitives::U64(*row.creator_fee_basis_points),
+            fee_recipients: row.fee_recipients.into_iter().map(|item| carbon_core::graphql::primitives::Pubkey(item.0)).collect(),
+            set_creator_authority: carbon_core::graphql::primitives::Pubkey(row.set_creator_authority.0),
+            admin_set_creator_authority: carbon_core::graphql::primitives::Pubkey(row.admin_set_creator_authority.0),
             create_v2_enabled: row.create_v2_enabled,
             whitelist_pda: carbon_core::graphql::primitives::Pubkey(row.whitelist_pda.0),
-            reserved_fee_recipient: carbon_core::graphql::primitives::Pubkey(
-                row.reserved_fee_recipient.0,
-            ),
+            reserved_fee_recipient: carbon_core::graphql::primitives::Pubkey(row.reserved_fee_recipient.0),
             mayhem_mode_enabled: row.mayhem_mode_enabled,
-            reserved_fee_recipients: row
-                .reserved_fee_recipients
-                .into_iter()
-                .map(|item| carbon_core::graphql::primitives::Pubkey(item.0))
-                .collect(),
+            reserved_fee_recipients: row.reserved_fee_recipients.into_iter().map(|item| carbon_core::graphql::primitives::Pubkey(item.0)).collect(),
             is_cashback_enabled: row.is_cashback_enabled,
+            buyback_fee_recipients: row.buyback_fee_recipients.into_iter().map(|item| carbon_core::graphql::primitives::Pubkey(item.0)).collect(),
+            buyback_basis_points: carbon_core::graphql::primitives::U64(*row.buyback_basis_points),
         })
     }
 }

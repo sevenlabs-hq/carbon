@@ -2,7 +2,6 @@
 use carbon_core::graphql::primitives::Pubkey;
 use carbon_core::graphql::primitives::U64;
 use juniper::GraphQLObject;
-use serde_json;
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "SetParams")]
@@ -19,7 +18,6 @@ pub struct SetParamsGraphQL {
     pub creator_fee_basis_points: U64,
     pub set_creator_authority: Pubkey,
     pub admin_set_creator_authority: Pubkey,
-    pub accounts: carbon_core::graphql::primitives::Json,
 }
 
 impl TryFrom<crate::instructions::postgres::SetParamsRow> for SetParamsGraphQL {
@@ -27,33 +25,17 @@ impl TryFrom<crate::instructions::postgres::SetParamsRow> for SetParamsGraphQL {
     fn try_from(row: crate::instructions::postgres::SetParamsRow) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
-            initial_virtual_token_reserves: carbon_core::graphql::primitives::U64(
-                *row.initial_virtual_token_reserves,
-            ),
-            initial_virtual_sol_reserves: carbon_core::graphql::primitives::U64(
-                *row.initial_virtual_sol_reserves,
-            ),
-            initial_real_token_reserves: carbon_core::graphql::primitives::U64(
-                *row.initial_real_token_reserves,
-            ),
+            initial_virtual_token_reserves: carbon_core::graphql::primitives::U64(*row.initial_virtual_token_reserves),
+            initial_virtual_sol_reserves: carbon_core::graphql::primitives::U64(*row.initial_virtual_sol_reserves),
+            initial_real_token_reserves: carbon_core::graphql::primitives::U64(*row.initial_real_token_reserves),
             token_total_supply: carbon_core::graphql::primitives::U64(*row.token_total_supply),
             fee_basis_points: carbon_core::graphql::primitives::U64(*row.fee_basis_points),
             withdraw_authority: carbon_core::graphql::primitives::Pubkey(row.withdraw_authority.0),
             enable_migrate: row.enable_migrate,
             pool_migration_fee: carbon_core::graphql::primitives::U64(*row.pool_migration_fee),
-            creator_fee_basis_points: carbon_core::graphql::primitives::U64(
-                *row.creator_fee_basis_points,
-            ),
-            set_creator_authority: carbon_core::graphql::primitives::Pubkey(
-                row.set_creator_authority.0,
-            ),
-            admin_set_creator_authority: carbon_core::graphql::primitives::Pubkey(
-                row.admin_set_creator_authority.0,
-            ),
-            accounts: carbon_core::graphql::primitives::Json(
-                serde_json::to_value(&row.accounts.0)
-                    .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?,
-            ),
+            creator_fee_basis_points: carbon_core::graphql::primitives::U64(*row.creator_fee_basis_points),
+            set_creator_authority: carbon_core::graphql::primitives::Pubkey(row.set_creator_authority.0),
+            admin_set_creator_authority: carbon_core::graphql::primitives::Pubkey(row.admin_set_creator_authority.0),
         })
     }
 }

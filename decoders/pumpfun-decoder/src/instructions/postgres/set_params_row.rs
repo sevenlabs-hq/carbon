@@ -19,16 +19,10 @@ pub struct SetParamsRow {
     pub creator_fee_basis_points: U64,
     pub set_creator_authority: Pubkey,
     pub admin_set_creator_authority: Pubkey,
-    #[sqlx(rename = "__accounts")]
-    pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
 
 impl SetParamsRow {
-    pub fn from_parts(
-        source: crate::instructions::set_params::SetParams,
-        metadata: InstructionMetadata,
-        accounts: Vec<solana_instruction::AccountMeta>,
-    ) -> Self {
+    pub fn from_parts(source: crate::instructions::set_params::SetParams, metadata: InstructionMetadata) -> Self {
         Self {
             instruction_metadata: metadata.into(),
             initial_virtual_token_reserves: source.initial_virtual_token_reserves.into(),
@@ -37,12 +31,11 @@ impl SetParamsRow {
             token_total_supply: source.token_total_supply.into(),
             fee_basis_points: source.fee_basis_points.into(),
             withdraw_authority: source.withdraw_authority.into(),
-            enable_migrate: source.enable_migrate,
+            enable_migrate: source.enable_migrate.into(),
             pool_migration_fee: source.pool_migration_fee.into(),
             creator_fee_basis_points: source.creator_fee_basis_points.into(),
             set_creator_authority: source.set_creator_authority.into(),
             admin_set_creator_authority: source.admin_set_creator_authority.into(),
-            accounts: sqlx::types::Json(accounts),
         }
     }
 }
@@ -57,7 +50,7 @@ impl TryFrom<SetParamsRow> for crate::instructions::set_params::SetParams {
             token_total_supply: *source.token_total_supply,
             fee_basis_points: *source.fee_basis_points,
             withdraw_authority: *source.withdraw_authority,
-            enable_migrate: source.enable_migrate,
+            enable_migrate: source.enable_migrate.into(),
             pool_migration_fee: *source.pool_migration_fee,
             creator_fee_basis_points: *source.creator_fee_basis_points,
             set_creator_authority: *source.set_creator_authority,
@@ -88,7 +81,6 @@ impl carbon_core::postgres::operations::Table for crate::instructions::set_param
             "creator_fee_basis_points",
             "set_creator_authority",
             "admin_set_creator_authority",
-            "__accounts",
         ]
     }
 }
@@ -96,8 +88,7 @@ impl carbon_core::postgres::operations::Table for crate::instructions::set_param
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for SetParamsRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO set_params_instruction (
                 "initial_virtual_token_reserves",
                 "initial_virtual_sol_reserves",
@@ -110,29 +101,26 @@ impl carbon_core::postgres::operations::Insert for SetParamsRow {
                 "creator_fee_basis_points",
                 "set_creator_authority",
                 "admin_set_creator_authority",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
-            )"#,
-        )
-        .bind(&self.initial_virtual_token_reserves)
-        .bind(&self.initial_virtual_sol_reserves)
-        .bind(&self.initial_real_token_reserves)
-        .bind(&self.token_total_supply)
-        .bind(&self.fee_basis_points)
-        .bind(self.withdraw_authority)
-        .bind(self.enable_migrate)
-        .bind(&self.pool_migration_fee)
-        .bind(&self.creator_fee_basis_points)
-        .bind(self.set_creator_authority)
-        .bind(self.admin_set_creator_authority)
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+            )"#)
+        .bind(self.initial_virtual_token_reserves.clone())
+        .bind(self.initial_virtual_sol_reserves.clone())
+        .bind(self.initial_real_token_reserves.clone())
+        .bind(self.token_total_supply.clone())
+        .bind(self.fee_basis_points.clone())
+        .bind(self.withdraw_authority.clone())
+        .bind(self.enable_migrate.clone())
+        .bind(self.pool_migration_fee.clone())
+        .bind(self.creator_fee_basis_points.clone())
+        .bind(self.set_creator_authority.clone())
+        .bind(self.admin_set_creator_authority.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -141,8 +129,7 @@ impl carbon_core::postgres::operations::Insert for SetParamsRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for SetParamsRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO set_params_instruction (
+        sqlx::query(r#"INSERT INTO set_params_instruction (
                 "initial_virtual_token_reserves",
                 "initial_virtual_sol_reserves",
                 "initial_real_token_reserves",
@@ -154,9 +141,9 @@ impl carbon_core::postgres::operations::Upsert for SetParamsRow {
                 "creator_fee_basis_points",
                 "set_creator_authority",
                 "admin_set_creator_authority",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
             ) ON CONFLICT (
                 __signature, __instruction_index, __stack_height
             ) DO UPDATE SET
@@ -173,28 +160,24 @@ impl carbon_core::postgres::operations::Upsert for SetParamsRow {
                 "admin_set_creator_authority" = EXCLUDED."admin_set_creator_authority",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
-                __slot = EXCLUDED.__slot,
-                __accounts = EXCLUDED.__accounts
-            "#,
-        )
-        .bind(&self.initial_virtual_token_reserves)
-        .bind(&self.initial_virtual_sol_reserves)
-        .bind(&self.initial_real_token_reserves)
-        .bind(&self.token_total_supply)
-        .bind(&self.fee_basis_points)
-        .bind(self.withdraw_authority)
-        .bind(self.enable_migrate)
-        .bind(&self.pool_migration_fee)
-        .bind(&self.creator_fee_basis_points)
-        .bind(self.set_creator_authority)
-        .bind(self.admin_set_creator_authority)
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                __slot = EXCLUDED.__slot
+            "#)
+        .bind(self.initial_virtual_token_reserves.clone())
+        .bind(self.initial_virtual_sol_reserves.clone())
+        .bind(self.initial_real_token_reserves.clone())
+        .bind(self.token_total_supply.clone())
+        .bind(self.fee_basis_points.clone())
+        .bind(self.withdraw_authority.clone())
+        .bind(self.enable_migrate.clone())
+        .bind(self.pool_migration_fee.clone())
+        .bind(self.creator_fee_basis_points.clone())
+        .bind(self.set_creator_authority.clone())
+        .bind(self.admin_set_creator_authority.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -202,23 +185,16 @@ impl carbon_core::postgres::operations::Upsert for SetParamsRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for SetParamsRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM set_params_instruction WHERE
+        sqlx::query(r#"DELETE FROM set_params_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -226,26 +202,16 @@ impl carbon_core::postgres::operations::Delete for SetParamsRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for SetParamsRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
-    async fn lookup(
-        key: Self::Key,
-        pool: &sqlx::PgPool,
-    ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM set_params_instruction WHERE
+    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(r#"SELECT * FROM set_params_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -255,12 +221,8 @@ pub struct SetParamsMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for SetParamsMigrationOperation {
-    async fn up(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS set_params_instruction (
+    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS set_params_instruction (
                 -- Instruction data
                 "initial_virtual_token_reserves" NUMERIC(20) NOT NULL,
                 "initial_virtual_sol_reserves" NUMERIC(20) NOT NULL,
@@ -278,22 +240,13 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for SetParamsMigrationOperation {
                 __instruction_index BIGINT NOT NULL,
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
-                __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
-    async fn down(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS set_params_instruction"#)
-            .execute(connection)
-            .await?;
+    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS set_params_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

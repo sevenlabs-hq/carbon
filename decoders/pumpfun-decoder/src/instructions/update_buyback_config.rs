@@ -7,13 +7,13 @@ use carbon_core::deserialize::CarbonDeserialize;
 
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone, borsh::BorshSerialize, CarbonDeserialize, PartialEq)]
-pub struct ToggleMayhemMode {
-    pub enabled: bool,
+pub struct UpdateBuybackConfig {
+    pub buyback_basis_points: Option<u64>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub struct ToggleMayhemModeInstructionAccounts {
+pub struct UpdateBuybackConfigInstructionAccounts {
     pub global: solana_pubkey::Pubkey,
     pub authority: solana_pubkey::Pubkey,
     pub event_authority: solana_pubkey::Pubkey,
@@ -21,13 +21,13 @@ pub struct ToggleMayhemModeInstructionAccounts {
     pub remaining: Vec<solana_instruction::AccountMeta>,
 }
 
-impl ToggleMayhemMode {
+impl UpdateBuybackConfig {
     pub fn decode(data: &[u8]) -> Option<Self> {
         if data.len() < 8 {
             return None;
         }
         let discriminator = &data[0..8];
-        if discriminator != &[1, 9, 111, 208, 100, 31, 255, 163] {
+        if discriminator != &[251, 224, 171, 146, 160, 26, 113, 233] {
             return None;
         }
 
@@ -39,8 +39,8 @@ impl ToggleMayhemMode {
     }
 }
 
-impl ArrangeAccounts for ToggleMayhemMode {
-    type ArrangedAccounts = ToggleMayhemModeInstructionAccounts;
+impl ArrangeAccounts for UpdateBuybackConfig {
+    type ArrangedAccounts = UpdateBuybackConfigInstructionAccounts;
 
     fn arrange_accounts(
         accounts: &[solana_instruction::AccountMeta],
@@ -54,7 +54,7 @@ impl ArrangeAccounts for ToggleMayhemMode {
 
         let remaining = iter.as_slice();
 
-        Some(ToggleMayhemModeInstructionAccounts {
+        Some(UpdateBuybackConfigInstructionAccounts {
             global,
             authority,
             event_authority,

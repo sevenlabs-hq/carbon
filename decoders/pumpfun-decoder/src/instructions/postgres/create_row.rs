@@ -11,23 +11,16 @@ pub struct CreateRow {
     pub symbol: String,
     pub uri: String,
     pub creator: Pubkey,
-    #[sqlx(rename = "__accounts")]
-    pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
 
 impl CreateRow {
-    pub fn from_parts(
-        source: crate::instructions::create::Create,
-        metadata: InstructionMetadata,
-        accounts: Vec<solana_instruction::AccountMeta>,
-    ) -> Self {
+    pub fn from_parts(source: crate::instructions::create::Create, metadata: InstructionMetadata) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            name: source.name,
-            symbol: source.symbol,
-            uri: source.uri,
+            name: source.name.into(),
+            symbol: source.symbol.into(),
+            uri: source.uri.into(),
             creator: source.creator.into(),
-            accounts: sqlx::types::Json(accounts),
         }
     }
 }
@@ -36,9 +29,9 @@ impl TryFrom<CreateRow> for crate::instructions::create::Create {
     type Error = carbon_core::error::Error;
     fn try_from(source: CreateRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            name: source.name,
-            symbol: source.symbol,
-            uri: source.uri,
+            name: source.name.into(),
+            symbol: source.symbol.into(),
+            uri: source.uri.into(),
             creator: *source.creator,
         })
     }
@@ -59,7 +52,6 @@ impl carbon_core::postgres::operations::Table for crate::instructions::create::C
             "symbol",
             "uri",
             "creator",
-            "__accounts",
         ]
     }
 }
@@ -67,29 +59,25 @@ impl carbon_core::postgres::operations::Table for crate::instructions::create::C
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for CreateRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO create_instruction (
                 "name",
                 "symbol",
                 "uri",
                 "creator",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9
-            )"#,
-        )
-        .bind(&self.name)
-        .bind(&self.symbol)
-        .bind(&self.uri)
-        .bind(self.creator)
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                $1, $2, $3, $4, $5, $6, $7, $8
+            )"#)
+        .bind(self.name.clone())
+        .bind(self.symbol.clone())
+        .bind(self.uri.clone())
+        .bind(self.creator.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -98,15 +86,14 @@ impl carbon_core::postgres::operations::Insert for CreateRow {
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for CreateRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO create_instruction (
+        sqlx::query(r#"INSERT INTO create_instruction (
                 "name",
                 "symbol",
                 "uri",
                 "creator",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9
+                $1, $2, $3, $4, $5, $6, $7, $8
             ) ON CONFLICT (
                 __signature, __instruction_index, __stack_height
             ) DO UPDATE SET
@@ -116,21 +103,17 @@ impl carbon_core::postgres::operations::Upsert for CreateRow {
                 "creator" = EXCLUDED."creator",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
-                __slot = EXCLUDED.__slot,
-                __accounts = EXCLUDED.__accounts
-            "#,
-        )
-        .bind(&self.name)
-        .bind(&self.symbol)
-        .bind(&self.uri)
-        .bind(self.creator)
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                __slot = EXCLUDED.__slot
+            "#)
+        .bind(self.name.clone())
+        .bind(self.symbol.clone())
+        .bind(self.uri.clone())
+        .bind(self.creator.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -138,23 +121,16 @@ impl carbon_core::postgres::operations::Upsert for CreateRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for CreateRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM create_instruction WHERE
+        sqlx::query(r#"DELETE FROM create_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -162,26 +138,16 @@ impl carbon_core::postgres::operations::Delete for CreateRow {
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for CreateRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
-    async fn lookup(
-        key: Self::Key,
-        pool: &sqlx::PgPool,
-    ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM create_instruction WHERE
+    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(r#"SELECT * FROM create_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -191,12 +157,8 @@ pub struct CreateMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for CreateMigrationOperation {
-    async fn up(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS create_instruction (
+    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS create_instruction (
                 -- Instruction data
                 "name" TEXT NOT NULL,
                 "symbol" TEXT NOT NULL,
@@ -207,22 +169,13 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for CreateMigrationOperation {
                 __instruction_index BIGINT NOT NULL,
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
-                __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
-    async fn down(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS create_instruction"#)
-            .execute(connection)
-            .await?;
+    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS create_instruction"#).execute(connection).await?;
         Ok(())
     }
 }
