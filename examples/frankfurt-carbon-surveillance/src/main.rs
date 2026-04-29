@@ -167,6 +167,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         .instruction(carbon_stabble_stable_swap_decoder::StableSwapDecoder, AggWatch::<carbon_stabble_stable_swap_decoder::instructions::StableSwapInstruction>::new("stabble_stable_swap", true))
         .instruction(carbon_stabble_weighted_swap_decoder::WeightedSwapDecoder, AggWatch::<carbon_stabble_weighted_swap_decoder::instructions::WeightedSwapInstruction>::new("stabble_weighted_swap", true))
         .instruction(carbon_pancake_swap_decoder::PancakeSwapDecoder, AggWatch::<carbon_pancake_swap_decoder::instructions::AmmV3Instruction>::new("pancake_swap", true))
+        // Additional DEX/router programs we depend on but hadn't wired —
+        // surfaced when sigs slipped past the parity diff and `proVF4…`
+        // (Onchain Labs DEX V2) wasn't decoded. Same coverage for siblings.
+        .instruction(carbon_onchain_labs_dex_v1_decoder::OnchainLabsDexV1Decoder, AggWatch::<carbon_onchain_labs_dex_v1_decoder::instructions::OnchainLabsDexV1Instruction>::new("onchain_labs_dex_v1", true))
+        .instruction(carbon_onchain_labs_dex_v2_decoder::OnchainLabsDexV2Decoder, AggWatch::<carbon_onchain_labs_dex_v2_decoder::instructions::OnchainLabsDexV2Instruction>::new("onchain_labs_dex_v2", true))
+        .instruction(carbon_okx_dex_decoder::OkxDexDecoder, AggWatch::<carbon_okx_dex_decoder::instructions::OkxDexInstruction>::new("okx_dex", true))
+        .instruction(carbon_gavel_decoder::GavelDecoder, AggWatch::<carbon_gavel_decoder::instructions::GavelInstruction>::new("gavel", true))
+        .instruction(carbon_wavebreak_decoder::WavebreakDecoder, AggWatch::<carbon_wavebreak_decoder::instructions::WavebreakInstruction>::new("wavebreak", true))
         // System + token programs: dedicated transfer processors emit
         // transfer_in / transfer_out events. Mirrors frankfurt-node's transfer
         // surveillance.
