@@ -77,6 +77,13 @@ pub struct HeliusWebsocket {
     /// runtime without restarting.
     pub dynamic_account_include: Option<Arc<RwLock<HashSet<Pubkey>>>>,
     pub dynamic_account_include_notify: Option<Arc<Notify>>,
+    /// Debounce window for dynamic re-subscribes. When a notify fires,
+    /// wait this long before re-subscribing; if more notifies arrive in
+    /// the window, reset the timer. Coalesces a burst of add/removes
+    /// (e.g. a user bulk-importing 50 wallets) into a single re-sub
+    /// instead of 50, avoiding WS thrash and sub-handshake storms
+    /// against Helius's endpoint. None or 0 disables debouncing.
+    pub dynamic_resub_debounce_ms: Option<u64>,
 }
 
 impl HeliusWebsocket {
@@ -96,6 +103,7 @@ impl HeliusWebsocket {
             transaction_idle_timeout_secs: None,
             dynamic_account_include: None,
             dynamic_account_include_notify: None,
+            dynamic_resub_debounce_ms: None,
         }
     }
 
@@ -109,6 +117,13 @@ impl HeliusWebsocket {
     ) -> Self {
         self.dynamic_account_include = Some(set);
         self.dynamic_account_include_notify = Some(notify);
+        self
+    }
+
+    /// Set the debounce window for dynamic re-subscribes. See field docs
+    /// on `dynamic_resub_debounce_ms`. Sensible default: 200ms.
+    pub fn with_dynamic_resub_debounce_ms(mut self, ms: u64) -> Self {
+        self.dynamic_resub_debounce_ms = Some(ms);
         self
     }
 
@@ -183,6 +198,7 @@ impl Datasource for HeliusWebsocket {
             let metrics = Arc::clone(&metrics);
             let outer_dynamic_set = self.dynamic_account_include.clone();
             let outer_dynamic_notify = self.dynamic_account_include_notify.clone();
+            let outer_dynamic_debounce_ms = self.dynamic_resub_debounce_ms;
 
             let iteration_cancellation = CancellationToken::new();
             let iteration_cancellation_clone = iteration_cancellation.clone();
@@ -401,6 +417,7 @@ impl Datasource for HeliusWebsocket {
                     let id_for_transaction = id_for_loop.clone();
                     let dynamic_set = outer_dynamic_set.clone();
                     let dynamic_notify = outer_dynamic_notify.clone();
+                    let dynamic_debounce_ms = outer_dynamic_debounce_ms;
 
                     let handle = tokio::spawn(async move {
                         let ws = match helius_clone.ws() {
@@ -464,6 +481,42 @@ impl Datasource for HeliusWebsocket {
                                     return;
                                 }
                                 _ = resub_signal => {
+                                    // Coalesce a burst of add/remove notifies
+                                    // (e.g. /surveillance/start with 50 wallets,
+                                    // or back-to-back Realtime INSERTs) into a
+                                    // single re-sub. While inside this debounce
+                                    // window we don't tear the stream down; we
+                                    // just consume any further notifies and
+                                    // reset the timer. The actual re-sub
+                                    // happens after `debounce_ms` of quiet.
+                                    let debounce_ms =
+                                        dynamic_debounce_ms.unwrap_or(0);
+                                    if debounce_ms > 0 {
+                                        if let Some(n) = dynamic_notify.as_ref() {
+                                            let mut coalesced = 1u32;
+                                            loop {
+                                                let next_notify =
+                                                    n.notified();
+                                                tokio::select! {
+                                                    _ = next_notify => {
+                                                        coalesced += 1;
+                                                    }
+                                                    _ = tokio::time::sleep(
+                                                        Duration::from_millis(debounce_ms)
+                                                    ) => {
+                                                        if coalesced > 1 {
+                                                            log::info!(
+                                                                "Helius transaction_subscribe: coalesced {} dynamic-set notifies into one re-sub (debounce {}ms)",
+                                                                coalesced,
+                                                                debounce_ms
+                                                            );
+                                                        }
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                     log::info!(
                                         "Helius transaction_subscribe: account_include changed, re-subscribing"
                                     );

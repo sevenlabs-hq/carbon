@@ -158,7 +158,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     .with_dynamic_account_include(
         Arc::clone(&ATLAS_WS_ACCOUNTS),
         Arc::clone(&ATLAS_WS_NOTIFY),
-    );
+    )
+    // Coalesce bursts of add/remove notifies into one re-sub. A
+    // 50-wallet bulk import triggers 50 individual notifies; without
+    // debouncing each cancels the in-flight subscription before the
+    // previous one establishes, causing ~5s of WS thrash where no
+    // events flow for any user. 200ms is imperceptible for single
+    // adds and fully absorbs a bulk import.
+    .with_dynamic_resub_debounce_ms(200);
 
     log::info!("connecting to Helius Atlas WS");
 
