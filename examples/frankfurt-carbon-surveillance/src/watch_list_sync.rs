@@ -220,16 +220,23 @@ async fn handle_message(
 
     match change_type {
         "INSERT" | "UPDATE" => {
-            let id = data
-                .pointer("/record/id")
-                .and_then(|v| v.as_str())
-                .map(String::from);
-            // Re-fetch with embedded target join to get target_name (Realtime
-            // payload doesn't include joins).
-            if let Some(id) = id {
-                if let Err(e) = fetch_and_add(&id, supabase_url, api_key).await {
-                    log::warn!("watch_list_sync: fetch_and_add({}): {}", id, e);
-                }
+            let id = match data.pointer("/record/id").and_then(|v| v.as_str()) {
+                Some(s) => s.to_string(),
+                None => return,
+            };
+            // Heartbeat suppression: frankfurt-node bulk-updates
+            // `heartbeat_at` for ~141 rows every ~30s. Each one would
+            // otherwise trigger a REST refetch + state::add (idempotent
+            // for already-known wallets). On UPDATE, if we already
+            // tracked this id, the wallet's metadata is unchanged
+            // (status/wallet_address/etc. are write-once in practice)
+            // — skip the refetch. INSERT always refetches because
+            // it's by definition a new id.
+            if change_type == "UPDATE" && state::ID_TO_WALLET.contains_key(&id) {
+                return;
+            }
+            if let Err(e) = fetch_and_add(&id, supabase_url, api_key).await {
+                log::warn!("watch_list_sync: fetch_and_add({}): {}", id, e);
             }
         }
         "DELETE" => {

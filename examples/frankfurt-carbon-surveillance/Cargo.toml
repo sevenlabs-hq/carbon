@@ -111,3 +111,6 @@ serde = { version = "1", features = ["derive"] }
 urlencoding = "2"
 tokio-tungstenite = { version = "0.28", features = ["rustls-tls-webpki-roots"] }
 futures-util = "0.3"
+
+[dev-dependencies]
+solana-account-decoder-client-types = { workspace = true }

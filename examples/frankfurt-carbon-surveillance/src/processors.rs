@@ -48,8 +48,8 @@ impl Processor for PumpfunWatch {
         // the actual trader's pubkey regardless of who signed the tx.
         // Aggregators (OKX/BonkBot/Trojan/etc.) sign on the user's behalf;
         // ev.user is the user. Use it, not fee_payer.
-        if let PumpfunInstruction::CpiEvent(boxed) = decoded.data {
-            if let CpiEvent::TradeEvent(ev) = *boxed {
+        if let PumpfunInstruction::CpiEvent(ref boxed) = decoded.data {
+            if let CpiEvent::TradeEvent(ev) = (**boxed).clone() {
                 let user_str = ev.user.to_string();
                 let watched = match state::lookup(&user_str) {
                     Some(w) => w,
@@ -103,6 +103,76 @@ impl Processor for PumpfunWatch {
                 coordinator::submit(ActivityCandidate { activity, watched: watched.clone(), event }).await;
             }
         }
+
+        // Mint creation: pump.fun launches a new coin. Both Create
+        // (legacy) and CreateV2 (post-update) carry the creator pubkey
+        // directly; the mint is at decoded.accounts[0]. Only fires
+        // when the watched wallet IS the creator (the user launching).
+        let create_info: Option<(String, &'static str, serde_json::Value)> = match &decoded.data {
+            PumpfunInstruction::Create(c) => Some((
+                c.creator.to_string(),
+                "Create",
+                serde_json::json!({
+                    "name": c.name,
+                    "symbol": c.symbol,
+                    "metadata_uri": c.uri,
+                    "creator": c.creator.to_string(),
+                }),
+            )),
+            PumpfunInstruction::CreateV2(c) => Some((
+                c.creator.to_string(),
+                "CreateV2",
+                serde_json::json!({
+                    "name": c.name,
+                    "symbol": c.symbol,
+                    "metadata_uri": c.uri,
+                    "creator": c.creator.to_string(),
+                    "is_mayhem_mode": c.is_mayhem_mode,
+                }),
+            )),
+            _ => None,
+        };
+        if let Some((creator_str, ix_variant, mut create_raw)) = create_info {
+            if let Some(watched) = state::lookup(&creator_str) {
+                let mint = match decoded.accounts.first() {
+                    Some(a) => a.pubkey.to_string(),
+                    None => return Ok(()),
+                };
+                if let Some(obj) = create_raw.as_object_mut() {
+                    obj.insert("source".into(), serde_json::json!("frankfurt-carbon-surveillance"));
+                    obj.insert("carbon_program".into(), serde_json::json!("pumpfun_decoder"));
+                    obj.insert("ix_variant".into(), serde_json::json!(ix_variant));
+                    obj.insert("fee_payer".into(), serde_json::json!(metadata.transaction_metadata.fee_payer.to_string()));
+                }
+                let signature = metadata.transaction_metadata.signature.to_string();
+                let event = SurveillanceEventOut {
+                    user_id: watched.user_id.clone(),
+                    target_id: watched.target_id.clone(),
+                    target_name: watched.target_name.clone(),
+                    wallet_address: creator_str.clone(),
+                    wallet_label: watched.wallet_label.clone(),
+                    signature,
+                    event_type: Activity::MintCreate.as_event_type(),
+                    token_address: Some(mint),
+                    token_symbol: None,
+                    sol_amount: 0.0,
+                    token_amount: 0.0,
+                    price_sol: 0.0,
+                    program: "pumpfun",
+                    counterparty: String::new(),
+                    block_time: iso8601_block_time(metadata.transaction_metadata.block_time),
+                    slot: metadata.transaction_metadata.slot,
+                    raw_data: create_raw,
+                };
+                coordinator::submit(ActivityCandidate {
+                    activity: Activity::MintCreate,
+                    watched: watched.clone(),
+                    event,
+                })
+                .await;
+            }
+        }
+
         Ok(())
     }
 }
@@ -659,12 +729,28 @@ impl<T: Send + Sync + 'static> Processor for AggWatch<T> {
             attribution::aggwatch_matched_wallets(&decoded.accounts, |s| {
                 state::lookup(s).is_some()
             });
+        let meta = &metadata.transaction_metadata.meta;
+        let static_keys = metadata.transaction_metadata.message.static_account_keys();
+        let fee_payer_pk = metadata.transaction_metadata.fee_payer;
         for matched_pk in matched {
             let pk_str = matched_pk.to_string();
             let watched = match state::lookup(&pk_str) {
                 Some(w) => w,
                 None => continue, // race: removed between scan and emit
             };
+            // Net-delta filter: routing-intermediary wallets (e.g.
+            // ARu4n5mF as a proxy in OKX/Onchain Labs DEX V2 routed
+            // swaps) appear in many account slots but have ~zero net
+            // balance change. Only emit a ProgramActivity row when the
+            // wallet actually moved tokens or SOL by more than dust.
+            if !attribution::watched_has_meaningful_delta(
+                meta,
+                static_keys,
+                &fee_payer_pk,
+                &matched_pk,
+            ) {
+                continue;
+            }
             let event = SurveillanceEventOut {
                 user_id: watched.user_id.clone(),
                 target_id: watched.target_id.clone(),
