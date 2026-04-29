@@ -89,8 +89,12 @@ async fn run_session() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let (ws_stream, _resp) = tokio_tungstenite::connect_async(&ws_url).await?;
     let (mut tx, mut rx) = ws_stream.split();
 
-    // Subscribe to postgres_changes filtered by server_id so we only see
-    // rows that match our recovery source.
+    // Subscribe to postgres_changes on the whole table (no server-side
+    // filter). Supabase Realtime evaluates server-side `filter` against
+    // the *new* record, which doesn't exist on DELETE — so a filtered
+    // subscription silently drops DELETE events. Filter client-side
+    // instead in `handle_message`. Volume is tiny (the table has a few
+    // hundred rows, all heartbeat-driven), so the extra noise is fine.
     let topic = "realtime:public:surveillance_wallet_sessions".to_string();
     let join = serde_json::json!({
         "topic": topic,
@@ -102,7 +106,6 @@ async fn run_session() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
                         "event": "*",
                         "schema": "public",
                         "table": "surveillance_wallet_sessions",
-                        "filter": format!("server_id=eq.{}", recovery_source),
                     }
                 ]
             },
@@ -156,7 +159,7 @@ async fn run_session() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
         let msg = msg?;
         match msg {
             Message::Text(text) => {
-                handle_message(&text, &supabase_url, &api_key).await;
+                handle_message(&text, &supabase_url, &api_key, &recovery_source).await;
             }
             Message::Ping(p) => {
                 // Tungstenite handles auto-pong by default; nothing to do
@@ -174,7 +177,12 @@ async fn run_session() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     Ok(())
 }
 
-async fn handle_message(text: &str, supabase_url: &str, api_key: &str) {
+async fn handle_message(
+    text: &str,
+    supabase_url: &str,
+    api_key: &str,
+    recovery_source: &str,
+) {
     let parsed: serde_json::Value = match serde_json::from_str(text) {
         Ok(v) => v,
         Err(e) => {
@@ -193,6 +201,22 @@ async fn handle_message(text: &str, supabase_url: &str, api_key: &str) {
         .cloned()
         .unwrap_or(serde_json::Value::Null);
     let change_type = data.get("type").and_then(|v| v.as_str()).unwrap_or("");
+    // Client-side server_id filter (replaces the dropped server-side
+    // `filter:` arg, which doesn't apply to DELETE events). The relevant
+    // record is `new` for INSERT/UPDATE, `old` for DELETE.
+    let row_for_filter = match change_type {
+        "INSERT" | "UPDATE" => data.get("record"),
+        "DELETE" => data.get("old_record"),
+        _ => None,
+    };
+    let row_server_id = row_for_filter
+        .and_then(|r| r.get("server_id"))
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    if row_server_id != recovery_source {
+        return;
+    }
+
     match change_type {
         "INSERT" | "UPDATE" => {
             let id = data
