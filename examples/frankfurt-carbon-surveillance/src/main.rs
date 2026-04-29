@@ -17,6 +17,7 @@ mod attribution;
 mod blocklist;
 mod coordinator;
 mod event;
+mod metrics;
 mod processors;
 mod state;
 mod taxonomy;
@@ -350,6 +351,7 @@ async fn run_http_server(port: u16) {
     let app = Router::new()
         .route("/health", get(|| async { "ok" }))
         .route("/stats", get(stats_handler))
+        .route("/metrics", get(metrics_handler))
         .route("/surveillance/wallet", post(handle_wallet))
         .route("/surveillance/start", post(handle_start))
         .route("/surveillance/stop", post(handle_stop));
@@ -373,6 +375,16 @@ async fn stats_handler() -> axum::Json<serde_json::Value> {
         "recovery_source": env::var("RECOVERY_SOURCE_SERVER_ID")
             .unwrap_or_else(|_| "frankfurt-prod".into()),
     }))
+}
+
+async fn metrics_handler() -> (StatusCode, [(&'static str, &'static str); 1], String) {
+    let atlas_size = ATLAS_WS_ACCOUNTS.read().await.len();
+    let body = metrics::render(state::watch_count(), state::watcher_count(), atlas_size);
+    (
+        StatusCode::OK,
+        [("content-type", "text/plain; version=0.0.4")],
+        body,
+    )
 }
 
 fn check_bearer(headers: &HeaderMap) -> bool {

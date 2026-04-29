@@ -109,6 +109,7 @@ async fn sweep_once() {
                 // writer_clickhouse no-ops if CLICKHOUSE_URL isn't set, so
                 // this is also the env-gated kill switch for analytics
                 // shipping without a code change.
+                crate::metrics::inc_events_emitted();
                 writer_clickhouse::send_event(event.clone()).await;
                 writer::send_event(event).await;
             }

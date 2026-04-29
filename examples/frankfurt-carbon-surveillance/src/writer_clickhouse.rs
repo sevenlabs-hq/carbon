@@ -118,6 +118,7 @@ async fn writer_loop(mut rx: mpsc::Receiver<SurveillanceEventOut>) {
         {
             Ok(resp) if resp.status().is_success() => {}
             Ok(resp) => {
+                crate::metrics::inc_clickhouse_failures();
                 let status = resp.status();
                 let body_resp = resp.text().await.unwrap_or_default();
                 log::warn!(
@@ -126,7 +127,10 @@ async fn writer_loop(mut rx: mpsc::Receiver<SurveillanceEventOut>) {
                     &body_resp[..body_resp.len().min(300)]
                 );
             }
-            Err(e) => log::warn!("clickhouse insert error: {}", e),
+            Err(e) => {
+                crate::metrics::inc_clickhouse_failures();
+                log::warn!("clickhouse insert error: {}", e);
+            }
         }
 
         batch.clear();

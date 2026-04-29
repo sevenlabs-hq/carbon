@@ -196,6 +196,7 @@ async fn handle_message(
         log::debug!("watch_list_sync: ignoring event '{}'", event);
         return;
     }
+    crate::metrics::inc_realtime_events();
     // TEMP DEBUG: log change_type + record presence so we can see what's coming
 
     let data = parsed
