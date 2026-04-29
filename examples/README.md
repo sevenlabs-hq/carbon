@@ -1,6 +1,6 @@
 # Carbon Examples
 
-This directory contains 11 standalone Carbon pipelines, each demonstrating a distinct capability of the framework — real-time streaming, historical backfill, account snapshotting, multi-version decoding, persistence, query layers, and custom datasource implementation. Pick the example closest to your use case, copy the directory, and adapt it to your own program.
+This directory contains 9 standalone Carbon pipelines, each demonstrating a distinct capability of the framework — real-time streaming, historical backfill, account snapshotting, multi-version decoding, persistence with a query layer, and custom datasource implementation. Pick the example closest to your use case, copy the directory, and adapt it to your own program.
 
 ## Where to Start
 
@@ -14,10 +14,8 @@ If you're not sure which one fits, find your use case below:
 | Per-program transaction history backfill                     | [`transaction-crawler-rpc`](transaction-crawler-rpc) |
 | Loading current state via RPC `getProgramAccounts`           | [`gpa-rpc`](gpa-rpc)                                 |
 | Loading state from a validator snapshot file                 | [`snapshot-validator`](snapshot-validator)           |
-| Indexing two versions of one program (and `SlotRangeFilter`) | [`versioned-decoders`](versioned-decoders)           |
-| Cold-start: backfill history then stream live                | [`backfill-and-stream`](backfill-and-stream)         |
-| Persisting decoded data to Postgres                          | [`postgres-sink`](postgres-sink)                     |
-| Serving indexed data via GraphQL                             | [`graphql-api`](graphql-api)                         |
+| Indexing a program upgraded with a breaking IDL change           | [`versioned-decoders`](versioned-decoders)           |
+| Persisting decoded data to Postgres and serving it via GraphQL | [`postgres-graphql`](postgres-graphql)             |
 | Implementing your own `Datasource`                           | [`custom-datasource`](custom-datasource)             |
 
 ## Variants
@@ -39,4 +37,4 @@ cd examples/<example-name>
 cargo run --release -p <example-name>-carbon-example
 ```
 
-Required environment variables — and any external infrastructure (e.g. Postgres for `postgres-sink`) — are documented in each example's `README.md`.
+Required environment variables — and any external infrastructure (e.g. Postgres for `postgres-graphql`) — are documented in each example's `README.md`.

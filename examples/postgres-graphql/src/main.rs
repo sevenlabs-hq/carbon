@@ -1,20 +1,18 @@
 use {
     carbon_core::{
-        account::AccountProcessorInputType,
-        error::CarbonResult,
         graphql::server::{build_schema, graphql_router},
         pipeline::Pipeline,
-        processor::Processor,
+        postgres::processors::PostgresJsonAccountProcessor,
     },
     carbon_log_metrics::LogMetrics,
-    carbon_token_2022_decoder::{
-        accounts::Token2022Account, Token2022Decoder, PROGRAM_ID as TOKEN_2022_PROGRAM_ID,
+    carbon_token_program_decoder::{
+        accounts::TokenProgramAccount, TokenProgramDecoder, PROGRAM_ID as TOKEN_PROGRAM_ID,
     },
     carbon_yellowstone_grpc_datasource::{
         YellowstoneGrpcClientConfig, YellowstoneGrpcGeyserClient,
     },
     juniper::{graphql_object, GraphQLObject},
-    solana_pubkey::Pubkey,
+    sqlx::{postgres::PgPoolOptions, PgPool, Row},
     std::{
         collections::{HashMap, HashSet},
         env,
@@ -32,9 +30,9 @@ pub struct MintInfo {
     pub supply: String,
 }
 
-#[derive(Clone, Default)]
+#[derive(Clone)]
 pub struct AppContext {
-    mints: Arc<RwLock<HashMap<Pubkey, MintInfo>>>,
+    pool: PgPool,
 }
 impl juniper::Context for AppContext {}
 
@@ -43,15 +41,52 @@ pub struct Query;
 #[graphql_object(context = AppContext)]
 impl Query {
     async fn mints(context: &AppContext, limit: Option<i32>) -> Vec<MintInfo> {
-        let limit = limit.unwrap_or(20).max(0) as usize;
-        let mut all: Vec<_> = context.mints.read().await.values().cloned().collect();
-        all.sort_by(|a, b| b.slot.cmp(&a.slot));
-        all.into_iter().take(limit).collect()
+        let limit = limit.unwrap_or(20).max(0) as i64;
+        let rows = sqlx::query(
+            "SELECT __pubkey, __slot, \
+                    data->'data'->>'decimals' AS decimals, \
+                    data->'data'->>'supply' AS supply \
+             FROM accounts \
+             WHERE data->>'type' = 'Mint' \
+             ORDER BY __slot DESC \
+             LIMIT $1",
+        )
+        .bind(limit)
+        .fetch_all(&context.pool)
+        .await
+        .unwrap_or_default();
+
+        rows.into_iter().map(row_to_mint).collect()
     }
 
     async fn mint(context: &AppContext, pubkey: String) -> Option<MintInfo> {
-        let key = pubkey.parse::<Pubkey>().ok()?;
-        context.mints.read().await.get(&key).cloned()
+        let bytes = bs58::decode(&pubkey).into_vec().ok()?;
+        let row = sqlx::query(
+            "SELECT __pubkey, __slot, \
+                    data->'data'->>'decimals' AS decimals, \
+                    data->'data'->>'supply' AS supply \
+             FROM accounts \
+             WHERE __pubkey = $1 AND data->>'type' = 'Mint'",
+        )
+        .bind(bytes)
+        .fetch_optional(&context.pool)
+        .await
+        .ok()??;
+
+        Some(row_to_mint(row))
+    }
+}
+
+fn row_to_mint(row: sqlx::postgres::PgRow) -> MintInfo {
+    let pubkey_bytes: Vec<u8> = row.get("__pubkey");
+    MintInfo {
+        pubkey: bs58::encode(pubkey_bytes).into_string(),
+        slot: row.get::<i64, _>("__slot") as i32,
+        decimals: row
+            .get::<Option<String>, _>("decimals")
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(0),
+        supply: row.get::<Option<String>, _>("supply").unwrap_or_default(),
     }
 }
 
@@ -65,11 +100,16 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .install_default()
         .expect("failed to install rustls default provider");
 
-    let context = AppContext::default();
-    let store_for_pipeline = context.mints.clone();
+    let pool = PgPoolOptions::new()
+        .max_connections(10)
+        .connect(&env::var("DATABASE_URL").expect("DATABASE_URL must be set"))
+        .await?;
 
+    sqlx::migrate!("./migrations").run(&pool).await?;
+
+    let context = AppContext { pool: pool.clone() };
     let schema = build_schema(Query);
-    let router = graphql_router(schema, context.clone());
+    let router = graphql_router(schema, context);
     let bind_addr = env::var("BIND_ADDR").unwrap_or_else(|_| "0.0.0.0:8080".to_string());
     let listener = tokio::net::TcpListener::bind(&bind_addr).await?;
     log::info!("graphiql at http://{bind_addr}/graphiql");
@@ -79,10 +119,10 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut account_filters = HashMap::new();
     account_filters.insert(
-        "token_2022".to_string(),
+        "spl_token".to_string(),
         SubscribeRequestFilterAccounts {
             account: vec![],
-            owner: vec![TOKEN_2022_PROGRAM_ID.to_string()],
+            owner: vec![TOKEN_PROGRAM_ID.to_string()],
             filters: vec![],
             nonempty_txn_signature: None,
         },
@@ -105,10 +145,8 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .datasource(datasource)
         .metrics(Arc::new(LogMetrics::new()))
         .account(
-            Token2022Decoder,
-            MintCollector {
-                store: store_for_pipeline,
-            },
+            TokenProgramDecoder,
+            PostgresJsonAccountProcessor::<TokenProgramAccount>::new(pool),
         )
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
         .build()?
@@ -116,26 +154,4 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .await?;
 
     Ok(())
-}
-
-pub struct MintCollector {
-    store: Arc<RwLock<HashMap<Pubkey, MintInfo>>>,
-}
-
-impl Processor<AccountProcessorInputType<'_, Token2022Account>> for MintCollector {
-    async fn process(
-        &mut self,
-        input: &AccountProcessorInputType<'_, Token2022Account>,
-    ) -> CarbonResult<()> {
-        if let Token2022Account::Mint(mint) = &input.decoded_account.data {
-            let info = MintInfo {
-                pubkey: input.metadata.pubkey.to_string(),
-                slot: input.metadata.slot as i32,
-                decimals: mint.decimals as i32,
-                supply: mint.supply.to_string(),
-            };
-            self.store.write().await.insert(input.metadata.pubkey, info);
-        }
-        Ok(())
-    }
 }
