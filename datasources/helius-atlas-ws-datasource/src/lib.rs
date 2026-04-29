@@ -29,7 +29,7 @@ use {
         sync::Arc,
         time::{Duration, Instant},
     },
-    tokio::sync::{mpsc::Sender, RwLock},
+    tokio::sync::{mpsc::Sender, Notify, RwLock},
     tokio_util::sync::CancellationToken,
 };
 
@@ -69,6 +69,14 @@ pub struct HeliusWebsocket {
     // Optional safeguard for high-throughput streams.
     // For low-frequency or naturally idle streams, this should be left unset.
     pub transaction_idle_timeout_secs: Option<u64>,
+    /// Live mirror of the transaction-subscription `account_include` set.
+    /// When set, the consume loop watches `dynamic_account_include_notify`;
+    /// when notified, it cancels the current `transaction_subscribe` and
+    /// re-subscribes with the current contents of this set. Required for
+    /// surveillance use cases that need to add/remove watched wallets at
+    /// runtime without restarting.
+    pub dynamic_account_include: Option<Arc<RwLock<HashSet<Pubkey>>>>,
+    pub dynamic_account_include_notify: Option<Arc<Notify>>,
 }
 
 impl HeliusWebsocket {
@@ -86,7 +94,22 @@ impl HeliusWebsocket {
             ping_interval_secs: None,
             pong_timeout_secs: None,
             transaction_idle_timeout_secs: None,
+            dynamic_account_include: None,
+            dynamic_account_include_notify: None,
         }
+    }
+
+    /// Wire a shared `account_include` set so the transaction subscription
+    /// re-subscribes whenever `notify.notify_one()` fires. The set is read
+    /// fresh on every (re)subscribe; the notify is only the wake-up signal.
+    pub fn with_dynamic_account_include(
+        mut self,
+        set: Arc<RwLock<HashSet<Pubkey>>>,
+        notify: Arc<Notify>,
+    ) -> Self {
+        self.dynamic_account_include = Some(set);
+        self.dynamic_account_include_notify = Some(notify);
+        self
     }
 
     pub fn with_ping_interval_secs(mut self, ping_interval_secs: u64) -> Self {
@@ -158,6 +181,8 @@ impl Datasource for HeliusWebsocket {
             let sender = sender.clone();
             let helius = Arc::new(helius);
             let metrics = Arc::clone(&metrics);
+            let outer_dynamic_set = self.dynamic_account_include.clone();
+            let outer_dynamic_notify = self.dynamic_account_include_notify.clone();
 
             let iteration_cancellation = CancellationToken::new();
             let iteration_cancellation_clone = iteration_cancellation.clone();
@@ -374,6 +399,8 @@ impl Datasource for HeliusWebsocket {
                     let sender_clone = sender.clone();
                     let helius_clone = Arc::clone(&helius);
                     let id_for_transaction = id_for_loop.clone();
+                    let dynamic_set = outer_dynamic_set.clone();
+                    let dynamic_notify = outer_dynamic_notify.clone();
 
                     let handle = tokio::spawn(async move {
                         let ws = match helius_clone.ws() {
@@ -384,8 +411,28 @@ impl Datasource for HeliusWebsocket {
                             }
                         };
 
+                        // Outer loop: each iteration is one transaction_subscribe.
+                        // Re-subscribe when `dynamic_notify` fires so the
+                        // `account_include` filter picks up runtime watch-list
+                        // changes without restarting the whole connection.
+                        'resubscribe: loop {
+                        // Compose the actual subscribe config. If a dynamic
+                        // set is wired, take a snapshot now and overwrite
+                        // account_include before subscribing.
+                        let mut effective_config = config.clone();
+                        if let Some(set) = dynamic_set.as_ref() {
+                            let snapshot = set.read().await;
+                            let acct_strs: Vec<String> = snapshot.iter().map(|p| p.to_string()).collect();
+                            effective_config.filter.account_include =
+                                if acct_strs.is_empty() { None } else { Some(acct_strs) };
+                            log::info!(
+                                "Helius transaction_subscribe: account_include count = {}",
+                                effective_config.filter.account_include.as_ref().map(|v| v.len()).unwrap_or(0)
+                            );
+                        }
+
                         let (mut stream, _unsub) =
-                            match ws.transaction_subscribe(config.clone()).await {
+                            match ws.transaction_subscribe(effective_config).await {
                                 Ok(subscription) => subscription,
                                 Err(err) => {
                                     log::error!("Failed to subscribe to transactions: {err:?}");
@@ -396,6 +443,17 @@ impl Datasource for HeliusWebsocket {
                         let mut last_transaction_update = Instant::now();
 
                         loop {
+                            // Build a future for the dynamic-set-changed
+                            // signal. When no notify is wired, we use a
+                            // future that never resolves so the select arm
+                            // is a no-op.
+                            let resub_signal: std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>> =
+                                if let Some(n) = dynamic_notify.as_ref() {
+                                    let n = n.clone();
+                                    Box::pin(async move { n.notified().await })
+                                } else {
+                                    Box::pin(std::future::pending::<()>())
+                                };
                             tokio::select! {
                                 _ = cancellation_token_tx.cancelled() => {
                                     log::info!("Main cancellation requested for transaction subscription");
@@ -404,6 +462,14 @@ impl Datasource for HeliusWebsocket {
                                 _ = iteration_cancellation_tx.cancelled() => {
                                     log::info!("Iteration cancelled for transaction subscription");
                                     return;
+                                }
+                                _ = resub_signal => {
+                                    log::info!(
+                                        "Helius transaction_subscribe: account_include changed, re-subscribing"
+                                    );
+                                    drop(stream);
+                                    drop(_unsub);
+                                    continue 'resubscribe;
                                 }
                                 _ = tokio::time::sleep(Duration::from_secs(5)) => {
                                     if let Some(idle_timeout_secs) = transaction_idle_timeout_secs {
@@ -636,6 +702,11 @@ impl Datasource for HeliusWebsocket {
                                     }
                                 }
                             }
+                        }
+                        // Inner loop exited naturally (stream closed, etc.):
+                        // fall through to the next 'resubscribe iteration so
+                        // we re-establish the subscription. Cancellation
+                        // arms `return` directly; they don't reach here.
                         }
                     });
 

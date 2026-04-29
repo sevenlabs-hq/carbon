@@ -27,7 +27,7 @@ use crate::processors::{
     AggWatch, PumpSwapWatch, PumpfunWatch, SplTransferWatch, Token2022TransferWatch,
     TransferSolWatch,
 };
-use crate::state::{ATLAS_WS_ACCOUNTS, WatchedWallet};
+use crate::state::{ATLAS_WS_ACCOUNTS, ATLAS_WS_NOTIFY, WatchedWallet};
 use axum::{
     extract::Json, http::StatusCode, http::HeaderMap, routing::{get, post}, Router,
 };
@@ -148,7 +148,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     )
     .with_ping_interval_secs(10)
     .with_pong_timeout_secs(10)
-    .with_transaction_idle_timeout_secs(60);
+    .with_transaction_idle_timeout_secs(60)
+    // Hand the datasource a live mirror of ATLAS_WS_ACCOUNTS plus a wake
+    // signal so transaction_subscribe re-issues with the current
+    // account_include set whenever state::add or state::remove flips
+    // ATLAS_WS_NOTIFY. Required for surveillance to add new wallets at
+    // runtime without restarting.
+    .with_dynamic_account_include(
+        Arc::clone(&ATLAS_WS_ACCOUNTS),
+        Arc::clone(&ATLAS_WS_NOTIFY),
+    );
 
     log::info!("connecting to Helius Atlas WS");
 
