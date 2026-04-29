@@ -276,24 +276,42 @@ async fn das_get_asset(
     Some((symbol, name, image))
 }
 
-/// Rewrite known-flaky image gateways to more reliable equivalents.
-/// `ipfs.io` is notorious for timeouts and hotlink failures —
-/// `cf-ipfs.com` (Cloudflare) is the same content with a CDN in front
-/// and works reliably from browsers. Same `ipfs://` scheme handling
-/// for completeness — DAS rarely returns it but some token URIs do.
+/// Rewrite known-flaky image gateways to a reliable one.
+///
+/// History: previously rewrote to `cf-ipfs.com` (Cloudflare's public
+/// IPFS gateway). Cloudflare deprecated it; from Railway's region it
+/// returns no response (~100% failure). `ipfs.io` (Protocol Labs'
+/// public gateway) is also unreachable / heavily rate-limited from
+/// many cloud regions — it's notoriously flaky.
+///
+/// `dweb.link` (Protocol Labs, sibling to ipfs.io but with a CDN in
+/// front) consistently works from Railway and is already in the
+/// frontend CSP allowlist (`*.dweb.link`). Empirically tested: one
+/// failing CID returned 200 image/png in <1s via dweb.link while
+/// cf-ipfs.com timed out and ipfs.io didn't respond at all.
 fn normalize_image_url(raw: &str) -> String {
     let url = raw.trim();
-    // ipfs.io/ipfs/<cid> → cf-ipfs.com/ipfs/<cid>
+    // ipfs.io/ipfs/<cid>... → dweb.link/ipfs/<cid>...
     if let Some(rest) = url
         .strip_prefix("https://ipfs.io/")
         .or_else(|| url.strip_prefix("http://ipfs.io/"))
     {
-        return format!("https://cf-ipfs.com/{}", rest);
+        return format!("https://dweb.link/{}", rest);
     }
-    // ipfs://<cid> → https://cf-ipfs.com/ipfs/<cid>
+    // cf-ipfs.com/ipfs/<cid>... → dweb.link/ipfs/<cid>...
+    // Catches our own previous (now-dead) rewrites for any new DAS
+    // responses where the upstream metadata happens to reference a
+    // cf-ipfs.com URL.
+    if let Some(rest) = url
+        .strip_prefix("https://cf-ipfs.com/")
+        .or_else(|| url.strip_prefix("http://cf-ipfs.com/"))
+    {
+        return format!("https://dweb.link/{}", rest);
+    }
+    // ipfs://<cid> → https://dweb.link/ipfs/<cid>
     if let Some(rest) = url.strip_prefix("ipfs://") {
         let rest = rest.trim_start_matches("ipfs/");
-        return format!("https://cf-ipfs.com/ipfs/{}", rest);
+        return format!("https://dweb.link/ipfs/{}", rest);
     }
     url.to_string()
 }
@@ -369,16 +387,23 @@ mod tests {
     }
 
     #[test]
-    fn normalize_rewrites_ipfs_io_to_cloudflare() {
-        // The exact failure case from the user report:
-        // ipfs.io/ipfs/bafkreiamwxu6dcvvrnc7z32bjifgtjcxspejigtdt5qzf2o2cu4vb2eskq
-        // returning net::ERR_FAILED in the browser. cf-ipfs.com serves
-        // the same content with a CDN in front.
+    fn normalize_rewrites_ipfs_io_to_dweb() {
         assert_eq!(
             normalize_image_url(
                 "https://ipfs.io/ipfs/bafkreiamwxu6dcvvrnc7z32bjifgtjcxspejigtdt5qzf2o2cu4vb2eskq"
             ),
-            "https://cf-ipfs.com/ipfs/bafkreiamwxu6dcvvrnc7z32bjifgtjcxspejigtdt5qzf2o2cu4vb2eskq"
+            "https://dweb.link/ipfs/bafkreiamwxu6dcvvrnc7z32bjifgtjcxspejigtdt5qzf2o2cu4vb2eskq"
+        );
+    }
+
+    #[test]
+    fn normalize_rewrites_cf_ipfs_to_dweb() {
+        // cf-ipfs.com was our previous rewrite target. Cloudflare
+        // deprecated it; existing rows in Supabase (and any DAS
+        // responses that happen to reference it) need rewriting.
+        assert_eq!(
+            normalize_image_url("https://cf-ipfs.com/ipfs/bafybeitest"),
+            "https://dweb.link/ipfs/bafybeitest"
         );
     }
 
@@ -386,12 +411,12 @@ mod tests {
     fn normalize_rewrites_ipfs_scheme() {
         assert_eq!(
             normalize_image_url("ipfs://bafkreitest"),
-            "https://cf-ipfs.com/ipfs/bafkreitest"
+            "https://dweb.link/ipfs/bafkreitest"
         );
         // ipfs://ipfs/<cid> redundancy stripped
         assert_eq!(
             normalize_image_url("ipfs://ipfs/bafkreitest"),
-            "https://cf-ipfs.com/ipfs/bafkreitest"
+            "https://dweb.link/ipfs/bafkreitest"
         );
     }
 
