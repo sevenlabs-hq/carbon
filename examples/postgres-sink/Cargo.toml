@@ -1,0 +1,21 @@
+[package]
+name = "postgres-sink-carbon-example"
+version = "0.12.0"
+edition = { workspace = true }
+
+[dependencies]
+carbon-core = { workspace = true, features = ["postgres"] }
+carbon-log-metrics = { workspace = true }
+carbon-token-program-decoder = { workspace = true, features = ["serde"] }
+carbon-yellowstone-grpc-datasource = { workspace = true }
+
+dotenv = { workspace = true }
+env_logger = { workspace = true }
+sqlx = { workspace = true, features = ["postgres", "runtime-tokio", "tls-native-tls"] }
+tokio = { workspace = true, features = ["full"] }
+yellowstone-grpc-proto = { workspace = true }
+
+[dependencies.rustls]
+default-features = false
+features = ["std", "aws_lc_rs"]
+version = "0.23.35"
