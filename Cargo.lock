@@ -943,23 +943,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "backfill-and-stream-carbon-example"
-version = "0.12.0"
-dependencies = [
- "carbon-core",
- "carbon-jetstreamer-datasource",
- "carbon-kamino-lending-decoder",
- "carbon-log-metrics",
- "carbon-yellowstone-grpc-datasource",
- "dotenv",
- "env_logger",
- "log",
- "rustls 0.23.35",
- "tokio",
- "yellowstone-grpc-proto",
-]
-
-[[package]]
 name = "backoff"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4407,25 +4390,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "graphql-api-carbon-example"
-version = "0.12.0"
-dependencies = [
- "axum 0.8.8",
- "carbon-core",
- "carbon-log-metrics",
- "carbon-token-2022-decoder",
- "carbon-yellowstone-grpc-datasource",
- "dotenv",
- "env_logger",
- "juniper",
- "log",
- "rustls 0.23.35",
- "solana-pubkey 3.0.0",
- "tokio",
- "yellowstone-grpc-proto",
-]
-
-[[package]]
 name = "group"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6655,15 +6619,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "postgres-sink-carbon-example"
+name = "postgres-graphql-carbon-example"
 version = "0.12.0"
 dependencies = [
+ "axum 0.8.8",
+ "bs58",
  "carbon-core",
  "carbon-log-metrics",
  "carbon-token-program-decoder",
  "carbon-yellowstone-grpc-datasource",
  "dotenv",
  "env_logger",
+ "juniper",
+ "log",
  "rustls 0.23.35",
  "sqlx",
  "tokio",
