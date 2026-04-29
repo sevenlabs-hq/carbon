@@ -3924,6 +3924,7 @@ dependencies = [
  "carbon-zeta-decoder",
  "chrono",
  "dashmap 6.1.0",
+ "futures-util",
  "helius",
  "log",
  "once_cell",
@@ -3937,6 +3938,7 @@ dependencies = [
  "solana-signature",
  "solana-transaction-status",
  "tokio",
+ "tokio-tungstenite",
  "tracing-subscriber",
  "urlencoding",
 ]

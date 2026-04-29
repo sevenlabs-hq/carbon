@@ -19,6 +19,7 @@ mod event;
 mod processors;
 mod state;
 mod taxonomy;
+mod watch_list_sync;
 mod writer;
 mod writer_clickhouse;
 
@@ -73,10 +74,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     coordinator::spawn_flusher();
 
     // Recover watch list from surveillance_wallet_sessions on startup.
+    // This is the bootstrap snapshot — NOT polling. After this, the
+    // watch_list_sync task takes over via Supabase Realtime push and
+    // never re-snapshots unless it has to reconnect.
     if let Err(e) = recover_watch_list().await {
         log::warn!("recover_watch_list failed (continuing with empty list): {}", e);
     }
     log::info!("initial watch list: {} wallets", state::watch_count());
+
+    // Live watch-list sync via Supabase Realtime. INSERT/UPDATE on
+    // surveillance_wallet_sessions → state::add (Helius re-subs).
+    // DELETE → state::remove. No polling.
+    watch_list_sync::spawn();
 
     // Heartbeat task — refreshes surveillance_wallet_sessions.heartbeat_at for
     // rows we own (Phase 3 reaper uses this).
