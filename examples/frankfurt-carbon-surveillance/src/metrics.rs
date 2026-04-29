@@ -68,6 +68,7 @@ pub fn render(watch_wallets: usize, watcher_rows: usize, atlas_set_size: usize) 
     let coalesced = HELIUS_RESUB_NOTIFIES_COALESCED_TOTAL.load(Ordering::Relaxed);
     let realtime = REALTIME_EVENTS_TOTAL.load(Ordering::Relaxed);
     let ch_fail = CLICKHOUSE_INSERT_FAILURES_TOTAL.load(Ordering::Relaxed);
+    let token_cache = crate::token_meta::cache_size();
     format!(
         "# HELP frankfurt_carbon_watch_wallets Distinct wallets currently watched.\n\
 # TYPE frankfurt_carbon_watch_wallets gauge\n\
@@ -92,8 +93,11 @@ frankfurt_carbon_helius_resub_notifies_coalesced_total {}\n\
 frankfurt_carbon_realtime_events_total {}\n\
 # HELP frankfurt_carbon_clickhouse_insert_failures_total ClickHouse insert batch failures (non-2xx).\n\
 # TYPE frankfurt_carbon_clickhouse_insert_failures_total counter\n\
-frankfurt_carbon_clickhouse_insert_failures_total {}\n",
+frankfurt_carbon_clickhouse_insert_failures_total {}\n\
+# HELP frankfurt_carbon_token_symbol_cache_size Cached mint→symbol entries from observed PumpFun launches.\n\
+# TYPE frankfurt_carbon_token_symbol_cache_size gauge\n\
+frankfurt_carbon_token_symbol_cache_size {}\n",
         watch_wallets, watcher_rows, atlas_set_size,
-        events, resubs, coalesced, realtime, ch_fail,
+        events, resubs, coalesced, realtime, ch_fail, token_cache,
     )
 }

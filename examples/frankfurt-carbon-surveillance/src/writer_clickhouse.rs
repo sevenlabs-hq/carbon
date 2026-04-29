@@ -236,6 +236,8 @@ mod tests {
             event_type,
             token_address: None,
             token_symbol: None,
+            token_name: None,
+            token_image: None,
             sol_amount: 0.0,
             token_amount: 0.0,
             price_sol: 0.0,

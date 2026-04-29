@@ -95,6 +95,8 @@ impl Processor for PumpfunWatch {
                             event_type,
                             token_address: Some(ev.mint.to_string()),
                             token_symbol: None,
+                            token_name: None,
+                            token_image: None,
                             sol_amount: ev.sol_amount as f64 / 1e9,
                             token_amount: fmt_decimal(ev.token_amount, decimals),
                             price_sol: safe_price_sol(ev.sol_amount, ev.token_amount, decimals),
@@ -144,10 +146,23 @@ impl Processor for PumpfunWatch {
             _ => None,
         };
         if let Some((creator_str, ix_variant, mut create_raw)) = create_info {
+            // Cache mint → (symbol, name) for every observed pump.fun
+            // launch, regardless of whether the creator is watched. A
+            // swap event by a different watched wallet that touches
+            // this mint LATER gets symbol+name enriched for free. Image
+            // isn't in the Create ix args (it lives at the metadata URI);
+            // the lazy DAS path fills that in on first cache miss.
+            let observed_mint = decoded.accounts.first().map(|a| a.pubkey.to_string());
+            if let Some(mint) = observed_mint.as_deref() {
+                let sym = create_raw.get("symbol").and_then(|v| v.as_str());
+                let nm = create_raw.get("name").and_then(|v| v.as_str());
+                crate::token_meta::record_from_create(mint, sym, nm);
+            }
+
             let watchers = state::watchers_for(&creator_str);
             if !watchers.is_empty() {
-                let mint = match decoded.accounts.first() {
-                    Some(a) => a.pubkey.to_string(),
+                let mint = match observed_mint {
+                    Some(m) => m,
                     None => return Ok(()),
                 };
                 if let Some(obj) = create_raw.as_object_mut() {
@@ -170,6 +185,8 @@ impl Processor for PumpfunWatch {
                         event_type: Activity::MintCreate.as_event_type(),
                         token_address: Some(mint.clone()),
                         token_symbol: None,
+                        token_name: None,
+                        token_image: None,
                         sol_amount: 0.0,
                         token_amount: 0.0,
                         price_sol: 0.0,
@@ -283,6 +300,8 @@ impl Processor for PumpSwapWatch {
                 event_type,
                 token_address: Some(base_mint.to_string()),
                 token_symbol: None,
+                token_name: None,
+                token_image: None,
                 sol_amount: sol_amount_lamports as f64 / 1e9,
                 token_amount: fmt_decimal(token_amount_raw, decimals),
                 price_sol: safe_price_sol(sol_amount_lamports, token_amount_raw, decimals),
@@ -390,6 +409,8 @@ impl Processor for TransferSolWatch {
                 event_type,
                 token_address: None,
                 token_symbol: None,
+                token_name: None,
+                token_image: None,
                 sol_amount: amount as f64 / 1e9,
                 token_amount: 0.0,
                 price_sol: 0.0,
@@ -503,6 +524,8 @@ async fn emit_spl_transfer_event(
             event_type,
             token_address: Some(mint_str.clone()),
             token_symbol: None,
+            token_name: None,
+            token_image: None,
             sol_amount: 0.0,
             token_amount,
             price_sol: 0.0,
@@ -827,6 +850,8 @@ impl<T: Send + Sync + 'static> Processor for AggWatch<T> {
                     event_type,
                     token_address: token_address.clone(),
                     token_symbol: None,
+                    token_name: None,
+                    token_image: None,
                     sol_amount,
                     token_amount,
                     price_sol: 0.0,

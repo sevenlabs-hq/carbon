@@ -25,6 +25,10 @@ pub struct SurveillanceEventOut {
     pub token_address: Option<String>,
     #[serde(rename = "tokenSymbol")]
     pub token_symbol: Option<String>,
+    #[serde(rename = "tokenName")]
+    pub token_name: Option<String>,
+    #[serde(rename = "tokenImage")]
+    pub token_image: Option<String>,
     #[serde(rename = "solAmount")]
     pub sol_amount: f64,
     #[serde(rename = "tokenAmount")]

@@ -104,7 +104,37 @@ async fn sweep_once() {
 
     for sig in ready {
         if let Some((_, bucket)) = BUFFER.remove(&sig) {
-            for event in classify(bucket.candidates) {
+            for mut event in classify(bucket.candidates) {
+                // Single enrichment point. For any event with a token
+                // address, pull cached metadata (symbol/name/image) and
+                // populate the dedicated columns. On a cache miss, fire
+                // a fire-and-forget DAS getAsset — this event ships
+                // unchanged (no critical-path delay) and the next event
+                // for the same mint hits cache.
+                if let Some(mint) = event.token_address.as_deref() {
+                    match crate::token_meta::lookup(mint) {
+                        Some(meta) => {
+                            if event.token_symbol.is_none() {
+                                event.token_symbol = meta.symbol;
+                            }
+                            if event.token_name.is_none() {
+                                event.token_name = meta.name;
+                            }
+                            if event.token_image.is_none() {
+                                event.token_image = meta.image;
+                            }
+                            // Even on a partial-from-Create hit, kick a
+                            // DAS fetch to fill in the image. spawn_das
+                            // is a no-op if `fetched=true` already.
+                            if !meta.fetched {
+                                crate::token_meta::spawn_das_fetch(mint.to_string());
+                            }
+                        }
+                        None => {
+                            crate::token_meta::spawn_das_fetch(mint.to_string());
+                        }
+                    }
+                }
                 // Fan to both writers. Independent failure domains —
                 // writer_clickhouse no-ops if CLICKHOUSE_URL isn't set, so
                 // this is also the env-gated kill switch for analytics
@@ -240,6 +270,8 @@ mod tests {
                 event_type: activity.as_event_type(),
                 token_address: None,
                 token_symbol: None,
+                token_name: None,
+                token_image: None,
                 sol_amount: sol,
                 token_amount: 0.0,
                 price_sol: 0.0,

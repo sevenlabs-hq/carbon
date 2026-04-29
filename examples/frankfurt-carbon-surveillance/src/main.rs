@@ -21,6 +21,7 @@ mod metrics;
 mod processors;
 mod state;
 mod taxonomy;
+mod token_meta;
 mod watch_list_sync;
 mod writer;
 mod writer_clickhouse;
