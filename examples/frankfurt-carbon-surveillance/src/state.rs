@@ -168,12 +168,218 @@ pub async fn remove_target(target_id: &str) -> Vec<String> {
     let mut emptied_wallets = Vec::new();
     for (row_id, _wallet) in &to_remove {
         if let Some(w) = remove_by_id(row_id).await {
-            // remove_by_id only returns the wallet — we report it once
-            // even if multiple watchers matched, so dedupe via a set.
-            if !emptied_wallets.contains(&w) {
+            // remove_by_id returns the wallet whether or not it was the
+            // last watcher. A wallet is "emptied" iff WATCH no longer
+            // contains it after the removal — that's the contract this
+            // function reports back to its caller.
+            if !WATCH.contains_key(&w) && !emptied_wallets.contains(&w) {
                 emptied_wallets.push(w);
             }
         }
     }
     emptied_wallets
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    /// Returns a Solana base58 pubkey unique per test so concurrent test
+    /// runs don't collide in the global WATCH/ATLAS_WS_ACCOUNTS state.
+    /// Encodes 32 bytes (mostly zeros) with the high bytes set from
+    /// the seed so the resulting strings are valid base58 pubkeys.
+    fn unique_wallet(seed: u64) -> String {
+        let mut bytes = [0u8; 32];
+        bytes[0..8].copy_from_slice(&seed.to_le_bytes());
+        // pad with prefix bytes to avoid leading zeros producing short base58
+        bytes[8] = 0xff;
+        bytes[9] = 0xee;
+        Pubkey::new_from_array(bytes).to_string()
+    }
+
+    fn watcher(id: &str, user_id: &str) -> WatchedWallet {
+        WatchedWallet {
+            id: id.into(),
+            user_id: user_id.into(),
+            target_id: format!("{}:t", user_id),
+            target_name: "n".into(),
+            wallet_label: "".into(),
+        }
+    }
+
+    async fn atlas_set_contains(wallet_str: &str) -> bool {
+        let pk = Pubkey::from_str(wallet_str).unwrap();
+        ATLAS_WS_ACCOUNTS.read().await.contains(&pk)
+    }
+
+    #[tokio::test]
+    #[serial_test::serial]
+    async fn add_inserts_first_watcher_and_registers_atlas_ws() {
+        let w = unique_wallet(0xA001);
+        add(w.clone(), watcher("row1", "userA")).await;
+
+        assert_eq!(watchers_for(&w).len(), 1);
+        assert!(is_watched(&w));
+        assert!(atlas_set_contains(&w).await);
+        assert_eq!(ID_TO_WALLET.get("row1").map(|v| v.value().clone()), Some(w.clone()));
+
+        // cleanup
+        remove_by_id("row1").await;
+    }
+
+    #[tokio::test]
+    #[serial_test::serial]
+    async fn two_users_on_same_wallet_each_have_their_own_watcher() {
+        let w = unique_wallet(0xA002);
+        add(w.clone(), watcher("rowA", "userA")).await;
+        add(w.clone(), watcher("rowB", "userB")).await;
+
+        let watchers = watchers_for(&w);
+        assert_eq!(watchers.len(), 2);
+        let user_ids: Vec<&str> = watchers.iter().map(|w| w.user_id.as_str()).collect();
+        assert!(user_ids.contains(&"userA"));
+        assert!(user_ids.contains(&"userB"));
+        // Wallet appears in atlas set exactly once regardless of watcher count.
+        assert!(atlas_set_contains(&w).await);
+
+        // cleanup
+        remove_by_id("rowA").await;
+        remove_by_id("rowB").await;
+    }
+
+    #[tokio::test]
+    #[serial_test::serial]
+    async fn add_same_id_twice_replaces_metadata_does_not_duplicate() {
+        // Idempotency: handling a duplicate Realtime event for the same
+        // row id (or backend retry) must not create a phantom second
+        // watcher. The metadata is replaced.
+        let w = unique_wallet(0xA003);
+        add(w.clone(), watcher("rowDup", "userA")).await;
+        let mut updated = watcher("rowDup", "userA");
+        updated.wallet_label = "renamed".into();
+        add(w.clone(), updated).await;
+
+        let watchers = watchers_for(&w);
+        assert_eq!(watchers.len(), 1, "duplicate add should NOT add a second watcher");
+        assert_eq!(watchers[0].wallet_label, "renamed");
+
+        remove_by_id("rowDup").await;
+    }
+
+    #[tokio::test]
+    #[serial_test::serial]
+    async fn remove_by_id_with_multiple_watchers_keeps_others() {
+        // Penultimate watcher removed: wallet stays in atlas set;
+        // remaining watcher still produces events.
+        let w = unique_wallet(0xA004);
+        add(w.clone(), watcher("rowA", "userA")).await;
+        add(w.clone(), watcher("rowB", "userB")).await;
+
+        let res = remove_by_id("rowA").await;
+        assert_eq!(res, Some(w.clone()));
+
+        let remaining = watchers_for(&w);
+        assert_eq!(remaining.len(), 1);
+        assert_eq!(remaining[0].user_id, "userB");
+        assert!(
+            atlas_set_contains(&w).await,
+            "wallet must stay in atlas set while any watcher remains"
+        );
+
+        remove_by_id("rowB").await;
+    }
+
+    #[tokio::test]
+    #[serial_test::serial]
+    async fn remove_by_id_last_watcher_drops_wallet_from_atlas() {
+        let w = unique_wallet(0xA005);
+        add(w.clone(), watcher("rowOnly", "userA")).await;
+        assert!(atlas_set_contains(&w).await);
+
+        let res = remove_by_id("rowOnly").await;
+        assert_eq!(res, Some(w.clone()));
+        assert!(watchers_for(&w).is_empty());
+        assert!(!is_watched(&w));
+        assert!(!atlas_set_contains(&w).await, "atlas set must lose wallet on last watcher");
+        assert!(ID_TO_WALLET.get("rowOnly").is_none());
+    }
+
+    #[tokio::test]
+    #[serial_test::serial]
+    async fn remove_by_id_unknown_id_returns_none() {
+        // Realtime DELETE for an id we never tracked (e.g. row was
+        // claimed by a different server_id) — handler logs and skips.
+        let res = remove_by_id("never-seen-id-xyz").await;
+        assert!(res.is_none());
+    }
+
+    #[tokio::test]
+    #[serial_test::serial]
+    async fn watchers_for_returns_empty_for_unknown_wallet() {
+        let res = watchers_for(&unique_wallet(0xA006));
+        assert!(res.is_empty());
+    }
+
+    #[tokio::test]
+    #[serial_test::serial]
+    async fn watch_count_vs_watcher_count_distinguish_distinct_wallets() {
+        let w1 = unique_wallet(0xA007);
+        let w2 = unique_wallet(0xA008);
+        let baseline_wallets = watch_count();
+        let baseline_watchers = watcher_count();
+
+        // Two users on w1, one on w2 → 3 watcher rows, 2 distinct wallets.
+        add(w1.clone(), watcher("rowA", "userA")).await;
+        add(w1.clone(), watcher("rowB", "userB")).await;
+        add(w2.clone(), watcher("rowC", "userC")).await;
+
+        assert_eq!(watch_count() - baseline_wallets, 2);
+        assert_eq!(watcher_count() - baseline_watchers, 3);
+
+        remove_by_id("rowA").await;
+        remove_by_id("rowB").await;
+        remove_by_id("rowC").await;
+    }
+
+    #[tokio::test]
+    #[serial_test::serial]
+    async fn remove_target_drops_watcher_across_wallets_for_that_target() {
+        // Same target_id spans two different wallets (e.g. a multi-wallet
+        // target). remove_target must drop both watchers, returning each
+        // emptied wallet exactly once.
+        let w1 = unique_wallet(0xA009);
+        let w2 = unique_wallet(0xA00A);
+        let mut a = watcher("rowA", "userA");
+        a.target_id = "tgt-shared".into();
+        let mut b = watcher("rowB", "userA");
+        b.target_id = "tgt-shared".into();
+        let mut c = watcher("rowC", "userA");
+        c.target_id = "tgt-other".into();
+        add(w1.clone(), a).await;
+        add(w1.clone(), c).await; // w1 has two watchers, only one matches target
+        add(w2.clone(), b).await;
+
+        let emptied = remove_target("tgt-shared").await;
+        // w1 still has rowC (different target) → not emptied
+        // w2 had only rowB → emptied
+        assert!(emptied.contains(&w2));
+        assert!(!emptied.contains(&w1));
+        // w1's remaining watcher is rowC
+        let w1_remaining = watchers_for(&w1);
+        assert_eq!(w1_remaining.len(), 1);
+        assert_eq!(w1_remaining[0].id, "rowC");
+
+        remove_by_id("rowC").await;
+    }
+
+    #[tokio::test]
+    #[serial_test::serial]
+    async fn invalid_pubkey_does_not_corrupt_state() {
+        let invalid = "not_a_real_pubkey".to_string();
+        let baseline_watchers = watcher_count();
+        add(invalid.clone(), watcher("invalidRow", "userA")).await;
+        // No watcher added (logged warning instead).
+        assert_eq!(watcher_count(), baseline_watchers);
+        assert!(ID_TO_WALLET.get("invalidRow").is_none());
+    }
 }

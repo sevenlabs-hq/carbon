@@ -311,8 +311,6 @@ async fn fetch_and_add(
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[test]
     fn parses_insert_postgres_changes_payload() {
         // Realtime sends events with this envelope shape (verified against

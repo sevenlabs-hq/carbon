@@ -3932,6 +3932,8 @@ dependencies = [
  "reqwest 0.12.28",
  "serde",
  "serde_json",
+ "serial_test 3.4.0",
+ "solana-account-decoder-client-types",
  "solana-instruction",
  "solana-native-token",
  "solana-pubkey 3.0.0",
@@ -5139,7 +5141,7 @@ dependencies = [
  "serde",
  "serde_cbor",
  "serde_json",
- "serial_test",
+ "serial_test 2.0.0",
  "solana-address 1.1.0",
  "solana-entry",
  "solana-geyser-plugin-manager",
@@ -8184,7 +8186,22 @@ dependencies = [
  "lazy_static",
  "log",
  "parking_lot 0.12.5",
- "serial_test_derive",
+ "serial_test_derive 2.0.0",
+]
+
+[[package]]
+name = "serial_test"
+version = "3.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "911bd979bf1070a3f3aa7b691a3b3e9968f339ceeec89e08c280a8a22207a32f"
+dependencies = [
+ "futures-executor",
+ "futures-util",
+ "log",
+ "once_cell",
+ "parking_lot 0.12.5",
+ "scc",
+ "serial_test_derive 3.4.0",
 ]
 
 [[package]]
@@ -8192,6 +8209,17 @@ name = "serial_test_derive"
 version = "2.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "91d129178576168c589c9ec973feedf7d3126c01ac2bf08795109aa35b69fb8f"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.112",
+]
+
+[[package]]
+name = "serial_test_derive"
+version = "3.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0a7d91949b85b0d2fb687445e448b40d322b6b3e4af6b44a29b21d9a5f33e6d9"
 dependencies = [
  "proc-macro2",
  "quote",

@@ -114,3 +114,4 @@ futures-util = "0.3"
 
 [dev-dependencies]
 solana-account-decoder-client-types = { workspace = true }
+serial_test = "3"
