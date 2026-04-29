@@ -195,6 +195,11 @@ async fn handle_message(
         log::debug!("watch_list_sync: ignoring event '{}'", event);
         return;
     }
+    // TEMP DEBUG: log change_type + record presence so we can see what's coming
+    let dt = parsed.pointer("/payload/data/type").and_then(|v| v.as_str()).unwrap_or("?");
+    let has_rec = parsed.pointer("/payload/data/record").map(|v| !v.is_null()).unwrap_or(false);
+    let has_old = parsed.pointer("/payload/data/old_record").map(|v| !v.is_null()).unwrap_or(false);
+    log::info!("watch_list_sync trace: type={} record={} old_record={}", dt, has_rec, has_old);
 
     let data = parsed
         .pointer("/payload/data")
