@@ -40,16 +40,20 @@ impl Processor for PumpfunWatch {
         if metadata.transaction_metadata.meta.status.is_err() {
             return Ok(());
         }
-        let signer_str = metadata.transaction_metadata.fee_payer.to_string();
-        let watched = match state::lookup(&signer_str) {
-            Some(w) => w,
-            None => return Ok(()),
-        };
 
         // Only act on TradeEvent (post-execution, exact). Other variants either
         // pair with TradeEvent or aren't user trades worth surfacing.
+        // ATTRIBUTION: pump.fun's CpiEvent::TradeEvent carries `ev.user` —
+        // the actual trader's pubkey regardless of who signed the tx.
+        // Aggregators (OKX/BonkBot/Trojan/etc.) sign on the user's behalf;
+        // ev.user is the user. Use it, not fee_payer.
         if let PumpfunInstruction::CpiEvent(boxed) = decoded.data {
             if let CpiEvent::TradeEvent(ev) = *boxed {
+                let user_str = ev.user.to_string();
+                let watched = match state::lookup(&user_str) {
+                    Some(w) => w,
+                    None => return Ok(()),
+                };
                 let meta = &metadata.transaction_metadata.meta;
                 let decimals =
                     extract_decimals(meta, &ev.user, &ev.mint).unwrap_or(6); // pump.fun default
@@ -58,7 +62,7 @@ impl Processor for PumpfunWatch {
                     user_id: watched.user_id.clone(),
                     target_id: watched.target_id.clone(),
                     target_name: watched.target_name.clone(),
-                    wallet_address: signer_str.clone(),
+                    wallet_address: user_str.clone(),
                     wallet_label: watched.wallet_label.clone(),
                     signature: signature.clone(),
                     event_type: if ev.is_buy { "swap_buy" } else { "swap_sell" },
@@ -119,11 +123,6 @@ impl Processor for PumpSwapWatch {
         if metadata.transaction_metadata.meta.status.is_err() {
             return Ok(());
         }
-        let signer_str = metadata.transaction_metadata.fee_payer.to_string();
-        let watched = match state::lookup(&signer_str) {
-            Some(w) => w,
-            None => return Ok(()),
-        };
 
         // PumpSwap: extract base mint from accounts[3] (matches existing
         // decoder.rs convention). Buy/Sell variants tell us direction.
@@ -135,25 +134,36 @@ impl Processor for PumpSwapWatch {
             PumpSwapInstruction::Sell(_) => ("swap_sell", "Sell", Activity::SwapSell),
             _ => return Ok(()),
         };
+        // ATTRIBUTION: per PumpSwap's IDL the user is `accounts[1]` (pool=0,
+        // user=1). Use that — NOT fee_payer — so we attribute correctly when
+        // a router (OKX/BonkBot/Trojan/etc.) signs on the user's behalf.
+        let user_pk = match decoded.accounts.get(1) {
+            Some(a) => a.pubkey,
+            None => return Ok(()),
+        };
+        let user_str = user_pk.to_string();
+        let watched = match state::lookup(&user_str) {
+            Some(w) => w,
+            None => return Ok(()),
+        };
         let base_mint = match decoded.accounts.get(3) {
             Some(a) => a.pubkey,
             None => return Ok(()),
         };
 
         let meta = &metadata.transaction_metadata.meta;
-        let signer_pk = metadata.transaction_metadata.fee_payer;
-        let decimals = extract_decimals(meta, &signer_pk, &base_mint).unwrap_or(6);
+        let decimals = extract_decimals(meta, &user_pk, &base_mint).unwrap_or(6);
         let token_delta_raw =
-            token_balance_delta_raw(meta, &signer_pk, &base_mint).unwrap_or(0);
+            token_balance_delta_raw(meta, &user_pk, &base_mint).unwrap_or(0);
         let token_amount_raw = token_delta_raw.unsigned_abs() as u64;
 
-        // SOL delta from native balance changes (account[0] of the wallet's
-        // pre/post balances if available). PumpSwap doesn't expose sol_amount
-        // in the ix args directly; rely on metadata.
+        // SOL delta from native balance changes (user pubkey's slot in the
+        // tx's static keys). PumpSwap doesn't expose sol_amount in the ix
+        // args directly; rely on metadata.
         let sol_delta_lamports: i128 = {
             let static_keys =
                 metadata.transaction_metadata.message.static_account_keys();
-            if let Some(idx) = static_keys.iter().position(|k| k == &signer_pk) {
+            if let Some(idx) = static_keys.iter().position(|k| k == &user_pk) {
                 let post = meta.post_balances.get(idx).copied().unwrap_or(0) as i128;
                 let pre = meta.pre_balances.get(idx).copied().unwrap_or(0) as i128;
                 post - pre
@@ -168,7 +178,7 @@ impl Processor for PumpSwapWatch {
             user_id: watched.user_id.clone(),
             target_id: watched.target_id.clone(),
             target_name: watched.target_name.clone(),
-            wallet_address: signer_str.clone(),
+            wallet_address: user_str.clone(),
             wallet_label: watched.wallet_label.clone(),
             signature: signature.clone(),
             event_type,
@@ -608,7 +618,7 @@ impl<T: Send + Sync + 'static> Processor for AggWatch<T> {
         data: Self::InputType,
         _metrics: Arc<MetricsCollection>,
     ) -> CarbonResult<()> {
-        let (metadata, _decoded, _nested, raw) = data;
+        let (metadata, decoded, _nested, raw) = data;
         if metadata.transaction_metadata.meta.status.is_err() {
             return Ok(());
         }
@@ -627,50 +637,64 @@ impl<T: Send + Sync + 'static> Processor for AggWatch<T> {
             return Ok(());
         }
 
-        let signer_str = metadata.transaction_metadata.fee_payer.to_string();
-        let watched = match state::lookup(&signer_str) {
-            Some(w) => w,
-            None => return Ok(()),
-        };
         if !self.emit {
             return Ok(()); // SKIP_PROGRAMS: silent
         }
 
-        // We don't know the variant or mint from a generic decoder match
-        // without per-program logic. Submit a Fallback (ProgramActivity)
-        // candidate — the coordinator will suppress it for any wallet that
-        // also has a richer same-tx Swap/Mint/etc. candidate from a
-        // dedicated processor.
+        // ATTRIBUTION: scan every account in the decoded ix for a watched
+        // wallet. Aggregators (Jupiter, OKX, BonkBot, Trojan, Photon-relay,
+        // …) sign on the user's behalf — the watched wallet appears in the
+        // ix's accounts as a counterparty (`user`/`authority`/`payer` slot),
+        // not as fee_payer. Emit one ProgramActivity candidate per matched
+        // wallet so multiple watched wallets in the same tx (e.g. one is
+        // payer, another is destination) each get a row attributed to them.
+        // The coordinator dedupes per (sig, wallet, family).
         let signature = metadata.transaction_metadata.signature.to_string();
-        let event = SurveillanceEventOut {
-            user_id: watched.user_id.clone(),
-            target_id: watched.target_id.clone(),
-            target_name: watched.target_name.clone(),
-            wallet_address: signer_str.clone(),
-            wallet_label: watched.wallet_label.clone(),
-            signature: signature.clone(),
-            event_type: Activity::ProgramActivity.as_event_type(),
-            token_address: None,
-            token_symbol: None,
-            sol_amount: 0.0,
-            token_amount: 0.0,
-            price_sol: 0.0,
-            program: self.program,
-            counterparty: String::new(),
-            block_time: iso8601_block_time(metadata.transaction_metadata.block_time),
-            slot: metadata.transaction_metadata.slot,
-            raw_data: serde_json::json!({
-                "source": "frankfurt-carbon-surveillance",
-                "carbon_program": format!("{}_decoder", self.program),
-                "note": "generic AggWatch — coordinator may suppress if richer candidate also fired",
-            }),
-        };
-        coordinator::submit(ActivityCandidate {
-            activity: Activity::ProgramActivity,
-            watched: watched.clone(),
-            event,
-        })
-        .await;
+        let block_time = iso8601_block_time(metadata.transaction_metadata.block_time);
+        let slot = metadata.transaction_metadata.slot;
+        let signer_str = metadata.transaction_metadata.fee_payer.to_string();
+        let mut emitted_for: std::collections::HashSet<String> =
+            std::collections::HashSet::new();
+        for acct in decoded.accounts.iter() {
+            let pk_str = acct.pubkey.to_string();
+            if !emitted_for.insert(pk_str.clone()) {
+                continue; // wallet already had a candidate from this ix
+            }
+            let watched = match state::lookup(&pk_str) {
+                Some(w) => w,
+                None => continue,
+            };
+            let event = SurveillanceEventOut {
+                user_id: watched.user_id.clone(),
+                target_id: watched.target_id.clone(),
+                target_name: watched.target_name.clone(),
+                wallet_address: pk_str.clone(),
+                wallet_label: watched.wallet_label.clone(),
+                signature: signature.clone(),
+                event_type: Activity::ProgramActivity.as_event_type(),
+                token_address: None,
+                token_symbol: None,
+                sol_amount: 0.0,
+                token_amount: 0.0,
+                price_sol: 0.0,
+                program: self.program,
+                counterparty: String::new(),
+                block_time: block_time.clone(),
+                slot,
+                raw_data: serde_json::json!({
+                    "source": "frankfurt-carbon-surveillance",
+                    "carbon_program": format!("{}_decoder", self.program),
+                    "fee_payer": signer_str,
+                    "note": "generic AggWatch — coordinator may suppress if richer candidate also fired",
+                }),
+            };
+            coordinator::submit(ActivityCandidate {
+                activity: Activity::ProgramActivity,
+                watched,
+                event,
+            })
+            .await;
+        }
         Ok(())
     }
 }
