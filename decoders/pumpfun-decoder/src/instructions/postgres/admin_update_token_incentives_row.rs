@@ -12,46 +12,35 @@ pub struct AdminUpdateTokenIncentivesRow {
     pub seconds_in_a_day: i64,
     pub day_number: U64,
     pub pump_token_supply_per_day: U64,
-    #[sqlx(rename = "__accounts")]
-    pub accounts: sqlx::types::Json<Vec<solana_instruction::AccountMeta>>,
 }
 
 impl AdminUpdateTokenIncentivesRow {
-    pub fn from_parts(
-        source: crate::instructions::admin_update_token_incentives::AdminUpdateTokenIncentives,
-        metadata: InstructionMetadata,
-        accounts: Vec<solana_instruction::AccountMeta>,
-    ) -> Self {
+    pub fn from_parts(source: crate::instructions::admin_update_token_incentives::AdminUpdateTokenIncentives, metadata: InstructionMetadata) -> Self {
         Self {
             instruction_metadata: metadata.into(),
-            start_time: source.start_time,
-            end_time: source.end_time,
-            seconds_in_a_day: source.seconds_in_a_day,
+            start_time: source.start_time.into(),
+            end_time: source.end_time.into(),
+            seconds_in_a_day: source.seconds_in_a_day.into(),
             day_number: source.day_number.into(),
             pump_token_supply_per_day: source.pump_token_supply_per_day.into(),
-            accounts: sqlx::types::Json(accounts),
         }
     }
 }
 
-impl TryFrom<AdminUpdateTokenIncentivesRow>
-    for crate::instructions::admin_update_token_incentives::AdminUpdateTokenIncentives
-{
+impl TryFrom<AdminUpdateTokenIncentivesRow> for crate::instructions::admin_update_token_incentives::AdminUpdateTokenIncentives {
     type Error = carbon_core::error::Error;
     fn try_from(source: AdminUpdateTokenIncentivesRow) -> Result<Self, Self::Error> {
         Ok(Self {
-            start_time: source.start_time,
-            end_time: source.end_time,
-            seconds_in_a_day: source.seconds_in_a_day,
+            start_time: source.start_time.into(),
+            end_time: source.end_time.into(),
+            seconds_in_a_day: source.seconds_in_a_day.into(),
             day_number: *source.day_number,
             pump_token_supply_per_day: *source.pump_token_supply_per_day,
         })
     }
 }
 
-impl carbon_core::postgres::operations::Table
-    for crate::instructions::admin_update_token_incentives::AdminUpdateTokenIncentives
-{
+impl carbon_core::postgres::operations::Table for crate::instructions::admin_update_token_incentives::AdminUpdateTokenIncentives {
     fn table() -> &'static str {
         "admin_update_token_incentives_instruction"
     }
@@ -67,7 +56,6 @@ impl carbon_core::postgres::operations::Table
             "seconds_in_a_day",
             "day_number",
             "pump_token_supply_per_day",
-            "__accounts",
         ]
     }
 }
@@ -75,31 +63,27 @@ impl carbon_core::postgres::operations::Table
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Insert for AdminUpdateTokenIncentivesRow {
     async fn insert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"
+        sqlx::query(r#"
             INSERT INTO admin_update_token_incentives_instruction (
                 "start_time",
                 "end_time",
                 "seconds_in_a_day",
                 "day_number",
                 "pump_token_supply_per_day",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
-            )"#,
-        )
-        .bind(self.start_time)
-        .bind(self.end_time)
-        .bind(self.seconds_in_a_day)
-        .bind(&self.day_number)
-        .bind(&self.pump_token_supply_per_day)
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                $1, $2, $3, $4, $5, $6, $7, $8, $9
+            )"#)
+        .bind(self.start_time.clone())
+        .bind(self.end_time.clone())
+        .bind(self.seconds_in_a_day.clone())
+        .bind(self.day_number.clone())
+        .bind(self.pump_token_supply_per_day.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -108,16 +92,15 @@ impl carbon_core::postgres::operations::Insert for AdminUpdateTokenIncentivesRow
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Upsert for AdminUpdateTokenIncentivesRow {
     async fn upsert(&self, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"INSERT INTO admin_update_token_incentives_instruction (
+        sqlx::query(r#"INSERT INTO admin_update_token_incentives_instruction (
                 "start_time",
                 "end_time",
                 "seconds_in_a_day",
                 "day_number",
                 "pump_token_supply_per_day",
-                __signature, __instruction_index, __stack_height, __slot, __accounts
+                __signature, __instruction_index, __stack_height, __slot
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10
+                $1, $2, $3, $4, $5, $6, $7, $8, $9
             ) ON CONFLICT (
                 __signature, __instruction_index, __stack_height
             ) DO UPDATE SET
@@ -128,22 +111,18 @@ impl carbon_core::postgres::operations::Upsert for AdminUpdateTokenIncentivesRow
                 "pump_token_supply_per_day" = EXCLUDED."pump_token_supply_per_day",
                 __instruction_index = EXCLUDED.__instruction_index,
                 __stack_height = EXCLUDED.__stack_height,
-                __slot = EXCLUDED.__slot,
-                __accounts = EXCLUDED.__accounts
-            "#,
-        )
-        .bind(self.start_time)
-        .bind(self.end_time)
-        .bind(self.seconds_in_a_day)
-        .bind(&self.day_number)
-        .bind(&self.pump_token_supply_per_day)
-        .bind(&self.instruction_metadata.signature)
-        .bind(self.instruction_metadata.instruction_index)
-        .bind(self.instruction_metadata.stack_height)
-        .bind(&self.instruction_metadata.slot)
-        .bind(&self.accounts)
-        .execute(pool)
-        .await
+                __slot = EXCLUDED.__slot
+            "#)
+        .bind(self.start_time.clone())
+        .bind(self.end_time.clone())
+        .bind(self.seconds_in_a_day.clone())
+        .bind(self.day_number.clone())
+        .bind(self.pump_token_supply_per_day.clone())
+        .bind(self.instruction_metadata.signature.clone())
+        .bind(self.instruction_metadata.instruction_index.clone())
+        .bind(self.instruction_metadata.stack_height.clone())
+        .bind(self.instruction_metadata.slot.clone())
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -151,23 +130,16 @@ impl carbon_core::postgres::operations::Upsert for AdminUpdateTokenIncentivesRow
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::Delete for AdminUpdateTokenIncentivesRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
     async fn delete(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<()> {
-        sqlx::query(
-            r#"DELETE FROM admin_update_token_incentives_instruction WHERE
+        sqlx::query(r#"DELETE FROM admin_update_token_incentives_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .execute(pool)
-        .await
+        .execute(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(())
     }
@@ -175,26 +147,16 @@ impl carbon_core::postgres::operations::Delete for AdminUpdateTokenIncentivesRow
 
 #[async_trait::async_trait]
 impl carbon_core::postgres::operations::LookUp for AdminUpdateTokenIncentivesRow {
-    type Key = (
-        String,
-        carbon_core::postgres::primitives::U32,
-        carbon_core::postgres::primitives::U32,
-    );
+    type Key = (String, carbon_core::postgres::primitives::U32, carbon_core::postgres::primitives::U32);
 
-    async fn lookup(
-        key: Self::Key,
-        pool: &sqlx::PgPool,
-    ) -> carbon_core::error::CarbonResult<Option<Self>> {
-        let row = sqlx::query_as(
-            r#"SELECT * FROM admin_update_token_incentives_instruction WHERE
+    async fn lookup(key: Self::Key, pool: &sqlx::PgPool) -> carbon_core::error::CarbonResult<Option<Self>> {
+        let row = sqlx::query_as(r#"SELECT * FROM admin_update_token_incentives_instruction WHERE
                 __signature = $1 AND __instruction_index = $2 AND __stack_height = $3
-            "#,
-        )
+            "#)
         .bind(key.0)
         .bind(key.1)
         .bind(key.2)
-        .fetch_optional(pool)
-        .await
+        .fetch_optional(pool).await
         .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?;
         Ok(row)
     }
@@ -204,12 +166,8 @@ pub struct AdminUpdateTokenIncentivesMigrationOperation;
 
 #[async_trait::async_trait]
 impl sqlx_migrator::Operation<sqlx::Postgres> for AdminUpdateTokenIncentivesMigrationOperation {
-    async fn up(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(
-            r#"CREATE TABLE IF NOT EXISTS admin_update_token_incentives_instruction (
+    async fn up(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"CREATE TABLE IF NOT EXISTS admin_update_token_incentives_instruction (
                 -- Instruction data
                 "start_time" INT8 NOT NULL,
                 "end_time" INT8 NOT NULL,
@@ -221,22 +179,13 @@ impl sqlx_migrator::Operation<sqlx::Postgres> for AdminUpdateTokenIncentivesMigr
                 __instruction_index BIGINT NOT NULL,
                 __stack_height BIGINT NOT NULL,
                 __slot NUMERIC(20),
-                __accounts JSONB NOT NULL,
                 PRIMARY KEY (__signature, __instruction_index, __stack_height)
-            )"#,
-        )
-        .execute(connection)
-        .await?;
+            )"#).execute(connection).await?;
         Ok(())
     }
 
-    async fn down(
-        &self,
-        connection: &mut sqlx::PgConnection,
-    ) -> Result<(), sqlx_migrator::error::Error> {
-        sqlx::query(r#"DROP TABLE IF EXISTS admin_update_token_incentives_instruction"#)
-            .execute(connection)
-            .await?;
+    async fn down(&self, connection: &mut sqlx::PgConnection) -> Result<(), sqlx_migrator::error::Error> {
+        sqlx::query(r#"DROP TABLE IF EXISTS admin_update_token_incentives_instruction"#).execute(connection).await?;
         Ok(())
     }
 }

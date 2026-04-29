@@ -9,8 +9,8 @@ use {
         metrics::MetricsCollection, processor::Processor,
     },
     carbon_pumpfun_decoder::{
-        instructions::{CpiEvent, PumpfunInstruction},
-        PumpfunDecoder,
+        instructions::{CpiEvent, PumpInstruction},
+        PumpDecoder,
     },
     carbon_rpc_block_crawler_datasource::{RpcBlockConfig, RpcBlockCrawler},
     clap::Parser,
@@ -49,7 +49,7 @@ pub async fn main() -> CarbonResult<()> {
 
     carbon_core::pipeline::Pipeline::builder()
         .datasource(rpc_block_ds)
-        .instruction(PumpfunDecoder, PumpfunInstructionProcessor)
+        .instruction(PumpDecoder, PumpInstructionProcessor)
         .shutdown_strategy(carbon_core::pipeline::ShutdownStrategy::Immediate)
         .build()?
         .run()
@@ -58,11 +58,11 @@ pub async fn main() -> CarbonResult<()> {
     Ok(())
 }
 
-pub struct PumpfunInstructionProcessor;
+pub struct PumpInstructionProcessor;
 
 #[async_trait]
-impl Processor for PumpfunInstructionProcessor {
-    type InputType = InstructionProcessorInputType<PumpfunInstruction>;
+impl Processor for PumpInstructionProcessor {
+    type InputType = InstructionProcessorInputType<PumpInstruction>;
 
     async fn process(
         &mut self,
@@ -71,8 +71,8 @@ impl Processor for PumpfunInstructionProcessor {
     ) -> CarbonResult<()> {
         let (metadata, pumpfun_instruction, _nested_instructions, _) = data;
 
-        if let PumpfunInstruction::CpiEvent(cpi_event) = pumpfun_instruction.data {
-            match *cpi_event {
+        if let PumpInstruction::CpiEvent(cpi_event) = pumpfun_instruction.data {
+            match cpi_event {
                 CpiEvent::CreateEvent(create_event) => {
                     log::info!(
                         "New token created: {:#?} on slot {}",

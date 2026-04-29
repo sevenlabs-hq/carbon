@@ -51,14 +51,10 @@
 //!         _datasource_id: &DatasourceId,
 //!         block_details: &BlockDetails,
 //!     ) -> bool {
-//!         block_details.block_height >= self.min_height
+//!         block_details
+//!             .block_height
+//!             .is_some_and(|block_height| block_height >= self.min_height)
 //!     }
-//!
-//!     // Implement other methods with default behavior
-//!     fn filter_account(&self, _: &DatasourceId, _: &_, _: &_) -> bool { true }
-//!     fn filter_instruction(&self, _: &DatasourceId, _: &_) -> bool { true }
-//!     fn filter_transaction(&self, _: &DatasourceId, _: &_, _: &_) -> bool { true }
-//!     fn filter_account_deletion(&self, _: &DatasourceId, _: &_) -> bool { true }
 //! }
 //! ```
 
@@ -112,12 +108,6 @@ use crate::{
 ///     ) -> bool {
 ///         datasource_id == &self.allowed_datasource
 ///     }
-///
-///     // Implement other methods with default behavior
-///     fn filter_account(&self, _: &DatasourceId, _: &_, _: &_) -> bool { true }
-///     fn filter_instruction(&self, _: &DatasourceId, _: &_) -> bool { true }
-///     fn filter_transaction(&self, _: &DatasourceId, _: &_, _: &_) -> bool { true }
-///     fn filter_account_deletion(&self, _: &DatasourceId, _: &_) -> bool { true }
 /// }
 /// ```
 pub trait Filter {
@@ -260,7 +250,10 @@ pub trait Filter {
 ///
 /// Using with pipeline builders:
 /// ```
-/// use carbon_core::{datasource::DatasourceId, filter::DatasourceFilter};
+/// use carbon_core::{
+///     datasource::DatasourceId,
+///     filter::{DatasourceFilter, Filter},
+/// };
 ///
 /// let filter = DatasourceFilter::new(DatasourceId::new_named("mainnet"));
 /// let filters = vec![Box::new(filter) as Box<dyn Filter>];

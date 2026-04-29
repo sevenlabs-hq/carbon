@@ -2,7 +2,6 @@
 use carbon_core::graphql::primitives::I64;
 use carbon_core::graphql::primitives::U64;
 use juniper::GraphQLObject;
-use serde_json;
 
 #[derive(Debug, Clone, GraphQLObject)]
 #[graphql(name = "AdminUpdateTokenIncentives")]
@@ -13,29 +12,18 @@ pub struct AdminUpdateTokenIncentivesGraphQL {
     pub seconds_in_a_day: I64,
     pub day_number: U64,
     pub pump_token_supply_per_day: U64,
-    pub accounts: carbon_core::graphql::primitives::Json,
 }
 
-impl TryFrom<crate::instructions::postgres::AdminUpdateTokenIncentivesRow>
-    for AdminUpdateTokenIncentivesGraphQL
-{
+impl TryFrom<crate::instructions::postgres::AdminUpdateTokenIncentivesRow> for AdminUpdateTokenIncentivesGraphQL {
     type Error = carbon_core::error::Error;
-    fn try_from(
-        row: crate::instructions::postgres::AdminUpdateTokenIncentivesRow,
-    ) -> Result<Self, Self::Error> {
+    fn try_from(row: crate::instructions::postgres::AdminUpdateTokenIncentivesRow) -> Result<Self, Self::Error> {
         Ok(Self {
             instruction_metadata: row.instruction_metadata.into(),
             start_time: carbon_core::graphql::primitives::I64(row.start_time),
             end_time: carbon_core::graphql::primitives::I64(row.end_time),
             seconds_in_a_day: carbon_core::graphql::primitives::I64(row.seconds_in_a_day),
             day_number: carbon_core::graphql::primitives::U64(*row.day_number),
-            pump_token_supply_per_day: carbon_core::graphql::primitives::U64(
-                *row.pump_token_supply_per_day,
-            ),
-            accounts: carbon_core::graphql::primitives::Json(
-                serde_json::to_value(&row.accounts.0)
-                    .map_err(|e| carbon_core::error::Error::Custom(e.to_string()))?,
-            ),
+            pump_token_supply_per_day: carbon_core::graphql::primitives::U64(*row.pump_token_supply_per_day),
         })
     }
 }
