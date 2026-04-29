@@ -96,6 +96,102 @@ pub fn watched_has_meaningful_delta(
     false
 }
 
+/// Wrapped SOL mint. Treated as SOL-equivalent in `classify_swap` —
+/// the user's wSOL ATA changing is functionally identical to their
+/// native SOL changing for swap-direction purposes (most aggregator
+/// flows wrap SOL into wSOL before swapping).
+const WSOL_MINT: &str = "So11111111111111111111111111111111111111112";
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SwapDirection {
+    Buy,
+    Sell,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct SwapClassification {
+    pub direction: SwapDirection,
+    pub token_mint: String,
+    pub token_amount_raw: u64,
+    pub sol_amount_lamports: u64,
+}
+
+/// Derive (direction, token, amounts) for a watched wallet from tx meta
+/// alone — used by AggWatch to upgrade a generic ProgramActivity row to
+/// a proper `swap_buy`/`swap_sell` for non-PumpFun DEXes (Raydium,
+/// Orca, Meteora, …) where Carbon's decoders don't expose a typed
+/// TradeEvent payload. Returns None when:
+///   - no non-SOL token movement (e.g. pure SOL transfer)
+///   - SOL and token deltas have the same sign (not a swap — could be
+///     an airdrop+fee, dust accumulation, etc.)
+///   - both deltas are below dust (routing intermediary)
+///   - token-to-token swap (no SOL leg)
+///
+/// Combines native SOL + wSOL into a single SOL-equivalent delta, with
+/// fee_payer fee-backout consistent with `watched_has_meaningful_delta`.
+pub fn classify_swap(
+    meta: &TransactionStatusMeta,
+    static_keys: &[Pubkey],
+    fee_payer: &Pubkey,
+    wallet: &Pubkey,
+) -> Option<SwapClassification> {
+    let mut sol_delta: i128 = 0;
+    if let Some(idx) = static_keys.iter().position(|k| k == wallet) {
+        let pre = meta.pre_balances.get(idx).copied().unwrap_or(0) as i128;
+        let post = meta.post_balances.get(idx).copied().unwrap_or(0) as i128;
+        sol_delta += post - pre;
+        if wallet == fee_payer {
+            sol_delta += meta.fee as i128;
+        }
+    }
+
+    let wallet_str = wallet.to_string();
+    let mut by_mint: std::collections::HashMap<String, i128> =
+        std::collections::HashMap::new();
+    if let Some(pre) = meta.pre_token_balances.as_ref() {
+        for tb in pre {
+            if tb.owner == wallet_str {
+                let amt: i128 = tb.ui_token_amount.amount.parse().unwrap_or(0);
+                *by_mint.entry(tb.mint.clone()).or_default() -= amt;
+            }
+        }
+    }
+    if let Some(post) = meta.post_token_balances.as_ref() {
+        for tb in post {
+            if tb.owner == wallet_str {
+                let amt: i128 = tb.ui_token_amount.amount.parse().unwrap_or(0);
+                *by_mint.entry(tb.mint.clone()).or_default() += amt;
+            }
+        }
+    }
+
+    if let Some(wsol_delta) = by_mint.remove(WSOL_MINT) {
+        sol_delta += wsol_delta;
+    }
+
+    let (token_mint, token_delta) = by_mint
+        .into_iter()
+        .filter(|(_, d)| d.unsigned_abs() >= TOKEN_DUST_RAW as u128)
+        .max_by_key(|(_, d)| d.unsigned_abs())?;
+
+    if sol_delta.unsigned_abs() < SOL_DUST_LAMPORTS as u128 {
+        return None;
+    }
+
+    let direction = match (sol_delta.signum(), token_delta.signum()) {
+        (-1, 1) => SwapDirection::Buy,
+        (1, -1) => SwapDirection::Sell,
+        _ => return None,
+    };
+
+    Some(SwapClassification {
+        direction,
+        token_mint,
+        token_amount_raw: token_delta.unsigned_abs() as u64,
+        sol_amount_lamports: sol_delta.unsigned_abs() as u64,
+    })
+}
+
 /// Generic AggWatch attribution: every pubkey appearing in the decoded
 /// ix's `accounts` vec that's in the watch list, deduped (a single ix
 /// can list the same account twice, and we want one candidate per
@@ -330,5 +426,156 @@ mod tests {
         let static_keys = vec![pk(0x01), pk(0x02)]; // wallet absent
         let meta = empty_meta();
         assert!(!watched_has_meaningful_delta(&meta, &static_keys, &pk(0x01), &wallet));
+    }
+
+    // ─── classify_swap ──────────────────────────────────────────────
+
+    const TEST_TOKEN: &str = "5tDxd4G8DkfDnFmqvJpaTtcjJq4Hc1XSshM6QGHHMshv";
+
+    #[test]
+    fn classify_swap_buy_when_token_gained_sol_lost() {
+        // Wallet (fee_payer) sends 0.5 SOL, receives 1M raw tokens.
+        let wallet = pk(0xA1);
+        let static_keys = vec![wallet];
+        let mut meta = empty_meta();
+        meta.pre_balances = vec![1_000_000_000];
+        meta.post_balances = vec![500_000_000]; // -0.5 SOL
+        meta.fee = 5000;
+        meta.pre_token_balances = Some(vec![token_balance(0, &wallet, TEST_TOKEN, "0", 6)]);
+        meta.post_token_balances = Some(vec![token_balance(0, &wallet, TEST_TOKEN, "1000000", 6)]);
+        let r = classify_swap(&meta, &static_keys, &wallet, &wallet).unwrap();
+        assert_eq!(r.direction, SwapDirection::Buy);
+        assert_eq!(r.token_mint, TEST_TOKEN);
+        assert_eq!(r.token_amount_raw, 1_000_000);
+        // 500_000_000 lamports lost minus the 5000 fee backout = 499_995_000
+        assert_eq!(r.sol_amount_lamports, 499_995_000);
+    }
+
+    #[test]
+    fn classify_swap_sell_when_token_lost_sol_gained() {
+        // Wallet sells all tokens, receives ~1.05 SOL — the case from
+        // legacy-only swap_sell on Raydium for `3PpgE1Pk`.
+        let wallet = pk(0xA1);
+        let static_keys = vec![wallet];
+        let mut meta = empty_meta();
+        meta.pre_balances = vec![1_000_000_000];
+        meta.post_balances = vec![2_050_944_899];
+        meta.fee = 5000;
+        meta.pre_token_balances =
+            Some(vec![token_balance(0, &wallet, TEST_TOKEN, "1179654743755", 6)]);
+        meta.post_token_balances =
+            Some(vec![token_balance(0, &wallet, TEST_TOKEN, "0", 6)]);
+        let r = classify_swap(&meta, &static_keys, &wallet, &wallet).unwrap();
+        assert_eq!(r.direction, SwapDirection::Sell);
+        assert_eq!(r.token_mint, TEST_TOKEN);
+        assert_eq!(r.token_amount_raw, 1_179_654_743_755);
+        // 2_050_944_899 - 1_000_000_000 + 5000 fee = 1_050_949_899
+        assert_eq!(r.sol_amount_lamports, 1_050_949_899);
+    }
+
+    #[test]
+    fn classify_swap_treats_wsol_as_sol() {
+        // Aggregator flow: native SOL untouched, wSOL ATA -0.5 SOL,
+        // token +1M. Direction must read as Buy.
+        let wallet = pk(0xA1);
+        let static_keys = vec![pk(0x01), wallet];
+        let mut meta = empty_meta();
+        meta.pre_balances = vec![1_000_000, 1_000_000_000];
+        meta.post_balances = vec![1_000_000, 1_000_000_000]; // SOL unchanged
+        meta.fee = 5000;
+        let wsol = "So11111111111111111111111111111111111111112";
+        meta.pre_token_balances = Some(vec![
+            token_balance(0, &wallet, wsol, "500000000", 9),
+            token_balance(1, &wallet, TEST_TOKEN, "0", 6),
+        ]);
+        meta.post_token_balances = Some(vec![
+            token_balance(0, &wallet, wsol, "0", 9), // -0.5 wSOL
+            token_balance(1, &wallet, TEST_TOKEN, "1000000", 6),
+        ]);
+        let r = classify_swap(&meta, &static_keys, &pk(0x01), &wallet).unwrap();
+        assert_eq!(r.direction, SwapDirection::Buy);
+        assert_eq!(r.token_mint, TEST_TOKEN);
+        assert_eq!(r.sol_amount_lamports, 500_000_000);
+    }
+
+    #[test]
+    fn classify_swap_returns_none_for_routing_intermediary() {
+        // ARu4n5mF / OKX-router pattern: token in == token out, zero net.
+        let wallet = pk(0xA1);
+        let static_keys = vec![pk(0x01), wallet];
+        let mut meta = empty_meta();
+        meta.pre_balances = vec![1_000_000, 5_000_000_000];
+        meta.post_balances = vec![1_000_000, 5_000_000_000];
+        meta.fee = 5000;
+        meta.pre_token_balances =
+            Some(vec![token_balance(0, &wallet, TEST_TOKEN, "1000000", 6)]);
+        meta.post_token_balances =
+            Some(vec![token_balance(0, &wallet, TEST_TOKEN, "1000000", 6)]);
+        assert!(classify_swap(&meta, &static_keys, &pk(0x01), &wallet).is_none());
+    }
+
+    #[test]
+    fn classify_swap_returns_none_when_only_token_moved() {
+        // Pure SPL airdrop or token-only transfer: no SOL leg → not a swap.
+        let wallet = pk(0xA1);
+        let static_keys = vec![pk(0x01), wallet];
+        let mut meta = empty_meta();
+        meta.pre_balances = vec![1_000_000, 1_000_000_000];
+        meta.post_balances = vec![1_000_000, 1_000_000_000]; // SOL unchanged
+        meta.fee = 5000;
+        meta.pre_token_balances = Some(vec![token_balance(0, &wallet, TEST_TOKEN, "0", 6)]);
+        meta.post_token_balances =
+            Some(vec![token_balance(0, &wallet, TEST_TOKEN, "1000000", 6)]);
+        assert!(classify_swap(&meta, &static_keys, &pk(0x01), &wallet).is_none());
+    }
+
+    #[test]
+    fn classify_swap_returns_none_when_signs_match() {
+        // Both SOL and token gained — could be a legitimate dual airdrop
+        // or a meta-glitch. Either way it's not a swap, return None.
+        let wallet = pk(0xA1);
+        let static_keys = vec![wallet];
+        let mut meta = empty_meta();
+        meta.pre_balances = vec![1_000_000_000];
+        meta.post_balances = vec![1_500_000_000]; // +0.5 SOL
+        meta.fee = 5000;
+        meta.pre_token_balances = Some(vec![token_balance(0, &wallet, TEST_TOKEN, "0", 6)]);
+        meta.post_token_balances =
+            Some(vec![token_balance(0, &wallet, TEST_TOKEN, "1000000", 6)]); // +tokens
+        assert!(classify_swap(&meta, &static_keys, &wallet, &wallet).is_none());
+    }
+
+    #[test]
+    fn classify_swap_picks_largest_token_delta_when_multiple() {
+        // Multi-hop swap that lands a tiny dust position in token A and
+        // a meaningful position in token B. Pick token B as the swap
+        // target.
+        let wallet = pk(0xA1);
+        let token_a = "5tDxd4G8DkfDnFmqvJpaTtcjJq4Hc1XSshM6QGHHMshv";
+        let token_b = "5tDxd4G8DkfDnFmqvJpaTtcjJq4Hc1XSshM6QGHHMshw";
+        let static_keys = vec![wallet];
+        let mut meta = empty_meta();
+        meta.pre_balances = vec![1_000_000_000];
+        meta.post_balances = vec![500_000_000]; // -0.5 SOL
+        meta.fee = 5000;
+        meta.pre_token_balances = Some(vec![
+            token_balance(0, &wallet, token_a, "0", 6),
+            token_balance(1, &wallet, token_b, "0", 6),
+        ]);
+        meta.post_token_balances = Some(vec![
+            token_balance(0, &wallet, token_a, "100", 6),    // dust
+            token_balance(1, &wallet, token_b, "5000000", 6), // real
+        ]);
+        let r = classify_swap(&meta, &static_keys, &wallet, &wallet).unwrap();
+        assert_eq!(r.token_mint, token_b);
+        assert_eq!(r.token_amount_raw, 5_000_000);
+    }
+
+    #[test]
+    fn classify_swap_returns_none_when_wallet_not_in_tx() {
+        let wallet = pk(0xA1);
+        let static_keys = vec![pk(0x01), pk(0x02)]; // wallet absent
+        let meta = empty_meta();
+        assert!(classify_swap(&meta, &static_keys, &pk(0x01), &wallet).is_none());
     }
 }

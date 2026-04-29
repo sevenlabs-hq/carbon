@@ -775,14 +775,47 @@ impl<T: Send + Sync + 'static> Processor for AggWatch<T> {
                 // Race: all watchers removed between scan and emit.
                 continue;
             }
+            // Try to upgrade the generic ProgramActivity row to a typed
+            // Swap row by deriving direction + amounts from balance
+            // deltas. Non-PumpFun DEX decoders (Raydium AMM v4, Orca,
+            // Meteora, …) don't expose a typed TradeEvent, so without
+            // this we'd silently classify all aggregator-routed swaps
+            // as Fallback and lose parity vs frankfurt-node's
+            // walletTransferDecode.
+            let classification =
+                attribution::classify_swap(meta, static_keys, &fee_payer_pk, &matched_pk);
+            let (activity, event_type, token_address, sol_amount, token_amount) =
+                match &classification {
+                    Some(c) => {
+                        let activity = match c.direction {
+                            attribution::SwapDirection::Buy => Activity::SwapBuy,
+                            attribution::SwapDirection::Sell => Activity::SwapSell,
+                        };
+                        (
+                            activity,
+                            activity.as_event_type(),
+                            Some(c.token_mint.clone()),
+                            (c.sol_amount_lamports as f64) / 1e9,
+                            c.token_amount_raw as f64,
+                        )
+                    }
+                    None => (
+                        Activity::ProgramActivity,
+                        Activity::ProgramActivity.as_event_type(),
+                        None,
+                        0.0,
+                        0.0,
+                    ),
+                };
             let raw = serde_json::json!({
                 "source": "frankfurt-carbon-surveillance",
                 "carbon_program": format!("{}_decoder", self.program),
                 "fee_payer": signer_str,
+                "classified_by": "aggwatch_balance_deltas",
                 "note": "generic AggWatch — coordinator may suppress if richer candidate also fired",
             });
             // One row per (wallet, watcher) — multiple users watching
-            // the same wallet each get their own ProgramActivity.
+            // the same wallet each get their own row.
             for watched in watchers {
                 let event = SurveillanceEventOut {
                     user_id: watched.user_id.clone(),
@@ -791,11 +824,11 @@ impl<T: Send + Sync + 'static> Processor for AggWatch<T> {
                     wallet_address: pk_str.clone(),
                     wallet_label: watched.wallet_label.clone(),
                     signature: signature.clone(),
-                    event_type: Activity::ProgramActivity.as_event_type(),
-                    token_address: None,
+                    event_type,
+                    token_address: token_address.clone(),
                     token_symbol: None,
-                    sol_amount: 0.0,
-                    token_amount: 0.0,
+                    sol_amount,
+                    token_amount,
                     price_sol: 0.0,
                     program: self.program,
                     counterparty: String::new(),
@@ -804,7 +837,7 @@ impl<T: Send + Sync + 'static> Processor for AggWatch<T> {
                     raw_data: raw.clone(),
                 };
                 coordinator::submit(ActivityCandidate {
-                    activity: Activity::ProgramActivity,
+                    activity,
                     watched,
                     event,
                 })
