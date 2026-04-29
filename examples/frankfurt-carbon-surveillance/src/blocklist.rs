@@ -48,8 +48,9 @@ pub const SURVEILLANCE_BLOCKLIST: &[(&str, &str)] = &[
     ("3KCKozbAaF75qEU33jtzozcJ29yJuaLJTy2jFdzUY8bT", "Helius Sender tip account"),
     ("4vieeGHPYPG2MmyPRcYjdiDmmhN3ww7hsFNap8pVN3Ey", "Helius Sender tip account"),
     ("4TQLFNWK8AovT1gFvda5jfw2oJeRMKEmw7aH6MGBJ3or", "Helius Sender tip account"),
-    // ─── 0slot (11 tip accounts; min 0.001 SOL) ─────────────────────
+    // ─── 0slot (12 tip accounts; min 0.001 SOL) ─────────────────────
     ("FCjUJZ1qozm1e8romw216qyfQMaaWKxWsuySnumVCCNe", "0slot tip account"),
+    ("Cix2bHfqPcKcM233mzxbLk14kSggUUiz2A87fJtGivXr", "0slot tip account"),
     ("6fQaVhYZA4w3MBSXjJ81Vf6W1EDYeUPXpgVQ6UQyU1Av", "0slot tip account"),
     ("4HiwLEP2Bzqj3hM2ENxJuzhcPCdsafwiet3oGkMkuQY4", "0slot tip account"),
     ("7toBU3inhmrARGngC7z6SjyP85HgGMmCTEwGNRAcYnEK", "0slot tip account"),
