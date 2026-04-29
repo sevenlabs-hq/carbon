@@ -397,7 +397,7 @@ impl Datasource for YellowstoneGrpcGeyserClient {
     }
 }
 
-async fn send_subscribe_account_update_info(
+pub async fn send_subscribe_account_update_info(
     account_update_info: Option<SubscribeUpdateAccountInfo>,
     metrics: &MetricsCollection,
     sender: &Sender<(Update, DatasourceId)>,
@@ -477,7 +477,7 @@ async fn send_subscribe_account_update_info(
     }
 }
 
-async fn send_subscribe_update_transaction_info(
+pub async fn send_subscribe_update_transaction_info(
     transaction_info: Option<SubscribeUpdateTransactionInfo>,
     metrics: &MetricsCollection,
     sender: &Sender<(Update, DatasourceId)>,
